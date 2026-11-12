@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "label": "P19 — project memory, portable handoff, and diagnostics",
-  "captured_at": "2026-11-12T16:32:46.856Z",
+  "captured_at": "2026-11-12T16:39:01.173Z",
   "ok": true,
   "isolated_home": true,
   "checks": {
@@ -525,7 +525,7 @@
       "detail": {
         "discovered": {
           "name": "codewhale",
-          "path": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p19-smoke-tbUrUM/codewhale",
+          "path": "~smoke/codewhale",
           "source": "environment_path"
         }
       }
@@ -663,7 +663,7 @@
         "prompts.json"
       ],
       "bytes": 7724,
-      "digest": "dc7572b4c1e6bff9bd11a15763b15b7722b52a06d077d5d335b1229f031d5ec9",
+      "digest": "7680e75cab4cf598ffc0969d03969b7da9a89daed3366843da42f784b49c48d8",
       "redactions": 3,
       "counts": {
         "tasks": 2,
@@ -752,8 +752,8 @@
         "reset": [],
         "skipped": [],
         "barrier": "exclusive",
-        "journal": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p19-smoke-tbUrUM/tertiary/backups/settings-restore-journal-2026-11-12T09-01-27-000Z.json",
-        "snapshot": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p19-smoke-tbUrUM/tertiary/backups/settings-restore-snapshot-2026-11-12T09-01-27-000Z.sqlite",
+        "journal": "~smoke/tertiary/backups/settings-restore-journal-2026-11-12T09-01-27-000Z.json",
+        "snapshot": "~smoke/tertiary/backups/settings-restore-snapshot-2026-11-12T09-01-27-000Z.sqlite",
         "verification": "3 scope(s) read back identical; 0 reset",
         "stateRevision": 3
       }

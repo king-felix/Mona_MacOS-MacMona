@@ -761,7 +761,17 @@ function hostileZip(name, data) {
 
 const outDir = join(ROOT, "docs", "evidence", "macos", "artifacts");
 mkdirSync(outDir, { recursive: true });
-writeFileSync(join(outDir, "p19-memory-smoke.json"), `${JSON.stringify(report, null, 2)}\n`);
+// Evidence never carries this machine's temp root: journal and snapshot paths
+// are recorded relative to the isolated run directory. The timestamp is kept
+// because it is a fact about the run, not an incidental detail — which is why a
+// re-run legitimately changes this file and its hash must be re-recorded.
+const redactedReport = JSON.parse(
+  JSON.stringify(report).split(base).join("~smoke").split(tmpdir()).join("~tmp"),
+);
+writeFileSync(
+  join(outDir, "p19-memory-smoke.json"),
+  `${JSON.stringify(redactedReport, null, 2)}\n`,
+);
 console.log(
   JSON.stringify(
     {

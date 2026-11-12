@@ -505,6 +505,13 @@ the assembled product survives hostile and failing inputs. Then:
 96. **The P19 captures show a "notification was not delivered" banner.** The
     headless smoke host refuses notifications (item 43); it is the host's real
     state, not a screenshots-only fixture.
+97. **Re-running `smoke:memory` rewrites `p19-memory-smoke.json`,** so its
+    recorded hash goes stale. The artifact is a run report: `captured_at` is a
+    genuine fact about the run, so byte-stability would mean discarding real
+    evidence. The report now redacts the build machine's temp root (`~smoke/…`,
+    `~tmp/…`) per item 32, but a re-run still needs
+    `monabuild evidence --prompt P19 docs/evidence/macos/artifacts/p19-memory-smoke.json`
+    before the next checkpoint. The same applies to every `*-smoke.json` artifact.
 
 ## Key files
 
