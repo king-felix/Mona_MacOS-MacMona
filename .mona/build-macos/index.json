@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-12T02:53:30.339Z",
+  "generated_utc": "2026-11-12T03:07:19.701Z",
   "git": {
     "available": true,
-    "commit": "5218b5a6a8bf3f678108e96dd68666ede21ab602",
+    "commit": "22391bd618da1c37c0aca70867db9e751bc314be",
     "dirty": true
   },
-  "digest": "eb919832473d62ed96033e52e86d09e735165bfd44c016e22f633c8e28fad44f",
+  "digest": "7c225f9fa25e3ec608c6a67d155115002482d6b95ceae8a835658ded02cdb619",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,8 +15,8 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "069f3bb752c219b4d13ca23303f4e8b2b75fc04e437b1b2f39109de29abcf750",
-      "bytes": 45813
+      "sha256": "d69375185b9bb8e4fd6ea34754790d8bf0e712f58b787deff81b90513bbb3722",
+      "bytes": 51758
     },
     {
       "path": "AGENTS.md",
@@ -204,6 +204,101 @@
       "bytes": 425
     },
     {
+      "path": "docs/evidence/macos/artifacts/p06-blocker-afterglow-dense.png",
+      "sha256": "83919115dff4b37860982133a678e2e23af8899f0a44dd9ed75c40d3408e4051",
+      "bytes": 431512
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p06-blocker-daybreak.png",
+      "sha256": "b52aa4e796db87141f9f30fcc0e60717aa346b956580c0c758d6eaa9fe464ec8",
+      "bytes": 436251
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p06-board-blocked.png",
+      "sha256": "347ede7c6f00366ce66b846b63413089b462649e54970935eabb1efb1189e557",
+      "bytes": 428361
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p06-board-daybreak-dense.png",
+      "sha256": "e83e20921ce09b133d728678eb8104e26e006def82090bd4766fa69b3946b0d5",
+      "bytes": 433462
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p06-cost-daybreak.png",
+      "sha256": "0714dbb40bf09f5acca60a9b2fc7cc563e93cba3af8c4eea299bb14fcb56a505",
+      "bytes": 326867
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p06-cost-unknown-afterglow.png",
+      "sha256": "c3b2aac26a15e8ce0d3e565ba7b5f37e34e2458559b5a23c4a3cf6627749c01d",
+      "bytes": 323078
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p06-full-suite.txt",
+      "sha256": "51b42eeaa5180df9503c89cce120fc1aa3bf996a4d36c1559f7b4d51d4c4af84",
+      "bytes": 1842
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p06-home-afterglow-dense.png",
+      "sha256": "4d95e01e05ce45ab42798e6219e32b0a82d62c7cd68001feee96d7670dcc10f2",
+      "bytes": 388691
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p06-home-daybreak.png",
+      "sha256": "d0601b47599f7684827ef79233c66e06634ee7c352963131fcf3bc014616f85c",
+      "bytes": 404563
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p06-home-empty.png",
+      "sha256": "109517c4f38bcf79afcbedfdd1a9cedc542a645a45ea437a4522922b9cb4f6b3",
+      "bytes": 229868
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p06-keyboard.json",
+      "sha256": "c3623874d29a97d39b4b01322859120b7bbc01160c1128b22c8ae2eed3c602b4",
+      "bytes": 481
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p06-settings-afterglow.png",
+      "sha256": "7f1a47d903fd4cbea7ab0c4b636557a421ae3e6b3be5c3f7f221228174b316ff",
+      "bytes": 318137
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p06-settings-daybreak.png",
+      "sha256": "ecf19d4018516d508f4029e8fa51a64c38ab836ba1632fc25dcf04093eaf40c6",
+      "bytes": 291333
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p06-shots.json",
+      "sha256": "16a07aad0904b74417aa1b92ff21f7b22c5e81e5ae2d88ba2e3260a10c9a042f",
+      "bytes": 10916
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p06-studio-afterglow.png",
+      "sha256": "2c0afb88a57e903ec84ac8f2415cc3ff84a89085c0145481d265b7cbdb735f9c",
+      "bytes": 361892
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p06-studio-daybreak.png",
+      "sha256": "0084bc632509d20f90f34c3df63ffb923f546b67012203c07e0af985e6cec55c",
+      "bytes": 376290
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p06-studio-disconnected.png",
+      "sha256": "8cefec5edbb6db396c08d8f6aabf90ea772d3d23ebf777625f7559d382bc2324",
+      "bytes": 390783
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p06-studio-zoom-200.png",
+      "sha256": "694d57cc076207848c3582b8560cda165892f5c6a3b17bd2a655fd0c3acb7a72",
+      "bytes": 177468
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p06-tests.txt",
+      "sha256": "3bcaf0e890aeb11e77d317fe84c2558d9b07ed8a583509a5cbe33cb1e1283f55",
+      "bytes": 468
+    },
+    {
       "path": "docs/evidence/macos/artifacts/signing-inventory.txt",
       "sha256": "3e45104c0497ce03bcba731224d253e6003d8addfb46933fc778a3b79ae07d7c",
       "bytes": 397
@@ -254,14 +349,19 @@
       "bytes": 8812
     },
     {
-      "path": "docs/requirements-macos.json",
-      "sha256": "de19ffc35b21869c341eee61a2defe58f35a5b0c196e5fce855008374a62fa7e",
-      "bytes": 27898
+      "path": "docs/evidence/macos/P06-design.md",
+      "sha256": "0dffa55de18a95b386298aade3eb7dd2bcfbc02c27e3c2b70cc9a7875dd450cb",
+      "bytes": 6068
     },
     {
       "path": "docs/requirements-macos.json",
-      "sha256": "de19ffc35b21869c341eee61a2defe58f35a5b0c196e5fce855008374a62fa7e",
-      "bytes": 27898
+      "sha256": "2efeb8e151b044c283071de218b6ac0ee6028cc0a831abccf2bae7c64888e15a",
+      "bytes": 30903
+    },
+    {
+      "path": "docs/requirements-macos.json",
+      "sha256": "2efeb8e151b044c283071de218b6ac0ee6028cc0a831abccf2bae7c64888e15a",
+      "bytes": 30903
     },
     {
       "path": "Mona_macOS_Project.md",
