@@ -1,7 +1,7 @@
 # Handoff — Mona macOS build
 
-**Last checkpoint:** 2026-11-11 (P04, revision 43) · verified content commit
-`31fe0e0`
+**Last checkpoint:** 2026-11-11 (P04, revision 44) · verified content commit
+`31fe0e0` (evidence redaction follow-up `098a7d2`)
 **Current prompt:** P05 — **pending, not started**
 
 ## Where the build stands
@@ -112,7 +112,7 @@ complete, so pause here.
 
 ## Key files
 
-- `.mona/build-macos/state.json` — prompt status (revision 43).
+- `.mona/build-macos/state.json` — prompt status (revision 44).
 - `.mona/build-macos/attempts.jsonl` — empty; nothing failed three times.
 - `.mona/build-macos/DECISIONS.md` — D-001…D-013.
 - `.mona/build-macos/BLOCKERS.md` — external prerequisites only.
