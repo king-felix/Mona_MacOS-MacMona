@@ -15,6 +15,7 @@ import type {
   TaskOwner,
   TaskPlan,
   TaskSelection,
+  TaskState,
   TaskStep,
   TaskView,
 } from "../../shared/contracts/board";
@@ -98,6 +99,14 @@ const PlanTask = z.strictObject({
   dependsOn: z
     .array(z.string().regex(/^[A-Za-z0-9._-]{1,64}$/))
     .max(50)
+    .optional(),
+  /**
+   * Informational only. A plan is a description of intended work, so import
+   * never converts a recorded status into a task state; a non-pending status is
+   * reported as deferred with its reason.
+   */
+  status: z
+    .enum(["pending", "running", "verifying", "completed", "blocked", "interrupted", "skipped"])
     .optional(),
 });
 
@@ -466,16 +475,28 @@ export class TaskBoard {
         dependsOnKeys: task.dependsOn,
       })),
     });
+    const deferredStatuses = plan.tasks
+      .filter((task) => task.status !== undefined && task.status !== "pending")
+      .map((task) => ({
+        key: task.key,
+        from: task.status as TaskState,
+        to: "pending" as TaskState,
+        reason:
+          "a plan describes intended work; a completed or interrupted state needs its own evidence",
+      }));
     return {
       planName: plan.name,
       created: created.map((entry) => ({ key: entry.key, taskId: entry.task.id })),
       taskCount: created.length,
+      deferredStatuses,
       inert: true,
     };
   }
 
-  /** Export the board as an inert plan. Status is deliberately not exported:
-   * importing a plan always creates unstarted tasks. */
+  /**
+   * Export the board as an inert plan. Status travels for a human reader; an
+   * import still creates unstarted tasks and reports the deferred status.
+   */
   async exportPlan(projectId: ProjectId): Promise<TaskPlan> {
     const loaded = await this.load(projectId);
     const byId = new Map(loaded.tasks.map((task) => [task.id as string, task]));
@@ -498,6 +519,7 @@ export class TaskBoard {
           .filter((dependency) => dependency.taskId === task.id)
           .map((dependency) => dependency.dependsOnTaskId)
           .filter((id) => byId.has(id as string)),
+        status: task.status,
       })),
     };
   }

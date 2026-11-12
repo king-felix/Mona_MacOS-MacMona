@@ -17,6 +17,20 @@ import {
 } from "../shared/contracts/agents";
 import { ExtensionActionIdSchema } from "../shared/contracts/extensions";
 import {
+  ContextSelectionRequestSchema,
+  DiagnosticsPreviewRequestSchema,
+  HandoffImportRequestSchema,
+  HandoffInspectRequestSchema,
+  MemorySearchRequestSchema,
+  PromptExportRequestSchema,
+  PromptRemoveRequestSchema,
+  PromptRenderRequestSchema,
+  SettingsBackupInspectSchema,
+  SettingsRestoreRequestSchema,
+  ShelfSaveRequestSchema,
+  WorkspaceSearchRequestSchema,
+} from "../shared/contracts/memory";
+import {
   TerminalCreateSchema,
   TerminalLogSchema,
   TerminalOutputSchema,
@@ -477,6 +491,40 @@ export const IpcRequests = {
     kind: z.enum(["plugin", "skill"]),
     source: z.string().trim().min(1).max(4096),
   }),
+
+  // P19: project memory, prompt shelf, portable handoff, and diagnostics.
+  // Every channel is a local read or an inert write. None starts a process or a
+  // turn, and none makes a model call. The only workspace reach is the bounded,
+  // documented on-demand search below, which returns lines and stores nothing.
+  "memory:search": MemorySearchRequestSchema,
+  "memory:index": z.strictObject({ projectId: ProjectId }),
+  "memory:workspace-search": WorkspaceSearchRequestSchema,
+  "memory:resume": z.strictObject({ projectId: ProjectId }),
+  "memory:context-slots": z.strictObject({ projectId: ProjectId, taskId: TaskId }),
+  "memory:context-preview": ContextSelectionRequestSchema,
+  "shelf:view": z.strictObject({}),
+  "shelf:save": ShelfSaveRequestSchema,
+  "shelf:remove": PromptRemoveRequestSchema,
+  "shelf:render": PromptRenderRequestSchema,
+  "shelf:export": PromptExportRequestSchema,
+  "shelf:export-file": PromptExportRequestSchema,
+  "shelf:import-file": z.strictObject({}),
+  "handoff:preview": z.strictObject({ projectId: ProjectId }),
+  "handoff:export-file": z.strictObject({ projectId: ProjectId }),
+  "handoff:choose": z.strictObject({
+    path: z.string().min(1).max(4096).startsWith("/").optional(),
+  }),
+  "handoff:inspect": HandoffInspectRequestSchema,
+  "handoff:import": HandoffImportRequestSchema,
+  "settings:backup-preview": z.strictObject({}),
+  "settings:backup-file": z.strictObject({}),
+  "settings:backup-choose": z.strictObject({
+    path: z.string().min(1).max(4096).startsWith("/").optional(),
+  }),
+  "settings:backup-inspect": SettingsBackupInspectSchema,
+  "settings:restore": SettingsRestoreRequestSchema,
+  "diagnostics:preview": DiagnosticsPreviewRequestSchema,
+  "diagnostics:export-file": DiagnosticsPreviewRequestSchema,
 } as const;
 
 export type IpcChannel = keyof typeof IpcRequests;

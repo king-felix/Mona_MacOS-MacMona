@@ -487,6 +487,15 @@ export interface ImportResult {
   missingArtifacts: string[];
 }
 
+export interface SettingsRestoreReceipt {
+  applied: Array<{ scope: string; fromVersion: number | null; toVersion: number }>;
+  /** Scopes whose current value was removed by a replace restore. History stays. */
+  reset: string[];
+  journal: string;
+  snapshot: string;
+  verification: string;
+}
+
 export interface StateStoreOptions {
   dbPath: string;
   artifactRoot?: string;
@@ -4254,6 +4263,174 @@ export class StateStore {
         value: JSON.parse(asString(row.value_json)),
         recordedAt: asString(row.recorded_at),
       }));
+    });
+  }
+
+  /** Every scope with a current value, newest first. Credential scopes are not special here. */
+  async listSettingsScopes(): Promise<
+    Array<{ scope: string; version: number; updatedAt: string }>
+  > {
+    return this.read((db) => {
+      const rows = db
+        .prepare("SELECT scope, version, updated_at FROM settings ORDER BY updated_at DESC, scope")
+        .all() as DbRow[];
+      return rows.map((row) => ({
+        scope: asString(row.scope),
+        version: asNumber(row.version),
+        updatedAt: asString(row.updated_at),
+      }));
+    });
+  }
+
+  /**
+   * Restore a settings backup under the maintenance barrier.
+   *
+   * This cannot call `putSettings`: the barrier is not re-entrant, so a nested
+   * `write` would queue behind the exclusive maintenance run forever. Every
+   * mutation therefore happens here, in one transaction, with a pre-restore
+   * snapshot and a durable journal written first. The read-back is verified
+   * before the journal is marked complete; a failure leaves the journal and the
+   * snapshot on disk instead of claiming a rollback it did not perform.
+   */
+  async restoreSettings(
+    scopes: ReadonlyArray<{ scope: string; value: unknown }>,
+    options: {
+      mode?: "merge" | "replace";
+      preserveScopes?: readonly string[];
+      expectedRevision?: number;
+    } = {},
+  ): Promise<SettingsRestoreReceipt> {
+    this.assertOpen();
+    const prepared = scopes.map((entry) => {
+      const scope = this.validateScope(entry.scope);
+      const serialized = JSON.stringify(entry.value);
+      if (typeof serialized !== "string") {
+        throw new StateError("CONFLICT", "settings value is not serializable", { scope });
+      }
+      return { scope, serialized };
+    });
+    if (new Set(prepared.map((entry) => entry.scope)).size !== prepared.length) {
+      throw new StateError("CONFLICT", "settings backup repeats a scope");
+    }
+    const mode = options.mode ?? "merge";
+    const preserve = new Set(options.preserveScopes ?? []);
+
+    return this.barrier.runMaintenance(async () => {
+      // The revision precondition is checked here, not by the caller: only
+      // inside the exclusive barrier is "the state I read is the state I am
+      // restoring onto" actually true. A caller-side check races a writer.
+      if (options.expectedRevision !== undefined) {
+        const row = this.db
+          .prepare("SELECT value_json FROM meta WHERE key = 'state_revision'")
+          .get() as { value_json: string } | undefined;
+        const current = row ? Number(row.value_json) : 0;
+        if (current !== options.expectedRevision) {
+          throw new StateError("STALE_REVISION", "state changed since the backup was inspected", {
+            expected_revision: options.expectedRevision,
+            actual_revision: current,
+          });
+        }
+      }
+      const stamp = this.now().replace(/[:.]/g, "-");
+      const snapshot = join(this.options.backupDir, `settings-restore-snapshot-${stamp}.sqlite`);
+      const journalPath = join(this.options.backupDir, `settings-restore-journal-${stamp}.json`);
+      await backupDatabase(this.db, snapshot);
+      const journal = {
+        schema_version: 1,
+        action: "settings_restore",
+        mode,
+        scopes: prepared.map((entry) => entry.scope),
+        state: "started" as "started" | "complete" | "failed",
+        started_at: this.now(),
+        updated_at: this.now(),
+        snapshot,
+        error: null as string | null,
+      };
+      writeJsonDurable(journalPath, journal);
+
+      const applied: SettingsRestoreReceipt["applied"] = [];
+      const reset: string[] = [];
+      try {
+        this.assertHeadroom();
+        withTransaction(this.db, () => {
+          const now = this.now();
+          for (const entry of prepared) {
+            const current = this.db
+              .prepare("SELECT version FROM settings WHERE scope = ?")
+              .get(entry.scope) as { version: number } | undefined;
+            const fromVersion = current ? Number(current.version) : null;
+            const toVersion = (fromVersion ?? 0) + 1;
+            this.db
+              .prepare(
+                "INSERT INTO settings_versions (scope, version, value_json, recorded_at) VALUES (?, ?, ?, ?)",
+              )
+              .run(entry.scope, toVersion, entry.serialized, now);
+            this.db
+              .prepare(
+                "INSERT INTO settings (scope, version, value_json, updated_at) VALUES (?, ?, ?, ?) " +
+                  "ON CONFLICT(scope) DO UPDATE SET version = excluded.version, " +
+                  "value_json = excluded.value_json, updated_at = excluded.updated_at",
+              )
+              .run(entry.scope, toVersion, entry.serialized, now);
+            applied.push({ scope: entry.scope, fromVersion, toVersion });
+          }
+          if (mode === "replace") {
+            const keep = new Set(prepared.map((entry) => entry.scope));
+            const rows = this.db.prepare("SELECT scope FROM settings").all() as DbRow[];
+            for (const row of rows) {
+              const scope = asString(row.scope);
+              if (keep.has(scope) || preserve.has(scope)) continue;
+              // History stays: a reset is visible as a version gap, not an erasure.
+              this.db.prepare("DELETE FROM settings WHERE scope = ?").run(scope);
+              reset.push(scope);
+            }
+          }
+          this.bumpRevision(this.db);
+        });
+
+        const mismatches: string[] = [];
+        for (const entry of prepared) {
+          const row = this.db
+            .prepare("SELECT value_json FROM settings WHERE scope = ?")
+            .get(entry.scope) as DbRow | undefined;
+          if (!row || asString(row.value_json) !== entry.serialized) {
+            mismatches.push(entry.scope);
+          }
+        }
+        if (mismatches.length > 0) {
+          throw new StateError("MAINTENANCE_FAILED", "settings restore did not read back", {
+            scopes: mismatches,
+          });
+        }
+
+        journal.state = "complete";
+        journal.updated_at = this.now();
+        writeJsonDurable(journalPath, journal);
+        return {
+          applied,
+          reset,
+          journal: journalPath,
+          snapshot,
+          verification: `${prepared.length} scope(s) read back identical; ${reset.length} reset`,
+        };
+      } catch (error) {
+        journal.state = "failed";
+        journal.error = error instanceof Error ? error.message : String(error);
+        journal.updated_at = this.now();
+        writeJsonDurable(journalPath, journal);
+        // The journal records what was attempted; the snapshot holds the
+        // previous values. Say exactly that rather than implying the journal
+        // contains a rollback it does not.
+        throw new StateError(
+          "MAINTENANCE_FAILED",
+          "settings restore failed; the pre-restore snapshot holds the previous values",
+          {
+            journal_path: journalPath,
+            snapshot,
+            cause: journal.error,
+          },
+        );
+      }
     });
   }
 

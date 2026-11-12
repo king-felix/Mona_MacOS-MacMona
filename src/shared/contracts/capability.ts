@@ -50,6 +50,7 @@ export const CAPABILITY_SCREEN_TARGETS = [
   "settings",
   "agents",
   "capabilities",
+  "memory",
 ] as const;
 
 /** The Settings tabs this build renders. */

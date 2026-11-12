@@ -155,6 +155,38 @@ const SECRET_PATTERNS: Array<[RegExp, string]> = [
 ];
 
 /**
+ * Pattern classes the redactor recognises. A scanner reports the class, never
+ * the matched value: a caller can refuse or count a finding without echoing it.
+ */
+export const SECRET_CLASSES = [
+  "private_key",
+  "provider_key",
+  "bearer_token",
+  "assignment_secret",
+  "url_secret",
+  "url_userinfo",
+  "environment_secret",
+] as const;
+export type SecretClass = (typeof SECRET_CLASSES)[number];
+
+/**
+ * Report which secret-shaped classes appear in `text`. Values are never
+ * returned. Used by the prompt shelf and handoff exporter to refuse or redact
+ * before anything is persisted or packed.
+ */
+export function scanForSecrets(text: string): SecretClass[] {
+  const found = new Set<SecretClass>();
+  SECRET_PATTERNS.forEach(([pattern], index) => {
+    const label = SECRET_CLASSES[index];
+    if (!label) return;
+    const flags = pattern.flags.includes("g") ? pattern.flags : `${pattern.flags}g`;
+    const probe = new RegExp(pattern.source, flags);
+    if (probe.test(text)) found.add(label);
+  });
+  return [...found];
+}
+
+/**
  * Redact a diagnostics payload before it leaves the machine. It is exported for
  * the acceptance test that scans the exported document for secret material.
  */

@@ -32,6 +32,7 @@ import {
 } from "../design/primitives";
 import {
   AgentsIcon,
+  ArchiveIcon,
   BoardIcon,
   ChangesIcon,
   CostIcon,
@@ -59,6 +60,7 @@ import { ChangesScreen } from "./Changes";
 import { SettingsScreen } from "./Settings";
 import { AgentsScreen } from "./Agents";
 import { CapabilitiesScreen, type CapabilityEntryRequest } from "./Capabilities";
+import { MemoryScreen } from "./Memory";
 import { TerminalPanel } from "./TerminalPanel";
 import { rankPalette, type PaletteDetail, type PaletteEntry, type PaletteKind } from "./palette";
 import type { ScreenId } from "./types";
@@ -73,6 +75,7 @@ const SCREENS: Array<{ id: ScreenId; label: string; icon: JSX.Element }> = [
   { id: "settings", label: "Settings", icon: <SettingsIcon size={17} /> },
   { id: "agents", label: "Agents", icon: <AgentsIcon size={17} /> },
   { id: "capabilities", label: "Capabilities", icon: <SearchIcon size={17} /> },
+  { id: "memory", label: "Memory", icon: <ArchiveIcon size={17} /> },
 ];
 
 const SCREEN_IDS = SCREENS.map((screen) => screen.id);
@@ -135,6 +138,11 @@ export function Shell(): JSX.Element {
   const [paletteQuery, setPaletteQuery] = useState("");
   const [paletteTasks, setPaletteTasks] = useState<TaskView[]>([]);
   const [paletteCapabilities, setPaletteCapabilities] = useState<CapabilitySnapshot | null>(null);
+  // P19: the memory screen lists tasks for context selection. It reads the
+  // board snapshot, which is stored state; opening the screen starts nothing.
+  const [memoryTasks, setMemoryTasks] = useState<
+    Array<{ id: string; title: string; status: string }>
+  >([]);
   const [settingsTab, setSettingsTab] = useState("appearance");
   // P18: the terminal panel. A command is only ever prefilled, never executed.
   const [terminalOpen, setTerminalOpen] = useState(false);
@@ -870,6 +878,31 @@ export function Shell(): JSX.Element {
     });
   }, [paletteOpen]);
 
+  useEffect(() => {
+    if (screen !== "memory") return;
+    const projectId = selected?.project.id ?? null;
+    if (!projectId) {
+      setMemoryTasks([]);
+      return;
+    }
+    let cancelled = false;
+    void window.mona.boardSnapshot(projectId).then((result) => {
+      if (cancelled) return;
+      setMemoryTasks(
+        result.ok
+          ? result.value.tasks.map((task) => ({
+              id: task.id,
+              title: task.title,
+              status: task.status,
+            }))
+          : [],
+      );
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [screen, selected?.project.id]);
+
   const paletteActions = useMemo<PaletteAction[]>(() => {
     const actions: PaletteAction[] = SCREENS.map((entry) => ({
       id: `screen-${entry.id}`,
@@ -1065,7 +1098,7 @@ export function Shell(): JSX.Element {
       }
       // Command-modified digits are never text input, so screen switching
       // stays available while the composer has focus.
-      if (event.metaKey && !event.shiftKey && /^[1-8]$/.test(event.key)) {
+      if (event.metaKey && !event.shiftKey && /^[1-9]$/.test(event.key)) {
         const next = SCREEN_IDS[Number(event.key) - 1];
         if (next) {
           event.preventDefault();
@@ -1433,6 +1466,14 @@ export function Shell(): JSX.Element {
               setTerminalMode("shell");
               setTerminalOpen(true);
             }}
+          />
+        ) : null}
+
+        {screen === "memory" ? (
+          <MemoryScreen
+            projectId={selected?.project.id ?? null}
+            projectName={selected?.project.name ?? null}
+            boardTasks={memoryTasks}
           />
         ) : null}
 

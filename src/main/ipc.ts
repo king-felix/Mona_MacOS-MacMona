@@ -14,8 +14,16 @@ import type { AgentObservatory } from "./work/agents";
 import type { RouteWorkbench } from "./work/settings";
 import type { ExtensionWorkbench } from "./work/extensions";
 import type { CapabilityExplorer } from "./work/capability";
+import type { ProjectMemory } from "./work/memory";
+import type { PromptShelf } from "./work/shelf";
+import type { ProjectHandoff } from "./work/handoff";
 import type { TerminalManager } from "./terminal/session";
-import type { ProjectId } from "../shared/contracts/ids";
+import type { ProjectId, TaskId } from "../shared/contracts/ids";
+import type {
+  DiagnosticsExportResult,
+  DiagnosticsPreview,
+  PromptPack,
+} from "../shared/contracts/memory";
 import type { ImportPlanResult } from "../shared/contracts/board";
 import type { IpcResult, RuntimeStatusView, StateFacts } from "../shared/contracts/project-bridge";
 import type {
@@ -54,6 +62,11 @@ export interface IpcDependencies {
   extensions: ExtensionWorkbench | null;
   terminal: TerminalManager | null;
   capabilities: CapabilityExplorer | null;
+  memory: ProjectMemory | null;
+  shelf: PromptShelf | null;
+  handoff: ProjectHandoff | null;
+  /** Native dialogs and file writes for the memory surface, owned by the entry point. */
+  memoryFiles: MemoryFileDialogs;
   /** Save an already-redacted diagnostics report through the native dialog. */
   exportDiagnostics: (
     report: SettingsDiagnosticsView,
@@ -76,6 +89,35 @@ export interface IpcDependencies {
   refreshService: () => ServiceStatus;
   openServiceSettings: () => Promise<{ opened: boolean }>;
   chooseFolder: () => Promise<string | null>;
+}
+
+/**
+ * Native dialogs and file writes for the P19 surface. They live in the entry
+ * point so the IPC layer never learns a path it did not receive from a picker.
+ */
+export interface MemoryFileDialogs {
+  chooseBundle: (kind: "handoff" | "settings", prefillPath?: string) => Promise<string | null>;
+  exportHandoff: (projectId: ProjectId) => Promise<{
+    saved: boolean;
+    path: string | null;
+    digest: string;
+    entries: number;
+    bytes: number;
+    redactions: number;
+  }>;
+  exportSettingsBackup: () => Promise<{
+    saved: boolean;
+    path: string | null;
+    digest: string;
+    scopes: number;
+    bytes: number;
+  }>;
+  exportPromptPack: (
+    pack: PromptPack,
+    suggestedName: string,
+  ) => Promise<{ saved: boolean; path: string | null }>;
+  importPromptPack: () => Promise<{ value: unknown | null; path: string | null }>;
+  exportDiagnostics: (preview: DiagnosticsPreview) => Promise<DiagnosticsExportResult>;
 }
 
 async function envelope<T>(work: () => Promise<T> | T): Promise<IpcResult<T>> {
@@ -974,6 +1016,163 @@ export function registerIpc(rendererRoot: string, dependencies: IpcDependencies)
   handle("capability:snapshot", () => envelope(() => requireCapabilities().snapshot()));
   handle("capability:refresh", () => envelope(() => requireCapabilities().refresh()));
   handle("capability:report", () => envelope(() => requireCapabilities().report()));
+
+  // P19: project memory, prompt shelf, handoff, and diagnostics. Each handler
+  // maps to one validated channel; the workbench classes own the logic and the
+  // dialogs stay in the main entry point.
+  const requireMemory = (): ProjectMemory => {
+    const memory = dependencies.memory;
+    if (!memory) {
+      throw Object.assign(
+        new Error("project memory is unavailable because project state did not open"),
+        { code: "RUNTIME_UNAVAILABLE" },
+      );
+    }
+    return memory;
+  };
+  const requireShelf = (): PromptShelf => {
+    const shelf = dependencies.shelf;
+    if (!shelf) {
+      throw Object.assign(new Error("the prompt shelf is unavailable on this host"), {
+        code: "RUNTIME_UNAVAILABLE",
+      });
+    }
+    return shelf;
+  };
+  const requireHandoff = (): ProjectHandoff => {
+    const handoff = dependencies.handoff;
+    if (!handoff) {
+      throw Object.assign(new Error("portable handoff is unavailable on this host"), {
+        code: "RUNTIME_UNAVAILABLE",
+      });
+    }
+    return handoff;
+  };
+  const requireMemoryFiles = (): MemoryFileDialogs => dependencies.memoryFiles;
+
+  handle("memory:search", (input) =>
+    envelope(() =>
+      requireMemory().search(
+        input as { projectId: ProjectId; query: string; sources?: never; limit?: number },
+      ),
+    ),
+  );
+  handle("memory:index", (input) =>
+    envelope(() => requireMemory().indexStatus((input as { projectId: ProjectId }).projectId)),
+  );
+  handle("memory:workspace-search", (input) =>
+    envelope(() =>
+      requireMemory().searchWorkspace(input as { projectId: ProjectId; query: string }),
+    ),
+  );
+  handle("memory:resume", (input) =>
+    envelope(() => requireMemory().resumePacket((input as { projectId: ProjectId }).projectId)),
+  );
+  handle("memory:context-slots", (input) => {
+    const value = input as { projectId: ProjectId; taskId: TaskId };
+    return envelope(() => requireMemory().contextSlots(value.projectId, value.taskId));
+  });
+  handle("memory:context-preview", (input) =>
+    envelope(() =>
+      requireMemory().contextSelection(
+        input as { projectId: ProjectId; taskId: TaskId; include: never },
+      ),
+    ),
+  );
+
+  handle("shelf:view", () => envelope(() => requireShelf().view()));
+  handle("shelf:save", (input) =>
+    envelope(() => requireShelf().save(input as Parameters<PromptShelf["save"]>[0])),
+  );
+  handle("shelf:remove", (input) =>
+    envelope(() => requireShelf().remove((input as { promptId: string }).promptId)),
+  );
+  handle("shelf:render", (input) =>
+    envelope(() => requireShelf().render(input as Parameters<PromptShelf["render"]>[0])),
+  );
+  handle("shelf:export", (input) =>
+    envelope(() => requireShelf().exportPack(input as { name?: string; promptIds?: string[] })),
+  );
+  handle("shelf:export-file", (input) =>
+    envelope(async () => {
+      const request = input as { name?: string; promptIds?: string[] };
+      const pack = await requireShelf().exportPack(request);
+      const suggested = `${(request.name ?? pack.name).replace(/[^A-Za-z0-9._-]+/g, "-")}.zip`;
+      return requireMemoryFiles().exportPromptPack(pack, suggested);
+    }),
+  );
+  handle("shelf:import-file", () =>
+    envelope(async () => {
+      const chosen = await requireMemoryFiles().importPromptPack();
+      if (!chosen.value) return null;
+      return requireShelf().importPack(chosen.value);
+    }),
+  );
+
+  handle("handoff:preview", (input) =>
+    envelope(() => requireHandoff().preview((input as { projectId: ProjectId }).projectId)),
+  );
+  handle("handoff:export-file", (input) =>
+    envelope(() =>
+      requireMemoryFiles().exportHandoff((input as { projectId: ProjectId }).projectId),
+    ),
+  );
+  handle("handoff:choose", (input) =>
+    envelope(() => requireMemoryFiles().chooseBundle("handoff", (input as { path?: string }).path)),
+  );
+  handle("handoff:inspect", (input) =>
+    envelope(() => requireHandoff().inspect((input as { path: string }).path)),
+  );
+  handle("handoff:import", (input) =>
+    envelope(() =>
+      requireHandoff().importFrom(
+        input as {
+          path: string;
+          rootPath?: string;
+          mode?: "create" | "replace";
+          expectedRevision?: number;
+        },
+      ),
+    ),
+  );
+
+  handle("settings:backup-preview", () => envelope(() => requireHandoff().settingsBackup()));
+  handle("settings:backup-file", () => envelope(() => requireMemoryFiles().exportSettingsBackup()));
+  handle("settings:backup-choose", (input) =>
+    envelope(() =>
+      requireMemoryFiles().chooseBundle("settings", (input as { path?: string }).path),
+    ),
+  );
+  handle("settings:backup-inspect", (input) =>
+    envelope(() => requireHandoff().inspectSettingsBackup((input as { path: string }).path)),
+  );
+  handle("settings:restore", (input) =>
+    envelope(() =>
+      requireHandoff().restoreSettings(
+        input as {
+          path: string;
+          mode: "merge" | "replace";
+          scopes?: string[];
+          expectedRevision?: number;
+          confirm?: boolean;
+        },
+      ),
+    ),
+  );
+
+  handle("diagnostics:preview", (input) =>
+    envelope(() =>
+      requireHandoff().diagnosticsPreview((input as { projectId?: ProjectId }).projectId ?? null),
+    ),
+  );
+  handle("diagnostics:export-file", (input) =>
+    envelope(async () => {
+      const preview = await requireHandoff().diagnosticsPreview(
+        (input as { projectId?: ProjectId }).projectId ?? null,
+      );
+      return requireMemoryFiles().exportDiagnostics(preview);
+    }),
+  );
 
   handle("polish:quit", (input) =>
     envelope(() => dependencies.quit((input as { interrupt: boolean }).interrupt)),

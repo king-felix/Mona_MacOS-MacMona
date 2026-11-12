@@ -1014,3 +1014,128 @@ and deviations discovered while building.
   28 open, 2 blocked gaps, 2 unavailable, 51 exercised entry points. Findings
   2–4 have named tests: a thrown create, the replay/live race, and an initial
   snapshot refusal that must render as an error rather than an empty pane.
+
+## D-054 — P19: memory is a read, the shelf stores text, and a bundle is records plus pointers
+
+- **Date:** 2026-11-12 (P19)
+- **Decision:** Project memory, the prompt shelf, and handoff are three separate
+  surfaces with three separate guarantees, and none of them can start work.
+  See `docs/decisions/ADR-013-memory-and-handoff.md`.
+- **Why:** The prompt asks for "project memory" without a cloud service and
+  without a competing transcript. Bundling search, prompts, and export into one
+  store would have made each guarantee harder to state and easier to weaken.
+- **Consequence:** `ProjectMemory` reads a fixed source list and reports its
+  exclusions; `PromptShelf` refuses secret-shaped text rather than storing it;
+  `ProjectHandoff` imports by parsing in memory and calling the existing
+  `importProject`, so no extraction root exists to escape.
+
+## D-055 — A context preview states what it is, and what it is not
+
+- **Date:** 2026-11-12 (P19)
+- **Decision:** `ContextSelectionPreview.exactProviderRequest` is the literal
+  `false`, and `ResumePacket.engineInspection` is the literal `"unavailable"`.
+  Both the API and the screen say the engine assembles the provider request and
+  0.10.2 exposes no inspection route.
+- **Why:** The prompt says not to pretend this can show the exact provider
+  request unless the engine supplies that inspection. A boolean that can never
+  be true is clearer than a comment, and it survives refactoring.
+- **Consequence:** The screen never claims to show "the prompt that will be
+  sent"; it shows Mona's composition and invites the user to compare it with the
+  engine's own transcript.
+
+## D-056 — Import parses in memory instead of extracting
+
+- **Date:** 2026-11-12 (P19)
+- **Decision:** A handoff import never writes the bundle's entries to disk. The
+  archive is read with a fail-closed reader, each entry's sha256 is checked
+  against the manifest, and the parsed `project.json` object goes straight to
+  `StateStore.importProject`.
+- **Why:** Path traversal is the classic archive bug. Removing extraction removes
+  the attack surface rather than defending it. The reader still refuses unsafe
+  names because `extractArchive` exists for future use and must not be the weak
+  link.
+- **Consequence:** A hostile bundle with `../../escape.txt` fails inspection with
+  `PATH_ESCAPE`, and nothing is written outside any directory. Covered by
+  `test/safe-archive.test.ts` (nine cases) and `smoke:memory`.
+
+## D-057 — Settings restore runs under the exclusive barrier, with a journal and read-back
+
+- **Date:** 2026-11-12 (P19)
+- **Decision:** `StateStore.restoreSettings` takes the maintenance barrier for
+  the whole operation, snapshots first, journals `started`, mutates in one
+  transaction, verifies every scope by reading it back, then journals `complete`.
+  It writes the `settings` table directly because the barrier is not re-entrant:
+  a nested `putSettings` would deadlock behind the exclusive run.
+- **Why:** A restore that reports success without reading back is a claim, not a
+  verification. A restore that calls public write methods would deadlock.
+- **Consequence:** A failed read-back throws `MAINTENANCE_FAILED` and leaves the
+  journal and snapshot on disk; it never reports a rollback it did not perform.
+  `smoke:memory` starts a concurrent `putSettings` before the restore and proves
+  both the restore and the concurrent write land.
+
+## D-058 — Plan export carries status; import reports it as deferred
+
+- **Date:** 2026-11-12 (P19)
+- **Decision:** `TaskPlan.tasks[].status` is exported and accepted on import, but
+  import never applies it. A non-`pending` status is returned in
+  `ImportPlanResult.deferredStatuses` with the reason that a plan describes
+  intended work and a completed state needs its own evidence.
+- **Why:** Closes the carried-forward gap "plan export does not carry task
+  status" (item 27) without letting a plan manufacture a completion on a machine
+  that has no evidence for it.
+- **Consequence:** A status is visible to a human reading the plan and inert to
+  the state machine. Covered by `test/board-plan-status.test.ts`.
+
+## D-059 — P19 review: a false "no engine call" claim, and twelve smaller fixes
+
+- **Date:** 2026-11-12 (P19, review follow-up)
+- **Decision:** An independent adversarial review of the P19 change returned one
+  major and thirteen minor findings. All were verified; every real one is fixed.
+  1. **Major — the surface spawned the engine while promising it could not.**
+     `engineIdentity()` ran `codewhale --version` synchronously on the main
+     thread, reachable from `diagnostics:preview` and handoff inspection, while
+     the bridge contract, an IPC comment, and the diagnostics note all said the
+     surface never reached the engine. The exec is removed: presence is a PATH
+     stat, and version/commit come from the last stored capability snapshot with
+     its capture time. `RequalificationView` gains `source` and
+     `localEngine.observedAt` so "requalified" cannot be read as "a probe just
+     ran"; with no snapshot it reports `unavailable` and names the next step.
+  2. `truncated` was reported but never applied, so a >100 KB context preview
+     claimed a cut while shipping everything. Blocks are now fitted to the budget
+     *before* the text and slot byte counts are derived, preserving the
+     "slot bytes sum to the total" invariant. This exposed a second bug in the
+     new guard: the marker was sized in characters while the budget is in bytes.
+  3. The shelf's save hint promised secret-shaped text would be redacted; save
+     refuses it. The hint now says refused.
+  4. The replace-restore confirmation implied every absent scope is reset; it now
+     names the preserved credential scopes and the prompt shelf.
+  5. `restoreSettings` accepted `expectedRevision` and ignored it. It is now
+     enforced inside the exclusive barrier, where the guarantee holds; a
+     caller-side check races a writer.
+  6. The restore failure message credited the journal with previous values. The
+     journal holds the attempt; the snapshot holds the values.
+  7. The settings-backup note claimed credentials are never read. They are read
+     to be excluded; the claim is now about what leaves the machine.
+  8. The shelf projection redacted `description` and `acceptance` but not `body`,
+     `label`, or older version bodies — reachable through a settings restore. All
+     strings are projected through the redactor, and `redacted` is computed
+     instead of hard-coded `false`.
+  9. A shelf save changing only `description`, `tags`, or `note` returned the
+     stored prompt unchanged, silently dropping the edit. Every editable field
+     counts and tags compare order-insensitively.
+  10. Two smoke checks could not fail: `redactions >= 0` (now `> 0`, guaranteed
+      by the fixture) and a "no engine was invoked" check whose engine lookup did
+      not resolve to the tripwire (now asserted explicitly, and the tripwire was
+      proven by hand to mark an actual spawn).
+  11. `extractArchive` would follow a symlinked parent directory. It is unused by
+      P19 because import parses in memory; recorded as a limit with P20 named as
+      the owner rather than quietly hardened without a test.
+- **Why:** The major finding is the exact failure this project exists to prevent:
+  a truthful-looking note over a surface that does something else. A version
+  probe is not inference, but "no engine call" was still a false sentence, and it
+  blocked the main thread for up to five seconds from a screen open.
+- **Consequence:** Every fix has a regression test or a smoke check.
+  `smoke:memory` grew from 82 to 90 checks, `test/memory-search.test.ts` from 8 to
+  12, `test/memory-shelf.test.ts` from 12 to 14, and
+  `test/settings-restore.test.ts` was added (5). Evidence:
+  `docs/evidence/macos/P19-memory.md`, section "Review".

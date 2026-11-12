@@ -43,6 +43,7 @@
     "smoke:extensions": "npm run build:main && node scripts/extensions-smoke.mjs",
     "smoke:terminal": "npm run build:main && npm run build:pty && node scripts/terminal-smoke.mjs",
     "smoke:capability": "npm run build:main && node scripts/capability-smoke.mjs",
+    "smoke:memory": "npm run build:main && node scripts/memory-smoke.mjs",
     "smoke:agents-live": "npm run build:main && npm run build:supervisor && node scripts/agents-smoke.mjs --live"
   },
   "dependencies": {

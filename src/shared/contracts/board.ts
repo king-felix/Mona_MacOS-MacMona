@@ -224,6 +224,8 @@ export interface TaskPlan {
     acceptance?: Array<{ text: string; kind: CriterionKind }>;
     steps?: string[];
     dependsOn?: string[];
+    /** Informational only; import reports a non-pending status as deferred. */
+    status?: TaskState;
   }>;
 }
 
@@ -231,6 +233,8 @@ export interface ImportPlanResult {
   planName: string;
   created: Array<{ key: string; taskId: TaskId }>;
   taskCount: number;
+  /** Statuses the plan carried that import did not apply, with the reason. */
+  deferredStatuses: Array<{ key: string; from: TaskState; to: TaskState; reason: string }>;
   /** True because import never starts work. */
   inert: true;
 }

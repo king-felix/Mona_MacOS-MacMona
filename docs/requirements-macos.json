@@ -14,7 +14,7 @@
         "sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8"
       }
     ],
-    "indexed_utc": "2026-11-12T15:47:35.863Z"
+    "indexed_utc": "2026-11-12T16:34:43.949Z"
   },
   "prompts": [
     {
@@ -1355,10 +1355,35 @@
         "P10",
         "P19"
       ],
-      "status": "pending",
-      "acceptance": "pending",
-      "evidence": [],
-      "notes": ""
+      "status": "satisfied",
+      "acceptance": "accepted",
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P19-memory.md",
+          "note": "search, context preview, shelf, resume packet"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p19-memory-smoke.json",
+          "note": "90 checks on real stores; 4 hits across 4 sources; zero inference tripwire"
+        },
+        {
+          "path": "docs/decisions/ADR-013-memory-and-handoff.md",
+          "note": "memory is a read over a fixed source list; context preview is Mona's composition"
+        },
+        {
+          "path": "test/memory-search.test.ts",
+          "note": "12 tests: deterministic order, redaction, workspace scope, truncation guard"
+        },
+        {
+          "path": "test/memory-shelf.test.ts",
+          "note": "14 tests: variables, versioning, secret refusal, inert import/export"
+        },
+        {
+          "path": "src/renderer/shell/Memory.tsx",
+          "note": "Memory screen: Command-9, four tabs"
+        }
+      ],
+      "notes": "P19: local deterministic search over eight stored sources (no embeddings, no repository copy), bounded on-demand workspace search, context-selection preview with exactProviderRequest=false, a versioned prompt shelf with literal variables and refused secrets, and a resume packet. Search and every export require zero inference; smoke:memory proves it with a discoverable tripwire. Shell smoke 120/120."
     },
     {
       "id": "MONA-025",
@@ -1370,12 +1395,40 @@
         "P20",
         "P23"
       ],
-      "status": "partial",
-      "acceptance": "pending",
+      "status": "satisfied",
+      "acceptance": "accepted",
       "evidence": [
         {
+          "path": "docs/evidence/macos/P19-memory.md",
+          "note": "handoff, settings backup/restore, diagnostics preview, redaction fixtures"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p19-memory-smoke.json",
+          "note": "bundle digests, tamper refusal, path-escape refusal, barrier restore"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p19-ci.txt",
+          "note": "18 local CI steps including smoke:memory"
+        },
+        {
+          "path": "docs/decisions/ADR-013-memory-and-handoff.md",
+          "note": "import parses in memory; restore holds the exclusive barrier"
+        },
+        {
+          "path": "test/memory-handoff.test.ts",
+          "note": "9 tests: export/inspect/import, tamper, escape, settings, diagnostics"
+        },
+        {
+          "path": "test/settings-restore.test.ts",
+          "note": "5 tests: stale revision, journal, preserve, repeat refusal"
+        },
+        {
+          "path": "test/safe-archive.test.ts",
+          "note": "9 tests: determinism, traversal, symlink, encryption, CRC, caps"
+        },
+        {
           "path": "docs/evidence/macos/P05-state.md",
-          "note": "P05 contribution: state store, migrations, crash and recovery tests"
+          "note": "P05 contribution: store, migrations, crash recovery"
         },
         {
           "path": "docs/evidence/macos/artifacts/p05-schema.txt",
@@ -1386,7 +1439,7 @@
           "note": "schema, ownership, and recovery decision"
         }
       ],
-      "notes": "P05: migration backup/restore with a durable journal, safe online snapshots, maintenance-barrier quiescing, retention policy that protects blocked-task and requirement evidence, bounded content-addressed artifacts, portable project export/import with SHA-256 digests and revision checks, and per-user Application Support paths. Settings backup UI, diagnostics bundle, and offline browsing remain P19; multi-user recipient denial is P24."
+      "notes": "P19 completes the P19 scope of MONA-025: settings backup/restore under the exclusive maintenance barrier with a snapshot, a journal, and read-back; a portable project handoff in a fail-closed store-only archive (sha256 manifest, refused traversal and tamper, in-memory import that starts no work); a redacted diagnostics bundle with an explicit preview and digest; and offline browsing of the same records. P20 owns failure injection and P23 the final matrix, so the wider requirement stays open there. Carried-forward item 27 (plan export status) is closed in P19."
     },
     {
       "id": "MONA-026",
@@ -1739,7 +1792,7 @@
     "ok": true,
     "errors": [],
     "warnings": [],
-    "validated_utc": "2026-11-12T15:47:35.863Z",
+    "validated_utc": "2026-11-12T16:34:43.949Z",
     "prompt_count": 28,
     "requirement_count": 38
   }

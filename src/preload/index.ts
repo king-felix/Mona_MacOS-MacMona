@@ -95,6 +95,28 @@ import type {
   TerminalSnapshot,
 } from "../shared/contracts/terminal";
 import type { CapabilitySnapshot } from "../shared/contracts/capability";
+import type {
+  ContextSelectionPreview,
+  ContextSlotView,
+  DiagnosticsExportResult,
+  DiagnosticsPreview,
+  HandoffImportResult,
+  HandoffInspection,
+  HandoffPreview,
+  MemoryIndexStatus,
+  MemorySearchResult,
+  PromptImportResult,
+  PromptPack,
+  PromptRenderRequest,
+  PromptRenderResult,
+  PromptShelfView,
+  ResumePacket,
+  SettingsBackupInspection,
+  SettingsBackupView,
+  SettingsRestoreResult,
+  ShelfPrompt,
+  WorkspaceSearchResult,
+} from "../shared/contracts/memory";
 
 /**
  * The only bridge the renderer gets. No raw ipcRenderer, no Node, no shell.
@@ -528,6 +550,83 @@ const bridge: MonaBridge = {
     ipcRenderer.invoke("capability:refresh", {}),
   capabilityReport: (): Promise<IpcResult<{ json: string; markdown: string; filename: string }>> =>
     ipcRenderer.invoke("capability:report", {}),
+
+  // P19. Each call is one validated channel; no generic filesystem or exec
+  // reach is added, and dialog-driven paths are chosen in the main process.
+  memorySearch: (input): Promise<IpcResult<MemorySearchResult>> =>
+    ipcRenderer.invoke("memory:search", input),
+  memoryIndex: (projectId): Promise<IpcResult<MemoryIndexStatus>> =>
+    ipcRenderer.invoke("memory:index", { projectId }),
+  memoryWorkspaceSearch: (input): Promise<IpcResult<WorkspaceSearchResult>> =>
+    ipcRenderer.invoke("memory:workspace-search", input),
+  memoryResume: (projectId): Promise<IpcResult<ResumePacket>> =>
+    ipcRenderer.invoke("memory:resume", { projectId }),
+  memoryContextSlots: (projectId, taskId): Promise<IpcResult<ContextSlotView[]>> =>
+    ipcRenderer.invoke("memory:context-slots", { projectId, taskId }),
+  memoryContextPreview: (input): Promise<IpcResult<ContextSelectionPreview>> =>
+    ipcRenderer.invoke("memory:context-preview", input),
+  promptShelf: (): Promise<IpcResult<PromptShelfView>> => ipcRenderer.invoke("shelf:view", {}),
+  saveShelfPrompt: (input): Promise<IpcResult<ShelfPrompt>> =>
+    ipcRenderer.invoke("shelf:save", input),
+  removeShelfPrompt: (promptId): Promise<IpcResult<{ removed: boolean; id: string }>> =>
+    ipcRenderer.invoke("shelf:remove", { promptId }),
+  renderShelfPrompt: (input: PromptRenderRequest): Promise<IpcResult<PromptRenderResult>> =>
+    ipcRenderer.invoke("shelf:render", input),
+  exportShelfPack: (input = {}): Promise<IpcResult<PromptPack>> =>
+    ipcRenderer.invoke("shelf:export", input),
+  exportShelfPackFile: (input = {}): Promise<IpcResult<{ saved: boolean; path: string | null }>> =>
+    ipcRenderer.invoke("shelf:export-file", input),
+  importShelfPackFile: (): Promise<IpcResult<PromptImportResult | null>> =>
+    ipcRenderer.invoke("shelf:import-file", {}),
+  handoffPreview: (projectId): Promise<IpcResult<HandoffPreview>> =>
+    ipcRenderer.invoke("handoff:preview", { projectId }),
+  exportHandoff: (
+    projectId,
+  ): Promise<
+    IpcResult<{
+      saved: boolean;
+      path: string | null;
+      digest: string;
+      entries: number;
+      bytes: number;
+      redactions: number;
+    }>
+  > => ipcRenderer.invoke("handoff:export-file", { projectId }),
+  chooseHandoff: (path?: string): Promise<IpcResult<string | null>> =>
+    ipcRenderer.invoke("handoff:choose", path === undefined ? {} : { path }),
+  inspectHandoff: (path: string): Promise<IpcResult<HandoffInspection>> =>
+    ipcRenderer.invoke("handoff:inspect", { path }),
+  importHandoff: (input): Promise<IpcResult<HandoffImportResult>> =>
+    ipcRenderer.invoke("handoff:import", input),
+  settingsBackupPreview: (): Promise<IpcResult<SettingsBackupView>> =>
+    ipcRenderer.invoke("settings:backup-preview", {}),
+  exportSettingsBackup: (): Promise<
+    IpcResult<{
+      saved: boolean;
+      path: string | null;
+      digest: string;
+      scopes: number;
+      bytes: number;
+    }>
+  > => ipcRenderer.invoke("settings:backup-file", {}),
+  chooseSettingsBackup: (path?: string): Promise<IpcResult<string | null>> =>
+    ipcRenderer.invoke("settings:backup-choose", path === undefined ? {} : { path }),
+  inspectSettingsBackup: (path: string): Promise<IpcResult<SettingsBackupInspection>> =>
+    ipcRenderer.invoke("settings:backup-inspect", { path }),
+  restoreSettings: (input): Promise<IpcResult<SettingsRestoreResult>> =>
+    ipcRenderer.invoke("settings:restore", input),
+  diagnosticsPreview: (projectId?: string | null): Promise<IpcResult<DiagnosticsPreview>> =>
+    ipcRenderer.invoke(
+      "diagnostics:preview",
+      projectId === undefined || projectId === null ? {} : { projectId },
+    ),
+  exportDiagnosticsBundle: (
+    projectId?: string | null,
+  ): Promise<IpcResult<DiagnosticsExportResult>> =>
+    ipcRenderer.invoke(
+      "diagnostics:export-file",
+      projectId === undefined || projectId === null ? {} : { projectId },
+    ),
 
   onStudioChanged: (callback: (push: StudioPush) => void): (() => void) => {
     const listener = (_event: unknown, payload: unknown) => {

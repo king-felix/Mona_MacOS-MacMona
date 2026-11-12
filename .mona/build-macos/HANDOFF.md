@@ -1,7 +1,7 @@
 # Handoff — Mona macOS build
 
-**Last checkpoint:** 2026-11-12 (P18) · revision 366 · `monabuild validate` clean
-**Current prompt:** P18 completed. Next eligible after P18: **P19** — not
+**Last checkpoint:** 2026-11-12 (P19) · revision 404 · `monabuild validate` clean
+**Current prompt:** P19 completed. Next eligible after P19: **P20** — not
 started, not authorized in this session.
 
 ## Where the build stands
@@ -13,8 +13,49 @@ desktop shell, a live work studio, Finder integration, a prompt work board and
 durable continuation, an enforced attempt ledger, a durable cost ledger,
 trustworthy change receipts, Git review, and native restore. P14 adds the
 daily-use polish, P15 makes native agent work visible and controllable, P16/P17
-complete configuration and extensions, and P18 adds the integrated terminal,
-the command palette, and an auditable capability explorer.
+complete configuration and extensions, P18 adds the integrated terminal, the
+command palette, and an auditable capability explorer, and P19 adds project
+memory, the prompt shelf, portable handoff, and diagnostics.
+
+### P19 — Project memory, portable handoff, diagnostics
+
+- **`docs/decisions/ADR-013`** + **D-054…D-059** — memory is a read over a fixed
+  source list; a context preview is Mona's composition, never the provider
+  request; the shelf refuses secrets instead of storing them; a bundle is
+  records, digests, and pointers; import parses in memory; a restore holds the
+  exclusive barrier.
+- **`src/main/state/safe-archive.ts`** — a store-only ZIP writer with sorted
+  names and fixed timestamps (byte-identical exports) and a fail-closed reader:
+  absolute names, `..`, backslashes, control characters, duplicate names,
+  encryption, symlinks, device nodes, zip64, CRC mismatches, and oversized
+  entries are all refused. `safeJoin` is the only path function extraction may
+  use; `extractArchive` never overwrites.
+- **`src/main/work/memory.ts`** — `ProjectMemory`: search over tasks, decisions,
+  evidence, attempts, problems, threads, artifact metadata, and prompt text with
+  a documented deterministic scorer, a per-source count and set digest, a
+  bounded on-demand workspace search (extension allowlist, symlinks refused,
+  realpath containment, 2,000 files / 8 MiB / 200 hits), the resume packet, and
+  the context preview with a literal `exactProviderRequest: false`.
+- **`src/main/work/shelf.ts`** — `PromptShelf`: versioned prompts on real change,
+  literal one-pass `{{variable}}` substitution, and secret-shaped text refused
+  on save, import, and export.
+- **`src/main/work/handoff.ts`** — `ProjectHandoff`: a six-entry bundle
+  (`manifest.json`, `project.json`, `pointers.json`, `decisions.md`, `README.md`,
+  optional `prompts.json`) whose manifest digest covers every entry except
+  itself; in-memory import; settings backup/restore; a redacted diagnostics
+  preview whose exported bytes are exactly the previewed text.
+- **`src/main/state/store.ts`** — `listSettingsScopes` and `restoreSettings`:
+  the exclusive barrier, a pre-restore snapshot, a durable journal, one
+  transaction, a read-back of every scope, and `expectedRevision` enforced
+  *inside* the barrier.
+- **`src/renderer/shell/Memory.tsx`** — the Memory screen (Command-9) with
+  Search, Prompt shelf, Resume & context, and Handoff & diagnostics.
+- **`src/main/work/board.ts`** — `TaskPlan` carries `status`; import reports a
+  non-pending status as deferred with its reason (closes item 27).
+- **Verification** — 627 tests in 66 files; `smoke:memory` 90/90 on real stores
+  with an engine tripwire that proves it is what discovery resolves; shell smoke
+  120/120 with `p19-memory-search.png` and `p19-memory-handoff.png`; local CI
+  18/18. Evidence: `docs/evidence/macos/P19-memory.md`.
 
 ### P18 — Integrated terminal, command palette, capability explorer
 
@@ -189,23 +230,29 @@ the command palette, and an auditable capability explorer.
   notification-focus message; lifecycle **22/22**; local CI green including the
   new `smoke:polish`. Evidence: `docs/evidence/macos/P14-polish.md`.
 
-## Next exact action (P19)
+## Next exact action (P20)
 
-Read spec §8, §10.1, §12, §13, the P19 prompt body, the P05 data authority, and
-the P13/P18 search and terminal surfaces. Then:
+Read spec §6.4, §10, §13, §15, the P20 prompt body, and every unresolved risk
+recorded here. P20 is a hardening prompt, not a feature prompt: it must prove
+the assembled product survives hostile and failing inputs. Then:
 
-1. Local text search over explicitly indexed project metadata, decisions, task
-   evidence, and permitted history projections — deterministic, no embeddings,
-   no repository copy.
-2. Prompt shelf with variables, acceptance criteria, preview, versioning, and
-   inert import.
-3. Explicit context-selection preview and a concise resume packet; never claim
-   the exact provider request.
-4. Project handoff export/import, settings backup/restore, redacted diagnostic
-   bundle preview, artifact digests, safe archive paths, requalified machine
-   bindings.
-5. Evidence: portable-bundle tests, redaction fixtures,
-   `docs/evidence/macos/P19-memory.md`.
+1. Add targeted failure injection for renderer crash, main crash, runtime crash,
+   lost stream, lost submission response, duplicate/out-of-order events, disk
+   full, stale revision, corrupted metadata, failed migration, missing artifact,
+   revoked credentials, occupied port, sleep/wake, and interrupted restore.
+   Reconcile from durable evidence; never auto-replay uncertain tool effects.
+2. Audit IPC sender validation, renderer isolation, runtime auth, loopback
+   binding, secret storage/redaction, Markdown and file links, terminal links,
+   imported archives and prompt packs, path canonicalization, and generated-app
+   previews. Start with `extractArchive` (P19 left it unused and it does not yet
+   reject a symlinked parent directory).
+3. Test suspicious folder names and symlinks, Finder aliases, Unicode
+   normalization, and APFS case behavior.
+4. Verify every write path obeys maintenance mode and every owned process obeys
+   shutdown; check task/usage state after each fault.
+5. Evidence: `docs/evidence/macos/P20-failure-matrix.md`, a security boundary
+   review, and reproducible failing cases with repairs. No formal security
+   certification is claimed.
 
 ## Nonblocking issues carried forward
 
@@ -228,7 +275,9 @@ the P13/P18 search and terminal surfaces. Then:
     stated limit: Mona cannot install a boundary inside a scheduler it does not
     own. `WorkController.pauseAfterTask`'s note and the observatory's
     `goal-continuation-ownership` gap both say so (D-037).
-16. **The attempt ledger is not in the portable bundle** — P19 may extend it.
+16. **The attempt ledger travels in the project handoff** (resolved at P19).
+    `project.json` carries `payload.attempts`, so a bundle round-trips attempts;
+    the *settings* backup is scopes only and does not.
 17. **Confirmed live interrupt remains P08 evidence**; interactive QA is P24/P26.
 18. **No automatic runtime start from a Finder handoff** — deliberate (D-019).
 19. **Service install scope** — `~/Library/Services` for development; packaged
@@ -242,7 +291,9 @@ the P13/P18 search and terminal surfaces. Then:
     the recorded turn, terminal, fleet are not adapter operations yet.
 25. **Attachments** are disabled in the composer with a stated reason.
 26. **Fingerprint is bounded and local** (20,000 files / 64 MB).
-27. **Plan export does not carry task status** — P19.
+27. **Plan export carries task status** (resolved at P19). A non-pending status
+    is reported in `ImportPlanResult.deferredStatuses` and never applied, so a
+    plan cannot manufacture a completion (`test/board-plan-status.test.ts`).
 28. **Electron embedded Node is 24.22.2**, not the host 26.13.0.
 29. **Supervisor and Service binaries are gitignored** — P21/P22 ship them.
 30. **Physical sleep and a second macOS account** — manual QA (P24).
@@ -413,29 +464,75 @@ the P13/P18 search and terminal surfaces. Then:
     desktop crash closes the owner channel, which terminates the shell group.
     No shell is left behind in either path (verified by `ps -p`).
 
+86. **P19 starts no process.** Engine identity for requalification comes from
+    the last stored capability snapshot, not a probe. An independent review found
+    the original code spawned `codewhale --version` on the main thread while the
+    contract said otherwise; the exec is gone, `RequalificationView` carries
+    `source` and `localEngine.observedAt`, and the smoke proves its tripwire is
+    what `discoverTools` resolves.
+87. **No provider-request inspection exists on 0.10.2.** The context preview is
+    Mona's own composition; `exactProviderRequest` is the literal `false` and the
+    screen says so. This is not closable from Mona's side.
+88. **Engine identity is only as fresh as the last capability snapshot.** With
+    no snapshot, requalification reports `unavailable` and names the next step
+    (run the capability explorer). Nothing refreshes it implicitly.
+89. **`extractArchive` is unused and not hardened against a symlinked parent
+    directory.** Import parses in memory, so P19 never reaches it; the reader
+    refuses unsafe names and `safeJoin` re-validates, but a future caller that
+    extracts must resolve real paths first. P20 owns this.
+90. **Search is a substring match, not a query language** — no fuzzy matching,
+    no recency weighting, no per-field weights. Deterministic and inspectable was
+    the goal; a richer scorer needs its own evidence.
+91. **Workspace-search and resume-packet boundaries are untested.** The 2,000
+    file / 8 MiB / 200 hit caps and the 8,000-character packet cap are enforced
+    and reported, but no fixture reaches them; the shared clipping helper is
+    tested through the context guard instead.
+92. **A handoff preview and a later export are not byte-identical** — the store
+    stamps `exported_at` and the README embeds it. The durable guarantee is
+    self-consistency: every entry hashes to the manifest's digest and the
+    manifest digest reproduces from those entries.
+93. **A settings backup is not a configuration backup.** It holds the versioned
+    `settings` table only; `config.toml` remains P16's switch backup, and a
+    config backup can still contain a literal key (item 74).
+94. **A replace restore preserves credential-named scopes and `prompts:shelf`.**
+    That is deliberate, and the confirmation dialog says so; a preserved scope
+    appears in the restore receipt's `skipped` list rather than as an applied
+    change.
+95. **The 36 older shell screenshots were rewritten again** by the P19 shell
+    smoke because the rail gained a ninth item. They are current, not stale;
+    their hashes were re-recorded at this checkpoint with no assertion removed.
+    P19's own captures are `p19-memory-search.png` and `p19-memory-handoff.png`.
+96. **The P19 captures show a "notification was not delivered" banner.** The
+    headless smoke host refuses notifications (item 43); it is the host's real
+    state, not a screenshots-only fixture.
+
 ## Key files
 
-- `.mona/build-macos/state.json` — prompt status (revision 366).
+- `.mona/build-macos/state.json` — prompt status (revision 404).
 - `.mona/build-macos/attempts.jsonl` — empty; nothing failed three times.
-- `.mona/build-macos/DECISIONS.md` — D-001…D-053.
+- `.mona/build-macos/DECISIONS.md` — D-001…D-059.
 - `.mona/build-macos/BLOCKERS.md` — external prerequisites only.
-- `docs/requirements-macos.json` — MONA-017/018/021/022/023/029 satisfied with
-  P14/P15/P17/P18 evidence; MONA-019 keeps the workflow/lane gaps and MONA-030 is
-  `partial` (P26 owns the final matrix); MONA-006/MAC-002 carry contributions
-  without claiming completion.
-- `docs/decisions/ADR-001…012`; ADR-009 is polish, ADR-010 orchestration
+- `docs/requirements-macos.json` — MONA-017/018/021/022/023/024/025/029
+  satisfied with P14/P15/P17/P18/P19 evidence; MONA-019 keeps the workflow/lane
+  gaps and MONA-030 is `partial` (P26 owns the final matrix); MONA-006/MAC-002
+  carry contributions without claiming completion.
+- `docs/decisions/ADR-001…013`; ADR-009 is polish, ADR-010 orchestration
   ownership, ADR-011 configuration and extensions, ADR-012 the terminal and
-  capability coverage.
+  capability coverage, ADR-013 memory and handoff.
 - `src/main/work/` — `agents.ts`, `attention.ts`, `board.ts`, `capability.ts`,
   `changes.ts`, `control.ts`, `costs.ts`, `cost-math.ts`, `digest.ts`,
-  `extensions.ts`, `fingerprint.ts`, `git.ts`, `notifications.ts`, `polish.ts`,
-  `preferences.ts`, `profile.ts`, `settings.ts`, `studio.ts`.
+  `extensions.ts`, `fingerprint.ts`, `git.ts`, `handoff.ts`, `memory.ts`,
+  `notifications.ts`, `polish.ts`, `preferences.ts`, `profile.ts`, `settings.ts`,
+  `shelf.ts`, `studio.ts`.
+- `src/main/state/` — `safe-archive.ts` is the fail-closed zip reader/writer;
+  `portable.ts` holds the project bundle; `store.ts` owns the barrier.
 - `src/main/terminal/` — `buffer.ts`, `pty.ts`, `session.ts`;
   `native/macos-pty/` holds the Swift helper.
 - `src/renderer/shell/` — Shell, Home, Studio, Board, Changes, Cost, Agents,
-  Capabilities, TerminalPanel, Settings, ansi, palette, drop,
+  Capabilities, Memory, TerminalPanel, Settings, ansi, palette, drop,
   FinderIntegration, timeline, visual.
-- `scripts/` — `terminal-smoke.mjs`, `capability-smoke.mjs`, `build-pty.mjs`,
+- `scripts/` — `memory-smoke.mjs`, `terminal-smoke.mjs`,
+  `capability-smoke.mjs`, `build-pty.mjs`,
   `settings-smoke.mjs`, `extensions-smoke.mjs`,
   `agents-smoke.mjs`, `polish-smoke.mjs`, `board-smoke.mjs`,
   `changes-smoke.mjs`, `cost-smoke.mjs`, `ci.mjs`, `smoke.mjs`,

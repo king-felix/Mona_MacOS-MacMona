@@ -18,6 +18,31 @@ import type {
   TerminalSnapshot,
 } from "./terminal";
 import type { CapabilitySnapshot } from "./capability";
+import type {
+  ContextSelectionPreview,
+  ContextSlot,
+  ContextSlotView,
+  DiagnosticsExportResult,
+  DiagnosticsPreview,
+  HandoffImportResult,
+  HandoffInspection,
+  HandoffPreview,
+  MemoryIndexStatus,
+  MemorySearchResult,
+  MemorySource,
+  PromptImportResult,
+  PromptPack,
+  PromptRenderRequest,
+  PromptRenderResult,
+  PromptShelfView,
+  ResumePacket,
+  SettingsBackupInspection,
+  SettingsBackupView,
+  SettingsRestoreResult,
+  ShelfPrompt,
+  ShelfSaveRequest,
+  WorkspaceSearchResult,
+} from "./memory";
 import type { UsageEvidence } from "./usage";
 import type { BudgetScope, BudgetView, CostExport, CostLedgerView, CostRateCardView } from "./cost";
 import type {
@@ -539,6 +564,86 @@ export interface MonaBridge {
   capabilitySnapshot(): Promise<IpcResult<CapabilitySnapshot>>;
   refreshCapabilities(): Promise<IpcResult<CapabilitySnapshot>>;
   capabilityReport(): Promise<IpcResult<{ json: string; markdown: string; filename: string }>>;
+
+  // P19: project memory, prompt shelf, portable handoff, and diagnostics.
+  // Every method here is a local read or an inert local write. None accepts a
+  // free-form command, none starts a process (no engine probe, no runtime), and
+  // none can start a turn or make a model call.
+  memorySearch(input: {
+    projectId: ProjectId;
+    query: string;
+    sources?: MemorySource[];
+    limit?: number;
+  }): Promise<IpcResult<MemorySearchResult>>;
+  memoryIndex(projectId: ProjectId): Promise<IpcResult<MemoryIndexStatus>>;
+  memoryWorkspaceSearch(input: {
+    projectId: ProjectId;
+    query: string;
+    limit?: number;
+  }): Promise<IpcResult<WorkspaceSearchResult>>;
+  memoryResume(projectId: ProjectId): Promise<IpcResult<ResumePacket>>;
+  memoryContextSlots(projectId: ProjectId, taskId: TaskId): Promise<IpcResult<ContextSlotView[]>>;
+  memoryContextPreview(input: {
+    projectId: ProjectId;
+    taskId: TaskId;
+    include: ContextSlot[];
+  }): Promise<IpcResult<ContextSelectionPreview>>;
+
+  promptShelf(): Promise<IpcResult<PromptShelfView>>;
+  saveShelfPrompt(input: ShelfSaveRequest): Promise<IpcResult<ShelfPrompt>>;
+  removeShelfPrompt(promptId: string): Promise<IpcResult<{ removed: boolean; id: string }>>;
+  renderShelfPrompt(input: PromptRenderRequest): Promise<IpcResult<PromptRenderResult>>;
+  exportShelfPack(input?: { name?: string; promptIds?: string[] }): Promise<IpcResult<PromptPack>>;
+  exportShelfPackFile(input?: {
+    name?: string;
+    promptIds?: string[];
+  }): Promise<IpcResult<{ saved: boolean; path: string | null }>>;
+  importShelfPackFile(): Promise<IpcResult<PromptImportResult | null>>;
+
+  handoffPreview(projectId: ProjectId): Promise<IpcResult<HandoffPreview>>;
+  exportHandoff(projectId: ProjectId): Promise<
+    IpcResult<{
+      saved: boolean;
+      path: string | null;
+      digest: string;
+      entries: number;
+      bytes: number;
+      redactions: number;
+    }>
+  >;
+  chooseHandoff(path?: string): Promise<IpcResult<string | null>>;
+  inspectHandoff(path: string): Promise<IpcResult<HandoffInspection>>;
+  importHandoff(input: {
+    path: string;
+    rootPath?: string;
+    mode?: "create" | "replace";
+    expectedRevision?: number;
+  }): Promise<IpcResult<HandoffImportResult>>;
+
+  settingsBackupPreview(): Promise<IpcResult<SettingsBackupView>>;
+  exportSettingsBackup(): Promise<
+    IpcResult<{
+      saved: boolean;
+      path: string | null;
+      digest: string;
+      scopes: number;
+      bytes: number;
+    }>
+  >;
+  chooseSettingsBackup(path?: string): Promise<IpcResult<string | null>>;
+  inspectSettingsBackup(path: string): Promise<IpcResult<SettingsBackupInspection>>;
+  restoreSettings(input: {
+    path: string;
+    mode: "merge" | "replace";
+    scopes?: string[];
+    expectedRevision?: number;
+    confirm?: boolean;
+  }): Promise<IpcResult<SettingsRestoreResult>>;
+
+  diagnosticsPreview(projectId?: ProjectId | null): Promise<IpcResult<DiagnosticsPreview>>;
+  exportDiagnosticsBundle(
+    projectId?: ProjectId | null,
+  ): Promise<IpcResult<DiagnosticsExportResult>>;
 }
 
 export interface AppInfo {

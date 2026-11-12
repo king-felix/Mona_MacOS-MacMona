@@ -181,8 +181,8 @@ export function SettingsScreen({
           <Card title="Keyboard" eyebrow="Every screen reachable without a mouse">
             <ul className="rule-list">
               <li>
-                Command-1 through Command-6 switch Home, Studio, Work board, Changes, Cost lens, and
-                Settings.
+                Command-1 through Command-9 switch Home, Studio, Work board, Changes, Cost lens,
+                Settings, Agents, Capabilities, and Memory. Command-J toggles the terminal.
               </li>
               <li>
                 Command-Shift-F toggles Focus Mode; Command-Shift-B opens blockers; Command-period

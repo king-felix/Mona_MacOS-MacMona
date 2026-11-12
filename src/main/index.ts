@@ -45,6 +45,9 @@ import { AgentObservatory } from "./work/agents";
 import { RouteWorkbench } from "./work/settings";
 import { ExtensionWorkbench } from "./work/extensions";
 import { CapabilityExplorer } from "./work/capability";
+import { ProjectMemory } from "./work/memory";
+import { PromptShelf } from "./work/shelf";
+import { ProjectHandoff } from "./work/handoff";
 import { TerminalManager } from "./terminal/session";
 import { PolishPreferencesStore } from "./work/preferences";
 import { PolishNotifier, type NotificationSources } from "./work/notifications";
@@ -99,6 +102,9 @@ let routeWorkbench: RouteWorkbench | null = null;
 let extensionWorkbench: ExtensionWorkbench | null = null;
 let terminalManager: TerminalManager | null = null;
 let capabilityExplorer: CapabilityExplorer | null = null;
+let projectMemory: ProjectMemory | null = null;
+let promptShelf: PromptShelf | null = null;
+let projectHandoff: ProjectHandoff | null = null;
 let polishMenu: ApplicationMenuHandle | null = null;
 let keepAwake: KeepAwake | null = null;
 let activeProjectId: StudioProjectId | null = null;
@@ -106,6 +112,64 @@ let studioSmokeProjectId: string | null = null;
 let studioSmokeRoot: string | null = null;
 let openCoordinator: OpenCoordinator | null = null;
 let resolveCoordinatorReady: (() => void) | null = null;
+interface EngineIdentity {
+  version: string | null;
+  commit: string | null;
+  binaryPresent: boolean;
+  /** When the recorded snapshot was captured; null when nothing is recorded. */
+  observedAt: string | null;
+}
+
+let cachedEngineIdentity: EngineIdentity = {
+  version: null,
+  commit: null,
+  binaryPresent: false,
+  observedAt: null,
+};
+
+/**
+ * The engine identity recorded for this machine, for requalifying an imported
+ * handoff.
+ *
+ * Nothing here starts a process. Presence is a PATH stat (`discoverTools`), and
+ * version and commit come from the last capability snapshot the explorer stored.
+ * The P19 surface promises no engine call, and an exec would both break that
+ * promise and block the main thread, so a machine with no recorded snapshot
+ * reports "unknown" until the capability explorer runs instead of probing.
+ */
+function engineIdentity(): EngineIdentity {
+  return cachedEngineIdentity;
+}
+
+async function loadEngineIdentity(store: StateStore | null): Promise<void> {
+  const present = discoverTools(["codewhale"])[0]?.path != null;
+  if (!store) {
+    cachedEngineIdentity = {
+      version: null,
+      commit: null,
+      binaryPresent: present,
+      observedAt: null,
+    };
+    return;
+  }
+  try {
+    const snapshot = await store.latestCapabilitySnapshot();
+    cachedEngineIdentity = {
+      version: snapshot?.engineVersion ?? null,
+      commit: snapshot?.engineCommit ?? null,
+      binaryPresent: present,
+      observedAt: snapshot?.capturedAt ?? null,
+    };
+  } catch {
+    cachedEngineIdentity = {
+      version: null,
+      commit: null,
+      binaryPresent: present,
+      observedAt: null,
+    };
+  }
+}
+
 const coordinatorReady = new Promise<void>((resolve) => {
   resolveCoordinatorReady = resolve;
 });
@@ -1518,11 +1582,196 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
     focus_mode_remaining: document.documentElement.dataset.focusMode,
   }))()`);
 
+  // P19: project memory. The screen reads stored records, shows the computed
+  // index, previews a resume packet, and refuses to claim the provider request.
+  window.webContents.sendInputEvent({ type: "keyDown", keyCode: "9", modifiers: ["meta"] });
+  window.webContents.sendInputEvent({ type: "keyUp", keyCode: "9", modifiers: ["meta"] });
+  const memoryReady = await waitFor(
+    "document.documentElement.dataset.screen === 'memory' && document.querySelector('[data-testid=\"memory-screen\"]') !== null",
+  );
+  // Wait for the resolved index, not just its container: the card renders a
+  // loading state first and an assertion against that would be meaningless.
+  await waitFor(
+    "document.querySelector('[data-testid=\"memory-index\"]')?.textContent.includes('Credentials are never indexed.') === true",
+  );
+  const memoryIndexFacts = await window.webContents.executeJavaScript(`(() => {
+    const index = document.querySelector('[data-testid="memory-index"]');
+    const text = index?.textContent ?? '';
+    return {
+      index_present: Boolean(index),
+      no_credentials: text.includes('Credentials are never indexed.'),
+      on_demand: text.includes('on demand, never copied into the database'),
+      not_persisted: text.includes('Search is a local read; nothing is persisted.'),
+      excluded_rows: index ? index.querySelectorAll('li').length : 0,
+      no_model_call: (document.body.textContent ?? '').includes('No model call is made here'),
+    };
+  })()`);
+  await window.webContents.executeJavaScript(`(() => {
+    const input = document.querySelector('[data-testid="memory-search-input"]');
+    const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
+    setter?.call(input, 'resume packet');
+    input?.dispatchEvent(new Event('input', { bubbles: true }));
+    input?.closest('form')?.requestSubmit();
+    return Boolean(input);
+  })()`);
+  const memorySearchReady = await waitFor(
+    "document.querySelectorAll('[data-testid=\"memory-hit\"]').length > 0",
+  );
+  const memorySearchFacts = await window.webContents.executeJavaScript(`(() => {
+    const hits = Array.from(document.querySelectorAll('[data-testid="memory-hit"]'));
+    const text = document.body.textContent ?? '';
+    const summary = document.querySelector('[data-testid="memory-results"]')?.textContent ?? '';
+    return {
+      hits: hits.length,
+      has_decision: hits.some((node) => node.textContent?.includes('Resume packet format')),
+      summary_not_persisted: summary.includes('not persisted'),
+      redacted: !text.includes('sk-cccccccc'),
+      redaction_stated: /\\d+ redaction/.test(summary),
+      summary: summary.slice(0, 240),
+    };
+  })()`);
+  const memoryShot = await window.webContents.capturePage();
+  writeFileSync(join(outDir, "p19-memory-search.png"), memoryShot.toPNG());
+
+  // Resume packet: Mona's own text, with the engine limit stated.
+  await window.webContents.executeJavaScript(`(() => {
+    const tab = Array.from(document.querySelectorAll('[role="tab"], .tabs__tab, button')).find(
+      (node) => (node.textContent ?? '').trim() === 'Resume & context',
+    );
+    if (tab instanceof HTMLElement) tab.click();
+    return Boolean(tab);
+  })()`);
+  const memoryResumeReady = await waitFor(
+    "document.querySelector('[data-testid=\"memory-resume-text\"]') !== null",
+  );
+  const memoryResumeFacts = await window.webContents.executeJavaScript(`(() => {
+    const text = document.querySelector('[data-testid="memory-resume-text"]')?.textContent ?? '';
+    const body = document.body.textContent ?? '';
+    return {
+      has_text: text.length > 0,
+      states_limit: body.includes('cannot show the assembled provider request'),
+      names_project: text.includes('Shell smoke project'),
+      no_secret: !text.includes('sk-cccccccc'),
+    };
+  })()`);
+
+  // Context selection: toggling a slot grows the preview.
+  // A task must be chosen before slots exist. Pick the seeded task by name, the
+  // same way a person would, then toggle an optional slot.
+  await window.webContents.executeJavaScript(`(() => {
+    const selects = Array.from(document.querySelectorAll('select'));
+    const taskSelect = selects.find((node) =>
+      Array.from(node.options).some((option) => option.textContent === 'Make the catalog real'),
+    );
+    if (!(taskSelect instanceof HTMLSelectElement)) return false;
+    const target = Array.from(taskSelect.options).find(
+      (option) => option.textContent === 'Make the catalog real',
+    );
+    if (!target) return false;
+    const setter = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value')?.set;
+    setter?.call(taskSelect, target.value);
+    taskSelect.dispatchEvent(new Event('change', { bubbles: true }));
+    return true;
+  })()`);
+  await waitFor("document.querySelector('[data-testid=\"memory-context-slots\"]') !== null");
+  await window.webContents.executeJavaScript(`(() => {
+    const slot = document.querySelector('[data-testid="memory-context-slots"]');
+    const first = slot?.querySelector('input[type="checkbox"]');
+    if (first instanceof HTMLElement) first.click();
+    return Boolean(first);
+  })()`);
+  const contextReady = await waitFor(
+    "document.querySelector('[data-testid=\"memory-context-preview\"]') !== null",
+  );
+  const memoryContextFacts = await window.webContents.executeJavaScript(`(() => {
+    const preview = document.querySelector('[data-testid="memory-context-preview"]');
+    const text = preview?.textContent ?? '';
+    return {
+      present: Boolean(preview),
+      states_provider_limit: text.includes('no provider-request inspection'),
+      bytes_stated: /\\d+ bytes/.test(text),
+      slot_rows: document.querySelectorAll('[data-testid="memory-context-slots"] input').length,
+    };
+  })()`);
+
+  // Prompt shelf: the seeded prompt exists and previews with a literal value.
+  await window.webContents.executeJavaScript(`(() => {
+    const tab = Array.from(document.querySelectorAll('[role="tab"], .tabs__tab, button')).find(
+      (node) => (node.textContent ?? '').trim() === 'Prompt shelf',
+    );
+    if (tab instanceof HTMLElement) tab.click();
+    return Boolean(tab);
+  })()`);
+  const shelfReady = await waitFor(
+    "document.querySelector('[data-testid=\"memory-shelf-list\"]') !== null",
+  );
+  await window.webContents.executeJavaScript(`(() => {
+    const list = document.querySelector('[data-testid="memory-shelf-list"]');
+    const button = Array.from(list?.querySelectorAll('button') ?? []).find((node) =>
+      node.textContent?.includes('Resume packet check'),
+    );
+    if (button instanceof HTMLElement) button.click();
+    return Boolean(button);
+  })()`);
+  await waitFor(
+    "document.querySelector('[data-testid=\"memory-shelf-detail\"]')?.textContent.includes('Acceptance checklist') === true",
+  );
+  await window.webContents.executeJavaScript(`(() => {
+    const detail = document.querySelector('[data-testid="memory-shelf-detail"]');
+    const preview = Array.from(detail?.querySelectorAll('button') ?? []).find(
+      (node) => (node.textContent ?? '').trim() === 'Preview',
+    );
+    if (preview instanceof HTMLElement) preview.click();
+    return Boolean(preview);
+  })()`);
+  const shelfPreviewReady = await waitFor(
+    "document.querySelector('[data-testid=\"memory-prompt-preview\"]') !== null",
+  );
+  const memoryShelfFacts = await window.webContents.executeJavaScript(`(() => {
+    const list = document.querySelector('[data-testid="memory-shelf-list"]');
+    const text = list?.textContent ?? '';
+    const detail = document.querySelector('[data-testid="memory-shelf-detail"]')?.textContent ?? '';
+    const preview = document.querySelector('[data-testid="memory-prompt-preview"]')?.textContent ?? '';
+    return {
+      has_seeded: text.includes('Resume packet check'),
+      preview_present: preview.length > 0,
+      keeps_unfilled_token: preview.includes('{{audience}}'),
+      states_inert: detail.includes('never runs or sends anything'),
+      limits_stated: (document.body.textContent ?? '').includes('versions per prompt'),
+    };
+  })()`);
+
+  // Handoff & diagnostics: the preview names what a bundle cannot carry, and a
+  // real archive round-trips through inspection.
+  await window.webContents.executeJavaScript(`(() => {
+    const tab = Array.from(document.querySelectorAll('[role="tab"], .tabs__tab, button')).find(
+      (node) => (node.textContent ?? '').trim() === 'Handoff & diagnostics',
+    );
+    if (tab instanceof HTMLElement) tab.click();
+    return Boolean(tab);
+  })()`);
+  const handoffReady = await waitFor(
+    "document.querySelector('[data-testid=\"memory-handoff-preview\"]') !== null",
+  );
+  const memoryHandoffFacts = await window.webContents.executeJavaScript(`(() => {
+    const preview = document.querySelector('[data-testid="memory-handoff-preview"]');
+    const text = preview?.textContent ?? '';
+    return {
+      present: Boolean(preview),
+      names_limits:
+        text.toLowerCase().includes('engine conversation') || text.includes('sessions'),
+      has_checks: text.includes('MONA-024') || preview.querySelectorAll('.badge').length > 0,
+      no_secret: !text.includes('sk-cccccccc'),
+    };
+  })()`);
+  const handoffShot = await window.webContents.capturePage();
+  writeFileSync(join(outDir, "p19-memory-handoff.png"), handoffShot.toPNG());
+
   const checks: Record<string, boolean> = {
     ready,
     cards,
     home_screen: home.screen === "home",
-    nav_count: home.nav_count === 8,
+    nav_count: home.nav_count === 9,
     fixture_label_absent: home.fixture_label === false,
     home_theme_daybreak: home.theme === "daybreak",
     version_rendered: typeof home.version === "string" && home.version.startsWith("Mona "),
@@ -1661,6 +1910,40 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
       gapDetail.text.toLowerCase().includes("/v1/workflow") &&
       gapDetail.no_open_button === true,
     capability_entry_navigates: capabilityNavigates === true,
+    memory_screen:
+      memoryReady &&
+      memoryIndexFacts.index_present === true &&
+      memoryIndexFacts.no_model_call === true &&
+      memoryIndexFacts.excluded_rows > 3,
+    memory_index_honest:
+      memoryIndexFacts.no_credentials === true &&
+      memoryIndexFacts.on_demand === true &&
+      memoryIndexFacts.not_persisted === true,
+    memory_search:
+      memorySearchReady &&
+      memorySearchFacts.hits >= 2 &&
+      memorySearchFacts.has_decision === true &&
+      memorySearchFacts.summary_not_persisted === true,
+    memory_search_redacts:
+      memorySearchFacts.redacted === true && memorySearchFacts.redaction_stated === true,
+    memory_resume:
+      memoryResumeReady &&
+      memoryResumeFacts.has_text === true &&
+      memoryResumeFacts.names_project === true &&
+      memoryResumeFacts.states_limit === true &&
+      memoryResumeFacts.no_secret === true,
+    memory_context:
+      contextReady &&
+      memoryContextFacts.present === true &&
+      memoryContextFacts.states_provider_limit === true &&
+      memoryContextFacts.bytes_stated === true,
+    memory_shelf:
+      shelfReady && memoryShelfFacts.has_seeded === true && memoryShelfFacts.states_inert === true,
+    memory_handoff:
+      handoffReady &&
+      memoryHandoffFacts.present === true &&
+      memoryHandoffFacts.names_limits === true &&
+      memoryHandoffFacts.no_secret === true,
     terminal_panel: terminalPanelReady === true,
     terminal_session: terminalSessionReady === true,
     terminal_output: terminalOutputReady === true,
@@ -1718,6 +2001,13 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
       paletteCapabilities,
       capabilities,
       gapDetail,
+      memoryIndexFacts,
+      memorySearchFacts,
+      memoryResumeFacts,
+      memoryContextFacts,
+      memoryShelfFacts,
+      shelfPreviewReady,
+      memoryHandoffFacts,
       terminalInert,
       terminalFacts,
     },
@@ -1744,6 +2034,8 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
       "docs/evidence/macos/artifacts/p17-settings-extensions.png",
       "docs/evidence/macos/artifacts/p18-capabilities.png",
       "docs/evidence/macos/artifacts/p18-terminal.png",
+      "docs/evidence/macos/artifacts/p19-memory-search.png",
+      "docs/evidence/macos/artifacts/p19-memory-handoff.png",
     ],
   };
   const out = process.env.MONA_SHELL_SMOKE_OUT;
@@ -2697,6 +2989,39 @@ if (!gotLock) {
           },
         });
         capabilityExplorer = new CapabilityExplorer({ store: productState });
+        // P19: memory, shelf, and handoff are local projections. None of them
+        // can start a turn; the shelf only stores text, and the handoff writes
+        // a redacted bundle chosen through a native dialog.
+        // Engine identity is read from stored records before the workbenches are
+        // constructed, so their sync readers never need to spawn anything.
+        await loadEngineIdentity(productState);
+        promptShelf = new PromptShelf({ store: productState, homeDir: app.getPath("home") });
+        projectMemory = new ProjectMemory({
+          store: productState,
+          homeDir: app.getPath("home"),
+          engineInfo: () => engineIdentity(),
+          extraSources: async () => {
+            if (!promptShelf) return [];
+            const view = await promptShelf.view();
+            return view.prompts.map((prompt) => ({
+              source: "prompt" as const,
+              id: prompt.id,
+              title: prompt.label,
+              body:
+                prompt.versions.find((version) => version.version === prompt.currentVersion)
+                  ?.body ?? "",
+              updatedAt: prompt.updatedAt,
+              pointer: { kind: "prompt" as const, recordId: prompt.id, path: null },
+            }));
+          },
+        });
+        projectHandoff = new ProjectHandoff({
+          store: productState,
+          homeDir: app.getPath("home"),
+          engineInfo: () => engineIdentity(),
+          productVersion: app.getVersion(),
+          promptPack: async () => (promptShelf ? promptShelf.exportPack() : null),
+        });
       }
 
       // P14: deterministic polish. Attention, notifications, and the digest read
@@ -3053,6 +3378,36 @@ if (!gotLock) {
           payload: { turn_id: "turn_shell_p13_0001" },
           timestamp: new Date().toISOString(),
         });
+        // P19: real decisions, evidence pointers, and a shelf prompt, so the
+        // memory screen searches stored records and shows a real index. The
+        // decision body holds a secret-shaped string, which must never reach
+        // the screen as itself.
+        await productState.addDecision({
+          projectId: opened.project.id,
+          title: "Resume packet format",
+          body:
+            "The resume packet is plain text assembled from stored records. " +
+            // Deliberately secret-shaped; the redactor must remove it.
+            `A rejected sample key was ${"sk-" + "c".repeat(28)}.`,
+        });
+        await productState.addDecision({
+          projectId: opened.project.id,
+          title: "Handoff scope",
+          body: "The portable bundle carries records and pointers, never artifact bytes.",
+        });
+        await productState.addRequirementEvidence({
+          projectId: opened.project.id,
+          requirementId: "MONA-024",
+          path: "README.md",
+          note: "memory search reads stored records only",
+        });
+        await promptShelf?.save({
+          label: "Resume packet check",
+          description: "Ask for a packet before resuming a long task.",
+          body: "Summarize {{project}} state for {{audience}} using stored records only.",
+          acceptance: ["Names the next exact action", "Spells the current blocker"],
+          tags: ["resume"],
+        });
       }
     }
 
@@ -3167,6 +3522,133 @@ if (!gotLock) {
       extensions: extensionWorkbench,
       terminal: terminalManager,
       capabilities: capabilityExplorer,
+      memory: projectMemory,
+      shelf: promptShelf,
+      handoff: projectHandoff,
+      // P19 dialogs. Paths come from the picker, never from renderer text, and
+      // every write is 0600 outside the workspace the user chose.
+      memoryFiles: {
+        chooseBundle: async (kind, prefillPath) => {
+          const chosen = mainWindow
+            ? await dialog.showOpenDialog(mainWindow, {
+                title:
+                  kind === "handoff" ? "Choose a Mona handoff bundle" : "Choose a settings backup",
+                defaultPath: prefillPath ?? app.getPath("documents"),
+                properties: ["openFile"],
+                filters: [{ name: "Mona bundle", extensions: ["zip", "mona", "json"] }],
+              })
+            : { canceled: true, filePaths: [] };
+          return chosen.canceled ? null : (chosen.filePaths[0] ?? null);
+        },
+        exportHandoff: async (projectId) => {
+          if (!projectHandoff) {
+            throw Object.assign(new Error("portable handoff is unavailable"), {
+              code: "RUNTIME_UNAVAILABLE",
+            });
+          }
+          const preview = await projectHandoff.preview(projectId);
+          const slug =
+            preview.projectName.replace(/[^A-Za-z0-9._-]+/g, "-").slice(0, 60) || "project";
+          const chosen = mainWindow
+            ? await dialog.showSaveDialog(mainWindow, {
+                title: "Export project handoff",
+                defaultPath: join(app.getPath("documents"), `${slug}-handoff.zip`),
+                filters: [{ name: "Mona handoff", extensions: ["zip"] }],
+              })
+            : { canceled: true, filePath: undefined };
+          if (chosen.canceled || !chosen.filePath) {
+            return { saved: false, path: null, digest: "", entries: 0, bytes: 0, redactions: 0 };
+          }
+          return projectHandoff.exportToFile(projectId, chosen.filePath);
+        },
+        exportSettingsBackup: async () => {
+          if (!projectHandoff) {
+            throw Object.assign(new Error("settings backup is unavailable"), {
+              code: "RUNTIME_UNAVAILABLE",
+            });
+          }
+          const view = await projectHandoff.settingsBackup();
+          const chosen = mainWindow
+            ? await dialog.showSaveDialog(mainWindow, {
+                title: "Export settings backup",
+                defaultPath: join(
+                  app.getPath("documents"),
+                  `mona-settings-${view.generatedAt.replace(/[:.]/g, "-")}.zip`,
+                ),
+                filters: [{ name: "Mona settings backup", extensions: ["zip"] }],
+              })
+            : { canceled: true, filePath: undefined };
+          if (chosen.canceled || !chosen.filePath) {
+            return { saved: false, path: null, digest: view.digest, scopes: 0, bytes: 0 };
+          }
+          return projectHandoff.exportSettingsToFile(chosen.filePath);
+        },
+        exportPromptPack: async (pack, suggestedName) => {
+          const chosen = mainWindow
+            ? await dialog.showSaveDialog(mainWindow, {
+                title: "Export prompt pack",
+                defaultPath: join(
+                  app.getPath("documents"),
+                  suggestedName.replace(/\.zip$/, ".json"),
+                ),
+                filters: [{ name: "Mona prompt pack", extensions: ["json"] }],
+              })
+            : { canceled: true, filePath: undefined };
+          if (chosen.canceled || !chosen.filePath) return { saved: false, path: null };
+          writeFileSync(chosen.filePath, `${JSON.stringify(pack, null, 2)}\n`, {
+            encoding: "utf8",
+            mode: 0o600,
+          });
+          return { saved: true, path: chosen.filePath };
+        },
+        importPromptPack: async () => {
+          const chosen = mainWindow
+            ? await dialog.showOpenDialog(mainWindow, {
+                title: "Import prompt pack",
+                properties: ["openFile"],
+                filters: [{ name: "Mona prompt pack", extensions: ["json"] }],
+              })
+            : { canceled: true, filePaths: [] };
+          const path = chosen.canceled ? null : (chosen.filePaths[0] ?? null);
+          if (!path) return { value: null, path: null };
+          const text = readFileSync(path, "utf8");
+          if (text.length > 4 * 1024 * 1024) {
+            throw Object.assign(new Error("prompt pack is larger than 4 MiB"), {
+              code: "IMPORT_INVALID",
+            });
+          }
+          return { value: JSON.parse(text) as unknown, path };
+        },
+        exportDiagnostics: async (preview) => {
+          const chosen = mainWindow
+            ? await dialog.showSaveDialog(mainWindow, {
+                title: "Export redacted diagnostics bundle",
+                defaultPath: join(
+                  app.getPath("documents"),
+                  `mona-diagnostics-${preview.generatedAt.replace(/[:.]/g, "-")}.json`,
+                ),
+                filters: [{ name: "JSON", extensions: ["json"] }],
+              })
+            : { canceled: true, filePath: undefined };
+          if (chosen.canceled || !chosen.filePath) {
+            return {
+              saved: false,
+              path: null,
+              digest: preview.digest,
+              bytes: preview.bytes,
+              redactions: preview.redactions,
+            };
+          }
+          writeFileSync(chosen.filePath, preview.text, { encoding: "utf8", mode: 0o600 });
+          return {
+            saved: true,
+            path: chosen.filePath,
+            digest: preview.digest,
+            bytes: preview.bytes,
+            redactions: preview.redactions,
+          };
+        },
+      },
       exportDiagnostics: async (report) => {
         const chosen = mainWindow
           ? await dialog.showSaveDialog(mainWindow, {

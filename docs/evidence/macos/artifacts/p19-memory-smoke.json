@@ -1,0 +1,787 @@
+{
+  "schema_version": 1,
+  "label": "P19 — project memory, portable handoff, and diagnostics",
+  "captured_at": "2026-11-12T16:32:46.856Z",
+  "ok": true,
+  "isolated_home": true,
+  "checks": {
+    "a stored capability snapshot supplies the engine identity": {
+      "ok": true
+    },
+    "the recorded identity is a snapshot, not a probe": {
+      "ok": true
+    },
+    "search finds records across sources": {
+      "ok": true,
+      "detail": {
+        "total": 4,
+        "sources": [
+          "task",
+          "decision",
+          "attempt",
+          "evidence"
+        ]
+      }
+    },
+    "search is deterministic": {
+      "ok": true
+    },
+    "search is a read": {
+      "ok": true,
+      "detail": {
+        "before": 13,
+        "after": 13
+      }
+    },
+    "search is not persisted": {
+      "ok": true
+    },
+    "search redacts the fixture secret": {
+      "ok": true,
+      "detail": {
+        "redactions": 1
+      }
+    },
+    "search reports redactions": {
+      "ok": true,
+      "detail": {
+        "redactions": 1
+      }
+    },
+    "index declares no credentials": {
+      "ok": true
+    },
+    "index declares no embeddings": {
+      "ok": true
+    },
+    "index names repository contents as on demand": {
+      "ok": true
+    },
+    "index states exclusions": {
+      "ok": true,
+      "detail": {
+        "excluded": [
+          "the settings table",
+          "engine config files",
+          "environment variables",
+          "repository file contents",
+          "artifact bytes",
+          "engine transcripts"
+        ]
+      }
+    },
+    "index digest is stable": {
+      "ok": true
+    },
+    "workspace search finds a source line": {
+      "ok": true,
+      "detail": {
+        "paths": [
+          "README.md",
+          "src/resume.ts"
+        ]
+      }
+    },
+    "workspace search skips node_modules": {
+      "ok": true
+    },
+    "workspace search skips a symlink that escapes the root": {
+      "ok": true
+    },
+    "workspace search skips binary and unsupported files": {
+      "ok": true,
+      "detail": {
+        "skipped": [
+          {
+            "reason": "binary",
+            "count": 1
+          },
+          {
+            "reason": "directory: node_modules",
+            "count": 1
+          },
+          {
+            "reason": "extension",
+            "count": 1
+          },
+          {
+            "reason": "symlink",
+            "count": 1
+          }
+        ]
+      }
+    },
+    "workspace search persists nothing": {
+      "ok": true
+    },
+    "workspace search is still a read": {
+      "ok": true
+    },
+    "shelf substitutes supplied variables": {
+      "ok": true
+    },
+    "shelf reports a missing variable": {
+      "ok": true,
+      "detail": {
+        "missing": [
+          "criteria"
+        ]
+      }
+    },
+    "shelf keeps the unfilled token visible": {
+      "ok": true
+    },
+    "shelf render is inert": {
+      "ok": true
+    },
+    "shelf appends a version only on a real change": {
+      "ok": true,
+      "detail": {
+        "version": 2,
+        "versions": 2
+      }
+    },
+    "shelf refuses secret-shaped text": {
+      "ok": true
+    },
+    "prompt pack carries a digest": {
+      "ok": true,
+      "detail": {
+        "prompts": 1
+      }
+    },
+    "prompt pack contains no fixture secret": {
+      "ok": true
+    },
+    "handoff preview counts real records": {
+      "ok": true,
+      "detail": {
+        "counts": {
+          "tasks": 2,
+          "decisions": 2,
+          "evidence": 2,
+          "attempts": 1,
+          "prompts": 1,
+          "pointers": 2
+        }
+      }
+    },
+    "handoff preview names what it cannot carry": {
+      "ok": true,
+      "detail": {
+        "excluded": [
+          "engine conversation history and sessions",
+          "runtime bindings, ports, and executable paths",
+          "provider credentials and environment",
+          "artifact bytes",
+          "source files",
+          "machine-local prompt favorites and rate cards",
+          "setting project:prj_00000001:api-key"
+        ]
+      }
+    },
+    "handoff drops a credential-bearing project setting": {
+      "ok": true,
+      "detail": {
+        "excluded": [
+          "engine conversation history and sessions",
+          "runtime bindings, ports, and executable paths",
+          "provider credentials and environment",
+          "artifact bytes",
+          "source files",
+          "machine-local prompt favorites and rate cards",
+          "setting project:prj_00000001:api-key"
+        ]
+      }
+    },
+    "handoff preview reports evidence pointers": {
+      "ok": true,
+      "detail": {
+        "pointers": 2
+      }
+    },
+    "handoff preview is exportable": {
+      "ok": true
+    },
+    "handoff export wrote an archive": {
+      "ok": true,
+      "detail": {
+        "bytes": 7724,
+        "entries": 6
+      }
+    },
+    "handoff export keeps the file private": {
+      "ok": true,
+      "detail": {
+        "mode": "600"
+      }
+    },
+    "handoff archive is safe to read": {
+      "ok": true,
+      "detail": {
+        "problems": []
+      }
+    },
+    "handoff archive has the documented entries": {
+      "ok": true,
+      "detail": {
+        "entries": [
+          "README.md",
+          "decisions.md",
+          "manifest.json",
+          "pointers.json",
+          "project.json",
+          "prompts.json"
+        ]
+      }
+    },
+    "handoff archive carries no fixture secret": {
+      "ok": true,
+      "detail": {
+        "bytes": 6008
+      }
+    },
+    "handoff archive carries no home path": {
+      "ok": true
+    },
+    "handoff archive drops the credential-bearing project scope": {
+      "ok": true,
+      "detail": {
+        "mentionsApiKey": false
+      }
+    },
+    "handoff archive keeps an ordinary project setting": {
+      "ok": true
+    },
+    "handoff inspection is ok": {
+      "ok": true,
+      "detail": {
+        "problems": []
+      }
+    },
+    "handoff inspection names the missing local file": {
+      "ok": true,
+      "detail": {
+        "missing": [
+          {
+            "path": "docs/absent-evidence.md",
+            "requirement": "MONA-025"
+          }
+        ]
+      }
+    },
+    "handoff inspection requires requalification": {
+      "ok": true
+    },
+    "handoff requalification reads a recorded engine identity": {
+      "ok": true,
+      "detail": {
+        "localEngine": {
+          "version": "0.10.2",
+          "commit": "ff466b2ed0bf",
+          "checked": true,
+          "observedAt": "2026-11-12T09:00:36.000Z"
+        },
+        "source": "capability_snapshot"
+      }
+    },
+    "handoff inspection lists what cannot transfer": {
+      "ok": true,
+      "detail": {
+        "cannotTransfer": [
+          "engine conversation history and sessions",
+          "runtime bindings, ports, and executable paths",
+          "provider credentials and environment",
+          "artifact bytes",
+          "source files",
+          "machine-local prompt favorites and rate cards"
+        ]
+      }
+    },
+    "handoff import creates the records": {
+      "ok": true,
+      "detail": {
+        "imported": {
+          "tasks": 2,
+          "decisions": 2,
+          "evidence": 2,
+          "attempts": 1,
+          "acceptance": 1,
+          "steps": 0
+        }
+      }
+    },
+    "handoff import starts no work": {
+      "ok": true
+    },
+    "handoff import leaves no active turn": {
+      "ok": true
+    },
+    "handoff import still names the stale pointer": {
+      "ok": true
+    },
+    "handoff rejects a tampered entry": {
+      "ok": true,
+      "detail": {
+        "problems": [
+          "DIGEST_MISMATCH: decisions.md does not match its manifest digest",
+          "SIZE_MISMATCH: decisions.md does not match its manifest size"
+        ]
+      }
+    },
+    "handoff refuses an escaping path": {
+      "ok": true,
+      "detail": {
+        "problems": [
+          "PATH_ESCAPE: archive entry escapes its root (../p19-should-not-exist.txt)",
+          "MISSING_ENTRY: manifest.json is required",
+          "MISSING_ENTRY: project.json is required"
+        ]
+      }
+    },
+    "nothing escaped to disk": {
+      "ok": true
+    },
+    "settings backup excludes a secret-bearing scope": {
+      "ok": true,
+      "detail": {
+        "excluded": [
+          {
+            "scope": "project:prj_00000001:api-key",
+            "why": "credential-bearing scope"
+          },
+          {
+            "scope": "tests:secret",
+            "why": "credential-bearing scope"
+          }
+        ]
+      }
+    },
+    "settings backup includes a real scope": {
+      "ok": true
+    },
+    "settings backup text carries no fixture secret": {
+      "ok": true
+    },
+    "settings backup wrote an archive": {
+      "ok": true
+    },
+    "settings backup inspects cleanly": {
+      "ok": true,
+      "detail": {
+        "problems": []
+      }
+    },
+    "a replace restore needs explicit confirmation": {
+      "ok": true
+    },
+    "a stale revision refuses the restore": {
+      "ok": true
+    },
+    "a refused restore changed nothing": {
+      "ok": true,
+      "detail": {
+        "before": 1,
+        "after": 1
+      }
+    },
+    "settings restore applied the backup": {
+      "ok": true,
+      "detail": {
+        "applied": [
+          {
+            "scope": "polish:preferences",
+            "fromVersion": 1,
+            "toVersion": 2
+          },
+          {
+            "scope": "project:prj_00000001",
+            "fromVersion": null,
+            "toVersion": 1
+          },
+          {
+            "scope": "prompts:shelf",
+            "fromVersion": null,
+            "toVersion": 1
+          }
+        ]
+      }
+    },
+    "settings restore ran under the exclusive barrier": {
+      "ok": true
+    },
+    "settings restore wrote a journal": {
+      "ok": true
+    },
+    "settings restore wrote a snapshot": {
+      "ok": true
+    },
+    "settings restore released the barrier": {
+      "ok": true
+    },
+    "the concurrent write survived the restore": {
+      "ok": true
+    },
+    "the restored scope holds the backup value": {
+      "ok": true,
+      "detail": {
+        "restored": {
+          "dockBadge": true,
+          "keepAwakeDuringWork": false,
+          "launchAtLogin": false,
+          "menuBarStatus": true,
+          "notifications": {
+            "enabled": true
+          }
+        }
+      }
+    },
+    "diagnostics parse as JSON": {
+      "ok": true
+    },
+    "diagnostics name the product version": {
+      "ok": true
+    },
+    "diagnostics contain no home path": {
+      "ok": true
+    },
+    "diagnostics contain no fixture secret": {
+      "ok": true
+    },
+    "diagnostics exclude environment": {
+      "ok": true
+    },
+    "diagnostics exclude credentials": {
+      "ok": true
+    },
+    "diagnostics report their redactions": {
+      "ok": true,
+      "detail": {
+        "redactions": 1
+      }
+    },
+    "diagnostics digest matches their text": {
+      "ok": true
+    },
+    "diagnostics list what they exclude": {
+      "ok": true,
+      "detail": {
+        "excluded": [
+          "environment variables",
+          "provider credentials",
+          "engine config values",
+          "settings values",
+          "artifact bytes",
+          "repository contents",
+          "engine transcripts"
+        ]
+      }
+    },
+    "context slots cover the contract": {
+      "ok": true,
+      "detail": {
+        "slots": 7
+      }
+    },
+    "context preview grows with the selection": {
+      "ok": true,
+      "detail": {
+        "promptOnly": 64,
+        "withDecisions": 290
+      }
+    },
+    "context preview shows the decision": {
+      "ok": true
+    },
+    "context preview refuses to claim the provider request": {
+      "ok": true
+    },
+    "context preview never carries the secret": {
+      "ok": true
+    },
+    "resume packet names a current task": {
+      "ok": true,
+      "detail": {
+        "head": [
+          "Project: Recall",
+          "Generated: 2026-11-12T09:01:38.000Z",
+          "State revision: 15",
+          "Current task: Board polish [pending]",
+          "Next action: none recorded"
+        ]
+      }
+    },
+    "resume packet states the limit": {
+      "ok": true
+    },
+    "resume packet carries no secret": {
+      "ok": true
+    },
+    "resume packet is not a provider request": {
+      "ok": true
+    },
+    "the tripwire engine is what discovery finds": {
+      "ok": true,
+      "detail": {
+        "discovered": {
+          "name": "codewhale",
+          "path": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p19-smoke-tbUrUM/codewhale",
+          "source": "environment_path"
+        }
+      }
+    },
+    "no engine binary was invoked": {
+      "ok": true,
+      "detail": {
+        "tripwire": null
+      }
+    },
+    "the P19 modules reference no network API": {
+      "ok": true,
+      "detail": {
+        "scanned": 3
+      }
+    },
+    "the P19 modules do not import the engine adapter": {
+      "ok": true
+    },
+    "the P19 modules do not start a child process": {
+      "ok": true
+    }
+  },
+  "observations": {
+    "project": {
+      "id": "prj_00000001",
+      "name": "Recall"
+    },
+    "tasks": [
+      "tsk_00000002",
+      "tsk_00000004"
+    ],
+    "search": {
+      "total": 4,
+      "considered": 7,
+      "durationMs": 1000,
+      "redactions": 1,
+      "sources": [
+        {
+          "source": "task",
+          "title": "Resume packet",
+          "score": 202
+        },
+        {
+          "source": "decision",
+          "title": "Packet format",
+          "score": 202
+        },
+        {
+          "source": "attempt",
+          "title": "the packet can be assembled locally",
+          "score": 202
+        },
+        {
+          "source": "evidence",
+          "title": "MONA-024: src/resume.ts",
+          "score": 62
+        }
+      ]
+    },
+    "index": {
+      "digest": "18884ca636f26af5e30378463b99f7f56c171ea2d0a1ffc1dc23f30800b4aab0",
+      "counts": [
+        {
+          "source": "task",
+          "records": 2,
+          "redactions": 0,
+          "present": true
+        },
+        {
+          "source": "decision",
+          "records": 2,
+          "redactions": 1,
+          "present": true
+        },
+        {
+          "source": "evidence",
+          "records": 2,
+          "redactions": 0,
+          "present": true
+        },
+        {
+          "source": "attempt",
+          "records": 1,
+          "redactions": 0,
+          "present": true
+        },
+        {
+          "source": "problem",
+          "records": 0,
+          "redactions": 0,
+          "present": false
+        },
+        {
+          "source": "prompt",
+          "records": 0,
+          "redactions": 0,
+          "present": false
+        },
+        {
+          "source": "thread",
+          "records": 0,
+          "redactions": 0,
+          "present": false
+        },
+        {
+          "source": "artifact",
+          "records": 0,
+          "redactions": 0,
+          "present": false
+        }
+      ],
+      "stateRevision": 13
+    },
+    "workspace": {
+      "filesScanned": 2,
+      "filesSkipped": 4,
+      "bytesScanned": 114,
+      "hits": 4,
+      "scope": "Bounded on-demand read of the project root: only regular files with extensions ts, tsx, js, mjs, cjs, json, md, mdx, txt, yml, yaml, toml, swift, c, h, css, html, sh are read; directories .git, .mona, node_modules, dist, build, out, coverage, .venv, venv, __pycache__, .cache, target, DerivedData, .next, vendor are skipped; symlinks are never followed; caps: 2000 files, 8 MiB scanned, 200 hits, 400 characters per hit line."
+    },
+    "shelf": {
+      "id": "explain-a-change",
+      "versions": 2,
+      "packDigest": "e545ad1ab761a09be207adb258132325a4b11939bf19bd569a747adc2358fe66",
+      "renderedBytes": 78
+    },
+    "handoff": {
+      "entries": [
+        "README.md",
+        "decisions.md",
+        "manifest.json",
+        "pointers.json",
+        "project.json",
+        "prompts.json"
+      ],
+      "bytes": 7724,
+      "digest": "dc7572b4c1e6bff9bd11a15763b15b7722b52a06d077d5d335b1229f031d5ec9",
+      "redactions": 3,
+      "counts": {
+        "tasks": 2,
+        "decisions": 2,
+        "evidence": 2,
+        "attempts": 1,
+        "prompts": 1,
+        "pointers": 2
+      },
+      "missingLocalFiles": [
+        {
+          "path": "docs/absent-evidence.md",
+          "requirement": "MONA-025"
+        }
+      ],
+      "cannotTransfer": [
+        "engine conversation history and sessions",
+        "runtime bindings, ports, and executable paths",
+        "provider credentials and environment",
+        "artifact bytes",
+        "source files",
+        "machine-local prompt favorites and rate cards"
+      ],
+      "requalification": {
+        "required": true,
+        "reasons": [
+          "Engine conversation sessions are not portable; this machine has no engine history for the project.",
+          "Runtime bindings, ports, and executable paths are machine-local and are not carried.",
+          "The engine version on this machine may differ from the version that wrote the bundle."
+        ],
+        "localEngine": {
+          "version": "0.10.2",
+          "commit": "ff466b2ed0bf",
+          "checked": true,
+          "observedAt": "2026-11-12T09:00:36.000Z"
+        },
+        "source": "capability_snapshot",
+        "machineBinding": "requalified",
+        "note": "A local engine version (0.10.2) is recorded as of 2026-11-12T09:00:36.000Z from the capability inventory. No probe ran for this bundle; engine work still needs live qualification on this machine."
+      }
+    },
+    "restored_preferences": {
+      "dockBadge": true,
+      "keepAwakeDuringWork": false,
+      "launchAtLogin": false,
+      "menuBarStatus": true,
+      "notifications": {
+        "enabled": true
+      }
+    },
+    "settings": {
+      "included": [
+        "polish:preferences",
+        "project:prj_00000001",
+        "prompts:shelf"
+      ],
+      "excluded": [
+        {
+          "scope": "project:prj_00000001:api-key",
+          "why": "credential-bearing scope"
+        },
+        {
+          "scope": "tests:secret",
+          "why": "credential-bearing scope"
+        }
+      ],
+      "restore": {
+        "restored": true,
+        "applied": [
+          {
+            "scope": "polish:preferences",
+            "fromVersion": 1,
+            "toVersion": 2
+          },
+          {
+            "scope": "project:prj_00000001",
+            "fromVersion": null,
+            "toVersion": 1
+          },
+          {
+            "scope": "prompts:shelf",
+            "fromVersion": null,
+            "toVersion": 1
+          }
+        ],
+        "reset": [],
+        "skipped": [],
+        "barrier": "exclusive",
+        "journal": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p19-smoke-tbUrUM/tertiary/backups/settings-restore-journal-2026-11-12T09-01-27-000Z.json",
+        "snapshot": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p19-smoke-tbUrUM/tertiary/backups/settings-restore-snapshot-2026-11-12T09-01-27-000Z.sqlite",
+        "verification": "3 scope(s) read back identical; 0 reset",
+        "stateRevision": 3
+      }
+    },
+    "diagnostics": {
+      "digest": "2c7bd09818b3e064c47b53a69b2b9c52a075c3c3cbcad7d180bc01a666203d32",
+      "bytes": 1285,
+      "redactions": 1,
+      "excluded": [
+        "environment variables",
+        "provider credentials",
+        "engine config values",
+        "settings values",
+        "artifact bytes",
+        "repository contents",
+        "engine transcripts"
+      ]
+    },
+    "state": {
+      "projects": 1,
+      "tasks": 2,
+      "events": 0,
+      "artifacts": 0,
+      "settings": 5,
+      "stateRevision": 15,
+      "integrity": []
+    }
+  },
+  "error": null,
+  "first_failure": null
+}
