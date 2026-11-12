@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "ok": true,
+  "engine": {
+    "version": "0.10.2",
+    "commit": "ff466b2ed0bfb4ae5267d4d8d0ecb562cf46956e"
+  },
+  "thread_id": "thr_5e260c6d18b24e4abe20e86731b072b9",
+  "turn_id": "turn_4eb8fe6fe767453782b3379d0d7fc0ca",
+  "turn_status": "completed",
+  "effective": {
+    "provider": "deepseek",
+    "model": "deepseek-flash",
+    "permission_posture": "full_access"
+  },
+  "usage": {
+    "totals": {
+      "inputTokens": 28468,
+      "outputTokens": 27,
+      "cachedTokens": 10240,
+      "reasoningTokens": 0,
+      "costUsd": 0.00863424,
+      "costComplete": false,
+      "turns": 12
+    }
+  },
+  "projection": {
+    "threadId": "thr_5e260c6d18b24e4abe20e86731b072b9",
+    "lastSeq": 935,
+    "status": "completed",
+    "messages": [
+      {
+        "itemId": "item_8062f727fed84624a8040a63a5e36e17",
+        "kind": "user_message",
+        "text": "Reply with exactly: pong",
+        "status": "completed"
+      },
+      {
+        "itemId": "item_b6715e07bb9141e8b7fe6043ced09293",
+        "kind": "agent_message",
+        "text": "pong",
+        "status": "completed"
+      }
+    ],
+    "tools": [],
+    "unknownEventKinds": [
+      "model.tools.snapshot",
+      "turn.lifecycle",
+      "turn.provider_request",
+      "turn.usage",
+      "turn.workspace_snapshot"
+    ],
+    "permissionPosture": "full_access"
+  },
+  "checks": {
+    "discovered": true,
+    "thread_created": true,
+    "turn_completed": true,
+    "effective_route_verified": true,
+    "projection_completed": true,
+    "projection_permission_full_access": true,
+    "no_stream_diagnostics": true,
+    "operation_lookup_same_turn": true,
+    "usage_reported": true,
+    "interrupt_route_reachable": true
+  },
+  "error": null,
+  "events": 15,
+  "diagnostic_reasons": [],
+  "stream_items": [
+    "progress:replaying",
+    "event:thread.started",
+    "event:turn.started",
+    "event:item.started",
+    "event:item.completed",
+    "progress:live",
+    "event:turn.lifecycle",
+    "event:turn.workspace_snapshot",
+    "event:model.tools.snapshot",
+    "event:item.started",
+    "event:item.delta",
+    "event:turn.provider_request",
+    "event:turn.usage",
+    "event:item.completed",
+    "event:model.tools.snapshot",
+    "event:turn.workspace_snapshot",
+    "event:turn.completed",
+    "end:aborted"
+  ],
+  "lookup": {
+    "status": "completed",
+    "evidence": "lookup"
+  },
+  "interrupt": {
+    "confirmed": false,
+    "note": "runtime reports no active turn to interrupt (409)"
+  }
+}

@@ -831,6 +831,25 @@
     },
     {
       "mona_id": "MONA-CAP-045",
+      "upstream_name": "Versioned adapter contract",
+      "upstream_source": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstream_version": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission_implications": "adapter-mediated; strict validation at the boundary",
+      "cost_implications": "No extra inference; submission identity persisted before send.",
+      "required_arguments": "discover, thread, submit, reconcile, subscribe, interrupt, history, usage",
+      "integration": "native_view",
+      "ui_location": "Engine adapter",
+      "tests": "p03: 70 tests + real pinned-runtime smoke (10 checks)",
+      "status": "verified",
+      "gap": null,
+      "evidence": [
+        "arn:p03-engine-smoke.json"
+      ]
+    },
+    {
+      "mona_id": "MONA-CAP-046",
       "upstream_name": "SSE event journal /v1/threads/{id}/events",
       "upstream_source": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
       "upstream_version": "0.10.2",
@@ -849,7 +868,7 @@
       ]
     },
     {
-      "mona_id": "MONA-CAP-046",
+      "mona_id": "MONA-CAP-047",
       "upstream_name": "Thread/turn lifecycle",
       "upstream_source": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
       "upstream_version": "0.10.2",
@@ -868,7 +887,7 @@
       ]
     },
     {
-      "mona_id": "MONA-CAP-047",
+      "mona_id": "MONA-CAP-048",
       "upstream_name": "Turn interrupt",
       "upstream_source": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
       "upstream_version": "0.10.2",
@@ -887,7 +906,7 @@
       ]
     },
     {
-      "mona_id": "MONA-CAP-048",
+      "mona_id": "MONA-CAP-049",
       "upstream_name": "Resume from saved session",
       "upstream_source": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
       "upstream_version": "0.10.2",
@@ -906,7 +925,7 @@
       ]
     },
     {
-      "mona_id": "MONA-CAP-049",
+      "mona_id": "MONA-CAP-050",
       "upstream_name": "Usage aggregation and cost",
       "upstream_source": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
       "upstream_version": "0.10.2",
@@ -925,7 +944,7 @@
       ]
     },
     {
-      "mona_id": "MONA-CAP-050",
+      "mona_id": "MONA-CAP-051",
       "upstream_name": "Turn history and receipts",
       "upstream_source": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
       "upstream_version": "0.10.2",
@@ -944,7 +963,7 @@
       ]
     },
     {
-      "mona_id": "MONA-CAP-051",
+      "mona_id": "MONA-CAP-052",
       "upstream_name": "Approvals bridge",
       "upstream_source": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
       "upstream_version": "0.10.2",
@@ -960,7 +979,7 @@
       "gap": "Not exercised; G0 used auto_approve on a dedicated thread."
     },
     {
-      "mona_id": "MONA-CAP-052",
+      "mona_id": "MONA-CAP-053",
       "upstream_name": "Permission posture (Full Access)",
       "upstream_source": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
       "upstream_version": "0.10.2",
@@ -979,7 +998,7 @@
       ]
     },
     {
-      "mona_id": "MONA-CAP-053",
+      "mona_id": "MONA-CAP-054",
       "upstream_name": "Tools: shell and file write",
       "upstream_source": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
       "upstream_version": "0.10.2",
@@ -998,7 +1017,7 @@
       ]
     },
     {
-      "mona_id": "MONA-CAP-054",
+      "mona_id": "MONA-CAP-055",
       "upstream_name": "Tool: apply_patch",
       "upstream_source": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
       "upstream_version": "0.10.2",
@@ -1014,7 +1033,7 @@
       "gap": null
     },
     {
-      "mona_id": "MONA-CAP-055",
+      "mona_id": "MONA-CAP-056",
       "upstream_name": "Web search",
       "upstream_source": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
       "upstream_version": "0.10.2",
@@ -1030,7 +1049,7 @@
       "gap": "Provider-native search semantics differ by route; no claim made."
     },
     {
-      "mona_id": "MONA-CAP-056",
+      "mona_id": "MONA-CAP-057",
       "upstream_name": "Subagents",
       "upstream_source": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
       "upstream_version": "0.10.2",
@@ -1046,7 +1065,7 @@
       "gap": null
     },
     {
-      "mona_id": "MONA-CAP-057",
+      "mona_id": "MONA-CAP-058",
       "upstream_name": "MCP server management",
       "upstream_source": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
       "upstream_version": "0.10.2",
@@ -1062,7 +1081,7 @@
       "gap": null
     },
     {
-      "mona_id": "MONA-CAP-058",
+      "mona_id": "MONA-CAP-059",
       "upstream_name": "Skills and plugins",
       "upstream_source": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
       "upstream_version": "0.10.2",
@@ -1078,7 +1097,7 @@
       "gap": "Install never implies trust."
     },
     {
-      "mona_id": "MONA-CAP-059",
+      "mona_id": "MONA-CAP-060",
       "upstream_name": "Fleet and workflows",
       "upstream_source": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
       "upstream_version": "0.10.2",
@@ -1094,7 +1113,7 @@
       "gap": "Mona must not run a competing scheduler."
     },
     {
-      "mona_id": "MONA-CAP-060",
+      "mona_id": "MONA-CAP-061",
       "upstream_name": "Terminal stream/input",
       "upstream_source": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
       "upstream_version": "0.10.2",
@@ -1110,7 +1129,7 @@
       "gap": null
     },
     {
-      "mona_id": "MONA-CAP-061",
+      "mona_id": "MONA-CAP-062",
       "upstream_name": "Workspace files, search, artifacts",
       "upstream_source": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
       "upstream_version": "0.10.2",
@@ -1126,7 +1145,7 @@
       "gap": null
     },
     {
-      "mona_id": "MONA-CAP-062",
+      "mona_id": "MONA-CAP-063",
       "upstream_name": "Workspace snapshots/restore",
       "upstream_source": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
       "upstream_version": "0.10.2",
@@ -1142,7 +1161,7 @@
       "gap": null
     },
     {
-      "mona_id": "MONA-CAP-063",
+      "mona_id": "MONA-CAP-064",
       "upstream_name": "Provider/model catalog and route visibility",
       "upstream_source": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
       "upstream_version": "0.10.2",
@@ -1161,7 +1180,7 @@
       ]
     },
     {
-      "mona_id": "MONA-CAP-064",
+      "mona_id": "MONA-CAP-065",
       "upstream_name": "Session persistence",
       "upstream_source": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
       "upstream_version": "0.10.2",
@@ -1180,7 +1199,7 @@
       ]
     },
     {
-      "mona_id": "MONA-CAP-065",
+      "mona_id": "MONA-CAP-066",
       "upstream_name": "Operation idempotency (operation_key)",
       "upstream_source": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
       "upstream_version": "0.10.2",
@@ -1191,12 +1210,15 @@
       "required_arguments": "operation_key on thread/turn create",
       "integration": "native_view",
       "ui_location": "Submission reconciliation",
-      "tests": "capabilities.turn_operation_idempotency=true; P03 test pending",
-      "status": "unqualified",
-      "gap": "Advertised but not yet contract-tested by Mona."
+      "tests": "p03: lost-response simulation + real operation lookup",
+      "status": "verified",
+      "gap": null,
+      "evidence": [
+        "arn:p03-engine-smoke.json"
+      ]
     },
     {
-      "mona_id": "MONA-CAP-066",
+      "mona_id": "MONA-CAP-067",
       "upstream_name": "Zero-inference non-turn actions",
       "upstream_source": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
       "upstream_version": "0.10.2",
@@ -1215,7 +1237,7 @@
       ]
     },
     {
-      "mona_id": "MONA-CAP-067",
+      "mona_id": "MONA-CAP-068",
       "upstream_name": "Packaged native execution (no Node in PATH)",
       "upstream_source": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
       "upstream_version": "0.10.2",
@@ -1234,7 +1256,7 @@
       ]
     },
     {
-      "mona_id": "MONA-CAP-068",
+      "mona_id": "MONA-CAP-069",
       "upstream_name": "Finder selected-folder Service (NSServices)",
       "upstream_source": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
       "upstream_version": "0.10.2",
@@ -1253,7 +1275,7 @@
       ]
     },
     {
-      "mona_id": "MONA-CAP-069",
+      "mona_id": "MONA-CAP-070",
       "upstream_name": "Single Runtime owner per user store",
       "upstream_source": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
       "upstream_version": "0.10.2",
@@ -1269,7 +1291,7 @@
       "gap": "Multiple independent owned runtimes are NOT supported; serialize project execution."
     },
     {
-      "mona_id": "MONA-CAP-070",
+      "mona_id": "MONA-CAP-071",
       "upstream_name": "Engine update path",
       "upstream_source": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
       "upstream_version": "0.10.2",
@@ -1285,7 +1307,7 @@
       "gap": "Do not silently upgrade; compatibility decision required."
     },
     {
-      "mona_id": "MONA-CAP-071",
+      "mona_id": "MONA-CAP-072",
       "upstream_name": "macOS minimum and signature state",
       "upstream_source": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
       "upstream_version": "0.10.2",
@@ -1302,15 +1324,15 @@
     }
   ],
   "coverage": {
-    "rows_total": 71,
-    "verified": 28,
-    "unqualified": 42,
+    "rows_total": 72,
+    "verified": 30,
+    "unqualified": 41,
     "unavailable": 1,
     "blocked_gaps": 0,
-    "assessed_utc": "2026-11-12T01:07:05.883Z",
+    "assessed_utc": "2026-11-12T01:23:49.113Z",
     "by_integration": {
       "integrated_terminal": 7,
-      "native_view": 45,
+      "native_view": 46,
       "advanced_action": 18,
       "unavailable": 1
     },

@@ -1,0 +1,27 @@
+{
+  "since": "2026-11-11T00:00:00Z",
+  "until": "2026-11-11T01:00:00Z",
+  "group_by": "thread",
+  "totals": {
+    "input_tokens": 1200,
+    "output_tokens": 40,
+    "cached_tokens": 800,
+    "reasoning_tokens": 12,
+    "cost_usd": 0.00042,
+    "turns": 1,
+    "cost_complete": true,
+    "unpriced_turns": 0
+  },
+  "buckets": [
+    {
+      "key": "thr_0123456789abcdef",
+      "input_tokens": 1200,
+      "output_tokens": 40,
+      "cached_tokens": 800,
+      "reasoning_tokens": 12,
+      "cost_usd": 0.00042,
+      "cost_complete": true,
+      "turns": 1
+    }
+  ]
+}

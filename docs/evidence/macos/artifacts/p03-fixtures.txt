@@ -1,0 +1,25 @@
+=== contract fixtures (test/fixtures/engine) ===
+6698f02e2032dd856174d465d1cf14f223893a7435a34e55abcf12780006e2db  test/fixtures/engine/events.json
+52be57d5af6b6276b22c4a8f297722e98e1efe49c105f35388ce5a55eef8f5fe  test/fixtures/engine/runtime-info.json
+fbe7efb975f1ea42ed7c569d0462738d64ec2fff2ea15aebd7215c773b8147bf  test/fixtures/engine/thread.json
+19fa46a5c0ef71d9b897bea34fbff7e9d1fbd3068133904073c29745518d0516  test/fixtures/engine/turn-accepted.json
+21ab344f74f0752c37a8122fcf4c719b6b3fdf2686c5fd59ae45f5785c4f8ea8  test/fixtures/engine/usage.json
+
+=== adapter sources ===
+src/main/engine/adapter.ts
+src/main/engine/compat.ts
+src/main/engine/errors.ts
+src/main/engine/index.ts
+src/main/engine/projector.ts
+src/main/engine/runtime-process.ts
+src/main/engine/sse.ts
+src/main/engine/submission-store.ts
+src/main/engine/transport.ts
+src/main/engine/types.ts
+src/main/engine/wire.ts
+
+=== test files ===
+test/engine-adapter.test.ts
+test/engine-compat.test.ts
+test/engine-sse.test.ts
+test/helpers/fixture-transport.ts

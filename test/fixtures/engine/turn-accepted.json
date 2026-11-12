@@ -1,0 +1,15 @@
+{
+  "id": "turn_0123456789abcdef",
+  "thread_id": "thr_0123456789abcdef",
+  "status": "in_progress",
+  "effective_provider": "deepseek",
+  "effective_model": "deepseek-flash",
+  "permission_posture": "full_access",
+  "input_summary": "Reply with exactly: pong",
+  "usage": {
+    "input_tokens": 1200,
+    "output_tokens": 40,
+    "prompt_cache_hit_tokens": 800,
+    "prompt_cache_miss_tokens": 400
+  }
+}

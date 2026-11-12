@@ -1,0 +1,114 @@
+
+> mona@0.1.0-p02 ci
+> node scripts/ci.mjs
+
+
+> mona@0.1.0-p02 format:check
+> prettier --check .
+
+Checking formatting...
+All matched files use Prettier code style!
+
+> mona@0.1.0-p02 lint
+> eslint .
+
+
+<USER_HOME>/DS_Projects/Mona/test/engine-adapter.test.ts
+  19:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 1 problem (0 errors, 1 warning)
+
+
+> mona@0.1.0-p02 typecheck
+> tsc -p tsconfig.main.json --noEmit && tsc -p tsconfig.renderer.json --noEmit
+
+
+> mona@0.1.0-p02 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.1.0 [39m[90m<USER_HOME>/DS_Projects/Mona[39m
+
+ [32m✓[39m test/engine-compat.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m test/tool-discovery.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m test/engine-sse.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m test/ipc-contract.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m test/fixtures.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m test/contracts.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m test/engine-adapter.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m test/boundary.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m test/navigation.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m9 passed[39m[22m[90m (9)[39m
+[2m      Tests [22m [1m[32m70 passed[39m[22m[90m (70)[39m
+[2m   Start at [22m 18:24:39
+[2m   Duration [22m 248ms[2m (import 53%, transform 22%, tests 19%, worker 6%)[22m
+
+
+> mona@0.1.0-p02 build
+> npm run clean && npm run build:main && npm run build:renderer
+
+
+> mona@0.1.0-p02 clean
+> rm -rf dist coverage
+
+
+> mona@0.1.0-p02 build:main
+> tsc -p tsconfig.main.json
+
+
+> mona@0.1.0-p02 build:renderer
+> vite build
+
+[36mvite v8.3.8 [32mbuilding client environment for production...[36m[39m
+transforming...
+✓ 15 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/renderer/index.html                   0.68 kB │ gzip:  0.38 kB
+dist/renderer/assets/index-D3glu6h8.css    2.98 kB │ gzip:  1.18 kB
+dist/renderer/assets/index-DEFk1pYs.js   222.60 kB │ gzip: 69.54 kB
+
+[32m✓ built in 71ms[39m
+{
+  "ok": true,
+  "steps": [
+    {
+      "name": "format:check",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 485
+    },
+    {
+      "name": "lint",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 675
+    },
+    {
+      "name": "typecheck",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 1135
+    },
+    {
+      "name": "test",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 498
+    },
+    {
+      "name": "build",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 1226
+    }
+  ],
+  "renderer_scan": {
+    "ok": true,
+    "files": 3,
+    "patterns": [],
+    "bytes": 226270
+  },
+  "dist_bytes": 226270
+}

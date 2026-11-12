@@ -1,0 +1,22 @@
+{
+  "service": "codewhale-runtime-api",
+  "runtime_api_version": "1.0",
+  "codewhale_version": "0.10.2",
+  "codewhale_commit": "ff466b2ed0bfb4ae5267d4d8d0ecb562cf46956e",
+  "bind_host": "127.0.0.1",
+  "port": 7878,
+  "auth_required": true,
+  "transports": ["http", "sse"],
+  "capabilities": {
+    "threads": true,
+    "turns": true,
+    "turn_operation_idempotency": true,
+    "turn_operation_lookup": true,
+    "thread_create_idempotency": true,
+    "event_replay": true,
+    "turn_interrupt": true,
+    "turn_steer": true,
+    "turn_image_inputs": true,
+    "mcp_server_management": true
+  }
+}

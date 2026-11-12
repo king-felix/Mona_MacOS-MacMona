@@ -1,0 +1,96 @@
+[
+  {
+    "schema_version": 1,
+    "seq": 1,
+    "event": "stream.progress",
+    "kind": "stream.progress",
+    "thread_id": "thr_0123456789abcdef",
+    "timestamp": "2026-11-11T00:00:00.000Z",
+    "payload": { "state": "replaying" }
+  },
+  {
+    "schema_version": 1,
+    "seq": 2,
+    "event": "thread.started",
+    "kind": "thread.started",
+    "thread_id": "thr_0123456789abcdef",
+    "timestamp": "2026-11-11T00:00:00.100Z",
+    "payload": {}
+  },
+  {
+    "schema_version": 1,
+    "seq": 3,
+    "event": "turn.started",
+    "kind": "turn.started",
+    "thread_id": "thr_0123456789abcdef",
+    "turn_id": "turn_0123456789abcdef",
+    "timestamp": "2026-11-11T00:00:00.200Z",
+    "payload": { "permission_posture": "full_access" }
+  },
+  {
+    "schema_version": 1,
+    "seq": 4,
+    "previous_seq": 3,
+    "event": "item.delta",
+    "kind": "item.delta",
+    "thread_id": "thr_0123456789abcdef",
+    "turn_id": "turn_0123456789abcdef",
+    "item_id": "item_aaaaaaaaaaaaaaaa",
+    "timestamp": "2026-11-11T00:00:01.000Z",
+    "payload": { "kind": "agent_message", "delta": "café " }
+  },
+  {
+    "schema_version": 1,
+    "seq": 5,
+    "previous_seq": 4,
+    "event": "item.delta",
+    "kind": "item.delta",
+    "thread_id": "thr_0123456789abcdef",
+    "turn_id": "turn_0123456789abcdef",
+    "item_id": "item_aaaaaaaaaaaaaaaa",
+    "timestamp": "2026-11-11T00:00:01.100Z",
+    "payload": { "kind": "agent_message", "delta": "pong" }
+  },
+  {
+    "schema_version": 1,
+    "seq": 6,
+    "previous_seq": 5,
+    "event": "item.completed",
+    "kind": "item.completed",
+    "thread_id": "thr_0123456789abcdef",
+    "turn_id": "turn_0123456789abcdef",
+    "item_id": "item_bbbbbbbbbbbbbbbb",
+    "timestamp": "2026-11-11T00:00:02.000Z",
+    "payload": {
+      "item": {
+        "id": "item_bbbbbbbbbbbbbbbb",
+        "kind": "tool_call",
+        "status": "completed",
+        "summary": "bash: PASS",
+        "detail": "PASS"
+      }
+    }
+  },
+  {
+    "schema_version": 1,
+    "seq": 7,
+    "previous_seq": 6,
+    "event": "turn.completed",
+    "kind": "turn.completed",
+    "thread_id": "thr_0123456789abcdef",
+    "turn_id": "turn_0123456789abcdef",
+    "timestamp": "2026-11-11T00:00:03.000Z",
+    "payload": { "status": "completed" }
+  },
+  {
+    "schema_version": 1,
+    "seq": 8,
+    "previous_seq": 7,
+    "event": "future.event",
+    "kind": "future.event",
+    "thread_id": "thr_0123456789abcdef",
+    "turn_id": "turn_0123456789abcdef",
+    "timestamp": "2026-11-11T00:00:04.000Z",
+    "payload": { "kept": true }
+  }
+]

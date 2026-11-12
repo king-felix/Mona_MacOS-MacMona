@@ -152,3 +152,22 @@ and deviations discovered while building.
   handler, bridge method, and test. No raw Electron API, Node built-in, upstream
   wire type, or secret may cross into the renderer. Electron upgrades re-run the
   security smoke and bundle baseline.
+
+## D-012 — Adapter compatibility, submission safety, and stream typing
+
+- **Date:** 2026-11-11 (P03)
+- **Decision:** The adapter fails closed on any engine version/commit other than
+  Codewhale 0.10.2 at `ff466b2ed0bf`, persists submission intent before the POST,
+  reconciles lost responses only through the read-only operation lookup, and
+  never retries a possibly accepted write. Streams distinguish durable events,
+  progress transport frames, diagnostics, and terminal `stream.end`; the
+  projector deduplicates by per-thread `seq`. Effective route and permission
+  posture are read from the turn, not inferred from the request.
+- **Why:** P03 must not duplicate billed work or mutate another thread. The
+  pinned API's progress frames have no timestamp/payload and are not events;
+  treating them as durable caused a real schema-drift diagnostic until the
+  distinction was made explicit. The P01 measurement that the listener is a
+  native grandchild also rules out the npm wrapper for owned runtime control.
+- **Consequence:** P04 builds supervision on `runtime-process.ts`; P05 replaces
+  the submission store without changing the persist-before-send contract. A new
+  engine version is an explicit re-qualification, not an adapter setting.

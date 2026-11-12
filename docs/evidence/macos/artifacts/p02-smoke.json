@@ -79,11 +79,11 @@
     }
   },
   "paths": {
-    "support": "/Users/<user>/Library/Application Support/Mona",
-    "cache": "/Users/<user>/Library/Caches/Mona",
-    "logs": "/Users/<user>/Library/Logs/Mona",
-    "state": "/Users/<user>/Library/Application Support/Mona/state",
-    "projects": "/Users/<user>/Library/Application Support/Mona/projects"
+    "support": "<USER_HOME>/Library/Application Support/Mona",
+    "cache": "<USER_HOME>/Library/Caches/Mona",
+    "logs": "<USER_HOME>/Library/Logs/Mona",
+    "state": "<USER_HOME>/Library/Application Support/Mona/state",
+    "projects": "<USER_HOME>/Library/Application Support/Mona/projects"
   },
   "tools": [
     {

@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-12T01:16:15.960Z",
+  "generated_utc": "2026-11-12T01:24:56.238Z",
   "git": {
     "available": true,
-    "commit": "948ebd687d61ecdc7b7b2130211a2c09a01eb454",
+    "commit": "728e2b7e56663d5be8721960675e3424e5376ae1",
     "dirty": true
   },
-  "digest": "147e1dda40ad666f6fe3b9eaa531a9a4efbdd6033bb3db78047f869938735e11",
+  "digest": "3f5d109b84e7898338ab7b75434eb74af99cc02061b66b3d3046378a998f29fb",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,8 +15,8 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "355f0f5a2fad1807e9ee3c50f8e25033c56944b86cc9974034400ff6306f3003",
-      "bytes": 26196
+      "sha256": "64d47b7adc3913a2f9e2f92161f8cffc5aa5da0251b2c792ce84ec4793b787ae",
+      "bytes": 32613
     },
     {
       "path": "AGENTS.md",
@@ -25,8 +25,8 @@
     },
     {
       "path": "docs/codewhale-capabilities-macos.json",
-      "sha256": "89bc762ecdd0894c339d436d414c9d7078bb7c5df7e31d0176c5df97c06a52e0",
-      "bytes": 52456
+      "sha256": "7d8ac4fba976ddb5d2cd86e6d33733e0cbf6b77094ddc309aa02299c5e94d391",
+      "bytes": 53311
     },
     {
       "path": "docs/evidence/macos/artifacts/codewhale-app-server-help.txt",
@@ -125,8 +125,8 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p02-ci.txt",
-      "sha256": "a1a43b8dfb9895f3e24f0f5460483a691e87cae8d3ace73ce6c083a8b993d53c",
-      "bytes": 2572
+      "sha256": "af8ad8b185a9b918303ea477acfc3403bfb94429e9bb12f741696f6053e84b29",
+      "bytes": 2568
     },
     {
       "path": "docs/evidence/macos/artifacts/p02-clean-install.txt",
@@ -135,8 +135,28 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p02-smoke.json",
-      "sha256": "fcc6e5ec4e4d04f38773a0b3e8511000bd1cc9bfea7054d128afc5a3ec3ddcf6",
-      "bytes": 3706
+      "sha256": "8c6f000e75c7a47b22ec86b2a0b67cb48d37d143a63ed60a3289325204fd724b",
+      "bytes": 3686
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p03-ci.txt",
+      "sha256": "d1acff59dda50e3cf3d9cd961b6cc9091052f4f78cf2fb5cdcf95b27377e897f",
+      "bytes": 3068
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p03-engine-smoke.json",
+      "sha256": "f9c6ca16b878e87e23f2a848051982a76c285e9d03a0f82c2ba524a81c856d4c",
+      "bytes": 2484
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p03-fixtures.txt",
+      "sha256": "d87836c03f01689291d562ef964789b20716ff142d35b1bcdb90d0edd41f723f",
+      "bytes": 1019
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p03-tests.txt",
+      "sha256": "29524b5c522a4868f0379f08418a47867ae39cea669dae92b71e2b9cf4294524",
+      "bytes": 1282
     },
     {
       "path": "docs/evidence/macos/artifacts/signing-inventory.txt",
@@ -172,6 +192,11 @@
       "path": "docs/evidence/macos/P02-foundation.md",
       "sha256": "4652c1e65dfca473191bf4c8f781e81766afacc520802f4404d886713598eaf8",
       "bytes": 6560
+    },
+    {
+      "path": "docs/evidence/macos/P03-adapter.md",
+      "sha256": "a1c7e16d45cd2e220ed942902bfd562f33ae1da62095e19de8383ce587dce734",
+      "bytes": 8695
     },
     {
       "path": "docs/requirements-macos.json",

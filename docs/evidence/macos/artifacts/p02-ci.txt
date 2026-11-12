@@ -21,7 +21,7 @@ All matched files use Prettier code style!
 > vitest run
 
 
-[1m[30m[46m RUN [49m[39m[22m [36mv5.1.0 [39m[90m/Users/<user>/DS_Projects/Mona[39m
+[1m[30m[46m RUN [49m[39m[22m [36mv5.1.0 [39m[90m<USER_HOME>/DS_Projects/Mona[39m
 
  [32m✓[39m test/navigation.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 2[2mms[22m[39m
  [32m✓[39m test/boundary.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 3[2mms[22m[39m

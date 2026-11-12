@@ -23,7 +23,8 @@
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "ci": "node scripts/ci.mjs"
+    "ci": "node scripts/ci.mjs",
+    "engine:smoke": "npm run build && node scripts/engine-smoke.mjs"
   },
   "dependencies": {
     "react": "19.3.1",

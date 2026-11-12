@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "revision": 29,
+  "revision": 36,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
   "spec_sha256": "d1c02941151c71912bc3e9c8b2509612298d54e05e0bf16fe933b9bd93e3e028",
   "prompt_file_sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8",
-  "current_prompt": "P02",
+  "current_prompt": "P03",
   "current_prompt_status": "pending",
-  "last_verified_commit": "948ebd6",
+  "last_verified_commit": "728e2b7",
   "tasks": {
     "P00": {
       "status": "completed",
@@ -57,7 +57,7 @@
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
-          "sha256": "89bc762ecdd0894c339d436d414c9d7078bb7c5df7e31d0176c5df97c06a52e0"
+          "sha256": "7d8ac4fba976ddb5d2cd86e6d33733e0cbf6b77094ddc309aa02299c5e94d391"
         },
         {
           "path": "AGENTS.md",
@@ -81,7 +81,7 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "632268e55942242374a04af6dbfeb3fcf5a0c1427a672a2e74b0585e50a79e60"
+          "sha256": "ff0c9b66a3d7f5fbc0e0a2ce1f744fd1ac08b4f3cc8a4cdea160cfd9f485b7f7"
         },
         {
           "path": "docs/evidence/macos/artifacts/p00-test-run.txt",
@@ -157,7 +157,7 @@
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
-          "sha256": "89bc762ecdd0894c339d436d414c9d7078bb7c5df7e31d0176c5df97c06a52e0"
+          "sha256": "7d8ac4fba976ddb5d2cd86e6d33733e0cbf6b77094ddc309aa02299c5e94d391"
         },
         {
           "path": "tools/p01-spike/spike.mjs",
@@ -173,7 +173,7 @@
         },
         {
           "path": "tools/p01-spike/build-inventory.mjs",
-          "sha256": "dda157631415e659e9fbd324f62c74e8acc7780cfd8adee9aacdfef0b97a229c"
+          "sha256": "66611cfbca8ef6deaaead9c5e77e3ec31e9c88a3894ed78ab25f64d56946726e"
         }
       ],
       "blocker_ids": [],
@@ -187,12 +187,21 @@
       "updated_utc": "2026-11-12T01:08:00.000Z"
     },
     "P02": {
-      "status": "pending",
+      "status": "completed",
       "requirements": [
         "MONA-006",
         "MONA-026"
       ],
-      "completed_steps": [],
+      "completed_steps": [
+        "Scaffolded Electron 45.3.0 + React 19 + TypeScript + Vite with pinned dependencies, lockfile, npm scripts, and native/packaging locations",
+        "Implemented the security boundary: sandboxed/context-isolated renderer, narrow contextBridge, strict Zod IPC, trusted-sender checks, CSP connect-src none, denied navigation/window.open/permissions",
+        "Defined Mona contracts with branded IDs, strict unknown-field policy, separate upstream wire types, and 8 labeled fixtures",
+        "Built the local window with app version, placeholder navigation, native menu/Services, hiddenInset titlebar, close-versus-quit policy",
+        "Added per-user Application Support/Cache/Logs paths and GUI-launch tool discovery with Homebrew fallback",
+        "Added local CI (format/lint/typecheck/test/build/renderer secret scan) and a real Electron smoke test with 17 observed checks",
+        "Verified clean npm ci, 44 passing tests, 0 renderer secret findings, 226,270-byte renderer baseline, ~408 MB working set",
+        "Wrote ADR-001, ADR-002, and P02-foundation evidence"
+      ],
       "remaining_steps": [],
       "evidence": [
         {
@@ -201,11 +210,11 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p02-ci.txt",
-          "sha256": "a1a43b8dfb9895f3e24f0f5460483a691e87cae8d3ace73ce6c083a8b993d53c"
+          "sha256": "af8ad8b185a9b918303ea477acfc3403bfb94429e9bb12f741696f6053e84b29"
         },
         {
           "path": "docs/evidence/macos/artifacts/p02-smoke.json",
-          "sha256": "fcc6e5ec4e4d04f38773a0b3e8511000bd1cc9bfea7054d128afc5a3ec3ddcf6"
+          "sha256": "8c6f000e75c7a47b22ec86b2a0b67cb48d37d143a63ed60a3289325204fd724b"
         },
         {
           "path": "docs/evidence/macos/artifacts/p02-bundle.txt",
@@ -225,7 +234,7 @@
         },
         {
           "path": "package.json",
-          "sha256": "98bff803427f34394a9702d3c0b379325b42b69d7a019788ebf1ec8ae0f5955d"
+          "sha256": "e53ce4d4df70bc9fac6c2d389ef3c4f0d70dcd769a4484c4f226cac83b37e135"
         },
         {
           "path": "package-lock.json",
@@ -396,7 +405,16 @@
           "sha256": "e588cf48c9627d746c09f5c40ff2481fbc5f463e7541c39e240cf4db7e75fa2a"
         }
       ],
-      "blocker_ids": []
+      "blocker_ids": [],
+      "notes": [
+        "P02-01: tools/monabuild and tools/p01-spike are excluded from product ESLint/Prettier scope; they are pre-product utilities.",
+        "P02-02: visual/accessibility automation is deferred to P06/P26; the shell is semantic but not certified.",
+        "P02-03: Electron embeds Node 24.22.2; runtime code must not assume the host Node 26 APIs.",
+        "P02-04: fsevents reports an unapproved optional install script; not needed for build/test/smoke.",
+        "P02-05: no Developer ID signing yet (P22 prerequisite)."
+      ],
+      "started_utc": "2026-11-12T01:08:00.000Z",
+      "updated_utc": "2026-11-12T01:25:00.000Z"
     },
     "P03": {
       "status": "pending",
@@ -409,7 +427,124 @@
       ],
       "completed_steps": [],
       "remaining_steps": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P03-adapter.md",
+          "sha256": "a1c7e16d45cd2e220ed942902bfd562f33ae1da62095e19de8383ce587dce734"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p03-ci.txt",
+          "sha256": "d1acff59dda50e3cf3d9cd961b6cc9091052f4f78cf2fb5cdcf95b27377e897f"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p03-engine-smoke.json",
+          "sha256": "f9c6ca16b878e87e23f2a848051982a76c285e9d03a0f82c2ba524a81c856d4c"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p03-fixtures.txt",
+          "sha256": "d87836c03f01689291d562ef964789b20716ff142d35b1bcdb90d0edd41f723f"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p03-tests.txt",
+          "sha256": "29524b5c522a4868f0379f08418a47867ae39cea669dae92b71e2b9cf4294524"
+        },
+        {
+          "path": "src/main/engine/adapter.ts",
+          "sha256": "c89a1dff9f52a607da4974be5228e25c75d1260408ebadb0c9997d0535147ba0"
+        },
+        {
+          "path": "src/main/engine/compat.ts",
+          "sha256": "b53fc9204d85bdf7685c5c99ef1c7d731c3292b0e2855c724768c3f985dad219"
+        },
+        {
+          "path": "src/main/engine/errors.ts",
+          "sha256": "07f8b8be352857af0020ec0736d8fbf0f4f4f2ff54e4b216705bb74489308913"
+        },
+        {
+          "path": "src/main/engine/index.ts",
+          "sha256": "cc049e3827d0e6bb6a26895b3aa38c8dfe6f8585009fbc6abd2c9caf4af29278"
+        },
+        {
+          "path": "src/main/engine/projector.ts",
+          "sha256": "aae36dde689e382f3c3bd300b6349b5afd19fe9ea61024f172fdd387d1a5b531"
+        },
+        {
+          "path": "src/main/engine/runtime-process.ts",
+          "sha256": "65971d912b9acf457fe6e03d3fbdbb6ab5e6217e75aab62278c86c2367fa9747"
+        },
+        {
+          "path": "src/main/engine/sse.ts",
+          "sha256": "57191357eded6b11e86086106eea0ccd7473446c99342e2d10eb3e95577e3a7a"
+        },
+        {
+          "path": "src/main/engine/submission-store.ts",
+          "sha256": "b481c0ec9505981659c4c2bd1249f112a5d5ae12770f56837720506b3f1a92b2"
+        },
+        {
+          "path": "src/main/engine/transport.ts",
+          "sha256": "cfa7f41f1e4a113d11deabc038a2b63f7b116ed03091eac736f19f14293b4735"
+        },
+        {
+          "path": "src/main/engine/types.ts",
+          "sha256": "eca183628d356a6459f8a5181ea9442035212e1cf118381e80ce5bbba76e4a51"
+        },
+        {
+          "path": "src/main/engine/wire.ts",
+          "sha256": "e124ffb3230941a96caecab0141bff44cca52a9e60f96aad5df754b6a2705225"
+        },
+        {
+          "path": "test/fixtures/engine/events.json",
+          "sha256": "6698f02e2032dd856174d465d1cf14f223893a7435a34e55abcf12780006e2db"
+        },
+        {
+          "path": "test/fixtures/engine/runtime-info.json",
+          "sha256": "52be57d5af6b6276b22c4a8f297722e98e1efe49c105f35388ce5a55eef8f5fe"
+        },
+        {
+          "path": "test/fixtures/engine/thread.json",
+          "sha256": "fbe7efb975f1ea42ed7c569d0462738d64ec2fff2ea15aebd7215c773b8147bf"
+        },
+        {
+          "path": "test/fixtures/engine/turn-accepted.json",
+          "sha256": "19fa46a5c0ef71d9b897bea34fbff7e9d1fbd3068133904073c29745518d0516"
+        },
+        {
+          "path": "test/fixtures/engine/usage.json",
+          "sha256": "21ab344f74f0752c37a8122fcf4c719b6b3fdf2686c5fd59ae45f5785c4f8ea8"
+        },
+        {
+          "path": "test/engine-compat.test.ts",
+          "sha256": "04de0ac50d97bb2b6ebfc7d49575bcf503008f02ba30e2761100d8c003ca3de7"
+        },
+        {
+          "path": "test/engine-sse.test.ts",
+          "sha256": "4c9854e687ab9664dca1a778ef20bba25227436cd308ea2d83b8cfd208404691"
+        },
+        {
+          "path": "test/engine-adapter.test.ts",
+          "sha256": "9667d1c17f5b3c68a6ba2a0795e92f9877e48609de45cacc4a72a13d7e013f3e"
+        },
+        {
+          "path": "test/helpers/fixture-transport.ts",
+          "sha256": "6b86fe5ffa56b44c0b3d4f17776e676ca3382e0ecee0df47c1f76f64827696f5"
+        },
+        {
+          "path": "scripts/engine-smoke.mjs",
+          "sha256": "04325141c21727c841500f8128137bcacd106c510e3046f1971673e222044ac5"
+        },
+        {
+          "path": "package.json",
+          "sha256": "e53ce4d4df70bc9fac6c2d389ef3c4f0d70dcd769a4484c4f226cac83b37e135"
+        },
+        {
+          "path": "docs/codewhale-capabilities-macos.json",
+          "sha256": "7d8ac4fba976ddb5d2cd86e6d33733e0cbf6b77094ddc309aa02299c5e94d391"
+        },
+        {
+          "path": "tools/p01-spike/build-inventory.mjs",
+          "sha256": "66611cfbca8ef6deaaead9c5e77e3ec31e9c88a3894ed78ab25f64d56946726e"
+        }
+      ],
       "blocker_ids": []
     },
     "P04": {
@@ -701,9 +836,9 @@
     }
   },
   "next_eligible_prompts": [
-    "P02"
+    "P03"
   ],
-  "last_checkpoint_utc": "2026-11-12T01:16:15.883Z",
+  "last_checkpoint_utc": "2026-11-12T01:24:56.160Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",
