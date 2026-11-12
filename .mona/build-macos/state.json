@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 51,
+  "revision": 52,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -585,7 +585,7 @@
       "evidence": [
         {
           "path": "docs/evidence/macos/P04-supervisor.md",
-          "sha256": "4146e93d3324ddd082bfa27e9f5ae6a978bfe32d66b444a2eef5f5eb718d5252"
+          "sha256": "eac252635bf2057fe55d5b3174ed1b0cc0c9c790be79c5eeee874ab7620916d2"
         },
         {
           "path": "docs/evidence/macos/artifacts/p04-supervisor-build.json",
@@ -601,11 +601,11 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p04-tests.txt",
-          "sha256": "ce0498b9eeb217d17e451e5b5d55bdfcabfb8471db45857661913ee28cd877d1"
+          "sha256": "793609a8658ee34361c810191f72288d663cf96ca5f07f16967b553e06ae897d"
         },
         {
           "path": "docs/evidence/macos/artifacts/p04-ci.txt",
-          "sha256": "0f064897f9dd93e79f1c7fbf07c7be84388d34709c45633947c39378a0a4db8b"
+          "sha256": "74daf772e6ecb5e3626fbfec3598350fe5fdf10a0b6497bdf4b93e30a044d670"
         },
         {
           "path": "docs/decisions/ADR-003-runtime-supervisor.md",
@@ -701,11 +701,11 @@
         },
         {
           "path": "test/supervisor-native.test.ts",
-          "sha256": "eaf9dcc0db98e310abefc63df231d9681e74abd69f2b27214426380e4032e786"
+          "sha256": "b72f5a1eb19cbc94898eb55c916f027709985b729dacf73bbdfe1ba0dcd87780"
         },
         {
           "path": "test/runtime-supervisor.test.ts",
-          "sha256": "f80cb23ffe4280701159deeed5ade768e9cbf531eb3212bb9fd057fbfe5ffa5e"
+          "sha256": "68e834aa2aa134e23e29020f9db81e4fdc56caec8d84e5b5c6a50be077e4d898"
         },
         {
           "path": "test/runtime-process.test.ts",
@@ -1010,7 +1010,7 @@
   "next_eligible_prompts": [
     "P04"
   ],
-  "last_checkpoint_utc": "2026-11-12T02:05:25.962Z",
+  "last_checkpoint_utc": "2026-11-12T02:06:18.514Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

@@ -56,7 +56,7 @@ shows “Not connected” and “Cost unknown”.
   receipt, uncertainty reported), cancel-queued (future starts only), and
   quit-and-stop (interrupt then stop, one bounded forced escalation, no rollback
   claim) are separate, tested transitions.
-- **Verification.** 127 tests in 16 files (`npm test` builds the supervisor
+- **Verification.** 129 tests in 16 files (`npm test` builds the supervisor
   first and fails rather than skips the native suite on this host); Electron
   lifecycle smoke 21/21 run three times; real pinned-engine smoke 17/17 through
   the supervisor (completed turn, 15 events, `deepseek`/`deepseek-flash`/

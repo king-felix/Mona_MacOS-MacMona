@@ -13,7 +13,7 @@ from quit, survives renderer crashes and sleep/wake, reconciles stale ownership
 records without killing strangers, and restarts only the process after a
 bounded crash sequence.
 
-Verification: **127 tests in 16 files pass**, the Electron lifecycle smoke passes
+Verification: **129 tests in 16 files pass**, the Electron lifecycle smoke passes
 **21/21** checks, the real pinned-engine smoke passes **17/17** checks through
 the supervisor, and local CI is green (`p04-ci.txt`).
 
@@ -199,6 +199,6 @@ the supervisor.
 - `artifacts/p04-supervisor-build.json` — supervisor build/signature/hash.
 - `artifacts/p04-lifecycle-smoke.json` — 21/21 Electron lifecycle checks.
 - `artifacts/p04-engine-smoke.json` — 17/17 real-engine checks.
-- `artifacts/p04-tests.txt` — 127 passing tests.
+- `artifacts/p04-tests.txt` — 129 passing tests.
 - `artifacts/p04-ci.txt` — format, lint, typecheck, supervisor, tests, build,
   renderer secret scan (`226,270` bytes, no findings).

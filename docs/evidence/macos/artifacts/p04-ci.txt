@@ -39,7 +39,7 @@ $HOME/DS_Projects/Mona/test/engine-adapter.test.ts
   "signature": "ad-hoc",
   "signed": true,
   "verified": true,
-  "built_at": "2026-11-12T02:04:23.732Z"
+  "built_at": "2026-11-12T02:06:09.821Z"
 }
 
 > mona@0.1.0-p02 pretest
@@ -58,7 +58,7 @@ $HOME/DS_Projects/Mona/test/engine-adapter.test.ts
   "signature": "ad-hoc",
   "signed": true,
   "verified": true,
-  "built_at": "2026-11-12T02:04:25.759Z"
+  "built_at": "2026-11-12T02:06:11.845Z"
 }
 
 > mona@0.1.0-p02 test
@@ -68,30 +68,30 @@ $HOME/DS_Projects/Mona/test/engine-adapter.test.ts
 [1m[30m[46m RUN [49m[39m[22m [36mv5.1.0 [39m[90m$HOME/DS_Projects/Mona[39m
 
  [32m✓[39m test/tool-discovery.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 11[2mms[22m[39m
- [32m✓[39m test/supervisor-records.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 10[2mms[22m[39m
- [32m✓[39m test/contracts.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 8[2mms[22m[39m
- [32m✓[39m test/engine-adapter.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 34[2mms[22m[39m
- [32m✓[39m test/runtime-supervisor.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 111[2mms[22m[39m
- [32m✓[39m test/boundary.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
- [32m✓[39m test/fixtures.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 9[2mms[22m[39m
- [32m✓[39m test/engine-sse.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 4[2mms[22m[39m
- [32m✓[39m test/work-control.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m test/supervisor-records.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m test/contracts.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m test/engine-adapter.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 35[2mms[22m[39m
+ [32m✓[39m test/runtime-supervisor.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 124[2mms[22m[39m
  [32m✓[39m test/engine-compat.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 5[2mms[22m[39m
- [32m✓[39m test/ipc-contract.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m test/engine-sse.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m test/fixtures.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m test/boundary.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m test/work-control.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m test/ipc-contract.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 6[2mms[22m[39m
  [32m✓[39m test/supervisor-identity.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 3[2mms[22m[39m
  [32m✓[39m test/supervisor-restart.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 2[2mms[22m[39m
  [32m✓[39m test/navigation.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 2[2mms[22m[39m
- [32m✓[39m test/runtime-process.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 355[2mms[22m[39m
- [32m✓[39m test/supervisor-native.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 1970[2mms[22m[39m
-   [32m✓[39m native supervisor [2m(7)[22m
-     [33m[2m✓[22m[39m stops the entire owned tree and leaves unrelated processes alone[33m 375[2mms[22m[39m
-     [33m[2m✓[22m[39m records the escaped process group and stops it by identity[33m 336[2mms[22m[39m
-     [33m[2m✓[22m[39m escalates a TERM-ignoring tree to a bounded SIGKILL[33m 758[2mms[22m[39m
+ [32m✓[39m test/runtime-process.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 358[2mms[22m[39m
+ [32m✓[39m test/supervisor-native.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 2033[2mms[22m[39m
+   [32m✓[39m native supervisor [2m(8)[22m
+     [33m[2m✓[22m[39m stops the entire owned tree and leaves unrelated processes alone[33m 346[2mms[22m[39m
+     [33m[2m✓[22m[39m records the escaped process group and stops it by identity[33m 342[2mms[22m[39m
+     [33m[2m✓[22m[39m escalates a TERM-ignoring tree to a bounded SIGKILL[33m 807[2mms[22m[39m
 
 [2m Test Files [22m [1m[32m16 passed[39m[22m[90m (16)[39m
-[2m      Tests [22m [1m[32m127 passed[39m[22m[90m (127)[39m
-[2m   Start at [22m 19:04:25
-[2m   Duration [22m 2.11s[2m (tests 85%, import 11%, transform 3%, worker 1%)[22m
+[2m      Tests [22m [1m[32m129 passed[39m[22m[90m (129)[39m
+[2m   Start at [22m 19:06:12
+[2m   Duration [22m 2.18s[2m (tests 86%, import 10%, transform 2%, worker 1%)[22m
 
 
 > mona@0.1.0-p02 build
@@ -118,7 +118,7 @@ dist/renderer/index.html                   0.68 kB │ gzip:  0.38 kB
 dist/renderer/assets/index-D3glu6h8.css    2.98 kB │ gzip:  1.18 kB
 dist/renderer/assets/index-DEFk1pYs.js   222.60 kB │ gzip: 69.54 kB
 
-[32m✓ built in 72ms[39m
+[32m✓ built in 77ms[39m
 {
   "ok": true,
   "steps": [
@@ -126,37 +126,37 @@ dist/renderer/assets/index-DEFk1pYs.js   222.60 kB │ gzip: 69.54 kB
       "name": "format:check",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 659
+      "elapsed_ms": 657
     },
     {
       "name": "lint",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 805
+      "elapsed_ms": 799
     },
     {
       "name": "typecheck",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 1198
+      "elapsed_ms": 1204
     },
     {
       "name": "build:supervisor",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 2448
+      "elapsed_ms": 2412
     },
     {
       "name": "test",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 4349
+      "elapsed_ms": 4376
     },
     {
       "name": "build",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 1324
+      "elapsed_ms": 1326
     }
   ],
   "renderer_scan": {

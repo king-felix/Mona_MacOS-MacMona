@@ -286,6 +286,25 @@ describe("runtime supervisor", () => {
     expect(driver.marks.at(-1)?.patch.state).toBe("stopped");
   });
 
+  it("records an unverified stop as failed instead of stopped", async () => {
+    const { supervisor, driver } = harness();
+    await supervisor.ensure("/tmp/ws-a");
+    driver.stop = async () => ({
+      ok: true,
+      state: "stopped",
+      graceful: true,
+      escalated: false,
+      survivors: [],
+      via: "signal_fallback",
+      verified: false,
+    });
+    const receipt = await supervisor.stopOwned("quit");
+    expect(receipt.verified).toBe(false);
+    expect(driver.marks.at(-1)?.patch.state).toBe("failed");
+    // The failed record is re-checked, not trusted as a finished stop.
+    expect(supervisor.status().state).toBe("stopped");
+  });
+
   it("never stops an externally launched runtime", async () => {
     const { supervisor } = harness();
     supervisor.attachExternal({ workspace: "/tmp/ws-a", port: 7_123 });

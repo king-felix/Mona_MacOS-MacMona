@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-12T02:05:26.045Z",
+  "generated_utc": "2026-11-12T02:06:23.637Z",
   "git": {
     "available": true,
-    "commit": "17f0669320d665559632a5b4842c6b8102a9235d",
+    "commit": "e102cc3bf26049c5f81dc913ee79376d84e0d223",
     "dirty": true
   },
-  "digest": "a8dcbf478e382123e1c38c47c236e890303ecda86f88de5d93404e10f3c790cf",
+  "digest": "f50142003b1909f8f9b94a70538b06388f916323364f83349687130525cbb555",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,7 +15,7 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "d86c2170300765af31be8779f7a2dd111c9cd5a024ffb260dd88676af3a245a8",
+      "sha256": "719ca3bc5c993944760392dd2b910ef784ac1fdb5c4b73dfeb676bbd5bea3d14",
       "bytes": 42403
     },
     {
@@ -160,8 +160,8 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p04-ci.txt",
-      "sha256": "0f064897f9dd93e79f1c7fbf07c7be84388d34709c45633947c39378a0a4db8b",
-      "bytes": 5498
+      "sha256": "74daf772e6ecb5e3626fbfec3598350fe5fdf10a0b6497bdf4b93e30a044d670",
+      "bytes": 5497
     },
     {
       "path": "docs/evidence/macos/artifacts/p04-engine-smoke.json",
@@ -180,8 +180,8 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p04-tests.txt",
-      "sha256": "ce0498b9eeb217d17e451e5b5d55bdfcabfb8471db45857661913ee28cd877d1",
-      "bytes": 20520
+      "sha256": "793609a8658ee34361c810191f72288d663cf96ca5f07f16967b553e06ae897d",
+      "bytes": 20859
     },
     {
       "path": "docs/evidence/macos/artifacts/signing-inventory.txt",
@@ -225,7 +225,7 @@
     },
     {
       "path": "docs/evidence/macos/P04-supervisor.md",
-      "sha256": "4146e93d3324ddd082bfa27e9f5ae6a978bfe32d66b444a2eef5f5eb718d5252",
+      "sha256": "eac252635bf2057fe55d5b3174ed1b0cc0c9c790be79c5eeee874ab7620916d2",
       "bytes": 12309
     },
     {

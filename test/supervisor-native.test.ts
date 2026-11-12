@@ -234,6 +234,24 @@ setInterval(() => {}, 1000);
     }
   }, 20_000);
 
+  it("marks a fallback stop unverified even when the process is gone", async () => {
+    const child = spawn("/bin/sleep", ["60"], { stdio: "ignore" });
+    try {
+      await waitFor(() => readProcessEntry(child.pid as number) !== null);
+      const entry = readProcessEntry(child.pid as number);
+      const receipt = await stopByVerifiedIdentity({
+        childPid: child.pid as number,
+        childStartedAt: entry?.startedAt ?? "",
+        pgid: child.pid as number,
+      });
+      expect(receipt.state).toBe("stopped");
+      expect(receipt.verified).toBe(false);
+      expect(isLive(child.pid as number)).toBe(false);
+    } finally {
+      child.kill("SIGKILL");
+    }
+  }, 15_000);
+
   it("reports a supervisor-level status receipt with the tracked tree", async () => {
     const tree = await startTree(GRACEFUL_PARENT);
     try {
