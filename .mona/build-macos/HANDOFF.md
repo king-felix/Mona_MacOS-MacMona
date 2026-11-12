@@ -1,7 +1,6 @@
 # Handoff — Mona macOS build
 
-**Last checkpoint:** 2026-11-11 (P13) · revision 141 · next commit is the P13
-verification commit
+**Last checkpoint:** 2026-11-11 (P13) · revision 191 · P13 verification commit b6def91
 **Current prompt:** P13 completed. Next eligible: **P14** — not started, not
 authorized in this session.
 
@@ -125,7 +124,7 @@ Then implement, test, evidence, and checkpoint:
 
 ## Key files
 
-- `.mona/build-macos/state.json` — prompt status (revision 141).
+- `.mona/build-macos/state.json` — prompt status (revision 191).
 - `.mona/build-macos/attempts.jsonl` — empty; nothing failed three times.
 - `.mona/build-macos/DECISIONS.md` — D-001…D-032.
 - `.mona/build-macos/BLOCKERS.md` — external prerequisites only.
