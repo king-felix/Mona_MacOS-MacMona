@@ -1,0 +1,388 @@
+
+> mona@0.1.0-p02 ci
+> node scripts/ci.mjs
+
+
+> mona@0.1.0-p02 format:check
+> prettier --check .
+
+Checking formatting...
+All matched files use Prettier code style!
+
+> mona@0.1.0-p02 lint
+> eslint .
+
+
+/Users/<user>/DS_Projects/Mona/test/engine-adapter.test.ts
+  19:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 1 problem (0 errors, 1 warning)
+
+
+> mona@0.1.0-p02 typecheck
+> tsc -p tsconfig.main.json --noEmit && tsc -p tsconfig.renderer.json --noEmit
+
+
+> mona@0.1.0-p02 build:supervisor
+> node scripts/build-supervisor.mjs
+
+{
+  "schema_version": 1,
+  "ok": true,
+  "binary": "native/macos-supervisor/build/mona-supervisor",
+  "target": "arm64-apple-macos14.0",
+  "arch": "arm64",
+  "sha256": "033ee5b279e5a46816ef69d529811b522bbcddec03a3f20b557b0808a708e07a",
+  "size": 201920,
+  "compiler": "Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)",
+  "file": "native/macos-supervisor/build/mona-supervisor: Mach-O 64-bit executable arm64",
+  "signature": "ad-hoc",
+  "signed": true,
+  "verified": true,
+  "built_at": "2026-11-12T04:41:44.470Z"
+}
+
+> mona@0.1.0-p02 build:service
+> node scripts/build-service.mjs
+
+{
+  "schema_version": 1,
+  "ok": true,
+  "bundle": "native/macos-services/build/Mona.service",
+  "target": "arm64-apple-macos14.0",
+  "arch": "arm64",
+  "sha256": "9addc0a8265b2f1b833352f8abe56eb1be86bfa6cd626dbcc48843996f94bf3c",
+  "size": 232272,
+  "compiler": "Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)",
+  "file": "native/macos-services/build/Mona.service/Contents/MacOS/MonaService: Mach-O 64-bit executable arm64",
+  "plist_lint": "/Users/<user>/DS_Projects/Mona/native/macos-services/build/Mona.service/Contents/Info.plist: OK",
+  "signature": "ad-hoc",
+  "signed": true,
+  "verified": true,
+  "descriptor": {
+    "app_bundle_identifier": "com.mona.workbench",
+    "bundle_identifier": "com.mona.workbench.service",
+    "bundle_path": "/Users/<user>/DS_Projects/Mona/native/macos-services/build/Mona.service",
+    "executable": "/Users/<user>/DS_Projects/Mona/native/macos-services/build/Mona.service/Contents/MacOS/MonaService",
+    "message": "startProject",
+    "schema_version": 1,
+    "send_file_types": [
+      "public.folder"
+    ],
+    "send_types": [
+      "public.file-url"
+    ],
+    "service": "Start new DS project with Mona"
+  },
+  "built_at": "2026-11-12T04:41:46.469Z"
+}
+
+> mona@0.1.0-p02 pretest
+> node scripts/build-supervisor.mjs
+
+{
+  "schema_version": 1,
+  "ok": true,
+  "binary": "native/macos-supervisor/build/mona-supervisor",
+  "target": "arm64-apple-macos14.0",
+  "arch": "arm64",
+  "sha256": "033ee5b279e5a46816ef69d529811b522bbcddec03a3f20b557b0808a708e07a",
+  "size": 201920,
+  "compiler": "Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)",
+  "file": "native/macos-supervisor/build/mona-supervisor: Mach-O 64-bit executable arm64",
+  "signature": "ad-hoc",
+  "signed": true,
+  "verified": true,
+  "built_at": "2026-11-12T04:41:48.486Z"
+}
+
+> mona@0.1.0-p02 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.1.0 [39m[90m/Users/<user>/DS_Projects/Mona[39m
+
+ [32m✓[39m test/state-portable.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 659[2mms[22m[39m
+ [32m✓[39m test/work-board.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 694[2mms[22m[39m
+ [32m✓[39m test/work-studio.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 668[2mms[22m[39m
+ [32m✓[39m test/projects-service.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 900[2mms[22m[39m
+ [32m✓[39m test/state-database.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 1003[2mms[22m[39m
+ [32m✓[39m test/state-artifacts.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 219[2mms[22m[39m
+ [32m✓[39m test/state-catalog.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 315[2mms[22m[39m
+ [32m✓[39m test/runtime-supervisor.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 136[2mms[22m[39m
+ [32m✓[39m test/runtime-process.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 373[2mms[22m[39m
+ [32m✓[39m test/open-coordinator.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 70[2mms[22m[39m
+Not implemented: HTMLCanvasElement's getContext() method: without installing the @napi-rs/canvas npm package
+ [32m✓[39m test/engine-adapter.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 32[2mms[22m[39m
+ [32m✓[39m test/design-components.test.tsx [2m([22m[2m17 tests[22m[2m)[22m[33m 852[2mms[22m[39m
+ [32m✓[39m test/work-profile.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 42[2mms[22m[39m
+ [32m✓[39m test/boundary.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+ [32m✓[39m test/studio-render.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m test/studio-screen.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 62[2mms[22m[39m
+ [32m✓[39m test/folder-request.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m test/tool-discovery.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m test/fixtures.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m test/state-paths.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m test/supervisor-records.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m test/engine-sse.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m test/ipc-contract.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m test/contracts.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m test/work-control.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m test/design-no-network.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m test/engine-compat.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m test/open-service-status.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m test/supervisor-identity.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m test/design-tokens.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m test/supervisor-restart.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m test/open-drop.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m test/navigation.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m test/supervisor-native.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 2131[2mms[22m[39m
+   [32m✓[39m native supervisor [2m(8)[22m
+     [33m[2m✓[22m[39m stops the entire owned tree and leaves unrelated processes alone[33m 414[2mms[22m[39m
+     [33m[2m✓[22m[39m records the escaped process group and stops it by identity[33m 392[2mms[22m[39m
+     [33m[2m✓[22m[39m escalates a TERM-ignoring tree to a bounded SIGKILL[33m 823[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m34 passed[39m[22m[90m (34)[39m
+[2m      Tests [22m [1m[32m289 passed[39m[22m[90m (289)[39m
+[2m   Start at [22m 21:41:48
+[2m   Duration [22m 2.28s[2m (tests 81%, import 10%, environment 7%, transform 2%, worker 1%)[22m
+
+[2m    Isolate [22m [33m34 workers spawned[39m[2m · ~120ms startup each (spawn + environment, per file)[22m
+[2m            [22m [2mat least ~464ms faster with [22m[33misolate: false[39m[2m — reuses workers across files instead of one per file[22m
+
+
+> mona@0.1.0-p02 build
+> npm run clean && npm run build:main && npm run build:renderer
+
+
+> mona@0.1.0-p02 clean
+> rm -rf dist coverage
+
+
+> mona@0.1.0-p02 build:main
+> tsc -p tsconfig.main.json
+
+
+> mona@0.1.0-p02 build:renderer
+> vite build
+
+[36mvite v8.3.8 [32mbuilding client environment for production...[36m[39m
+transforming...
+✓ 38 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/renderer/index.html                   0.68 kB │ gzip:   0.38 kB
+dist/renderer/assets/index-DPsFQyk5.css   40.70 kB │ gzip:   7.59 kB
+dist/renderer/assets/index-CI6TVz04.js   371.16 kB │ gzip: 107.64 kB
+
+[32m✓ built in 80ms[39m
+
+> mona@0.1.0-p02 smoke:board
+> npm run build:main && node scripts/board-smoke.mjs
+
+
+> mona@0.1.0-p02 build:main
+> tsc -p tsconfig.main.json
+
+P10 sample run: PASS
+  ok   dependency_cycle_rejected
+  ok   no_partial_import
+  ok   import_is_inert
+  ok   imported_tasks_pending
+  ok   imported_owner_default
+  ok   deterministic_selection
+  ok   preview_has_prompt
+  ok   preview_excludes_spec
+  ok   queue_ran_one
+  ok   queue_stopped
+  ok   other_tasks_unstarted
+  ok   running_is_one
+  ok   evidence_gated_completion
+  ok   prerequisite_verified
+  ok   interrupted_next_step
+  ok   resume_at_recorded_step
+  ok   stale_after_code_change
+  ok   criteria_survive_export
+  ok   round_trip_criteria
+  ok   workspaces_isolated
+  ok   handoff_from_state
+  ok   transitions_audited
+{
+  "schema_version": 1,
+  "prompt": "P10",
+  "ok": true,
+  "checks": {
+    "dependency_cycle_rejected": true,
+    "no_partial_import": true,
+    "import_is_inert": true,
+    "imported_tasks_pending": true,
+    "imported_owner_default": true,
+    "deterministic_selection": true,
+    "preview_has_prompt": true,
+    "preview_excludes_spec": true,
+    "queue_ran_one": true,
+    "queue_stopped": true,
+    "other_tasks_unstarted": true,
+    "running_is_one": true,
+    "evidence_gated_completion": true,
+    "prerequisite_verified": true,
+    "interrupted_next_step": true,
+    "resume_at_recorded_step": true,
+    "stale_after_code_change": true,
+    "criteria_survive_export": true,
+    "round_trip_criteria": true,
+    "workspaces_isolated": true,
+    "handoff_from_state": true,
+    "transitions_audited": true
+  },
+  "cycle_rejection": "CONFLICT: dependency cycle: a -> b -> a",
+  "imported_tasks": [
+    {
+      "key": "build",
+      "taskId": "tsk_00000003"
+    },
+    {
+      "key": "review",
+      "taskId": "tsk_00000004"
+    },
+    {
+      "key": "docs",
+      "taskId": "tsk_00000005"
+    }
+  ],
+  "queue": {
+    "ran": [
+      "tsk_00000003"
+    ],
+    "stopped_because": "one_prompt_per_assignment",
+    "executor_calls": 1
+  },
+  "handoff": {
+    "current_task": "Review the result",
+    "current_status": "running",
+    "last_verified_step": "read the output",
+    "next_exact_action": "Continue \"Review the result\"; the engine owns the active turn, and the recorded step is \"record the decision\".",
+    "open_attempts": 0
+  },
+  "stale": [
+    {
+      "taskId": "tsk_00000003",
+      "reason": "workspace changed after verification (3508e4a4 → a523582b)"
+    }
+  ],
+  "transitions": [
+    {
+      "task": "tsk_00000003",
+      "from": "pending",
+      "to": "running",
+      "actor": "mona_queue",
+      "reason": null
+    },
+    {
+      "task": "tsk_00000003",
+      "from": "running",
+      "to": "verifying",
+      "actor": "human",
+      "reason": null
+    },
+    {
+      "task": "tsk_00000003",
+      "from": "verifying",
+      "to": "completed",
+      "actor": "human",
+      "reason": "acceptance passed: 1 criteria"
+    },
+    {
+      "task": "tsk_00000004",
+      "from": "pending",
+      "to": "running",
+      "actor": "mona_queue",
+      "reason": null
+    },
+    {
+      "task": "tsk_00000004",
+      "from": "running",
+      "to": "interrupted",
+      "actor": "mona_queue",
+      "reason": "sample crash"
+    },
+    {
+      "task": "tsk_00000004",
+      "from": "interrupted",
+      "to": "running",
+      "actor": "mona_queue",
+      "reason": "resume at record the decision"
+    },
+    {
+      "task": "tsk_00000003",
+      "from": "completed",
+      "to": "verifying",
+      "actor": "reconciler",
+      "reason": "workspace changed after verification (3508e4a4 → a523582b)"
+    }
+  ],
+  "workspace_files": {
+    "feature": "<tmp>/workspace/src/feature.mjs",
+    "test_output": "<tmp>/workspace/evidence/test-output.txt"
+  }
+}
+{
+  "ok": true,
+  "steps": [
+    {
+      "name": "format:check",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 1338
+    },
+    {
+      "name": "lint",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 1292
+    },
+    {
+      "name": "typecheck",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 1919
+    },
+    {
+      "name": "build:supervisor",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 2349
+    },
+    {
+      "name": "build:service",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 2001
+    },
+    {
+      "name": "test",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 4459
+    },
+    {
+      "name": "build",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 1560
+    },
+    {
+      "name": "smoke:board",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 1440
+    }
+  ],
+  "renderer_scan": {
+    "ok": true,
+    "files": 3,
+    "patterns": [],
+    "bytes": 412554
+  },
+  "dist_bytes": 412554
+}

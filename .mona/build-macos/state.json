@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "revision": 103,
+  "revision": 113,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
   "spec_sha256": "d1c02941151c71912bc3e9c8b2509612298d54e05e0bf16fe933b9bd93e3e028",
   "prompt_file_sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8",
-  "current_prompt": "P09",
+  "current_prompt": "P10",
   "current_prompt_status": "completed",
   "last_verified_commit": "5676c52",
   "tasks": {
@@ -53,7 +53,7 @@
         },
         {
           "path": "docs/requirements-macos.json",
-          "sha256": "ac24895179127a5ff402f1d812739330f469f4af5d061a3792ad5eb0d9c6c362"
+          "sha256": "360c08ff255c4c5861df217ad75563cbe72f54ee8b3a463375e2e976f5891d0e"
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
@@ -81,7 +81,7 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "849e710125883de4324cec1f5655ee21becd03e8b8ac621eedbb8b2ba8ffb589"
+          "sha256": "2ad2b04a173f400104d3117472eeb576096cbba4e348bc2039eef786b56a73b7"
         },
         {
           "path": "docs/evidence/macos/artifacts/p00-test-run.txt",
@@ -234,7 +234,7 @@
         },
         {
           "path": "package.json",
-          "sha256": "f0a0eac489bcf083c27ff3201627bd986ccca60aaec33d9fb25eb2857f7ab92a"
+          "sha256": "63f994f595a79dc6420315eb08d5f7c9be74da4da014809eaceb1559564c56b4"
         },
         {
           "path": "package-lock.json",
@@ -262,11 +262,11 @@
         },
         {
           "path": "scripts/ci.mjs",
-          "sha256": "874c125f47cf3e92db3d68e56b9f1a56f2caddad02da6c9b85655582f9c38c5d"
+          "sha256": "5c6dda53fb45e6763872fd4c6ea02f9214cbe50c604294fc2bbaf34daebb420e"
         },
         {
           "path": "scripts/smoke.mjs",
-          "sha256": "c640375775b450057e1de3eeccdef419e556f5efd0e5046cb082f20a80f7514a"
+          "sha256": "46eda613caaaf176bec62b1ff065c05b062153a4818cbe36f76859d2dbc0e7d3"
         },
         {
           "path": "native/macos-services/README.md",
@@ -282,15 +282,15 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "14722259798561c11aefc3918d086ad4b2f960e1c43badcbec60729e541af0fd"
+          "sha256": "b2e83e20a41676ead48c9e9ca48382d123d7a11d9410f9f1d573ee1422451f33"
         },
         {
           "path": "src/main/ipc-contract.ts",
-          "sha256": "592ec2a45f0b263a531fa436027434915182f5c76ac5b0f8b96fd81456c7a231"
+          "sha256": "f2efa659a0b328527f45f197866072f683d0f1c09614db204e3e03ae22712ae8"
         },
         {
           "path": "src/main/ipc.ts",
-          "sha256": "679424bc2a5613a7dc457541f6422059a38b374d5dd9d6e0170471ec2329d4b5"
+          "sha256": "3a65a7869441705abfdd19edb3e6a064cea20fa5e7e30b4564b8d1a78de4b274"
         },
         {
           "path": "src/main/menu.ts",
@@ -318,7 +318,7 @@
         },
         {
           "path": "src/preload/index.ts",
-          "sha256": "467979fdf14d8b949ae1d63b3b3e20f3e2907e03cef3e89f546f44ca1f1d91d9"
+          "sha256": "a68d935a607792b13689e1a8884a836fde1ed5ecec974b6aa10df04563084a1a"
         },
         {
           "path": "src/renderer/App.tsx",
@@ -338,11 +338,11 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "111d3f4d5b6315b6b932d36f17c412d3dc579da80e01c587892cb6e6f532c60a"
+          "sha256": "3a7c0b93c7c250f5b7ed8555f9d36e2e21a4276d5758c42a6ebc7737426f0df6"
         },
         {
           "path": "src/shared/contracts/bridge.ts",
-          "sha256": "e8b7010a48b75639f478fb8dd5e91087822c3d420f195bb8347c21f09d40995c"
+          "sha256": "e46ee517448a05285fa08e9f2b759ddeec4ca77c0c4c7ea2dc7a0c5d6d5fdd59"
         },
         {
           "path": "src/shared/contracts/engine.ts",
@@ -358,11 +358,11 @@
         },
         {
           "path": "src/shared/contracts/index.ts",
-          "sha256": "fc48176e7963f960ff7355718227f02a51c9b80b8afe205eab8c24bf7d622f36"
+          "sha256": "8800cd8f90e9e683c322f99bde4a0fb725110b75407867c11cf09d3916999b81"
         },
         {
           "path": "src/shared/contracts/project.ts",
-          "sha256": "bb4da2ba16706bb7ac0a2ed665a335dd078d80cf5b0b8b315589945b9c81fbba"
+          "sha256": "b863329ed5ea94f4eb0c3aaab2f9df230bfefba49a147a36391d833ce6c387f7"
         },
         {
           "path": "src/shared/contracts/submission.ts",
@@ -394,7 +394,7 @@
         },
         {
           "path": "test/ipc-contract.test.ts",
-          "sha256": "5bdb65502265ee14ea0ac60329ced39a57730a6aec735ae5b94ce8000404627e"
+          "sha256": "e819676ea924ae21be5453d68881e1ac24d519c4f5a8e0cc5ead1d9c3f486c35"
         },
         {
           "path": "test/navigation.test.ts",
@@ -547,7 +547,7 @@
         },
         {
           "path": "package.json",
-          "sha256": "f0a0eac489bcf083c27ff3201627bd986ccca60aaec33d9fb25eb2857f7ab92a"
+          "sha256": "63f994f595a79dc6420315eb08d5f7c9be74da4da014809eaceb1559564c56b4"
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
@@ -637,7 +637,7 @@
         },
         {
           "path": "scripts/ci.mjs",
-          "sha256": "874c125f47cf3e92db3d68e56b9f1a56f2caddad02da6c9b85655582f9c38c5d"
+          "sha256": "5c6dda53fb45e6763872fd4c6ea02f9214cbe50c604294fc2bbaf34daebb420e"
         },
         {
           "path": "src/main/supervisor/identity.ts",
@@ -673,7 +673,7 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "14722259798561c11aefc3918d086ad4b2f960e1c43badcbec60729e541af0fd"
+          "sha256": "b2e83e20a41676ead48c9e9ca48382d123d7a11d9410f9f1d573ee1422451f33"
         },
         {
           "path": "src/main/engine/runtime-process.ts",
@@ -721,11 +721,11 @@
         },
         {
           "path": "package.json",
-          "sha256": "f0a0eac489bcf083c27ff3201627bd986ccca60aaec33d9fb25eb2857f7ab92a"
+          "sha256": "63f994f595a79dc6420315eb08d5f7c9be74da4da014809eaceb1559564c56b4"
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "849e710125883de4324cec1f5655ee21becd03e8b8ac621eedbb8b2ba8ffb589"
+          "sha256": "2ad2b04a173f400104d3117472eeb576096cbba4e348bc2039eef786b56a73b7"
         }
       ],
       "blocker_ids": [],
@@ -1117,15 +1117,15 @@
         },
         {
           "path": "scripts/smoke.mjs",
-          "sha256": "c640375775b450057e1de3eeccdef419e556f5efd0e5046cb082f20a80f7514a"
+          "sha256": "46eda613caaaf176bec62b1ff065c05b062153a4818cbe36f76859d2dbc0e7d3"
         },
         {
           "path": "scripts/ci.mjs",
-          "sha256": "874c125f47cf3e92db3d68e56b9f1a56f2caddad02da6c9b85655582f9c38c5d"
+          "sha256": "5c6dda53fb45e6763872fd4c6ea02f9214cbe50c604294fc2bbaf34daebb420e"
         },
         {
           "path": "package.json",
-          "sha256": "f0a0eac489bcf083c27ff3201627bd986ccca60aaec33d9fb25eb2857f7ab92a"
+          "sha256": "63f994f595a79dc6420315eb08d5f7c9be74da4da014809eaceb1559564c56b4"
         },
         {
           "path": "src/main/open/folder-request.ts",
@@ -1141,7 +1141,7 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "14722259798561c11aefc3918d086ad4b2f960e1c43badcbec60729e541af0fd"
+          "sha256": "b2e83e20a41676ead48c9e9ca48382d123d7a11d9410f9f1d573ee1422451f33"
         },
         {
           "path": "src/main/desktop-lifecycle.ts",
@@ -1149,11 +1149,11 @@
         },
         {
           "path": "src/main/ipc.ts",
-          "sha256": "679424bc2a5613a7dc457541f6422059a38b374d5dd9d6e0170471ec2329d4b5"
+          "sha256": "3a65a7869441705abfdd19edb3e6a064cea20fa5e7e30b4564b8d1a78de4b274"
         },
         {
           "path": "src/main/ipc-contract.ts",
-          "sha256": "592ec2a45f0b263a531fa436027434915182f5c76ac5b0f8b96fd81456c7a231"
+          "sha256": "f2efa659a0b328527f45f197866072f683d0f1c09614db204e3e03ae22712ae8"
         },
         {
           "path": "src/main/projects/service.ts",
@@ -1161,7 +1161,7 @@
         },
         {
           "path": "src/preload/index.ts",
-          "sha256": "467979fdf14d8b949ae1d63b3b3e20f3e2907e03cef3e89f546f44ca1f1d91d9"
+          "sha256": "a68d935a607792b13689e1a8884a836fde1ed5ecec974b6aa10df04563084a1a"
         },
         {
           "path": "src/shared/contracts/open.ts",
@@ -1169,7 +1169,7 @@
         },
         {
           "path": "src/shared/contracts/bridge.ts",
-          "sha256": "e8b7010a48b75639f478fb8dd5e91087822c3d420f195bb8347c21f09d40995c"
+          "sha256": "e46ee517448a05285fa08e9f2b759ddeec4ca77c0c4c7ea2dc7a0c5d6d5fdd59"
         },
         {
           "path": "src/renderer/shell/Shell.tsx",
@@ -1189,7 +1189,7 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "111d3f4d5b6315b6b932d36f17c412d3dc579da80e01c587892cb6e6f532c60a"
+          "sha256": "3a7c0b93c7c250f5b7ed8555f9d36e2e21a4276d5758c42a6ebc7737426f0df6"
         },
         {
           "path": "test/folder-request.test.ts",
@@ -1209,11 +1209,11 @@
         },
         {
           "path": "test/ipc-contract.test.ts",
-          "sha256": "5bdb65502265ee14ea0ac60329ced39a57730a6aec735ae5b94ce8000404627e"
+          "sha256": "e819676ea924ae21be5453d68881e1ac24d519c4f5a8e0cc5ead1d9c3f486c35"
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "849e710125883de4324cec1f5655ee21becd03e8b8ac621eedbb8b2ba8ffb589"
+          "sha256": "2ad2b04a173f400104d3117472eeb576096cbba4e348bc2039eef786b56a73b7"
         },
         {
           "path": "docs/evidence/macos/artifacts/p09-finder-panel.png",
@@ -1232,16 +1232,118 @@
       ]
     },
     "P10": {
-      "status": "pending",
+      "status": "completed",
       "requirements": [
         "MONA-009",
         "MONA-010",
         "MONA-024"
       ],
-      "completed_steps": [],
+      "completed_steps": [
+        "Read spec sections 8, 10.3, 17 and the P05 store, P08 studio, and P09 handoff boundaries",
+        "Added migration v3: spec §8.2 task states, acceptance criteria, recorded steps, run receipts, transition audit; preserved dependencies and evidence through the table rebuild",
+        "Enforced one execution owner and one mutating run per workspace with partial unique indexes; queue runs exactly one selected prompt",
+        "Implemented the evidence-gated completion path, check/human criterion sources, requirement evidence, and verification staleness on workspace change",
+        "Implemented deterministic selection, inert plan import/export with cycle rejection, exact context preview, explicit resume at a recorded step, and handoff generation",
+        "Wired 18 narrow board IPC channels, preload methods, a file-dialog import/export path, and a live board screen",
+        "Added 15 board/migration tests plus a 22-check sample-project run; refreshed Electron security and shell smokes; local CI green"
+      ],
       "remaining_steps": [],
-      "evidence": [],
-      "blocker_ids": []
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P10-continuity.md",
+          "sha256": "07d8d27f369cfe76a0f93294bfd84aa9d07ac9c1e17b35d829a5265e97de748c"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p10-board-sample.txt",
+          "sha256": "1dc81d9851b572ee57ce79aed9a38e8d6555be51e9e5db5bef18112874941f16"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p10-board.png",
+          "sha256": "a8e8c1dd4aa3fd1e93485de773a621bd1e7a90c617f3af34840628d1504789e6"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p10-ci.txt",
+          "sha256": "f8df7d6dfd21bbb7422a5bb8e97baceb00163bf7edee8b2c7a97a5d9f827b896"
+        },
+        {
+          "path": "src/main/work/board.ts",
+          "sha256": "43ba14a76dbf8f7829b58a70c748dc8a813159005d4619822344801b3eac415d"
+        },
+        {
+          "path": "src/main/work/fingerprint.ts",
+          "sha256": "d189c237dd4dbd184f33fe8cf1531f8d6d64a8a04fe9bcbe72fa38af10dd6165"
+        },
+        {
+          "path": "src/main/state/task-machine.ts",
+          "sha256": "48e62f7dcafcaa708c2080b6dac3b3198a23afc0b8c65cb881c71817578c9c0c"
+        },
+        {
+          "path": "src/main/state/schema.ts",
+          "sha256": "b8c306db5fb7c501cfa449ee018a920d85c44f03b38cc08e668e496fb1a8d501"
+        },
+        {
+          "path": "src/main/state/store.ts",
+          "sha256": "e9a29406d83c5af125cc70798f7ea93c182dd780e7618717d591422dcd9d373a"
+        },
+        {
+          "path": "src/main/state/portable.ts",
+          "sha256": "9c9fe71a8c2c14213fe2ea980f491a7aec3bb5b0b2b08ee4ec7c32d5dd364142"
+        },
+        {
+          "path": "src/shared/contracts/board.ts",
+          "sha256": "a49b878e82b1d8eac9d214d81aa4ecd6a38ee15e1eb8248007370be7fbfc21fd"
+        },
+        {
+          "path": "src/shared/contracts/project.ts",
+          "sha256": "b863329ed5ea94f4eb0c3aaab2f9df230bfefba49a147a36391d833ce6c387f7"
+        },
+        {
+          "path": "src/shared/contracts/bridge.ts",
+          "sha256": "e46ee517448a05285fa08e9f2b759ddeec4ca77c0c4c7ea2dc7a0c5d6d5fdd59"
+        },
+        {
+          "path": "src/main/ipc-contract.ts",
+          "sha256": "f2efa659a0b328527f45f197866072f683d0f1c09614db204e3e03ae22712ae8"
+        },
+        {
+          "path": "src/main/ipc.ts",
+          "sha256": "3a65a7869441705abfdd19edb3e6a064cea20fa5e7e30b4564b8d1a78de4b274"
+        },
+        {
+          "path": "src/main/index.ts",
+          "sha256": "b2e83e20a41676ead48c9e9ca48382d123d7a11d9410f9f1d573ee1422451f33"
+        },
+        {
+          "path": "src/preload/index.ts",
+          "sha256": "a68d935a607792b13689e1a8884a836fde1ed5ecec974b6aa10df04563084a1a"
+        },
+        {
+          "path": "src/renderer/shell/Board.tsx",
+          "sha256": "62791ffceb8237c5c5b2cc8041d65bcb738c97e0107d2bbcaa5defefbdc7c03b"
+        },
+        {
+          "path": "src/renderer/design/primitives.tsx",
+          "sha256": "ca75cbc305342b0919d76471eef3d714bca25ed01abdd2e72ae03e45639fc489"
+        },
+        {
+          "path": "src/renderer/styles.css",
+          "sha256": "3a7c0b93c7c250f5b7ed8555f9d36e2e21a4276d5758c42a6ebc7737426f0df6"
+        },
+        {
+          "path": "test/work-board.test.ts",
+          "sha256": "b4b356dbe0b117550b8a4e7fe174e8bfabe456bcf19bab4884fd478ec5145439"
+        },
+        {
+          "path": "test/state-database.test.ts",
+          "sha256": "5ffa0ece9d87e0ad3f15e9ccf20771542e368e1a4a06038694150258bdba18ef"
+        },
+        {
+          "path": "scripts/board-smoke.mjs",
+          "sha256": "c2fdfe76645a05678c2a698c4df156a0f1062df25caf96f826575725953fd249"
+        }
+      ],
+      "blocker_ids": [],
+      "started_utc": "2026-11-11T21:40:00.000Z"
     },
     "P11": {
       "status": "pending",
@@ -1448,7 +1550,7 @@
   "next_eligible_prompts": [
     "P08"
   ],
-  "last_checkpoint_utc": "2026-11-12T04:25:02.218Z",
+  "last_checkpoint_utc": "2026-11-12T04:41:57.009Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

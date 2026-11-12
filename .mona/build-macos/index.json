@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-12T04:25:09.926Z",
+  "generated_utc": "2026-11-12T04:41:57.123Z",
   "git": {
     "available": true,
-    "commit": "0660bbba67046c27db83b8543c60ed25e2da60c4",
+    "commit": "7095889ee4c7685020d5921cd8edb81312a6915a",
     "dirty": true
   },
-  "digest": "ecabd2af1fbe9f74028bb80d1ea4eedc0e9e59c11dbde7a9c81f3ad37f096c27",
+  "digest": "4d21308645c6b6763fb2f04563572853a5e49c72c8d1a58b536eedd7464db23f",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,8 +15,8 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "28a82488114eb71dcd3bbe45b648cb94f95c6ccfb0ce1d6ba33e88cec94e491c",
-      "bytes": 69605
+      "sha256": "69c8c07e99dd3d0d43d16c9f0a7edf4f9f98f6d8f96314eecaea14bac11dfd64",
+      "bytes": 74331
     },
     {
       "path": "AGENTS.md",
@@ -399,6 +399,21 @@
       "bytes": 5166
     },
     {
+      "path": "docs/evidence/macos/artifacts/p10-board-sample.txt",
+      "sha256": "1dc81d9851b572ee57ce79aed9a38e8d6555be51e9e5db5bef18112874941f16",
+      "bytes": 3601
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p10-board.png",
+      "sha256": "a8e8c1dd4aa3fd1e93485de773a621bd1e7a90c617f3af34840628d1504789e6",
+      "bytes": 270429
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p10-ci.txt",
+      "sha256": "f8df7d6dfd21bbb7422a5bb8e97baceb00163bf7edee8b2c7a97a5d9f827b896",
+      "bytes": 13032
+    },
+    {
       "path": "docs/evidence/macos/artifacts/signing-inventory.txt",
       "sha256": "3e45104c0497ce03bcba731224d253e6003d8addfb46933fc778a3b79ae07d7c",
       "bytes": 397
@@ -469,13 +484,18 @@
       "bytes": 11705
     },
     {
+      "path": "docs/evidence/macos/P10-continuity.md",
+      "sha256": "07d8d27f369cfe76a0f93294bfd84aa9d07ac9c1e17b35d829a5265e97de748c",
+      "bytes": 10476
+    },
+    {
       "path": "docs/requirements-macos.json",
-      "sha256": "ac24895179127a5ff402f1d812739330f469f4af5d061a3792ad5eb0d9c6c362",
+      "sha256": "360c08ff255c4c5861df217ad75563cbe72f54ee8b3a463375e2e976f5891d0e",
       "bytes": 40178
     },
     {
       "path": "docs/requirements-macos.json",
-      "sha256": "ac24895179127a5ff402f1d812739330f469f4af5d061a3792ad5eb0d9c6c362",
+      "sha256": "360c08ff255c4c5861df217ad75563cbe72f54ee8b3a463375e2e976f5891d0e",
       "bytes": 40178
     },
     {

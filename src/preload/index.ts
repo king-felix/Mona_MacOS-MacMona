@@ -23,6 +23,18 @@ import type {
   StudioSnapshot,
   StudioSubmitResult,
 } from "../shared/contracts/studio";
+import type {
+  BoardSnapshot,
+  ContextPreview,
+  HandoffView,
+  ImportPlanResult,
+  QueueRunResult,
+  ReconcileResult,
+  TaskOwner,
+  TaskPlan,
+  TaskSelection,
+  TaskView,
+} from "../shared/contracts/board";
 
 /**
  * The only bridge the renderer gets. No raw ipcRenderer, no Node, no shell.
@@ -114,6 +126,47 @@ const bridge: MonaBridge = {
     ipcRenderer.invoke("studio:reconcile", { projectId }),
   stopStudio: (projectId: ProjectId): Promise<IpcResult<StudioActionResult>> =>
     ipcRenderer.invoke("studio:stop", { projectId }),
+  boardSnapshot: (projectId: ProjectId): Promise<IpcResult<BoardSnapshot>> =>
+    ipcRenderer.invoke("board:snapshot", { projectId }),
+  createBoardTask: (input): Promise<IpcResult<TaskView>> =>
+    ipcRenderer.invoke("board:create", input),
+  updateBoardTask: (taskId, expectedRevision, input): Promise<IpcResult<TaskView>> =>
+    ipcRenderer.invoke("board:update", { taskId, expectedRevision, ...input }),
+  importTaskPlan: (projectId, plan): Promise<IpcResult<ImportPlanResult>> =>
+    ipcRenderer.invoke("board:import", { projectId, plan }),
+  importTaskPlanFile: (projectId: ProjectId): Promise<IpcResult<ImportPlanResult | null>> =>
+    ipcRenderer.invoke("board:import-file", { projectId }),
+  exportTaskPlan: (projectId: ProjectId): Promise<IpcResult<TaskPlan>> =>
+    ipcRenderer.invoke("board:export", { projectId }),
+  exportTaskPlanFile: (
+    projectId: ProjectId,
+  ): Promise<IpcResult<{ saved: boolean; path: string | null }>> =>
+    ipcRenderer.invoke("board:export-file", { projectId }),
+  previewTaskContext: (taskId): Promise<IpcResult<ContextPreview>> =>
+    ipcRenderer.invoke("board:preview", { taskId }),
+  selectNextTask: (projectId, owner?: TaskOwner): Promise<IpcResult<TaskSelection>> =>
+    ipcRenderer.invoke("board:select", owner ? { projectId, owner } : { projectId }),
+  addTaskEvidence: (input): Promise<IpcResult<TaskView>> =>
+    ipcRenderer.invoke("board:evidence", input),
+  satisfyTaskCriterion: (input): Promise<IpcResult<TaskView>> =>
+    ipcRenderer.invoke("board:satisfy", input),
+  verifyBoardTask: (taskId, expectedRevision): Promise<IpcResult<TaskView>> =>
+    ipcRenderer.invoke("board:verify", { taskId, expectedRevision }),
+  completeBoardTask: (taskId, expectedRevision): Promise<IpcResult<TaskView>> =>
+    ipcRenderer.invoke("board:complete", { taskId, expectedRevision }),
+  startBoardTask: (taskId, expectedRevision?: number) =>
+    ipcRenderer.invoke(
+      "board:start",
+      expectedRevision === undefined ? { taskId } : { taskId, expectedRevision },
+    ),
+  resumeBoardTask: (taskId) => ipcRenderer.invoke("board:resume", { taskId }),
+  reconcileBoard: (projectId: ProjectId, resume?: boolean): Promise<IpcResult<ReconcileResult>> =>
+    ipcRenderer.invoke("board:reconcile", resume ? { projectId, resume: true } : { projectId }),
+  boardHandoff: (projectId: ProjectId): Promise<IpcResult<HandoffView>> =>
+    ipcRenderer.invoke("board:handoff", { projectId }),
+  dispatchNextTask: (projectId: ProjectId): Promise<IpcResult<QueueRunResult>> =>
+    ipcRenderer.invoke("board:dispatch-next", { projectId }),
+
   onStudioChanged: (callback: (push: StudioPush) => void): (() => void) => {
     const listener = (_event: unknown, payload: unknown) => {
       if (!payload || typeof payload !== "object") return;

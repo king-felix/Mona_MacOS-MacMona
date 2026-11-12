@@ -16,8 +16,8 @@ import { StateError } from "./errors";
 import {
   CURRENT_SCHEMA_VERSION,
   MIGRATIONS,
-  REQUIRED_TABLES,
   migrationChecksum,
+  requiredTablesFor,
   type Migration,
 } from "./schema";
 
@@ -111,7 +111,7 @@ function validateMigratedDatabase(
     throw new StateError("MIGRATION_FAILED", `schema version is ${version}, expected ${target}`);
   }
   const tables = new Set(listTables(db));
-  const missing = REQUIRED_TABLES.filter((table) => !tables.has(table));
+  const missing = requiredTablesFor(target).filter((table) => !tables.has(table));
   if (missing.length > 0) {
     throw new StateError("MIGRATION_FAILED", "migrated database is missing required tables", {
       missing,
@@ -338,6 +338,15 @@ function applyMigrations(
   target: number,
   now: () => Date,
 ): void {
+  // A table rebuild (SQLite cannot change a CHECK constraint in place) must not
+  // cascade into dependent rows. The documented procedure disables foreign-key
+  // enforcement before the transaction; `assertIntegrity` runs
+  // `PRAGMA foreign_key_check` before the migration is recorded, so a dangling
+  // reference still fails the migration.
+  const foreignKeys = db.prepare("PRAGMA foreign_keys").get() as
+    { foreign_keys?: number } | undefined;
+  const forcedOff = Number(foreignKeys?.foreign_keys ?? 1) === 1;
+  if (forcedOff) db.exec("PRAGMA foreign_keys = OFF");
   db.exec("BEGIN IMMEDIATE");
   try {
     for (const migration of pending) {
@@ -355,6 +364,8 @@ function applyMigrations(
       // Fatal I/O errors may already have rolled back.
     }
     throw error;
+  } finally {
+    if (forcedOff) db.exec("PRAGMA foreign_keys = ON");
   }
 }
 

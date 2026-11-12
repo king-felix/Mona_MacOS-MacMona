@@ -90,7 +90,8 @@ describe("bounded artifacts", () => {
     const { store, dir } = await openTestStore({ now: clock.now });
     const project = await store.createProject({ name: "Retention", rootPath: dir });
     const task = await store.createTask({ projectId: project.id, title: "Blocked", prompt: "x" });
-    await store.updateTaskStatus(task.id, "blocked", task.revision);
+    const running = await store.updateTaskStatus(task.id, "running", task.revision);
+    await store.updateTaskStatus(task.id, "blocked", running.revision);
 
     const temporary = await store.putArtifact({
       projectId: project.id,

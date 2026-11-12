@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ProjectId } from "../shared/contracts/ids";
+import { ProjectId, TaskId } from "../shared/contracts/ids";
 
 /**
  * Narrow IPC contract. Every invoke is a strict object: unknown fields are
@@ -82,6 +82,89 @@ export const IpcRequests = {
   "studio:cancel-queued": z.strictObject({ projectId: ProjectId }),
   "studio:reconcile": z.strictObject({ projectId: ProjectId }),
   "studio:stop": z.strictObject({ projectId: ProjectId }),
+
+  // Work board and durable continuation. These calls mutate Mona-owned task
+  // state only; board:dispatch-next is the one call that can hand a prompt to
+  // the engine, and only after explicit selection.
+  "board:snapshot": z.strictObject({ projectId: ProjectId }),
+  "board:create": z.strictObject({
+    projectId: ProjectId,
+    title: z.string().min(1).max(200),
+    prompt: z.string().min(1).max(100_000),
+    owner: z.enum(["mona_queue", "native_workflow"]).optional(),
+    requirements: z
+      .array(z.string().regex(/^(MONA|MAC)-\d{3}$/))
+      .max(50)
+      .optional(),
+    acceptance: z
+      .array(
+        z.strictObject({ text: z.string().min(1).max(1000), kind: z.enum(["check", "human"]) }),
+      )
+      .max(50)
+      .optional(),
+    steps: z.array(z.string().min(1).max(500)).max(50).optional(),
+    dependsOn: z.array(TaskId).max(50).optional(),
+  }),
+  "board:update": z.strictObject({
+    taskId: TaskId,
+    expectedRevision: z.number().int().min(1),
+    title: z.string().min(1).max(200).optional(),
+    prompt: z.string().min(1).max(100_000).optional(),
+    owner: z.enum(["mona_queue", "native_workflow"]).optional(),
+    requirements: z
+      .array(z.string().regex(/^(MONA|MAC)-\d{3}$/))
+      .max(50)
+      .optional(),
+    acceptance: z
+      .array(
+        z.strictObject({ text: z.string().min(1).max(1000), kind: z.enum(["check", "human"]) }),
+      )
+      .max(50)
+      .optional(),
+    steps: z.array(z.string().min(1).max(500)).max(50).optional(),
+  }),
+  "board:import": z.strictObject({ projectId: ProjectId, plan: z.unknown() }),
+  "board:import-file": z.strictObject({ projectId: ProjectId }),
+  "board:export": z.strictObject({ projectId: ProjectId }),
+  "board:export-file": z.strictObject({ projectId: ProjectId }),
+  "board:preview": z.strictObject({ taskId: TaskId }),
+  "board:select": z.strictObject({
+    projectId: ProjectId,
+    owner: z.enum(["mona_queue", "native_workflow"]).optional(),
+  }),
+  "board:evidence": z.strictObject({
+    projectId: ProjectId,
+    taskId: TaskId,
+    requirementId: z.string().regex(/^(MONA|MAC)-\d{3}$/),
+    path: z.string().min(1).max(2048),
+    note: z.string().max(4000).nullable().optional(),
+  }),
+  "board:satisfy": z.strictObject({
+    taskId: TaskId,
+    criterionId: z.string().min(1).max(200),
+    expectedRevision: z.number().int().min(1),
+    by: z.enum(["check", "human"]),
+    evidencePath: z.string().min(1).max(2048).nullable().optional(),
+  }),
+  "board:verify": z.strictObject({
+    taskId: TaskId,
+    expectedRevision: z.number().int().min(1),
+  }),
+  "board:complete": z.strictObject({
+    taskId: TaskId,
+    expectedRevision: z.number().int().min(1),
+  }),
+  "board:start": z.strictObject({
+    taskId: TaskId,
+    expectedRevision: z.number().int().min(1).optional(),
+  }),
+  "board:resume": z.strictObject({ taskId: TaskId }),
+  "board:reconcile": z.strictObject({
+    projectId: ProjectId,
+    resume: z.boolean().optional(),
+  }),
+  "board:handoff": z.strictObject({ projectId: ProjectId }),
+  "board:dispatch-next": z.strictObject({ projectId: ProjectId }),
 } as const;
 
 export type IpcChannel = keyof typeof IpcRequests;

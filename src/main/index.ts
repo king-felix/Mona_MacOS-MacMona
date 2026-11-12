@@ -5,6 +5,7 @@ import {
   mkdtempSync,
   readFileSync,
   realpathSync,
+  statSync,
   writeFileSync,
 } from "node:fs";
 import { randomBytes } from "node:crypto";
@@ -35,6 +36,8 @@ import {
 import { createProductionDriver } from "./supervisor/driver";
 import { WorkController } from "./work/control";
 import { WorkStudio } from "./work/studio";
+import { TaskBoard } from "./work/board";
+import { StateError } from "./state/errors";
 import { StateStore } from "./state/store";
 import { verifyPrivatePermissions } from "./state/paths";
 import { ProjectService, runtimeStatusView } from "./projects/service";
@@ -72,6 +75,7 @@ let productStateError: string | null = null;
 let projectService: ProjectService | null = null;
 let workController: WorkController | null = null;
 let workStudio: WorkStudio | null = null;
+let taskBoard: TaskBoard | null = null;
 let studioSmokeProjectId: string | null = null;
 let studioSmokeRoot: string | null = null;
 let openCoordinator: OpenCoordinator | null = null;
@@ -1630,6 +1634,9 @@ if (!gotLock) {
           },
         });
       }
+      if (productState) {
+        taskBoard = new TaskBoard({ store: productState });
+      }
     } catch (error) {
       productStateError = error instanceof Error ? error.message : String(error);
       process.stderr.write(`Mona state unavailable: ${productStateError}\n`);
@@ -1688,11 +1695,59 @@ if (!gotLock) {
     }
 
     installApplicationMenu({ onOpenProject: () => void openProjectFromMenu() });
+
+    const importPlanFile = async (projectId: StudioProjectId) => {
+      if (!taskBoard) throw new StateError("CONFLICT", "the work board is unavailable");
+      const target = mainWindow;
+      const chosen = target
+        ? await dialog.showOpenDialog(target, {
+            title: "Import a Mona task plan",
+            properties: ["openFile"],
+            filters: [{ name: "Mona task plan", extensions: ["json"] }],
+          })
+        : { canceled: true, filePaths: [] as string[] };
+      if (chosen.canceled || chosen.filePaths.length === 0) return null;
+      const filePath = chosen.filePaths[0];
+      if (!filePath) return null;
+      if (statSync(filePath).size > 2_000_000) {
+        throw new StateError("IMPORT_INVALID", "task plan is larger than 2 MB");
+      }
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(readFileSync(filePath, "utf8"));
+      } catch (error) {
+        throw new StateError(
+          "IMPORT_INVALID",
+          `task plan is not valid JSON: ${error instanceof Error ? error.message : String(error)}`,
+        );
+      }
+      return taskBoard.importPlan(projectId, parsed);
+    };
+
+    const exportPlanFile = async (projectId: StudioProjectId) => {
+      if (!taskBoard) throw new StateError("CONFLICT", "the work board is unavailable");
+      const plan = await taskBoard.exportPlan(projectId);
+      const target = mainWindow;
+      const chosen = target
+        ? await dialog.showSaveDialog(target, {
+            title: "Export Mona task plan",
+            defaultPath: `${plan.name.replace(/[^A-Za-z0-9._ -]/g, "-")}.plan.json`,
+            filters: [{ name: "Mona task plan", extensions: ["json"] }],
+          })
+        : { canceled: true, filePath: undefined };
+      if (chosen.canceled || !chosen.filePath) return { saved: false, path: null };
+      writeFileSync(chosen.filePath, `${JSON.stringify(plan, null, 2)}\n`, "utf8");
+      return { saved: true, path: chosen.filePath };
+    };
+
     registerIpc(RENDERER_ROOT, {
       projects: projectService,
       runtimeStatus: () => runtimeStatusView(supervisor?.status() ?? fallbackStatus),
       stateFacts,
       studio: workStudio,
+      board: taskBoard,
+      importPlanFile,
+      exportPlanFile,
       openRequest: async (input, source) => {
         const result = await dispatchOpen(input, source);
         if (!result) {

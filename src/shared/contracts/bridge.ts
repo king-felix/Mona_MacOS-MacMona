@@ -1,4 +1,4 @@
-import type { ProjectId } from "./ids";
+import type { ProjectId, TaskId } from "./ids";
 import type {
   IpcResult,
   OpenProjectResult,
@@ -9,6 +9,18 @@ import type {
 } from "./project-bridge";
 import type { OpenFolderView, OpenResult, OpenStatusView, ServiceStatus } from "./open";
 import type { UsageEvidence } from "./usage";
+import type {
+  BoardSnapshot,
+  ContextPreview,
+  HandoffView,
+  ImportPlanResult,
+  QueueRunResult,
+  ReconcileResult,
+  TaskOwner,
+  TaskPlan,
+  TaskSelection,
+  TaskView,
+} from "./board";
 import type {
   StudioActionResult,
   StudioMode,
@@ -90,6 +102,66 @@ export interface MonaBridge {
   stopStudio(projectId: ProjectId): Promise<IpcResult<StudioActionResult>>;
   /** Live connection, event, submission, and control updates from main. */
   onStudioChanged(callback: (push: StudioPush) => void): () => void;
+
+  // Work board and durable continuation. Reading the board never starts work;
+  // dispatchNextTask is the one call that can hand a prompt to the engine.
+  boardSnapshot(projectId: ProjectId): Promise<IpcResult<BoardSnapshot>>;
+  createBoardTask(input: {
+    projectId: ProjectId;
+    title: string;
+    prompt: string;
+    owner?: TaskOwner;
+    requirements?: string[];
+    acceptance?: Array<{ text: string; kind: "check" | "human" }>;
+    steps?: string[];
+    dependsOn?: TaskId[];
+  }): Promise<IpcResult<TaskView>>;
+  updateBoardTask(
+    taskId: TaskId,
+    expectedRevision: number,
+    input: {
+      title?: string;
+      prompt?: string;
+      owner?: TaskOwner;
+      requirements?: string[];
+      acceptance?: Array<{ text: string; kind: "check" | "human" }>;
+      steps?: string[];
+    },
+  ): Promise<IpcResult<TaskView>>;
+  importTaskPlan(projectId: ProjectId, plan: unknown): Promise<IpcResult<ImportPlanResult>>;
+  importTaskPlanFile(projectId: ProjectId): Promise<IpcResult<ImportPlanResult | null>>;
+  exportTaskPlan(projectId: ProjectId): Promise<IpcResult<TaskPlan>>;
+  exportTaskPlanFile(
+    projectId: ProjectId,
+  ): Promise<IpcResult<{ saved: boolean; path: string | null }>>;
+  previewTaskContext(taskId: TaskId): Promise<IpcResult<ContextPreview>>;
+  selectNextTask(projectId: ProjectId, owner?: TaskOwner): Promise<IpcResult<TaskSelection>>;
+  addTaskEvidence(input: {
+    projectId: ProjectId;
+    taskId: TaskId;
+    requirementId: string;
+    path: string;
+    note?: string | null;
+  }): Promise<IpcResult<TaskView>>;
+  satisfyTaskCriterion(input: {
+    taskId: TaskId;
+    criterionId: string;
+    expectedRevision: number;
+    by: "check" | "human";
+    evidencePath?: string | null;
+  }): Promise<IpcResult<TaskView>>;
+  verifyBoardTask(taskId: TaskId, expectedRevision: number): Promise<IpcResult<TaskView>>;
+  completeBoardTask(taskId: TaskId, expectedRevision: number): Promise<IpcResult<TaskView>>;
+  startBoardTask(
+    taskId: TaskId,
+    expectedRevision?: number,
+  ): Promise<IpcResult<{ task: unknown; runId: string }>>;
+  resumeBoardTask(
+    taskId: TaskId,
+  ): Promise<IpcResult<{ task: unknown; runId: string; step: string | null }>>;
+  reconcileBoard(projectId: ProjectId, resume?: boolean): Promise<IpcResult<ReconcileResult>>;
+  boardHandoff(projectId: ProjectId): Promise<IpcResult<HandoffView>>;
+  dispatchNextTask(projectId: ProjectId): Promise<IpcResult<QueueRunResult>>;
 }
 
 export interface AppInfo {

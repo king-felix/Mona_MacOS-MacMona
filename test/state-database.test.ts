@@ -99,6 +99,83 @@ describe("database + migrations", () => {
     }
   });
 
+  it("upgrades v2 tasks to the v3 state machine without dropping dependencies or evidence", async () => {
+    const dir = tempDir();
+    const dbPath = join(dir, "mona.sqlite");
+    const v2 = await migrateDatabase({
+      dbPath,
+      migrations: MIGRATIONS.slice(0, 2),
+      now: makeClock().now,
+    });
+    v2.db
+      .prepare(
+        "INSERT INTO projects (id, name, root_path, canonical_path, fs_dev, fs_ino, repository_kind, " +
+          "repository_root, worktree_name, archived, pinned, removed_at, created_at, updated_at, revision) " +
+          "VALUES ('prj_upgrade00000001', 'Upgrade', '/tmp/upgrade', '/tmp/upgrade', 1, 2, 'none', NULL, NULL, 0, 0, NULL, " +
+          "'2026-11-11T00:00:00.000Z', '2026-11-11T00:00:00.000Z', 1)",
+      )
+      .run();
+    for (const [id, status, title] of [
+      ["tsk_aaaaaaaaaaaaaaaa", "paused", "Paused task"],
+      ["tsk_bbbbbbbbbbbbbbbb", "failed", "Failed task"],
+    ] as const) {
+      v2.db
+        .prepare(
+          "INSERT INTO tasks (id, project_id, title, prompt, status, created_at, updated_at, revision) " +
+            "VALUES (?, 'prj_upgrade00000001', ?, 'prompt', ?, '2026-11-11T00:00:00.000Z', '2026-11-11T00:00:00.000Z', 1)",
+        )
+        .run(id, title, status);
+    }
+    v2.db
+      .prepare(
+        "INSERT INTO task_dependencies (task_id, depends_on_task_id, created_at) VALUES ('tsk_bbbbbbbbbbbbbbbb', 'tsk_aaaaaaaaaaaaaaaa', '2026-11-11T00:00:00.000Z')",
+      )
+      .run();
+    v2.db
+      .prepare(
+        "INSERT INTO requirement_evidence (id, project_id, task_id, requirement_id, path, digest, note, created_at) " +
+          "VALUES ('evd_upgrade00001', 'prj_upgrade00000001', 'tsk_aaaaaaaaaaaaaaaa', 'MONA-009', 'docs/evidence/x.md', NULL, NULL, '2026-11-11T00:00:00.000Z')",
+      )
+      .run();
+    v2.db.close();
+
+    const v3 = await migrateDatabase({ dbPath, migrations: MIGRATIONS, now: makeClock().now });
+    try {
+      expect(v3.db.prepare("PRAGMA user_version").get()).toMatchObject({ user_version: 3 });
+      const tasks = v3.db
+        .prepare("SELECT id, status, execution_owner FROM tasks ORDER BY id")
+        .all() as Array<{ id: string; status: string; execution_owner: string }>;
+      expect(tasks).toEqual([
+        { id: "tsk_aaaaaaaaaaaaaaaa", status: "interrupted", execution_owner: "mona_queue" },
+        { id: "tsk_bbbbbbbbbbbbbbbb", status: "interrupted", execution_owner: "mona_queue" },
+      ]);
+      expect(
+        v3.db
+          .prepare(
+            "SELECT COUNT(*) AS n FROM task_dependencies WHERE task_id = 'tsk_bbbbbbbbbbbbbbbb'",
+          )
+          .get(),
+      ).toMatchObject({ n: 1 });
+      expect(
+        v3.db
+          .prepare(
+            "SELECT COUNT(*) AS n FROM requirement_evidence WHERE task_id = 'tsk_aaaaaaaaaaaaaaaa'",
+          )
+          .get(),
+      ).toMatchObject({ n: 1 });
+      expect(
+        v3.db
+          .prepare(
+            "SELECT COUNT(*) AS n FROM sqlite_master WHERE type = 'table' AND name = 'task_acceptance'",
+          )
+          .get(),
+      ).toMatchObject({ n: 1 });
+      expect(v3.db.prepare("PRAGMA foreign_key_check").all()).toEqual([]);
+    } finally {
+      v3.db.close();
+    }
+  });
+
   it("refuses a database from a newer schema", async () => {
     const dir = tempDir();
     const dbPath = join(dir, "mona.sqlite");
@@ -155,7 +232,7 @@ describe("database + migrations", () => {
     v1.db.close();
 
     const bad: Migration = {
-      version: 3,
+      version: 4,
       name: "broken",
       sql: "CREATE TABLE collateral (id INTEGER); INSERT INTO missing_table (id) VALUES (1);",
     };
@@ -211,7 +288,7 @@ describe("database + migrations", () => {
     });
     v2.db.close();
 
-    const destructive: Migration = { version: 3, name: "drop-drafts", sql: "DROP TABLE drafts;" };
+    const destructive: Migration = { version: 4, name: "drop-drafts", sql: "DROP TABLE drafts;" };
     let failure: StateError | null = null;
     try {
       const outcome = await migrateDatabase({
@@ -298,16 +375,31 @@ describe("revisions and disk pressure", () => {
       diskProbe: { freeBytes: () => free },
     });
     const project = await store.createProject({ name: "Full", rootPath: dir });
-    const task = await store.createTask({ projectId: project.id, title: "Work", prompt: "do it" });
+    const task = await store.createTask({
+      projectId: project.id,
+      title: "Work",
+      prompt: "do it",
+      acceptance: [{ text: "the check passes", kind: "check" }],
+    });
     free = 0;
-    await expect(store.updateTaskStatus(task.id, "completed", task.revision)).rejects.toMatchObject(
-      { code: "DISK_FULL" },
-    );
+    await expect(store.updateTaskStatus(task.id, "running", task.revision)).rejects.toMatchObject({
+      code: "DISK_FULL",
+    });
     const reread = await store.getTask(task.id);
     expect(reread?.status).toBe("pending");
     expect(reread?.revision).toBe(task.revision);
     free = 8 * 1024 * 1024 * 1024;
-    const completed = await store.updateTaskStatus(task.id, "completed", task.revision);
+    const running = await store.updateTaskStatus(task.id, "running", task.revision);
+    const criterion = (await store.listAcceptance(task.id))[0];
+    if (!criterion) throw new Error("criterion missing");
+    const satisfied = await store.satisfyAcceptance(task.id, criterion.id, running.revision, {
+      by: "check",
+      evidencePath: "docs/evidence/full-check.txt",
+    });
+    const verifying = await store.markTaskVerifying(task.id, satisfied.revision, "a".repeat(64));
+    const completed = await store.completeTask(task.id, verifying.revision, {
+      fingerprint: "a".repeat(64),
+    });
     expect(completed.status).toBe("completed");
     await store.close();
   });

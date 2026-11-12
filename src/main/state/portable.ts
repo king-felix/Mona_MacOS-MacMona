@@ -14,6 +14,12 @@ import { StateError } from "./errors";
 
 const RepositoryKind = z.enum(["none", "git", "git_worktree"]);
 
+// Pre-P10 bundles could carry `paused` or `failed`. They are still accepted as
+// input and mapped to `interrupted` on import: neither state is a truthful
+// completion, and the current state machine has no such edges.
+const LegacyTaskStatus = z.enum(["paused", "failed"]);
+const PortableTaskStatus = z.union([TaskStatus, LegacyTaskStatus]);
+
 export const PortableProject = z.strictObject({
   id: ProjectId,
   name: z.string().min(1).max(200),
@@ -35,7 +41,31 @@ export const PortableTask = z.strictObject({
   id: TaskId,
   title: z.string().min(1).max(200),
   prompt: z.string().min(1),
-  status: TaskStatus,
+  status: PortableTaskStatus,
+  // Added by the P10 board. Optional so a bundle written before P10 still
+  // imports: the missing fields fall back to the documented defaults rather
+  // than inventing an owner or a completed state.
+  executionOwner: z.enum(["mona_queue", "native_workflow"]).optional(),
+  requirements: z.array(z.string().regex(/^(MONA|MAC)-\d{3}$/)).optional(),
+  acceptance: z
+    .array(
+      z.strictObject({
+        text: z.string().min(1).max(1000),
+        kind: z.enum(["check", "human"]),
+      }),
+    )
+    .optional(),
+  steps: z.array(z.string().min(1).max(500)).optional(),
+  nextStep: z.string().max(500).nullable().optional(),
+  verificationFingerprint: z
+    .string()
+    .regex(/^[a-f0-9]{64}$/)
+    .nullable()
+    .optional(),
+  verificationStale: z.boolean().optional(),
+  staleReason: z.string().max(2000).nullable().optional(),
+  completedAt: Timestamp.nullable().optional(),
+  importedFrom: z.string().max(500).nullable().optional(),
   createdAt: Timestamp,
   updatedAt: Timestamp,
   revision: z.number().int().min(1),
@@ -44,6 +74,30 @@ export const PortableTask = z.strictObject({
 export const PortableDependency = z.strictObject({
   taskId: TaskId,
   dependsOnTaskId: TaskId,
+});
+
+/** Acceptance criteria and recorded steps travel with the task they belong to. */
+export const PortableAcceptance = z.strictObject({
+  id: z.string().min(1),
+  taskId: TaskId,
+  ordinal: z.number().int().nonnegative(),
+  text: z.string().min(1).max(1000),
+  kind: z.enum(["check", "human"]),
+  satisfied: z.boolean(),
+  satisfiedBy: z.enum(["check", "human"]).nullable(),
+  evidencePath: z.string().max(2048).nullable(),
+  updatedAt: Timestamp,
+});
+
+export const PortableStep = z.strictObject({
+  id: z.string().min(1),
+  taskId: TaskId,
+  ordinal: z.number().int().nonnegative(),
+  label: z.string().min(1).max(500),
+  state: z.enum(["pending", "running", "completed", "skipped"]),
+  evidencePath: z.string().max(2048).nullable(),
+  recordedAt: Timestamp,
+  updatedAt: Timestamp,
 });
 
 export const PortableEvidence = z.strictObject({
@@ -159,6 +213,8 @@ export const PortablePayload = z.strictObject({
   project: PortableProject,
   paths: z.array(PortablePath),
   tasks: z.array(PortableTask),
+  acceptance: z.array(PortableAcceptance).optional(),
+  steps: z.array(PortableStep).optional(),
   dependencies: z.array(PortableDependency),
   evidence: z.array(PortableEvidence),
   attempts: z.array(PortableAttempt),
@@ -304,6 +360,16 @@ export function verifyBundle(value: unknown): {
   for (const evidence of bundle.payload.evidence) {
     if (evidence.taskId && !taskIds.has(evidence.taskId)) {
       problems.push({ path: "evidence", message: `unknown task ${evidence.taskId}` });
+    }
+  }
+  for (const criterion of bundle.payload.acceptance ?? []) {
+    if (!taskIds.has(criterion.taskId)) {
+      problems.push({ path: "acceptance", message: `unknown task ${criterion.taskId}` });
+    }
+  }
+  for (const step of bundle.payload.steps ?? []) {
+    if (!taskIds.has(step.taskId)) {
+      problems.push({ path: "steps", message: `unknown task ${step.taskId}` });
     }
   }
   for (const attempt of bundle.payload.attempts) {

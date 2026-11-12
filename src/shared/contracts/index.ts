@@ -7,3 +7,4 @@ export * from "./usage";
 export * from "./studio";
 export * from "./bridge";
 export * from "./project-bridge";
+export * from "./board";

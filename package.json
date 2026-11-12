@@ -32,7 +32,8 @@
     "smoke:studio": "npm run build && node scripts/studio-smoke.mjs",
     "build:service": "node scripts/build-service.mjs",
     "smoke:service": "node scripts/service-smoke.mjs",
-    "smoke:open": "node scripts/open-smoke.mjs"
+    "smoke:open": "node scripts/open-smoke.mjs",
+    "smoke:board": "npm run build:main && node scripts/board-smoke.mjs"
   },
   "dependencies": {
     "react": "19.3.1",

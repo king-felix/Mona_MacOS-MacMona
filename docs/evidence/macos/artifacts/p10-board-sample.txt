@@ -1,0 +1,142 @@
+P10 sample run: PASS
+  ok   dependency_cycle_rejected
+  ok   no_partial_import
+  ok   import_is_inert
+  ok   imported_tasks_pending
+  ok   imported_owner_default
+  ok   deterministic_selection
+  ok   preview_has_prompt
+  ok   preview_excludes_spec
+  ok   queue_ran_one
+  ok   queue_stopped
+  ok   other_tasks_unstarted
+  ok   running_is_one
+  ok   evidence_gated_completion
+  ok   prerequisite_verified
+  ok   interrupted_next_step
+  ok   resume_at_recorded_step
+  ok   stale_after_code_change
+  ok   criteria_survive_export
+  ok   round_trip_criteria
+  ok   workspaces_isolated
+  ok   handoff_from_state
+  ok   transitions_audited
+{
+  "schema_version": 1,
+  "prompt": "P10",
+  "ok": true,
+  "checks": {
+    "dependency_cycle_rejected": true,
+    "no_partial_import": true,
+    "import_is_inert": true,
+    "imported_tasks_pending": true,
+    "imported_owner_default": true,
+    "deterministic_selection": true,
+    "preview_has_prompt": true,
+    "preview_excludes_spec": true,
+    "queue_ran_one": true,
+    "queue_stopped": true,
+    "other_tasks_unstarted": true,
+    "running_is_one": true,
+    "evidence_gated_completion": true,
+    "prerequisite_verified": true,
+    "interrupted_next_step": true,
+    "resume_at_recorded_step": true,
+    "stale_after_code_change": true,
+    "criteria_survive_export": true,
+    "round_trip_criteria": true,
+    "workspaces_isolated": true,
+    "handoff_from_state": true,
+    "transitions_audited": true
+  },
+  "cycle_rejection": "CONFLICT: dependency cycle: a -> b -> a",
+  "imported_tasks": [
+    {
+      "key": "build",
+      "taskId": "tsk_00000003"
+    },
+    {
+      "key": "review",
+      "taskId": "tsk_00000004"
+    },
+    {
+      "key": "docs",
+      "taskId": "tsk_00000005"
+    }
+  ],
+  "queue": {
+    "ran": [
+      "tsk_00000003"
+    ],
+    "stopped_because": "one_prompt_per_assignment",
+    "executor_calls": 1
+  },
+  "handoff": {
+    "current_task": "Review the result",
+    "current_status": "running",
+    "last_verified_step": "read the output",
+    "next_exact_action": "Continue \"Review the result\"; the engine owns the active turn, and the recorded step is \"record the decision\".",
+    "open_attempts": 0
+  },
+  "stale": [
+    {
+      "taskId": "tsk_00000003",
+      "reason": "workspace changed after verification (7d48a66f → 0867d983)"
+    }
+  ],
+  "transitions": [
+    {
+      "task": "tsk_00000003",
+      "from": "pending",
+      "to": "running",
+      "actor": "mona_queue",
+      "reason": null
+    },
+    {
+      "task": "tsk_00000003",
+      "from": "running",
+      "to": "verifying",
+      "actor": "human",
+      "reason": null
+    },
+    {
+      "task": "tsk_00000003",
+      "from": "verifying",
+      "to": "completed",
+      "actor": "human",
+      "reason": "acceptance passed: 1 criteria"
+    },
+    {
+      "task": "tsk_00000004",
+      "from": "pending",
+      "to": "running",
+      "actor": "mona_queue",
+      "reason": null
+    },
+    {
+      "task": "tsk_00000004",
+      "from": "running",
+      "to": "interrupted",
+      "actor": "mona_queue",
+      "reason": "sample crash"
+    },
+    {
+      "task": "tsk_00000004",
+      "from": "interrupted",
+      "to": "running",
+      "actor": "mona_queue",
+      "reason": "resume at record the decision"
+    },
+    {
+      "task": "tsk_00000003",
+      "from": "completed",
+      "to": "verifying",
+      "actor": "reconciler",
+      "reason": "workspace changed after verification (7d48a66f → 0867d983)"
+    }
+  ],
+  "workspace_files": {
+    "feature": "<tmp>/workspace/src/feature.mjs",
+    "test_output": "<tmp>/workspace/evidence/test-output.txt"
+  }
+}

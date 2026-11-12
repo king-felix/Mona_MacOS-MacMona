@@ -394,3 +394,63 @@ and deviations discovered while building.
 - **Consequence:** P21 must install the Service and the app in the same
   transaction and re-register after any bundle replacement; P24 verifies the
   packaged layout on a clean recipient.
+
+## D-022 — Task state is spec §8.2 exactly; migration v3 rebuilds the table
+
+- **Date:** 2026-11-11 (P10)
+- **Decision:** A task is one of `pending`, `running`, `verifying`, `completed`,
+  `blocked`, `interrupted`, `skipped`. `paused` is a queue boundary and `failed`
+  is not a terminal task state; a failed verification returns to `running`. The
+  v3 migration rebuilds `tasks` because SQLite cannot alter its CHECK constraint,
+  maps legacy `paused`/`failed` and any imported `running` to `interrupted`, and
+  preserves dependencies and requirement evidence by disabling foreign keys
+  around the documented rebuild and re-running `foreign_key_check` before the
+  migration is recorded.
+- **Why:** The product's status vocabulary is a promise. Keeping `paused` in the
+  task model would imply a resumable half-state the spec does not define, and
+  keeping `failed` would let a failed check look finished. A status set enforced
+  by the database is stronger than a UI convention, and the migration makes the
+  change on a real v2 database rather than only on fresh installs.
+- **Consequence:** Existing `paused`/`failed` rows become `interrupted`; resume
+  is explicit. Every status edge lives in `src/main/state/task-machine.ts`, and
+  a transition not in that table is refused even by a direct store call.
+
+## D-023 — Completion is an evidence gate; code changes reopen verification
+
+- **Date:** 2026-11-11 (P10)
+- **Decision:** `updateTaskStatus(..., "completed")` is refused. Completion is
+  only possible through `completeTask` in `verifying`, with at least one
+  acceptance criterion, every criterion satisfied (`check` only with a recorded
+  check and evidence path, `human` only by an explicit human action), and one
+  linked requirement-evidence row for every declared requirement. Verification
+  records a deterministic workspace digest plus the task's own evidence files;
+  `reconcile` reopens a completed task to `verifying` when that digest changes.
+- **Why:** "The model says done" is the exact failure mode the prompt names.
+  Requiring configured criteria, their recorded results, and requirement
+  traceability makes completion a property of data rather than a claim. The
+  fingerprint makes test evidence stale automatically when code moves, as spec
+  §8.3 requires, without pretending to understand the change.
+- **Consequence:** A task with no criteria cannot be completed until criteria are
+  added. Reopening is audited as actor `reconciler` and clears `completed_at`.
+  The fingerprint is bounded (20,000 files / 64 MB) and reports truncation; it is
+  a conservative signal, not a semantic diff.
+
+## D-024 — One execution owner and one mutating run, enforced by the store
+
+- **Date:** 2026-11-11 (P10)
+- **Decision:** Every task declares `mona_queue` or `native_workflow`. The queue
+  starts only tasks whose owner is `mona_queue`, and `beginTaskRun` refuses an
+  owner mismatch. Two partial unique indexes — one running task per project and
+  one running run per project — make a second mutating run a database error.
+  `runOnce` performs exactly one selection and one dispatch; it never loops.
+  Plans import as `pending` only and never start work.
+- **Why:** Spec §10.3 forbids the Mona queue and a native workflow from
+  independently scheduling the same task. Recording the owner is not enough if a
+  second scheduler can still start a run, so the invariant is in SQLite. One
+  prompt per assignment is the spec default and keeps cost and ownership visible.
+- **Consequence:** Native workflow ownership is declared and refused by the
+  queue, but binding native runs to real engine goals/events is P15. Skipping a
+  task needs an explicit human reason; a blocked task resumes only on new
+  evidence or a human decision. The real dispatch path goes through the studio's
+  single-turn guard; turn completion to task verification is explicit until
+  P11/P14.

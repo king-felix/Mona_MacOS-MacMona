@@ -6,7 +6,13 @@ import {
   ProjectId,
   SubmissionState,
   TaskId,
+  type AcceptanceCriterion,
+  type CriterionKind,
+  type StepState,
   type SubmissionStatus,
+  type TaskOwner,
+  type TaskRunView,
+  type TaskState,
   type TaskStatus,
 } from "../../shared/contracts";
 import {
@@ -30,6 +36,7 @@ import {
 import { StateError } from "./errors";
 import { identifyPath, type PathIdentity, type RepositoryKind } from "./identity";
 import { migrateDatabase } from "./migrations";
+import { decideTransition, EDITABLE_STATES, type TransitionActor } from "./task-machine";
 import {
   buildBundle,
   bundleToFileText,
@@ -65,9 +72,44 @@ export interface StoredTask {
   title: string;
   prompt: string;
   status: TaskStatus;
+  executionOwner: TaskOwner;
+  requirements: string[];
+  nextStep: string | null;
+  verificationFingerprint: string | null;
+  verificationStale: boolean;
+  staleReason: string | null;
+  completedAt: string | null;
+  importedFrom: string | null;
   createdAt: string;
   updatedAt: string;
   revision: number;
+}
+
+export interface StoredTaskStep {
+  id: string;
+  taskId: TaskId;
+  ordinal: number;
+  label: string;
+  state: StepState;
+  evidencePath: string | null;
+  recordedAt: string;
+  updatedAt: string;
+}
+
+export interface TaskTransitionRecord {
+  id: string;
+  projectId: ProjectId;
+  taskId: TaskId;
+  fromStatus: string | null;
+  toStatus: string;
+  actor: TransitionActor;
+  reason: string | null;
+  createdAt: string;
+}
+
+export interface StartedTaskRun {
+  task: StoredTask;
+  run: TaskRunView;
 }
 
 export type BindingState = "starting" | "running" | "stopping" | "stopped" | "failed";
@@ -258,12 +300,17 @@ type DbRow = Record<string, string | number | null>;
 const TASK_STATUSES: readonly TaskStatus[] = [
   "pending",
   "running",
-  "paused",
-  "blocked",
+  "verifying",
   "completed",
-  "failed",
+  "blocked",
   "interrupted",
+  "skipped",
 ];
+const TASK_OWNERS: readonly TaskOwner[] = ["mona_queue", "native_workflow"];
+const CRITERION_KINDS: readonly CriterionKind[] = ["check", "human"];
+const MAX_CRITERIA = 50;
+const MAX_STEPS = 50;
+const MAX_REQUIREMENTS = 50;
 
 function asString(value: unknown): string {
   return String(value ?? "");
@@ -304,16 +351,121 @@ function projectFromRow(row: DbRow): StoredProject {
 }
 
 function taskFromRow(row: DbRow): StoredTask {
+  let requirements: string[] = [];
+  try {
+    const parsed: unknown = JSON.parse(asString(row.requirements_json) || "[]");
+    if (Array.isArray(parsed))
+      requirements = parsed.filter((v): v is string => typeof v === "string");
+  } catch {
+    requirements = [];
+  }
   return {
     id: row.id as string as TaskId,
     projectId: row.project_id as string as ProjectId,
     title: asString(row.title),
     prompt: asString(row.prompt),
     status: asString(row.status) as TaskStatus,
+    executionOwner: (asString(row.execution_owner) || "mona_queue") as TaskOwner,
+    requirements,
+    nextStep: asNullableString(row.next_step),
+    verificationFingerprint: asNullableString(row.verification_fingerprint),
+    verificationStale: Number(row.verification_stale) === 1,
+    staleReason: asNullableString(row.stale_reason),
+    completedAt: asNullableString(row.completed_at),
+    importedFrom: asNullableString(row.imported_from),
     createdAt: asString(row.created_at),
     updatedAt: asString(row.updated_at),
     revision: asNumber(row.revision),
   };
+}
+
+function criterionFromRow(row: DbRow): AcceptanceCriterion {
+  return {
+    id: asString(row.id),
+    taskId: asString(row.task_id) as TaskId,
+    ordinal: asNumber(row.ordinal),
+    text: asString(row.text),
+    kind: asString(row.kind) as CriterionKind,
+    satisfied: Number(row.satisfied) === 1,
+    satisfiedBy: asNullableString(row.satisfied_by) as AcceptanceCriterion["satisfiedBy"],
+    evidencePath: asNullableString(row.evidence_path),
+    updatedAt: asString(row.updated_at),
+  };
+}
+
+function stepFromRow(row: DbRow): StoredTaskStep {
+  return {
+    id: asString(row.id),
+    taskId: asString(row.task_id) as TaskId,
+    ordinal: asNumber(row.ordinal),
+    label: asString(row.label),
+    state: asString(row.state) as StepState,
+    evidencePath: asNullableString(row.evidence_path),
+    recordedAt: asString(row.recorded_at),
+    updatedAt: asString(row.updated_at),
+  };
+}
+
+function runFromRow(row: DbRow): TaskRunView {
+  return {
+    id: asString(row.id),
+    taskId: asString(row.task_id) as TaskId,
+    owner: asString(row.owner) as TaskOwner,
+    state: asString(row.state) as TaskRunView["state"],
+    startedAt: asString(row.started_at),
+    endedAt: asNullableString(row.ended_at),
+    note: asNullableString(row.note),
+  };
+}
+
+function validateRequirementIds(value: readonly string[]): string[] {
+  if (value.length > MAX_REQUIREMENTS) {
+    throw new StateError(
+      "CONFLICT",
+      `a task may reference at most ${MAX_REQUIREMENTS} requirements`,
+    );
+  }
+  const unique = [...new Set(value.map((id) => id.trim()))];
+  for (const id of unique) {
+    if (!/^(MONA|MAC)-\d{3}$/.test(id)) {
+      throw new StateError("CONFLICT", `requirement ids look like MONA-001 or MAC-001`, { id });
+    }
+  }
+  return unique;
+}
+
+function validateCriteria(
+  value: ReadonlyArray<{ text: string; kind: CriterionKind }>,
+): Array<{ text: string; kind: CriterionKind }> {
+  if (value.length > MAX_CRITERIA) {
+    throw new StateError("CONFLICT", `a task may have at most ${MAX_CRITERIA} acceptance criteria`);
+  }
+  return value.map((criterion, index) => {
+    const text = criterion.text.trim();
+    if (text.length < 1 || text.length > 1000) {
+      throw new StateError(
+        "CONFLICT",
+        `acceptance criterion ${index + 1} must be 1–1000 characters`,
+      );
+    }
+    if (!CRITERION_KINDS.includes(criterion.kind)) {
+      throw new StateError("CONFLICT", `unknown acceptance criterion kind ${criterion.kind}`);
+    }
+    return { text, kind: criterion.kind };
+  });
+}
+
+function validateSteps(value: readonly string[]): string[] {
+  if (value.length > MAX_STEPS) {
+    throw new StateError("CONFLICT", `a task may have at most ${MAX_STEPS} steps`);
+  }
+  return value.map((label, index) => {
+    const text = label.trim();
+    if (text.length < 1 || text.length > 500) {
+      throw new StateError("CONFLICT", `task step ${index + 1} must be 1–500 characters`);
+    }
+    return text;
+  });
 }
 
 function artifactFromRow(row: DbRow): ArtifactRecord {
@@ -991,9 +1143,25 @@ export class StateStore {
     title: string;
     prompt: string;
     dependsOn?: TaskId[];
+    owner?: TaskOwner;
+    requirements?: string[];
+    acceptance?: Array<{ text: string; kind: CriterionKind }>;
+    steps?: string[];
+    importedFrom?: string | null;
   }): Promise<StoredTask> {
     const title = validateName(input.title, "task title");
-    if (!input.prompt.trim()) throw new StateError("CONFLICT", "task prompt cannot be empty");
+    const prompt = input.prompt.trim();
+    if (!prompt) throw new StateError("CONFLICT", "task prompt cannot be empty");
+    if (prompt.length > 100_000) {
+      throw new StateError("CONFLICT", "task prompt is limited to 100000 characters");
+    }
+    const owner = input.owner ?? "mona_queue";
+    if (!TASK_OWNERS.includes(owner)) {
+      throw new StateError("CONFLICT", `unknown task owner ${owner}`);
+    }
+    const requirements = validateRequirementIds(input.requirements ?? []);
+    const criteria = validateCriteria(input.acceptance ?? []);
+    const steps = validateSteps(input.steps ?? []);
     return this.write((db, now) => {
       const project = this.requireProjectRow(db, input.projectId);
       if (project.removed_at !== null) {
@@ -1003,13 +1171,223 @@ export class StateStore {
       }
       const id = this.id("tsk");
       db.prepare(
-        "INSERT INTO tasks (id, project_id, title, prompt, status, created_at, updated_at, revision) " +
-          "VALUES (?, ?, ?, ?, 'pending', ?, ?, 1)",
-      ).run(id, input.projectId, title, input.prompt, now, now);
+        "INSERT INTO tasks (id, project_id, title, prompt, status, execution_owner, requirements_json, " +
+          "imported_from, created_at, updated_at, revision) " +
+          "VALUES (?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?, 1)",
+      ).run(
+        id,
+        input.projectId,
+        title,
+        prompt,
+        owner,
+        JSON.stringify(requirements),
+        input.importedFrom ?? null,
+        now,
+        now,
+      );
       for (const dependency of input.dependsOn ?? []) {
         this.insertDependency(db, id, dependency, input.projectId, now);
       }
+      this.insertCriteria(db, id, criteria, now);
+      this.insertSteps(db, id, steps, now);
       return taskFromRow(db.prepare("SELECT * FROM tasks WHERE id = ?").get(id) as DbRow);
+    });
+  }
+
+  /**
+   * Imported plans are inserted in one transaction. Keys are local to the plan
+   * and resolve to real task ids only after insertion, so a failed import leaves
+   * no half-created board.
+   */
+  async createTasks(input: {
+    projectId: ProjectId;
+    importedFrom?: string | null;
+    tasks: ReadonlyArray<{
+      key: string;
+      title: string;
+      prompt: string;
+      owner?: TaskOwner;
+      requirements?: string[];
+      acceptance?: Array<{ text: string; kind: CriterionKind }>;
+      steps?: string[];
+      dependsOnKeys?: string[];
+    }>;
+  }): Promise<Array<{ key: string; task: StoredTask }>> {
+    if (input.tasks.length === 0) {
+      throw new StateError("CONFLICT", "an imported plan needs at least one task");
+    }
+    if (input.tasks.length > 200) {
+      throw new StateError("CONFLICT", "an imported plan is limited to 200 tasks");
+    }
+    const keys = new Set<string>();
+    const prepared = input.tasks.map((task) => {
+      const key = task.key.trim();
+      if (!/^[A-Za-z0-9._-]{1,64}$/.test(key)) {
+        throw new StateError("CONFLICT", `plan key ${JSON.stringify(key)} is not a stable token`);
+      }
+      if (keys.has(key)) {
+        throw new StateError("CONFLICT", `duplicate plan key ${key}`);
+      }
+      keys.add(key);
+      const title = validateName(task.title, "task title");
+      const prompt = task.prompt.trim();
+      if (!prompt) throw new StateError("CONFLICT", `plan task ${key} has an empty prompt`);
+      if (prompt.length > 100_000) {
+        throw new StateError("CONFLICT", `plan task ${key} prompt is too long`);
+      }
+      const owner = task.owner ?? "mona_queue";
+      if (!TASK_OWNERS.includes(owner)) {
+        throw new StateError("CONFLICT", `plan task ${key} has unknown owner ${owner}`);
+      }
+      return {
+        key,
+        title,
+        prompt,
+        owner,
+        requirements: validateRequirementIds(task.requirements ?? []),
+        criteria: validateCriteria(task.acceptance ?? []),
+        steps: validateSteps(task.steps ?? []),
+        dependsOnKeys: [...new Set(task.dependsOnKeys ?? [])],
+      };
+    });
+    for (const task of prepared) {
+      for (const dependency of task.dependsOnKeys) {
+        if (!keys.has(dependency)) {
+          throw new StateError(
+            "CONFLICT",
+            `plan task ${task.key} depends on unknown key ${dependency}`,
+          );
+        }
+        if (dependency === task.key) {
+          throw new StateError("CONFLICT", `plan task ${task.key} depends on itself`);
+        }
+      }
+    }
+    this.assertPlanAcyclic(prepared);
+    return this.write((db, now) => {
+      const project = this.requireProjectRow(db, input.projectId);
+      if (project.removed_at !== null) {
+        throw new StateError("CONFLICT", "cannot add tasks to a removed project", {
+          project_id: input.projectId,
+        });
+      }
+      const ids = new Map<string, string>();
+      for (const task of prepared) ids.set(task.key, this.id("tsk"));
+      for (const task of prepared) {
+        const id = ids.get(task.key);
+        if (!id) throw new StateError("CONFLICT", "plan key resolution failed");
+        db.prepare(
+          "INSERT INTO tasks (id, project_id, title, prompt, status, execution_owner, requirements_json, " +
+            "imported_from, created_at, updated_at, revision) " +
+            "VALUES (?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?, 1)",
+        ).run(
+          id,
+          input.projectId,
+          task.title,
+          task.prompt,
+          task.owner,
+          JSON.stringify(task.requirements),
+          input.importedFrom ?? null,
+          now,
+          now,
+        );
+        this.insertCriteria(db, id, task.criteria, now);
+        this.insertSteps(db, id, task.steps, now);
+      }
+      for (const task of prepared) {
+        const id = ids.get(task.key);
+        if (!id) continue;
+        for (const dependency of task.dependsOnKeys) {
+          const dependencyId = ids.get(dependency);
+          if (!dependencyId) continue;
+          this.insertDependency(db, id, dependencyId, input.projectId, now);
+        }
+      }
+      this.assertNoDependencyCycle(db, input.projectId);
+      return prepared.map((task) => {
+        const id = ids.get(task.key) as string;
+        return {
+          key: task.key,
+          task: taskFromRow(db.prepare("SELECT * FROM tasks WHERE id = ?").get(id) as DbRow),
+        };
+      });
+    });
+  }
+
+  private assertPlanAcyclic(
+    tasks: ReadonlyArray<{ key: string; dependsOnKeys: readonly string[] }>,
+  ): void {
+    const graph = new Map<string, readonly string[]>(
+      tasks.map((task) => [task.key, task.dependsOnKeys] as const),
+    );
+    const visiting = new Set<string>();
+    const done = new Set<string>();
+    const visit = (key: string, trail: string[]): void => {
+      if (done.has(key)) return;
+      if (visiting.has(key)) {
+        throw new StateError("CONFLICT", `dependency cycle: ${[...trail, key].join(" -> ")}`);
+      }
+      visiting.add(key);
+      for (const dependency of graph.get(key) ?? []) visit(dependency, [...trail, key]);
+      visiting.delete(key);
+      done.add(key);
+    };
+    for (const task of tasks) visit(task.key, []);
+  }
+
+  private assertNoDependencyCycle(db: DatabaseSync, projectId: ProjectId): void {
+    const rows = db
+      .prepare(
+        `SELECT d.task_id, d.depends_on_task_id FROM task_dependencies d
+          JOIN tasks t ON t.id = d.task_id WHERE t.project_id = ?`,
+      )
+      .all(projectId) as Array<{ task_id: string; depends_on_task_id: string }>;
+    const graph = new Map<string, string[]>();
+    for (const row of rows) {
+      const list = graph.get(String(row.task_id)) ?? [];
+      list.push(String(row.depends_on_task_id));
+      graph.set(String(row.task_id), list);
+    }
+    const visiting = new Set<string>();
+    const done = new Set<string>();
+    const visit = (key: string): void => {
+      if (done.has(key)) return;
+      if (visiting.has(key)) {
+        throw new StateError("CONFLICT", "dependency graph contains a cycle", { task_id: key });
+      }
+      visiting.add(key);
+      for (const dependency of graph.get(key) ?? []) visit(dependency);
+      visiting.delete(key);
+      done.add(key);
+    };
+    for (const key of graph.keys()) visit(key);
+  }
+
+  private insertCriteria(
+    db: DatabaseSync,
+    taskId: string,
+    criteria: ReadonlyArray<{ text: string; kind: CriterionKind }>,
+    now: string,
+  ): void {
+    criteria.forEach((criterion, ordinal) => {
+      db.prepare(
+        "INSERT INTO task_acceptance (id, task_id, ordinal, text, kind, satisfied, satisfied_by, " +
+          "evidence_path, updated_at) VALUES (?, ?, ?, ?, ?, 0, NULL, NULL, ?)",
+      ).run(this.id("acp"), taskId, ordinal, criterion.text, criterion.kind, now);
+    });
+  }
+
+  private insertSteps(
+    db: DatabaseSync,
+    taskId: string,
+    labels: readonly string[],
+    now: string,
+  ): void {
+    labels.forEach((label, ordinal) => {
+      db.prepare(
+        "INSERT INTO task_steps (id, task_id, ordinal, label, state, evidence_path, recorded_at, updated_at) " +
+          "VALUES (?, ?, ?, ?, 'pending', NULL, ?, ?)",
+      ).run(this.id("stp"), taskId, ordinal, label, now, now);
     });
   }
 
@@ -1075,7 +1453,7 @@ export class StateStore {
   async listTasks(projectId: ProjectId): Promise<StoredTask[]> {
     return this.read((db) => {
       const rows = db
-        .prepare("SELECT * FROM tasks WHERE project_id = ? ORDER BY created_at, rowid")
+        .prepare("SELECT * FROM tasks WHERE project_id = ? ORDER BY created_at, id")
         .all(projectId) as DbRow[];
       return rows.map(taskFromRow);
     });
@@ -1095,7 +1473,7 @@ export class StateStore {
       const rows = db
         .prepare(
           `SELECT d.task_id, d.depends_on_task_id FROM task_dependencies d
-           JOIN tasks t ON t.id = d.task_id WHERE t.project_id = ?`,
+           JOIN tasks t ON t.id = d.task_id WHERE t.project_id = ? ORDER BY d.task_id, d.depends_on_task_id`,
         )
         .all(projectId) as Array<{ task_id: string; depends_on_task_id: string }>;
       return rows.map((row) => ({
@@ -1105,29 +1483,621 @@ export class StateStore {
     });
   }
 
+  async listAcceptance(taskId: TaskId): Promise<AcceptanceCriterion[]> {
+    return this.read((db) => {
+      const rows = db
+        .prepare("SELECT * FROM task_acceptance WHERE task_id = ? ORDER BY ordinal")
+        .all(taskId) as DbRow[];
+      return rows.map(criterionFromRow);
+    });
+  }
+
+  async listTaskSteps(taskId: TaskId): Promise<StoredTaskStep[]> {
+    return this.read((db) => {
+      const rows = db
+        .prepare("SELECT * FROM task_steps WHERE task_id = ? ORDER BY ordinal")
+        .all(taskId) as DbRow[];
+      return rows.map(stepFromRow);
+    });
+  }
+
+  async listTaskRuns(projectId: ProjectId): Promise<TaskRunView[]> {
+    return this.read((db) => {
+      const rows = db
+        .prepare("SELECT * FROM task_runs WHERE project_id = ? ORDER BY started_at, id")
+        .all(projectId) as DbRow[];
+      return rows.map(runFromRow);
+    });
+  }
+
+  async activeTaskRun(projectId: ProjectId): Promise<TaskRunView | null> {
+    return this.read((db) => {
+      const row = db
+        .prepare("SELECT * FROM task_runs WHERE project_id = ? AND state = 'running'")
+        .get(projectId) as DbRow | undefined;
+      return row ? runFromRow(row) : null;
+    });
+  }
+
+  async listTaskTransitions(projectId: ProjectId): Promise<TaskTransitionRecord[]> {
+    return this.read((db) => {
+      const rows = db
+        .prepare("SELECT * FROM task_events WHERE project_id = ? ORDER BY created_at, rowid")
+        .all(projectId) as DbRow[];
+      return rows.map((row) => ({
+        id: asString(row.id),
+        projectId: asString(row.project_id) as ProjectId,
+        taskId: asString(row.task_id) as TaskId,
+        fromStatus: asNullableString(row.from_status),
+        toStatus: asString(row.to_status),
+        actor: asString(row.actor) as TransitionActor,
+        reason: asNullableString(row.reason),
+        createdAt: asString(row.created_at),
+      }));
+    });
+  }
+
+  /** Metadata edits are allowed only while no run is active. */
+  async updateTask(
+    id: TaskId,
+    expectedRevision: number,
+    input: {
+      title?: string;
+      prompt?: string;
+      owner?: TaskOwner;
+      requirements?: string[];
+      acceptance?: Array<{ text: string; kind: CriterionKind }>;
+      steps?: string[];
+    },
+  ): Promise<StoredTask> {
+    return this.write((db, now) => {
+      const row = this.requireTaskRow(db, id);
+      this.checkTaskRevision(row, expectedRevision);
+      const status = asString(row.status) as TaskStatus;
+      if (!EDITABLE_STATES.includes(status)) {
+        throw new StateError("CONFLICT", `a ${status} task cannot be edited`, { task_id: id });
+      }
+      const title =
+        input.title === undefined ? asString(row.title) : validateName(input.title, "task title");
+      let prompt = asString(row.prompt);
+      if (input.prompt !== undefined) {
+        prompt = input.prompt.trim();
+        if (!prompt) throw new StateError("CONFLICT", "task prompt cannot be empty");
+        if (prompt.length > 100_000) {
+          throw new StateError("CONFLICT", "task prompt is limited to 100000 characters");
+        }
+      }
+      const owner = input.owner ?? (asString(row.execution_owner) as TaskOwner);
+      if (!TASK_OWNERS.includes(owner)) {
+        throw new StateError("CONFLICT", `unknown task owner ${owner}`);
+      }
+      const requirements =
+        input.requirements === undefined
+          ? taskFromRow(row).requirements
+          : validateRequirementIds(input.requirements);
+      db.prepare(
+        "UPDATE tasks SET title = ?, prompt = ?, execution_owner = ?, requirements_json = ?, " +
+          "updated_at = ?, revision = revision + 1 WHERE id = ?",
+      ).run(title, prompt, owner, JSON.stringify(requirements), now, id);
+      if (input.acceptance !== undefined) {
+        const criteria = validateCriteria(input.acceptance);
+        db.prepare("DELETE FROM task_acceptance WHERE task_id = ?").run(id);
+        this.insertCriteria(db, id, criteria, now);
+      }
+      if (input.steps !== undefined) {
+        const steps = validateSteps(input.steps);
+        db.prepare("DELETE FROM task_steps WHERE task_id = ?").run(id);
+        this.insertSteps(db, id, steps, now);
+        db.prepare("UPDATE tasks SET next_step = ? WHERE id = ?").run(steps[0] ?? null, id);
+      }
+      return taskFromRow(db.prepare("SELECT * FROM tasks WHERE id = ?").get(id) as DbRow);
+    });
+  }
+
+  /**
+   * Satisfy one criterion. A `check` criterion can only be satisfied by a
+   * recorded check result with an evidence path; a `human` criterion can only
+   * be satisfied by an explicit human action. Model output cannot do either.
+   */
+  async satisfyAcceptance(
+    taskId: TaskId,
+    criterionId: string,
+    expectedRevision: number,
+    input: { by: "check" | "human"; evidencePath?: string | null },
+  ): Promise<StoredTask> {
+    if (input.by !== "check" && input.by !== "human") {
+      throw new StateError("CONFLICT", `unknown verification source ${String(input.by)}`);
+    }
+    return this.write((db, now) => {
+      const row = this.requireTaskRow(db, taskId);
+      this.checkTaskRevision(row, expectedRevision);
+      const criterion = db
+        .prepare("SELECT * FROM task_acceptance WHERE id = ? AND task_id = ?")
+        .get(criterionId, taskId) as DbRow | undefined;
+      if (!criterion) {
+        throw new StateError("NOT_FOUND", "acceptance criterion is not on this task", {
+          task_id: taskId,
+          criterion_id: criterionId,
+        });
+      }
+      if (asString(criterion.kind) !== input.by) {
+        throw new StateError(
+          "CONFLICT",
+          `this is a ${asString(criterion.kind)} criterion; it cannot be satisfied by ${input.by}`,
+          { task_id: taskId, criterion_id: criterionId },
+        );
+      }
+      const evidencePath = input.evidencePath ?? null;
+      if (
+        evidencePath !== null &&
+        (evidencePath.trim().length === 0 || evidencePath.length > 2048)
+      ) {
+        throw new StateError("CONFLICT", "evidence path must be 1–2048 characters");
+      }
+      if (input.by === "check" && !evidencePath) {
+        throw new StateError("CONFLICT", "a check result needs an evidence path", {
+          task_id: taskId,
+          criterion_id: criterionId,
+        });
+      }
+      db.prepare(
+        "UPDATE task_acceptance SET satisfied = 1, satisfied_by = ?, evidence_path = ?, updated_at = ? " +
+          "WHERE id = ?",
+      ).run(input.by, evidencePath, now, criterionId);
+      db.prepare("UPDATE tasks SET updated_at = ?, revision = revision + 1 WHERE id = ?").run(
+        now,
+        taskId,
+      );
+      return taskFromRow(db.prepare("SELECT * FROM tasks WHERE id = ?").get(taskId) as DbRow);
+    });
+  }
+
+  async setTaskStepState(
+    taskId: TaskId,
+    stepId: string,
+    state: StepState,
+    evidencePath?: string | null,
+  ): Promise<StoredTaskStep> {
+    if (!["pending", "running", "completed", "skipped"].includes(state)) {
+      throw new StateError("CONFLICT", `unknown step state ${state}`);
+    }
+    return this.write((db, now) => {
+      const step = db
+        .prepare("SELECT * FROM task_steps WHERE id = ? AND task_id = ?")
+        .get(stepId, taskId) as DbRow | undefined;
+      if (!step) throw new StateError("NOT_FOUND", `step ${stepId} is not on task ${taskId}`);
+      db.prepare(
+        "UPDATE task_steps SET state = ?, evidence_path = COALESCE(?, evidence_path), updated_at = ? WHERE id = ?",
+      ).run(state, evidencePath ?? null, now, stepId);
+      const remaining = db
+        .prepare(
+          "SELECT label FROM task_steps WHERE task_id = ? AND state NOT IN ('completed', 'skipped') " +
+            "ORDER BY ordinal LIMIT 1",
+        )
+        .get(taskId) as { label: string } | undefined;
+      db.prepare(
+        "UPDATE tasks SET next_step = ?, updated_at = ?, revision = revision + 1 WHERE id = ?",
+      ).run(remaining ? String(remaining.label) : null, now, taskId);
+      return stepFromRow(db.prepare("SELECT * FROM task_steps WHERE id = ?").get(stepId) as DbRow);
+    });
+  }
+
+  /**
+   * Generic status write. Every edge, actor, prerequisite, and single-run rule
+   * is enforced here; completion is deliberately unreachable from this method.
+   */
   async updateTaskStatus(
     id: TaskId,
     status: TaskStatus,
     expectedRevision: number,
+    options: { actor?: TransitionActor; reason?: string | null } = {},
   ): Promise<StoredTask> {
     if (!TASK_STATUSES.includes(status)) {
       throw new StateError("CONFLICT", `unknown task status ${status}`);
     }
+    const actor = options.actor ?? "human";
     return this.write((db, now) => {
-      const row = db.prepare("SELECT * FROM tasks WHERE id = ?").get(id) as DbRow | undefined;
-      if (!row) throw new StateError("NOT_FOUND", `task ${id} does not exist`);
-      if (Number(row.revision) !== expectedRevision) {
-        throw new StateError("STALE_REVISION", "task changed since it was read", {
+      const row = this.requireTaskRow(db, id);
+      this.checkTaskRevision(row, expectedRevision);
+      const from = asString(row.status) as TaskState;
+      const decision = decideTransition({
+        from,
+        to: status,
+        actor,
+        reason: options.reason ?? null,
+      });
+      if (!decision.allowed) {
+        throw new StateError("CONFLICT", decision.reason ?? `${from} cannot become ${status}`, {
           task_id: id,
-          expected_revision: expectedRevision,
-          actual_revision: Number(row.revision),
+          from,
+          to: status,
+        });
+      }
+      if (actor === "mona_queue" && asString(row.execution_owner) !== "mona_queue") {
+        throw new StateError("OWNER_MISMATCH", "the Mona queue does not own this task", {
+          task_id: id,
+          owner: asString(row.execution_owner),
+        });
+      }
+      if (status === "running") {
+        const unmet = this.unmetPrerequisites(db, id);
+        if (unmet.length > 0) {
+          throw new StateError("CONFLICT", "prerequisites must be completed before starting", {
+            task_id: id,
+            unmet,
+          });
+        }
+        const other = db
+          .prepare("SELECT id FROM tasks WHERE project_id = ? AND status = 'running' AND id <> ?")
+          .get(asString(row.project_id), id) as { id: string } | undefined;
+        if (other) {
+          throw new StateError("CONFLICT", "workspace already has a mutating run", {
+            task_id: id,
+            running_task_id: String(other.id),
+          });
+        }
+      }
+      this.setTaskStatusRow(db, id, status, now);
+      this.auditTaskTransition(
+        db,
+        asString(row.project_id) as ProjectId,
+        id,
+        from,
+        status,
+        actor,
+        options.reason ?? null,
+        now,
+      );
+      return taskFromRow(db.prepare("SELECT * FROM tasks WHERE id = ?").get(id) as DbRow);
+    });
+  }
+
+  /** Atomically claim the single mutating run and move the task to running. */
+  async beginTaskRun(input: {
+    taskId: TaskId;
+    owner: TaskOwner;
+    expectedRevision?: number;
+    note?: string | null;
+  }): Promise<StartedTaskRun> {
+    if (!TASK_OWNERS.includes(input.owner)) {
+      throw new StateError("CONFLICT", `unknown task owner ${input.owner}`);
+    }
+    return this.write((db, now) => {
+      const row = this.requireTaskRow(db, input.taskId);
+      if (input.expectedRevision !== undefined) {
+        this.checkTaskRevision(row, input.expectedRevision);
+      }
+      const from = asString(row.status) as TaskState;
+      if (from !== "pending" && from !== "interrupted") {
+        throw new StateError("CONFLICT", `a ${from} task cannot start`, {
+          task_id: input.taskId,
+          status: from,
+        });
+      }
+      if (asString(row.execution_owner) !== input.owner) {
+        throw new StateError("OWNER_MISMATCH", "the task is owned by another execution owner", {
+          task_id: input.taskId,
+          task_owner: asString(row.execution_owner),
+          run_owner: input.owner,
+        });
+      }
+      const unmet = this.unmetPrerequisites(db, input.taskId);
+      if (unmet.length > 0) {
+        throw new StateError("CONFLICT", "prerequisites must be completed before starting", {
+          task_id: input.taskId,
+          unmet,
+        });
+      }
+      const decision = decideTransition({ from, to: "running", actor: input.owner });
+      if (!decision.allowed) {
+        throw new StateError("CONFLICT", decision.reason ?? `${from} cannot start`, {
+          task_id: input.taskId,
+        });
+      }
+      const active = db
+        .prepare("SELECT id FROM task_runs WHERE project_id = ? AND state = 'running'")
+        .get(asString(row.project_id)) as { id: string } | undefined;
+      if (active) {
+        throw new StateError("CONFLICT", "workspace already has a mutating run", {
+          task_id: input.taskId,
+          running_run_id: String(active.id),
+        });
+      }
+      const runId = this.id("run");
+      try {
+        db.prepare(
+          "INSERT INTO task_runs (id, project_id, task_id, owner, state, started_at, ended_at, note) " +
+            "VALUES (?, ?, ?, ?, 'running', ?, NULL, ?)",
+        ).run(runId, asString(row.project_id), input.taskId, input.owner, now, input.note ?? null);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        if (/UNIQUE|constraint/i.test(message)) {
+          throw new StateError("CONFLICT", "workspace already has a mutating run", {
+            task_id: input.taskId,
+          });
+        }
+        throw error;
+      }
+      const step = db
+        .prepare(
+          "SELECT * FROM task_steps WHERE task_id = ? AND state NOT IN ('completed', 'skipped') " +
+            "ORDER BY ordinal LIMIT 1",
+        )
+        .get(input.taskId) as DbRow | undefined;
+      db.prepare(
+        "UPDATE tasks SET status = 'running', next_step = ?, updated_at = ?, revision = revision + 1 WHERE id = ?",
+      ).run(step ? String(step.label) : null, now, input.taskId);
+      if (step) {
+        const runningStep = db
+          .prepare("SELECT id FROM task_steps WHERE task_id = ? AND state = 'running'")
+          .get(input.taskId) as { id: string } | undefined;
+        if (!runningStep) {
+          db.prepare("UPDATE task_steps SET state = 'running', updated_at = ? WHERE id = ?").run(
+            now,
+            String(step.id),
+          );
+        }
+      }
+      this.auditTaskTransition(
+        db,
+        asString(row.project_id) as ProjectId,
+        input.taskId,
+        from,
+        "running",
+        input.owner,
+        from === "interrupted" ? `resume at ${step ? String(step.label) : "recorded step"}` : null,
+        now,
+      );
+      return {
+        task: taskFromRow(
+          db.prepare("SELECT * FROM tasks WHERE id = ?").get(input.taskId) as DbRow,
+        ),
+        run: runFromRow(db.prepare("SELECT * FROM task_runs WHERE id = ?").get(runId) as DbRow),
+      };
+    });
+  }
+
+  async finishTaskRun(
+    runId: string,
+    state: "completed" | "failed" | "interrupted",
+    note?: string | null,
+  ): Promise<TaskRunView> {
+    return this.write((db, now) => {
+      const run = db.prepare("SELECT * FROM task_runs WHERE id = ?").get(runId) as
+        DbRow | undefined;
+      if (!run) throw new StateError("NOT_FOUND", `run ${runId} does not exist`);
+      if (asString(run.state) !== "running") {
+        throw new StateError("CONFLICT", "run is already finished", { run_id: runId });
+      }
+      db.prepare("UPDATE task_runs SET state = ?, ended_at = ?, note = ? WHERE id = ?").run(
+        state,
+        now,
+        note ?? asNullableString(run.note),
+        runId,
+      );
+      if (state === "failed" || state === "interrupted") {
+        const task = db.prepare("SELECT * FROM tasks WHERE id = ?").get(asString(run.task_id)) as
+          DbRow | undefined;
+        if (task && asString(task.status) === "running") {
+          db.prepare(
+            "UPDATE tasks SET status = 'interrupted', updated_at = ?, revision = revision + 1 WHERE id = ?",
+          ).run(now, asString(run.task_id));
+          this.auditTaskTransition(
+            db,
+            asString(task.project_id) as ProjectId,
+            asString(task.id) as TaskId,
+            "running",
+            "interrupted",
+            asString(run.owner) as TaskOwner,
+            note ?? `run ${state}`,
+            now,
+          );
+        }
+      }
+      return runFromRow(db.prepare("SELECT * FROM task_runs WHERE id = ?").get(runId) as DbRow);
+    });
+  }
+
+  /**
+   * Record that implementation is ready for verification. The fingerprint is
+   * the workspace state at this moment; a later mismatch reopens the task.
+   */
+  async markTaskVerifying(
+    id: TaskId,
+    expectedRevision: number,
+    fingerprint: string,
+    actor: "human" | "mona_queue" = "human",
+  ): Promise<StoredTask> {
+    if (!/^[a-f0-9]{64}$/.test(fingerprint)) {
+      throw new StateError("CONFLICT", "verification fingerprint must be a sha256 digest");
+    }
+    return this.write((db, now) => {
+      const row = this.requireTaskRow(db, id);
+      this.checkTaskRevision(row, expectedRevision);
+      const decision = decideTransition({
+        from: asString(row.status) as TaskState,
+        to: "verifying",
+        actor,
+      });
+      if (!decision.allowed) {
+        throw new StateError("CONFLICT", decision.reason ?? "task cannot enter verification", {
+          task_id: id,
         });
       }
       db.prepare(
-        "UPDATE tasks SET status = ?, updated_at = ?, revision = revision + 1 WHERE id = ?",
-      ).run(status, now, id);
+        "UPDATE tasks SET status = 'verifying', verification_fingerprint = ?, verification_stale = 0, " +
+          "stale_reason = NULL, updated_at = ?, revision = revision + 1 WHERE id = ?",
+      ).run(fingerprint, now, id);
+      this.auditTaskTransition(
+        db,
+        asString(row.project_id) as ProjectId,
+        id,
+        asString(row.status) as TaskState,
+        "verifying",
+        actor,
+        null,
+        now,
+      );
       return taskFromRow(db.prepare("SELECT * FROM tasks WHERE id = ?").get(id) as DbRow);
     });
+  }
+
+  /**
+   * The only path to `completed`. Every configured criterion must be satisfied,
+   * and every declared requirement must have evidence linked to this task.
+   */
+  async completeTask(
+    id: TaskId,
+    expectedRevision: number,
+    input: { fingerprint: string; actor?: "human" | "mona_queue" },
+  ): Promise<StoredTask> {
+    if (!/^[a-f0-9]{64}$/.test(input.fingerprint)) {
+      throw new StateError("CONFLICT", "verification fingerprint must be a sha256 digest");
+    }
+    const actor = input.actor ?? "human";
+    return this.write((db, now) => {
+      const row = this.requireTaskRow(db, id);
+      this.checkTaskRevision(row, expectedRevision);
+      const from = asString(row.status) as TaskState;
+      if (from !== "verifying") {
+        throw new StateError("CONFLICT", "completion requires a task in verification", {
+          task_id: id,
+          status: from,
+        });
+      }
+      const criteria = db
+        .prepare("SELECT * FROM task_acceptance WHERE task_id = ? ORDER BY ordinal")
+        .all(id) as DbRow[];
+      if (criteria.length === 0) {
+        throw new StateError("CONFLICT", "completion requires at least one acceptance criterion", {
+          task_id: id,
+        });
+      }
+      const unsatisfied = criteria
+        .filter((criterion) => Number(criterion.satisfied) !== 1)
+        .map((criterion) => ({ id: String(criterion.id), text: String(criterion.text) }));
+      if (unsatisfied.length > 0) {
+        throw new StateError("CONFLICT", "acceptance criteria are not satisfied", {
+          task_id: id,
+          unsatisfied,
+        });
+      }
+      const requirements = taskFromRow(row).requirements;
+      const missingEvidence = requirements.filter((requirement) => {
+        const found = db
+          .prepare(
+            "SELECT 1 AS present FROM requirement_evidence WHERE task_id = ? AND requirement_id = ? LIMIT 1",
+          )
+          .get(id, requirement) as { present?: number } | undefined;
+        return !found;
+      });
+      if (missingEvidence.length > 0) {
+        throw new StateError("CONFLICT", "requirements need linked evidence before completion", {
+          task_id: id,
+          missing: missingEvidence,
+        });
+      }
+      db.prepare(
+        "UPDATE tasks SET status = 'completed', completed_at = ?, verification_fingerprint = ?, " +
+          "verification_stale = 0, stale_reason = NULL, next_step = NULL, updated_at = ?, " +
+          "revision = revision + 1 WHERE id = ?",
+      ).run(now, input.fingerprint, now, id);
+      this.auditTaskTransition(
+        db,
+        asString(row.project_id) as ProjectId,
+        id,
+        from,
+        "completed",
+        actor,
+        `acceptance passed: ${criteria.length} criteria`,
+        now,
+      );
+      return taskFromRow(db.prepare("SELECT * FROM tasks WHERE id = ?").get(id) as DbRow);
+    });
+  }
+
+  /** Reconciliation only: the code moved, so the old verification is stale. */
+  async markVerificationStale(id: TaskId, reason: string): Promise<StoredTask | null> {
+    const text = reason.trim();
+    if (!text) throw new StateError("CONFLICT", "a stale verification needs a reason");
+    return this.write((db, now) => {
+      const row = this.requireTaskRow(db, id);
+      const from = asString(row.status) as TaskState;
+      if (from !== "completed" && from !== "verifying") {
+        return taskFromRow(row);
+      }
+      if (from === "completed") {
+        db.prepare(
+          "UPDATE tasks SET status = 'verifying', completed_at = NULL, verification_stale = 1, " +
+            "stale_reason = ?, updated_at = ?, revision = revision + 1 WHERE id = ?",
+        ).run(text, now, id);
+        this.auditTaskTransition(
+          db,
+          asString(row.project_id) as ProjectId,
+          id,
+          from,
+          "verifying",
+          "reconciler",
+          text,
+          now,
+        );
+      } else {
+        db.prepare(
+          "UPDATE tasks SET verification_stale = 1, stale_reason = ?, updated_at = ?, " +
+            "revision = revision + 1 WHERE id = ?",
+        ).run(text, now, id);
+      }
+      return taskFromRow(db.prepare("SELECT * FROM tasks WHERE id = ?").get(id) as DbRow);
+    });
+  }
+
+  private requireTaskRow(db: DatabaseSync, id: TaskId): DbRow {
+    const row = db.prepare("SELECT * FROM tasks WHERE id = ?").get(id) as DbRow | undefined;
+    if (!row) throw new StateError("NOT_FOUND", `task ${id} does not exist`, { task_id: id });
+    return row;
+  }
+
+  private checkTaskRevision(row: DbRow, expected: number): void {
+    if (Number(row.revision) !== expected) {
+      throw new StateError("STALE_REVISION", "task changed since it was read", {
+        task_id: asString(row.id),
+        expected_revision: expected,
+        actual_revision: Number(row.revision),
+      });
+    }
+  }
+
+  private unmetPrerequisites(db: DatabaseSync, taskId: string): string[] {
+    const rows = db
+      .prepare(
+        `SELECT d.depends_on_task_id AS id, t.status AS status
+           FROM task_dependencies d JOIN tasks t ON t.id = d.depends_on_task_id
+          WHERE d.task_id = ? AND t.status <> 'completed'`,
+      )
+      .all(taskId) as Array<{ id: string; status: string }>;
+    return rows.map((row) => String(row.id));
+  }
+
+  private setTaskStatusRow(db: DatabaseSync, id: string, status: TaskStatus, now: string): void {
+    db.prepare(
+      "UPDATE tasks SET status = ?, updated_at = ?, revision = revision + 1 WHERE id = ?",
+    ).run(status, now, id);
+  }
+
+  private auditTaskTransition(
+    db: DatabaseSync,
+    projectId: ProjectId,
+    taskId: TaskId,
+    from: TaskState,
+    to: TaskState,
+    actor: TransitionActor,
+    reason: string | null,
+    now: string,
+  ): void {
+    db.prepare(
+      "INSERT INTO task_events (id, project_id, task_id, from_status, to_status, actor, reason, created_at) " +
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+    ).run(this.id("tev"), projectId, taskId, from, to, actor, reason, now);
   }
 
   // -------------------------------------------------------------- evidence
@@ -1870,11 +2840,35 @@ export class StateStore {
         title: task.title,
         prompt: task.prompt,
         status: task.status,
+        executionOwner: task.executionOwner,
+        requirements: task.requirements,
+        nextStep: task.nextStep,
+        verificationFingerprint: task.verificationFingerprint,
+        verificationStale: task.verificationStale,
+        staleReason: task.staleReason,
+        completedAt: task.completedAt,
+        importedFrom: task.importedFrom,
         createdAt: task.createdAt,
         updatedAt: task.updatedAt,
         revision: task.revision,
       };
     });
+    const acceptance = (
+      db
+        .prepare(
+          `SELECT a.* FROM task_acceptance a JOIN tasks t ON t.id = a.task_id
+            WHERE t.project_id = ? ORDER BY a.task_id, a.ordinal`,
+        )
+        .all(projectId) as DbRow[]
+    ).map((row) => criterionFromRow(row));
+    const steps = (
+      db
+        .prepare(
+          `SELECT s.* FROM task_steps s JOIN tasks t ON t.id = s.task_id
+            WHERE t.project_id = ? ORDER BY s.task_id, s.ordinal`,
+        )
+        .all(projectId) as DbRow[]
+    ).map((row) => stepFromRow(row));
     const dependencies = (
       db
         .prepare(
@@ -2049,6 +3043,8 @@ export class StateStore {
       },
       paths,
       tasks,
+      acceptance,
+      steps,
       dependencies,
       evidence,
       attempts,
@@ -2205,18 +3201,63 @@ export class StateStore {
         );
       }
       for (const task of payload.tasks) {
+        const status =
+          task.status === "paused" || task.status === "failed" || task.status === "running"
+            ? "interrupted"
+            : task.status;
         db.prepare(
-          "INSERT INTO tasks (id, project_id, title, prompt, status, created_at, updated_at, revision) " +
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+          "INSERT INTO tasks (id, project_id, title, prompt, status, execution_owner, requirements_json, " +
+            "next_step, verification_fingerprint, verification_stale, stale_reason, completed_at, " +
+            "imported_from, created_at, updated_at, revision) " +
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         ).run(
           task.id,
           payload.project.id,
           task.title,
           task.prompt,
-          task.status,
+          status,
+          task.executionOwner ?? "mona_queue",
+          JSON.stringify(task.requirements ?? []),
+          task.nextStep ?? null,
+          task.verificationFingerprint ?? null,
+          task.verificationStale ? 1 : 0,
+          task.staleReason ?? null,
+          task.completedAt ?? null,
+          task.importedFrom ?? null,
           task.createdAt,
           task.updatedAt,
           task.revision,
+        );
+      }
+      for (const criterion of payload.acceptance ?? []) {
+        db.prepare(
+          "INSERT INTO task_acceptance (id, task_id, ordinal, text, kind, satisfied, satisfied_by, " +
+            "evidence_path, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        ).run(
+          criterion.id,
+          criterion.taskId,
+          criterion.ordinal,
+          criterion.text,
+          criterion.kind,
+          criterion.satisfied ? 1 : 0,
+          criterion.satisfiedBy,
+          criterion.evidencePath,
+          criterion.updatedAt,
+        );
+      }
+      for (const step of payload.steps ?? []) {
+        db.prepare(
+          "INSERT INTO task_steps (id, task_id, ordinal, label, state, evidence_path, recorded_at, updated_at) " +
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        ).run(
+          step.id,
+          step.taskId,
+          step.ordinal,
+          step.label,
+          step.state,
+          step.evidencePath,
+          step.recordedAt,
+          step.updatedAt,
         );
       }
       for (const dependency of payload.dependencies) {

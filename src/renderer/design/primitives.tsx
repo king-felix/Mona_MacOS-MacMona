@@ -617,16 +617,27 @@ export function Badge({
 }
 
 export type WorkStatus =
-  "pending" | "running" | "paused" | "blocked" | "completed" | "failed" | "interrupted" | "unknown";
+  | "pending"
+  | "running"
+  | "verifying"
+  | "paused"
+  | "blocked"
+  | "completed"
+  | "failed"
+  | "interrupted"
+  | "skipped"
+  | "unknown";
 
 const STATUS: Record<WorkStatus, { label: string; tone: Tone; icon: ReactNode }> = {
   pending: { label: "Unstarted", tone: "neutral", icon: <ClockIcon size={14} /> },
   running: { label: "Running", tone: "primary", icon: <PlayIcon size={14} /> },
+  verifying: { label: "Verifying", tone: "attention", icon: <CheckIcon size={14} /> },
   paused: { label: "Paused", tone: "attention", icon: <PauseIcon size={14} /> },
   blocked: { label: "Blocked", tone: "danger", icon: <WarningIcon size={14} /> },
   completed: { label: "Completed", tone: "success", icon: <CheckIcon size={14} /> },
   failed: { label: "Failed", tone: "danger", icon: <CloseIcon size={14} /> },
   interrupted: { label: "Interrupted", tone: "attention", icon: <PauseIcon size={14} /> },
+  skipped: { label: "Skipped", tone: "neutral", icon: <CloseIcon size={14} /> },
   unknown: { label: "Unknown", tone: "neutral", icon: <InfoIcon size={14} /> },
 };
 

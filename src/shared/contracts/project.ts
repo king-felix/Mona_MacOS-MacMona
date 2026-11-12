@@ -12,14 +12,17 @@ export const Project = z.strictObject({
 });
 export type Project = z.infer<typeof Project>;
 
+// Exactly the states in spec §8.2. `paused` is a queue boundary, not a task
+// state; a failed verification returns the task to `running` so it never looks
+// finished. `skipped` requires an explicit recorded scope decision.
 export const TaskStatus = z.enum([
   "pending",
   "running",
-  "paused",
-  "blocked",
+  "verifying",
   "completed",
-  "failed",
+  "blocked",
   "interrupted",
+  "skipped",
 ]);
 export type TaskStatus = z.infer<typeof TaskStatus>;
 

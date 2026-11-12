@@ -29,6 +29,7 @@ for (const script of [
   "build:service",
   "test",
   "build",
+  "smoke:board",
 ]) {
   if (!run(script, "npm", ["run", script])) break;
 }

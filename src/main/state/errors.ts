@@ -6,6 +6,7 @@
 export type StateErrorCode =
   | "NOT_FOUND"
   | "CONFLICT"
+  | "OWNER_MISMATCH"
   | "STALE_REVISION"
   | "ALIAS_CONFLICT"
   | "INVALID_PATH"

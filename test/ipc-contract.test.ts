@@ -152,3 +152,71 @@ describe("open path IPC validation", () => {
     expect(() => validateIpc("service:refresh", { path: "/tmp/evil" })).toThrow(/malformed/i);
   });
 });
+
+describe("work board IPC validation", () => {
+  const projectId = "prj_0123456789abcdef";
+  const taskId = "tsk_0123456789abcdef";
+
+  it("accepts a bounded task with criteria, owner, and dependencies", () => {
+    expect(
+      validateIpc("board:create", {
+        projectId,
+        title: "Write the schema",
+        prompt: "Create the table",
+        owner: "mona_queue",
+        requirements: ["MONA-009"],
+        acceptance: [
+          { text: "migration applies", kind: "check" },
+          { text: "Victor accepts names", kind: "human" },
+        ],
+        steps: ["draft", "apply"],
+        dependsOn: [taskId],
+      }),
+    ).toBeTruthy();
+    expect(() =>
+      validateIpc("board:create", { projectId, title: "x", prompt: "y", autoStart: true }),
+    ).toThrow(/malformed/i);
+    expect(() =>
+      validateIpc("board:create", { projectId, title: "x", prompt: "y", owner: "codewhale" }),
+    ).toThrow(/malformed/i);
+    expect(() =>
+      validateIpc("board:create", { projectId, title: "x", prompt: "y", requirements: ["NOPE-1"] }),
+    ).toThrow(/malformed/i);
+  });
+
+  it("keeps verification sources explicit and completion revision-checked", () => {
+    expect(
+      validateIpc("board:satisfy", {
+        taskId,
+        criterionId: "acp_0123456789abcdef",
+        expectedRevision: 2,
+        by: "human",
+        evidencePath: "docs/evidence/proof.md",
+      }),
+    ).toBeTruthy();
+    expect(() =>
+      validateIpc("board:satisfy", {
+        taskId,
+        criterionId: "acp_0123456789abcdef",
+        expectedRevision: 2,
+        by: "model",
+      }),
+    ).toThrow(/malformed/i);
+    expect(() => validateIpc("board:complete", { taskId, expectedRevision: 0 })).toThrow(
+      /malformed/i,
+    );
+    expect(() => validateIpc("board:complete", { taskId })).toThrow(/malformed/i);
+  });
+
+  it("accepts only a project id for dispatch and accepts an inert plan object", () => {
+    expect(validateIpc("board:dispatch-next", { projectId })).toEqual({ projectId });
+    expect(() => validateIpc("board:dispatch-next", { projectId, prompt: "do more" })).toThrow();
+    const plan = {
+      format: "mona-task-plan",
+      format_version: 1,
+      name: "Plan",
+      tasks: [{ key: "a", title: "A", prompt: "do a" }],
+    };
+    expect(validateIpc("board:import", { projectId, plan })).toEqual({ projectId, plan });
+  });
+});

@@ -6,7 +6,9 @@ import { isAllowedNavigation } from "./navigation";
 import { StateError } from "./state/errors";
 import type { ProjectService } from "./projects/service";
 import type { WorkStudio } from "./work/studio";
+import type { TaskBoard } from "./work/board";
 import type { ProjectId } from "../shared/contracts/ids";
+import type { ImportPlanResult } from "../shared/contracts/board";
 import type { IpcResult, RuntimeStatusView, StateFacts } from "../shared/contracts/project-bridge";
 import type {
   FolderRequestSource,
@@ -34,6 +36,10 @@ export interface IpcDependencies {
   runtimeStatus: () => RuntimeStatusView;
   stateFacts: () => Promise<StateFacts>;
   studio: WorkStudio | null;
+  board: TaskBoard | null;
+  /** Native file dialogs live in the main entry point, not in the IPC layer. */
+  importPlanFile: (projectId: ProjectId) => Promise<ImportPlanResult | null>;
+  exportPlanFile: (projectId: ProjectId) => Promise<{ saved: boolean; path: string | null }>;
   /** The one dispatcher for externally supplied folders (validated, journaled). */
   openRequest: (input: string, source: FolderRequestSource) => Promise<OpenResult>;
   openStatus: () => OpenStatusView;
@@ -240,4 +246,153 @@ export function registerIpc(rendererRoot: string, dependencies: IpcDependencies)
   handle("studio:stop", (input) =>
     envelope(() => requireStudio().stop((input as { projectId: never }).projectId)),
   );
+
+  const requireBoard = (): TaskBoard => {
+    const board = dependencies.board;
+    if (!board) {
+      throw Object.assign(
+        new Error("the work board is unavailable because project state did not open"),
+        { code: "RUNTIME_UNAVAILABLE" },
+      );
+    }
+    return board;
+  };
+
+  handle("board:snapshot", (input) =>
+    envelope(() => requireBoard().snapshot((input as { projectId: never }).projectId)),
+  );
+  handle("board:create", (input) => {
+    const value = input as {
+      projectId: never;
+      title: string;
+      prompt: string;
+      owner?: "mona_queue" | "native_workflow";
+      requirements?: string[];
+      acceptance?: Array<{ text: string; kind: "check" | "human" }>;
+      steps?: string[];
+      dependsOn?: never[];
+    };
+    return envelope(() => requireBoard().create(value));
+  });
+  handle("board:update", (input) => {
+    const value = input as {
+      taskId: never;
+      expectedRevision: number;
+      title?: string;
+      prompt?: string;
+      owner?: "mona_queue" | "native_workflow";
+      requirements?: string[];
+      acceptance?: Array<{ text: string; kind: "check" | "human" }>;
+      steps?: string[];
+    };
+    const { taskId, expectedRevision, ...changes } = value;
+    return envelope(() => requireBoard().update(taskId, expectedRevision, changes));
+  });
+  handle("board:import", (input) => {
+    const value = input as { projectId: never; plan: unknown };
+    return envelope(() => requireBoard().importPlan(value.projectId, value.plan));
+  });
+  handle("board:import-file", (input) =>
+    envelope(() => dependencies.importPlanFile((input as { projectId: never }).projectId)),
+  );
+  handle("board:export", (input) =>
+    envelope(() => requireBoard().exportPlan((input as { projectId: never }).projectId)),
+  );
+  handle("board:export-file", (input) =>
+    envelope(() => dependencies.exportPlanFile((input as { projectId: never }).projectId)),
+  );
+  handle("board:preview", (input) =>
+    envelope(() => requireBoard().previewContext((input as { taskId: never }).taskId)),
+  );
+  handle("board:select", (input) => {
+    const value = input as { projectId: never; owner?: "mona_queue" | "native_workflow" };
+    return envelope(() => requireBoard().selectNext(value.projectId, value.owner));
+  });
+  handle("board:evidence", (input) => {
+    const value = input as {
+      projectId: never;
+      taskId: never;
+      requirementId: string;
+      path: string;
+      note?: string | null;
+    };
+    return envelope(() => requireBoard().addEvidence(value));
+  });
+  handle("board:satisfy", (input) => {
+    const value = input as {
+      taskId: never;
+      criterionId: string;
+      expectedRevision: number;
+      by: "check" | "human";
+      evidencePath?: string | null;
+    };
+    return envelope(() => requireBoard().satisfy(value));
+  });
+  handle("board:verify", (input) => {
+    const value = input as { taskId: never; expectedRevision: number };
+    return envelope(() => requireBoard().verify(value.taskId, value.expectedRevision));
+  });
+  handle("board:complete", (input) => {
+    const value = input as { taskId: never; expectedRevision: number };
+    return envelope(() => requireBoard().complete(value.taskId, value.expectedRevision));
+  });
+  handle("board:start", (input) => {
+    const value = input as { taskId: never; expectedRevision?: number };
+    return envelope(() => requireBoard().startTask(value.taskId, value.expectedRevision));
+  });
+  handle("board:resume", (input) =>
+    envelope(() => requireBoard().resumeTask((input as { taskId: never }).taskId)),
+  );
+  handle("board:reconcile", (input) => {
+    const value = input as { projectId: never; resume?: boolean };
+    return envelope(() =>
+      requireBoard().reconcile(value.projectId, { resume: value.resume === true }),
+    );
+  });
+  handle("board:handoff", (input) =>
+    envelope(() => requireBoard().handoff((input as { projectId: never }).projectId)),
+  );
+  handle("board:dispatch-next", (input) => {
+    const value = input as { projectId: never };
+    return envelope(async () => {
+      const board = requireBoard();
+      const studio = dependencies.studio;
+      if (!studio) {
+        throw Object.assign(
+          new Error("the live studio is unavailable because project state did not open"),
+          { code: "RUNTIME_UNAVAILABLE" },
+        );
+      }
+      return board.runOnce(
+        value.projectId,
+        async ({ preview }) => {
+          const result = await studio.submit(value.projectId, {
+            prompt: preview.text,
+            mode: "work",
+          });
+          if (result.outcome === "accepted") {
+            return { accepted: true, note: `turn ${result.turnId ?? "accepted"}` };
+          }
+          return {
+            accepted: false,
+            outcomeUnknown: result.outcome === "outcome_unknown",
+            note: result.note ?? result.outcome,
+          };
+        },
+        {
+          owner: "mona_queue",
+          preflight: async () => {
+            const snapshot = await studio.snapshot(value.projectId);
+            if (snapshot.activeTurnId) {
+              return "a mutating turn is already active in this workspace";
+            }
+            if (snapshot.connection.state === "running" && !snapshot.canSubmit) {
+              return snapshot.cannotSubmitReason ?? "the studio cannot submit right now";
+            }
+            return null;
+          },
+        },
+      );
+    });
+  });
 }

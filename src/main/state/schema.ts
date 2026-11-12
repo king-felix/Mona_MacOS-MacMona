@@ -265,9 +265,109 @@ ALTER TABLE projects ADD COLUMN accent TEXT;
 ALTER TABLE projects ADD COLUMN monogram TEXT;
 `;
 
+// v3 replaces the short-lived task status set with the spec §8.2 state machine
+// and adds the records the work board needs: one execution owner, acceptance
+// criteria, recorded steps, run receipts, and a transition audit.
+//
+// The `tasks` table must be rebuilt because SQLite cannot alter a CHECK
+// constraint. The migration runner disables foreign keys around the transaction
+// (the documented rebuild procedure) so dependent rows are not cascaded away;
+// integrity and foreign-key checks run again before the migration is recorded.
+const V3 = `
+CREATE TABLE tasks_v3 (
+  id                       TEXT PRIMARY KEY CHECK (id GLOB 'tsk_[a-z0-9]*'),
+  project_id               TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  title                    TEXT NOT NULL CHECK (length(title) BETWEEN 1 AND 200),
+  prompt                   TEXT NOT NULL,
+  status                   TEXT NOT NULL CHECK (status IN (
+                             'pending', 'running', 'verifying', 'completed',
+                             'blocked', 'interrupted', 'skipped')),
+  execution_owner          TEXT NOT NULL DEFAULT 'mona_queue'
+                           CHECK (execution_owner IN ('mona_queue', 'native_workflow')),
+  requirements_json        TEXT NOT NULL DEFAULT '[]',
+  next_step                TEXT,
+  verification_fingerprint TEXT,
+  verification_stale       INTEGER NOT NULL DEFAULT 0 CHECK (verification_stale IN (0, 1)),
+  stale_reason             TEXT,
+  completed_at             TEXT,
+  imported_from            TEXT,
+  created_at               TEXT NOT NULL,
+  updated_at               TEXT NOT NULL,
+  revision                 INTEGER NOT NULL DEFAULT 1 CHECK (revision >= 1)
+);
+INSERT INTO tasks_v3 (id, project_id, title, prompt, status, created_at, updated_at, revision)
+SELECT id, project_id, title, prompt,
+       CASE status WHEN 'paused' THEN 'interrupted' WHEN 'failed' THEN 'interrupted' ELSE status END,
+       created_at, updated_at, revision
+FROM tasks;
+DROP TABLE tasks;
+ALTER TABLE tasks_v3 RENAME TO tasks;
+CREATE INDEX tasks_project_status ON tasks (project_id, status);
+
+-- One mutating run per workspace, enforced by the database rather than by
+-- convention. A verifying task is not mutating, so only 'running' is excluded.
+CREATE UNIQUE INDEX tasks_one_running_per_project
+  ON tasks (project_id) WHERE status = 'running';
+
+CREATE TABLE task_acceptance (
+  id            TEXT PRIMARY KEY,
+  task_id       TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+  ordinal       INTEGER NOT NULL CHECK (ordinal >= 0),
+  text          TEXT NOT NULL CHECK (length(text) BETWEEN 1 AND 1000),
+  kind          TEXT NOT NULL CHECK (kind IN ('check', 'human')),
+  satisfied     INTEGER NOT NULL DEFAULT 0 CHECK (satisfied IN (0, 1)),
+  satisfied_by  TEXT CHECK (satisfied_by IN ('check', 'human')),
+  evidence_path TEXT,
+  updated_at    TEXT NOT NULL,
+  UNIQUE (task_id, ordinal)
+);
+CREATE INDEX task_acceptance_task ON task_acceptance (task_id, ordinal);
+
+CREATE TABLE task_steps (
+  id            TEXT PRIMARY KEY,
+  task_id       TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+  ordinal       INTEGER NOT NULL CHECK (ordinal >= 0),
+  label         TEXT NOT NULL CHECK (length(label) BETWEEN 1 AND 500),
+  state         TEXT NOT NULL DEFAULT 'pending'
+                CHECK (state IN ('pending', 'running', 'completed', 'skipped')),
+  evidence_path TEXT,
+  recorded_at   TEXT NOT NULL,
+  updated_at    TEXT NOT NULL,
+  UNIQUE (task_id, ordinal)
+);
+CREATE INDEX task_steps_task ON task_steps (task_id, ordinal);
+
+CREATE TABLE task_runs (
+  id          TEXT PRIMARY KEY,
+  project_id  TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  task_id     TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+  owner       TEXT NOT NULL CHECK (owner IN ('mona_queue', 'native_workflow')),
+  state       TEXT NOT NULL CHECK (state IN ('running', 'completed', 'failed', 'interrupted')),
+  started_at  TEXT NOT NULL,
+  ended_at    TEXT,
+  note        TEXT
+);
+CREATE UNIQUE INDEX task_runs_one_mutating_per_project
+  ON task_runs (project_id) WHERE state = 'running';
+CREATE INDEX task_runs_task ON task_runs (task_id, started_at);
+
+CREATE TABLE task_events (
+  id          TEXT PRIMARY KEY,
+  project_id  TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  task_id     TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+  from_status TEXT,
+  to_status   TEXT NOT NULL,
+  actor       TEXT NOT NULL CHECK (actor IN ('human', 'mona_queue', 'native_workflow', 'reconciler')),
+  reason      TEXT,
+  created_at  TEXT NOT NULL
+);
+CREATE INDEX task_events_task ON task_events (task_id, created_at);
+`;
+
 export const MIGRATIONS: readonly Migration[] = [
   { version: 1, name: "core-project-state", sql: V1 },
   { version: 2, name: "project-identity-fields", sql: V2 },
+  { version: 3, name: "task-board-and-continuity", sql: V3 },
 ];
 
 export const CURRENT_SCHEMA_VERSION = MIGRATIONS[MIGRATIONS.length - 1]?.version ?? 0;
@@ -289,12 +389,23 @@ export const REQUIRED_TABLES: readonly string[] = [
   "settings",
   "settings_versions",
   "submissions",
+  "task_acceptance",
   "task_dependencies",
+  "task_events",
+  "task_runs",
+  "task_steps",
   "tasks",
   "threads",
   "turns",
   "usage_records",
 ];
+
+const V3_TABLES: readonly string[] = ["task_acceptance", "task_events", "task_runs", "task_steps"];
+
+/** Tables a database at `version` must have. Older targets predate v3. */
+export function requiredTablesFor(version: number): readonly string[] {
+  return version >= 3 ? REQUIRED_TABLES : REQUIRED_TABLES.filter((t) => !V3_TABLES.includes(t));
+}
 
 export function migrationChecksum(migration: Migration): string {
   return createHash("sha256")
