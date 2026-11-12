@@ -783,6 +783,22 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
   const changesShot = await window.webContents.capturePage();
   writeFileSync(join(outDir, "p13-shell-changes.png"), changesShot.toPNG());
 
+  // Open a recorded file lazily; without a live engine the honest local window
+  // is shown instead of a fabricated diff.
+  await window.webContents.executeJavaScript(
+    "document.querySelector('.change-file__path')?.click(); true",
+  );
+  const changesFileReady = await waitFor("document.querySelector('.code-view') !== null");
+  await new Promise((resolve) => setTimeout(resolve, 250));
+  const changesFile = await window.webContents.executeJavaScript(`(() => ({
+    code_view: Boolean(document.querySelector('.code-view')),
+    content: document.body.textContent.includes('export const reviewed = true;'),
+    honest_source: document.body.textContent.includes('workspace'),
+    horizontal_overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1
+  }))()`);
+  const changesFileShot = await window.webContents.capturePage();
+  writeFileSync(join(outDir, "p13-shell-changes-file.png"), changesFileShot.toPNG());
+
   window.webContents.sendInputEvent({ type: "keyDown", keyCode: "5", modifiers: ["meta"] });
   window.webContents.sendInputEvent({ type: "keyUp", keyCode: "5", modifiers: ["meta"] });
   const costReady = await waitFor("document.documentElement.dataset.screen === 'cost'");
@@ -888,6 +904,11 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
     changes_restore_unavailable: changes.restore_unavailable === true,
     changes_git_state: changes.git_branch === true && changes.unreceipted === true,
     changes_no_horizontal_overflow: changes.horizontal_overflow === false,
+    changes_lazy_text_window:
+      changesFileReady &&
+      changesFile.code_view === true &&
+      changesFile.content === true &&
+      changesFile.horizontal_overflow === false,
     cost_screen: costReady && cost.screen === "cost",
     cost_known_spend: cost.known_spend === true,
     cost_incomplete_disclosed: cost.incomplete === true,
@@ -924,6 +945,7 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
       "docs/evidence/macos/artifacts/p11-shell-attempts.png",
       "docs/evidence/macos/artifacts/p07-shell-settings.png",
       "docs/evidence/macos/artifacts/p13-shell-changes.png",
+      "docs/evidence/macos/artifacts/p13-shell-changes-file.png",
       "docs/evidence/macos/artifacts/p12-shell-cost.png",
       "docs/evidence/macos/artifacts/p12-shell-cost-detail.png",
     ],
@@ -1831,6 +1853,7 @@ if (!gotLock) {
             "# Shell smoke\n\nEdited in the working tree.\n",
           );
           writeFileSync(join(shellRoot, "user-notes.txt"), "pre-existing work\n");
+          writeFileSync(join(shellRoot, "src-app.ts"), "export const reviewed = true;\n", "utf8");
         } catch {
           // The lens reports a non-Git folder honestly.
         }

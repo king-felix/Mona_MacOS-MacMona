@@ -113,6 +113,8 @@ export interface GitStateView {
   behind: number | null;
   head: { commit: string; shortCommit: string; subject: string; committedAt: string } | null;
   entries: GitEntryView[];
+  /** True when the status listing hit Mona's output cap; counts are then partial. */
+  truncated: boolean;
   counts: { staged: number; unstaged: number; untracked: number; conflicted: number };
   /**
    * Entries already staged that no recorded Mona turn produced. Mona never

@@ -360,10 +360,10 @@ function ChangeSetCard({
   onReveal: (path: string) => void;
 }): JSX.Element {
   const restorable = set.files.filter((file) => file.kind === "file" && file.restoreSnapshotId);
-  const commitEvidence =
-    snapshot.lastCommit && set.files.some((file) => snapshot.lastCommit?.paths.includes(file.path))
-      ? snapshot.lastCommit
-      : null;
+  const committedPathCount = snapshot.lastCommit
+    ? set.files.filter((file) => snapshot.lastCommit?.paths.includes(file.path)).length
+    : 0;
+  const commitEvidence = committedPathCount > 0 ? snapshot.lastCommit : null;
   return (
     <Card
       className="change-set"
@@ -414,7 +414,8 @@ function ChangeSetCard({
         ) : null}
         {commitEvidence ? (
           <span className="mono">
-            commit {commitEvidence.shortHash} · {commitEvidence.subject}
+            commit {commitEvidence.shortHash} · {commitEvidence.subject} · {committedPathCount}/
+            {set.files.length} paths
           </span>
         ) : null}
       </div>
@@ -525,7 +526,8 @@ function ChangeSetCard({
           </ul>
           {commitEvidence ? (
             <p className="mono">
-              Commit evidence: {commitEvidence.shortHash} · {commitEvidence.subject}
+              Commit evidence: {commitEvidence.shortHash} · {commitEvidence.subject} ·{" "}
+              {committedPathCount} of {set.files.length} paths
             </p>
           ) : (
             <p className="muted">
@@ -1123,6 +1125,13 @@ export function ChangesScreen({
                     )}
                     {git.root ? <span className="mono muted">root {git.root}</span> : null}
                   </div>
+                  {git.truncated ? (
+                    <Callout tone="attention" title="Status listing was capped">
+                      The working tree has more entries than Mona reads in one pass. The list and
+                      counts below are partial; narrow the repository or refresh after reducing the
+                      working tree.
+                    </Callout>
+                  ) : null}
                   {git.stagedBeforeReview > 0 ? (
                     <Callout tone="attention" title="Staged work is preserved">
                       {git.stagedBeforeReview} entr

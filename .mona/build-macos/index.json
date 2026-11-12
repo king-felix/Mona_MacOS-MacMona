@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-12T06:49:16.372Z",
+  "generated_utc": "2026-11-12T06:52:26.392Z",
   "git": {
     "available": true,
-    "commit": "99150263d47d29168bf4ae4f6957be80a0172dc7",
+    "commit": "eeb52d6252ae01f148bb1d1f9d66ff4e414b7ddd",
     "dirty": true
   },
-  "digest": "b83b505e4c86b108aa82e1f66cce0c014d4f3880f5f294424bade15fa2fe5b86",
+  "digest": "f2c1a2d29d6f37c0c63185bb55561a5bb7219cb22684e4e109e5c0e4ca802bc5",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,8 +15,8 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "d06417754d5595877120fe0bebbcce4faba6068ebdbfaa2a8898c57b9f6e46cb",
-      "bytes": 86315
+      "sha256": "85860ef4f77d3304e0f31df0e78030ef5a62703c6a2994cc7f879355774cb2dd",
+      "bytes": 86501
     },
     {
       "path": "AGENTS.md",
@@ -495,8 +495,8 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p13-ci.txt",
-      "sha256": "983f1287989d30286100a11091e266d47ea8c33d90571266026fac6684adf50b",
-      "bytes": 22331
+      "sha256": "eb8a79df48d71b30885c39266f4734fdba265de5c46dd4e4d485c79bc3cbfe48",
+      "bytes": 22486
     },
     {
       "path": "docs/evidence/macos/artifacts/p13-routes.txt",
@@ -509,19 +509,24 @@
       "bytes": 3413
     },
     {
+      "path": "docs/evidence/macos/artifacts/p13-shell-changes-file.png",
+      "sha256": "5b47edde55f38a91c21fda9275f3560fefdc4f601ee0f73b05eba7ebaf83dc3c",
+      "bytes": 292442
+    },
+    {
       "path": "docs/evidence/macos/artifacts/p13-shell-changes.json",
-      "sha256": "56438288a263a97a7f050c3d896eacbc80d621e68441ef433f10eb4793dfe7f6",
-      "bytes": 4268
+      "sha256": "d398897d27ec2780176d53eeef58a956db5cb6e1980d8b5000dfefcbae488e41",
+      "bytes": 4370
     },
     {
       "path": "docs/evidence/macos/artifacts/p13-shell-changes.png",
-      "sha256": "c95e2bdd059adec9be5e4b21a5b90990ab0a9b5d501f3a1811568a58b385d972",
-      "bytes": 281466
+      "sha256": "0f48729da7b7e711d90aae94ab37a3b0bd2f9fd79191267fd2e228390553a302",
+      "bytes": 282396
     },
     {
       "path": "docs/evidence/macos/artifacts/p13-tests.txt",
-      "sha256": "62433c03cafc0e6f1ccca26edc66c2ed32ccfa2860e0f95ab4e9fb92ba889e75",
-      "bytes": 3141
+      "sha256": "de09fad1fcce79a046b5282a2b355a4314f0335d5165cde710bd08586c14921d",
+      "bytes": 3248
     },
     {
       "path": "docs/evidence/macos/artifacts/signing-inventory.txt",
@@ -610,18 +615,18 @@
     },
     {
       "path": "docs/evidence/macos/P13-review.md",
-      "sha256": "72345220d795ab99c6a99e639fac96333545af4ebd93102916a9d23ab1507aee",
-      "bytes": 10969
+      "sha256": "fd097f04bcd0198f307572b5bb7975958f410553f3fe38359ed63f00ea17667c",
+      "bytes": 11148
     },
     {
       "path": "docs/requirements-macos.json",
-      "sha256": "d12f77dcea810f87cde278235fd0a2467b4175e689ff01de354ab710d04820c6",
-      "bytes": 51389
+      "sha256": "77cf7793a950c97a9e26040aea1e5668253be196db2a7455cc0a468efa6c9775",
+      "bytes": 51590
     },
     {
       "path": "docs/requirements-macos.json",
-      "sha256": "d12f77dcea810f87cde278235fd0a2467b4175e689ff01de354ab710d04820c6",
-      "bytes": 51389
+      "sha256": "77cf7793a950c97a9e26040aea1e5668253be196db2a7455cc0a468efa6c9775",
+      "bytes": 51590
     },
     {
       "path": "Mona_macOS_Project.md",

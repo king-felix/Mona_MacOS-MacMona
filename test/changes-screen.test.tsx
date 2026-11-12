@@ -164,6 +164,7 @@ function snapshot(overrides: Partial<ChangesSnapshot> = {}): ChangesSnapshot {
         subject: "base",
         committedAt: "2026-11-11T00:00:00.000Z",
       },
+      truncated: false,
       entries: [
         {
           path: "src/app.ts",
@@ -302,6 +303,7 @@ describe("Changes screen", () => {
           behind: null,
           head: null,
           entries: [],
+          truncated: false,
           counts: { staged: 0, unstaged: 0, untracked: 0, conflicted: 0 },
           stagedBeforeReview: 0,
         },

@@ -43,6 +43,8 @@ export interface GitStatusReport {
   behind: number | null;
   head: GitHead | null;
   entries: GitEntryStatus[];
+  /** The status listing hit the output cap; the entry list is partial. */
+  truncated: boolean;
 }
 
 export interface GitDiffResult {
@@ -340,6 +342,7 @@ export class GitService {
         behind: null,
         head: null,
         entries: [],
+        truncated: false,
       };
     }
     const binary = this.binary;
@@ -359,6 +362,7 @@ export class GitService {
         behind: null,
         head: null,
         entries: [],
+        truncated: false,
       };
     }
     const [rootResult, prefixResult, statusResult, headResult] = await Promise.all([
@@ -394,6 +398,7 @@ export class GitService {
         behind: null,
         head: null,
         entries: [],
+        truncated: false,
       };
     }
     const root = firstLine(rootResult.stdout) || null;
@@ -412,6 +417,7 @@ export class GitService {
       behind: parsed.behind,
       head: headResult,
       entries: parsed.entries,
+      truncated: statusResult.truncated || statusResult.timedOut,
     };
   }
 

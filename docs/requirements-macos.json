@@ -697,7 +697,7 @@
     {
       "id": "MONA-008",
       "track": "Core",
-      "title": "Explicit Plan/Work and effective permission display; Victor’s saved DS Full Access profile; no silent policy widening",
+      "title": "Explicit Plan/Work and effective permission display; Victor\u2019s saved DS Full Access profile; no silent policy widening",
       "prompts": [
         "P03",
         "P08",
@@ -962,7 +962,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p13-shell-changes.json",
-          "note": "56/56 real Electron shell checks with change receipts and attribution"
+          "note": "57/57 real Electron shell checks with change receipts and attribution"
         },
         {
           "path": "docs/evidence/macos/artifacts/p13-shell-changes.png",
@@ -979,6 +979,10 @@
         {
           "path": "docs/evidence/macos/artifacts/p13-ci.txt",
           "note": "local CI green: format, lint, typechecks, builds, 383 tests, board/cost/changes smoke"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p13-shell-changes-file.png",
+          "note": "rendered lazy text window from the recorded file and honest source label"
         }
       ],
       "notes": "P13: completed the change-review surface. Engine turn receipts are stored as change sets with typed artifact references; per-call diffs are read lazily; text/diff windows are virtualized and bounded; binary, oversized, deleted, and missing content each render honestly; a missing snapshot is stored and shown as missing rather than an empty diff; tool output and media are readable through the engine artifact route; tool/test receipts carry the command and result, and a Mona commit that names the paths supplies commit evidence. P08 retains the live-studio half. Final VoiceOver and interactive QA are P24/P26."
@@ -1011,7 +1015,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p13-shell-changes.json",
-          "note": "56/56 real Electron shell checks with change receipts and attribution"
+          "note": "57/57 real Electron shell checks with change receipts and attribution"
         },
         {
           "path": "docs/evidence/macos/artifacts/p13-shell-changes.png",
@@ -1388,7 +1392,7 @@
           "note": "rendered real Settings"
         }
       ],
-      "notes": "P06: native chrome, Command-key conventions, keyboard-reachable screens, visible focus, VoiceOver-readable labels. P07: native File → Open Project… dialog and real shell keyboard navigation. Finder selected-folder Service and file-URL dispatch remain P09; spoken walkthrough is P24/P26."
+      "notes": "P06: native chrome, Command-key conventions, keyboard-reachable screens, visible focus, VoiceOver-readable labels. P07: native File \u2192 Open Project\u2026 dialog and real shell keyboard navigation. Finder selected-folder Service and file-URL dispatch remain P09; spoken walkthrough is P24/P26."
     },
     {
       "id": "MAC-003",

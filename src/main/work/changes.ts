@@ -795,6 +795,7 @@ export class ChangeLedger {
         behind: null,
         head: null,
         entries: [],
+        truncated: false,
         counts: { staged: 0, unstaged: 0, untracked: 0, conflicted: 0 },
         stagedBeforeReview: 0,
       };
@@ -831,12 +832,13 @@ export class ChangeLedger {
       root: report.root,
       branch: report.branch,
       detached: report.detached,
-      worktree: report.worktree ?? project.worktreeName,
+      worktree: report.worktree,
       upstream: report.upstream,
       ahead: report.ahead,
       behind: report.behind,
       head: report.head,
       entries,
+      truncated: report.truncated,
       counts: {
         staged: entries.filter((entry) => entry.staged).length,
         unstaged: entries.filter((entry) => entry.unstaged).length,
@@ -1054,13 +1056,20 @@ export class ChangeLedger {
               totalBytes: artifact.totalBytes,
               truncated: artifact.truncated,
               revision: artifact.revision ?? ref.revision,
-              source: artifact.current === false ? "snapshot" : "workspace",
+              source:
+                artifact.current === true
+                  ? "workspace"
+                  : artifact.current === false
+                    ? "snapshot"
+                    : null,
               canEdit:
-                artifact.current !== false && engine !== null && sameWorkspace(project, engine),
+                artifact.current === true && engine !== null && sameWorkspace(project, engine),
               note:
                 artifact.current === false
                   ? "Read from the turn's post-turn snapshot; the workspace no longer holds this revision."
-                  : null,
+                  : artifact.current === null
+                    ? "The engine did not report whether the workspace still holds this revision, so the editor is disabled."
+                    : null,
             };
           }
           if (artifact.availability === "missing") {

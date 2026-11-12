@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 194,
+  "revision": 200,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -53,7 +53,7 @@
         },
         {
           "path": "docs/requirements-macos.json",
-          "sha256": "d12f77dcea810f87cde278235fd0a2467b4175e689ff01de354ab710d04820c6",
+          "sha256": "77cf7793a950c97a9e26040aea1e5668253be196db2a7455cc0a468efa6c9775",
           "note": "re-verified after P13 regenerated the registry and decisions"
         },
         {
@@ -284,7 +284,7 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "cc50416cf000b34d2327eaa625bc9e2b1aa08827094c34ebe1f0dcd07b49381a",
+          "sha256": "83332a54d3b52433f800d6009ecb4bbe4dab6539ebb697586e2d62cf5ca76165",
           "note": "re-verified by the P11 CI run after the board IPC was added"
         },
         {
@@ -681,7 +681,7 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "cc50416cf000b34d2327eaa625bc9e2b1aa08827094c34ebe1f0dcd07b49381a",
+          "sha256": "83332a54d3b52433f800d6009ecb4bbe4dab6539ebb697586e2d62cf5ca76165",
           "note": "re-verified by the P11 CI run after the pause note changed"
         },
         {
@@ -1151,7 +1151,7 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "cc50416cf000b34d2327eaa625bc9e2b1aa08827094c34ebe1f0dcd07b49381a",
+          "sha256": "83332a54d3b52433f800d6009ecb4bbe4dab6539ebb697586e2d62cf5ca76165",
           "note": "re-verified by the P11 CI run after the open path's shared files changed"
         },
         {
@@ -1334,7 +1334,7 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "cc50416cf000b34d2327eaa625bc9e2b1aa08827094c34ebe1f0dcd07b49381a",
+          "sha256": "83332a54d3b52433f800d6009ecb4bbe4dab6539ebb697586e2d62cf5ca76165",
           "note": "re-verified by the P11 CI run; the board, schema, and IPC were extended"
         },
         {
@@ -1532,7 +1532,7 @@
       "evidence": [
         {
           "path": "docs/evidence/macos/P13-review.md",
-          "sha256": "72345220d795ab99c6a99e639fac96333545af4ebd93102916a9d23ab1507aee"
+          "sha256": "fd097f04bcd0198f307572b5bb7975958f410553f3fe38359ed63f00ea17667c"
         },
         {
           "path": "docs/decisions/ADR-008-changes-git-and-restore.md",
@@ -1540,7 +1540,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p13-tests.txt",
-          "sha256": "62433c03cafc0e6f1ccca26edc66c2ed32ccfa2860e0f95ab4e9fb92ba889e75"
+          "sha256": "de09fad1fcce79a046b5282a2b355a4314f0335d5165cde710bd08586c14921d"
         },
         {
           "path": "docs/evidence/macos/artifacts/p13-changes-sample.json",
@@ -1548,11 +1548,11 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p13-shell-changes.json",
-          "sha256": "56438288a263a97a7f050c3d896eacbc80d621e68441ef433f10eb4793dfe7f6"
+          "sha256": "d398897d27ec2780176d53eeef58a956db5cb6e1980d8b5000dfefcbae488e41"
         },
         {
           "path": "docs/evidence/macos/artifacts/p13-shell-changes.png",
-          "sha256": "c95e2bdd059adec9be5e4b21a5b90990ab0a9b5d501f3a1811568a58b385d972"
+          "sha256": "0f48729da7b7e711d90aae94ab37a3b0bd2f9fd79191267fd2e228390553a302"
         },
         {
           "path": "docs/evidence/macos/artifacts/p13-schema.txt",
@@ -1564,7 +1564,11 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p13-ci.txt",
-          "sha256": "983f1287989d30286100a11091e266d47ea8c33d90571266026fac6684adf50b"
+          "sha256": "eb8a79df48d71b30885c39266f4734fdba265de5c46dd4e4d485c79bc3cbfe48"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p13-shell-changes-file.png",
+          "sha256": "5b47edde55f38a91c21fda9275f3560fefdc4f601ee0f73b05eba7ebaf83dc3c"
         }
       ],
       "blocker_ids": []
@@ -1741,7 +1745,7 @@
   "next_eligible_prompts": [
     "P14"
   ],
-  "last_checkpoint_utc": "2026-11-12T06:49:16.257Z",
+  "last_checkpoint_utc": "2026-11-12T06:52:26.302Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

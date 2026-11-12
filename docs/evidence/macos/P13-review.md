@@ -99,16 +99,18 @@ the pre-turn content.
 ### Real Electron shell
 
 `docs/evidence/macos/artifacts/p13-shell-changes.json` — the shell smoke report
-is **56/56 checks pass** (including all P07/P11/P12 checks) with the new changes
+is **57/57 checks pass** (including all P07/P11/P12 checks) with the new changes
 checks:
 
 - `changes_screen`, `changes_receipt_rendered`, `changes_attribution`
   (`Tool: edit_file` and `Workspace delta`), `changes_missing_restore_point`,
   `changes_restore_unavailable` (with the exact reason), `changes_git_state`
   (branch `main` and an unreceipted dirty path), and
-  `changes_no_horizontal_overflow`.
+  `changes_no_horizontal_overflow`, and `changes_lazy_text_window` (opening
+  `src-app.ts` lazily shows the real local window with a labelled source).
 
-Screenshot: `docs/evidence/macos/artifacts/p13-shell-changes.png`.
+Screenshots: `docs/evidence/macos/artifacts/p13-shell-changes.png` and
+`docs/evidence/macos/artifacts/p13-shell-changes-file.png`.
 
 The P07/P11/P12 screenshots were rewritten by the shell run and then restored to
 their committed bytes, so their pinned hashes remain valid. Only the new P13

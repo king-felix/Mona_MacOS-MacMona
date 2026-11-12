@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "captured_at": "2026-11-12T06:43:03.919Z",
+  "captured_at": "2026-11-12T06:51:34.092Z",
   "ok": true,
   "checks": {
     "ready": true,
@@ -44,6 +44,7 @@
     "changes_restore_unavailable": true,
     "changes_git_state": true,
     "changes_no_horizontal_overflow": true,
+    "changes_lazy_text_window": true,
     "cost_screen": true,
     "cost_known_spend": true,
     "cost_incomplete_disclosed": true,
@@ -139,6 +140,7 @@
     "docs/evidence/macos/artifacts/p11-shell-attempts.png",
     "docs/evidence/macos/artifacts/p07-shell-settings.png",
     "docs/evidence/macos/artifacts/p13-shell-changes.png",
+    "docs/evidence/macos/artifacts/p13-shell-changes-file.png",
     "docs/evidence/macos/artifacts/p12-shell-cost.png",
     "docs/evidence/macos/artifacts/p12-shell-cost-detail.png"
   ],
