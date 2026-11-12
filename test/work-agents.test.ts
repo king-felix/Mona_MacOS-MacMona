@@ -410,6 +410,58 @@ describe("agent observatory", () => {
     expect(offline.goals[0]?.stale).toBe(true);
   });
 
+  it("keeps a section's last observation when its live read fails", async () => {
+    const b = await bench();
+    const good = adapter();
+    const live = observatory(b.store, () => ({ adapter: good, workspace: b.root }));
+    await live.snapshot(b.projectId);
+
+    // The fleet route now fails while the transport and the other routes work.
+    const flaky = adapter({
+      listFleetRuns: vi.fn(async () => {
+        throw new Error("fleet route returned 503");
+      }),
+    });
+    const view = await observatory(b.store, () => ({
+      adapter: flaky,
+      workspace: b.root,
+    })).snapshot(b.projectId);
+    expect(view.source).toBe("engine");
+    expect(view.connected).toBe(true);
+    // The stored fleet row survives; an empty list would be a false negative.
+    expect(view.fleets[0]?.runId).toBe("fleet-abc");
+    expect(view.notes.some((note) => note.includes("Fleet runs unavailable"))).toBe(true);
+    // The sub-agent read succeeded, so that section is live.
+    expect(view.runs[0]?.runId).toBe("agent_1");
+  });
+
+  it("falls back to stored data with a stated reason when every list read fails", async () => {
+    const b = await bench();
+    await observatory(b.store, () => ({ adapter: adapter(), workspace: b.root })).snapshot(
+      b.projectId,
+    );
+    const broken = adapter({
+      listAgentRuns: vi.fn(async () => {
+        throw new Error("agent route down");
+      }),
+      listFleetRuns: vi.fn(async () => {
+        throw new Error("fleet route down");
+      }),
+      listGoals: vi.fn(async () => {
+        throw new Error("goal route down");
+      }),
+    });
+    const view = await observatory(b.store, () => ({
+      adapter: broken,
+      workspace: b.root,
+    })).snapshot(b.projectId);
+    expect(view.source).toBe("stored");
+    expect(view.connected).toBe(true);
+    expect(view.reason).toContain("returned no orchestration data");
+    expect(view.runs.length).toBeGreaterThan(0);
+    expect(view.fleets.length).toBeGreaterThan(0);
+  });
+
   it("records a 202 cancellation and does not claim a terminal receipt", async () => {
     const b = await bench();
     const engine = adapter();
@@ -497,6 +549,79 @@ describe("native task ownership and launch", () => {
     const settled = await b.store.getTask(task.id as TaskId);
     expect(settled?.status).toBe("verifying");
     expect(settled?.verificationFingerprint).toMatch(/^[a-f0-9]{64}$/);
+  });
+});
+
+describe("launch failure paths", () => {
+  it("fails the local run and records a receipt when fleet creation is refused", async () => {
+    const b = await bench();
+    const task = await b.store.createTask({
+      projectId: b.projectId,
+      title: "Native task",
+      prompt: "Do it",
+      owner: "native_workflow",
+    });
+    const engine = adapter({
+      createFleetRun: vi.fn(async () => {
+        throw new Error("fleet create returned 422: invalid workspace");
+      }),
+    });
+    const live = observatory(b.store, () => ({ adapter: engine, workspace: b.root }));
+    await expect(
+      live.launchFleet(b.projectId, {
+        projectId: b.projectId,
+        taskId: task.id as TaskId,
+        name: "Doomed run",
+        role: "worker",
+        instructions: "Do it",
+        parallelism: "serial",
+      }),
+    ).rejects.toThrow(/422/);
+    // No local run may stay running, and the refusal is on the record.
+    expect(await b.store.activeTaskRun(b.projectId)).toBeNull();
+    const history = await live.history(b.projectId);
+    expect(history.some((event) => event.action === "fleet_create" && !event.accepted)).toBe(true);
+  });
+
+  it("stops a created run that could not be linked, instead of leaving it unowned", async () => {
+    const b = await bench();
+    const first = await b.store.createTask({
+      projectId: b.projectId,
+      title: "First",
+      prompt: "One",
+      owner: "native_workflow",
+    });
+    const second = await b.store.createTask({
+      projectId: b.projectId,
+      title: "Second",
+      prompt: "Two",
+      owner: "native_workflow",
+    });
+    // Occupy the upstream id with an unrelated local run.
+    const occupied = await b.store.beginTaskRun({ taskId: first.id, owner: "native_workflow" });
+    await b.store.linkTaskRunUpstream(occupied.run.id, "fleet_run", "fleet-new");
+    await b.store.finishTaskRun(occupied.run.id, "interrupted", "held for the collision test");
+
+    const engine = adapter();
+    const live = observatory(b.store, () => ({ adapter: engine, workspace: b.root }));
+    await expect(
+      live.launchFleet(b.projectId, {
+        projectId: b.projectId,
+        taskId: second.id as TaskId,
+        name: "Collision",
+        role: "worker",
+        instructions: "Two",
+        parallelism: "serial",
+      }),
+    ).rejects.toThrow();
+    // The engine run was created and then stopped; it is never left unowned.
+    expect(
+      (engine.startFleetRun as unknown as { mock: { calls: unknown[] } }).mock.calls,
+    ).toHaveLength(0);
+    expect(
+      (engine.stopFleetRun as unknown as { mock: { calls: unknown[] } }).mock.calls.length,
+    ).toBeGreaterThan(0);
+    expect(await b.store.activeTaskRun(b.projectId)).toBeNull();
   });
 });
 

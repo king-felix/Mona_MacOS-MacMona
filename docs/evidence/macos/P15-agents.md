@@ -123,7 +123,7 @@ store:
 
 ## Ownership and spend rules proven by tests
 
-`test/work-agents.test.ts` (10 tests): real identities and unknown spend; a
+`test/work-agents.test.ts` (14 tests): real identities and unknown spend; a
 sub-agent attributed to its origin turn without an invented parent; parent and
 child spend reported separately with no total in the view; stored fallback;
 `202` cancel; refused control without a live studio; refusal of a Mona-queue
@@ -152,7 +152,7 @@ that asks for a studio thread, and no horizontal overflow.
 
 ## Verification summary
 
-- 461 tests in 50 files.
+- 465 tests in 50 files.
 - `npm run ci` green: format, lint, typecheck, builds, tests, and five smokes
   (`board`, `cost`, `changes`, `polish`, `agents`) — `p15-ci.json`.
 - Shell smoke green — 99/99.

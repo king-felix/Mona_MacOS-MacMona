@@ -1133,7 +1133,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p15-tests.txt",
-          "note": "461 tests in 50 files, including 10 adapter, 10 observatory, 4 renderer, and 4 orchestration IPC tests"
+          "note": "465 tests in 50 files, including 10 adapter, 14 observatory, 4 renderer, and 4 orchestration IPC tests"
         },
         {
           "path": "docs/evidence/macos/artifacts/p15-agents-live.json",
@@ -1153,7 +1153,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p15-ci.json",
-          "note": "local CI green: format, lint, typecheck, builds, 461 tests, five smokes"
+          "note": "local CI green: format, lint, typecheck, builds, 465 tests, five smokes"
         }
       ],
       "notes": "P15: observatory over /v1/agent-runs and /v1/fleet/*. Expandable parent/child rows use real upstream identities (agent_8f9c0296, fleet-\u2026-local-1) with role, workspace, branch from a local Git read, lifecycle, last meaningful event, tool names from lifecycle events, test evidence (verified / self-reported / none), artifacts, and a spend confidence of priced, unpriced, unknown, or not_reported. A sub-agent whose ledger says usage is unknown shows unknown; a fleet receipt shows not_reported. Parent and child spend are separate rows and the view exposes no total, so a double count is not expressible. A fleet worker appears once, under its fleet, and inherits that sub-agent record's spend, tools, and tests. Disconnect falls back to a bounded local projection that says when it was observed, marks goals stale, and disables controls."

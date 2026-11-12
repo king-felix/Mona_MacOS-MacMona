@@ -116,6 +116,7 @@ export class AgentObservatory {
     let reason: string | null = null;
     let agentRead = false;
     let fleetRead = false;
+    let goalRead = false;
 
     if (access) {
       const adapter = access.adapter;
@@ -206,6 +207,7 @@ export class AgentObservatory {
               goals.push(toGoalView(goal, false));
               await this.persistGoal(projectId, goal, at);
             }
+            goalRead = true;
           } catch (error) {
             notes.push(`Native goals unavailable: ${messageOf(error)}`);
           }
@@ -228,11 +230,20 @@ export class AgentObservatory {
         // task still needs verification; Mona never marks it complete here.
         await this.syncNativeTasks(project, fleets);
       }
-      // Discovery success means the transport is connected even if one route
-      // failed. A failed route is a capability note, not a stored fallback.
-      if (advertised) {
+      // Discovery success means the transport works. It does not mean every list
+      // read worked: a failed route leaves that section unknown, so it falls
+      // back to the stored projection below rather than reading as empty. Only
+      // a section that was actually read is labelled live.
+      if (advertised && (agentRead || fleetRead || goalRead)) {
         source = "engine";
         connected = true;
+      } else if (advertised) {
+        source = "stored";
+        connected = true;
+        reason =
+          notes.length > 0
+            ? `The runtime is connected but returned no orchestration data; showing the last stored observation. ${notes[0]}`
+            : "The runtime is connected but returned no orchestration data; showing the last stored observation.";
       }
     } else {
       reason =
@@ -267,6 +278,15 @@ export class AgentObservatory {
           "fleet_worker",
           fleets.flatMap((fleet) => fleet.workers.map((worker) => worker.workerId)),
         );
+      }
+      if (!agentRead || !fleetRead || !goalRead) {
+        // A section this refresh could not read keeps its last observation, so a
+        // transient route failure cannot erase a real run from the screen.
+        const stored = await this.storedView(projectId);
+        if (!agentRead) agentRuns = stored.agentRuns;
+        if (!fleetRead) fleets = stored.fleets;
+        if (!goalRead) goals = stored.goals;
+        lastObservedAt = stored.lastObservedAt;
       }
     }
     if (!lastObservedAt) lastObservedAt = await this.lastObservedAt(projectId);
@@ -560,8 +580,7 @@ export class AgentObservatory {
     } catch (error) {
       const message = `Native fleet creation failed: ${messageOf(error)}`;
       await this.store.finishTaskRun(started.run.id, "failed", message);
-      const receipt = await this.refused(projectId, "fleet_create", task.id, error, message);
-      return { receipt, runId: null, taskId: task.id };
+      return this.refused(projectId, "fleet_create", task.id, error, message);
     }
 
     try {
@@ -571,8 +590,7 @@ export class AgentObservatory {
       // proceed, or two records could claim the same work.
       await this.store.finishTaskRun(started.run.id, "failed", messageOf(error));
       await access.adapter.stopFleetRun(created.run.runId).catch(() => undefined);
-      const receipt = await this.refused(projectId, "fleet_create", created.run.runId, error);
-      return { receipt, runId: created.run.runId, taskId: task.id };
+      return this.refused(projectId, "fleet_create", created.run.runId, error);
     }
 
     try {
@@ -607,14 +625,7 @@ export class AgentObservatory {
       const message = `Native fleet start failed: ${messageOf(error)}`;
       await access.adapter.stopFleetRun(created.run.runId).catch(() => undefined);
       await this.store.finishTaskRun(started.run.id, "failed", message);
-      const receipt = await this.refused(
-        projectId,
-        "fleet_start",
-        created.run.runId,
-        error,
-        message,
-      );
-      return { receipt, runId: created.run.runId, taskId: task.id };
+      return this.refused(projectId, "fleet_start", created.run.runId, error, message);
     }
   }
 
@@ -1038,7 +1049,7 @@ export class AgentObservatory {
     upstreamId: string | null,
     error: unknown,
     message?: string,
-  ): Promise<OrchestrationActionReceipt> {
+  ): Promise<never> {
     const text = message ?? messageOf(error);
     const rawStatus = error instanceof AdapterError ? error.details?.status : null;
     const status = typeof rawStatus === "number" && Number.isInteger(rawStatus) ? rawStatus : null;

@@ -2,10 +2,10 @@
   "schema_version": 1,
   "mode": "fixture",
   "ok": true,
-  "started_utc": "2026-11-12T08:12:53.527Z",
+  "started_utc": "2026-11-12T08:15:46.492Z",
   "project": {
-    "id": "prj_ef63391d83345113",
-    "root": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p15-fixture-o16UXD/workspace"
+    "id": "prj_e96f55e2574b0fff",
+    "root": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p15-fixture-5s1Pb3/workspace"
   },
   "checks": {
     "real-subagent-identity": {
@@ -101,5 +101,5 @@
   ],
   "live": null,
   "error": null,
-  "finished_utc": "2026-11-12T08:12:53.558Z"
+  "finished_utc": "2026-11-12T08:15:46.521Z"
 }

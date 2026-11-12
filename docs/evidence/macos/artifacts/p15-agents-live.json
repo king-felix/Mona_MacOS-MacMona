@@ -2,10 +2,10 @@
   "schema_version": 1,
   "mode": "live",
   "ok": true,
-  "started_utc": "2026-11-12T08:12:50.400Z",
+  "started_utc": "2026-11-12T08:15:50.215Z",
   "project": {
-    "id": "prj_0723f33c59d0c8f5",
-    "root": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p15-live-3OoUSc/workspace"
+    "id": "prj_648801fc901f3d1b",
+    "root": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p15-live-y7SHD5/workspace"
   },
   "checks": {
     "live-launch-accepted": {
@@ -47,18 +47,18 @@
   },
   "observations": [],
   "live": {
-    "port": 59500,
-    "listener_pid": 12359,
+    "port": 59633,
+    "listener_pid": 19319,
     "engine": {
       "version": "0.10.2",
       "commit": "ff466b2ed0bfb4ae5267d4d8d0ecb562cf46956e"
     },
-    "task_id": "tsk_76b5c92846cd6be7",
-    "run_id": "fleet-23804495",
+    "task_id": "tsk_30f407f3b0341878",
+    "run_id": "fleet-403be60c",
     "launch": {
       "accepted": true,
       "status": 202,
-      "message": "Fleet fleet-23804495 scheduled for task tsk_76b5c92846cd6be7. The engine owns execution; Mona monitors it."
+      "message": "Fleet fleet-403be60c scheduled for task tsk_30f407f3b0341878. The engine owns execution; Mona monitors it."
     },
     "run": {
       "lifecycle": "completed",
@@ -67,14 +67,14 @@
           "taskId": "task",
           "name": "P15 live workflow",
           "status": "completed",
-          "workerId": "fleet-23804495-local-1",
+          "workerId": "fleet-403be60c-local-1",
           "attempts": 1,
           "role": "reviewer"
         }
       ],
       "workers": [
         {
-          "workerId": "fleet-23804495-local-1",
+          "workerId": "fleet-403be60c-local-1",
           "role": "reviewer",
           "status": "online",
           "lastEvent": "completed exit_code=0 P15-OK"
@@ -94,50 +94,50 @@
       ],
       "events": [
         {
-          "cursor": "fev1_686879d9c6765ae948894931db6ceb2ed91e9dfeca510cf62b7ad70509c54234_heartbeat",
+          "cursor": "fev1_4d6836c390d5302c1a2c4f0141dfbf3052f214af83ff04073139c90c5d39e25b_heartbeat",
           "event": "fleet.worker.heartbeat",
           "taskId": "task",
-          "workerId": "fleet-23804495-local-1",
-          "at": "2026-11-12T08:12:53Z",
+          "workerId": "fleet-403be60c-local-1",
+          "at": "2026-11-12T08:15:52Z",
           "summary": "fleet.worker.heartbeat"
         },
         {
-          "cursor": "fev1_68e79f14eb92b98a2aa106f0d1562841c67660d576410869a7e19a14a2c25cd9_worker",
+          "cursor": "fev1_4c91adecc04f855d4418a23ac117b83de9ebbabbe44a27a482626344b7fe2535_worker",
           "event": "fleet.worker.completed",
           "taskId": "task",
-          "workerId": "fleet-23804495-local-1",
-          "at": "2026-11-12T08:12:53Z",
+          "workerId": "fleet-403be60c-local-1",
+          "at": "2026-11-12T08:15:53Z",
           "summary": "fleet.worker.completed (completed)"
         },
         {
-          "cursor": "fev1_584626eb361f7195780a88d5e363a8fc099e9d5fb0b552297374704b299ac9ba_receipt",
+          "cursor": "fev1_9458236226c5d512c62fddca8f3b11ad0bf6c9eec24d0c6370f8fac476ce79f6_receipt",
           "event": "fleet.task.receipt_recorded",
           "taskId": "task",
-          "workerId": "fleet-23804495-local-1",
-          "at": "2026-11-12T08:12:53Z",
+          "workerId": "fleet-403be60c-local-1",
+          "at": "2026-11-12T08:15:53Z",
           "summary": "fleet.task.receipt_recorded"
         },
         {
-          "cursor": "fev1_066284df852b822750ed8309996cee33c92ae6388314014ee8c9cfff4b3339ea_run_status",
+          "cursor": "fev1_ed245fad3cff9247bc29ad53c0eca7ffaad965262c220d223e8576c4fb323db7_run_status",
           "event": "fleet.run.status_changed",
           "taskId": null,
           "workerId": null,
-          "at": "2026-11-12T08:12:53Z",
+          "at": "2026-11-12T08:15:53Z",
           "summary": "fleet.run.status_changed (completed)"
         },
         {
-          "cursor": "fev1_bdd8da6bdad33627ff3522caa801e700f1f6aaa65e0600c27735cab62b2aefe7_run_status",
+          "cursor": "fev1_8f81ec5fdc08f36121f4002c87ef195f9d3b9acb40d086a10efdeb431c2877a2_run_status",
           "event": "fleet.run.status_changed",
           "taskId": null,
           "workerId": null,
-          "at": "2026-11-12T08:12:53Z",
+          "at": "2026-11-12T08:15:53Z",
           "summary": "fleet.run.status_changed (completed)"
         }
       ]
     },
     "evidence": {
-      "path": ".codewhale/fleet/fleet-23804495/task/fleet-23804495-local-1/verification-receipt-attempt-0000000001-064aa98c6ef4e17d3bbd41d0ac59908f0bbc7924f35e86351ebd093fdfba95f1.json",
-      "checksum": "sha256:064aa98c6ef4e17d3bbd41d0ac59908f0bbc7924f35e86351ebd093fdfba95f1",
+      "path": ".codewhale/fleet/fleet-403be60c/task/fleet-403be60c-local-1/verification-receipt-attempt-0000000001-146cdc84c53e1f9ddac411e4ce57c50bbffdbe93197c84498deef8678eccaeec.json",
+      "checksum": "sha256:146cdc84c53e1f9ddac411e4ce57c50bbffdbe93197c84498deef8678eccaeec",
       "size_bytes": 1083,
       "truncated": false,
       "content_keys": [
@@ -157,9 +157,9 @@
       "connected": true,
       "fleets": [
         {
-          "runId": "fleet-23804495",
+          "runId": "fleet-403be60c",
           "lifecycle": "completed",
-          "taskId": "tsk_76b5c92846cd6be7",
+          "taskId": "tsk_30f407f3b0341878",
           "workerCount": 1,
           "spend": "not_reported"
         }
@@ -185,5 +185,5 @@
     }
   },
   "error": null,
-  "finished_utc": "2026-11-12T08:12:53.410Z"
+  "finished_utc": "2026-11-12T08:15:54.879Z"
 }
