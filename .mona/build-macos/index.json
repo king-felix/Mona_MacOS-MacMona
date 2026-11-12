@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-12T20:52:49.673Z",
+  "generated_utc": "2026-11-12T21:12:59.683Z",
   "git": {
     "available": true,
-    "commit": "8cbc754533d79b9ebb96f451086c5a56a2cba2d6",
+    "commit": "8937757a1f0c296066f27dece0d73ebf178d0ea0",
     "dirty": true
   },
-  "digest": "34931c4e311346bcd4bd0de700e754bee3f78d8c17aeadab743fe2458dba1870",
+  "digest": "7a5e51aa5d7a613c328bb54a4bdfb8229332426a49870563093f867071b26820",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,7 +15,7 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "ef50275d80e7bb0d799582720c7f3e60e90f2a5d703168ccf619746327551542",
+      "sha256": "5cf4b919a175e81ddc35d519ae769435921dbc25c0c526198586faf700877e40",
       "bytes": 138744
     },
     {
@@ -935,8 +935,8 @@
     },
     {
       "path": "docs/evidence/macos/P23-lifecycle.md",
-      "sha256": "aa52057717b0a523be2f8c5246a44a979e1e6ca7e276e3cb0f184fc4590828d2",
-      "bytes": 17552
+      "sha256": "77e55eeb6225eeed62530da4fca70445d1d3af7ce1bb9e6e7ce3b790463a29d1",
+      "bytes": 19499
     },
     {
       "path": "docs/requirements-macos.json",

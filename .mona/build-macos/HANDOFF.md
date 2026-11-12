@@ -80,12 +80,21 @@ order is the guarantee.
   eviction while the child was still writing.
 - **Evidence.** `docs/evidence/macos/P23-lifecycle.md`,
   `artifacts/p23-{lifecycle-smoke,uninstall-rehearsal}.json`,
-  `artifacts/p23-ci.txt`, `docs/decisions/ADR-016`, D-077…D-090.
-- **Open.** The rebuilt package is not installed (EXT-INSTALL in `BLOCKERS.md`:
-  `sudo installer` needs authorization this session cannot supply, so
-  `mac:package:local` stops at its documented install gate). The release trust
-  tier has no signed artifact until P22. No live feed was queried; there is no
-  configured host and none was invented.
+  `artifacts/p23-ci.txt`, `docs/decisions/ADR-016`, D-077…D-093.
+- **Installed and verified.** The package was installed with administrator
+  authorization by a human: build 81 → **89** at `2026-11-12T21:08:18Z`.
+  The installed app is tied to the artifact by a four-link digest chain (receipt
+  → installed component manifest → same file inside the package), the app
+  signature verifies, and the P23 modules plus the removal utility are present.
+  Record: `packaging/macos/out/verification.json`. **EXT-INSTALL is closed.**
+  Shipping the artifact also exposed and fixed two build defects (rehearsal temp
+  directories never removed; a report left describing the wrong build) and one
+  documentation error (`update-metadata.json` was silently dropped by
+  `productbuild`).
+- **Open.** The release trust tier has no signed artifact until P22. No live feed
+  was queried; there is no configured host and none was invented. A later
+  `mac:package:local` still stops at `installed_copy` whenever the build in hand
+  differs from the installed copy — that is the gate working.
 
 ## Where the build stands
 
@@ -791,7 +800,7 @@ currently covered by the rehearsal and the unit/smoke suite instead.
 
 - `.mona/build-macos/state.json` — prompt status (P23 completed, 23 of 28).
 - `.mona/build-macos/attempts.jsonl` — empty; nothing failed three times.
-- `.mona/build-macos/DECISIONS.md` — D-001…D-090.
+- `.mona/build-macos/DECISIONS.md` — D-001…D-093.
 - `.mona/build-macos/BLOCKERS.md` — external prerequisites only.
 - `docs/requirements-macos.json` — MONA-016, MONA-017/018/021/022/023/024/025/026/
   029 satisfied; **MAC-006 is satisfied at P23** (P26 owns the final release

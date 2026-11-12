@@ -12,28 +12,21 @@ clean recipient, below); it is not attempt-counted because no attempt failed.
 
 ## External prerequisites (not blocked work, not attempt-counted)
 
-### EXT-INSTALL — Administrator authorization to install the P23 package
+### ~~EXT-INSTALL~~ — RESOLVED 2026-11-12: the package was installed
 
-- **Needed for:** completing `npm run mac:package:local`'s last gate
-  (`installed_copy`) and for the P23 evidence to include a real install of the
-  package rebuilt at this prompt.
-- **Measured 2026-11-12 (P23):** `sudo -n true` refuses; there is no
-  non-interactive administrator authorization in this session. The build reaches
-  the install gate and stops with *"the installed copy at /Applications/Mona.app
-  is not this build"*, by design — the gate compares the installed copy to the
-  build rather than replacing it silently.
-- **What did pass:** every gate before it, including the new
-  `uninstall_rehearsal` (dry run, missing-manifest refusal, foreign-bundle
-  refusal, real removal, unrelated content preserved —
-  `out/uninstall-rehearsal.json`, copied to
-  `docs/evidence/macos/artifacts/p23-uninstall-rehearsal.json`).
-- **Help needed from Victor:** run, in a session with administrator
-  authorization:
-  `sudo installer -pkg packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg -target /`
-  then `npm run mac:package:local` again so the `installed_copy` and GUI gates
-  run against the new bytes.
-- **Rule:** this is not a reason to weaken the gate or to copy the app into
-  `/Applications` by hand.
+- **What was needed:** administrator authorization to install the P23 package.
+- **How it was closed:** the package was opened in Apple Installer by a human with
+  authorization. The install replaced build 81 with **build 89** at
+  `2026-11-12T21:08:18Z`.
+- **Verified afterwards:** the receipt's `manifest_sha256`
+  (`3a3af793…`) equals the digest of the installed
+  `Contents/Resources/component-manifest.json`, and equals the digest of the same
+  file inside the package; the app signature verifies; the P23 update modules and
+  the removal utility are present under the installed paths. Record:
+  `packaging/macos/out/verification.json`.
+- **Not a blocker:** `mac:package:local` still stops at its `installed_copy` gate
+  on any later build, because the gate compares the installed copy to the build
+  in hand. That is the gate working, not a missing prerequisite.
 
 ### EXT-SIGNING — Apple Developer ID credentials for P22
 

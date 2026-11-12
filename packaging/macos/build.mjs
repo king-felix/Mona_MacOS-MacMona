@@ -1569,6 +1569,20 @@ async function main() {
   log(`engine ${engine.version} (${engine.commit.slice(0, 12)}) sha256=${engine.upstream_sha256}`);
   const licenses = licenseTexts();
   mkdirSync(outDir, { recursive: true });
+  // A report on disk must never describe a different build. The later gates
+  // rewrite these; the install gate can stop the build before they are
+  // rewritten, and a stale manifest.json next to a fresh package is worse than
+  // no report at all.
+  for (const stale of [
+    "manifest.json",
+    "install-receipt.json",
+    "package-smoke.json",
+    "declared-metadata.json",
+    "uninstall-rehearsal.json",
+    "package-report.json",
+  ]) {
+    rmSync(join(outDir, stale), { force: true });
+  }
   rmSync(stageDir, { recursive: true, force: true });
   mkdirSync(stageDir, { recursive: true });
   const icon = buildIconSet(join(stageDir, "tools"));
@@ -1749,6 +1763,40 @@ async function main() {
     "utf8",
   );
   if (!uninstallRehearsal.ok) fail("uninstall rehearsal failed", uninstallRehearsal);
+  // The checks above concern the artifact itself. Record them now, because the
+  // next step installs into /Applications and needs administrator
+  // authorization, and a human may run that days later.
+  const packageReport = {
+    schema_version: 1,
+    product: "Mona",
+    version,
+    build,
+    channel,
+    package: basename(packageFile),
+    package_sha256: sha256File(packageFile),
+    package_size: statSync(packageFile).size,
+    verified_at: new Date().toISOString(),
+    gates: {
+      declared_metadata: declared,
+      architecture: { ok: archApp.ok && archService.ok },
+      dependencies: { ok: dylibs.ok },
+      secrets: { ok: secrets.ok },
+      payload_expand: { ok: expand.ok, files: expand.files, links: expand.links },
+      install_rehearsal: { ok: rehearsal.ok, idempotent_reinstall: rehearsal.idempotent_reinstall },
+      uninstall_rehearsal: { ok: uninstallRehearsal.ok, check: uninstallRehearsal.check },
+    },
+    pending: ["package smoke against /Applications", "LaunchServices GUI launch"],
+    note:
+      "These gates concern the package bytes and passed without administrator authorization. " +
+      "The install gates below require an authorized install; re-run after installing to complete the record.",
+  };
+  writeFileSync(
+    join(outDir, "package-report.json"),
+    JSON.stringify(packageReport, null, 2) + "\n",
+    "utf8",
+  );
+  log(`package report written: sha256=${packageReport.package_sha256.slice(0, 16)}…`);
+
   // Rehearse the service's own descriptor from the payload.
   const installed = copyToApplications(join(payloadDir, APP_PATH));
   const smoke = runPackageSmoke(installed.path);

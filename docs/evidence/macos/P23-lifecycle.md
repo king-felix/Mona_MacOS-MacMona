@@ -260,6 +260,42 @@ human test install and verified by mounting it and re-hashing the `.pkg` inside:
 identical digest. The DMG is a carrier, not a second artifact — a drag-install
 cannot place the Finder Service or the receipt the uninstaller depends on.
 
+### The real install (admin-authorized, by a human)
+
+The package was opened in Apple Installer and installed with administrator
+authorization. Build 81 was replaced by **build 89** at `21:08:18Z`.
+
+The installed app is tied to those exact bytes by a four-link chain, each link
+read from the running system rather than from a build variable:
+
+```
+receipt.manifest_sha256                     3a3af7935b75be2579551236ded1da28849017fc42c563c976119f31339cb372
+installed component-manifest.json digest    3a3af7935b75be2579551236ded1da28849017fc42c563c976119f31339cb372
+same file inside the .pkg that was opened   3a3af7935b75be2579551236ded1da28849017fc42c563c976119f31339cb372
+installed CFBundleVersion                   89  (package declares 89; previous install was 81)
+```
+
+Also verified: `codesign --verify --deep --strict` passes on the installed app,
+the P23 update modules are present under `Contents/Resources/app/dist/main/main/update/`,
+and `/Library/Application Support/Mona/uninstall-mona.sh` is installed and
+executable. The record is `packaging/macos/out/verification.json`, with the
+exact commands to reproduce every value.
+
+**EXT-INSTALL is closed.**
+
+### A stale-report hazard the handoff exposed
+
+Asking "how do I know it installed the one you just built?" surfaced a defect:
+the build writes `manifest.json` only at the very end, *after* the
+administrator-only install gate, so a build stopped there left the previous
+build's `manifest.json` sitting beside a fresh package — one reading "build 81"
+next to a build-89 artifact. Now the build deletes every report at start, and
+writes `package-report.json` (package digest, size, and every package-level gate)
+*before* the install gate. Verified by running a build after the change: it
+recorded `build 91`, all seven package gates true, and then stopped at the
+install gate as designed. That build's output was removed so nothing on disk
+describes bytes that were never installed.
+
 Two build defects surfaced while producing it and are fixed: the metadata file
 `productbuild` silently dropped (D-092) and the rehearsal temp directories that
 leaked ~390 MiB per build (D-091).

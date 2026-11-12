@@ -1447,3 +1447,14 @@ bundle identifiers, the arm64 gate, and the OS floor are all declared — the ex
 inputs `src/main/update/trust.ts` identifies a candidate by. It writes
 `out/declared-metadata.json` as it passes, so the evidence survives a later gate
 stopping the build. ADR-016 §6.
+
+## D-093 — A report on disk never describes a different build
+
+`manifest.json` was written only after the administrator-only install gate, so a
+build stopped there left the previous build's report next to a fresh package:
+"build 81" beside a build-89 artifact. The build now clears every report at
+start and writes `package-report.json` — package digest, size, and all
+package-level gates — before the install gate, leaving the install-dependent
+gates explicitly `pending`. A later run rewrites `manifest.json` as before. This
+was found by asking, in plain terms, how a person could tell which package they
+had installed; the answer has to be checkable, not asserted. ADR-016 §6.
