@@ -279,3 +279,25 @@ and deviations discovered while building.
   used in a component. axe remains a semantics check; contrast stays a direct
   token measurement because jsdom has no layout engine. P26 collects human
   aesthetic review; the P06 evidence does not claim it already occurred.
+
+## D-017 — Real catalog authority, typed IPC results, and honest engine state
+
+- **Date:** 2026-11-11 (P07)
+- **Decision:** The shell reads the catalog and project detail through one
+  `ProjectService` over `StateStore`; every mutation is a strict IPC channel that
+  returns `{ok,value}` or `{ok:false,error:{code,message,details}}`. Project ids
+  are branded; revisions are required for mutations; no channel deletes files.
+  Opening a project ensures at most one local shell thread and never resumes
+  work. Engine state comes from the supervisor plus the project binding:
+  `canExecute` is true only when a running runtime serves this project's
+  canonical workspace. Model and permission are reported as “not reported” and
+  “unknown” until a turn reports them. Draft and view state are per project; the
+  native menu opens the real folder dialog and sends the project id to the shell.
+  The P06 harness remains reachable only through `?harness=1`.
+- **Why:** A shell that invents engine badges, percentages, or duplicate threads
+  would violate the product's honesty rules. Typed envelopes keep stale-revision,
+  alias, and missing-folder failures actionable instead of stringified. Catalog
+  removal must be visibly distinct from deleting a folder.
+- **Consequence:** P08 adds live submission behind the same engine snapshot and
+  detail contract; P10 adds task creation; P16 adds route editing; P19 adds
+  restore UI. The shell does not start a runtime on navigation.

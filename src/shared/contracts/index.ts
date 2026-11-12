@@ -5,3 +5,4 @@ export * from "./events";
 export * from "./submission";
 export * from "./usage";
 export * from "./bridge";
+export * from "./project-bridge";

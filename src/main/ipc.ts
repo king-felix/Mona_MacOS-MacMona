@@ -3,6 +3,9 @@ import { discoverTools } from "./tool-discovery";
 import { resolveAppPaths } from "./paths";
 import { validateIpc, type IpcChannel } from "./ipc-contract";
 import { isAllowedNavigation } from "./navigation";
+import { StateError } from "./state/errors";
+import type { ProjectService } from "./projects/service";
+import type { IpcResult, RuntimeStatusView, StateFacts } from "../shared/contracts/project-bridge";
 
 /**
  * Trusted-sender check. IPC answers only the local renderer document this
@@ -18,7 +21,34 @@ export function senderIsTrusted(event: IpcMainInvokeEvent, rendererRoot: string)
   return isAllowedNavigation(url, rendererRoot);
 }
 
-export function registerIpc(rendererRoot: string): void {
+export interface IpcDependencies {
+  projects: ProjectService;
+  runtimeStatus: () => RuntimeStatusView;
+  stateFacts: () => Promise<StateFacts>;
+}
+
+async function envelope<T>(work: () => Promise<T> | T): Promise<IpcResult<T>> {
+  try {
+    return { ok: true, value: await work() };
+  } catch (error) {
+    if (error instanceof StateError) {
+      return {
+        ok: false,
+        error: { code: error.code, message: error.message, details: error.details },
+      };
+    }
+    const candidate = error as { code?: string; message?: string };
+    return {
+      ok: false,
+      error: {
+        code: typeof candidate.code === "string" ? candidate.code : "INTERNAL",
+        message: candidate.message ?? String(error),
+      },
+    };
+  }
+}
+
+export function registerIpc(rendererRoot: string, dependencies: IpcDependencies): void {
   const handle = (channel: IpcChannel, handler: (input: unknown) => unknown) => {
     ipcMain.handle(channel, async (event, raw) => {
       if (!senderIsTrusted(event, rendererRoot)) {
@@ -45,7 +75,10 @@ export function registerIpc(rendererRoot: string): void {
       support: paths.support,
       cache: paths.cache,
       logs: paths.logs,
+      state: paths.state,
       database: paths.database,
+      backups: paths.backups,
+      artifacts: paths.artifacts,
     };
   });
 
@@ -53,4 +86,65 @@ export function registerIpc(rendererRoot: string): void {
     const names = (input as { names?: string[] }).names ?? ["codewhale", "git", "node"];
     return discoverTools(names);
   });
+
+  handle("projects:list", (input) => {
+    const value = input as { query?: string; includeArchived?: boolean };
+    return envelope(() =>
+      dependencies.projects.list({ query: value.query, includeArchived: value.includeArchived }),
+    );
+  });
+  handle("projects:open", (input) =>
+    envelope(() => dependencies.projects.open((input as { rootPath?: string }).rootPath)),
+  );
+  handle("projects:detail", (input) =>
+    envelope(() => dependencies.projects.detail((input as { projectId: never }).projectId)),
+  );
+  handle("projects:rename", (input) => {
+    const value = input as { projectId: never; name: string; expectedRevision: number };
+    return envelope(() =>
+      dependencies.projects.rename(value.projectId, value.name, value.expectedRevision),
+    );
+  });
+  handle("projects:pin", (input) => {
+    const value = input as { projectId: never; pinned: boolean; expectedRevision: number };
+    return envelope(() =>
+      dependencies.projects.setPinned(value.projectId, value.pinned, value.expectedRevision),
+    );
+  });
+  handle("projects:archive", (input) => {
+    const value = input as { projectId: never; archived: boolean; expectedRevision: number };
+    return envelope(() =>
+      dependencies.projects.setArchived(value.projectId, value.archived, value.expectedRevision),
+    );
+  });
+  handle("projects:remove", (input) => {
+    const value = input as { projectId: never; expectedRevision: number };
+    return envelope(() => dependencies.projects.remove(value.projectId, value.expectedRevision));
+  });
+  handle("projects:relocate", (input) => {
+    const value = input as { projectId: never; expectedRevision: number };
+    return envelope(() => dependencies.projects.relocate(value.projectId, value.expectedRevision));
+  });
+  handle("projects:reveal", (input) =>
+    envelope(async () => {
+      await dependencies.projects.revealProject((input as { projectId: never }).projectId);
+      return { revealed: true };
+    }),
+  );
+  handle("projects:view", (input) => {
+    const value = input as { projectId: never; view: Record<string, unknown> };
+    return envelope(async () => {
+      await dependencies.projects.saveView(value.projectId, value.view);
+      return { saved: true };
+    });
+  });
+  handle("projects:draft", (input) => {
+    const value = input as { projectId: never; threadId: string; text: string };
+    return envelope(async () => {
+      await dependencies.projects.saveDraft(value.projectId, value.threadId, value.text);
+      return { saved: true };
+    });
+  });
+  handle("runtime:status", () => dependencies.runtimeStatus());
+  handle("state:facts", () => dependencies.stateFacts());
 }

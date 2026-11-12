@@ -14,7 +14,7 @@
         "sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8"
       }
     ],
-    "indexed_utc": "2026-11-12T03:06:43.407Z"
+    "indexed_utc": "2026-11-12T03:19:16.320Z"
   },
   "prompts": [
     {
@@ -509,7 +509,7 @@
         "P05",
         "P07"
       ],
-      "status": "partial",
+      "status": "satisfied",
       "acceptance": "pending",
       "evidence": [
         {
@@ -523,9 +523,37 @@
         {
           "path": "docs/decisions/ADR-004-project-state.md",
           "note": "schema, ownership, and recovery decision"
+        },
+        {
+          "path": "docs/evidence/macos/P07-projects.md",
+          "note": "P07 catalog and shell verification"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p07-tests.txt",
+          "note": "project service and IPC tests"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p07-shell-smoke.json",
+          "note": "29 end-to-end shell checks"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p07-shell-home.png",
+          "note": "rendered real Home"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p07-shell-studio.png",
+          "note": "rendered real Studio"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p07-shell-board.png",
+          "note": "rendered real Work board"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p07-shell-settings.png",
+          "note": "rendered real Settings"
         }
       ],
-      "notes": "P05: stable project identity independent of path, canonical path + (dev,ino) alias detection, path history, deliberate relocation, catalog removal that keeps source files, and SQLite catalog storage. P07 completes the UI catalog (open/create/import, recents, reveal, search)."
+      "notes": "P07: real catalog over the transactional store with open/import, pinned/recent, local search, label rename, archive/restore, reveal, deliberate relocation, catalog removal that never deletes source, alias deduplication, and nested-repo/worktree distinction. Verified by service tests and the real shell smoke. Final human QA remains P26; acceptance stays pending until then."
     },
     {
       "id": "MONA-006",
@@ -537,7 +565,7 @@
         "P07",
         "P26"
       ],
-      "status": "partial",
+      "status": "pending",
       "acceptance": "pending",
       "evidence": [
         {
@@ -559,9 +587,37 @@
         {
           "path": "docs/evidence/macos/artifacts/p06-tests.txt",
           "note": "26 design tests"
+        },
+        {
+          "path": "docs/evidence/macos/P07-projects.md",
+          "note": "P07 catalog and shell verification"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p07-tests.txt",
+          "note": "project service and IPC tests"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p07-shell-smoke.json",
+          "note": "29 end-to-end shell checks"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p07-shell-home.png",
+          "note": "rendered real Home"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p07-shell-studio.png",
+          "note": "rendered real Studio"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p07-shell-board.png",
+          "note": "rendered real Work board"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p07-shell-settings.png",
+          "note": "rendered real Settings"
         }
       ],
-      "notes": "P06: Daybreak and Afterglow tokens with 23 measured contrast pairs per theme, density and 200% scaling, reduced motion, accessible primitives (button, input, select, tab, dialog, menu, notification, badge, card, inspector, empty, skeleton, error), and six fixture-backed screens. P07 wires the real shell; P24/P26 own VoiceOver and final aesthetic QA."
+      "notes": "P06: measured Daybreak/Afterglow tokens, accessible components, density and 200% scaling, reduced motion, six fixture screens. P07 renders the real shell with the same system; VoiceOver walkthrough and aesthetic review remain P24/P26."
     },
     {
       "id": "MONA-007",
@@ -900,7 +956,7 @@
         "P07",
         "P14"
       ],
-      "status": "partial",
+      "status": "pending",
       "acceptance": "pending",
       "evidence": [
         {
@@ -922,9 +978,37 @@
         {
           "path": "docs/evidence/macos/artifacts/p06-tests.txt",
           "note": "26 design tests"
+        },
+        {
+          "path": "docs/evidence/macos/P07-projects.md",
+          "note": "P07 catalog and shell verification"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p07-tests.txt",
+          "note": "project service and IPC tests"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p07-shell-smoke.json",
+          "note": "29 end-to-end shell checks"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p07-shell-home.png",
+          "note": "rendered real Home"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p07-shell-studio.png",
+          "note": "rendered real Studio"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p07-shell-board.png",
+          "note": "rendered real Work board"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p07-shell-settings.png",
+          "note": "rendered real Settings"
         }
       ],
-      "notes": "P06: deterministic since-you-left digest, evidence-linked completion/inspector actions, keyboard map (Command+1-6, Command+K, tab roving), and a visible command palette shell over fixture data. Resume Brief, Focus Mode, and live evidence cards are P14."
+      "notes": "P06: deterministic digest, evidence-linked actions, keyboard map and palette shell. P07: real command palette over projects/screens, Command-1-5 navigation, Command-O folder dialog, drafts and view state. Resume Brief and Focus Mode remain P14."
     },
     {
       "id": "MONA-030",
@@ -972,7 +1056,7 @@
         "P09",
         "P26"
       ],
-      "status": "partial",
+      "status": "pending",
       "acceptance": "pending",
       "evidence": [
         {
@@ -994,9 +1078,37 @@
         {
           "path": "docs/evidence/macos/artifacts/p06-tests.txt",
           "note": "26 design tests"
+        },
+        {
+          "path": "docs/evidence/macos/P07-projects.md",
+          "note": "P07 catalog and shell verification"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p07-tests.txt",
+          "note": "project service and IPC tests"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p07-shell-smoke.json",
+          "note": "29 end-to-end shell checks"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p07-shell-home.png",
+          "note": "rendered real Home"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p07-shell-studio.png",
+          "note": "rendered real Studio"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p07-shell-board.png",
+          "note": "rendered real Work board"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p07-shell-settings.png",
+          "note": "rendered real Settings"
         }
       ],
-      "notes": "P06: native window chrome and Command-key conventions, keyboard-reachable screens, visible focus, VoiceOver-readable labels and roles. Finder selected-folder Service and file-URL dispatch remain P09; spoken walkthrough is P24/P26."
+      "notes": "P06: native chrome, Command-key conventions, keyboard-reachable screens, visible focus, VoiceOver-readable labels. P07: native File → Open Project… dialog and real shell keyboard navigation. Finder selected-folder Service and file-URL dispatch remain P09; spoken walkthrough is P24/P26."
     },
     {
       "id": "MAC-003",
@@ -1122,7 +1234,7 @@
     "ok": true,
     "errors": [],
     "warnings": [],
-    "validated_utc": "2026-11-12T03:06:43.407Z",
+    "validated_utc": "2026-11-12T03:19:16.320Z",
     "prompt_count": 28,
     "requirement_count": 38
   }

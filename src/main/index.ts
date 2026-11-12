@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, powerMonitor, session } from "electron";
+import { app, BrowserWindow, Menu, dialog, powerMonitor, session, shell } from "electron";
 import { mkdirSync, mkdtempSync, realpathSync, writeFileSync } from "node:fs";
 import { randomBytes } from "node:crypto";
 import { tmpdir } from "node:os";
@@ -29,6 +29,8 @@ import { startOwnedRuntime, stopRecordedRuntime } from "./engine/runtime-process
 import { WorkController } from "./work/control";
 import { StateStore } from "./state/store";
 import { verifyPrivatePermissions } from "./state/paths";
+import { ProjectService, runtimeStatusView } from "./projects/service";
+import type { RuntimeStatus } from "./supervisor/runtime-supervisor";
 
 app.setName("Mona");
 
@@ -37,6 +39,7 @@ const PRELOAD_PATH = join(__dirname, "../preload/index.js");
 const IS_SMOKE = process.argv.includes("--smoke");
 const IS_LIFECYCLE_SMOKE = process.argv.includes("--lifecycle-smoke");
 const IS_DESIGN_SHOTS = process.argv.includes("--design-shots");
+const IS_SHELL_SMOKE = process.argv.includes("--shell-smoke");
 
 let mainWindow: BrowserWindow | null = null;
 let lifecycle: DesktopLifecycle | null = null;
@@ -46,6 +49,7 @@ let lifecycleEvidence: Record<string, unknown> = { schema_version: 1, ok: false,
 let lifecycleSmokeStarted = false;
 let productState: StateStore | null = null;
 let productStateError: string | null = null;
+let projectService: ProjectService | null = null;
 
 function hardenAllWebContents(): void {
   app.on("web-contents-created", (_event, contents) => {
@@ -61,7 +65,11 @@ function hardenAllWebContents(): void {
 }
 
 function openWindow(): BrowserWindow {
-  const window = createMainWindow({ rendererRoot: RENDERER_ROOT, preloadPath: PRELOAD_PATH });
+  const window = createMainWindow({
+    rendererRoot: RENDERER_ROOT,
+    preloadPath: PRELOAD_PATH,
+    harness: IS_DESIGN_SHOTS,
+  });
   mainWindow = window;
   window.on("closed", () => {
     if (mainWindow === window) mainWindow = null;
@@ -72,6 +80,16 @@ function openWindow(): BrowserWindow {
         writeSmoke({ ok: false, error: String(error) });
         app.exit(1);
       });
+    });
+  }
+  if (IS_SHELL_SMOKE) {
+    window.webContents.once("did-finish-load", () => {
+      void runShellSmoke(window)
+        .catch((error: unknown) => {
+          process.stderr.write(`shell smoke failed: ${String(error)}\n`);
+          process.exitCode = 1;
+        })
+        .finally(() => app.quit());
     });
   }
   if (IS_DESIGN_SHOTS) {
@@ -499,6 +517,168 @@ async function captureDesignShots(window: BrowserWindow): Promise<void> {
   writeFileSync(join(outDir, "p06-shots.json"), JSON.stringify(manifest, null, 2) + "\n");
 }
 
+async function runShellSmoke(window: BrowserWindow): Promise<void> {
+  const outDir =
+    process.env.MONA_SHELL_SMOKE_OUT_DIR ??
+    join(process.cwd(), "docs", "evidence", "macos", "artifacts");
+  mkdirSync(outDir, { recursive: true });
+  window.setSize(1280, 800);
+  const waitFor = async (expression: string, timeoutMs = 8_000): Promise<boolean> => {
+    const deadline = Date.now() + timeoutMs;
+    while (Date.now() < deadline) {
+      const value = await window.webContents.executeJavaScript(expression);
+      if (value) return true;
+      await new Promise((resolve) => setTimeout(resolve, 80));
+    }
+    return false;
+  };
+
+  const ready = await waitFor("document.body.dataset.ready === 'true'");
+  const cards = await waitFor("document.querySelectorAll('[data-project-id]').length > 0");
+  const home = await window.webContents.executeJavaScript(`(() => ({
+    cards: document.querySelectorAll('[data-project-id]').length,
+    screen: document.documentElement.dataset.screen,
+    fixture_label: document.body.textContent.includes('TEST FIXTURE'),
+    nav_count: document.querySelectorAll('[data-nav]').length,
+    version: document.querySelector('[data-testid="app-version"]')?.textContent ?? null,
+    horizontal_overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1
+  }))()`);
+  const homeShot = await window.webContents.capturePage();
+  writeFileSync(join(outDir, "p07-shell-home.png"), homeShot.toPNG());
+
+  // Keyboard path to Studio first: every major screen must be reachable without a mouse.
+  window.webContents.sendInputEvent({ type: "keyDown", keyCode: "2", modifiers: ["meta"] });
+  window.webContents.sendInputEvent({ type: "keyUp", keyCode: "2", modifiers: ["meta"] });
+  const keyboardStudio = await waitFor("document.documentElement.dataset.screen === 'studio'");
+  window.webContents.sendInputEvent({ type: "keyDown", keyCode: "1", modifiers: ["meta"] });
+  window.webContents.sendInputEvent({ type: "keyUp", keyCode: "1", modifiers: ["meta"] });
+  const homeReturned = await waitFor("document.documentElement.dataset.screen === 'home'");
+
+  await window.webContents.executeJavaScript(
+    "document.querySelector('[data-project-id]')?.click(); true",
+  );
+  const studioReady = await waitFor("document.documentElement.dataset.screen === 'studio'");
+  await new Promise((resolve) => setTimeout(resolve, 250));
+  const studio = await window.webContents.executeJavaScript(`(() => ({
+    screen: document.documentElement.dataset.screen,
+    title: document.querySelector('.context-bar__title')?.textContent ?? null,
+    engine: document.querySelector('.context-bar')?.textContent?.includes('Disconnected') ?? false,
+    draft_present: Boolean(document.querySelector('textarea')),
+    draft_text: document.querySelector('textarea')?.value ?? null,
+    simulator_button_disabled: Array.from(document.querySelectorAll('button')).some((button) => button.textContent?.includes('Send to engine') && button.disabled),
+    event_present: document.body.textContent.includes('status.disconnected'),
+    fake_percent: /\b\d+%\b/.test(document.body.textContent ?? ''),
+    horizontal_overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1
+  }))()`);
+  const studioShot = await window.webContents.capturePage();
+  writeFileSync(join(outDir, "p07-shell-studio.png"), studioShot.toPNG());
+
+  window.webContents.sendInputEvent({ type: "keyDown", keyCode: "3", modifiers: ["meta"] });
+  window.webContents.sendInputEvent({ type: "keyUp", keyCode: "3", modifiers: ["meta"] });
+  const boardReady = await waitFor("document.documentElement.dataset.screen === 'board'");
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  const board = await window.webContents.executeJavaScript(`(() => ({
+    screen: document.documentElement.dataset.screen,
+    task_present: document.body.textContent.includes('Make the catalog real'),
+    lanes: document.querySelectorAll('.board__lane').length,
+    horizontal_overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1
+  }))()`);
+  const boardShot = await window.webContents.capturePage();
+  writeFileSync(join(outDir, "p07-shell-board.png"), boardShot.toPNG());
+
+  window.webContents.sendInputEvent({ type: "keyDown", keyCode: "4", modifiers: ["meta"] });
+  window.webContents.sendInputEvent({ type: "keyUp", keyCode: "4", modifiers: ["meta"] });
+  const costReady = await waitFor("document.documentElement.dataset.screen === 'cost'");
+  await new Promise((resolve) => setTimeout(resolve, 250));
+  const cost = await window.webContents.executeJavaScript(`(() => ({
+    screen: document.documentElement.dataset.screen,
+    empty_usage: document.body.textContent.includes('No usage recorded for this project'),
+    horizontal_overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1
+  }))()`);
+
+  window.webContents.sendInputEvent({ type: "keyDown", keyCode: "5", modifiers: ["meta"] });
+  window.webContents.sendInputEvent({ type: "keyUp", keyCode: "5", modifiers: ["meta"] });
+  const settingsReady = await waitFor("document.documentElement.dataset.screen === 'settings'");
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  const settings = await window.webContents.executeJavaScript(`(() => ({
+    screen: document.documentElement.dataset.screen,
+    database_visible: document.body.textContent.includes('mona.sqlite'),
+    runtime_visible: document.body.textContent.includes('Runtime status'),
+    horizontal_overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1
+  }))()`);
+  const settingsShot = await window.webContents.capturePage();
+  writeFileSync(join(outDir, "p07-shell-settings.png"), settingsShot.toPNG());
+
+  window.webContents.sendInputEvent({ type: "keyDown", keyCode: "k", modifiers: ["meta"] });
+  window.webContents.sendInputEvent({ type: "keyUp", keyCode: "k", modifiers: ["meta"] });
+  const paletteReady = await waitFor("document.querySelector('[role=\"dialog\"]') !== null");
+  const palette = await window.webContents.executeJavaScript(`(() => {
+    const dialog = document.querySelector('[role="dialog"]');
+    return {
+      open: Boolean(dialog),
+      focus_inside: Boolean(dialog && dialog.contains(document.activeElement)),
+      has_project_action: dialog?.textContent?.includes('Shell smoke project') ?? false
+    };
+  })()`);
+  window.webContents.sendInputEvent({ type: "keyDown", keyCode: "Escape" });
+  window.webContents.sendInputEvent({ type: "keyUp", keyCode: "Escape" });
+  const paletteClosed = await waitFor("document.querySelector('[role=\"dialog\"]') === null");
+
+  const checks: Record<string, boolean> = {
+    ready,
+    cards,
+    home_screen: home.screen === "home",
+    nav_count: home.nav_count === 5,
+    fixture_label_absent: home.fixture_label === false,
+    version_rendered: typeof home.version === "string" && home.version.startsWith("Mona "),
+    keyboard_studio: keyboardStudio,
+    home_returned: homeReturned,
+    studio_ready: studioReady,
+    studio_title: studio.title === "Shell smoke project",
+    engine_disconnected: studio.engine === true,
+    draft_present: studio.draft_present === true,
+    draft_preserved: studio.draft_text?.includes("shell smoke project") === true,
+    send_disabled: studio.simulator_button_disabled === true,
+    offline_event: studio.event_present === true,
+    no_fake_percent: studio.fake_percent === false,
+    board_ready: boardReady && board.screen === "board",
+    task_visible: board.task_present === true,
+    board_lanes: board.lanes === 4,
+    cost_screen: costReady && cost.screen === "cost",
+    cost_empty_usage: cost.empty_usage === true,
+    settings_ready: settingsReady && settings.screen === "settings",
+    database_visible: settings.database_visible === true,
+    runtime_panel: settings.runtime_visible === true,
+    palette_open: paletteReady && palette.open === true,
+    palette_focus: palette.focus_inside === true,
+    palette_project_action: palette.has_project_action === true,
+    palette_escape: paletteClosed,
+    no_horizontal_overflow:
+      home.horizontal_overflow === false &&
+      studio.horizontal_overflow === false &&
+      board.horizontal_overflow === false &&
+      cost.horizontal_overflow === false &&
+      settings.horizontal_overflow === false,
+  };
+  const ok = Object.values(checks).every(Boolean);
+  const report = {
+    schema_version: 1,
+    captured_at: new Date().toISOString(),
+    ok,
+    checks,
+    facts: { home, studio, board, cost, settings, palette },
+    screenshots: [
+      "docs/evidence/macos/artifacts/p07-shell-home.png",
+      "docs/evidence/macos/artifacts/p07-shell-studio.png",
+      "docs/evidence/macos/artifacts/p07-shell-board.png",
+      "docs/evidence/macos/artifacts/p07-shell-settings.png",
+    ],
+  };
+  const out = process.env.MONA_SHELL_SMOKE_OUT;
+  if (out) writeFileSync(out, JSON.stringify(report, null, 2) + "\n");
+  if (!ok) process.exitCode = 1;
+}
+
 function writeSmoke(value: unknown): void {
   const out = process.env.MONA_SMOKE_OUT;
   if (!out) return;
@@ -799,13 +979,86 @@ if (!gotLock) {
   lifecycle.install();
   hardenAllWebContents();
 
+  const fallbackStatus: RuntimeStatus = {
+    state: "disconnected",
+    reason: "no_supervisor",
+    since: new Date(0).toISOString(),
+    workspace: null,
+    ownershipId: null,
+    port: null,
+    engine: null,
+    external: false,
+    restarts: 0,
+    lastFailure: null,
+    pendingRestartInMs: null,
+  };
+
+  const chooseProjectFolder = async (): Promise<string | null> => {
+    const options = {
+      title: "Open or create a project folder",
+      buttonLabel: "Open project",
+      properties: ["openDirectory", "createDirectory"] as const,
+    };
+    const result =
+      mainWindow && !mainWindow.isDestroyed()
+        ? await dialog.showOpenDialog(mainWindow, {
+            ...options,
+            properties: [...options.properties],
+          })
+        : await dialog.showOpenDialog({ ...options, properties: [...options.properties] });
+    return result.canceled ? null : (result.filePaths[0] ?? null);
+  };
+
+  const openProjectFromMenu = async (): Promise<void> => {
+    if (!projectService) return;
+    try {
+      const opened = await projectService.open();
+      if (opened && mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send("projects:changed", { projectId: opened.project.id });
+      }
+    } catch (error) {
+      dialog.showErrorBox(
+        "Mona could not open that folder",
+        error instanceof Error ? error.message : String(error),
+      );
+    }
+  };
+
+  const stateFacts = async () => {
+    if (!projectService) {
+      return {
+        open: false,
+        database: "",
+        projects: 0,
+        tasks: 0,
+        events: 0,
+        artifacts: 0,
+        integrity: ["state unavailable"],
+        permissionProblems: [],
+      };
+    }
+    const paths = resolveAppPaths();
+    const facts = await projectService.stateFacts();
+    return {
+      ...facts,
+      permissionProblems: verifyPrivatePermissions({
+        home: app.getPath("home"),
+        support: paths.support,
+        cache: paths.cache,
+        logs: paths.logs,
+        state: paths.state,
+        database: paths.database,
+        backups: paths.backups,
+        artifacts: paths.artifacts,
+      }),
+    };
+  };
+
   void app.whenReady().then(async () => {
     hardenSession(session.defaultSession);
-    installApplicationMenu();
-    registerIpc(RENDERER_ROOT);
     try {
       const appPaths = resolveAppPaths();
-      const smokeState = IS_SMOKE || IS_LIFECYCLE_SMOKE;
+      const smokeState = IS_SMOKE || IS_LIFECYCLE_SMOKE || IS_SHELL_SMOKE;
       const stateRoot = smokeState
         ? mkdtempSync(join(tmpdir(), "mona-product-state-"))
         : appPaths.state;
@@ -814,12 +1067,64 @@ if (!gotLock) {
         backupDir: smokeState ? join(stateRoot, "backups") : appPaths.backups,
         artifactRoot: smokeState ? join(stateRoot, "artifacts") : appPaths.artifacts,
       });
+      projectService = new ProjectService({
+        store: productState,
+        status: () => supervisor?.status() ?? fallbackStatus,
+        chooseFolder: chooseProjectFolder,
+        reveal: (path) => shell.showItemInFolder(path),
+      });
     } catch (error) {
       productStateError = error instanceof Error ? error.message : String(error);
-      // Browsing and diagnostics stay usable; project writes will report the
-      // typed failure once the shell is connected (P07).
       process.stderr.write(`Mona state unavailable: ${productStateError}\n`);
+      dialog.showErrorBox(
+        "Mona cannot open its project state",
+        `${productStateError}\n\nMona will not run without its verified state store. ` +
+          "The failed database and migration journal were preserved for diagnosis.",
+      );
+      app.quit();
+      return;
     }
+
+    if (IS_SHELL_SMOKE && projectService && productState) {
+      const shellBase = mkdtempSync(join(tmpdir(), "mona-shell-smoke-project-"));
+      const shellRoot = join(shellBase, "Shell smoke project");
+      mkdirSync(shellRoot, { recursive: true });
+      writeFileSync(join(shellRoot, "README.md"), "# Shell smoke\n", "utf8");
+      const opened = await projectService.open(shellRoot);
+      if (opened) {
+        await productState.createTask({
+          projectId: opened.project.id,
+          title: "Make the catalog real",
+          prompt: "Open a folder, select the project, and keep drafts local.",
+        });
+        const detail = await projectService.detail(opened.project.id);
+        const thread = detail.threads[0];
+        if (thread) {
+          await productState.recordEvent({
+            threadId: thread.id,
+            seq: 1,
+            kind: "status.disconnected",
+            payload: {
+              status: "disconnected",
+              note: "No runtime bound; history remains readable.",
+            },
+            timestamp: new Date().toISOString(),
+          });
+        }
+        await projectService.saveDraft(
+          opened.project.id,
+          thread?.id ?? detail.threads[0]?.id ?? "",
+          "Keep this draft local to the shell smoke project.",
+        );
+      }
+    }
+
+    installApplicationMenu({ onOpenProject: () => void openProjectFromMenu() });
+    registerIpc(RENDERER_ROOT, {
+      projects: projectService,
+      runtimeStatus: () => runtimeStatusView(supervisor?.status() ?? fallbackStatus),
+      stateFacts,
+    });
     if (IS_LIFECYCLE_SMOKE) {
       // The smoke builds its own temporary supervisor; recover nothing from the
       // real user store so the evidence run cannot disturb product state.

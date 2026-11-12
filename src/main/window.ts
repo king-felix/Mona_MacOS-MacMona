@@ -5,9 +5,15 @@ import { denyWindowOpen, isAllowedNavigation } from "./navigation";
 export interface WindowOptions {
   rendererRoot: string;
   preloadPath: string;
+  /** P06 visual harness only; the product shell is the default. */
+  harness?: boolean;
 }
 
-export function createMainWindow({ rendererRoot, preloadPath }: WindowOptions): BrowserWindow {
+export function createMainWindow({
+  rendererRoot,
+  preloadPath,
+  harness,
+}: WindowOptions): BrowserWindow {
   const window = new BrowserWindow({
     width: 1180,
     height: 780,
@@ -42,6 +48,9 @@ export function createMainWindow({ rendererRoot, preloadPath }: WindowOptions): 
     if (!isAllowedNavigation(url, rendererRoot)) event.preventDefault();
   });
 
-  void window.loadFile(join(rendererRoot, "index.html"));
+  void window.loadFile(
+    join(rendererRoot, "index.html"),
+    harness ? { search: "?harness=1" } : undefined,
+  );
   return window;
 }

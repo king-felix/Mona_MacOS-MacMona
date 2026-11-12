@@ -603,11 +603,14 @@ export function Badge({
   icon?: ReactNode;
   className?: string;
 }): JSX.Element {
+  const resolved = icon ?? (tone === "neutral" ? null : TONE_ICONS[tone]);
   return (
     <span className={cx("badge", `badge--${tone}`, className)}>
-      <span className="badge__icon" aria-hidden="true">
-        {icon ?? TONE_ICONS[tone]}
-      </span>
+      {resolved ? (
+        <span className="badge__icon" aria-hidden="true">
+          {resolved}
+        </span>
+      ) : null}
       <span>{children}</span>
     </span>
   );

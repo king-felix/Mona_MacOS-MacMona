@@ -2,9 +2,14 @@ import { app, Menu, type MenuItemConstructorOptions } from "electron";
 
 /**
  * Native application menu with a real Services submenu. Closing the last
- * window keeps the app alive on macOS; Quit is the explicit stop.
+ * window keeps the app alive on macOS; Quit is the explicit stop. Opening a
+ * project is a real folder dialog, not a renderer-only shortcut.
  */
-export function installApplicationMenu(): void {
+export interface ApplicationMenuOptions {
+  onOpenProject?: () => void;
+}
+
+export function installApplicationMenu(options: ApplicationMenuOptions = {}): void {
   const template: MenuItemConstructorOptions[] = [
     {
       label: app.getName(),
@@ -22,7 +27,15 @@ export function installApplicationMenu(): void {
     },
     {
       label: "File",
-      submenu: [{ role: "close" }],
+      submenu: [
+        {
+          label: "Open Project…",
+          accelerator: "CmdOrCtrl+O",
+          click: () => options.onOpenProject?.(),
+        },
+        { type: "separator" },
+        { role: "close" },
+      ],
     },
     { role: "editMenu" },
     { role: "viewMenu" },

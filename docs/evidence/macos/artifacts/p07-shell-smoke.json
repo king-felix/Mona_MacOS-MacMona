@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-11-12T03:19:25.745Z",
+  "ok": true,
+  "checks": {
+    "ready": true,
+    "cards": true,
+    "home_screen": true,
+    "nav_count": true,
+    "fixture_label_absent": true,
+    "version_rendered": true,
+    "keyboard_studio": true,
+    "home_returned": true,
+    "studio_ready": true,
+    "studio_title": true,
+    "engine_disconnected": true,
+    "draft_present": true,
+    "draft_preserved": true,
+    "send_disabled": true,
+    "offline_event": true,
+    "no_fake_percent": true,
+    "board_ready": true,
+    "task_visible": true,
+    "board_lanes": true,
+    "cost_screen": true,
+    "cost_empty_usage": true,
+    "settings_ready": true,
+    "database_visible": true,
+    "runtime_panel": true,
+    "palette_open": true,
+    "palette_focus": true,
+    "palette_project_action": true,
+    "palette_escape": true,
+    "no_horizontal_overflow": true
+  },
+  "facts": {
+    "home": {
+      "cards": 1,
+      "screen": "home",
+      "fixture_label": false,
+      "nav_count": 5,
+      "version": "Mona 0.1.0-p02",
+      "horizontal_overflow": false
+    },
+    "studio": {
+      "screen": "studio",
+      "title": "Shell smoke project",
+      "engine": true,
+      "draft_present": true,
+      "draft_text": "Keep this draft local to the shell smoke project.",
+      "simulator_button_disabled": true,
+      "event_present": true,
+      "fake_percent": false,
+      "horizontal_overflow": false
+    },
+    "board": {
+      "screen": "board",
+      "task_present": true,
+      "lanes": 4,
+      "horizontal_overflow": false
+    },
+    "cost": {
+      "screen": "cost",
+      "empty_usage": true,
+      "horizontal_overflow": false
+    },
+    "settings": {
+      "screen": "settings",
+      "database_visible": true,
+      "runtime_visible": true,
+      "horizontal_overflow": false
+    },
+    "palette": {
+      "open": true,
+      "focus_inside": true,
+      "has_project_action": true
+    }
+  },
+  "screenshots": [
+    "docs/evidence/macos/artifacts/p07-shell-home.png",
+    "docs/evidence/macos/artifacts/p07-shell-studio.png",
+    "docs/evidence/macos/artifacts/p07-shell-board.png",
+    "docs/evidence/macos/artifacts/p07-shell-settings.png"
+  ],
+  "electron": {
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+}

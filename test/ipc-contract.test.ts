@@ -35,3 +35,61 @@ describe("IPC validation", () => {
     ).toThrow();
   });
 });
+
+describe("project IPC validation", () => {
+  const projectId = "prj_0123456789abcdef";
+
+  it("accepts catalog reads and rejects unknown fields", () => {
+    expect(validateIpc("projects:list", { query: "mona", includeArchived: true })).toEqual({
+      query: "mona",
+      includeArchived: true,
+    });
+    expect(() => validateIpc("projects:list", { path: "/tmp" })).toThrow();
+    expect(validateIpc("projects:detail", { projectId })).toEqual({ projectId });
+    expect(() => validateIpc("projects:detail", { projectId: "thr_0123456789abcdef" })).toThrow();
+  });
+
+  it("validates mutations with revisions and rejects destructive channels", () => {
+    expect(
+      validateIpc("projects:rename", { projectId, name: "New label", expectedRevision: 2 }),
+    ).toEqual({ projectId, name: "New label", expectedRevision: 2 });
+    expect(() =>
+      validateIpc("projects:rename", { projectId, name: "New label", expectedRevision: 0 }),
+    ).toThrow();
+    expect(() =>
+      validateIpc("projects:rename", { projectId, name: "", expectedRevision: 1 }),
+    ).toThrow();
+    expect(
+      validateIpc("projects:pin", { projectId, pinned: true, expectedRevision: 1 }),
+    ).toBeTruthy();
+    expect(() =>
+      validateIpc("projects:archive", { projectId, archived: "yes", expectedRevision: 1 }),
+    ).toThrow();
+    expect(validateIpc("projects:remove", { projectId, expectedRevision: 3 })).toBeTruthy();
+    expect(validateIpc("projects:relocate", { projectId, expectedRevision: 3 })).toBeTruthy();
+    expect(validateIpc("projects:reveal", { projectId })).toBeTruthy();
+    expect(() => validateIpc("projects:delete-folder", { projectId })).toThrow(IpcContractError);
+    expect(() =>
+      validateIpc("projects:remove", { projectId, expectedRevision: 3, deleteFiles: true }),
+    ).toThrow();
+  });
+
+  it("validates view state and drafts", () => {
+    expect(validateIpc("projects:view", { projectId, view: { screen: "cost" } })).toEqual({
+      projectId,
+      view: { screen: "cost" },
+    });
+    expect(
+      validateIpc("projects:draft", { projectId, threadId: "thr_0123456789abcdef", text: "" }),
+    ).toBeTruthy();
+    expect(() =>
+      validateIpc("projects:draft", {
+        projectId,
+        threadId: "thr_0123456789abcdef",
+        text: "x".repeat(200_001),
+      }),
+    ).toThrow();
+    expect(validateIpc("runtime:status", {})).toEqual({});
+    expect(validateIpc("state:facts", {})).toEqual({});
+  });
+});

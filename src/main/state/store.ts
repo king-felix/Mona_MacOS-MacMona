@@ -1400,6 +1400,44 @@ export class StateStore {
     });
   }
 
+  async usageByModel(projectId: ProjectId): Promise<
+    Array<{
+      model: string;
+      provider: string;
+      turns: number;
+      inputTokens: number;
+      outputTokens: number;
+      cachedTokens: number;
+      costUsd: number;
+      costComplete: boolean;
+    }>
+  > {
+    return this.read((db) => {
+      const rows = db
+        .prepare(
+          `SELECT model, provider, COUNT(*) AS turns,
+                  COALESCE(SUM(input_tokens), 0) AS input_tokens,
+                  COALESCE(SUM(output_tokens), 0) AS output_tokens,
+                  COALESCE(SUM(cached_tokens), 0) AS cached_tokens,
+                  COALESCE(SUM(cost_usd), 0) AS cost_usd,
+                  SUM(CASE WHEN cost_complete = 1 THEN 1 ELSE 0 END) AS complete_rows
+           FROM usage_records WHERE project_id = ?
+           GROUP BY provider, model ORDER BY model`,
+        )
+        .all(projectId) as DbRow[];
+      return rows.map((row) => ({
+        model: asString(row.model),
+        provider: asString(row.provider),
+        turns: asNumber(row.turns),
+        inputTokens: asNumber(row.input_tokens),
+        outputTokens: asNumber(row.output_tokens),
+        cachedTokens: asNumber(row.cached_tokens),
+        costUsd: asNumber(row.cost_usd),
+        costComplete: asNumber(row.turns) > 0 && asNumber(row.complete_rows) === asNumber(row.turns),
+      }));
+    });
+  }
+
   async summarizeUsage(projectId: ProjectId): Promise<UsageSummary> {
     return this.read((db) => {
       const row = db

@@ -1,10 +1,13 @@
 import type { JSX } from "react";
 import { Harness } from "./design/Harness";
+import { Shell } from "./shell/Shell";
 
 /**
- * P06 ships the design harness. Every screen is fixture-backed and labeled;
- * P07 replaces this entry point with the real catalog and engine shell.
+ * The product shell is the default. The P06 design harness remains reachable
+ * only when the main process loads the renderer with `?harness=1` for visual
+ * evidence; it is never a production fallback.
  */
 export function App(): JSX.Element {
-  return <Harness />;
+  const harness = new URLSearchParams(window.location.search).get("harness") === "1";
+  return harness ? <Harness /> : <Shell />;
 }

@@ -39,6 +39,26 @@ try {
   result = { ok: false, error: "smoke result missing" };
 }
 
+const EXPECTED_BRIDGE = [
+  "getAppInfo",
+  "getPaths",
+  "discoverTools",
+  "listProjects",
+  "openProject",
+  "projectDetail",
+  "renameProject",
+  "setProjectPinned",
+  "setProjectArchived",
+  "removeProject",
+  "relocateProject",
+  "revealProject",
+  "saveProjectView",
+  "saveDraft",
+  "runtimeStatus",
+  "stateFacts",
+  "onProjectsChanged",
+].sort();
+
 const checks = {
   exit_zero: code === 0,
   ok: result.ok === true,
@@ -52,8 +72,8 @@ const checks = {
     result.security?.observed?.process === "undefined" &&
     result.security?.observed?.module === "undefined",
   bridge_is_narrow:
-    JSON.stringify(result.security?.observed?.bridgeKeys ?? []) ===
-    JSON.stringify(["getAppInfo", "getPaths", "discoverTools"]),
+    JSON.stringify([...(result.security?.observed?.bridgeKeys ?? [])].sort()) ===
+    JSON.stringify(EXPECTED_BRIDGE),
   context_isolation: result.security?.configured?.contextIsolation === true,
   node_integration_off: result.security?.configured?.nodeIntegration === false,
   sandbox_on: result.security?.configured?.sandbox === true,

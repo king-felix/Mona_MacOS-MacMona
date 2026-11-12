@@ -1,0 +1,11 @@
+
+ RUN  v5.1.0 /Users/example/DS_Projects/Mona
+
+ ✓ test/ipc-contract.test.ts (8 tests) 6ms
+ ✓ test/projects-service.test.ts (10 tests) 357ms
+
+ Test Files  2 passed (2)
+      Tests  18 passed (18)
+   Start at  20:18:07
+   Duration  481ms (tests 83%, import 13%, transform 3%, worker 1%)
+
