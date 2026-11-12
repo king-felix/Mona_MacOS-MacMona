@@ -41,7 +41,12 @@ export function registerIpc(rendererRoot: string): void {
 
   handle("app:paths", () => {
     const paths = resolveAppPaths();
-    return { support: paths.support, cache: paths.cache, logs: paths.logs };
+    return {
+      support: paths.support,
+      cache: paths.cache,
+      logs: paths.logs,
+      database: paths.database,
+    };
   });
 
   handle("tools:discover", (input) => {

@@ -230,3 +230,29 @@ and deviations discovered while building.
   guarantees are actually executed by the default test command. Escaped
   descendants remain untrackable when the supervisor is already gone; that is
   reported as unverified rather than hidden.
+
+## D-015 — SQLite project state, single writer, and recoverable migrations
+
+- **Date:** 2026-11-11 (P05)
+- **Decision:** Product state uses Electron's built-in `node:sqlite`
+  (`DatabaseSync`) with WAL, `synchronous=FULL`, foreign keys, one write path,
+  per-row revisions, and checksummed migrations. A maintenance barrier gates
+  every reader/writer; backups/snapshots and restore take it exclusively. A
+  pre-migration snapshot is taken with the online backup API and recorded in a
+  durable journal. Failed migrations restore the snapshot; the failed database
+  and journal are preserved, never unlinked. Project identity is canonical path
+  plus `(dev, ino)` with path history, so aliases cannot duplicate a project and
+  relocation is deliberate. Engine history remains authoritative; runtime
+  bindings and artifact bytes are machine-local and excluded from portable
+  export. Full rationale: `docs/decisions/ADR-004-project-state.md`.
+- **Why:** P03/P04 already required durable submission intent and ownership
+  records but used small JSON files. P05 needs multi-table transactions,
+  revision checks, crash recovery, and a barrier that can quiesce adapter
+  ingestion, indexing, and task execution. `node:sqlite` avoids a native module
+  rebuild per Electron upgrade; its API surface was verified in both the host
+  Node 26.13.0 and Electron 45's Node 24.22.2, including online `backup()`.
+- **Consequence:** P07 reads the catalog and view state through `StateStore`;
+  P08 records events and usage through the same write path. A second macOS
+  account was not created here; P24 owns the literal multi-user test. Network
+  filesystem classification depends on `/usr/bin/stat -f %T` and is skipped if
+  unavailable, which the P24 host audit must confirm.

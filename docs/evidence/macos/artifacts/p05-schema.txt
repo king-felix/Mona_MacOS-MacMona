@@ -1,0 +1,15 @@
+# P05 schema facts (read-only inspection)
+# host: arm64 26.5.1 node v26.13.0
+user_version: {"user_version":2}
+journal_mode: {"journal_mode":"wal"}
+foreign_keys: {"foreign_keys":1}
+page_size: {"page_size":4096}
+migrations: [{"version":1,"name":"core-project-state"},{"version":2,"name":"project-identity-fields"}]
+tables: ["artifacts","attempts","capability_snapshots","decisions","drafts","event_cursors","events","meta","project_paths","projects","requirement_evidence","runtime_bindings","schema_migrations","settings","settings_versions","submissions","task_dependencies","tasks","threads","turns","usage_records"]
+integrity: [{"integrity_check":"ok"}]
+foreign_key_check: []
+runtime_bindings columns: ["project_id","workspace","canonical_workspace","executable","engine_version","engine_commit","port","state","updated_at"]
+# file modes:
+drwx------ /Users/<user>/Library/Application Support/Mona/state
+-rw------- /Users/<user>/Library/Application Support/Mona/state/mona.sqlite
+drwx------ /Users/<user>/Library/Application Support/Mona/state/backups

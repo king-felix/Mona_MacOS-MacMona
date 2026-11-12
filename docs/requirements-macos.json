@@ -14,7 +14,7 @@
         "sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8"
       }
     ],
-    "indexed_utc": "2026-11-12T00:32:13.566Z"
+    "indexed_utc": "2026-11-12T02:52:02.725Z"
   },
   "prompts": [
     {
@@ -509,10 +509,23 @@
         "P05",
         "P07"
       ],
-      "status": "pending",
+      "status": "partial",
       "acceptance": "pending",
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P05-state.md",
+          "note": "P05 contribution: state store, migrations, crash and recovery tests"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p05-schema.txt",
+          "note": "schema v2, WAL, foreign keys, per-user modes"
+        },
+        {
+          "path": "docs/decisions/ADR-004-project-state.md",
+          "note": "schema, ownership, and recovery decision"
+        }
+      ],
+      "notes": "P05: stable project identity independent of path, canonical path + (dev,ino) alias detection, path history, deliberate relocation, catalog removal that keeps source files, and SQLite catalog storage. P07 completes the UI catalog (open/create/import, recents, reveal, search)."
     },
     {
       "id": "MONA-006",
@@ -583,9 +596,21 @@
         {
           "path": "docs/evidence/macos/artifacts/p00-cleanroom-verification.txt",
           "note": "ledger, recovery, and attempt enforcement verified from a fresh clone"
+        },
+        {
+          "path": "docs/evidence/macos/P05-state.md",
+          "note": "P05 contribution: state store, migrations, crash and recovery tests"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p05-schema.txt",
+          "note": "schema v2, WAL, foreign keys, per-user modes"
+        },
+        {
+          "path": "docs/decisions/ADR-004-project-state.md",
+          "note": "schema, ownership, and recovery decision"
         }
       ],
-      "notes": "P00: durable build ledger with atomic revision-checked state, append-only attempt ledger with code-enforced three-attempt limit, generated requirement traceability with hashes, decisions, blockers, handoff, and recovery from backup or committed blob. Product project state is P05."
+      "notes": "P05: transactional product state with per-row revisions, migrations, attempts/evidence/decisions tables, maintenance barrier, portable export/import with digests, and backup/restore. Work board selection and handoff UI are P10; build-ledger continuity was P00."
     },
     {
       "id": "MONA-011",
@@ -660,10 +685,23 @@
         "P05",
         "P20"
       ],
-      "status": "pending",
+      "status": "partial",
       "acceptance": "pending",
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P05-state.md",
+          "note": "P05 contribution: state store, migrations, crash and recovery tests"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p05-schema.txt",
+          "note": "schema v2, WAL, foreign keys, per-user modes"
+        },
+        {
+          "path": "docs/decisions/ADR-004-project-state.md",
+          "note": "schema, ownership, and recovery decision"
+        }
+      ],
+      "notes": "P05: crash-injection coverage before/during/after a transaction, event deduplication by (thread, seq), monotonic cursors, submission persistence, stale-revision refusal, migration failure restore, and disk-full rollback that cannot claim completion. Live stream reconnect and projection reconciliation remain P08."
     },
     {
       "id": "MONA-017",
@@ -772,10 +810,23 @@
         "P20",
         "P23"
       ],
-      "status": "pending",
+      "status": "partial",
       "acceptance": "pending",
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P05-state.md",
+          "note": "P05 contribution: state store, migrations, crash and recovery tests"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p05-schema.txt",
+          "note": "schema v2, WAL, foreign keys, per-user modes"
+        },
+        {
+          "path": "docs/decisions/ADR-004-project-state.md",
+          "note": "schema, ownership, and recovery decision"
+        }
+      ],
+      "notes": "P05: migration backup/restore with a durable journal, safe online snapshots, maintenance-barrier quiescing, retention policy that protects blocked-task and requirement evidence, bounded content-addressed artifacts, portable project export/import with SHA-256 digests and revision checks, and per-user Application Support paths. Settings backup UI, diagnostics bundle, and offline browsing remain P19; multi-user recipient denial is P24."
     },
     {
       "id": "MONA-026",
@@ -1008,7 +1059,7 @@
     "ok": true,
     "errors": [],
     "warnings": [],
-    "validated_utc": "2026-11-12T00:32:13.566Z",
+    "validated_utc": "2026-11-12T02:52:02.725Z",
     "prompt_count": 28,
     "requirement_count": 38
   }

@@ -22,6 +22,8 @@ export interface AppPathInfo {
   support: string;
   cache: string;
   logs: string;
+  /** Per-user SQLite database (Application Support); never in the workspace. */
+  database?: string;
 }
 
 export interface ToolDiscovery {

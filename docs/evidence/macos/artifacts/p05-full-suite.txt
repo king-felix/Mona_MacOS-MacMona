@@ -1,0 +1,33 @@
+
+ RUN  v5.1.0 /Users/<user>/DS_Projects/Mona
+
+ ✓ test/runtime-supervisor.test.ts (16 tests) 140ms
+ ✓ test/engine-adapter.test.ts (16 tests) 26ms
+ ✓ test/state-artifacts.test.ts (5 tests) 292ms
+ ✓ test/runtime-process.test.ts (8 tests) 365ms
+ ✓ test/supervisor-records.test.ts (6 tests) 20ms
+ ✓ test/state-catalog.test.ts (10 tests) 433ms
+ ✓ test/state-paths.test.ts (4 tests) 18ms
+ ✓ test/state-portable.test.ts (6 tests) 453ms
+ ✓ test/tool-discovery.test.ts (5 tests) 15ms
+ ✓ test/contracts.test.ts (15 tests) 16ms
+ ✓ test/engine-sse.test.ts (6 tests) 4ms
+ ✓ test/engine-compat.test.ts (4 tests) 6ms
+ ✓ test/boundary.test.ts (4 tests) 5ms
+ ✓ test/fixtures.test.ts (9 tests) 5ms
+ ✓ test/ipc-contract.test.ts (5 tests) 9ms
+ ✓ test/supervisor-restart.test.ts (3 tests) 2ms
+ ✓ test/work-control.test.ts (8 tests) 4ms
+ ✓ test/state-database.test.ts (12 tests) 709ms
+ ✓ test/supervisor-identity.test.ts (9 tests) 3ms
+ ✓ test/navigation.test.ts (6 tests) 2ms
+ ✓ test/supervisor-native.test.ts (9 tests) 1849ms
+   ✓ native supervisor (8)
+     ✓ records the escaped process group and stops it by identity 379ms
+     ✓ escalates a TERM-ignoring tree to a bounded SIGKILL 766ms
+
+ Test Files  21 passed (21)
+      Tests  166 passed (166)
+   Start at  19:51:12
+   Duration  2.00s (tests 86%, import 11%, transform 2%, worker 1%)
+

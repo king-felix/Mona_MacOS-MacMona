@@ -1,0 +1,14 @@
+
+ RUN  v5.1.0 /Users/<user>/DS_Projects/Mona
+
+ ✓ test/state-paths.test.ts (4 tests) 16ms
+ ✓ test/state-artifacts.test.ts (5 tests) 323ms
+ ✓ test/state-catalog.test.ts (10 tests) 484ms
+ ✓ test/state-portable.test.ts (6 tests) 491ms
+ ✓ test/state-database.test.ts (12 tests) 720ms
+
+ Test Files  5 passed (5)
+      Tests  37 passed (37)
+   Start at  19:51:07
+   Duration  907ms (tests 84%, import 11%, transform 5%)
+

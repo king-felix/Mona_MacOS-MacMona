@@ -68,6 +68,9 @@ const checks = {
   ),
   services_menu_present: (result.menu_roles ?? []).includes("services"),
   quit_menu_present: (result.menu_roles ?? []).includes("quit"),
+  state_database_open: result.state?.open === true,
+  state_integrity_clean: (result.state?.stats?.integrity ?? []).length === 0,
+  state_permissions_private: (result.state?.permission_problems ?? []).length === 0,
 };
 
 const ok = Object.values(checks).every(Boolean);
@@ -78,6 +81,7 @@ const report = {
   renderer: result.renderer ?? null,
   security: result.security ?? null,
   paths: result.paths ?? null,
+  state: result.state ?? null,
   tools: result.tools ?? null,
   menu_roles: result.menu_roles ?? null,
   process: {

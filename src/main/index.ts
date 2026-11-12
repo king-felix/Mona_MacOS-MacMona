@@ -27,6 +27,8 @@ import {
 } from "./supervisor/runtime-supervisor";
 import { startOwnedRuntime, stopRecordedRuntime } from "./engine/runtime-process";
 import { WorkController } from "./work/control";
+import { StateStore } from "./state/store";
+import { verifyPrivatePermissions } from "./state/paths";
 
 app.setName("Mona");
 
@@ -41,6 +43,8 @@ let supervisor: RuntimeSupervisor | null = null;
 let smokeWorkspace: string | null = null;
 let lifecycleEvidence: Record<string, unknown> = { schema_version: 1, ok: false, phases: [] };
 let lifecycleSmokeStarted = false;
+let productState: StateStore | null = null;
+let productStateError: string | null = null;
 
 function hardenAllWebContents(): void {
   app.on("web-contents-created", (_event, contents) => {
@@ -163,6 +167,23 @@ async function captureSmoke(window: BrowserWindow): Promise<void> {
       },
     },
     paths,
+    state: productState
+      ? {
+          open: true,
+          database: productState.path,
+          permission_problems: verifyPrivatePermissions({
+            home: app.getPath("home"),
+            support: paths.support,
+            cache: paths.cache,
+            logs: paths.logs,
+            state: paths.state,
+            database: paths.database,
+            backups: paths.backups,
+            artifacts: paths.artifacts,
+          }),
+          stats: await productState.stats(),
+        }
+      : { open: false, error: productStateError },
     metrics,
     tools: discoverTools(["codewhale", "git", "node"]),
     menu_roles: menuRoles,
@@ -476,6 +497,23 @@ if (!gotLock) {
     hardenSession(session.defaultSession);
     installApplicationMenu();
     registerIpc(RENDERER_ROOT);
+    try {
+      const appPaths = resolveAppPaths();
+      const smokeState = IS_SMOKE || IS_LIFECYCLE_SMOKE;
+      const stateRoot = smokeState
+        ? mkdtempSync(join(tmpdir(), "mona-product-state-"))
+        : appPaths.state;
+      productState = await StateStore.open({
+        dbPath: smokeState ? join(stateRoot, "mona.sqlite") : appPaths.database,
+        backupDir: smokeState ? join(stateRoot, "backups") : appPaths.backups,
+        artifactRoot: smokeState ? join(stateRoot, "artifacts") : appPaths.artifacts,
+      });
+    } catch (error) {
+      productStateError = error instanceof Error ? error.message : String(error);
+      // Browsing and diagnostics stay usable; project writes will report the
+      // typed failure once the shell is connected (P07).
+      process.stderr.write(`Mona state unavailable: ${productStateError}\n`);
+    }
     if (IS_LIFECYCLE_SMOKE) {
       // The smoke builds its own temporary supervisor; recover nothing from the
       // real user store so the evidence run cannot disturb product state.
@@ -490,6 +528,10 @@ if (!gotLock) {
     app.on("activate", () => {
       if (BrowserWindow.getAllWindows().length === 0) openWindow();
     });
+  });
+
+  app.on("before-quit", () => {
+    void productState?.close();
   });
 
   app.on("window-all-closed", () => {

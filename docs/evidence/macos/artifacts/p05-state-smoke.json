@@ -1,0 +1,59 @@
+{
+  "ok": true,
+  "checks": {
+    "exit_zero": true,
+    "ok": true,
+    "renderer_ready": true,
+    "bridge_present": true,
+    "version_rendered": true,
+    "node_globals_absent": true,
+    "bridge_is_narrow": true,
+    "context_isolation": true,
+    "node_integration_off": true,
+    "sandbox_on": true,
+    "web_security_on": true,
+    "window_open_denied": true,
+    "csp_connect_none": true,
+    "supports_paths": true,
+    "tool_found_without_shell_path": true,
+    "services_menu_present": true,
+    "quit_menu_present": true,
+    "state_database_open": true,
+    "state_integrity_clean": true,
+    "state_permissions_private": true
+  },
+  "app": {
+    "name": "Mona",
+    "version": "0.1.0-p02",
+    "electron": "45.3.0",
+    "chrome": "156.0.8078.96",
+    "node": "24.22.2",
+    "platform": "darwin",
+    "arch": "arm64",
+    "packaged": false
+  },
+  "paths": {
+    "support": "/Users/<user>/Library/Application Support/Mona",
+    "cache": "/Users/<user>/Library/Caches/Mona",
+    "logs": "/Users/<user>/Library/Logs/Mona",
+    "state": "/Users/<user>/Library/Application Support/Mona/state",
+    "database": "/Users/<user>/Library/Application Support/Mona/state/mona.sqlite",
+    "backups": "/Users/<user>/Library/Application Support/Mona/state/backups",
+    "artifacts": "/Users/<user>/Library/Application Support/Mona/artifacts",
+    "projects": "/Users/<user>/Library/Application Support/Mona/projects"
+  },
+  "state": {
+    "open": true,
+    "database": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-product-state-PqTo46/mona.sqlite",
+    "permission_problems": [],
+    "stats": {
+      "projects": 0,
+      "tasks": 0,
+      "events": 0,
+      "artifacts": 0,
+      "settings": 0,
+      "stateRevision": 0,
+      "integrity": []
+    }
+  }
+}

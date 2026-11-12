@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-12T02:06:30.609Z",
+  "generated_utc": "2026-11-12T02:52:12.524Z",
   "git": {
     "available": true,
-    "commit": "2b7def24b69c5e79fa2cfb1d36952614ac4b02db",
+    "commit": "18e06b1dacc172668ee824690ecaf2e127fcb678",
     "dirty": true
   },
-  "digest": "f50142003b1909f8f9b94a70538b06388f916323364f83349687130525cbb555",
+  "digest": "7f376f45f6753fd5b66b78d664425eb5e077b58eb9ae614812b46aabfc7be015",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -184,6 +184,26 @@
       "bytes": 20859
     },
     {
+      "path": "docs/evidence/macos/artifacts/p05-full-suite.txt",
+      "sha256": "1b8f2997ee55b49c88a86fdc37329d14749116f98fa1392652dc092646418db2",
+      "bytes": 1368
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p05-schema.txt",
+      "sha256": "e79011dae2b0d8230f2c5254443255888d3a782e08c6ae5bdf6b7ff018795f86",
+      "bytes": 1059
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p05-state-smoke.json",
+      "sha256": "5fbc708aea436ceeb3046a4c2f6f6e1ecd0472e544d2fb9234dab6643c82f104",
+      "bytes": 1782
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p05-tests.txt",
+      "sha256": "78d213726c5258eb684a79638d95ebe4e1b2ba01295afd2adec0f4445dda3e47",
+      "bytes": 426
+    },
+    {
       "path": "docs/evidence/macos/artifacts/signing-inventory.txt",
       "sha256": "3e45104c0497ce03bcba731224d253e6003d8addfb46933fc778a3b79ae07d7c",
       "bytes": 397
@@ -229,14 +249,19 @@
       "bytes": 12309
     },
     {
-      "path": "docs/requirements-macos.json",
-      "sha256": "f580c60d59303e88f1707b2e339626f3231adbf6aef468dc4e33718b0b653192",
-      "bytes": 25044
+      "path": "docs/evidence/macos/P05-state.md",
+      "sha256": "e5815795b584158594159c6b4b400868045c6bfb1e17fd4aa356270d1d2316ad",
+      "bytes": 8812
     },
     {
       "path": "docs/requirements-macos.json",
-      "sha256": "f580c60d59303e88f1707b2e339626f3231adbf6aef468dc4e33718b0b653192",
-      "bytes": 25044
+      "sha256": "de19ffc35b21869c341eee61a2defe58f35a5b0c196e5fce855008374a62fa7e",
+      "bytes": 27898
+    },
+    {
+      "path": "docs/requirements-macos.json",
+      "sha256": "de19ffc35b21869c341eee61a2defe58f35a5b0c196e5fce855008374a62fa7e",
+      "bytes": 27898
     },
     {
       "path": "Mona_macOS_Project.md",
