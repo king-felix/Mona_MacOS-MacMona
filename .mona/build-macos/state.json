@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 102,
+  "revision": 103,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -1448,7 +1448,7 @@
   "next_eligible_prompts": [
     "P08"
   ],
-  "last_checkpoint_utc": "2026-11-12T04:24:53.330Z",
+  "last_checkpoint_utc": "2026-11-12T04:25:02.218Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",
