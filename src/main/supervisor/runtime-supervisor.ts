@@ -162,13 +162,14 @@ export class RuntimeSupervisor {
             "inspect the process tree; Mona will not start a second owner",
           );
         }
-      }
-      if (this.statusValue.state === "starting" || this.statusValue.state === "running") {
+      } else {
+        // starting, running, reconnecting, or stopping: the owned process still
+        // exists. Reconciliation would stop it behind the caller's back.
         throw new RuntimeOwnershipError(
           "ALREADY_OWNED",
-          `an owned runtime is already active for ${this.current.record.workspace}`,
-          "stop the active runtime before starting another workspace; parallel ownership is not proven",
-          { activeWorkspace: this.current.record.workspace },
+          `an owned runtime is already ${this.statusValue.state} for ${this.current.record.workspace}`,
+          "wait for it to finish reconnecting or stop it explicitly; parallel ownership is not proven",
+          { activeWorkspace: this.current.record.workspace, state: this.statusValue.state },
         );
       }
     }
@@ -181,7 +182,7 @@ export class RuntimeSupervisor {
     }
 
     this.external = null;
-    await this.reconcileRecords(workspace);
+    await this.reconcileRecords();
     this.setState("starting", "start_requested", { workspace, external: false });
     try {
       const started = await this.driver.start(workspace);
@@ -339,20 +340,37 @@ export class RuntimeSupervisor {
 
   /** Reconcile records left by a previous app run; stops only verified owners. */
   async recover(): Promise<void> {
-    await this.reconcileRecords(undefined);
+    await this.reconcileRecords();
   }
 
-  private async reconcileRecords(workspace: string | undefined): Promise<void> {
+  /**
+   * Every live record is stale here: this runs only when no runtime is current
+   * (startup recovery or before a start). A record for the same workspace is
+   * therefore just as stale, and skipping it would create a second owner.
+   */
+  private async reconcileRecords(): Promise<void> {
     for (const record of this.store.live()) {
-      if (workspace !== undefined && record.workspace === workspace) continue;
       const evidence = classifyOwnership(record);
       if (evidence.verdict === "live_owned" || evidence.verdict === "orphaned_owned") {
-        await this.driver.stopRecorded(record);
+        const receipt = await this.driver.stopRecorded(record);
+        const stopped = receipt.state === "stopped";
         this.driver.markRecord(record, {
-          state: "stopped",
+          state: stopped ? "stopped" : "failed",
           updatedAt: new Date(this.now()).toISOString(),
-          stopReceipt: { via: "record_reconcile", note: evidence.note },
+          stopReceipt: {
+            via: "record_reconcile",
+            note: evidence.note,
+            receipt: receipt as unknown as Record<string, unknown>,
+          },
         });
+        if (!stopped) {
+          throw new RuntimeOwnershipError(
+            "STALE_OWNERSHIP",
+            `a leftover runtime for ${record.workspace} did not stop completely`,
+            "inspect the process tree; Mona will not start a second owner beside it",
+            { record: record.id, survivors: receipt.survivors },
+          );
+        }
         continue;
       }
       if (evidence.verdict === "pid_reused" || evidence.verdict === "foreign_executable") {

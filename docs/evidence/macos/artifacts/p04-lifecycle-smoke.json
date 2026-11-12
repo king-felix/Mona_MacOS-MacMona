@@ -25,9 +25,9 @@
   },
   "error": null,
   "pids": [
-    56588,
-    56589,
-    56590
+    63961,
+    63962,
+    63963
   ],
   "alive_after_quit": [],
   "shutdown": {
@@ -52,16 +52,16 @@
         "phase": "started",
         "state": "running",
         "alive": [
-          56588,
-          56589,
-          56590
+          63961,
+          63962,
+          63963
         ],
         "runtime_status": {
           "state": "running",
           "reason": "started",
-          "since": "2026-11-12T01:48:25.203Z",
-          "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-lifecycle-work-0GEHEJ",
-          "ownershipId": "rt_806eeef98f54",
+          "since": "2026-11-12T01:55:52.256Z",
+          "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-lifecycle-work-NCwun3",
+          "ownershipId": "rt_7ab49bde2f04",
           "port": 0,
           "engine": {
             "version": "smoke",
@@ -92,9 +92,9 @@
         "runtime_state": "running",
         "child_alive": true,
         "tree_alive": [
-          56588,
-          56589,
-          56590
+          63961,
+          63962,
+          63963
         ]
       },
       {
@@ -103,9 +103,9 @@
         "runtime_state": "running",
         "child_alive": true,
         "tree_alive": [
-          56588,
-          56589,
-          56590
+          63961,
+          63962,
+          63963
         ]
       },
       {
@@ -116,26 +116,26 @@
       },
       {
         "phase": "second_instance",
-        "expected": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-97Gl1Q",
+        "expected": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-9mnVdY",
         "received": {
-          "path": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-97Gl1Q",
-          "receivedAt": "2026-11-12T01:48:25.221Z",
+          "path": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-9mnVdY",
+          "receivedAt": "2026-11-12T01:55:52.317Z",
           "source": "second_instance"
         },
         "windows": 1
       }
     ],
     "pids": {
-      "supervisor": 56587,
-      "child": 56588,
-      "pgid": 56588,
+      "supervisor": 63960,
+      "child": 63961,
+      "pgid": 63961,
       "tree": [
-        56588,
-        56589,
-        56590
+        63961,
+        63962,
+        63963
       ]
     },
-    "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-lifecycle-work-0GEHEJ",
+    "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-lifecycle-work-NCwun3",
     "lifecycle_before_start": {
       "quitRequested": false,
       "shutdownRunning": false,
@@ -148,7 +148,7 @@
       "runtime": {
         "state": "disconnected",
         "reason": "never_started",
-        "since": "2026-11-12T01:48:24.871Z",
+        "since": "2026-11-12T01:55:51.959Z",
         "workspace": null,
         "ownershipId": null,
         "port": null,
@@ -168,9 +168,9 @@
     "runtime_before_quit": {
       "state": "running",
       "reason": "running_after_renderer_crash",
-      "since": "2026-11-12T01:48:25.622Z",
-      "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-lifecycle-work-0GEHEJ",
-      "ownershipId": "rt_806eeef98f54",
+      "since": "2026-11-12T01:55:52.673Z",
+      "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-lifecycle-work-NCwun3",
+      "ownershipId": "rt_7ab49bde2f04",
       "port": 0,
       "engine": {
         "version": "smoke",
@@ -188,8 +188,8 @@
       "shutdownReceipt": null,
       "shutdownError": null,
       "lastOpenRequest": {
-        "path": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-97Gl1Q",
-        "receivedAt": "2026-11-12T01:48:25.221Z",
+        "path": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-9mnVdY",
+        "receivedAt": "2026-11-12T01:55:52.317Z",
         "source": "second_instance"
       },
       "rendererCrashes": 1,
@@ -197,9 +197,9 @@
       "runtime": {
         "state": "running",
         "reason": "running_after_renderer_crash",
-        "since": "2026-11-12T01:48:25.622Z",
-        "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-lifecycle-work-0GEHEJ",
-        "ownershipId": "rt_806eeef98f54",
+        "since": "2026-11-12T01:55:52.673Z",
+        "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-lifecycle-work-NCwun3",
+        "ownershipId": "rt_7ab49bde2f04",
         "port": 0,
         "engine": {
           "version": "smoke",
@@ -237,8 +237,8 @@
       },
       "shutdownError": null,
       "lastOpenRequest": {
-        "path": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-97Gl1Q",
-        "receivedAt": "2026-11-12T01:48:25.221Z",
+        "path": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-9mnVdY",
+        "receivedAt": "2026-11-12T01:55:52.317Z",
         "source": "second_instance"
       },
       "rendererCrashes": 1,
@@ -246,8 +246,8 @@
       "runtime": {
         "state": "stopped",
         "reason": "stopped",
-        "since": "2026-11-12T01:48:36.884Z",
-        "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-lifecycle-work-0GEHEJ",
+        "since": "2026-11-12T01:56:03.972Z",
+        "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-lifecycle-work-NCwun3",
         "ownershipId": null,
         "port": null,
         "engine": null,

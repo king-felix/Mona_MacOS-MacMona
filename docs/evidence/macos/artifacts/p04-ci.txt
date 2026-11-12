@@ -32,14 +32,14 @@ $HOME/DS_Projects/Mona/test/engine-adapter.test.ts
   "binary": "native/macos-supervisor/build/mona-supervisor",
   "target": "arm64-apple-macos14.0",
   "arch": "arm64",
-  "sha256": "f7a650e485e84c417ccf28ef5091669c872820301db296780e32e9f2c66f4271",
+  "sha256": "606a902c5d357d93b0f41a39df016469b3d2d09f933be5312702542eecd71df9",
   "size": 183824,
   "compiler": "Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)",
-  "file": "$HOME/DS_Projects/Mona/native/macos-supervisor/build/mona-supervisor: Mach-O 64-bit executable arm64",
+  "file": "native/macos-supervisor/build/mona-supervisor: Mach-O 64-bit executable arm64",
   "signature": "ad-hoc",
   "signed": true,
   "verified": true,
-  "built_at": "2026-11-12T01:48:18.673Z"
+  "built_at": "2026-11-12T01:55:45.578Z"
 }
 
 > mona@0.1.0-p02 test
@@ -48,31 +48,31 @@ $HOME/DS_Projects/Mona/test/engine-adapter.test.ts
 
 [1m[30m[46m RUN [49m[39m[22m [36mv5.1.0 [39m[90m$HOME/DS_Projects/Mona[39m
 
- [32m✓[39m test/supervisor-records.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 8[2mms[22m[39m
- [32m✓[39m test/tool-discovery.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 14[2mms[22m[39m
- [32m✓[39m test/contracts.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 10[2mms[22m[39m
- [32m✓[39m test/engine-adapter.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 33[2mms[22m[39m
- [32m✓[39m test/runtime-supervisor.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 87[2mms[22m[39m
- [32m✓[39m test/boundary.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m test/tool-discovery.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m test/supervisor-records.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 15[2mms[22m[39m
  [32m✓[39m test/fixtures.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 7[2mms[22m[39m
- [32m✓[39m test/ipc-contract.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 4[2mms[22m[39m
- [32m✓[39m test/engine-sse.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 7[2mms[22m[39m
- [32m✓[39m test/runtime-process.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 180[2mms[22m[39m
- [32m✓[39m test/work-control.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 5[2mms[22m[39m
- [32m✓[39m test/engine-compat.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m test/engine-adapter.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 34[2mms[22m[39m
+ [32m✓[39m test/runtime-supervisor.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 111[2mms[22m[39m
+ [32m✓[39m test/work-control.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m test/contracts.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m test/ipc-contract.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m test/engine-compat.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m test/boundary.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m test/engine-sse.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 4[2mms[22m[39m
  [32m✓[39m test/supervisor-identity.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m test/runtime-process.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 242[2mms[22m[39m
  [32m✓[39m test/supervisor-restart.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 2[2mms[22m[39m
  [32m✓[39m test/navigation.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 2[2mms[22m[39m
- [32m✓[39m test/supervisor-native.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 1836[2mms[22m[39m
+ [32m✓[39m test/supervisor-native.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 1888[2mms[22m[39m
    [32m✓[39m native supervisor [2m(6)[22m
-     [33m[2m✓[22m[39m stops the entire owned tree and leaves unrelated processes alone[33m 379[2mms[22m[39m
-     [33m[2m✓[22m[39m records the escaped process group and stops it by identity[33m 336[2mms[22m[39m
-     [33m[2m✓[22m[39m escalates a TERM-ignoring tree to a bounded SIGKILL[33m 780[2mms[22m[39m
+     [33m[2m✓[22m[39m stops the entire owned tree and leaves unrelated processes alone[33m 404[2mms[22m[39m
+     [33m[2m✓[22m[39m records the escaped process group and stops it by identity[33m 333[2mms[22m[39m
+     [33m[2m✓[22m[39m escalates a TERM-ignoring tree to a bounded SIGKILL[33m 801[2mms[22m[39m
 
 [2m Test Files [22m [1m[32m16 passed[39m[22m[90m (16)[39m
-[2m      Tests [22m [1m[32m119 passed[39m[22m[90m (119)[39m
-[2m   Start at [22m 18:48:18
-[2m   Duration [22m 2.00s[2m (tests 84%, import 12%, transform 3%, worker 2%)[22m
+[2m      Tests [22m [1m[32m122 passed[39m[22m[90m (122)[39m
+[2m   Start at [22m 18:55:45
+[2m   Duration [22m 2.04s[2m (tests 84%, import 12%, transform 3%, worker 1%)[22m
 
 
 > mona@0.1.0-p02 build
@@ -99,7 +99,7 @@ dist/renderer/index.html                   0.68 kB │ gzip:  0.38 kB
 dist/renderer/assets/index-D3glu6h8.css    2.98 kB │ gzip:  1.18 kB
 dist/renderer/assets/index-DEFk1pYs.js   222.60 kB │ gzip: 69.54 kB
 
-[32m✓ built in 71ms[39m
+[32m✓ built in 73ms[39m
 {
   "ok": true,
   "steps": [
@@ -107,37 +107,37 @@ dist/renderer/assets/index-DEFk1pYs.js   222.60 kB │ gzip: 69.54 kB
       "name": "format:check",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 791
+      "elapsed_ms": 668
     },
     {
       "name": "lint",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 793
+      "elapsed_ms": 799
     },
     {
       "name": "typecheck",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 1177
+      "elapsed_ms": 1230
     },
     {
       "name": "build:supervisor",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 2341
+      "elapsed_ms": 2419
     },
     {
       "name": "test",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 2257
+      "elapsed_ms": 2352
     },
     {
       "name": "build",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 1303
+      "elapsed_ms": 1328
     }
   ],
   "renderer_scan": {

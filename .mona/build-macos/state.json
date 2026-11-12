@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 44,
+  "revision": 45,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -589,23 +589,23 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p04-supervisor-build.json",
-          "sha256": "7fc98915e286b7ae7f97715c27b6f64bbdcf2b4a84374b7ba161c2f44b5f6f49"
+          "sha256": "7254a462dd174ae6ebdb42c2c8d8448d8d7567eb070d57baa64a843a491c5d43"
         },
         {
           "path": "docs/evidence/macos/artifacts/p04-lifecycle-smoke.json",
-          "sha256": "607b0a8a96fc191969214753809a3418e71a63e143f47382d696d9c0d5f4409a"
+          "sha256": "0c623f0c6104971dafec5ae471fa1f3bf8036a391d498010a783a5f3c57b0585"
         },
         {
           "path": "docs/evidence/macos/artifacts/p04-engine-smoke.json",
-          "sha256": "50285e353f88013e82965518e996a0e30d107c0e99883158fb2957f60454588c"
+          "sha256": "828a84375061e2074fb58598ee04389dc689d1ef0eb7304d160b0ddbcfd85b14"
         },
         {
           "path": "docs/evidence/macos/artifacts/p04-tests.txt",
-          "sha256": "9833cce3a684b4c6d5b6086ccae08ee066fd56c78f73533d27d02e04e6de3a45"
+          "sha256": "0f605b021ca3c8816246812246fe0dfee321d4a53575b6cc7d6def4f3786ae9f"
         },
         {
           "path": "docs/evidence/macos/artifacts/p04-ci.txt",
-          "sha256": "632c8e76890ef2bb04cecec8543b71f68e02f35a9f6a555672cd73c81dc07c2f"
+          "sha256": "f34619f27149b4caaa864d9dc32d5b88ac571c58a7848921cc76157ae0032de0"
         },
         {
           "path": "docs/decisions/ADR-003-runtime-supervisor.md",
@@ -613,7 +613,7 @@
         },
         {
           "path": "native/macos-supervisor/main.swift",
-          "sha256": "80ac620e50cbbfb128fb8b924a518306cf826b659759b958fb939f6eb6a2987b"
+          "sha256": "59f917e58d9d98123bdebc7ed469342b9d8c583916545e60357a33021a35a9cb"
         },
         {
           "path": "native/macos-supervisor/README.md",
@@ -653,7 +653,7 @@
         },
         {
           "path": "src/main/supervisor/runtime-supervisor.ts",
-          "sha256": "8e01a40bf39c2ffb2623d8da477501ca5b8151f994773ed61dcbe3fcd2e5912d"
+          "sha256": "ba6da8855515f1c2da9100a7230bc266602209838bd00c654c593fa863c7af1e"
         },
         {
           "path": "src/main/supervisor/errors.ts",
@@ -665,7 +665,7 @@
         },
         {
           "path": "src/main/desktop-lifecycle.ts",
-          "sha256": "be6caf3a6a0f71165f6e56440e7feff8ae0c4a21b19a124b5f1f13091062a153"
+          "sha256": "bcd9eec8ca656fa2c8de4ae2b2a5045cd18fdea5de17efb6fe56aa6b4f0d9b8a"
         },
         {
           "path": "src/main/index.ts",
@@ -705,7 +705,7 @@
         },
         {
           "path": "test/runtime-supervisor.test.ts",
-          "sha256": "991516aae4962d6283883ff73a7c488621668bc57b80c23bd6570771c2978cdc"
+          "sha256": "2201b45bfb873011c84b6d08e047d99eefd438eb50171d40e801e02ce938d8bb"
         },
         {
           "path": "test/runtime-process.test.ts",
@@ -1008,7 +1008,7 @@
   "next_eligible_prompts": [
     "P04"
   ],
-  "last_checkpoint_utc": "2026-11-12T01:50:42.601Z",
+  "last_checkpoint_utc": "2026-11-12T01:56:11.642Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

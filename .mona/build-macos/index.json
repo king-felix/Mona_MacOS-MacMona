@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-12T01:50:42.680Z",
+  "generated_utc": "2026-11-12T01:56:14.709Z",
   "git": {
     "available": true,
-    "commit": "31fe0e05869d7ebc4a70e25ae41a7efcc62be7fb",
+    "commit": "7a15b1b1de84735c575705084e5866fd51dfa888",
     "dirty": true
   },
-  "digest": "b174d976bd938816381c9969f49c072ea19392e7f7052bb615778ea2416e9f55",
+  "digest": "4a0b645c9c291c9734071c9e837d75f485388fd27c82d6e8c44d8294fb955896",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,7 +15,7 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "58e1794434da754671371fc3e0831a7b464e2825ff78a36658991c46b5a38e23",
+      "sha256": "fb4288db43d78ceb9e999f23f19f9bafafde13f6e35a8d25d72700e5ee2f2d55",
       "bytes": 42532
     },
     {
@@ -160,28 +160,28 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p04-ci.txt",
-      "sha256": "632c8e76890ef2bb04cecec8543b71f68e02f35a9f6a555672cd73c81dc07c2f",
-      "bytes": 4925
+      "sha256": "f34619f27149b4caaa864d9dc32d5b88ac571c58a7848921cc76157ae0032de0",
+      "bytes": 4903
     },
     {
       "path": "docs/evidence/macos/artifacts/p04-engine-smoke.json",
-      "sha256": "50285e353f88013e82965518e996a0e30d107c0e99883158fb2957f60454588c",
+      "sha256": "828a84375061e2074fb58598ee04389dc689d1ef0eb7304d160b0ddbcfd85b14",
       "bytes": 3432
     },
     {
       "path": "docs/evidence/macos/artifacts/p04-lifecycle-smoke.json",
-      "sha256": "607b0a8a96fc191969214753809a3418e71a63e143f47382d696d9c0d5f4409a",
+      "sha256": "0c623f0c6104971dafec5ae471fa1f3bf8036a391d498010a783a5f3c57b0585",
       "bytes": 7545
     },
     {
       "path": "docs/evidence/macos/artifacts/p04-supervisor-build.json",
-      "sha256": "7fc98915e286b7ae7f97715c27b6f64bbdcf2b4a84374b7ba161c2f44b5f6f49",
+      "sha256": "7254a462dd174ae6ebdb42c2c8d8448d8d7567eb070d57baa64a843a491c5d43",
       "bytes": 532
     },
     {
       "path": "docs/evidence/macos/artifacts/p04-tests.txt",
-      "sha256": "9833cce3a684b4c6d5b6086ccae08ee066fd56c78f73533d27d02e04e6de3a45",
-      "bytes": 19114
+      "sha256": "0f605b021ca3c8816246812246fe0dfee321d4a53575b6cc7d6def4f3786ae9f",
+      "bytes": 19645
     },
     {
       "path": "docs/evidence/macos/artifacts/signing-inventory.txt",

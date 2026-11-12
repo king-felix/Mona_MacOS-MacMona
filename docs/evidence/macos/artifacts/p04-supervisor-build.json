@@ -4,12 +4,12 @@
   "binary": "native/macos-supervisor/build/mona-supervisor",
   "target": "arm64-apple-macos14.0",
   "arch": "arm64",
-  "sha256": "f7a650e485e84c417ccf28ef5091669c872820301db296780e32e9f2c66f4271",
+  "sha256": "606a902c5d357d93b0f41a39df016469b3d2d09f933be5312702542eecd71df9",
   "size": 183824,
   "compiler": "Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)",
   "file": "native/macos-supervisor/build/mona-supervisor: Mach-O 64-bit executable arm64",
   "signature": "ad-hoc",
   "signed": true,
   "verified": true,
-  "built_at": "2026-11-12T01:50:39.201Z"
+  "built_at": "2026-11-12T01:55:45.578Z"
 }

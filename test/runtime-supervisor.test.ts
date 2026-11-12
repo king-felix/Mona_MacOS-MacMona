@@ -25,6 +25,7 @@ class FakeDriver implements RuntimeDriver {
   marks: Array<{ id: string; patch: Partial<OwnershipRecord> }> = [];
   runtimes: FakeRuntime[] = [];
   healthyResult = true;
+  stubborn = false;
   private nextPid = 4_100;
 
   constructor(private readonly store: OwnershipStore) {}
@@ -86,6 +87,9 @@ class FakeDriver implements RuntimeDriver {
 
   async stopRecorded(record: OwnershipRecord): Promise<SupervisorStopReceipt> {
     this.stoppedRecords.push(record.id);
+    if (this.stubborn) {
+      return { ...stopReceipt(), ok: false, state: "survivors", survivors: [record.childPid] };
+    }
     return stopReceipt();
   }
 
@@ -171,6 +175,20 @@ describe("runtime supervisor", () => {
     await supervisor.ensure("/tmp/ws-a");
     await expect(supervisor.ensure("/tmp/ws-b")).rejects.toBeInstanceOf(RuntimeOwnershipError);
     await expect(supervisor.ensure("/tmp/ws-b")).rejects.toMatchObject({ code: "ALREADY_OWNED" });
+  });
+
+  it("refuses a new start while the owned runtime is reconnecting", async () => {
+    const { supervisor, driver } = harness();
+    await supervisor.ensure("/tmp/ws-a");
+    supervisor.noteSuspend();
+    await expect(supervisor.ensure("/tmp/ws-b")).rejects.toMatchObject({
+      code: "ALREADY_OWNED",
+    });
+    await expect(supervisor.ensure("/tmp/ws-a")).rejects.toMatchObject({
+      code: "ALREADY_OWNED",
+    });
+    expect(driver.starts).toHaveLength(1);
+    expect(driver.stoppedRecords).toEqual([]);
   });
 
   it("restarts only the process after an unexpected exit", async () => {
@@ -264,6 +282,44 @@ describe("runtime supervisor", () => {
     });
     expect(driver.stoppedRecords).toHaveLength(0);
     expect(driver.starts).toHaveLength(0);
+  });
+
+  it("stops a stale record for the same workspace before starting a new owner", async () => {
+    const { supervisor, store, driver } = harness();
+    const live = readProcessEntry(process.pid);
+    expect(live).not.toBeNull();
+    const stale = store.put(
+      recordFor("/tmp/ws-a", process.pid, {
+        childStartedAt: live?.startedAt ?? "",
+        supervisorPid: 999_999,
+        supervisorStartedAt: "Mon Jan  1 00:00:00 2001",
+        executable: readExecutablePath(process.pid) ?? "",
+      }),
+    );
+    await supervisor.ensure("/tmp/ws-a");
+    expect(driver.stoppedRecords).toEqual([stale.id]);
+    expect(driver.starts).toEqual(["/tmp/ws-a"]);
+    expect(supervisor.status().state).toBe("running");
+  });
+
+  it("refuses to start beside a leftover runtime that will not stop", async () => {
+    const { supervisor, store, driver } = harness();
+    const live = readProcessEntry(process.pid);
+    expect(live).not.toBeNull();
+    store.put(
+      recordFor("/tmp/ws-a", process.pid, {
+        childStartedAt: live?.startedAt ?? "",
+        supervisorPid: 999_999,
+        supervisorStartedAt: "Mon Jan  1 00:00:00 2001",
+        executable: readExecutablePath(process.pid) ?? "",
+      }),
+    );
+    driver.stubborn = true;
+    await expect(supervisor.ensure("/tmp/ws-a")).rejects.toMatchObject({
+      code: "STALE_OWNERSHIP",
+    });
+    expect(driver.starts).toHaveLength(0);
+    driver.stubborn = false;
   });
 
   it("recovers a verified orphan from a previous run", async () => {

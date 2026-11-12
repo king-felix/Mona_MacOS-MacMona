@@ -77,10 +77,7 @@ export class DesktopLifecycle {
     this.installed = true;
 
     app.on("second-instance", (_event, argv, workingDirectory) => {
-      const request = this.parseOpenRequest(argv, workingDirectory);
-      if (request) this.lastOpenRequest = request;
-      this.focusWindow();
-      this.emit();
+      this.handleSecondInstance(argv, workingDirectory);
     });
 
     app.on("before-quit", (event) => {

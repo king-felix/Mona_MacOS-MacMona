@@ -212,20 +212,22 @@ guard controlFD >= 0 else { fail(4, "cannot create control socket: \(String(cStr
 // MARK: - Stop routine
 
 func signalOwned(_ signal: Int32) {
+    // Snapshot under the lock; process lookups happen outside it.
+    let (group, expected, tracked) = state.withLock {
+        (state.childPid, state.childStart, state.tracked)
+    }
     // The child leads its own process group by construction.
-    let group = state.childPid
-    if group > 0 {
+    if group > 0, let expected {
         let leader = processIdentity(group)
-        let expected = state.childStart
-        if leader != nil && expected != nil && leader!.startSec == expected!.startSec
-            && leader!.startUsec == expected!.startUsec
+        if leader != nil && leader!.startSec == expected.startSec
+            && leader!.startUsec == expected.startUsec
         {
             _ = kill(-group, signal)
         }
         // If the leader is gone, the group id may have been reused by a stranger.
         // Ownership then rests only on tracked (pid, start time) identities.
     }
-    for (pid, identity) in state.tracked where pid != state.childPid {
+    for (pid, identity) in tracked where pid != group {
         if let current = processIdentity(pid), current.startSec == identity.startSec,
            current.startUsec == identity.startUsec
         {
@@ -235,13 +237,14 @@ func signalOwned(_ signal: Int32) {
 }
 
 func aliveTracked() -> [Int32] {
+    let (child, tracked) = state.withLock { (state.childStart, state.tracked) }
     var alive: [Int32] = []
-    if let child = state.childStart, let current = processIdentity(child.pid),
+    if let child, let current = processIdentity(child.pid),
        current.startSec == child.startSec, current.startUsec == child.startUsec
     {
         alive.append(child.pid)
     }
-    for (pid, identity) in state.tracked {
+    for (pid, identity) in tracked {
         if let current = processIdentity(pid), current.startSec == identity.startSec,
            current.startUsec == identity.startUsec
         {
