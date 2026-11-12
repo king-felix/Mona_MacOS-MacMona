@@ -1,11 +1,78 @@
 # Handoff — Mona macOS build
 
-**Last checkpoint:** 2026-11-12 (P21) · `monabuild validate` clean
-**Current prompt:** P21 completed (local milestone). `monabuild next` reports
-**P22** (signing/notarization/release automation), **P23** (update/migration/
-uninstall lifecycle), and **P25** (shared-core/Windows coordination) as
-eligible. P22 needs the Developer ID prerequisite from `BLOCKERS.md`; P23 and
-P25 are independent. None is started in this session.
+**Last checkpoint:** 2026-11-12 (P23) · `monabuild validate` clean ·
+revision 508 · verified commit `f755d8a`
+**Current prompt:** P23 completed. `monabuild next` now reports **P22**
+(signing/notarization/release automation) and **P25** (shared-core/Windows
+coordination) as eligible. P24 and P26–P27 wait on P22. P22 needs the Developer
+ID prerequisite (EXT-SIGNING) from `BLOCKERS.md`; P25 is fully independent.
+
+### P23 — Update, migration, rollback, and uninstall lifecycle
+
+An installed Mona is now maintainable: replaceable without losing work,
+recoverable when a replacement fails, honest when an older app meets newer data,
+and removable without touching projects.
+
+The update flow is **verify → defer → record → snapshot → hand off**, and the
+order is the guarantee.
+
+- **Two trust tiers.** A *release* candidate needs an Ed25519-signed manifest
+  over its exact bytes, a Developer ID Installer signature from the configured
+  team, a matching digest and length, a declared notarization, and a strictly
+  increasing version. A *local* package the user chose records its digest and
+  identity but is never publisher-authenticated and can never replace a release
+  install. Eleven refusal codes, each with an actionable reason; a digest inside
+  an unauthenticated manifest proves nothing.
+- **Deferral never interrupts.** A running task with its turn, a live
+  submission, an engine runtime binding, or a failing probe defers the update
+  and lists the exact items. The running task is still `running` afterwards.
+- **The intent precedes privilege.** `update_intents` (schema **v8**) is written
+  before anything privileged, with forward-only states
+  (`recorded → handed_off → observed_migrated | cancelled | failed`); the state
+  snapshot is taken under the maintenance barrier, reopened read-only,
+  integrity-checked and hashed, and its hash is stored on the intent.
+- **Installer owns installation.** Mona opens `Installer` with the verified
+  package, reports `handed_off` only after that succeeds, and quits through the
+  normal shutdown path. A failed handoff closes the intent as `failed` and leaves
+  Mona running, state unchanged.
+- **Rollback.** An older app refuses a newer schema (`UNSUPPORTED_SCHEMA`, no
+  "try anyway"). A DB rollback is an explicit restore of a snapshot whose schema
+  is between 1 and this build's and which passes integrity; the current file is
+  moved aside, never deleted, and the snapshot is migrated forward through the
+  normal path with its own snapshot and journal. The startup dialog separates
+  `newer_schema`, `migration_failed`, and `unreadable`, and offers only a
+  snapshot this build can open.
+- **Uninstall is bounded.** `uninstall-mona.sh` ships in the payload, plans only
+  paths `owned-paths.json` names, verifies each bundle identifier, refuses an
+  unrecognized path or a missing manifest, and keeps every user's state unless
+  `--remove-user-data --home <one user>` is given. `lib/uninstall.mjs` asserts
+  those bounds at build time.
+- **A real near-miss, and the fix is mechanism.** The first uninstall rehearsal
+  set only `MONA_UNINSTALL_ROOT`, so `preinstall` resolved an empty
+  `MONA_INSTALL_ROOT` to `/` and attempted `rm -rf /Applications/Mona.app`. It
+  failed on permissions (the installed bundle still passes
+  `codesign --verify --deep --strict` with all 640 files). Both hooks are now
+  always set together, and `lib/rehearsal.mjs` fails the build for any rehearsal
+  root outside the process's temporary directory.
+- **UI.** Settings → **Updates**: running identity, source configuration, check
+  result with its code, candidate facts and digest, engine-change disclosure,
+  deferral items, intent history, verified snapshots with a matching-schema
+  restore, and the uninstall guide. Eleven IPC channels, strict schemas, no
+  generic filesystem or exec reach.
+- **Verification.** 737 tests in 75 files; `npm run ci` **21/21** including the
+  new `smoke:p23` (55 checks, 0 skipped); shell smoke **120/120** with the tenth
+  Settings tab (36 hash-pinned captures re-recorded, no assertion removed);
+  `npm run mac:package:local`'s new uninstall gate green. Also fixed a genuine
+  P18 race: the terminal smoke read ring eviction while the child was still
+  writing.
+- **Evidence.** `docs/evidence/macos/P23-lifecycle.md`,
+  `artifacts/p23-{lifecycle-smoke,uninstall-rehearsal}.json`,
+  `artifacts/p23-ci.txt`, `docs/decisions/ADR-016`, D-077…D-084.
+- **Open.** The rebuilt package is not installed (EXT-INSTALL in `BLOCKERS.md`:
+  `sudo installer` needs authorization this session cannot supply, so
+  `mac:package:local` stops at its documented install gate). The release trust
+  tier has no signed artifact until P22. No live feed was queried; there is no
+  configured host and none was invented.
 
 ## Where the build stands
 
@@ -17,8 +84,10 @@ durable continuation, an enforced attempt ledger, a durable cost ledger,
 trustworthy change receipts, Git review, and native restore. P14 adds the
 daily-use polish, P15 makes native agent work visible and controllable, P16/P17
 complete configuration and extensions, P18 adds the integrated terminal, the
-command palette, and an auditable capability explorer, and P19 adds project
-memory, the prompt shelf, portable handoff, and diagnostics.
+command palette, and an auditable capability explorer, P19 adds project memory,
+the prompt shelf, portable handoff, and diagnostics, P20 hardens every durable
+boundary with injected faults, P21 ships the self-contained arm64 app and
+offline installer, and P23 makes that install maintainable in place.
 
 ### P21 — Self-contained arm64 app and offline installer
 
@@ -314,30 +383,38 @@ widened.**
   notification-focus message; lifecycle **22/22**; local CI green including the
   new `smoke:polish`. Evidence: `docs/evidence/macos/P14-polish.md`.
 
-## Next exact action (P22, P23, or P25)
+## Next exact action (P22 or P25)
 
-P21 is complete for the local milestone. Three prompts are eligible:
+P23 is complete. Two prompts are eligible:
 
 - **P22 — signing, notarization, release verification.** Read spec §14.3, §20,
   §21 and the P22 prompt body. The payload layout, component manifest, installer
-  scripts, and release-gate refusal already exist; P22 adds the inside-out
-  Developer ID signing, Hardened Runtime/entitlements, `notarytool` submission,
-  stapling, `spctl`/`stapler` verification, and the release receipt. EXT-SIGNING
-  is still open: 0 Developer ID identities (see `BLOCKERS.md`). Do not block
-  independent P23/P25 work on it.
-- **P23 — update, migration, rollback, uninstall.** P21's `owned-paths.json`,
-  install receipt, component manifest, and non-relocatable layout are the
-  inputs. Read spec §10, §22 and the P23 prompt body; test upgrade, failed
-  migration, active-run deferral, wrong-package rejection, and uninstall.
+  scripts, release-gate refusal, and P23's release trust tier
+  (`src/main/update/trust.ts` + `manifest.ts`) already exist; P22 adds the
+  inside-out Developer ID signing, Hardened Runtime/entitlements, `notarytool`
+  submission, stapling, `spctl`/`stapler` verification, the release receipt, and
+  the signed manifest publication P23's configured-source tier consumes.
+  EXT-SIGNING is still open: 0 Developer ID identities (`BLOCKERS.md`).
 - **P25 — shared-core/Windows coordination.** Read its prompt and the
   `.mona/build/` ledger; do not touch the Windows ledger or sources.
 
-P21's first exact action for a future packaging change: run
-`npm run mac:doctor`, then `npm run mac:package:local`; the gate must be all
-seven true before any install. The real install command is
-`sudo installer -pkg packaging/macos/out/Mona-<version>-macOS-arm64-local.pkg -target /`
-and must be followed by `node`-based receipt/hash verification as recorded in
-`docs/evidence/macos/P21-package.md`.
+P22's first exact action after an identity exists: `npm run mac:doctor` (must
+list the Developer ID Application and Installer identities), then implement
+`mac:release:preflight` / `mac:release` / `mac:verify-release`. `--mode release`
+currently fails closed by design.
+
+**EXT-INSTALL blocks only a full run of `mac:package:local`.** Everything up to
+and including `uninstall_rehearsal` passes; the `installed_copy` gate then
+correctly refuses because `/Applications/Mona.app` is the previous build. Fix by
+running, with administrator authorization:
+
+```sh
+sudo installer -pkg packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg -target /
+npm run mac:package:local
+```
+
+That also gives P23 a real reinstall-over-existing evidence point, which is
+currently covered by the rehearsal and the unit/smoke suite instead.
 
 ## Nonblocking issues carried forward
 
@@ -659,38 +736,86 @@ and must be followed by `node`-based receipt/hash verification as recorded in
      P21's GUI evidence is process, state-initialization, and LaunchServices
      based.
 
+111. **`mac:package:local` cannot finish without administrator authorization.**
+     At P23 the build passes every gate up to and including the new
+     `uninstall_rehearsal`, then stops at `installed_copy` because
+     `/Applications/Mona.app` is still the P21 build. `sudo -n` refuses in this
+     session. Everything else in the pipeline is verified; see EXT-INSTALL.
+112. **The 36 hash-pinned shell captures were rewritten again** because the
+     Settings rail gained a tenth tab (`Updates`). They are current, not stale;
+     their hashes were re-recorded at this checkpoint with no assertion removed.
+     P23's own captures reuse the existing screens — the Updates tab has screen
+     tests and a real bridge but no dedicated screenshot.
+113. **The release trust tier has no signed artifact.** Every refusal and the
+     whole acceptance path are implemented and tested, but a real Developer ID
+     Installer signature and an accepted notarization are P22's. `--mode release`
+     still fails closed.
+114. **No live update feed was queried.** There is no configured host and none
+     was invented. The network path (HTTPS only, same-host bounded redirects,
+     bounded manifest and package sizes, digest-while-writing, partial-file
+     removal) is covered by unit tests and the module's contract, not by a live
+     server.
+115. **A cancelled Installer run is detected on the next launch,** not while it
+     happens: the intent stays `handed_off` until the running version is compared
+     with the target. That is deliberate — Installer owns its own progress, and
+     Mona will not claim a completion it did not observe.
+116. **Uninstall has no GUI action.** Settings → Updates shows the owned-path
+     plan and the exact commands; executing them is the user's privileged
+     decision in Terminal. A signed privileged helper with an authorization
+     prompt is future work the spec does not require.
+117. **`p23-lifecycle-smoke.json` is a run record,** so re-running rewrites it
+     (same class as items 97/98). Re-record with
+     `monabuild evidence --prompt P23 docs/evidence/macos/artifacts/p23-lifecycle-smoke.json`
+     before the next checkpoint. The same applies to `p23-uninstall-rehearsal.json`,
+     which is copied out of `packaging/macos/out/` by the smoke.
+118. **A P18 terminal-smoke race was fixed at P23.** The eviction assertion read
+     the ring's totals as soon as its marker appeared; on a loaded host the child
+     was still writing, so `dropped` was 0 (`total` 245866) and two checks failed
+     intermittently. The smoke now waits for the ring to stop growing. Observed
+     twice before the fix, three clean runs after; the assertion is unchanged.
+
 ## Key files
 
-- `.mona/build-macos/state.json` — prompt status (P21 completed).
+- `.mona/build-macos/state.json` — prompt status (P23 completed, 23 of 28).
 - `.mona/build-macos/attempts.jsonl` — empty; nothing failed three times.
-- `.mona/build-macos/DECISIONS.md` — D-001…D-076.
+- `.mona/build-macos/DECISIONS.md` — D-001…D-084.
 - `.mona/build-macos/BLOCKERS.md` — external prerequisites only.
 - `docs/requirements-macos.json` — MONA-016, MONA-017/018/021/022/023/024/025/026/
-  029 satisfied with P14/P15/P17/P18/P19/P20 evidence; MONA-019 keeps the
-  workflow/lane gaps and MONA-030 is `partial` (P26 owns the final matrix);
-  MONA-006/MAC-002 carry contributions without claiming completion.
+  029 satisfied; **MAC-006 is satisfied at P23** (P26 owns the final release
+  matrix); MONA-027 keeps its P22/P27 contributions open; MONA-019 keeps the
+  workflow/lane gaps and MONA-030 is `partial`.
 - `docs/decisions/ADR-001…015`; ADR-009 is polish, ADR-010 orchestration
   ownership, ADR-011 configuration and extensions, ADR-012 the terminal and
   capability coverage, ADR-013 memory and handoff, ADR-014 hardening and
-  failure boundaries, ADR-015 the packaged payload and its trust boundary.
+  failure boundaries, ADR-015 the packaged payload and its trust boundary,
+  ADR-016 installer-mediated updates, recoverable migration, and bounded removal.
 - `src/main/work/` — `agents.ts`, `attention.ts`, `board.ts`, `capability.ts`,
   `changes.ts`, `control.ts`, `costs.ts`, `cost-math.ts`, `digest.ts`,
   `extensions.ts`, `fingerprint.ts`, `git.ts`, `handoff.ts`, `memory.ts`,
   `notifications.ts`, `polish.ts`, `preferences.ts`, `profile.ts`, `settings.ts`,
   `shelf.ts`, `studio.ts`.
+- `src/main/update/` — `version.ts` (ordering), `manifest.ts` (Ed25519 envelope
+  and secure URLs), `trust.ts` (policy + `pkgutil` inspection), `source.ts` (the
+  only network code), `coordinator.ts` (verify/defer/record/snapshot/handoff),
+  `uninstall.ts` (manifest-owned removal view).
 - `src/main/state/` — `safe-archive.ts` is the fail-closed zip reader/writer
   (extraction validates real paths); `portable.ts` holds the project bundle;
+  `recovery.ts` reads schema/journal/snapshots and restores a matching one;
   `store.ts` owns the barrier.
 - `src/main/ipc-sender.ts` — the pure, testable IPC sender/frame policy.
 - `src/main/package-smoke.ts` — the in-app installed-payload acceptance sample.
-- `packaging/macos/` — `build.mjs`, `doctor.mjs`, `icon.mjs`, `lib/`,
-  `scripts/{preinstall,postinstall}`, `README.md`; `out/` is gitignored.
+- `packaging/macos/` — `build.mjs`, `doctor.mjs`, `icon.mjs`,
+  `lib/{distribution,macho,secrets,uninstall,rehearsal}.mjs`,
+  `scripts/{preinstall,postinstall,uninstall-mona.sh}`, `README.md`; `out/` is
+  gitignored.
+- `scripts/p23-lifecycle-smoke.mjs` — the 55-check update/migration/uninstall
+  smoke (`npm run smoke:p23`, in CI).
 - `scripts/p20-failure-smoke.mjs` — the 22-check fault-injection smoke.
 - `src/main/terminal/` — `buffer.ts`, `pty.ts`, `session.ts`;
   `native/macos-pty/` holds the Swift helper.
 - `src/renderer/shell/` — Shell, Home, Studio, Board, Changes, Cost, Agents,
-  Capabilities, Memory, TerminalPanel, Settings, ansi, palette, drop,
-  FinderIntegration, timeline, visual.
+  Capabilities, Memory, TerminalPanel, Settings, UpdateSettings, ansi, palette,
+  drop, FinderIntegration, timeline, visual.
 - `scripts/` — `memory-smoke.mjs`, `terminal-smoke.mjs`,
   `capability-smoke.mjs`, `build-pty.mjs`,
   `settings-smoke.mjs`, `extensions-smoke.mjs`,

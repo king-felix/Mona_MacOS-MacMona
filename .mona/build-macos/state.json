@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "revision": 507,
+  "revision": 512,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
   "spec_sha256": "d1c02941151c71912bc3e9c8b2509612298d54e05e0bf16fe933b9bd93e3e028",
   "prompt_file_sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8",
-  "current_prompt": "P21",
+  "current_prompt": "P23",
   "current_prompt_status": "completed",
-  "last_verified_commit": "e108524",
+  "last_verified_commit": "f755d8a",
   "tasks": {
     "P00": {
       "status": "completed",
@@ -53,7 +53,7 @@
         },
         {
           "path": "docs/requirements-macos.json",
-          "sha256": "484cd7872ed50821218293809f9312bea8bd30691a84b08bc576d0ab905c7086",
+          "sha256": "f7a6a49bab5dcf98dcf9745f2ff607ce7252c66f72c17ed48d5b61a821dfcac4",
           "note": "P15 re-recorded the shared requirement registry; assertions unchanged"
         },
         {
@@ -2189,7 +2189,7 @@
         },
         {
           "path": "docs/requirements-macos.json",
-          "sha256": "484cd7872ed50821218293809f9312bea8bd30691a84b08bc576d0ab905c7086"
+          "sha256": "f7a6a49bab5dcf98dcf9745f2ff607ce7252c66f72c17ed48d5b61a821dfcac4"
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
@@ -2197,7 +2197,7 @@
         },
         {
           "path": ".mona/build-macos/HANDOFF.md",
-          "sha256": "cc3858f72d94511d2a8cee905fc7bfc930342f6d5915d5cbee02b859b6540ee1"
+          "sha256": "5d3057861812614ea21eac7e6acb7012a9b6d2982723ab64eca1a974ced7f559"
         }
       ],
       "blocker_ids": []
@@ -2407,7 +2407,7 @@
         },
         {
           "path": "docs/requirements-macos.json",
-          "sha256": "484cd7872ed50821218293809f9312bea8bd30691a84b08bc576d0ab905c7086"
+          "sha256": "f7a6a49bab5dcf98dcf9745f2ff607ce7252c66f72c17ed48d5b61a821dfcac4"
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
@@ -2415,7 +2415,7 @@
         },
         {
           "path": ".mona/build-macos/HANDOFF.md",
-          "sha256": "cc3858f72d94511d2a8cee905fc7bfc930342f6d5915d5cbee02b859b6540ee1"
+          "sha256": "5d3057861812614ea21eac7e6acb7012a9b6d2982723ab64eca1a974ced7f559"
         },
         {
           "path": "test/work-git.test.ts",
@@ -2436,13 +2436,24 @@
       "blocker_ids": []
     },
     "P23": {
-      "status": "pending",
+      "status": "completed",
       "requirements": [
         "MONA-025",
         "MONA-027",
         "MAC-006"
       ],
-      "completed_steps": [],
+      "completed_steps": [
+        "src/shared/contracts/update.ts: channels, source config, signed manifest envelope, package facts, rejection codes, deferral items, handoff receipt, intent record, uninstall and recovery views, all zod-validated",
+        "src/main/update/{version,manifest,trust,source,coordinator,uninstall}.ts: numeric version order with pre-release precedence; Ed25519 envelope over exact bytes with key fingerprint; pure trust policy (identity, team, signature, digest, length, architecture, min OS, downgrade, replay, engine change) plus real pkgutil inspection; HTTPS-only bounded fetch and digest-while-writing download; verify/defer/record/snapshot/handoff coordinator; manifest-owned uninstall view",
+        "src/main/state/recovery.ts: newer-schema refusal, journal and verified snapshot listing, one explicit restore of a snapshot this build can open and migrate forward; startup dialog distinguishes newer schema, failed migration, and unreadable database",
+        "Schema v8 update_intents with forward-only states, plus store APIs: recordUpdateIntent, attachUpdateBackup, settleUpdateIntent, latestUpdateIntent, listUpdateIntents, appliedUpdatePackages, backupForUpdate (maintenance barrier), activeWork",
+        "Eleven IPC channels (update:*, state:recovery*) with strict schemas, narrow preload surface, and bridge types",
+        "src/renderer/shell/UpdateSettings.tsx: Settings -> Updates with real identity, source configuration, check result and code, candidate facts, engine-change disclosure, deferral list, intent history, snapshot restore, and uninstall guide; palette and Settings rail updated",
+        "packaging/macos/scripts/uninstall-mona.sh plus lib/uninstall.mjs and lib/rehearsal.mjs: bounded removal utility, its build-time bound review, and a guard that fails any rehearsal root outside the temp tree",
+        "build.mjs: ships the utility, writes update-metadata.json into the installer resources, rehearses the shipped utility end to end, and persists out/uninstall-rehearsal.json as it goes",
+        "71 tests across update-version, update-trust, update-coordinator, update-recovery, update-uninstall, update-screen, and package-macos; scripts/p23-lifecycle-smoke.mjs with 55 checks in CI",
+        "Fixed a P18 terminal-smoke race: the ring eviction assertion now waits for the child to stop writing"
+      ],
       "remaining_steps": [],
       "evidence": [
         {
@@ -2466,95 +2477,13 @@
           "sha256": "71728db9b731d99fc84bc59643bd2fca759abf9ab8c3def8ecd934fabded33da"
         },
         {
-          "path": "src/shared/contracts/update.ts",
-          "sha256": "2441f6e88c15d483f56f27f456cce5e74dc4166e0c28e977cac82fb8b3bb00b1"
-        },
-        {
-          "path": "src/main/update/version.ts",
-          "sha256": "e0351495fe2c11758d7437fa43b6d9d306a09c5ef51395984e743f16e79ed3b2"
-        },
-        {
-          "path": "src/main/update/manifest.ts",
-          "sha256": "e116aed7daf8c2d534a2596a20f463c8f18dc810e815faa3dbcef4731cebf9c9"
-        },
-        {
-          "path": "src/main/update/trust.ts",
-          "sha256": "eba821ec9fe418e3530ad2f3e322d6781dce378c983fd2fedf507cb3d76e414b"
-        },
-        {
-          "path": "src/main/update/source.ts",
-          "sha256": "decc5f43cee254f4f2f421ef8f37b1aba9f23cf01b960393d3ff091d775bf1d7"
-        },
-        {
-          "path": "src/main/update/coordinator.ts",
-          "sha256": "26e7fc06817756056fbae2191fc1b15b72d3020a634f464f2c86560cc41835b0"
-        },
-        {
-          "path": "src/main/update/uninstall.ts",
-          "sha256": "7179daaa8e105fbace525c52554489af1c0c34bbd3dc9e26837b4af8f75f3929"
-        },
-        {
-          "path": "src/main/state/recovery.ts",
-          "sha256": "512fb472f09ed3c73ea9ea95b2293b933d0cbbab6f0d93b1837a460dfb842d5f"
-        },
-        {
-          "path": "src/main/state/schema.ts",
-          "sha256": "7b39503fb1864baf56668b649bcb01cb14bf1e5db9682c50cb2dac7325130436"
-        },
-        {
-          "path": "src/main/state/store.ts",
-          "sha256": "c1e3da210cfb4edf1c4a611b07107253d09972d523eee902ef160b3d4232c070"
-        },
-        {
-          "path": "packaging/macos/scripts/uninstall-mona.sh",
-          "sha256": "76d2a732b1a62dc148519aed1d34350521c5cd3c45f10bb36bd0227d4b6b387e"
-        },
-        {
-          "path": "packaging/macos/lib/uninstall.mjs",
-          "sha256": "4fca01ba17c7a676f63722ee7feee8300f0202f312d257af7de96ff0e0fafea0"
-        },
-        {
-          "path": "packaging/macos/lib/rehearsal.mjs",
-          "sha256": "3325ce7829401a306b415b61ef4500acb8d14b3e5e6c8834e51301e6d369bb9d"
-        },
-        {
-          "path": "packaging/macos/build.mjs",
-          "sha256": "e39af82395136bb528460145f529bbe17cce02d17ba6a0b01f3307b3459424c3"
-        },
-        {
-          "path": "src/renderer/shell/UpdateSettings.tsx",
-          "sha256": "7fe9b4bdeda10adf78b47fd9e40bd57aeff5763b32abbd5c3961b756b6286920"
-        },
-        {
-          "path": "test/update-version.test.ts",
-          "sha256": "f95aa3aeddcc95f719b94ab6a085f2762520dc5a5cee430c35d9607667709df1"
-        },
-        {
-          "path": "test/update-trust.test.ts",
-          "sha256": "66ec075f4d6b38bf88913b5937ec69cc9a9b7e3ccf38c489f9870374cdf5c43c"
-        },
-        {
-          "path": "test/update-coordinator.test.ts",
-          "sha256": "39e00bd626cc3439b4c661c6e30cee620704fc9cfc0c6d2c5dc069ff7a2d0b25"
-        },
-        {
-          "path": "test/update-recovery.test.ts",
-          "sha256": "4b80f8c48db699e49d552628123c300e9a834bbb0e5445bf6d1aacdb93395c22"
-        },
-        {
-          "path": "test/update-uninstall.test.ts",
-          "sha256": "4a1743931a5408933d654250a3168c6ab6a766a368a219b7c121d67ef2d15203"
-        },
-        {
-          "path": "test/update-screen.test.tsx",
-          "sha256": "0c56448798e3bb51f5fb8ddd5cb213a9a764a43bb28fc5e93ee4f3287ec383f2"
-        },
-        {
-          "path": "scripts/p23-lifecycle-smoke.mjs",
-          "sha256": "1cdbd51f9d94bd82fe2891546e57a59de80f5cf6c80fd8479a6ec92a72843b9b"
+          "path": ".mona/build-macos/HANDOFF.md",
+          "sha256": "5d3057861812614ea21eac7e6acb7012a9b6d2982723ab64eca1a974ced7f559"
         }
       ],
-      "blocker_ids": []
+      "blocker_ids": [
+        "EXT-INSTALL"
+      ]
     },
     "P24": {
       "status": "pending",
@@ -2613,7 +2542,7 @@
   "next_eligible_prompts": [
     "P14"
   ],
-  "last_checkpoint_utc": "2026-11-12T19:54:04.585Z",
+  "last_checkpoint_utc": "2026-11-12T19:55:11.803Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",
