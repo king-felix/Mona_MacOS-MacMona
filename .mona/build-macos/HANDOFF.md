@@ -1,6 +1,6 @@
 # Handoff — Mona macOS build
 
-**Last checkpoint:** 2026-11-11 (P10) · revision 118 · verified commit `8c9991e`
+**Last checkpoint:** 2026-11-11 (P10) · revision 119 · verified commit `8c9991e`
 **Current prompt:** P10 completed. Next eligible: **P11** — not started, not
 authorized in this session.
 

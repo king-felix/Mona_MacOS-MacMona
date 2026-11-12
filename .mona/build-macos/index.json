@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-12T04:43:18.587Z",
+  "generated_utc": "2026-11-12T04:43:41.604Z",
   "git": {
     "available": true,
-    "commit": "8c9991e178b88e948ae3485f23059f769392e9ab",
+    "commit": "a24e6edde5a00cfc65da09e53344432b5e5edcbb",
     "dirty": true
   },
-  "digest": "7f5a52f7de571b8fdb6188befe8c58c522838b946b96934916012a88423bc359",
+  "digest": "a59cd0499a034e7a68d44477884ea1d2801912fac185965cee2bfb1e815dc81c",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,7 +15,7 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "5c8f9e0bf6589f28aa8ef08a79c142366cedeee3c00889ec552d4eb133e853d2",
+      "sha256": "4e51ee52f7e1b6d68eba025fa8dda60ddc6be33467af9fe98886fcd7f6ec9502",
       "bytes": 74331
     },
     {
@@ -410,8 +410,8 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p10-ci.txt",
-      "sha256": "55e2f6c3fe1b3c5f3770f38bf4e131ea8c28a156d572205442af0852e53d0a6c",
-      "bytes": 13030
+      "sha256": "b9f4f0f8973119fbafd62bd92dd8f41f5ecd99b8e813ef0aa371bf476844ef07",
+      "bytes": 12960
     },
     {
       "path": "docs/evidence/macos/artifacts/signing-inventory.txt",
