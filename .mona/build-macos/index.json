@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-12T00:38:24.236Z",
+  "generated_utc": "2026-11-12T00:39:16.997Z",
   "git": {
     "available": true,
-    "commit": "f02916cfa6a074a43b69ab44b9b5b300629b0023",
+    "commit": "2f73f27396c838660802a6f76d5670be2ead7ef9",
     "dirty": true
   },
-  "digest": "50044b77ad80473e327714ee3300423bc57e32f64c84065e7c504b1d3fe09d52",
+  "digest": "c350e6e8276f826c36e9f4b958e1af79f82f7724314abb9fa7f23ad2970a4cfe",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,8 +15,8 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "f6a6146b9d2812dd68c58dc128c75275e5fa287006f5d4b29d9cc4016caafc97",
-      "bytes": 12150
+      "sha256": "b02e1740b7ca5d50c3dc833b7e016fc7fe64a2f12d2532066c6911181c71746c",
+      "bytes": 12698
     },
     {
       "path": "AGENTS.md",
@@ -72,6 +72,21 @@
       "path": "docs/evidence/macos/artifacts/signing-inventory.txt",
       "sha256": "3e45104c0497ce03bcba731224d253e6003d8addfb46933fc778a3b79ae07d7c",
       "bytes": 397
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/upstream-ARCHITECTURE.md",
+      "sha256": "8f591d2d7996be6073ddb1d46f7ad9ea989e203a5fd000a32b47cb1f12ad4e8f",
+      "bytes": 30122
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/upstream-PROVIDERS.md",
+      "sha256": "fd375b08942cfdc336986c1a7a0872df8a486c3feeea58b6d892f3d7a611c212",
+      "bytes": 136653
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/upstream-RUNTIME_API.md",
+      "sha256": "82b8b74821dfefa8a6a3f16bec96a937fc146311cbd13e6bbb4df7333e486f4a",
+      "bytes": 186525
     },
     {
       "path": "docs/evidence/macos/P00-bootstrap.md",

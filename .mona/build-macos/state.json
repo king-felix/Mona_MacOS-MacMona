@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 10,
+  "revision": 11,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -49,7 +49,7 @@
         },
         {
           "path": "docs/discovery-macos.md",
-          "sha256": "2a63bb3179c2fe3e4298f28802a4de01936b0d1bc4f519de6689bceef2956695"
+          "sha256": "943c81ae77724032b098e637c40d09c477855117daf9321e3090c3f24a498678"
         },
         {
           "path": "docs/requirements-macos.json",
@@ -66,6 +66,18 @@
         {
           "path": "docs/evidence/macos/artifacts/p00-adversarial-probes.txt",
           "sha256": "fe7aa8b100d2cac45b019dd3f13a73d426b6aaf8bd868fedf24cf439c477072f"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/upstream-RUNTIME_API.md",
+          "sha256": "82b8b74821dfefa8a6a3f16bec96a937fc146311cbd13e6bbb4df7333e486f4a"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/upstream-ARCHITECTURE.md",
+          "sha256": "8f591d2d7996be6073ddb1d46f7ad9ea989e203a5fd000a32b47cb1f12ad4e8f"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/upstream-PROVIDERS.md",
+          "sha256": "fd375b08942cfdc336986c1a7a0872df8a486c3feeea58b6d892f3d7a611c212"
         }
       ],
       "blocker_ids": [],
@@ -401,7 +413,7 @@
   "next_eligible_prompts": [
     "P01"
   ],
-  "last_checkpoint_utc": "2026-11-12T00:38:24.160Z",
+  "last_checkpoint_utc": "2026-11-12T00:39:12.993Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

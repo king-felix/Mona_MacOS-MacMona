@@ -53,6 +53,16 @@ value was read, printed, or stored.
   requiring Node on the recipient machine. This is a P01/P21 verification item,
   not yet a proven packaging path.
 - Other PATH entries: none. No conflicting second installation was found.
+- **Source provenance (verified during P00):** the GitHub tag `v0.10.2` exists in
+  `codewhale-hq/Codewhale` and its commit is
+  `ff466b2ed0bfb4ae5267d4d8d0ecb562cf46956e` — the same abbreviated commit the
+  installed binary prints (`0.10.2 (ff466b2ed0bf)`). Documentation for that exact
+  tag was downloaded to `docs/evidence/macos/artifacts/`:
+  `RUNTIME_API.md` (SHA-256
+  `82b8b74821dfefa8a6a3f16bec96a937fc146311cbd13e6bbb4df7333e486f4a`, 186 KB),
+  `ARCHITECTURE.md` (`8f591d2d…f12ad4e8f`), `PROVIDERS.md` (`fd375b08…d5a611c212`).
+  P01 reads the relevant sections of the pinned documents rather than assuming
+  `main`.
 - **Transports advertised by this build:** `app-server --http` (canonical
   Runtime API `/v1/*`, loopback 127.0.0.1:7878, bearer token via
   `CODEWHALE_RUNTIME_TOKEN`), `--stdio` and `--socket` compatibility JSON-RPC
