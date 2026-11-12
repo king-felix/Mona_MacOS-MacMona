@@ -25,18 +25,22 @@ Verified in this session:
 - Requirements: `docs/requirements-macos.json` has P00–P27, MONA-001..030,
   MAC-001..008, valid dependency order, no cycles.
 - Ledger: `tools/monabuild` (schema validation, atomic writes, revision
-  conflicts, recovery, attempt enforcement, hash index, secret scan) with 27
-  passing tests; interrupted-checkpoint recovery demonstrated in
-  `docs/evidence/macos/artifacts/p00-recovery-simulation.txt`.
+  conflicts, interrupted-checkpoint recovery, attempt enforcement, hash index,
+  evidence-hash verification, secret/machine-path scan) with **36 passing
+  tests**; recovery demonstrated in
+  `docs/evidence/macos/artifacts/p00-recovery-simulation.txt` and additional
+  ledger probes in `docs/evidence/macos/artifacts/p00-adversarial-probes.txt`.
 
 ## Next exact action
 
-Run P01: read spec §2, §6, §7.1, §9, §10 and this handoff; inspect
-`docs/evidence/macos/artifacts/codewhale-app-server-help.txt`; start the
-installed engine with `app-server --http` on a loopback port with a token from
-the environment, discover the documented Runtime API contract from the pinned
-sources, then run the smallest cheap tool-enabled task and record tokens/events.
-P01 owns the G0/G1/G2 evidence and the $2 cost-pilot ceiling.
+Run P01. First action: read spec §2, §6, §7.1, §9, §10, this handoff, and the
+endpoint section of `docs/evidence/macos/artifacts/upstream-RUNTIME_API.md`
+(pinned at tag v0.10.2, `/v1/*` HTTP/SSE, bearer token, loopback only). Then start
+`codewhale app-server --http` on a loopback port with the token supplied through
+the environment (never argv), and run the smallest real tool-enabled task in a
+throwaway APFS workspace to produce G0 evidence. P01 owns G0/G1/G2, the $2
+pilot ceiling, and `docs/codewhale-capabilities-macos.json` qualification.
+Do not upgrade the engine and do not change the configured route.
 
 ## Open blockers
 
