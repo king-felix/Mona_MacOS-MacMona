@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-12T04:42:08.654Z",
+  "generated_utc": "2026-11-12T04:43:12.594Z",
   "git": {
     "available": true,
-    "commit": "15cc3c3623caf572553728b9455c83d5cfd52db3",
+    "commit": "ef6d660a8bb68d2e5941fe66e00c0b809e448c47",
     "dirty": true
   },
-  "digest": "3bf0f942624ad30726f296d19179caa8c5747c09aff91d7bc81c602bf13fc259",
+  "digest": "fc0ca5ac8cf2f8b27871ff17d5c917d402f1f48c8eb4b55e0c2e10635a3a6767",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,7 +15,7 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "e0d0204feb40e62bb3f16ef8c8f39b7af393e1331227d0230123543b3257eada",
+      "sha256": "aff0189e466f574233e4164262726c2daa8960b01397d390f1e0d029652f50be",
       "bytes": 74331
     },
     {
@@ -400,7 +400,7 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p10-board-sample.txt",
-      "sha256": "1dc81d9851b572ee57ce79aed9a38e8d6555be51e9e5db5bef18112874941f16",
+      "sha256": "06868aa0173a08efbbdc2223365300b31f9de9920c5458d418731c1ddd1c09f6",
       "bytes": 3601
     },
     {
@@ -410,8 +410,8 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p10-ci.txt",
-      "sha256": "f8df7d6dfd21bbb7422a5bb8e97baceb00163bf7edee8b2c7a97a5d9f827b896",
-      "bytes": 13032
+      "sha256": "55e2f6c3fe1b3c5f3770f38bf4e131ea8c28a156d572205442af0852e53d0a6c",
+      "bytes": 13030
     },
     {
       "path": "docs/evidence/macos/artifacts/signing-inventory.txt",
@@ -485,8 +485,8 @@
     },
     {
       "path": "docs/evidence/macos/P10-continuity.md",
-      "sha256": "07d8d27f369cfe76a0f93294bfd84aa9d07ac9c1e17b35d829a5265e97de748c",
-      "bytes": 10476
+      "sha256": "1a1aac5c588f81befc2a1fc9d948fa971c6e01980d413cd6ef92faba63db89e6",
+      "bytes": 10591
     },
     {
       "path": "docs/requirements-macos.json",

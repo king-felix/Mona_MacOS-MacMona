@@ -108,7 +108,13 @@ interface LoadedBoard {
   dependencies: Array<{ taskId: TaskId; dependsOnTaskId: TaskId }>;
   runs: Awaited<ReturnType<StateStore["listTaskRuns"]>>;
   attempts: number;
-  evidence: Array<{ taskId: TaskId | null; requirementId: string; path: string }>;
+  evidence: Array<{
+    taskId: TaskId | null;
+    requirementId: string;
+    path: string;
+    note: string | null;
+    createdAt: string;
+  }>;
   transitions: TaskTransitionRecord[];
 }
 
@@ -610,6 +616,8 @@ export class TaskBoard {
         taskId: entry.taskId,
         requirementId: entry.requirementId,
         path: entry.path,
+        note: entry.note,
+        createdAt: entry.createdAt,
       })),
       transitions,
     };
@@ -632,6 +640,14 @@ export class TaskBoard {
           .filter((dependency) => dependency.taskId === task.id)
           .map((dependency) => dependency.dependsOnTaskId),
         acceptance: loaded.criteria.get(task.id) ?? [],
+        evidence: loaded.evidence
+          .filter((entry) => entry.taskId === task.id)
+          .map(({ requirementId, path, note, createdAt }) => ({
+            requirementId,
+            path,
+            note,
+            createdAt,
+          })),
         steps: (loaded.steps.get(task.id) ?? []) as TaskStep[],
         nextStep: task.nextStep,
         verificationFingerprint: task.verificationFingerprint,

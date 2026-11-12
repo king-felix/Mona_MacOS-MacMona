@@ -272,6 +272,41 @@ describe("work board: state machine and evidence", () => {
     await b.store.close();
   });
 
+  it("edits a task only while no run is active and shows linked requirement evidence", async () => {
+    const b = await bench();
+    const task = await b.store.createTask({
+      projectId: b.projectId,
+      title: "Draft title",
+      prompt: "draft prompt",
+      requirements: ["MONA-009"],
+      acceptance: [{ text: "done", kind: "check" }],
+    });
+    const edited = await b.board.update(task.id, task.revision, {
+      title: "Final title",
+      prompt: "final prompt",
+    });
+    expect(edited.title).toBe("Final title");
+    expect(edited.prompt).toBe("final prompt");
+
+    await b.board.addEvidence({
+      projectId: b.projectId,
+      taskId: task.id,
+      requirementId: "MONA-009",
+      path: join(b.root, "proof.txt"),
+      note: "sample",
+    });
+    const withEvidence = await b.board.taskView(task.id);
+    expect(withEvidence.evidence).toEqual([
+      expect.objectContaining({ requirementId: "MONA-009", note: "sample" }),
+    ]);
+
+    const started = await b.store.beginTaskRun({ taskId: task.id, owner: "mona_queue" });
+    await expect(
+      b.board.update(task.id, started.task.revision, { title: "Too late" }),
+    ).rejects.toMatchObject({ code: "CONFLICT" });
+    await b.store.close();
+  });
+
   it("reopens completed verification when the workspace changes", async () => {
     const b = await bench();
     const task = await b.store.createTask({

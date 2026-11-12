@@ -39,7 +39,7 @@ All matched files use Prettier code style!
   "signature": "ad-hoc",
   "signed": true,
   "verified": true,
-  "built_at": "2026-11-12T04:41:44.470Z"
+  "built_at": "2026-11-12T04:42:49.557Z"
 }
 
 > mona@0.1.0-p02 build:service
@@ -74,7 +74,7 @@ All matched files use Prettier code style!
     ],
     "service": "Start new DS project with Mona"
   },
-  "built_at": "2026-11-12T04:41:46.469Z"
+  "built_at": "2026-11-12T04:42:51.555Z"
 }
 
 > mona@0.1.0-p02 pretest
@@ -93,7 +93,7 @@ All matched files use Prettier code style!
   "signature": "ad-hoc",
   "signed": true,
   "verified": true,
-  "built_at": "2026-11-12T04:41:48.486Z"
+  "built_at": "2026-11-12T04:42:53.571Z"
 }
 
 > mona@0.1.0-p02 test
@@ -102,50 +102,50 @@ All matched files use Prettier code style!
 
 [1m[30m[46m RUN [49m[39m[22m [36mv5.1.0 [39m[90m/Users/<user>/DS_Projects/Mona[39m
 
- [32m✓[39m test/state-portable.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 659[2mms[22m[39m
- [32m✓[39m test/work-board.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 694[2mms[22m[39m
- [32m✓[39m test/work-studio.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 668[2mms[22m[39m
- [32m✓[39m test/projects-service.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 900[2mms[22m[39m
- [32m✓[39m test/state-database.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 1003[2mms[22m[39m
- [32m✓[39m test/state-artifacts.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 219[2mms[22m[39m
- [32m✓[39m test/state-catalog.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 315[2mms[22m[39m
- [32m✓[39m test/runtime-supervisor.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 136[2mms[22m[39m
- [32m✓[39m test/runtime-process.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 373[2mms[22m[39m
- [32m✓[39m test/open-coordinator.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 70[2mms[22m[39m
+ [32m✓[39m test/runtime-process.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 358[2mms[22m[39m
+ [32m✓[39m test/state-portable.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 555[2mms[22m[39m
+ [32m✓[39m test/work-studio.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 600[2mms[22m[39m
+ [32m✓[39m test/state-catalog.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 338[2mms[22m[39m
+ [32m✓[39m test/projects-service.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 875[2mms[22m[39m
+ [32m✓[39m test/state-database.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 928[2mms[22m[39m
+ [32m✓[39m test/state-artifacts.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 231[2mms[22m[39m
+ [32m✓[39m test/runtime-supervisor.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 130[2mms[22m[39m
+ [32m✓[39m test/open-coordinator.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 72[2mms[22m[39m
+ [32m✓[39m test/work-board.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 420[2mms[22m[39m
+ [32m✓[39m test/work-profile.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 44[2mms[22m[39m
+ [32m✓[39m test/boundary.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+ [32m✓[39m test/engine-adapter.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+ [32m✓[39m test/studio-render.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[32m 9[2mms[22m[39m
 Not implemented: HTMLCanvasElement's getContext() method: without installing the @napi-rs/canvas npm package
- [32m✓[39m test/engine-adapter.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 32[2mms[22m[39m
- [32m✓[39m test/design-components.test.tsx [2m([22m[2m17 tests[22m[2m)[22m[33m 852[2mms[22m[39m
- [32m✓[39m test/work-profile.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 42[2mms[22m[39m
- [32m✓[39m test/boundary.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 23[2mms[22m[39m
- [32m✓[39m test/studio-render.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[32m 15[2mms[22m[39m
- [32m✓[39m test/studio-screen.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 62[2mms[22m[39m
- [32m✓[39m test/folder-request.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 9[2mms[22m[39m
- [32m✓[39m test/tool-discovery.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 7[2mms[22m[39m
- [32m✓[39m test/fixtures.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 5[2mms[22m[39m
- [32m✓[39m test/state-paths.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 11[2mms[22m[39m
- [32m✓[39m test/supervisor-records.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 9[2mms[22m[39m
- [32m✓[39m test/engine-sse.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m test/contracts.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m test/folder-request.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m test/design-components.test.tsx [2m([22m[2m17 tests[22m[2m)[22m[33m 889[2mms[22m[39m
+ [32m✓[39m test/studio-screen.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 73[2mms[22m[39m
+ [32m✓[39m test/state-paths.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m test/supervisor-records.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m test/tool-discovery.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m test/open-service-status.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m test/work-control.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 5[2mms[22m[39m
  [32m✓[39m test/ipc-contract.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 8[2mms[22m[39m
- [32m✓[39m test/contracts.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 13[2mms[22m[39m
- [32m✓[39m test/work-control.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 7[2mms[22m[39m
- [32m✓[39m test/design-no-network.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 3[2mms[22m[39m
- [32m✓[39m test/engine-compat.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 6[2mms[22m[39m
- [32m✓[39m test/open-service-status.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 6[2mms[22m[39m
- [32m✓[39m test/supervisor-identity.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 4[2mms[22m[39m
- [32m✓[39m test/design-tokens.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m test/engine-compat.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m test/fixtures.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m test/engine-sse.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 6[2mms[22m[39m
  [32m✓[39m test/supervisor-restart.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m test/supervisor-identity.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m test/design-tokens.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m test/design-no-network.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 3[2mms[22m[39m
  [32m✓[39m test/open-drop.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 2[2mms[22m[39m
  [32m✓[39m test/navigation.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 2[2mms[22m[39m
- [32m✓[39m test/supervisor-native.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 2131[2mms[22m[39m
+ [32m✓[39m test/supervisor-native.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 2145[2mms[22m[39m
    [32m✓[39m native supervisor [2m(8)[22m
-     [33m[2m✓[22m[39m stops the entire owned tree and leaves unrelated processes alone[33m 414[2mms[22m[39m
-     [33m[2m✓[22m[39m records the escaped process group and stops it by identity[33m 392[2mms[22m[39m
-     [33m[2m✓[22m[39m escalates a TERM-ignoring tree to a bounded SIGKILL[33m 823[2mms[22m[39m
+     [33m[2m✓[22m[39m stops the entire owned tree and leaves unrelated processes alone[33m 415[2mms[22m[39m
+     [33m[2m✓[22m[39m records the escaped process group and stops it by identity[33m 386[2mms[22m[39m
+     [33m[2m✓[22m[39m escalates a TERM-ignoring tree to a bounded SIGKILL[33m 813[2mms[22m[39m
 
 [2m Test Files [22m [1m[32m34 passed[39m[22m[90m (34)[39m
-[2m      Tests [22m [1m[32m289 passed[39m[22m[90m (289)[39m
-[2m   Start at [22m 21:41:48
-[2m   Duration [22m 2.28s[2m (tests 81%, import 10%, environment 7%, transform 2%, worker 1%)[22m
+[2m      Tests [22m [1m[32m290 passed[39m[22m[90m (290)[39m
+[2m   Start at [22m 21:42:53
+[2m   Duration [22m 2.27s[2m (tests 80%, import 10%, environment 7%, transform 2%, worker 1%)[22m
 
 [2m    Isolate [22m [33m34 workers spawned[39m[2m · ~120ms startup each (spawn + environment, per file)[22m
 [2m            [22m [2mat least ~464ms faster with [22m[33misolate: false[39m[2m — reuses workers across files instead of one per file[22m
@@ -172,10 +172,10 @@ transforming...
 rendering chunks...
 computing gzip size...
 dist/renderer/index.html                   0.68 kB │ gzip:   0.38 kB
-dist/renderer/assets/index-DPsFQyk5.css   40.70 kB │ gzip:   7.59 kB
-dist/renderer/assets/index-CI6TVz04.js   371.16 kB │ gzip: 107.64 kB
+dist/renderer/assets/index-Cld4qZgt.css   40.95 kB │ gzip:   7.61 kB
+dist/renderer/assets/index-DMYPGW68.js   372.47 kB │ gzip: 107.91 kB
 
-[32m✓ built in 80ms[39m
+[32m✓ built in 82ms[39m
 
 > mona@0.1.0-p02 smoke:board
 > npm run build:main && node scripts/board-smoke.mjs
@@ -267,7 +267,7 @@ P10 sample run: PASS
   "stale": [
     {
       "taskId": "tsk_00000003",
-      "reason": "workspace changed after verification (3508e4a4 → a523582b)"
+      "reason": "workspace changed after verification (b60b2c78 → 492bd777)"
     }
   ],
   "transitions": [
@@ -318,7 +318,7 @@ P10 sample run: PASS
       "from": "completed",
       "to": "verifying",
       "actor": "reconciler",
-      "reason": "workspace changed after verification (3508e4a4 → a523582b)"
+      "reason": "workspace changed after verification (b60b2c78 → 492bd777)"
     }
   ],
   "workspace_files": {
@@ -333,56 +333,56 @@ P10 sample run: PASS
       "name": "format:check",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 1338
+      "elapsed_ms": 1345
     },
     {
       "name": "lint",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 1292
+      "elapsed_ms": 1284
     },
     {
       "name": "typecheck",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 1919
+      "elapsed_ms": 1910
     },
     {
       "name": "build:supervisor",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 2349
+      "elapsed_ms": 2129
     },
     {
       "name": "build:service",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 2001
+      "elapsed_ms": 2002
     },
     {
       "name": "test",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 4459
+      "elapsed_ms": 4452
     },
     {
       "name": "build",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 1560
+      "elapsed_ms": 1588
     },
     {
       "name": "smoke:board",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 1440
+      "elapsed_ms": 1424
     }
   ],
   "renderer_scan": {
     "ok": true,
     "files": 3,
     "patterns": [],
-    "bytes": 412554
+    "bytes": 414100
   },
-  "dist_bytes": 412554
+  "dist_bytes": 414100
 }

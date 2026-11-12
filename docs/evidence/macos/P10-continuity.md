@@ -126,14 +126,14 @@ audit row. One task's evidence does not invalidate another task.
 | Check | Result |
 | --- | --- |
 | `npm run typecheck` (main + renderer) | clean |
-| `npx vitest run` | **289 tests in 34 files passed** |
+| `npx vitest run` | **290 tests in 34 files passed** |
 | P10 sample-project run (`npm run smoke:board`) | **22/22 checks passed** |
 | Electron security smoke (`npm run smoke`) | `ok: true`, `bridge_is_narrow: true` |
 | Shell smoke (`npm run smoke:shell`) | board rendered, task present, **6 lanes**, no overflow |
 | `npm run build` | main + renderer built |
 | Local CI (`npm run ci`) | see `docs/evidence/macos/artifacts/p10-ci.txt` |
 
-### Board tests (`test/work-board.test.ts`, 11 tests)
+### Board tests (`test/work-board.test.ts`, 12 tests)
 
 - Dependency cycles are rejected at import and at `addTaskDependency`, with no
   partial import.
@@ -149,6 +149,8 @@ audit row. One task's evidence does not invalidate another task.
 - Plans import inert, criteria survive export/re-import, the queue runs one
   prompt and stops, context preview excludes the design documents, and the
   handoff names the resume step.
+- A pending task can be edited; an active run refuses edits; linked requirement
+  evidence is visible on the task.
 
 ### Sample project run (`artifacts/p10-board-sample.txt`)
 

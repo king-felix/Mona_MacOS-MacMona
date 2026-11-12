@@ -117,7 +117,11 @@ function TaskDetail({
     path: "",
   });
   const [preview, setPreview] = useState<ContextPreview | null>(null);
+  const [editing, setEditing] = useState(false);
+  const [draftTitle, setDraftTitle] = useState(task.title);
+  const [draftPrompt, setDraftPrompt] = useState(task.prompt);
   const unsatisfied = task.acceptance.filter((criterion) => !criterion.satisfied).length;
+  const editable = ["pending", "blocked", "interrupted", "skipped"].includes(task.status);
 
   return (
     <Card title={task.title} eyebrow={`${task.owner} · ${task.status}`}>
@@ -211,6 +215,19 @@ function TaskDetail({
             <p className="muted">
               Completion requires at least one linked evidence path for each requirement.
             </p>
+            {task.evidence.length > 0 ? (
+              <ul className="evidence-list">
+                {task.evidence.map((entry) => (
+                  <li key={`${entry.requirementId}:${entry.path}`}>
+                    <Badge tone="neutral">{entry.requirementId}</Badge>{" "}
+                    <span className="mono">{entry.path}</span>
+                    {entry.note ? <span className="muted"> · {entry.note}</span> : null}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="muted">No requirement evidence linked yet.</p>
+            )}
             <div className="inline-form">
               <SelectField
                 label="Requirement"
@@ -253,8 +270,59 @@ function TaskDetail({
           </>
         ) : null}
 
+        {editing ? (
+          <div className="edit-panel">
+            <TextField
+              label="Title"
+              value={draftTitle}
+              onChange={(event) => setDraftTitle(event.target.value)}
+            />
+            <TextArea
+              label="Prompt"
+              hint="Editing is refused while a run is active."
+              value={draftPrompt}
+              rows={5}
+              onChange={(event) => setDraftPrompt(event.target.value)}
+            />
+            <div className="button-row">
+              <Button
+                variant="primary"
+                disabled={busy || !draftTitle.trim() || !draftPrompt.trim()}
+                onClick={() =>
+                  onAction(async () => {
+                    await unwrap(() =>
+                      window.mona.updateBoardTask(task.id, task.revision, {
+                        title: draftTitle.trim(),
+                        prompt: draftPrompt.trim(),
+                      }),
+                    );
+                    setEditing(false);
+                  })
+                }
+              >
+                Save changes
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setDraftTitle(task.title);
+                  setDraftPrompt(task.prompt);
+                  setEditing(false);
+                }}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        ) : null}
+
         <h3>Actions</h3>
         <div className="button-row">
+          {editable ? (
+            <Button variant="secondary" disabled={busy} onClick={() => setEditing((open) => !open)}>
+              {editing ? "Close editor" : "Edit task"}
+            </Button>
+          ) : null}
           {task.status === "pending" ? (
             <Button
               variant="primary"

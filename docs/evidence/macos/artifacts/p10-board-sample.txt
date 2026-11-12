@@ -81,7 +81,7 @@ P10 sample run: PASS
   "stale": [
     {
       "taskId": "tsk_00000003",
-      "reason": "workspace changed after verification (7d48a66f → 0867d983)"
+      "reason": "workspace changed after verification (114b898d → 1fb81418)"
     }
   ],
   "transitions": [
@@ -132,7 +132,7 @@ P10 sample run: PASS
       "from": "completed",
       "to": "verifying",
       "actor": "reconciler",
-      "reason": "workspace changed after verification (7d48a66f → 0867d983)"
+      "reason": "workspace changed after verification (114b898d → 1fb81418)"
     }
   ],
   "workspace_files": {

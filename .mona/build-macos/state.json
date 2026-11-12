@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 114,
+  "revision": 117,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -338,7 +338,7 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "3a7c0b93c7c250f5b7ed8555f9d36e2e21a4276d5758c42a6ebc7737426f0df6"
+          "sha256": "73a7755b66a267a69b284ac436d78d7a49611e67ab7c419fcfac9f3cd559d13a"
         },
         {
           "path": "src/shared/contracts/bridge.ts",
@@ -1189,7 +1189,7 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "3a7c0b93c7c250f5b7ed8555f9d36e2e21a4276d5758c42a6ebc7737426f0df6"
+          "sha256": "73a7755b66a267a69b284ac436d78d7a49611e67ab7c419fcfac9f3cd559d13a"
         },
         {
           "path": "test/folder-request.test.ts",
@@ -1251,11 +1251,11 @@
       "evidence": [
         {
           "path": "docs/evidence/macos/P10-continuity.md",
-          "sha256": "07d8d27f369cfe76a0f93294bfd84aa9d07ac9c1e17b35d829a5265e97de748c"
+          "sha256": "1a1aac5c588f81befc2a1fc9d948fa971c6e01980d413cd6ef92faba63db89e6"
         },
         {
           "path": "docs/evidence/macos/artifacts/p10-board-sample.txt",
-          "sha256": "1dc81d9851b572ee57ce79aed9a38e8d6555be51e9e5db5bef18112874941f16"
+          "sha256": "06868aa0173a08efbbdc2223365300b31f9de9920c5458d418731c1ddd1c09f6"
         },
         {
           "path": "docs/evidence/macos/artifacts/p10-board.png",
@@ -1263,11 +1263,11 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p10-ci.txt",
-          "sha256": "f8df7d6dfd21bbb7422a5bb8e97baceb00163bf7edee8b2c7a97a5d9f827b896"
+          "sha256": "55e2f6c3fe1b3c5f3770f38bf4e131ea8c28a156d572205442af0852e53d0a6c"
         },
         {
           "path": "src/main/work/board.ts",
-          "sha256": "43ba14a76dbf8f7829b58a70c748dc8a813159005d4619822344801b3eac415d"
+          "sha256": "8ee4db45eaba11d97890abd8709d00d448e9c772afdc94d4c2d77ffd4c9c218b"
         },
         {
           "path": "src/main/work/fingerprint.ts",
@@ -1291,7 +1291,7 @@
         },
         {
           "path": "src/shared/contracts/board.ts",
-          "sha256": "a49b878e82b1d8eac9d214d81aa4ecd6a38ee15e1eb8248007370be7fbfc21fd"
+          "sha256": "813bb4b0ceba099ee3558eab93456194bc41fe19228e8e75a9be0b99d7826230"
         },
         {
           "path": "src/shared/contracts/project.ts",
@@ -1319,7 +1319,7 @@
         },
         {
           "path": "src/renderer/shell/Board.tsx",
-          "sha256": "62791ffceb8237c5c5b2cc8041d65bcb738c97e0107d2bbcaa5defefbdc7c03b"
+          "sha256": "56955aaecc59ed07685f2a56c400bd3a26042aedb40a5f4bea53f09af1971a53"
         },
         {
           "path": "src/renderer/design/primitives.tsx",
@@ -1327,11 +1327,11 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "3a7c0b93c7c250f5b7ed8555f9d36e2e21a4276d5758c42a6ebc7737426f0df6"
+          "sha256": "73a7755b66a267a69b284ac436d78d7a49611e67ab7c419fcfac9f3cd559d13a"
         },
         {
           "path": "test/work-board.test.ts",
-          "sha256": "b4b356dbe0b117550b8a4e7fe174e8bfabe456bcf19bab4884fd478ec5145439"
+          "sha256": "4110ef0851e68cec1f6f1bfe38681ecfb1e22ccb27108099e95df46d5870c9b4"
         },
         {
           "path": "test/state-database.test.ts",
@@ -1550,7 +1550,7 @@
   "next_eligible_prompts": [
     "P08"
   ],
-  "last_checkpoint_utc": "2026-11-12T04:42:05.026Z",
+  "last_checkpoint_utc": "2026-11-12T04:43:12.511Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

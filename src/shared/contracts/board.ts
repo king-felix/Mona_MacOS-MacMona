@@ -82,6 +82,12 @@ export interface TaskView {
   requirements: string[];
   dependsOn: TaskId[];
   acceptance: AcceptanceCriterion[];
+  evidence: Array<{
+    requirementId: string;
+    path: string;
+    note: string | null;
+    createdAt: string;
+  }>;
   steps: TaskStep[];
   nextStep: string | null;
   verificationFingerprint: string | null;
