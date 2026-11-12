@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-12T03:20:39.130Z",
+  "generated_utc": "2026-11-12T03:21:54.808Z",
   "git": {
     "available": true,
-    "commit": "82e632911191940de22c5257fccf3a071ce93227",
+    "commit": "cf6abcc8fe528d3a78af98d65fd5c42f1704f5a9",
     "dirty": true
   },
-  "digest": "6147df9743f5314749ebf2f7f5957a4118098cc1b4aa0f695c602757d787b956",
+  "digest": "11322f6b7fda21da2a0b9a536804aa8ab12b20b4810ff8a3981b55051cd12809",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,7 +15,7 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "c94dd5606512918ce8afd25afa5a0a3b4f2ff8abd666cba436a86465ea387f05",
+      "sha256": "88de7a8ffe5c9e879c7c94be205028e2c3402f076fe5ee417858f0968f2ac23a",
       "bytes": 55275
     },
     {
@@ -305,13 +305,13 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p07-shell-board.png",
-      "sha256": "d58dad6b57edfb2288960008c3b511923a83cdf89871bb03d2da899883de073d",
-      "bytes": 269071
+      "sha256": "62fdbb78d49e9677c09a1457923894b4b3158cb4b91ab556bf2676e30e64f5ed",
+      "bytes": 269086
     },
     {
       "path": "docs/evidence/macos/artifacts/p07-shell-home.png",
-      "sha256": "5ec54762c7e2492e957901759c75935d8a5b5a96d4377a560b3de1546939b941",
-      "bytes": 257341
+      "sha256": "0334e92f5d357857ca58b043136f4ff62d5ae00624c06d5aa16f97a7716fb579",
+      "bytes": 257400
     },
     {
       "path": "docs/evidence/macos/artifacts/p07-shell-settings.png",
@@ -325,8 +325,8 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p07-shell-studio.png",
-      "sha256": "50dcf1ddb43a6f5079bbac3c2bf56d116c27ad0e28109f831d2408f05f66a78a",
-      "bytes": 302468
+      "sha256": "cc3044bb3e07b1014f93e150e998762e5bf847e9299867644092391f5733b243",
+      "bytes": 302105
     },
     {
       "path": "docs/evidence/macos/artifacts/p07-tests.txt",

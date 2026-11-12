@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 75,
+  "revision": 77,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -338,7 +338,7 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "9a0a127f20a36702541b1104144ccc272f68e578c0767a12a0a6384e9aa45b02"
+          "sha256": "c68b2eed431cad5f01ac3d88cd6612cd9e96cd70e354854046721780c05b7cb3"
         },
         {
           "path": "src/shared/contracts/bridge.ts",
@@ -934,15 +934,15 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p07-shell-home.png",
-          "sha256": "5ec54762c7e2492e957901759c75935d8a5b5a96d4377a560b3de1546939b941"
+          "sha256": "0334e92f5d357857ca58b043136f4ff62d5ae00624c06d5aa16f97a7716fb579"
         },
         {
           "path": "docs/evidence/macos/artifacts/p07-shell-studio.png",
-          "sha256": "50dcf1ddb43a6f5079bbac3c2bf56d116c27ad0e28109f831d2408f05f66a78a"
+          "sha256": "cc3044bb3e07b1014f93e150e998762e5bf847e9299867644092391f5733b243"
         },
         {
           "path": "docs/evidence/macos/artifacts/p07-shell-board.png",
-          "sha256": "d58dad6b57edfb2288960008c3b511923a83cdf89871bb03d2da899883de073d"
+          "sha256": "62fdbb78d49e9677c09a1457923894b4b3158cb4b91ab556bf2676e30e64f5ed"
         },
         {
           "path": "docs/evidence/macos/artifacts/p07-shell-settings.png",
@@ -1198,7 +1198,7 @@
   "next_eligible_prompts": [
     "P08"
   ],
-  "last_checkpoint_utc": "2026-11-12T03:20:39.046Z",
+  "last_checkpoint_utc": "2026-11-12T03:21:54.720Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

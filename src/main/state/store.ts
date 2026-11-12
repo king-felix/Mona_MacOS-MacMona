@@ -1433,7 +1433,8 @@ export class StateStore {
         outputTokens: asNumber(row.output_tokens),
         cachedTokens: asNumber(row.cached_tokens),
         costUsd: asNumber(row.cost_usd),
-        costComplete: asNumber(row.turns) > 0 && asNumber(row.complete_rows) === asNumber(row.turns),
+        costComplete:
+          asNumber(row.turns) > 0 && asNumber(row.complete_rows) === asNumber(row.turns),
       }));
     });
   }
