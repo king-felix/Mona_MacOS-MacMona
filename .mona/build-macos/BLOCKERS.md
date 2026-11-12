@@ -4,7 +4,8 @@ Open problems that stop a requirement, with the three-attempt count preserved.
 Attempt records live in `attempts.jsonl`; this file is the human-readable view
 and the place that says exactly what help is needed.
 
-Status: **no blocked problems** as of the P00 checkpoint.
+Status: **no blocked problems** as of the P17 checkpoint. P16/P17 added known
+limits with verified routes, not blocked work.
 
 ## External prerequisites (not blocked work, not attempt-counted)
 

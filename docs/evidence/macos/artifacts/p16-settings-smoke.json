@@ -1,0 +1,210 @@
+{
+  "schema_version": 1,
+  "label": "P16 — provider, model, and configuration workbench",
+  "captured_at": "2026-11-12T09:08:51.773Z",
+  "ok": true,
+  "isolated_home": true,
+  "checks": {
+    "live provider catalog": {
+      "ok": true
+    },
+    "live model catalog": {
+      "ok": true
+    },
+    "engine route is visible": {
+      "ok": true
+    },
+    "endpoint authority has no path or userinfo": {
+      "ok": true
+    },
+    "flash publishes an effort ladder": {
+      "ok": true
+    },
+    "saved default persisted with a revision": {
+      "ok": true
+    },
+    "saved default is on disk": {
+      "ok": true
+    },
+    "unsupported reasoning refused": {
+      "ok": true
+    },
+    "refused setting did not change the stored route": {
+      "ok": true
+    },
+    "stale saved-default revision refused": {
+      "ok": true
+    },
+    "stale config revision refused before writing": {
+      "ok": true
+    },
+    "refused switch left the config untouched": {
+      "ok": true
+    },
+    "engine switch verified its observed route": {
+      "ok": true
+    },
+    "config backup written with the pre-write hash": {
+      "ok": true
+    },
+    "backup matches the pre-write document": {
+      "ok": true
+    },
+    "unknown config table preserved": {
+      "ok": true
+    },
+    "credential accepted without echoing the value": {
+      "ok": true
+    },
+    "session credential cleared": {
+      "ok": true
+    },
+    "diagnostics produced a redacted report": {
+      "ok": true
+    },
+    "diagnostics contain no home path": {
+      "ok": true
+    },
+    "diagnostics contain no fixture secret": {
+      "ok": true
+    },
+    "entire report contains no fixture secret": {
+      "ok": true
+    }
+  },
+  "observations": {
+    "snapshot": {
+      "runtime": "connected",
+      "provider_count": 51,
+      "model_count": 6,
+      "saved_default": {
+        "route": {
+          "provider": "deepseek",
+          "exactId": null,
+          "model": "deepseek-flash",
+          "reasoningEffort": null
+        },
+        "permissionPosture": "full_access",
+        "autoApprove": true,
+        "trustMode": true,
+        "allowShell": true,
+        "revision": 0,
+        "source": "measured_default",
+        "updatedAt": null,
+        "validation": {
+          "ok": true,
+          "checkedAt": "2026-11-12T09:08:52.309Z",
+          "reason": null,
+          "catalog": "live"
+        }
+      },
+      "engine_default": {
+        "provider": "deepseek",
+        "exactId": null,
+        "model": "deepseek-flash",
+        "reasoningEffort": "auto",
+        "endpointAuthority": "https://api.deepseek.com",
+        "endpointStatus": "configured",
+        "approvalMode": "suggest",
+        "sandboxMode": "workspace-write",
+        "allowShell": false,
+        "readAt": "2026-11-12T09:08:52.306Z",
+        "source": "live",
+        "error": null
+      },
+      "policy": {
+        "autoRoute": false,
+        "fallback": "refuse",
+        "note": "Mona never changes route on failure, never tries a second provider or model, and exposes no auto-router. A route failure stays on the configured route and is shown as an error."
+      },
+      "engine_selection": {
+        "source": "bundled",
+        "path": "/opt/homebrew/lib/node_modules/codewhale/bin/downloads/codewhale",
+        "sha256": "da0229610647f1cc2dd14c4227b333a92ea276a49f5d4d79160fa19e515e590d",
+        "version": "0.10.2",
+        "commit": "ff466b2ed0bfb4ae5267d4d8d0ecb562cf46956e",
+        "note": "Mona uses the installed native arm64 engine resolved at a fixed path. Platform binaries are selected by packaging, never by PATH."
+      }
+    },
+    "saved_default": {
+      "applied": true,
+      "target": "saved_default",
+      "before": {
+        "provider": "deepseek",
+        "exactId": null,
+        "model": "deepseek-flash",
+        "reasoningEffort": null
+      },
+      "after": {
+        "provider": "deepseek",
+        "exactId": null,
+        "model": "deepseek-flash",
+        "reasoningEffort": "high"
+      },
+      "persisted": true,
+      "requiresReload": false,
+      "backupPath": null,
+      "backupSha256": null,
+      "revisionBefore": "0",
+      "revisionAfter": "1",
+      "verification": "The saved default was validated against the live catalog and written to Mona's versioned settings. Active sessions keep the route they started with.",
+      "note": "Applies to new threads. An active turn is untouched."
+    },
+    "unsupported_reasoning": "'medium' is not one of this model's published levels (low, high, max)",
+    "engine_switch": {
+      "applied": true,
+      "target": "engine_default",
+      "before": {
+        "provider": "deepseek",
+        "exactId": null,
+        "model": "deepseek-flash",
+        "reasoningEffort": "auto"
+      },
+      "after": {
+        "provider": "deepseek",
+        "exactId": null,
+        "model": "deepseek-flash",
+        "reasoningEffort": "auto"
+      },
+      "persisted": true,
+      "requiresReload": false,
+      "backupPath": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p16-smoke-uhS75m/product/engine-config/engine-config-2026-11-12T09-08-52-430Z-1aa6faca56c6-config.toml",
+      "backupSha256": "1aa6faca56c6883518f81131e1cc089ddc00280410f42a522002121b87d784b4",
+      "revisionBefore": "1aa6faca56c6883518f81131e1cc089ddc00280410f42a522002121b87d784b4",
+      "revisionAfter": "ac4abaf346adc49b38223718dd7ef4ba1a7ef1bbb02cd43bce0ef65f233a1f74",
+      "verification": "The engine's live config reports the requested provider and model.",
+      "note": "Provider switched to deepseek (model: deepseek-flash)."
+    },
+    "credential": {
+      "provider": "deepseek",
+      "credentialState": "configured",
+      "stored": false,
+      "scope": "session",
+      "backend": "memory",
+      "note": "Held in engine memory for this run only; not written to disk and not shown again."
+    },
+    "credential_clear": {
+      "provider": "deepseek",
+      "cleared": true,
+      "credentialState": "configured",
+      "note": "The in-memory key overlay was removed; stored or environment credentials are unchanged."
+    },
+    "diagnostics": {
+      "ok": false,
+      "summary": "Diagnostics completed with 1 warning.",
+      "warnings": [
+        "provider credential availability: not_probed (secret_store_unprobed)"
+      ],
+      "redactions": 53,
+      "bytes": 16821
+    }
+  },
+  "backups": [
+    {
+      "file": "engine-config-2026-11-12T09-08-52-430Z-1aa6faca56c6-config.toml",
+      "sha256": "1aa6faca56c6883518f81131e1cc089ddc00280410f42a522002121b87d784b4",
+      "revision": "1aa6faca56c6883518f81131e1cc089ddc00280410f42a522002121b87d784b4"
+    }
+  ],
+  "error": null
+}

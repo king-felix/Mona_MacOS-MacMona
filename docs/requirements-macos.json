@@ -14,7 +14,7 @@
         "sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8"
       }
     ],
-    "indexed_utc": "2026-11-12T07:37:51.909Z"
+    "indexed_utc": "2026-11-12T08:56:29.008Z"
   },
   "prompts": [
     {
@@ -701,13 +701,13 @@
     {
       "id": "MONA-008",
       "track": "Core",
-      "title": "Explicit Plan/Work and effective permission display; Victor\u2019s saved DS Full Access profile; no silent policy widening",
+      "title": "Explicit Plan/Work and effective permission display; Victor’s saved DS Full Access profile; no silent policy widening",
       "prompts": [
         "P03",
         "P08",
         "P16"
       ],
-      "status": "partial",
+      "status": "satisfied",
       "acceptance": "pending",
       "evidence": [
         {
@@ -733,9 +733,17 @@
         {
           "path": "docs/evidence/macos/artifacts/p08-studio-run.png",
           "note": "Plan/Work control and configured posture on a live turn"
+        },
+        {
+          "path": "docs/evidence/macos/P16-settings.md",
+          "note": "P16 route/profile editing with effective-vs-requested display and no silent widening"
+        },
+        {
+          "path": "docs/decisions/ADR-011-configuration-and-extensions.md",
+          "note": "saved default, active session, and engine default are separate scopes; explicit confirmation for engine route changes"
         }
       ],
-      "notes": "P08: explicit Plan/Work control where Plan binds an ask posture with no auto-approval, no trust mode and no shell, and Work uses Victor's saved DS Full Access profile written once from the P01 measured route. Configured vs Observed route and permission are displayed separately, and a real turn reported deepseek/deepseek-flash with full_access. No renderer-settable policy field exists, so nothing can widen silently. Route/profile editing is P16."
+      "notes": "P08 established Plan/Work and effective permission display; P16 adds validated route/profile editing. A saved default is compare-and-swap and cannot alter an active turn. Permission posture changes are explicit and narrow to ask when Plan is chosen."
     },
     {
       "id": "MONA-009",
@@ -1156,7 +1164,7 @@
           "note": "local CI green: format, lint, typecheck, builds, 469 tests, five smokes"
         }
       ],
-      "notes": "P15: observatory over /v1/agent-runs and /v1/fleet/*. Expandable parent/child rows use real upstream identities (agent_8f9c0296, fleet-\u2026-local-1) with role, workspace, branch from a local Git read, lifecycle, last meaningful event, tool names from lifecycle events, test evidence (verified / self-reported / none), artifacts, and a spend confidence of priced, unpriced, unknown, or not_reported. A sub-agent whose ledger says usage is unknown shows unknown; a fleet receipt shows not_reported. Parent and child spend are separate rows and the view exposes no total, so a double count is not expressible. A fleet worker appears once, under its fleet, and inherits that sub-agent record's spend, tools, and tests. Disconnect falls back to a bounded local projection that says when it was observed, marks goals stale, and disables controls."
+      "notes": "P15: observatory over /v1/agent-runs and /v1/fleet/*. Expandable parent/child rows use real upstream identities (agent_8f9c0296, fleet-…-local-1) with role, workspace, branch from a local Git read, lifecycle, last meaningful event, tool names from lifecycle events, test evidence (verified / self-reported / none), artifacts, and a spend confidence of priced, unpriced, unknown, or not_reported. A sub-agent whose ledger says usage is unknown shows unknown; a fleet receipt shows not_reported. Parent and child spend are separate rows and the view exposes no total, so a double count is not expressible. A fleet worker appears once, under its fleet, and inherits that sub-agent record's spend, tools, and tests. Disconnect falls back to a bounded local projection that says when it was observed, marks goals stale, and disables controls."
     },
     {
       "id": "MONA-019",
@@ -1186,7 +1194,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p15-agents-live.json",
-          "note": "create \u2192 start (202) \u2192 terminal receipt \u2192 local task in verification, one owner"
+          "note": "create → start (202) → terminal receipt → local task in verification, one owner"
         }
       ],
       "notes": "P15 partial: goals (set, complete, block, clear), managed fleet runs (create, start, stop, worker stop/restart, receipts, receipt evidence, event replay), runs/history, and artifacts are surfaced natively. One scheduler per task is enforced by tasks.execution_owner plus a unique task_runs.upstream_id index; a terminal fleet run moves its task to verification, never to completed. Only one serial task launches per run: a live probe showed the engine accepting two parallel writer tasks on the same repository root, so parallel launch stays refused with four named qualification checks. Remaining gaps: `codewhale workflow` / `lane` (checked-in JS workflows through a Lane Runtime) have no /v1 route on 0.10.2, and goals have no HTTP pause route. P18 owns the first; pause is offered as block or clear."
@@ -1198,10 +1206,27 @@
       "prompts": [
         "P16"
       ],
-      "status": "pending",
+      "status": "satisfied",
       "acceptance": "pending",
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P16-settings.md",
+          "note": "P16 provider/model catalogs, scoped saved default, engine switch with backup and revision, redacted diagnostics, 22-check live smoke"
+        },
+        {
+          "path": "docs/decisions/ADR-011-configuration-and-extensions.md",
+          "note": "engine-owned configuration, route scopes, credential pass-through, fixed no-fallback policy"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p16-settings-smoke.json",
+          "note": "live pinned-engine configuration smoke, 22/22 checks"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p16-settings-route.png",
+          "note": "Providers & route workbench in the honest disconnected state"
+        }
+      ],
+      "notes": "P16: live provider/model catalogs, model-published reasoning levels only, saved new-thread default with compare-and-swap and live validation, separate engine-default switch with config backup+sha256 and stale-read refusal, credential class/writability without values, locked no-auto-route/no-fallback policy, and redacted doctor export. Active sessions keep their route."
     },
     {
       "id": "MONA-021",
@@ -1210,10 +1235,27 @@
       "prompts": [
         "P17"
       ],
-      "status": "pending",
+      "status": "satisfied",
       "acceptance": "pending",
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P17-extensions.md",
+          "note": "P17 MCP/skills/plugins/hooks/instructions/commands inventory, scoped actions, health, redaction, and stated gaps; 39-check live smoke"
+        },
+        {
+          "path": "docs/decisions/ADR-011-configuration-and-extensions.md",
+          "note": "engine-mediated extension actions, If-Match revisions, project-scope read-only, plugin trust limitation"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p17-extensions-smoke.json",
+          "note": "live local MCP fixture: add, handshake, tools, disable, stale conflict, missing executable, remove-preserves-config"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p17-settings-extensions.png",
+          "note": "Extensions workbench categories and known limits"
+        }
+      ],
+      "notes": "P17: MCP servers (global actions with revision preconditions, project scope read-only), skills with source/scope/toggle, plugin bundles with inventory/hashes/trust state and install-disabled default, read-only hooks with engine semantics, instruction sources, host/prompt command binding, on-demand tool listing, and named gaps for plugin trust, project MCP edits, hook edits, tool-level discovery, and command editing."
     },
     {
       "id": "MONA-022",
@@ -1463,7 +1505,7 @@
           "note": "P14 contribution: close-versus-Quit, Dock/menu-bar attention, native shortcuts"
         }
       ],
-      "notes": "P06: native chrome, Command-key conventions, keyboard-reachable screens, visible focus, VoiceOver-readable labels. P07: native File \u2192 Open Project\u2026 dialog and real shell keyboard navigation. Finder selected-folder Service and file-URL dispatch remain P09; spoken walkthrough is P24/P26."
+      "notes": "P06: native chrome, Command-key conventions, keyboard-reachable screens, visible focus, VoiceOver-readable labels. P07: native File → Open Project… dialog and real shell keyboard navigation. Finder selected-folder Service and file-URL dispatch remain P09; spoken walkthrough is P24/P26."
     },
     {
       "id": "MAC-003",
@@ -1474,10 +1516,19 @@
         "P16",
         "P26"
       ],
-      "status": "pending",
+      "status": "partial",
       "acceptance": "pending",
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P16-settings.md",
+          "note": "P16 per-user credential pass-through to the engine store; no secret in renderer state, receipts, or diagnostics"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p16-settings-smoke.json",
+          "note": "isolated HOME/CODEWHALE_HOME smoke: redacted diagnostics and credential scope behavior"
+        }
+      ],
+      "notes": "P04/P16 contributions: per-user state, process ownership, and credential pass-through with redacted diagnostics. GUI-launch tool resolution and signed-recipient Keychain/upgrade behavior remain P22/P24, so MAC-003 stays partial until P26 rechecks."
     },
     {
       "id": "MAC-004",
@@ -1589,7 +1640,7 @@
     "ok": true,
     "errors": [],
     "warnings": [],
-    "validated_utc": "2026-11-12T07:37:51.909Z",
+    "validated_utc": "2026-11-12T08:56:29.008Z",
     "prompt_count": 28,
     "requirement_count": 38
   }

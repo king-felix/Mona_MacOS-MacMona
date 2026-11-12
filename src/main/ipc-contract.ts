@@ -15,6 +15,7 @@ import {
   GoalSetSchema,
   GoalThreadSchema,
 } from "../shared/contracts/agents";
+import { ExtensionActionIdSchema } from "../shared/contracts/extensions";
 
 /**
  * Narrow IPC contract. Every invoke is a strict object: unknown fields are
@@ -364,6 +365,93 @@ export const IpcRequests = {
   "agents:goal-block": GoalBlockSchema,
   "agents:goal-clear": GoalThreadSchema,
   "agents:launch-fleet": FleetLaunchSchema,
+
+  // P16 provider/model/route workbench. Reading a snapshot never starts a
+  // runtime and never spends inference. A credential value is accepted only by
+  // the named set-credential channel; it is never echoed back.
+  "settings:snapshot": z.strictObject({ projectId: ProjectId }),
+  "settings:models": z.strictObject({
+    projectId: ProjectId,
+    provider: z.string().regex(/^[a-z0-9][a-z0-9-]{0,63}$/),
+    exactId: z.string().min(1).max(128).nullable(),
+  }),
+  "settings:save-default": z.strictObject({
+    projectId: ProjectId,
+    expectedRevision: z.number().int().min(0),
+    provider: z.string().regex(/^[a-z0-9][a-z0-9-]{0,63}$/),
+    exactId: z
+      .string()
+      .regex(/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/)
+      .nullable(),
+    model: z.string().regex(/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/),
+    reasoningEffort: z
+      .enum(["low", "medium", "high", "xhigh", "max", "minimal", "ultra"])
+      .nullable(),
+    permissionPosture: z.enum(["full_access", "ask"]),
+    autoApprove: z.boolean(),
+    trustMode: z.boolean(),
+    allowShell: z.boolean(),
+  }),
+  "settings:reset-default": z.strictObject({
+    projectId: ProjectId,
+    expectedRevision: z.number().int().min(0),
+  }),
+  "settings:switch-engine": z.strictObject({
+    projectId: ProjectId,
+    provider: z.string().regex(/^[a-z0-9][a-z0-9-]{0,63}$/),
+    exactId: z
+      .string()
+      .regex(/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/)
+      .nullable(),
+    model: z.string().regex(/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/),
+    expectedConfigRevision: z
+      .string()
+      .regex(/^[a-f0-9]{64}$/)
+      .nullable(),
+    confirm: z.literal(true),
+  }),
+  "settings:set-credential": z.strictObject({
+    projectId: ProjectId,
+    provider: z.string().regex(/^[a-z0-9][a-z0-9-]{0,63}$/),
+    key: z.string().min(1).max(8192),
+    scope: z.enum(["session", "durable"]),
+  }),
+  "settings:clear-credential": z.strictObject({
+    projectId: ProjectId,
+    provider: z.string().regex(/^[a-z0-9][a-z0-9-]{0,63}$/),
+    scope: z.enum(["session", "durable"]),
+  }),
+  "settings:diagnostics": z.strictObject({ projectId: ProjectId }),
+  "settings:export-diagnostics": z.strictObject({ projectId: ProjectId }),
+
+  // P17 extension workbench. Reads are deterministic metadata; no server is
+  // started and no tool description is loaded into model context by reading.
+  "extensions:snapshot": z.strictObject({ projectId: ProjectId }),
+  "extensions:mcp-tools": z.strictObject({
+    projectId: ProjectId,
+    server: z.string().regex(/^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/),
+  }),
+  "extensions:mcp-add": z.strictObject({
+    projectId: ProjectId,
+    expectedRevision: z.string().min(1).max(200),
+    name: z.string().regex(/^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/),
+    command: z.string().min(1).max(4096).nullable(),
+    args: z.array(z.string().max(2000)).max(32),
+    url: z.string().max(4096).nullable(),
+    transport: z.enum(["sse"]).nullable(),
+    enabled: z.boolean(),
+  }),
+  "extensions:action": z.strictObject({
+    projectId: ProjectId,
+    action: ExtensionActionIdSchema,
+    target: z.string().trim().min(1).max(300),
+    expectedRevision: z.string().min(1).max(200).nullable().optional(),
+  }),
+  "extensions:install": z.strictObject({
+    projectId: ProjectId,
+    kind: z.enum(["plugin", "skill"]),
+    source: z.string().trim().min(1).max(4096),
+  }),
 } as const;
 
 export type IpcChannel = keyof typeof IpcRequests;

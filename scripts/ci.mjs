@@ -34,6 +34,8 @@ for (const script of [
   "smoke:changes",
   "smoke:polish",
   "smoke:agents",
+  "smoke:settings",
+  "smoke:extensions",
 ]) {
   if (!run(script, "npm", ["run", script])) break;
 }

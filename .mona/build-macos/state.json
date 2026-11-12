@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "revision": 294,
+  "revision": 329,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
   "spec_sha256": "d1c02941151c71912bc3e9c8b2509612298d54e05e0bf16fe933b9bd93e3e028",
   "prompt_file_sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8",
-  "current_prompt": "P15",
+  "current_prompt": "P17",
   "current_prompt_status": "completed",
   "last_verified_commit": "2e7d851",
   "tasks": {
@@ -53,7 +53,7 @@
         },
         {
           "path": "docs/requirements-macos.json",
-          "sha256": "a34da1f362b60eba4fbcd94daa5ee2f8bc91c8c755ce4ce2a391920a0df223b0",
+          "sha256": "550e485d5257db322b16b0d79d2cf60d95f2fd7ecc35242766d2edaf7cb62fcf",
           "note": "P15 re-recorded the shared requirement registry; assertions unchanged"
         },
         {
@@ -83,7 +83,7 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "0188adedea77b30e1383cf3c59c6010c6fd106a2e86c656147df86768b52d3f6",
+          "sha256": "4403429f3905c5a7a6f6a9a408ac7ff3f19c2470a1b548514cb098ad02ebcea6",
           "note": "P15 appended D-037..D-041; earlier entries unchanged"
         },
         {
@@ -238,7 +238,7 @@
         },
         {
           "path": "package.json",
-          "sha256": "fc0f51ca10544e1b232af1faf06a90a4b0ace74c814b62256bb99d3e961556ae",
+          "sha256": "278be81acceb8085d850fd159f76b9c386b5a1aa546f653f320511c391763ce0",
           "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run"
         },
         {
@@ -267,7 +267,7 @@
         },
         {
           "path": "scripts/ci.mjs",
-          "sha256": "350ea931f9b2d84b836c7594b63f5fed36f77e9c45b17dc5c79279c9ca0a0abb",
+          "sha256": "42218bca70793b19d7fe8dce9ae2a738f95b73d30594efe60a6e5af17fc639d0",
           "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run"
         },
         {
@@ -288,17 +288,17 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "1effae7a83788b7ead77283de00f220ad4d4605a2a98df540c94c58477bf59cf",
+          "sha256": "0d390d143d11a35ed6b7df59b1b11c8007a1aa68f2a1be34f10aaf781fb4fc3d",
           "note": "P15 shell-smoke driver: Agents screen capture and honest capability-gated launch assertion"
         },
         {
           "path": "src/main/ipc-contract.ts",
-          "sha256": "b82ee1879402b2464d37a2127deccc108d15ba037c0d8efd237e0cc4b57f46c0",
+          "sha256": "5390ce835d26b34bef6f65cc7eb1414aed5de211c817b75948e0abc883351714",
           "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run"
         },
         {
           "path": "src/main/ipc.ts",
-          "sha256": "41960648b35f6c7e98d0062c39a13ecae4594ea36cb22bb8f6b5fe3abecb68b8",
+          "sha256": "b5efa42241800bfd2d2e432b8be56de5901fb6868cddf796cae5aa3cad44b7a6",
           "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run"
         },
         {
@@ -328,7 +328,7 @@
         },
         {
           "path": "src/preload/index.ts",
-          "sha256": "045d0cd22f544f59d2de59a85406423bca2f8f6d36d6384596b330f56b774545",
+          "sha256": "bb64cea6234caf07decb18eaef83b9b76d427010c3f6a5db7c6fef5ec6f6ef15",
           "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run"
         },
         {
@@ -349,12 +349,12 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "cd54e0f2b4acd5d6a4c934353105f73eed2f7c28eb54b1fca6c6dc1b3b151772",
+          "sha256": "791d3c566a46d26ded08b5f19cb4235c1e167cdf46127f5fe374280ae3452542",
           "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run"
         },
         {
           "path": "src/shared/contracts/bridge.ts",
-          "sha256": "52dcdcf19eaf6ffcd30ca291a6238807ed9d7eafc4a34a78b8445bf8eca27a4d",
+          "sha256": "164f7f835d9580da4181d889008a7bd39b64dbf75b1667e764c18c5c5bc84220",
           "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run"
         },
         {
@@ -371,7 +371,7 @@
         },
         {
           "path": "src/shared/contracts/index.ts",
-          "sha256": "a74a5f25a1441588c0f5559ff563a1cb94f1ae5018efd1ec2e1f762618961184",
+          "sha256": "3ac40db4efe76b4223c10dcc7f474268be618faf974bc35a7941e5e61c182f47",
           "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run"
         },
         {
@@ -478,7 +478,7 @@
         },
         {
           "path": "src/main/engine/adapter.ts",
-          "sha256": "993879820c90c7d10dd047ae76ef25f225e6f88dffce3f1a1554080e40ebdd05",
+          "sha256": "10aa4dba6e7a015a444a987aa9e3102c06fe8207bbc2dc833d39b4cd02935110",
           "note": "P15 extended the adapter with orchestration routes and real goal-transition statuses; earlier contracts unchanged and still tested"
         },
         {
@@ -500,7 +500,7 @@
         },
         {
           "path": "src/main/engine/runtime-process.ts",
-          "sha256": "be37698f5d1ee91fa9a5fd8f3bb5fd805ded2cd98b44faf51aa45b7092dac312"
+          "sha256": "1d30d79768c5d0afc50f873e41a169000f094c96da81b86237f5e6e928c30813"
         },
         {
           "path": "src/main/engine/sse.ts",
@@ -512,16 +512,16 @@
         },
         {
           "path": "src/main/engine/transport.ts",
-          "sha256": "6b686901f2d07367d3f87cc1b5c4c1be684a6950624f72dbffae6336f00dc084"
+          "sha256": "de44d2825c2a405c7e727aaf4558f87397c1514b0f9bb0f371eeec002d40ebec"
         },
         {
           "path": "src/main/engine/types.ts",
-          "sha256": "be1f828d6f23fa201a801c92fe30e07e615c925909ec287017a2e6cd9a85b02e",
+          "sha256": "02c91a625cd7e2f24b40d6b97d4fda89107be76910f63b4aeb0f2e1c15c53ae9",
           "note": "P15 extended the adapter with orchestration routes and real goal-transition statuses; earlier contracts unchanged and still tested"
         },
         {
           "path": "src/main/engine/wire.ts",
-          "sha256": "e6e1f2412fcc678b9a4e08f24617971ab97e7e584d756dd926839dee80948ee3",
+          "sha256": "525faa642d75b77736bca073053cd225ae91d26d74dedea8ec92a952edcfa018",
           "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run"
         },
         {
@@ -555,7 +555,7 @@
         },
         {
           "path": "test/engine-adapter.test.ts",
-          "sha256": "9667d1c17f5b3c68a6ba2a0795e92f9877e48609de45cacc4a72a13d7e013f3e"
+          "sha256": "3edb5ce66d17c3d24ddc6f871fd207bfcee23b3f90c5cfb3bae3d3790a4c8797"
         },
         {
           "path": "test/helpers/fixture-transport.ts",
@@ -567,7 +567,7 @@
         },
         {
           "path": "package.json",
-          "sha256": "fc0f51ca10544e1b232af1faf06a90a4b0ace74c814b62256bb99d3e961556ae",
+          "sha256": "278be81acceb8085d850fd159f76b9c386b5a1aa546f653f320511c391763ce0",
           "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run"
         },
         {
@@ -660,7 +660,7 @@
         },
         {
           "path": "scripts/ci.mjs",
-          "sha256": "350ea931f9b2d84b836c7594b63f5fed36f77e9c45b17dc5c79279c9ca0a0abb",
+          "sha256": "42218bca70793b19d7fe8dce9ae2a738f95b73d30594efe60a6e5af17fc639d0",
           "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run"
         },
         {
@@ -698,21 +698,21 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "1effae7a83788b7ead77283de00f220ad4d4605a2a98df540c94c58477bf59cf",
+          "sha256": "0d390d143d11a35ed6b7df59b1b11c8007a1aa68f2a1be34f10aaf781fb4fc3d",
           "note": "P15 shell-smoke driver updated; supervisor paths unchanged"
         },
         {
           "path": "src/main/engine/runtime-process.ts",
-          "sha256": "be37698f5d1ee91fa9a5fd8f3bb5fd805ded2cd98b44faf51aa45b7092dac312"
+          "sha256": "1d30d79768c5d0afc50f873e41a169000f094c96da81b86237f5e6e928c30813"
         },
         {
           "path": "src/main/engine/types.ts",
-          "sha256": "be1f828d6f23fa201a801c92fe30e07e615c925909ec287017a2e6cd9a85b02e",
+          "sha256": "02c91a625cd7e2f24b40d6b97d4fda89107be76910f63b4aeb0f2e1c15c53ae9",
           "note": "P15 extended the adapter types and shell smoke driver; supervisor behaviour unchanged and still tested"
         },
         {
           "path": "src/main/engine/adapter.ts",
-          "sha256": "993879820c90c7d10dd047ae76ef25f225e6f88dffce3f1a1554080e40ebdd05",
+          "sha256": "10aa4dba6e7a015a444a987aa9e3102c06fe8207bbc2dc833d39b4cd02935110",
           "note": "P15 extended the adapter types and shell smoke driver; supervisor behaviour unchanged and still tested"
         },
         {
@@ -750,12 +750,12 @@
         },
         {
           "path": "package.json",
-          "sha256": "fc0f51ca10544e1b232af1faf06a90a4b0ace74c814b62256bb99d3e961556ae",
+          "sha256": "278be81acceb8085d850fd159f76b9c386b5a1aa546f653f320511c391763ce0",
           "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run"
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "0188adedea77b30e1383cf3c59c6010c6fd106a2e86c656147df86768b52d3f6",
+          "sha256": "4403429f3905c5a7a6f6a9a408ac7ff3f19c2470a1b548514cb098ad02ebcea6",
           "note": "P15 appended D-037..D-041; earlier entries unchanged"
         }
       ],
@@ -969,22 +969,22 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p07-shell-home.png",
-          "sha256": "314db83744e2616d4e7ba68aca216f3ca41bbb73387b397f9c9babac9508c363",
+          "sha256": "795a442a8025b000162fdfeee9726ed71af859e6ec350ceb57e317c48dcb6b85",
           "note": "P15's smoke run rewrote this capture because the rail gained a 7th screen; the screen itself is unchanged and verified"
         },
         {
           "path": "docs/evidence/macos/artifacts/p07-shell-studio.png",
-          "sha256": "69d2a230a833067d3d7b6f3511ed492c6405518074398bc6c1d547b70039b505",
+          "sha256": "8477f46c842d5e68f03623d64dd47e60a12682f33bb9a9bb5ab08b2fcf40ce03",
           "note": "P15's smoke run rewrote this capture because the rail gained a 7th screen; the screen itself is unchanged and verified"
         },
         {
           "path": "docs/evidence/macos/artifacts/p07-shell-board.png",
-          "sha256": "09d81fa8a055a516e9a64362333ed4793630eadc87e4f98a3185b966f577fd72",
+          "sha256": "036de929f1f934aa6d65ca767b06eadfd70857e0e68416035ad74beb6e8a6db0",
           "note": "P15's smoke run rewrote this capture because the rail gained a 7th screen; the screen itself is unchanged and verified"
         },
         {
           "path": "docs/evidence/macos/artifacts/p07-shell-settings.png",
-          "sha256": "0f93623e0bffa17c942a50eb39a4826f8ca5d106577d02d72d46c834a87d3425",
+          "sha256": "aa4eca9a156675febc8a6fc8bd1e6d79221ebdd5aefc3825fdc399dc1c8025e9",
           "note": "P15's smoke run rewrote this capture because the rail gained a 7th screen; the screen itself is unchanged and verified"
         }
       ],
@@ -1156,12 +1156,12 @@
         },
         {
           "path": "scripts/ci.mjs",
-          "sha256": "350ea931f9b2d84b836c7594b63f5fed36f77e9c45b17dc5c79279c9ca0a0abb",
+          "sha256": "42218bca70793b19d7fe8dce9ae2a738f95b73d30594efe60a6e5af17fc639d0",
           "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run"
         },
         {
           "path": "package.json",
-          "sha256": "fc0f51ca10544e1b232af1faf06a90a4b0ace74c814b62256bb99d3e961556ae",
+          "sha256": "278be81acceb8085d850fd159f76b9c386b5a1aa546f653f320511c391763ce0",
           "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run"
         },
         {
@@ -1178,7 +1178,7 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "1effae7a83788b7ead77283de00f220ad4d4605a2a98df540c94c58477bf59cf",
+          "sha256": "0d390d143d11a35ed6b7df59b1b11c8007a1aa68f2a1be34f10aaf781fb4fc3d",
           "note": "P15 shell-smoke driver updated; Finder handoff unchanged"
         },
         {
@@ -1187,12 +1187,12 @@
         },
         {
           "path": "src/main/ipc.ts",
-          "sha256": "41960648b35f6c7e98d0062c39a13ecae4594ea36cb22bb8f6b5fe3abecb68b8",
+          "sha256": "b5efa42241800bfd2d2e432b8be56de5901fb6868cddf796cae5aa3cad44b7a6",
           "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run"
         },
         {
           "path": "src/main/ipc-contract.ts",
-          "sha256": "b82ee1879402b2464d37a2127deccc108d15ba037c0d8efd237e0cc4b57f46c0",
+          "sha256": "5390ce835d26b34bef6f65cc7eb1414aed5de211c817b75948e0abc883351714",
           "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run"
         },
         {
@@ -1201,7 +1201,7 @@
         },
         {
           "path": "src/preload/index.ts",
-          "sha256": "045d0cd22f544f59d2de59a85406423bca2f8f6d36d6384596b330f56b774545",
+          "sha256": "bb64cea6234caf07decb18eaef83b9b76d427010c3f6a5db7c6fef5ec6f6ef15",
           "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run"
         },
         {
@@ -1210,12 +1210,12 @@
         },
         {
           "path": "src/shared/contracts/bridge.ts",
-          "sha256": "52dcdcf19eaf6ffcd30ca291a6238807ed9d7eafc4a34a78b8445bf8eca27a4d",
+          "sha256": "164f7f835d9580da4181d889008a7bd39b64dbf75b1667e764c18c5c5bc84220",
           "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run"
         },
         {
           "path": "src/renderer/shell/Shell.tsx",
-          "sha256": "cb6885b3ad7fe903c29ccb71883fe5c27445815f221237420f4363a1234aff28",
+          "sha256": "00d134db51203437e1654e8e3c59b3d356bedf2483f26ee5f9d5eb57fd55f93e",
           "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run"
         },
         {
@@ -1228,12 +1228,12 @@
         },
         {
           "path": "src/renderer/shell/Settings.tsx",
-          "sha256": "eb19aed7aa4a50e17743835cb55707f5374dff01b6233f59c03e6882066fef51",
+          "sha256": "7b009274ab5a285d96d2cd1171b89b659595fe523193bb56ca785343509701ae",
           "note": "hash re-recorded at P14 after shared files changed; file re-verified in the P14 CI run"
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "cd54e0f2b4acd5d6a4c934353105f73eed2f7c28eb54b1fca6c6dc1b3b151772",
+          "sha256": "791d3c566a46d26ded08b5f19cb4235c1e167cdf46127f5fe374280ae3452542",
           "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run"
         },
         {
@@ -1259,7 +1259,7 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "0188adedea77b30e1383cf3c59c6010c6fd106a2e86c656147df86768b52d3f6",
+          "sha256": "4403429f3905c5a7a6f6a9a408ac7ff3f19c2470a1b548514cb098ad02ebcea6",
           "note": "P15 appended D-037..D-041; earlier entries unchanged"
         },
         {
@@ -1332,7 +1332,7 @@
         },
         {
           "path": "src/main/state/store.ts",
-          "sha256": "2c11e80c6a5c772736938b66bec80119a4ae85f9d2998da51d5d97f43d700397",
+          "sha256": "c68ee642ef6cd8f54369f310b72eaaed5f0544bee70f3e967c86ef511797b4b1",
           "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run"
         },
         {
@@ -1350,27 +1350,27 @@
         },
         {
           "path": "src/shared/contracts/bridge.ts",
-          "sha256": "52dcdcf19eaf6ffcd30ca291a6238807ed9d7eafc4a34a78b8445bf8eca27a4d",
+          "sha256": "164f7f835d9580da4181d889008a7bd39b64dbf75b1667e764c18c5c5bc84220",
           "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run"
         },
         {
           "path": "src/main/ipc-contract.ts",
-          "sha256": "b82ee1879402b2464d37a2127deccc108d15ba037c0d8efd237e0cc4b57f46c0",
+          "sha256": "5390ce835d26b34bef6f65cc7eb1414aed5de211c817b75948e0abc883351714",
           "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run"
         },
         {
           "path": "src/main/ipc.ts",
-          "sha256": "41960648b35f6c7e98d0062c39a13ecae4594ea36cb22bb8f6b5fe3abecb68b8",
+          "sha256": "b5efa42241800bfd2d2e432b8be56de5901fb6868cddf796cae5aa3cad44b7a6",
           "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run"
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "1effae7a83788b7ead77283de00f220ad4d4605a2a98df540c94c58477bf59cf",
+          "sha256": "0d390d143d11a35ed6b7df59b1b11c8007a1aa68f2a1be34f10aaf781fb4fc3d",
           "note": "P15 shell-smoke driver updated; board paths unchanged"
         },
         {
           "path": "src/preload/index.ts",
-          "sha256": "045d0cd22f544f59d2de59a85406423bca2f8f6d36d6384596b330f56b774545",
+          "sha256": "bb64cea6234caf07decb18eaef83b9b76d427010c3f6a5db7c6fef5ec6f6ef15",
           "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run"
         },
         {
@@ -1384,7 +1384,7 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "cd54e0f2b4acd5d6a4c934353105f73eed2f7c28eb54b1fca6c6dc1b3b151772",
+          "sha256": "791d3c566a46d26ded08b5f19cb4235c1e167cdf46127f5fe374280ae3452542",
           "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run"
         },
         {
@@ -1454,12 +1454,12 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p11-shell-board.png",
-          "sha256": "09d81fa8a055a516e9a64362333ed4793630eadc87e4f98a3185b966f577fd72",
+          "sha256": "036de929f1f934aa6d65ca767b06eadfd70857e0e68416035ad74beb6e8a6db0",
           "note": "P15's smoke run rewrote this capture because the rail gained a 7th screen; attempt assertions still pass"
         },
         {
           "path": "docs/evidence/macos/artifacts/p11-shell-attempts.png",
-          "sha256": "1b4222aa8c8db3ec63b5149c29adf02ac502f717a97080a9bbb4f34358cc5abd",
+          "sha256": "0b8100f7fd70402935ddc38682296606d8e4da6c1cf03fd536d7c8d0ea48b7c9",
           "note": "P15's smoke run rewrote this capture because the rail gained a 7th screen; attempt assertions still pass"
         },
         {
@@ -1525,12 +1525,12 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p12-shell-cost.png",
-          "sha256": "23b552afa3a0a191d6d89657edb5d9a10f187d79565fb7a4c9aa5c66bf1c5262",
+          "sha256": "f7da16eb44392f2b699b88956e4a5fcd28d66fb80381fdd7a794530070615934",
           "note": "P15's smoke run rewrote this capture because the rail gained a 7th screen; cost assertions still pass"
         },
         {
           "path": "docs/evidence/macos/artifacts/p12-shell-cost-detail.png",
-          "sha256": "5eaa26dbacc42a39ce579be2202b4c9cfedcaf53e6246df9e357b503b80a09dd",
+          "sha256": "98d6fb3dd0f2254d41febad410d878e8f1997c719659ed3e1a3f741ec409d25e",
           "note": "P15's smoke run rewrote this capture because the rail gained a 7th screen; cost assertions still pass"
         },
         {
@@ -1584,7 +1584,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p13-shell-changes.png",
-          "sha256": "c932189787d83345048c1a5b121c463aae71c892cd0cef5182dca9c52f46e447",
+          "sha256": "8e80b2b65abc0edbf9a7ea0c168269b8f079f793e8ac8e5c0e7b36decb891fef",
           "note": "P15's smoke run rewrote this capture because the rail gained a 7th screen; changes assertions still pass"
         },
         {
@@ -1601,7 +1601,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p13-shell-changes-file.png",
-          "sha256": "f6256ba424d41467aefd06812b3ff52585da3b56eb9598cba396469f9f9df213",
+          "sha256": "108f81b796eaf9ad1a3f845dbd093bc798e5e0328726cf7fe16477d693ee94ce",
           "note": "P15's smoke run rewrote this capture because the rail gained a 7th screen; changes assertions still pass"
         }
       ],
@@ -1651,27 +1651,27 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p14-home-daybreak.png",
-          "sha256": "314db83744e2616d4e7ba68aca216f3ca41bbb73387b397f9c9babac9508c363",
+          "sha256": "795a442a8025b000162fdfeee9726ed71af859e6ec350ceb57e317c48dcb6b85",
           "note": "P15's smoke run rewrote this capture because the rail gained a 7th screen; polish assertions still pass"
         },
         {
           "path": "docs/evidence/macos/artifacts/p14-settings-attention.png",
-          "sha256": "75fd028a9433f512e2db5ffe8036602354e37669e4eada9c0637329ef2210c90",
+          "sha256": "09c60e7d4320b68eeb04f97ef6b93d5534942f357fc19ffdabfd469af7ab24b4",
           "note": "P15's smoke run rewrote this capture because the rail gained a 7th screen; polish assertions still pass"
         },
         {
           "path": "docs/evidence/macos/artifacts/p14-settings-attention-native.png",
-          "sha256": "7a92d9aea689e3b7818cfc8c13019bfd2103705daab6fea0ef7d8a11fce75d6f",
+          "sha256": "a6a3024c40a9d7c3485543e69743e2e9f43773e50cc14d318beb31996ebc0bf8",
           "note": "P15's smoke run rewrote this capture because the rail gained a 7th screen; polish assertions still pass"
         },
         {
           "path": "docs/evidence/macos/artifacts/p14-settings-receipts.png",
-          "sha256": "375e1991d1033e2458c3174a8d05b8767f056de2b9c990251370a54cf39e5850",
+          "sha256": "a58f0fb4024fa2aa314c3233613c6315f5898c182a1d681275622e7223ff0e29",
           "note": "P15's smoke run rewrote this capture because the rail gained a 7th screen; polish assertions still pass"
         },
         {
           "path": "docs/evidence/macos/artifacts/p14-studio-focus-afterglow.png",
-          "sha256": "8381e85f8b802562b9c56ceb2343405972443b1f7becf720e018b94b300c2c09",
+          "sha256": "7e22c2f65c85a114c00183b1e4b4aacccf6dee1eae8a2037f43e18dfad998e36",
           "note": "P15's smoke run rewrote this capture because the rail gained a 7th screen; polish assertions still pass"
         },
         {
@@ -1753,42 +1753,105 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p15-agents-daybreak.png",
-          "sha256": "411da0ebeb76a6d5bfea8587fd92a535b7ad55bc7ee96ae06609a58a66855a55",
+          "sha256": "faddde156cd3db4115237eabbcfaadecdd6af4aa19ff231055f1f07297323457",
           "note": "P15 evidence after the D-041 review pass"
         },
         {
           "path": "docs/evidence/macos/artifacts/p15-agents-afterglow.png",
-          "sha256": "784ff5ee6954a0f08eb59f21417091b98f0737ee6a1f9421034d76b04efbfc3f",
+          "sha256": "fa74d232cfc339c7cd02cfa05c15cd8879d45a4bf887201c1c3c18f91575cd31",
           "note": "P15 evidence after the D-041 review pass"
         },
         {
           "path": "docs/evidence/macos/artifacts/p15-agents-inspector.png",
-          "sha256": "0cdc8cbebb4bc1236e5e93f38f6f50eaac32982268d03069c4fafabf37bea80e",
+          "sha256": "94b18b84c02f1a18ddfecfed36eca54b18cb39f3d430c9d654cb11212a9cf548",
           "note": "P15 evidence after the D-041 review pass"
         }
       ],
       "blocker_ids": []
     },
     "P16": {
-      "status": "pending",
+      "status": "completed",
       "requirements": [
         "MONA-008",
         "MONA-020",
         "MAC-003"
       ],
-      "completed_steps": [],
-      "remaining_steps": [],
-      "evidence": [],
+      "completed_steps": [
+        "P16 contracts for provider/model catalogs, credential classes, saved route, requested-vs-effective observation, routing policy, engine selection, and diagnostics",
+        "Typed adapter reads/writes over /v1/providers, /v1/providers/{id}/models[/refresh], /v1/config[/reload], /v1/providers/{id}/switch, and /v1/providers/{id}/key",
+        "RouteWorkbench with compare-and-swap saved default, live route validation including model-published reasoning levels, separate engine switch with config backup+sha256+receipt, credential pass-through, and redacted doctor export",
+        "putSettingsIfVersion compare-and-swap; absolute-only external engine adoption",
+        "IPC, preload bridge, main wiring, and the Providers & route Settings tab",
+        "Tests, isolated live smoke 22/22, shell smoke 101/101, ADR-011 and D-042..D-045",
+        "Review fix D-048: the engine-route cache stores endpoint authority only, never a credential-bearing base_url"
+      ],
+      "remaining_steps": [
+        "A named custom model_provider_id cannot be selected through the engine switch route",
+        "The config backup holds the engine document by design (0600); signed-recipient Keychain remains P22/P24"
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P16-settings.md",
+          "sha256": "c7136c01c0db266d09d15acc0549edf8644c67c41651f170ce6ef6e8e253d822"
+        },
+        {
+          "path": "docs/decisions/ADR-011-configuration-and-extensions.md",
+          "sha256": "ac590ea411f0f3043837c5a3503118193b3f53db626493574ccff87bb78e0764"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p16-settings-smoke.json",
+          "sha256": "f0f9ae8cbf48c64c98e8c17e7d6c2bef5ba9a2e5d21f04e4f2f1e0d707d536e9"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p16-settings-route.png",
+          "sha256": "894d0fcd087591ed7d0e33c20ed260b3c74329ee5f324eac24e09e4e7976dafc"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p16-p17-ci.txt",
+          "sha256": "831dd687c76845f5bd0e010882af0f2a6fd9009e9e9d3da92ac473477a3a43fd"
+        }
+      ],
       "blocker_ids": []
     },
     "P17": {
-      "status": "pending",
+      "status": "completed",
       "requirements": [
         "MONA-021"
       ],
-      "completed_steps": [],
-      "remaining_steps": [],
-      "evidence": [],
+      "completed_steps": [
+        "P17 contracts for scope, provenance, health, actions, and stated gaps",
+        "Typed adapter reads/writes over MCP servers/tools, skills, plugins, hooks, instructions, workspace trust, and commands",
+        "ExtensionWorkbench with live-or-stored sections, redaction, If-Match MCP revisions, absolute-executable adds, on-demand tool listing, action gating, skill toggles, plugin install/remove, and six gaps",
+        "IPC, preload bridge, main wiring, and the Extensions Settings tab",
+        "Local MCP and plugin fixtures; unit tests, live smoke 39/39, shell smoke 101/101",
+        "ADR-011 and D-046/D-047"
+      ],
+      "remaining_steps": [
+        "Plugin capability trust remains a terminal action because the HTTP review token is redacted",
+        "Project MCP edits, hook edits, tool-level discovery, and user-command editing remain stated gaps"
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P17-extensions.md",
+          "sha256": "480ed1ec1e38982abf0f0b5668980ffe0ee74af1623affb74d1f84cabc96053e"
+        },
+        {
+          "path": "docs/decisions/ADR-011-configuration-and-extensions.md",
+          "sha256": "ac590ea411f0f3043837c5a3503118193b3f53db626493574ccff87bb78e0764"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p17-extensions-smoke.json",
+          "sha256": "cba7fd06d8febfabbd8a7cb34910a8bc56921b018a93d33abc9a784ad048cbb2"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p17-settings-extensions.png",
+          "sha256": "3ef03fc99d17f1846bcaf6114736c25d9f773b026a701ce4ba39dae0ed26d19e"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p16-p17-ci.txt",
+          "sha256": "831dd687c76845f5bd0e010882af0f2a6fd9009e9e9d3da92ac473477a3a43fd"
+        }
+      ],
       "blocker_ids": []
     },
     "P18": {
@@ -1919,7 +1982,7 @@
   "next_eligible_prompts": [
     "P14"
   ],
-  "last_checkpoint_utc": "2026-11-12T08:29:47.139Z",
+  "last_checkpoint_utc": "2026-11-12T09:08:58.688Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

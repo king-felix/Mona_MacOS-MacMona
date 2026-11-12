@@ -11,6 +11,8 @@ import type { CostLedger } from "./work/costs";
 import type { ChangeLedger } from "./work/changes";
 import type { PolishService } from "./work/polish";
 import type { AgentObservatory } from "./work/agents";
+import type { RouteWorkbench } from "./work/settings";
+import type { ExtensionWorkbench } from "./work/extensions";
 import type { ProjectId } from "../shared/contracts/ids";
 import type { ImportPlanResult } from "../shared/contracts/board";
 import type { IpcResult, RuntimeStatusView, StateFacts } from "../shared/contracts/project-bridge";
@@ -20,6 +22,7 @@ import type {
   OpenStatusView,
   ServiceStatus,
 } from "../shared/contracts/open";
+import type { SettingsDiagnosticsView } from "../shared/contracts/settings";
 
 /**
  * Trusted-sender check. IPC answers only the local renderer document this
@@ -45,6 +48,12 @@ export interface IpcDependencies {
   changes: ChangeLedger | null;
   polish: PolishService | null;
   agents: AgentObservatory | null;
+  settings: RouteWorkbench | null;
+  extensions: ExtensionWorkbench | null;
+  /** Save an already-redacted diagnostics report through the native dialog. */
+  exportDiagnostics: (
+    report: SettingsDiagnosticsView,
+  ) => Promise<{ saved: boolean; path: string | null }>;
   /** Explicit quit; the existing shutdown path interrupts and stops owned work. */
   quit: (interrupt: boolean) => Promise<{ requested: boolean; note: string }>;
   revealWorkspacePath: (projectId: ProjectId, path: string) => Promise<{ revealed: boolean }>;
@@ -284,6 +293,104 @@ export function registerIpc(rendererRoot: string, dependencies: IpcDependencies)
   handle("studio:stop", (input) =>
     envelope(() => requireStudio().stop((input as { projectId: never }).projectId)),
   );
+
+  const requireSettings = (): RouteWorkbench => {
+    const workbench = dependencies.settings;
+    if (!workbench) {
+      throw Object.assign(
+        new Error("the configuration workbench is unavailable because project state did not open"),
+        { code: "RUNTIME_UNAVAILABLE" },
+      );
+    }
+    return workbench;
+  };
+
+  handle("settings:snapshot", (input) =>
+    envelope(() => requireSettings().snapshot((input as { projectId: never }).projectId)),
+  );
+  handle("settings:models", (input) => {
+    const value = input as {
+      projectId: never;
+      provider: string;
+      exactId: string | null;
+    };
+    return envelope(() => requireSettings().models(value.projectId, value.provider, value.exactId));
+  });
+  handle("settings:save-default", (input) => {
+    const value = input as Parameters<RouteWorkbench["saveDefault"]>[0];
+    return envelope(() => requireSettings().saveDefault(value));
+  });
+  handle("settings:reset-default", (input) => {
+    const value = input as Parameters<RouteWorkbench["resetDefault"]>[0];
+    return envelope(() => requireSettings().resetDefault(value));
+  });
+  handle("settings:switch-engine", (input) => {
+    const value = input as Parameters<RouteWorkbench["switchEngineRoute"]>[0];
+    return envelope(() => requireSettings().switchEngineRoute(value));
+  });
+  handle("settings:set-credential", (input) => {
+    const value = input as Parameters<RouteWorkbench["setProviderCredential"]>[0];
+    return envelope(() => requireSettings().setProviderCredential(value));
+  });
+  handle("settings:clear-credential", (input) => {
+    const value = input as Parameters<RouteWorkbench["clearProviderCredential"]>[0];
+    return envelope(() => requireSettings().clearProviderCredential(value));
+  });
+  handle("settings:diagnostics", (input) =>
+    envelope(() => requireSettings().diagnostics((input as { projectId: never }).projectId)),
+  );
+  handle("settings:export-diagnostics", (input) =>
+    envelope(async () => {
+      const report = await requireSettings().diagnostics((input as { projectId: never }).projectId);
+      const saved = await dependencies.exportDiagnostics(report);
+      return { ...saved, redactions: report.redactions };
+    }),
+  );
+
+  const requireExtensions = (): ExtensionWorkbench => {
+    const workbench = dependencies.extensions;
+    if (!workbench) {
+      throw Object.assign(
+        new Error("the extension workbench is unavailable because project state did not open"),
+        { code: "RUNTIME_UNAVAILABLE" },
+      );
+    }
+    return workbench;
+  };
+
+  handle("extensions:snapshot", (input) =>
+    envelope(() => requireExtensions().snapshot((input as { projectId: never }).projectId)),
+  );
+  handle("extensions:mcp-tools", (input) => {
+    const value = input as { projectId: never; server: string };
+    return envelope(() => requireExtensions().mcpTools(value.projectId, value.server));
+  });
+  handle("extensions:mcp-add", (input) => {
+    const value = input as {
+      projectId: never;
+      expectedRevision: string;
+      name: string;
+      command: string | null;
+      args: string[];
+      url: string | null;
+      transport: "sse" | null;
+      enabled: boolean;
+    };
+    const { projectId, ...rest } = value;
+    return envelope(() => requireExtensions().addMcp(projectId, rest));
+  });
+  handle("extensions:action", (input) => {
+    const value = input as Parameters<ExtensionWorkbench["act"]>[0];
+    return envelope(() => requireExtensions().act(value));
+  });
+  handle("extensions:install", (input) => {
+    const value = input as {
+      projectId: never;
+      kind: "plugin" | "skill";
+      source: string;
+    };
+    return envelope(() => requireExtensions().install(value.projectId, value.kind, value.source));
+  });
 
   const requireBoard = (): TaskBoard => {
     const board = dependencies.board;

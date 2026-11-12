@@ -66,6 +66,8 @@ export interface ThreadRef {
 
 export interface RouteRequest {
   provider: string;
+  /** Exact configured route identity for a named custom provider. */
+  exactId?: string | null;
   model: string;
   reasoningEffort?: string;
   permissionPosture: "ask" | "full_access";
@@ -559,4 +561,296 @@ export interface EngineControlReceipt {
   accepted: boolean;
   message: string;
   record: Record<string, unknown> | null;
+}
+
+// ------------------------------------------------------- P16 settings types
+
+export interface EngineProvider {
+  id: string;
+  exactId: string | null;
+  displayName: string;
+  defaultModel: string | null;
+  hasModelCatalog: boolean;
+  credentialState: string;
+  credentialSource: string;
+  credentialWritable: boolean;
+  credentialWritableReason: string | null;
+  browserConnect: boolean;
+}
+
+export interface EngineProviderCatalog {
+  current: string | null;
+  currentExactId: string | null;
+  providers: EngineProvider[];
+}
+
+export interface EngineModel {
+  id: string;
+  imageInput: string;
+  outputTokenLimit: string;
+  reasoningEffort: string;
+  reasoningEffortLevels: string[];
+  reasoningEffortSource: string | null;
+  contextTokens: number | null;
+  outputTokens: number | null;
+  factsSource: string | null;
+}
+
+export interface EngineModelCatalog {
+  provider: string;
+  exactId: string | null;
+  models: EngineModel[];
+}
+
+export interface EngineRuntimeConfig {
+  provider: string | null;
+  model: string | null;
+  modelAvailable: boolean | null;
+  reasoningEffort: string | null;
+  baseUrl: string | null;
+  approvalMode: string | null;
+  sandboxMode: string | null;
+  allowShell: boolean | null;
+  mcpConfigPath: string | null;
+  defaultModel: string | null;
+}
+
+export interface EngineConfigWrite {
+  key: string;
+  value: unknown;
+  message: string | null;
+  persisted: boolean;
+  requiresReload: boolean;
+}
+
+export interface EngineRouteSwitch {
+  provider: string;
+  model: string | null;
+  modelAvailable: boolean | null;
+  message: string | null;
+  /** The engine reports whether the change reached durable config. */
+  persisted: boolean;
+}
+
+export interface EngineKeyReceipt {
+  provider: string;
+  stored: boolean;
+  scope: string | null;
+  backend: string | null;
+  credentialState: string | null;
+}
+
+// --------------------------------------------------- P17 extension types
+
+export interface EngineMcpServer {
+  name: string;
+  origin: string;
+  writable: boolean;
+  enabled: boolean;
+  required: boolean;
+  command: string | null;
+  args: string[];
+  envKeys: string[];
+  url: string | null;
+  transport: string | null;
+  enabledTools: string[];
+  disabledTools: string[];
+  headerKeys: string[];
+  credentialConfigured: boolean;
+  authRequired: boolean;
+  connected: boolean;
+}
+
+export interface EngineMcpList {
+  revision: string;
+  servers: EngineMcpServer[];
+}
+
+export interface EngineMcpConnection {
+  server: string;
+  connected: boolean;
+  authRequired: boolean;
+  error: string | null;
+}
+
+export interface EngineMcpTool {
+  server: string;
+  name: string;
+  prefixedName: string;
+  description: string;
+  inputSchema: unknown;
+}
+
+export interface EngineSkill {
+  name: string;
+  description: string;
+  path: string | null;
+  source: string;
+  pluginId: string | null;
+  enabled: boolean;
+  bundled: boolean;
+  invocation: string | null;
+  aliases: string[];
+  bundledTier: string | null;
+}
+
+export interface EnginePlugin {
+  id: string;
+  name: string;
+  displayName: string | null;
+  version: string | null;
+  description: string | null;
+  author: string | null;
+  scope: string;
+  origin: string;
+  enabled: boolean;
+  active: boolean;
+  state: string;
+  trustStatus: string;
+  compatibility: string;
+  inventory: {
+    skills: number;
+    mcpServers: number;
+    commands: number;
+    agents: number;
+    hooks: number;
+    lsp: number;
+    lifecycleMutation: boolean;
+    networkHosts: string[];
+    filesystemRoots: string[];
+  };
+  contentHash: string | null;
+  diagnostics: Array<{ level: string; code: string; message: string }>;
+  /** The engine redacts the HTTP review token; trust stays a terminal action. */
+  reviewTokenUsable: boolean;
+}
+
+export interface EngineHook {
+  name: string;
+  event: string;
+  command: string;
+  background: boolean;
+  timeoutSecs: number | null;
+  source: string;
+}
+
+export interface EngineHooks {
+  workspace: string | null;
+  enabled: boolean;
+  hooks: EngineHook[];
+  problems: string[];
+}
+
+export interface EngineInstructionSource {
+  kind: string;
+  status: string;
+  path: string;
+  relativePath: string | null;
+  exists: boolean;
+  bytes: number | null;
+  warning: string | null;
+}
+
+export interface EngineCommands {
+  commands: Array<{
+    name: string;
+    summary: string;
+    kind: string;
+    binding: string;
+    aliases: string[];
+    hidden: boolean;
+  }>;
+}
+
+export interface EngineWorkspaceTrust {
+  workspace: string | null;
+  trusted: boolean;
+  configPath: string | null;
+  message: string | null;
+}
+
+/**
+ * The engine surface P16/P17 depend on. It is separate from `EngineAdapter` so
+ * fixture adapters implement only the calls their test exercises.
+ */
+export interface EngineSettingsAdapter {
+  discover(): Promise<{ identity: { version: string; commit: string } }>;
+  listProviders(): Promise<EngineProviderCatalog>;
+  listModels(provider: string, exactId?: string | null): Promise<EngineModelCatalog>;
+  refreshProviderModels(provider: string): Promise<{ ok: boolean; message: string }>;
+  readRuntimeConfig(): Promise<EngineRuntimeConfig>;
+  writeRuntimeSetting(input: {
+    key: string;
+    value: string;
+    persist: boolean;
+  }): Promise<EngineConfigWrite>;
+  reloadRuntimeConfig(): Promise<{ ok: boolean; message: string }>;
+  switchProvider(input: { provider: string; model: string }): Promise<EngineRouteSwitch>;
+  setProviderKey(input: {
+    provider: string;
+    key: string;
+    scope: "session" | "durable";
+  }): Promise<EngineKeyReceipt>;
+  clearProviderKey(input: {
+    provider: string;
+    scope: "session" | "durable";
+  }): Promise<{ cleared: boolean; credentialState: string | null }>;
+
+  listMcpServers(): Promise<EngineMcpList>;
+  addMcpServer(input: {
+    revision: string;
+    name: string;
+    command: string | null;
+    args: string[];
+    url: string | null;
+    transport: "sse" | null;
+    enabled: boolean;
+  }): Promise<{ revision: string; name: string }>;
+  controlMcpServer(input: {
+    revision: string;
+    name: string;
+    action: "enable" | "disable" | "reconnect" | "remove";
+  }): Promise<{
+    revision: string | null;
+    name: string;
+    action: string;
+    ok: boolean;
+    connection: EngineMcpConnection | null;
+    message: string;
+  }>;
+  readMcpTools(server?: string): Promise<{
+    tools: EngineMcpTool[];
+    connections: EngineMcpConnection[];
+  }>;
+
+  listSkills(): Promise<{
+    directory: string | null;
+    directories: string[];
+    warnings: string[];
+    skills: EngineSkill[];
+  }>;
+  readSkill(name: string): Promise<EngineSkill & { body: string | null }>;
+  setSkillEnabled(name: string, enabled: boolean): Promise<{ name: string; enabled: boolean }>;
+
+  listPlugins(): Promise<{
+    plugins: EnginePlugin[];
+    registryDiagnostics: string[];
+    validationClean: boolean | null;
+  }>;
+  controlPlugin(input: {
+    id: string;
+    action: "enable" | "disable" | "trust" | "revoke" | "remove";
+    token?: string | null;
+  }): Promise<{ ok: boolean; message: string }>;
+  installPlugin(source: string): Promise<{ id: string; name: string; message: string }>;
+  installSkill(source: string): Promise<{ name: string; message: string }>;
+
+  readHooks(): Promise<EngineHooks>;
+  readInstructions(): Promise<{
+    workspace: string | null;
+    sources: EngineInstructionSource[];
+  }>;
+  readWorkspaceTrust(): Promise<{ workspace: string | null; trusted: boolean }>;
+  setWorkspaceTrust(trusted: boolean): Promise<EngineWorkspaceTrust>;
+  listCommands(): Promise<EngineCommands>;
 }

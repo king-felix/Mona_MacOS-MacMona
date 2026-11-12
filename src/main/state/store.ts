@@ -4186,6 +4186,48 @@ export class StateStore {
     });
   }
 
+  /**
+   * Compare-and-swap for settings the user edits. A stale revision is a
+   * conflict, never an overwrite: concurrent windows and a second process see
+   * the same contract the project catalog uses.
+   */
+  async putSettingsIfVersion(
+    scope: string,
+    value: unknown,
+    expectedVersion: number,
+  ): Promise<StoredSettings> {
+    const validScope = this.validateScope(scope);
+    const serialized = JSON.stringify(value);
+    if (typeof serialized !== "string") {
+      throw new StateError("CONFLICT", "settings value is not serializable");
+    }
+    if (!Number.isInteger(expectedVersion) || expectedVersion < 0) {
+      throw new StateError("CONFLICT", "settings revision is invalid", { expectedVersion });
+    }
+    return this.write((db, now) => {
+      const current = db.prepare("SELECT version FROM settings WHERE scope = ?").get(validScope) as
+        { version: number } | undefined;
+      const version = Number(current?.version ?? 0);
+      if (version !== expectedVersion) {
+        throw new StateError("CONFLICT", "settings changed since it was read", {
+          scope: validScope,
+          expectedVersion,
+          currentVersion: version,
+        });
+      }
+      const next = version + 1;
+      db.prepare(
+        "INSERT INTO settings_versions (scope, version, value_json, recorded_at) VALUES (?, ?, ?, ?)",
+      ).run(validScope, next, serialized, now);
+      db.prepare(
+        "INSERT INTO settings (scope, version, value_json, updated_at) VALUES (?, ?, ?, ?) " +
+          "ON CONFLICT(scope) DO UPDATE SET version = excluded.version, value_json = excluded.value_json, " +
+          "updated_at = excluded.updated_at",
+      ).run(validScope, next, serialized, now);
+      return { scope: validScope, version: next, value, updatedAt: now };
+    });
+  }
+
   async getSettings(scope: string): Promise<StoredSettings | null> {
     return this.read((db) => {
       const row = db.prepare("SELECT * FROM settings WHERE scope = ?").get(scope) as

@@ -362,3 +362,40 @@ describe("interrupt, profile, usage, capabilities", () => {
     );
   });
 });
+
+describe("route failure stays on the configured route", () => {
+  it("makes one submission attempt and never switches provider or model", async () => {
+    const info = await fixture<Json>("runtime-info.json");
+    const { adapter, transport } = await makeAdapter({
+      handler: (method, path) => {
+        if (method === "GET" && path === "/v1/runtime/info") return jsonResponse(200, info);
+        if (method === "POST" && path.endsWith("/turns"))
+          return jsonResponse(429, { error: { message: "provider rate limited" } });
+        if (method === "POST" && path.includes("/switch"))
+          return jsonResponse(200, { provider: "deepseek", model: "deepseek-v4-pro" });
+        return jsonResponse(200, {});
+      },
+    });
+    const receipt = await adapter.submitTurn({
+      threadId: THREAD,
+      prompt: "Reply with pong",
+      operationKey: KEY,
+      requested: {
+        provider: "deepseek",
+        model: "deepseek-flash",
+        reasoningEffort: "low",
+      },
+    });
+    expect(receipt.accepted).toBe(false);
+    expect(receipt.outcomeUnknown).toBe(false);
+    expect(receipt.submission.note).toContain("429");
+    const turnPosts = transport.calls.filter(
+      (call) => call.method === "POST" && call.path.endsWith("/turns"),
+    );
+    expect(turnPosts).toHaveLength(1);
+    expect((turnPosts[0]?.body as Json).model_provider).toBe("deepseek");
+    expect((turnPosts[0]?.body as Json).model).toBe("deepseek-flash");
+    expect((turnPosts[0]?.body as Json).reasoning_effort).toBe("low");
+    expect(transport.calls.filter((call) => call.path.includes("/switch"))).toHaveLength(0);
+  });
+});

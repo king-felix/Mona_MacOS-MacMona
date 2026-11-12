@@ -1,7 +1,7 @@
 # Handoff — Mona macOS build
 
-**Last checkpoint:** 2026-11-12 (P15) · revision 294 · `monabuild validate` clean
-**Current prompt:** P15 completed. Next eligible after P15: **P16** — not
+**Last checkpoint:** 2026-11-12 (P17) · revision 329 · `monabuild validate` clean
+**Current prompt:** P17 completed. Next eligible after P17: **P18** — not
 started, not authorized in this session.
 
 ## Where the build stands
@@ -13,6 +13,62 @@ desktop shell, a live work studio, Finder integration, a prompt work board and
 durable continuation, an enforced attempt ledger, a durable cost ledger,
 trustworthy change receipts, Git review, and native restore. P14 adds the
 daily-use polish, and P15 makes native agent work visible and controllable.
+
+### P17 — Tools and extensions
+
+- **`docs/decisions/ADR-011`** + **D-046/D-047** — engine-mediated extension
+  actions, `If-Match` revisions, project-scope read-only, and plugin trust as a
+  terminal action.
+- **`src/shared/contracts/extensions.ts`** — scope, provenance, health, action
+  (availability + reason + side effect + destructive + revision need), MCP,
+  skill, plugin, hook, instruction, command, capability, and gap types.
+- **`src/main/engine/adapter.ts`** — typed MCP list/add/control/tools, skills
+  list/detail/toggle/install, plugins list/control/install, hooks,
+  instructions, workspace trust, and commands. The adapter adds `If-Match`
+  headers through `RequestOptions`.
+- **`src/main/work/extensions.ts`** — `ExtensionWorkbench`: deterministic
+  snapshot with per-section live-or-stored fallback, home/command/URL/problem
+  redaction, absolute-executable rule for MCP adds, revision preconditions,
+  on-demand tool listing, action gating, workspace trust, skill toggles, plugin
+  install/remove, and six named gaps.
+- **`src/renderer/shell/ExtensionsSettings.tsx`** — Settings → Extensions with
+  MCP, Skills, Plugins, Hooks, Instructions, and Commands tabs, health/tool
+  detail, install forms, and known limits.
+- **Fixtures** — `test/fixtures/mcp/echo-server.mjs` (minimal stdio MCP) and
+  `test/fixtures/plugin/` (one inert skill).
+- **Verification** — 494 tests in 52 files; `smoke:extensions` 39/39 with a live
+  local server: add, handshake, tools, disable, stale 412, missing executable,
+  remove preserving unrelated/unknown config, skill toggle, plugin
+  install-disabled/remove. Shell smoke 101/101 including
+  `settings_extensions_categories`. Evidence:
+  `docs/evidence/macos/P17-extensions.md`.
+
+### P16 — Providers, models, permissions, effective settings
+
+- **`docs/decisions/ADR-011`** + **D-042…D-045** — scoped validated defaults,
+  engine switch with backup and stale-read refusal, credential pass-through,
+  and redacted diagnostics.
+- **`src/shared/contracts/settings.ts`** — provider/model catalogs, credential
+  classes, saved route, requested-vs-effective observation, routing policy,
+  engine selection, diagnostics, and change receipts.
+- **`src/main/engine/adapter.ts`** — providers/models/refresh, runtime config,
+  setting write, reload, provider switch, and provider key set/clear. A
+  `settingsEngine` cast in main keeps the adapter surface narrow.
+- **`src/main/work/settings.ts`** — `RouteWorkbench`: compare-and-swap saved
+  default, live route validation (model + published reasoning levels), separate
+  engine-default switch with config backup/sha256/receipt, credential
+  pass-through that refuses non-writable providers, redacted doctor reports,
+  engine selection display, and cached catalogs with read times.
+- **`src/main/state/store.ts`** — `putSettingsIfVersion` compare-and-swap.
+- **`src/main/engine/runtime-process.ts`** — `CODEWHALE_BIN` must be absolute;
+  a bare PATH name is refused.
+- **`src/renderer/shell/RouteSettings.tsx`** — Settings → Providers & route.
+- **Verification** — `smoke:settings` 22/22 with isolated HOME and no turn:
+  live catalogs, unsupported level refused, stale saved/config revision
+  refused, backup hash and unknown TOML table preserved, credential value never
+  echoed, 53 diagnostics redactions. Shell smoke 101/101 including
+  `settings_route_offline`. Evidence:
+  `docs/evidence/macos/P16-settings.md`.
 
 ### P15 — Agent observatory and native orchestration
 
@@ -87,21 +143,25 @@ daily-use polish, and P15 makes native agent work visible and controllable.
   notification-focus message; lifecycle **22/22**; local CI green including the
   new `smoke:polish`. Evidence: `docs/evidence/macos/P14-polish.md`.
 
-## Next exact action (P16)
+## Next exact action (P18)
 
-Read spec §7 (008/020), §9, §11 providers, §13, the P16 prompt body, the P12
-cost rate-card surface, and the P03/P08 profile plumbing. Then:
+Read spec §7.1, §11 terminal/palette, §13, the P18 prompt body, the P15
+capability inventory, and the P16/P17 adapter surfaces. Then:
 
-1. Provider/model catalogs from `/v1/providers` and
-   `/v1/providers/{id}/models`, effective profile display, and credential
-   source status without secrets (`credentialSource`/`credentialWritable`).
-2. Separate a saved new-thread default from an active thread's route; show
-   requested versus effective and never persist an unsupported setting.
-3. Keep Victor's DeepSeek Flash route the default; disable automatic expensive
-   routing and fallback. Route failure stays on the configured route.
-4. Evidence: configuration-scope tests, diagnostics redaction,
-   `docs/evidence/macos/P16-settings.md`. Use local fixtures for failure cases
-   so no uncontrolled charge is incurred.
+1. Implement the integrated arm64 PTY terminal with controlled environment,
+   resize/copy/search, output limits, process ownership, reconnect/exit, and
+   inert links/escape sequences. Keep terminal data away from application
+   authority and never source user shell startup files for credentials.
+2. Finish the command palette over projects, prompts, actions, settings, and
+   engine capabilities, ranking locally.
+3. Build the capability explorer from `docs/codewhale-capabilities-macos.json`,
+   P01 discovery, and the live P16/P17 route inventory. Every row needs a
+   working entry point or an explicit unavailable/gap state with the verified
+   advanced or terminal route.
+4. Reconcile additions/removals/version changes against P01; do not offer
+   untested mutating operations.
+5. Evidence: terminal tests (resize, reconnect, exit, malicious link),
+   capability coverage report, `docs/evidence/macos/P18-parity.md`.
 
 ## Nonblocking issues carried forward
 
@@ -244,6 +304,40 @@ cost rate-card surface, and the P03/P08 profile plumbing. Then:
     not stale; the P15 captures are `p15-agents-daybreak.png`,
     `p15-agents-afterglow.png`, and `p15-agents-inspector.png`.
 
+65. **P16/P17 added two Settings tabs** (`Providers & route`, `Extensions`) and
+    added 25 tests; the shell smoke now has 101 checks. The 2026-11-12 P16/P17
+    CI run is green (`docs/evidence/macos/artifacts/p16-p17-ci.txt`).
+66. **A saved route needs a live engine to validate.** Offline, the last catalog
+    is shown with its read time and a save is refused rather than persisted
+    unverified.
+67. **Engine switch cannot select a named custom `model_provider_id`.** It
+    accepts provider kind + model; a named custom route can be a saved
+    new-thread default only.
+68. **The engine may normalize its config document on first route resolution.**
+    Snapshots read the revision after catalog reads and the switch rechecks it
+    before writing.
+69. **Plugin capability trust has no desktop route.** The HTTP detail redacts
+    `review.token`; Mona shows trust state and points at `/plugins trust`.
+70. **Project-scope MCP entries are read-only through the runtime.** Mona never
+    rewrites `.codewhale/mcp.json`; edits belong to the user/engine.
+71. **Skill install is remote-source only** and needs network approval; local
+    directories are discovered, not installed. Plugin install accepts a local
+    bundle.
+72. **No tool-level discovery budget** is exposed on 0.10.2. Mona reports
+    server-level enable/disable and makes no token-savings claim.
+73. **Hook editing and user-command editing have no desktop route.** Hooks are
+    read-only with engine semantics; commands are listed with `host`/`prompt`
+    binding. Both are named gaps with a verified terminal/config route.
+74. **A config backup can contain a literal key.** A route switch copies
+    `config.toml` (mode `0600`) into the product backup directory so the change
+    is recoverable. It is never rendered or exported. Mona's own caches hold
+    only endpoint authority and credential classes (D-048).
+75. **Health is per handshake.** `connected` from the list is shown as
+    connected; anything else stays `not_checked` until the user requests one.
+76. **Credential scope is session or durable.** Session keys live in engine
+    memory and do not survive a restart; durable writes use the engine's own
+    store and are refused when the engine does not own the route.
+
 ## Key files
 
 - `.mona/build-macos/state.json` — prompt status (revision 294).
@@ -256,12 +350,13 @@ cost rate-card surface, and the P03/P08 profile plumbing. Then:
 - `docs/decisions/ADR-001…010`; ADR-009 is polish, ADR-010 orchestration
   ownership.
 - `src/main/work/` — `agents.ts`, `attention.ts`, `board.ts`, `changes.ts`,
-  `control.ts`, `costs.ts`, `cost-math.ts`, `digest.ts`, `fingerprint.ts`,
-  `git.ts`, `notifications.ts`, `polish.ts`, `preferences.ts`, `profile.ts`,
-  `studio.ts`.
+  `control.ts`, `costs.ts`, `cost-math.ts`, `digest.ts`, `extensions.ts`,
+  `fingerprint.ts`, `git.ts`, `notifications.ts`, `polish.ts`, `preferences.ts`,
+  `profile.ts`, `settings.ts`, `studio.ts`.
 - `src/renderer/shell/` — Shell, Home, Studio, Board, Changes, Cost, Agents,
   Settings, drop, FinderIntegration, timeline, visual.
-- `scripts/` — `agents-smoke.mjs`, `polish-smoke.mjs`, `board-smoke.mjs`,
+- `scripts/` — `settings-smoke.mjs`, `extensions-smoke.mjs`,
+  `agents-smoke.mjs`, `polish-smoke.mjs`, `board-smoke.mjs`,
   `changes-smoke.mjs`, `cost-smoke.mjs`, `ci.mjs`, `smoke.mjs`,
   `shell-smoke.mjs`, `studio-smoke.mjs`, `engine-smoke.mjs`,
   `lifecycle-smoke.mjs`, `open-smoke.mjs`, `service-smoke.mjs`, build

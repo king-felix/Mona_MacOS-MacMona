@@ -10,6 +10,21 @@ import type {
   StateFacts,
 } from "../shared/contracts/project-bridge";
 import type {
+  CredentialClearReceipt,
+  CredentialReceipt,
+  ModelCatalogView,
+  RouteChangeReceipt,
+  SettingsDiagnosticsView,
+  SettingsSnapshot,
+} from "../shared/contracts/settings";
+import type {
+  ExtensionActionId,
+  ExtensionActionReceipt,
+  ExtensionsSnapshot,
+  McpAddInput,
+  McpToolView,
+} from "../shared/contracts/extensions";
+import type {
   FleetEvidenceView,
   FleetLaunchResult,
   FleetRunView,
@@ -377,6 +392,85 @@ const bridge: MonaBridge = {
     instructions: string;
   }): Promise<IpcResult<FleetLaunchResult>> =>
     ipcRenderer.invoke("agents:launch-fleet", { ...input, parallelism: "serial" }),
+
+  settingsSnapshot: (projectId: ProjectId): Promise<IpcResult<SettingsSnapshot>> =>
+    ipcRenderer.invoke("settings:snapshot", { projectId }),
+  settingsModels: (
+    projectId: ProjectId,
+    provider: string,
+    exactId: string | null,
+  ): Promise<IpcResult<ModelCatalogView>> =>
+    ipcRenderer.invoke("settings:models", { projectId, provider, exactId }),
+  saveSavedRoute: (input: {
+    projectId: ProjectId;
+    expectedRevision: number;
+    provider: string;
+    exactId: string | null;
+    model: string;
+    reasoningEffort: string | null;
+    permissionPosture: "full_access" | "ask";
+    autoApprove: boolean;
+    trustMode: boolean;
+    allowShell: boolean;
+  }): Promise<IpcResult<{ receipt: RouteChangeReceipt; snapshot: SettingsSnapshot }>> =>
+    ipcRenderer.invoke("settings:save-default", input),
+  resetSavedRoute: (
+    projectId: ProjectId,
+    expectedRevision: number,
+  ): Promise<IpcResult<{ receipt: RouteChangeReceipt; snapshot: SettingsSnapshot }>> =>
+    ipcRenderer.invoke("settings:reset-default", { projectId, expectedRevision }),
+  switchEngineRoute: (input: {
+    projectId: ProjectId;
+    provider: string;
+    exactId: string | null;
+    model: string;
+    expectedConfigRevision: string | null;
+    confirm: true;
+  }): Promise<IpcResult<{ receipt: RouteChangeReceipt; snapshot: SettingsSnapshot }>> =>
+    ipcRenderer.invoke("settings:switch-engine", input),
+  setProviderCredential: (input: {
+    projectId: ProjectId;
+    provider: string;
+    key: string;
+    scope: "session" | "durable";
+  }): Promise<IpcResult<CredentialReceipt>> => ipcRenderer.invoke("settings:set-credential", input),
+  clearProviderCredential: (
+    projectId: ProjectId,
+    provider: string,
+    scope: "session" | "durable",
+  ): Promise<IpcResult<CredentialClearReceipt>> =>
+    ipcRenderer.invoke("settings:clear-credential", { projectId, provider, scope }),
+  settingsDiagnostics: (projectId: ProjectId): Promise<IpcResult<SettingsDiagnosticsView>> =>
+    ipcRenderer.invoke("settings:diagnostics", { projectId }),
+  exportSettingsDiagnostics: (
+    projectId: ProjectId,
+  ): Promise<IpcResult<{ saved: boolean; path: string | null; redactions: number }>> =>
+    ipcRenderer.invoke("settings:export-diagnostics", { projectId }),
+
+  extensionsSnapshot: (projectId: ProjectId): Promise<IpcResult<ExtensionsSnapshot>> =>
+    ipcRenderer.invoke("extensions:snapshot", { projectId }),
+  mcpTools: (
+    projectId: ProjectId,
+    server: string,
+  ): Promise<IpcResult<{ tools: McpToolView[]; source: "live"; error: string | null }>> =>
+    ipcRenderer.invoke("extensions:mcp-tools", { projectId, server }),
+  addMcpServer: (
+    projectId: ProjectId,
+    input: McpAddInput & { expectedRevision: string },
+  ): Promise<IpcResult<ExtensionActionReceipt>> =>
+    ipcRenderer.invoke("extensions:mcp-add", { projectId, ...input }),
+  extensionAction: (input: {
+    projectId: ProjectId;
+    action: ExtensionActionId;
+    target: string;
+    expectedRevision?: string | null;
+  }): Promise<IpcResult<ExtensionActionReceipt>> => ipcRenderer.invoke("extensions:action", input),
+  installExtension: (
+    projectId: ProjectId,
+    kind: "plugin" | "skill",
+    source: string,
+  ): Promise<IpcResult<ExtensionActionReceipt>> =>
+    ipcRenderer.invoke("extensions:install", { projectId, kind, source }),
 
   onStudioChanged: (callback: (push: StudioPush) => void): (() => void) => {
     const listener = (_event: unknown, payload: unknown) => {

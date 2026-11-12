@@ -1,0 +1,7 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/plugin.json",
+  "name": "mona-fixture-plugin",
+  "version": "0.0.1",
+  "description": "Local Mona fixture plugin. Adds one inert skill.",
+  "author": { "name": "Mona verification" }
+}

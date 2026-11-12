@@ -10,6 +10,8 @@ import type { StateStore } from "../state/store";
  */
 export interface ExecutionProfile {
   provider: string;
+  /** Exact configured route identity for a named custom provider, else null. */
+  exactId: string | null;
   model: string;
   reasoningEffort?: string;
   permissionPosture: "full_access" | "ask";
@@ -22,6 +24,7 @@ export const PROFILE_SCOPE = "engine:profile";
 
 export const DEFAULT_EXECUTION_PROFILE: ExecutionProfile = {
   provider: "deepseek",
+  exactId: null,
   model: "deepseek-flash",
   permissionPosture: "full_access",
   autoApprove: true,
@@ -41,15 +44,20 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
-function sanitize(value: unknown): ExecutionProfile | null {
+export function parseExecutionProfile(value: unknown): ExecutionProfile | null {
   if (!isRecord(value)) return null;
   const { provider, model, reasoningEffort } = value;
   if (typeof provider !== "string" || !PROVIDER.test(provider)) return null;
   if (typeof model !== "string" || !MODEL.test(model)) return null;
+  const exactId =
+    typeof value.exactId === "string" && value.exactId.length > 0 && MODEL.test(value.exactId)
+      ? value.exactId
+      : null;
   const posture = value.permissionPosture === "ask" ? "ask" : "full_access";
   const fullAccess = posture === "full_access";
   return {
     provider,
+    exactId,
     model,
     ...(typeof reasoningEffort === "string" && reasoningEffort.length > 0
       ? { reasoningEffort }
@@ -67,7 +75,7 @@ function sanitize(value: unknown): ExecutionProfile | null {
  */
 export async function loadExecutionProfile(store: StateStore): Promise<LoadedProfile> {
   const stored = await store.getSettings(PROFILE_SCOPE);
-  const parsed = stored ? sanitize(stored.value) : null;
+  const parsed = stored ? parseExecutionProfile(stored.value) : null;
   if (parsed) return { profile: parsed, source: "configured" };
   await store.putSettings(PROFILE_SCOPE, {
     ...DEFAULT_EXECUTION_PROFILE,
@@ -115,6 +123,7 @@ export function profileView(
 ): StudioProfileView {
   return {
     provider: profile.provider,
+    exactId: profile.exactId,
     model: profile.model,
     reasoningEffort: profile.reasoningEffort ?? null,
     permissionPosture: profile.permissionPosture,

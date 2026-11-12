@@ -305,3 +305,313 @@ export const WireFleetEvidence = z.looseObject({
   content: z.unknown().optional(),
 });
 export type WireFleetEvidence = z.infer<typeof WireFleetEvidence>;
+
+// ---------------------------------------------------------------- P16 settings
+
+export const WireProvider = z.looseObject({
+  id: z.string().min(1),
+  model_provider_id: z.string().nullable().optional(),
+  display_name: z.string().optional(),
+  default_model: z.string().nullable().optional(),
+  has_model_catalog: z.boolean().optional(),
+  credentialState: z.string().optional(),
+  credentialSource: z.string().optional(),
+  credentialWritable: z.boolean().optional(),
+  credentialWritableReason: z.string().nullable().optional(),
+  browserConnect: z.boolean().optional(),
+});
+export type WireProvider = z.infer<typeof WireProvider>;
+
+export const WireProviderList = z.looseObject({
+  current: z.string().nullable().optional(),
+  current_provider_id: z.string().nullable().optional(),
+  providers: z.array(WireProvider),
+});
+export type WireProviderList = z.infer<typeof WireProviderList>;
+
+export const WireModel = z.looseObject({
+  id: z.string().min(1),
+  image_input: z.string().optional(),
+  output_token_limit: z.string().optional(),
+  reasoning_effort: z.string().optional(),
+  reasoning_effort_levels: z.array(z.string()).optional(),
+  reasoning_effort_source: z.string().nullable().optional(),
+  facts: z
+    .looseObject({
+      effective_limits: z
+        .looseObject({
+          context_tokens: z.number().nullable().optional(),
+          output_tokens: z.number().nullable().optional(),
+        })
+        .optional(),
+      source: z.looseObject({ kind: z.string().optional() }).optional(),
+    })
+    .optional(),
+});
+export type WireModel = z.infer<typeof WireModel>;
+
+export const WireModelList = z.looseObject({
+  provider: z.string().min(1),
+  model_provider_id: z.string().nullable().optional(),
+  models: z.array(WireModel),
+});
+export type WireModelList = z.infer<typeof WireModelList>;
+
+export const WireRuntimeConfig = z.looseObject({
+  provider: z.string().nullable().optional(),
+  model: z.string().nullable().optional(),
+  model_available: z.boolean().nullable().optional(),
+  reasoning_effort: z.string().nullable().optional(),
+  base_url: z.string().nullable().optional(),
+  approval_mode: z.string().nullable().optional(),
+  sandbox_mode: z.string().nullable().optional(),
+  allow_shell: z.boolean().nullable().optional(),
+  mcp_config_path: z.string().nullable().optional(),
+  default_model: z.string().nullable().optional(),
+});
+export type WireRuntimeConfig = z.infer<typeof WireRuntimeConfig>;
+
+export const WireConfigWrite = z.looseObject({
+  key: z.string().min(1),
+  value: z.unknown().optional(),
+  message: z.string().optional(),
+  persisted: z.boolean().optional(),
+  requires_reload: z.boolean().optional(),
+});
+export type WireConfigWrite = z.infer<typeof WireConfigWrite>;
+
+export const WireProviderSwitch = z.looseObject({
+  provider: z.string().min(1),
+  model: z.string().nullable().optional(),
+  model_available: z.boolean().optional(),
+  message: z.string().optional(),
+  persisted: z.boolean().optional(),
+});
+export type WireProviderSwitch = z.infer<typeof WireProviderSwitch>;
+
+export const WireProviderKeyWrite = z.looseObject({
+  provider: z.string().min(1),
+  stored: z.boolean().optional(),
+  scope: z.string().optional(),
+  backend: z.string().nullable().optional(),
+  credentialState: z.string().optional(),
+});
+export type WireProviderKeyWrite = z.infer<typeof WireProviderKeyWrite>;
+
+// ------------------------------------------------------------ P17 extensions
+
+export const WireMcpServer = z.looseObject({
+  name: z.string().min(1),
+  origin: z.string().optional(),
+  writable: z.boolean().optional(),
+  auth_required: z.boolean().optional(),
+  enabled: z.boolean().optional(),
+  required: z.boolean().optional(),
+  command: z.string().nullable().optional(),
+  args: z.array(z.string()).optional(),
+  env_keys: z.array(z.string()).optional(),
+  url: z.string().nullable().optional(),
+  transport: z.string().nullable().optional(),
+  enabled_tools: z.array(z.string()).optional(),
+  disabled_tools: z.array(z.string()).optional(),
+  env_header_keys: z.array(z.string()).optional(),
+  has_bearer_token_env_var: z.boolean().optional(),
+  scopes: z.array(z.string()).optional(),
+  credential_configured: z.boolean().optional(),
+  connected: z.boolean().optional(),
+});
+export type WireMcpServer = z.infer<typeof WireMcpServer>;
+
+export const WireMcpServerList = z.looseObject({
+  revision: z.string().min(1),
+  servers: z.array(WireMcpServer),
+});
+export type WireMcpServerList = z.infer<typeof WireMcpServerList>;
+
+export const WireMcpReconnect = z.looseObject({
+  name: z.string().min(1),
+  action: z.string().optional(),
+  ok: z.boolean().optional(),
+  revision: z.string().optional(),
+  connection: z
+    .looseObject({
+      server: z.string().optional(),
+      connected: z.boolean().optional(),
+      auth_required: z.boolean().optional(),
+      error: z.string().nullable().optional(),
+    })
+    .optional(),
+});
+export type WireMcpReconnect = z.infer<typeof WireMcpReconnect>;
+
+export const WireMcpTool = z.looseObject({
+  server: z.string().min(1),
+  name: z.string().min(1),
+  prefixed_name: z.string().optional(),
+  description: z.string().optional(),
+  input_schema: z.unknown().optional(),
+});
+export type WireMcpTool = z.infer<typeof WireMcpTool>;
+
+export const WireMcpTools = z.looseObject({
+  tools: z.array(WireMcpTool),
+  connections: z
+    .array(
+      z.looseObject({
+        server: z.string(),
+        connected: z.boolean().optional(),
+        auth_required: z.boolean().optional(),
+        error: z.string().nullable().optional(),
+      }),
+    )
+    .optional(),
+});
+export type WireMcpTools = z.infer<typeof WireMcpTools>;
+
+export const WireSkill = z.looseObject({
+  name: z.string().min(1),
+  description: z.string().optional(),
+  path: z.string().optional(),
+  source: z.string().optional(),
+  plugin_id: z.string().nullable().optional(),
+  plugin_generation: z.number().nullable().optional(),
+  plugin_content_hash: z.string().nullable().optional(),
+  enabled: z.boolean().optional(),
+  is_bundled: z.boolean().optional(),
+  invocation: z.string().optional(),
+  aliases: z.array(z.string()).optional(),
+  bundled_tier: z.string().nullable().optional(),
+});
+export type WireSkill = z.infer<typeof WireSkill>;
+
+export const WireSkillList = z.looseObject({
+  directory: z.string().nullable().optional(),
+  directories: z.array(z.string()).optional(),
+  warnings: z.array(z.string()).optional(),
+  skills: z.array(WireSkill),
+});
+export type WireSkillList = z.infer<typeof WireSkillList>;
+
+export const WireSkillDetail = WireSkill.extend({ body: z.string().optional() });
+export type WireSkillDetail = z.infer<typeof WireSkillDetail>;
+
+export const WirePluginInventory = z.looseObject({
+  skills: z.number().optional(),
+  mcp_servers: z.number().optional(),
+  stdio_mcp_servers: z.number().optional(),
+  remote_mcp_servers: z.number().optional(),
+  commands: z.number().optional(),
+  agents: z.number().optional(),
+  hooks: z.number().optional(),
+  lsp: z.number().optional(),
+  native: z.number().optional(),
+  filesystem_roots: z.array(z.string()).optional(),
+  network_hosts: z.array(z.string()).optional(),
+  lifecycle_mutation: z.boolean().optional(),
+});
+export type WirePluginInventory = z.infer<typeof WirePluginInventory>;
+
+export const WirePlugin = z.looseObject({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  display_name: z.string().nullable().optional(),
+  icon: z.string().nullable().optional(),
+  author: z.string().nullable().optional(),
+  homepage: z.string().nullable().optional(),
+  version: z.string().nullable().optional(),
+  description: z.string().nullable().optional(),
+  scope: z.string().optional(),
+  origin: z.string().optional(),
+  path: z.string().optional(),
+  state: z.string().optional(),
+  enabled: z.boolean().optional(),
+  trust_status: z.string().optional(),
+  active: z.boolean().optional(),
+  compatibility: z.string().optional(),
+  inventory: WirePluginInventory.optional(),
+  content_hash: z.string().nullable().optional(),
+  capability_hash: z.string().nullable().optional(),
+  diagnostics: z
+    .array(z.looseObject({ level: z.string(), code: z.string(), message: z.string() }))
+    .optional(),
+  review: z
+    .looseObject({
+      token: z.string().nullable().optional(),
+      capabilities: z.array(z.string()).optional(),
+    })
+    .optional(),
+});
+export type WirePlugin = z.infer<typeof WirePlugin>;
+
+export const WirePluginList = z.looseObject({
+  workspace: z.string().optional(),
+  plugins: z.array(WirePlugin),
+  registry_diagnostics: z.array(z.string()).optional(),
+  validation_clean: z.boolean().nullable().optional(),
+});
+export type WirePluginList = z.infer<typeof WirePluginList>;
+
+export const WireHook = z.looseObject({
+  name: z.string().min(1),
+  event: z.string().optional(),
+  command: z.string().optional(),
+  background: z.boolean().optional(),
+  timeout_secs: z.number().nullable().optional(),
+  source: z.string().optional(),
+});
+export type WireHook = z.infer<typeof WireHook>;
+
+export const WireHooks = z.looseObject({
+  workspace: z.string().nullable().optional(),
+  enabled: z.boolean().optional(),
+  hooks: z.array(WireHook),
+  problems: z.array(z.string()).optional(),
+});
+export type WireHooks = z.infer<typeof WireHooks>;
+
+export const WireInstructionSource = z.looseObject({
+  kind: z.string().optional(),
+  status: z.string().optional(),
+  scope_dir: z.string().optional(),
+  path: z.string().optional(),
+  relative_path: z.string().nullable().optional(),
+  exists: z.boolean().optional(),
+  bytes: z.number().nullable().optional(),
+  warning: z.string().nullable().optional(),
+});
+export type WireInstructionSource = z.infer<typeof WireInstructionSource>;
+
+export const WireInstructions = z.looseObject({
+  workspace: z.string().nullable().optional(),
+  sources: z.array(WireInstructionSource),
+});
+export type WireInstructions = z.infer<typeof WireInstructions>;
+
+export const WireWorkspaceStatus = z.looseObject({
+  workspace: z.string().nullable().optional(),
+  workspace_trusted: z.boolean().optional(),
+});
+export type WireWorkspaceStatus = z.infer<typeof WireWorkspaceStatus>;
+
+export const WireWorkspaceTrust = z.looseObject({
+  workspace: z.string().nullable().optional(),
+  workspace_trusted: z.boolean().optional(),
+  config_path: z.string().nullable().optional(),
+  message: z.string().optional(),
+});
+export type WireWorkspaceTrust = z.infer<typeof WireWorkspaceTrust>;
+
+export const WireCommand = z.looseObject({
+  name: z.string().min(1),
+  aliases: z.array(z.string()).optional(),
+  summary: z.string().optional(),
+  kind: z.string().optional(),
+  binding: z.string().optional(),
+  hidden: z.boolean().optional(),
+});
+export type WireCommand = z.infer<typeof WireCommand>;
+
+export const WireCommandList = z.looseObject({
+  commands: z.array(WireCommand),
+});
+export type WireCommandList = z.infer<typeof WireCommandList>;

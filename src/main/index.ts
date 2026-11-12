@@ -42,6 +42,8 @@ import { CostLedger } from "./work/costs";
 import { ChangeLedger } from "./work/changes";
 import { PolishService } from "./work/polish";
 import { AgentObservatory } from "./work/agents";
+import { RouteWorkbench } from "./work/settings";
+import { ExtensionWorkbench } from "./work/extensions";
 import { PolishPreferencesStore } from "./work/preferences";
 import { PolishNotifier, type NotificationSources } from "./work/notifications";
 import { AttentionController, KeepAwake } from "./work/attention";
@@ -91,6 +93,8 @@ let costLedger: CostLedger | null = null;
 let changeLedger: ChangeLedger | null = null;
 let polishService: PolishService | null = null;
 let agentObservatory: AgentObservatory | null = null;
+let routeWorkbench: RouteWorkbench | null = null;
+let extensionWorkbench: ExtensionWorkbench | null = null;
 let polishMenu: ApplicationMenuHandle | null = null;
 let keepAwake: KeepAwake | null = null;
 let activeProjectId: StudioProjectId | null = null;
@@ -954,6 +958,57 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
   const settingsShot = await window.webContents.capturePage();
   writeFileSync(join(outDir, "p07-shell-settings.png"), settingsShot.toPNG());
 
+  // P16/P17: the configuration workbench is reachable without a runtime. With
+  // no live engine it must say so and show no invented route, credential, or
+  // health value. The live behavior is exercised by the dedicated smokes.
+  await window.webContents.executeJavaScript(`(() => {
+    document.querySelector('#tab-route')?.click();
+    return true;
+  })()`);
+  const routeReady = await waitFor(
+    "document.body.textContent.includes('Saved new-thread default')",
+  );
+  await new Promise((resolve) => setTimeout(resolve, 250));
+  const routeFacts = await window.webContents.executeJavaScript(`(() => {
+    const text = document.body.textContent ?? '';
+    return {
+      screen: document.documentElement.dataset.screen,
+      heading: text.includes('Providers & route') || text.includes('Saved new-thread default'),
+      offline_stated: text.includes('Live engine not connected'),
+      no_fake_route: !text.includes('effective deepseek/'),
+      policy_locked: text.includes('automatic routing: off') && text.includes('fallback: refuse'),
+      horizontal_overflow:
+        document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+    };
+  })()`);
+  const routeShot = await window.webContents.capturePage();
+  writeFileSync(join(outDir, "p16-settings-route.png"), routeShot.toPNG());
+
+  await window.webContents.executeJavaScript(`(() => {
+    document.querySelector('#tab-extensions')?.click();
+    return true;
+  })()`);
+  const extensionsReady = await waitFor("document.body.textContent.includes('Workspace scope')");
+  await new Promise((resolve) => setTimeout(resolve, 250));
+  const extensionsFacts = await window.webContents.executeJavaScript(`(() => {
+    const text = document.body.textContent ?? '';
+    return {
+      screen: document.documentElement.dataset.screen,
+      categories: ['MCP', 'Skills', 'Plugins', 'Hooks', 'Instructions', 'Commands'].every((label) =>
+        Array.from(document.querySelectorAll('[role="tab"]')).some((node) =>
+          node.textContent?.includes(label),
+        ),
+      ),
+      offline_stated: text.includes('Live engine not connected'),
+      gaps_stated: text.includes('Known limits'),
+      no_fake_health: !text.includes('connected ·') && !text.includes('handshake succeeded'),
+      horizontal_overflow:
+        document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+    };
+  })()`);
+  const extensionsShot = await window.webContents.capturePage();
+  writeFileSync(join(outDir, "p17-settings-extensions.png"), extensionsShot.toPNG());
+
   // P15: the agent observatory is reachable by keyboard and reports a detached
   // studio honestly. No runtime is started here, so this proves the stored /
   // disconnected path with an empty engine list rather than a simulated swarm.
@@ -1354,6 +1409,19 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
       agentInspector.tests === true && agentInspector.tools === true,
     agents_inspector_terminal_cancel_disabled: agentInspector.cancel_disabled === true,
     settings_returned: settingsReturned,
+    settings_route_offline:
+      routeReady &&
+      routeFacts.offline_stated === true &&
+      routeFacts.policy_locked === true &&
+      routeFacts.no_fake_route === true &&
+      routeFacts.horizontal_overflow === false,
+    settings_extensions_categories:
+      extensionsReady &&
+      extensionsFacts.categories === true &&
+      extensionsFacts.offline_stated === true &&
+      extensionsFacts.gaps_stated === true &&
+      extensionsFacts.no_fake_health === true &&
+      extensionsFacts.horizontal_overflow === false,
   };
   const ok = Object.values(checks).every(Boolean);
   const report = {
@@ -1368,6 +1436,8 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
       attempts,
       cost,
       settings,
+      routeFacts,
+      extensionsFacts,
       palette,
       composerFits,
       resume,
@@ -1399,6 +1469,8 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
       "docs/evidence/macos/artifacts/p15-agents-daybreak.png",
       "docs/evidence/macos/artifacts/p15-agents-afterglow.png",
       "docs/evidence/macos/artifacts/p15-agents-inspector.png",
+      "docs/evidence/macos/artifacts/p16-settings-route.png",
+      "docs/evidence/macos/artifacts/p17-settings-extensions.png",
     ],
   };
   const out = process.env.MONA_SHELL_SMOKE_OUT;
@@ -2296,6 +2368,29 @@ if (!gotLock) {
           store: productState,
           engine: (projectId) => workStudio?.engineAccess(projectId) ?? null,
         });
+        // P16/P17 read this project's live runtime through the studio's
+        // adapter. They never start a runtime, and the adapter type is the
+        // narrower settings/extension surface rather than a new connection.
+        const settingsEngine = (projectId: StudioProjectId) => {
+          const access = workStudio?.engineAccess(projectId);
+          return access
+            ? {
+                adapter:
+                  access.adapter as unknown as import("./engine/types").EngineSettingsAdapter,
+                workspace: access.workspace,
+              }
+            : null;
+        };
+        routeWorkbench = new RouteWorkbench({
+          store: productState,
+          engine: settingsEngine,
+          studio: async (projectId) => workStudio?.snapshot(projectId) ?? null,
+          backupDir: join(appPaths.backups, "engine-config"),
+        });
+        extensionWorkbench = new ExtensionWorkbench({
+          store: productState,
+          engine: settingsEngine,
+        });
       }
 
       // P14: deterministic polish. Attention, notifications, and the digest read
@@ -2762,6 +2857,37 @@ if (!gotLock) {
       changes: changeLedger,
       polish: polishService,
       agents: agentObservatory,
+      settings: routeWorkbench,
+      extensions: extensionWorkbench,
+      exportDiagnostics: async (report) => {
+        const chosen = mainWindow
+          ? await dialog.showSaveDialog(mainWindow, {
+              title: "Export redacted diagnostics",
+              defaultPath: join(app.getPath("documents"), `mona-diagnostics-${Date.now()}.json`),
+              filters: [{ name: "JSON", extensions: ["json"] }],
+            })
+          : { canceled: true, filePath: undefined };
+        if (chosen.canceled || !chosen.filePath) return { saved: false, path: null };
+        writeFileSync(
+          chosen.filePath,
+          JSON.stringify(
+            {
+              schema_version: 1,
+              product: "Mona",
+              generated_at: report.generatedAt,
+              ok: report.ok,
+              summary: report.summary,
+              warnings: report.warnings,
+              redactions: report.redactions,
+              report: report.redacted,
+            },
+            null,
+            2,
+          ),
+          { encoding: "utf8", mode: 0o600 },
+        );
+        return { saved: true, path: chosen.filePath };
+      },
       quit: requestQuit,
       revealWorkspacePath: async (projectId, path) => {
         const ledger = changeLedger;

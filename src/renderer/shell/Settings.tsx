@@ -35,6 +35,8 @@ import {
   WarningIcon,
 } from "../design/icons";
 import { FinderIntegration } from "./FinderIntegration";
+import { RouteSettings } from "./RouteSettings";
+import { ExtensionsSettings } from "./ExtensionsSettings";
 import type { Density, ThemeName } from "../design/tokens";
 
 export function SettingsScreen({
@@ -52,6 +54,7 @@ export function SettingsScreen({
   onPatchPreferences,
   onTestNotification,
   onQuit,
+  onOpenStudio,
 }: {
   app: AppInfo | null;
   paths: AppPathInfo | null;
@@ -67,6 +70,7 @@ export function SettingsScreen({
   onPatchPreferences: (patch: PolishPreferencesPatch) => void;
   onTestNotification: () => void;
   onQuit: () => void;
+  onOpenStudio: () => void;
 }): JSX.Element {
   const [tab, setTab] = useState("appearance");
   const problems = facts?.permissionProblems ?? [];
@@ -105,6 +109,8 @@ export function SettingsScreen({
           { id: "appearance", label: "Appearance", icon: <BranchIcon size={15} /> },
           { id: "attention", label: "Attention", icon: <WarningIcon size={15} /> },
           { id: "data", label: "Data", icon: <FolderIcon size={15} /> },
+          { id: "route", label: "Providers & route", icon: <ShieldIcon size={15} /> },
+          { id: "extensions", label: "Extensions", icon: <TerminalIcon size={15} /> },
           { id: "runtime", label: "Runtime", icon: <TerminalIcon size={15} /> },
           { id: "finder", label: "Finder", icon: <FolderIcon size={15} /> },
           { id: "privacy", label: "Privacy", icon: <ShieldIcon size={15} /> },
@@ -113,6 +119,30 @@ export function SettingsScreen({
       />
 
       <div className="settings-panel">
+        <TabPanel id="route" active={tab === "route"}>
+          {detail ? (
+            <RouteSettings projectId={detail.project.id} onOpenStudio={onOpenStudio} />
+          ) : (
+            <EmptyState
+              icon={<ShieldIcon size={20} />}
+              title="Open a project first"
+              description="Provider and route settings are scoped to a project's live engine. Open a folder from Finder or Home, then return here."
+            />
+          )}
+        </TabPanel>
+
+        <TabPanel id="extensions" active={tab === "extensions"}>
+          {detail ? (
+            <ExtensionsSettings projectId={detail.project.id} onOpenStudio={onOpenStudio} />
+          ) : (
+            <EmptyState
+              icon={<TerminalIcon size={20} />}
+              title="Open a project first"
+              description="Extensions are read from a project's engine. Open a folder, then return here to inspect MCP servers, skills, plugins, hooks, and instructions."
+            />
+          )}
+        </TabPanel>
+
         <TabPanel id="appearance" active={tab === "appearance"}>
           <Card title="Theme and density" eyebrow="Local preference">
             <div className="inline-facts">

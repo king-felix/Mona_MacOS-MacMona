@@ -54,6 +54,21 @@ import type {
   PromptFavorite,
 } from "./polish";
 import type {
+  CredentialClearReceipt,
+  CredentialReceipt,
+  ModelCatalogView,
+  RouteChangeReceipt,
+  SettingsDiagnosticsView,
+  SettingsSnapshot,
+} from "./settings";
+import type {
+  ExtensionActionId,
+  ExtensionActionReceipt,
+  ExtensionsSnapshot,
+  McpAddInput,
+  McpToolView,
+} from "./extensions";
+import type {
   FleetEvidenceView,
   FleetLaunchResult,
   FleetRunView,
@@ -135,6 +150,77 @@ export interface MonaBridge {
   stopStudio(projectId: ProjectId): Promise<IpcResult<StudioActionResult>>;
   /** Live connection, event, submission, and control updates from main. */
   onStudioChanged(callback: (push: StudioPush) => void): () => void;
+
+  // P16 configuration workbench. Reading never starts a runtime or a model
+  // call; only the explicit save/switch/credential calls write anything.
+  settingsSnapshot(projectId: ProjectId): Promise<IpcResult<SettingsSnapshot>>;
+  settingsModels(
+    projectId: ProjectId,
+    provider: string,
+    exactId: string | null,
+  ): Promise<IpcResult<ModelCatalogView>>;
+  saveSavedRoute(input: {
+    projectId: ProjectId;
+    expectedRevision: number;
+    provider: string;
+    exactId: string | null;
+    model: string;
+    reasoningEffort: string | null;
+    permissionPosture: "full_access" | "ask";
+    autoApprove: boolean;
+    trustMode: boolean;
+    allowShell: boolean;
+  }): Promise<IpcResult<{ receipt: RouteChangeReceipt; snapshot: SettingsSnapshot }>>;
+  resetSavedRoute(
+    projectId: ProjectId,
+    expectedRevision: number,
+  ): Promise<IpcResult<{ receipt: RouteChangeReceipt; snapshot: SettingsSnapshot }>>;
+  switchEngineRoute(input: {
+    projectId: ProjectId;
+    provider: string;
+    exactId: string | null;
+    model: string;
+    expectedConfigRevision: string | null;
+    confirm: true;
+  }): Promise<IpcResult<{ receipt: RouteChangeReceipt; snapshot: SettingsSnapshot }>>;
+  setProviderCredential(input: {
+    projectId: ProjectId;
+    provider: string;
+    key: string;
+    scope: "session" | "durable";
+  }): Promise<IpcResult<CredentialReceipt>>;
+  clearProviderCredential(
+    projectId: ProjectId,
+    provider: string,
+    scope: "session" | "durable",
+  ): Promise<IpcResult<CredentialClearReceipt>>;
+  settingsDiagnostics(projectId: ProjectId): Promise<IpcResult<SettingsDiagnosticsView>>;
+  exportSettingsDiagnostics(
+    projectId: ProjectId,
+  ): Promise<IpcResult<{ saved: boolean; path: string | null; redactions: number }>>;
+
+  // P17 extension workbench. Reading lists metadata only; tool discovery is a
+  // separate on-demand call. No inventory read starts a server.
+  extensionsSnapshot(projectId: ProjectId): Promise<IpcResult<ExtensionsSnapshot>>;
+  mcpTools(
+    projectId: ProjectId,
+    server: string,
+  ): Promise<IpcResult<{ tools: McpToolView[]; source: "live"; error: string | null }>>;
+  addMcpServer(
+    projectId: ProjectId,
+    input: McpAddInput & { expectedRevision: string },
+  ): Promise<IpcResult<ExtensionActionReceipt>>;
+  extensionAction(input: {
+    projectId: ProjectId;
+    action: ExtensionActionId;
+    target: string;
+    expectedRevision?: string | null;
+  }): Promise<IpcResult<ExtensionActionReceipt>>;
+  installExtension(
+    projectId: ProjectId,
+    kind: "plugin" | "skill",
+    source: string,
+  ): Promise<IpcResult<ExtensionActionReceipt>>;
 
   // Work board and durable continuation. Reading the board never starts work;
   // dispatchNextTask is the one call that can hand a prompt to the engine.

@@ -1,0 +1,439 @@
+{
+  "schema_version": 1,
+  "label": "P17 — tools and extensions",
+  "captured_at": "2026-11-12T09:08:54.473Z",
+  "ok": true,
+  "checks": {
+    "live inventory": {
+      "ok": true
+    },
+    "preseeded secret entry is visible without its value": {
+      "ok": true
+    },
+    "inventory contains no secret value": {
+      "ok": true
+    },
+    "skills are inventoried": {
+      "ok": true
+    },
+    "plugins are inventoried with scope": {
+      "ok": true
+    },
+    "instructions report the project file": {
+      "ok": true
+    },
+    "workspace trust set": {
+      "ok": true
+    },
+    "project trust is reflected": {
+      "ok": true
+    },
+    "project MCP entry is read-only after trust": {
+      "ok": true
+    },
+    "project entry is labeled with project scope": {
+      "ok": true
+    },
+    "MCP revision is present": {
+      "ok": true
+    },
+    "local test server added": {
+      "ok": true
+    },
+    "added server appears with global scope": {
+      "ok": true
+    },
+    "stale MCP revision refused": {
+      "ok": true
+    },
+    "local test server handshake succeeded": {
+      "ok": true
+    },
+    "tools are listed on demand": {
+      "ok": true
+    },
+    "tool listing has no error": {
+      "ok": true
+    },
+    "local test server disabled": {
+      "ok": true
+    },
+    "disabled state is observed": {
+      "ok": true
+    },
+    "disable touched only the intended server": {
+      "ok": true
+    },
+    "missing executable entry can be configured": {
+      "ok": true
+    },
+    "missing executable is actionable": {
+      "ok": true
+    },
+    "removed fixture is gone from the view": {
+      "ok": true
+    },
+    "unrelated server preserved": {
+      "ok": true
+    },
+    "secret-bearing server preserved": {
+      "ok": true
+    },
+    "unknown configuration key preserved": {
+      "ok": true
+    },
+    "project MCP file untouched": {
+      "ok": true
+    },
+    "skill fixture is present": {
+      "ok": true
+    },
+    "skill disabled in engine state": {
+      "ok": true
+    },
+    "skill re-enabled": {
+      "ok": true
+    },
+    "plugin fixture installed": {
+      "ok": true
+    },
+    "plugin installed disabled and untrusted": {
+      "ok": true
+    },
+    "plugin inventory is visible": {
+      "ok": true
+    },
+    "plugin enable is refused before review": {
+      "ok": true
+    },
+    "plugin removed": {
+      "ok": true
+    },
+    "plugin gone after removal": {
+      "ok": true
+    },
+    "host commands are labeled as host-bound": {
+      "ok": true
+    },
+    "gaps are stated, not hidden": {
+      "ok": true
+    },
+    "entire report contains no fixture secret": {
+      "ok": true
+    }
+  },
+  "observations": {
+    "initial": {
+      "runtime": "connected",
+      "mcp": [
+        {
+          "name": "secret-server",
+          "origin": "global",
+          "writable": true,
+          "enabled": false,
+          "credentialConfigured": false,
+          "envKeys": [],
+          "actions": [
+            [
+              "mcp.enable",
+              true,
+              null
+            ],
+            [
+              "mcp.disable",
+              false,
+              "already disabled"
+            ],
+            [
+              "mcp.reconnect",
+              false,
+              "enable the server before checking a handshake"
+            ],
+            [
+              "mcp.tools",
+              false,
+              "enable the server first"
+            ],
+            [
+              "mcp.remove",
+              true,
+              null
+            ]
+          ]
+        },
+        {
+          "name": "unrelated",
+          "origin": "global",
+          "writable": true,
+          "enabled": false,
+          "credentialConfigured": false,
+          "envKeys": [],
+          "actions": [
+            [
+              "mcp.enable",
+              true,
+              null
+            ],
+            [
+              "mcp.disable",
+              false,
+              "already disabled"
+            ],
+            [
+              "mcp.reconnect",
+              false,
+              "enable the server before checking a handshake"
+            ],
+            [
+              "mcp.tools",
+              false,
+              "enable the server first"
+            ],
+            [
+              "mcp.remove",
+              true,
+              null
+            ]
+          ]
+        }
+      ],
+      "skills": 47,
+      "plugins": [
+        {
+          "name": "computer-use",
+          "scope": "builtin",
+          "trust": "not-reviewed"
+        }
+      ],
+      "hooks": {
+        "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p17-smoke-2nwviJ/ws",
+        "enabled": false,
+        "hooks": [],
+        "problems": [],
+        "note": "Hooks are engine semantics: tool_call_before can deny, shell_env applies, and observers fire. Mona reads the set from the engine and never executes hook commands itself.",
+        "source": "live",
+        "error": null,
+        "readAt": "2026-11-12T09:08:54.706Z"
+      },
+      "instructions": [
+        {
+          "kind": "project",
+          "status": "loaded",
+          "path": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p17-smoke-2nwviJ/ws/AGENTS.md",
+          "relativePath": "AGENTS.md",
+          "exists": true,
+          "bytes": 46,
+          "warning": null
+        }
+      ],
+      "commands": 0,
+      "capabilities": {
+        "mcpAdd": true,
+        "mcpAddNote": "Adds a server to the user-global MCP configuration. Requires an absolute executable path or an http(s) URL, and the current revision.",
+        "skillInstall": true,
+        "skillInstallNote": "The engine installs skills from a remote source and requires explicit network approval. Local directories are discovered, not installed.",
+        "pluginInstall": true,
+        "pluginInstallNote": "Local bundle directories and URLs are accepted. A new bundle is installed disabled and untrusted until reviewed.",
+        "pluginTrust": false,
+        "pluginTrustNote": "The engine redacts the HTTP review token, so trust stays a terminal action: `/plugins trust` in Codewhale. Mona shows the exact review state.",
+        "selectiveDiscovery": "server",
+        "selectiveDiscoveryNote": "The pinned engine exposes server-level enable/disable and on-demand tool listing, but no route to edit tool-level discovery budgets. Mona makes no token-savings claim."
+      },
+      "gaps": [
+        "mcp-project-readonly",
+        "plugin-trust-token",
+        "skill-install-network",
+        "hooks-mutation",
+        "selective-discovery",
+        "commands-readonly"
+      ]
+    },
+    "mcp_add": {
+      "action": "mcp.add",
+      "target": "mona-fixture",
+      "ok": true,
+      "revision": "mcp-v1-784577f6d68c65c45dda0e29ded27b5836445ed492a1f4a7a36c9012dbd23e41",
+      "message": "MCP server added to the global configuration.",
+      "detail": "Review and connect it before relying on its tools; adding does not start the server."
+    },
+    "stale_add": "MCP add (412): MCP configuration changed; reload it before saving",
+    "health": {
+      "action": "mcp.reconnect",
+      "target": "mona-fixture",
+      "ok": true,
+      "revision": null,
+      "message": "MCP handshake succeeded.",
+      "detail": "connected=true"
+    },
+    "tools": [
+      {
+        "server": "mona-fixture",
+        "name": "echo",
+        "prefixed": "mcp_mona-fixture_echo",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string",
+              "description": "Text to echo."
+            }
+          },
+          "required": [
+            "text"
+          ],
+          "additionalProperties": false
+        }
+      }
+    ],
+    "missing_health": {
+      "action": "mcp.reconnect",
+      "target": "missing-fixture",
+      "ok": false,
+      "revision": null,
+      "message": "MCP handshake failed: MCP stdio spawn failed (transport=stdio server=missing-fixture cmd=\"/nonexistent/mona-fixture\" args=[] env_keys=[]): No such file or directory (os error 2)",
+      "detail": "connected=false; MCP stdio spawn failed (transport=stdio server=missing-fixture cmd=\"/nonexistent/mona-fixture\" args=[] env_keys=[]): No such file or directory (os error 2)"
+    },
+    "global_config_after_remove": {
+      "keys": [
+        "schema_version",
+        "mona_unknown_key",
+        "servers"
+      ],
+      "servers": [
+        "unrelated",
+        "secret-server"
+      ],
+      "unknown": {
+        "keep": true
+      }
+    },
+    "plugin_install": {
+      "action": "plugin.install",
+      "target": "user/266ac4b492d2/mona-fixture-plugin",
+      "ok": true,
+      "revision": null,
+      "message": "Plugin installed: user/266ac4b492d2/mona-fixture-plugin.",
+      "detail": "Installed disabled and untrusted. Open this plugin's detail to review its capabilities, then trust and enable it. It is installed disabled and untrusted until you review it."
+    },
+    "installed_plugin": {
+      "id": "user/266ac4b492d2/mona-fixture-plugin",
+      "name": "mona-fixture-plugin",
+      "displayName": null,
+      "version": "0.0.1",
+      "description": "Local Mona fixture plugin. Adds one inert skill.",
+      "author": "Mona verification",
+      "scope": "user",
+      "origin": "codewhale-home",
+      "enabled": false,
+      "active": false,
+      "state": "disabled",
+      "trustStatus": "not-reviewed",
+      "compatibility": "full",
+      "inventory": {
+        "skills": 1,
+        "mcpServers": 0,
+        "commands": 0,
+        "agents": 0,
+        "hooks": 0,
+        "lsp": 0,
+        "lifecycleMutation": false,
+        "networkHosts": [],
+        "filesystemRoots": []
+      },
+      "contentHash": "7b038e917603564ce0da7b104f3ea054530a5eb34049e79e15cae3dc134f6d70",
+      "diagnostics": [],
+      "reviewAvailable": false,
+      "actions": [
+        {
+          "id": "plugin.enable",
+          "label": "Enable",
+          "available": false,
+          "reason": "requires capability review and trust first (terminal `/plugins trust`)",
+          "scope": "user",
+          "sideEffect": "activates the bundle's skills, MCP servers, commands, and hooks for this engine",
+          "destructive": false,
+          "needsRevision": false
+        },
+        {
+          "id": "plugin.disable",
+          "label": "Disable",
+          "available": false,
+          "reason": "already disabled",
+          "scope": "user",
+          "sideEffect": "deactivates the bundle without deleting its files",
+          "destructive": false,
+          "needsRevision": false
+        },
+        {
+          "id": "plugin.revoke",
+          "label": "Revoke trust",
+          "available": false,
+          "reason": "not trusted",
+          "scope": "user",
+          "sideEffect": "revokes the digest approval and disables further activation",
+          "destructive": true,
+          "needsRevision": false
+        },
+        {
+          "id": "plugin.remove",
+          "label": "Remove",
+          "available": true,
+          "reason": null,
+          "scope": "user",
+          "sideEffect": "deletes the installed bundle directory; unrelated plugins and user files are preserved",
+          "destructive": true,
+          "needsRevision": false
+        },
+        {
+          "id": "plugin.trust",
+          "label": "Trust bundle",
+          "available": false,
+          "reason": "the engine's HTTP detail redacts the review token; review and trust from the Codewhale terminal (/plugins trust)",
+          "scope": "user",
+          "sideEffect": "records a capability review for this content and capability hash",
+          "destructive": false,
+          "needsRevision": false
+        },
+        {
+          "id": "plugin.update",
+          "label": "Update",
+          "available": false,
+          "reason": "no verified desktop update route in this build; reinstall from the recorded source or use the Codewhale terminal",
+          "scope": "user",
+          "sideEffect": "would replace the bundle from its recorded source",
+          "destructive": false,
+          "needsRevision": false
+        }
+      ]
+    },
+    "hooks": {
+      "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p17-smoke-2nwviJ/ws",
+      "enabled": false,
+      "hooks": [],
+      "problems": [],
+      "note": "Hooks are engine semantics: tool_call_before can deny, shell_env applies, and observers fire. Mona reads the set from the engine and never executes hook commands itself.",
+      "source": "live",
+      "error": null,
+      "readAt": "2026-11-12T09:08:55.202Z"
+    },
+    "instructions": [
+      {
+        "kind": "project",
+        "status": "loaded",
+        "path": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p17-smoke-2nwviJ/ws/AGENTS.md",
+        "relativePath": "AGENTS.md",
+        "exists": true,
+        "bytes": 46,
+        "warning": null
+      }
+    ],
+    "host_commands": [
+      "anchor",
+      "advisor",
+      "help",
+      "clear",
+      "copy"
+    ]
+  },
+  "error": null
+}

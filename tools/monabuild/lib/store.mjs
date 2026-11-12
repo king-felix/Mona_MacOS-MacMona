@@ -274,8 +274,16 @@ export function addEvidence(statePath, { prompt, paths: evidencePaths, note }, n
     const entries = evidenceEntries(root, evidencePaths).map((entry) => (note ? { ...entry, note } : entry));
     for (const entry of entries) {
       const existing = next.tasks[prompt].evidence.findIndex((item) => item.path === entry.path);
-      if (existing >= 0) next.tasks[prompt].evidence[existing] = entry;
-      else next.tasks[prompt].evidence.push(entry);
+      if (existing >= 0) {
+        // A hash refresh keeps the human note that explained why this evidence
+        // exists; only pass --note to replace it deliberately.
+        const previous = next.tasks[prompt].evidence[existing];
+        next.tasks[prompt].evidence[existing] = {
+          ...previous,
+          ...entry,
+          ...(note ? { note } : previous.note ? { note: previous.note } : {}),
+        };
+      } else next.tasks[prompt].evidence.push(entry);
     }
     next.revision = state.revision + 1;
     next.last_checkpoint_utc = now;

@@ -13,6 +13,8 @@ export interface StreamResponse {
 export interface RequestOptions {
   timeoutMs?: number;
   signal?: AbortSignal;
+  /** Extra request headers; used for MCP `If-Match` preconditions. */
+  headers?: Record<string, string>;
 }
 
 /**
@@ -59,6 +61,7 @@ export class HttpRuntimeTransport implements RuntimeTransport {
         Authorization: `Bearer ${this.token}`,
         Accept: "application/json",
         ...(body === undefined ? {} : { "Content-Type": "application/json" }),
+        ...(options.headers ?? {}),
       },
       body: body === undefined ? undefined : JSON.stringify(body),
       signal: options.signal ?? AbortSignal.timeout(options.timeoutMs ?? 30_000),

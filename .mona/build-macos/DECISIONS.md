@@ -794,3 +794,116 @@ and deviations discovered while building.
   to zero rows. A refused launch surfaces as an error with a durable receipt.
   The observatory's controls track the engine connection and advertised
   capabilities rather than optimism.
+
+## D-042 — A saved route is a scoped, validated, compare-and-swap record
+
+- **Date:** 2026-11-12 (P16)
+- **Decision:** Mona's saved new-thread route lives in `engine:profile` and is
+  written only after live validation: the provider must be reported by
+  `/v1/providers`, the model must appear in
+  `/v1/providers/{id}/models`, and a reasoning level must be one that exact
+  model publishes. The write uses `putSettingsIfVersion`, so a stale revision is
+  a conflict. The studio keeps the profile it started with; an active turn is
+  never rewritten by a settings change.
+- **Why:** The engine has three route scopes (configured, per-thread, per-turn)
+  and Mona adds a fourth (saved default). Conflating them is how a "default"
+  edit silently changes running work. Persisting an unvalidated model or an
+  unsupported effort level would also be a promise the next turn cannot keep.
+- **Consequence:** Offline saves are refused instead of stored unverified. An
+  active session's observed route is shown from its receipt, not recomputed from
+  the saved default.
+
+## D-043 — The engine route is changed only through its switch route, with a backup and a stale-read refusal
+
+- **Date:** 2026-11-12 (P16)
+- **Decision:** "Apply to engine default" is a separate, confirmed action. Mona
+  reads the config document's SHA-256, refuses a mismatch, writes a copy plus a
+  manifest and receipt under the product backup directory, calls
+  `POST /v1/providers/{id}/switch`, re-reads `/v1/config`, and reports `applied`
+  only when the observed provider and model match. Unknown TOML tables are left
+  to the engine's writer.
+- **Why:** The config document is shared user state. A UI-level rewrite would
+  delete unknown tables; a concurrent edit must be caught, not overwritten; and
+  a switch response is not proof that the effective route moved.
+- **Consequence:** The receipt carries before/after routes, document hashes, and
+  the backup path. A named custom `model_provider_id` is not selectable through
+  this route and is stated as a limit.
+
+## D-044 — Credentials are classes and pass-through; no secret is ever represented
+
+- **Date:** 2026-11-12 (P16)
+- **Decision:** The workbench shows `credentialState`, `credentialSource`,
+  `credentialWritable`, and the engine's reason. A key is accepted only on the
+  dedicated IPC call, forwarded to `PUT /v1/providers/{id}/key` with an explicit
+  session or durable scope, and dropped. A route whose credential the engine
+  does not own is refused before submission.
+- **Why:** Writing around an account session or a literal config value would
+  corrupt the credential authority; keeping a key in renderer state, a receipt,
+  or a log would leak it. The engine already exposes a safe structural
+  projection.
+- **Consequence:** Receipts contain state/scope/backend only. A mock provider
+  can be configured without Mona ever holding the value.
+
+## D-045 — Diagnostics are redacted before display or export
+
+- **Date:** 2026-11-12 (P16)
+- **Decision:** `codewhale doctor --json` and `config doctor` are run read-only,
+  bounded, and passed through a redactor covering the home directory, `sk-`
+  keys, bearer tokens, `key=value` secrets, URL userinfo, and private-key
+  blocks. The exported JSON records the redaction count. The smoke asserts the
+  report contains no fixture secret.
+- **Why:** Spec §13 requires diagnostics to be local and redacted by default,
+  with an explicit export preview. A path or a key in a support bundle is a
+  leak even when it came from the engine's own output.
+- **Consequence:** A path printed by the engine appears as `~`. Engine warnings
+  remain readable and attributable.
+
+## D-046 — Extension actions are engine-mediated, revision-guarded, and scoped
+
+- **Date:** 2026-11-12 (P17)
+- **Decision:** MCP mutations carry the engine's revision in `If-Match`; adds
+  require an absolute executable path or an http(s) URL; project-scope entries
+  are shown read-only. Tool listing is a separate on-demand call, never part of
+  a snapshot. Every action view states its scope, side effect, availability, and
+  reason.
+- **Why:** A second writer to `mcp.json` would race the engine and could delete
+  unrelated entries. A page open must not load every tool schema into model
+  context. A PATH name could resolve a different binary under a GUI launch.
+- **Consequence:** Stale revisions are the engine's 412 surfaced verbatim;
+  removes preserve unrelated servers and unknown keys. No token-savings claim is
+  made because the pinned engine exposes no tool-level budget.
+
+## D-047 — Plugin trust stays with the engine; Mona reports the gap
+
+- **Date:** 2026-11-12 (P17)
+- **Decision:** The HTTP plugin detail returns `review.token` as `[redacted]`,
+  so Mona does not offer a trust button. It shows `trustStatus`, inventory,
+  content/capability hashes, and the exact terminal route (`/plugins trust`).
+  Installed bundles remain disabled and untrusted until the engine records a
+  review; hooks are read-only; imported content has no path to the desktop IPC
+  bridge.
+- **Why:** A UI-only "trust" toggle without the engine's capability review would
+  be a false security control. The engine's approval semantics are the
+  authority.
+- **Consequence:** Trust, project MCP edits, hook edits, tool-level discovery,
+  and command editing appear as named gaps with a verified route, not as
+  missing buttons or simulated success.
+
+## D-048 — Review fix: no cached URL may carry credentials
+
+- **Date:** 2026-11-12 (P16, review follow-up)
+- **Decision:** The engine-route cache stores `scheme://host` plus an endpoint
+  classification (`configured`/`default`/`malformed`/`unknown`), never the raw
+  `base_url`. The cache is a typed `StoredEngineRoute`, not the adapter's
+  config object. A regression test feeds a `base_url` with userinfo and a
+  query token and asserts neither the settings row nor the offline snapshot
+  contains it.
+- **Why:** A configured `base_url` can embed a key in userinfo or a query
+  parameter. The earlier cache wrote the engine's response verbatim into
+  Mona's unencrypted settings table — a second on-disk copy of a credential
+  Mona never needed. This is the "unknown is not zero" rule applied to secret
+  handling: a value Mona does not need, it must not keep.
+- **Consequence:** Cached and offline route views show the authority only. The
+  config backup still contains the engine document by design (mode `0600`,
+  never rendered or exported); that is stated in the P16 evidence rather than
+  hidden behind a blanket "no copy" claim.

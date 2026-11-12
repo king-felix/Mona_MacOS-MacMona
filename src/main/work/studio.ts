@@ -446,6 +446,7 @@ export class WorkStudio {
         operationKey,
         requested: {
           provider: session.profile.provider,
+          exactId: session.profile.exactId,
           model: session.profile.model,
           ...(session.profile.reasoningEffort
             ? { reasoningEffort: session.profile.reasoningEffort }
@@ -744,6 +745,7 @@ export class WorkStudio {
               turnId: turnRecord.id,
               requested: {
                 provider: session.profile.provider,
+                exactId: session.profile.exactId,
                 model: session.profile.model,
                 permissionPosture: posture.permissionPosture,
               },

@@ -96,6 +96,17 @@ export function resolveEngineBinary(): ResolvedBinary {
 }
 
 function describeBinary(path: string, source: ResolvedBinary["source"]): ResolvedBinary {
+  // External adoption is an explicit absolute path with recorded provenance.
+  // A bare name would let the GUI launch environment resolve a different
+  // binary than the one Mona hashed and displayed.
+  if (source === "env" && !path.startsWith("/")) {
+    throw new RuntimeLifecycleError(
+      "MISSING_EXECUTABLE",
+      `CODEWHALE_BIN must be an absolute path, not a PATH name: ${path}`,
+      "set CODEWHALE_BIN to the full path of the adopted binary, or unset it to use the bundled engine",
+      { executable: path },
+    );
+  }
   if (!existsSync(path)) {
     throw new RuntimeLifecycleError(
       "MISSING_EXECUTABLE",

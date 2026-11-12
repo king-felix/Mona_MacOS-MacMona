@@ -20,6 +20,7 @@ export interface StudioConnection {
 
 export interface StudioProfileView {
   provider: string;
+  exactId: string | null;
   model: string;
   reasoningEffort: string | null;
   permissionPosture: "full_access" | "ask";

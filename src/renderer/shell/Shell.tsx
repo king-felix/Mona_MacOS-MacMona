@@ -1231,6 +1231,7 @@ export function Shell(): JSX.Element {
               const status = await window.mona.polishStatus();
               if (status.ok) setPolishStatus(status.value);
             }}
+            onOpenStudio={() => setScreen("studio")}
             onTestNotification={async () => {
               const result = await window.mona.testNotification();
               if (!result.ok) {

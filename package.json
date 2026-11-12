@@ -38,6 +38,8 @@
     "smoke:changes": "npm run build:main && node scripts/changes-smoke.mjs",
     "smoke:polish": "npm run build:main && node scripts/polish-smoke.mjs",
     "smoke:agents": "npm run build:main && npm run build:supervisor && node scripts/agents-smoke.mjs",
+    "smoke:settings": "npm run build:main && node scripts/settings-smoke.mjs",
+    "smoke:extensions": "npm run build:main && node scripts/extensions-smoke.mjs",
     "smoke:agents-live": "npm run build:main && npm run build:supervisor && node scripts/agents-smoke.mjs --live"
   },
   "dependencies": {

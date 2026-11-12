@@ -32,8 +32,24 @@ import type {
   EngineFleetRun,
   EngineFleetRunDetail,
   EngineFleetWorker,
+  EngineCommands,
+  EngineConfigWrite,
   EngineGoal,
   EngineGoalTransition,
+  EngineHooks,
+  EngineInstructionSource,
+  EngineKeyReceipt,
+  EngineMcpConnection,
+  EngineMcpList,
+  EngineMcpServer,
+  EngineMcpTool,
+  EngineModelCatalog,
+  EnginePlugin,
+  EngineProviderCatalog,
+  EngineRouteSwitch,
+  EngineRuntimeConfig,
+  EngineSkill,
+  EngineWorkspaceTrust,
   EngineRunEvent,
   FileRevertReceipt,
   HistoryPage,
@@ -64,6 +80,26 @@ import { HttpRuntimeTransport, type RuntimeTransport, type TransportResponse } f
 import {
   WireAgentRun,
   WireAgentRunList,
+  WireCommandList,
+  WireConfigWrite,
+  WireHooks,
+  WireInstructions,
+  WireMcpReconnect,
+  WireMcpServer,
+  WireMcpServerList,
+  WireMcpTools,
+  WireModelList,
+  WirePlugin,
+  WirePluginList,
+  WireProviderKeyWrite,
+  WireProviderList,
+  WireProviderSwitch,
+  WireRuntimeConfig,
+  WireSkill,
+  WireSkillDetail,
+  WireSkillList,
+  WireWorkspaceStatus,
+  WireWorkspaceTrust,
   WireFleetEventReplay,
   WireFleetEvidence,
   WireFleetReceipt,
@@ -139,6 +175,101 @@ function mapStatus(status: string): SubmissionStatus {
 
 // The receipt routes return loose projections. These helpers read only fields
 // that are present and leave every unknown as null instead of guessing.
+const MODEL_ID = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/;
+const MCP_NAME = /^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/;
+const PLUGIN_ID = /^[A-Za-z0-9][A-Za-z0-9._/-]{0,299}$/;
+
+function failureMessage(
+  response: { status: number; text: string; json: unknown },
+  context: string,
+): string {
+  const body = objectValue(response.json);
+  const error = body ? objectValue(body.error) : null;
+  const message = error && typeof error.message === "string" ? error.message : null;
+  if (message) return `${context} (${response.status}): ${message.slice(0, 500)}`;
+  const text = response.text.trim();
+  return text
+    ? `${context} (${response.status}): ${text.slice(0, 500)}`
+    : `${context} returned ${response.status}`;
+}
+
+function mapMcpServer(value: z.infer<typeof WireMcpServer>): EngineMcpServer {
+  return {
+    name: value.name,
+    origin: value.origin ?? "unknown",
+    writable: value.writable === true,
+    enabled: value.enabled !== false,
+    required: value.required === true,
+    command: value.command ?? null,
+    args: value.args ?? [],
+    envKeys: value.env_keys ?? [],
+    url: value.url ?? null,
+    transport: value.transport ?? null,
+    enabledTools: value.enabled_tools ?? [],
+    disabledTools: value.disabled_tools ?? [],
+    headerKeys: value.env_header_keys ?? [],
+    credentialConfigured: value.credential_configured === true,
+    authRequired: value.auth_required === true,
+    connected: value.connected === true,
+  };
+}
+
+function mapSkill(value: z.infer<typeof WireSkill>): EngineSkill {
+  const source = value.source === "plugin" || value.source === "native" ? value.source : "unknown";
+  return {
+    name: value.name,
+    description: value.description ?? "",
+    path: value.path ?? null,
+    source,
+    pluginId: value.plugin_id ?? null,
+    enabled: value.enabled !== false,
+    bundled: value.is_bundled === true,
+    invocation: value.invocation ?? null,
+    aliases: value.aliases ?? [],
+    bundledTier: value.bundled_tier ?? null,
+  };
+}
+
+function mapPlugin(value: z.infer<typeof WirePlugin>): EnginePlugin {
+  const inventory = value.inventory ?? {};
+  return {
+    id: value.id,
+    name: value.name,
+    displayName: value.display_name ?? null,
+    version: value.version ?? null,
+    description: value.description ?? null,
+    author: value.author ?? null,
+    scope: value.scope ?? "unknown",
+    origin: value.origin ?? "unknown",
+    enabled: value.enabled === true,
+    active: value.active === true,
+    state: value.state ?? "unknown",
+    trustStatus: value.trust_status ?? "unknown",
+    compatibility: value.compatibility ?? "unknown",
+    inventory: {
+      skills: inventory.skills ?? 0,
+      mcpServers: inventory.mcp_servers ?? 0,
+      commands: inventory.commands ?? 0,
+      agents: inventory.agents ?? 0,
+      hooks: inventory.hooks ?? 0,
+      lsp: inventory.lsp ?? 0,
+      lifecycleMutation: inventory.lifecycle_mutation === true,
+      networkHosts: inventory.network_hosts ?? [],
+      filesystemRoots: inventory.filesystem_roots ?? [],
+    },
+    contentHash: value.content_hash ?? null,
+    diagnostics: (value.diagnostics ?? []).map((diagnostic) => ({
+      level: diagnostic.level,
+      code: diagnostic.code,
+      message: diagnostic.message,
+    })),
+    reviewTokenUsable:
+      typeof value.review?.token === "string" &&
+      value.review.token.length > 0 &&
+      value.review.token !== "[redacted]",
+  };
+}
+
 function objectValue(value: unknown): Record<string, unknown> | null {
   return value !== null && typeof value === "object" && !Array.isArray(value)
     ? (value as Record<string, unknown>)
@@ -626,6 +757,7 @@ export class CodewhaleAdapter implements EngineAdapter {
     if (caps.capabilities["turn_operation_idempotency"] === true) body.operation_key = key;
     if (input.requested) {
       body.model_provider = input.requested.provider;
+      if (input.requested.exactId) body.model_provider_id = input.requested.exactId;
       body.model = input.requested.model;
       if (input.requested.reasoningEffort) body.reasoning_effort = input.requested.reasoningEffort;
     }
@@ -1805,6 +1937,573 @@ export class CodewhaleAdapter implements EngineAdapter {
     };
   }
 
+  // ------------------------------------------------------- P16 configuration
+
+  async listProviders(): Promise<EngineProviderCatalog> {
+    const response = await this.request("GET", "/v1/providers");
+    this.throwForUnauthorized(response, "providers");
+    this.expectOk(response, "providers");
+    const body = parseWith(WireProviderList, response.json, "providers");
+    return {
+      current: body.current ?? null,
+      currentExactId: body.current_provider_id ?? null,
+      providers: body.providers.map((provider) => ({
+        id: provider.id,
+        exactId: provider.model_provider_id ?? null,
+        displayName: provider.display_name ?? provider.id,
+        defaultModel: provider.default_model ?? null,
+        hasModelCatalog: provider.has_model_catalog === true,
+        credentialState: provider.credentialState ?? "unknown",
+        credentialSource: provider.credentialSource ?? "unknown",
+        credentialWritable: provider.credentialWritable === true,
+        credentialWritableReason: provider.credentialWritableReason ?? null,
+        browserConnect: provider.browserConnect === true,
+      })),
+    };
+  }
+
+  async listModels(provider: string, exactId?: string | null): Promise<EngineModelCatalog> {
+    if (!/^[a-z0-9][a-z0-9-]{0,63}$/.test(provider)) {
+      throw new AdapterError("MALFORMED_RESPONSE", "provider id is not a bounded identifier");
+    }
+    if (
+      exactId !== undefined &&
+      exactId !== null &&
+      !/^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/.test(exactId)
+    ) {
+      throw new AdapterError("MALFORMED_RESPONSE", "exact provider id is not a bounded identifier");
+    }
+    const query =
+      exactId && exactId !== provider ? `?model_provider_id=${encodeURIComponent(exactId)}` : "";
+    const response = await this.request(
+      "GET",
+      `/v1/providers/${encodeURIComponent(provider)}/models${query}`,
+    );
+    this.throwForUnauthorized(response, "provider models");
+    this.expectOk(response, "provider models");
+    const body = parseWith(WireModelList, response.json, "provider models");
+    return {
+      provider: body.provider,
+      exactId: body.model_provider_id ?? null,
+      models: body.models.map((model) => ({
+        id: model.id,
+        imageInput: model.image_input ?? "unknown",
+        outputTokenLimit: model.output_token_limit ?? "unknown",
+        reasoningEffort: model.reasoning_effort ?? "unknown",
+        reasoningEffortLevels: [...(model.reasoning_effort_levels ?? [])],
+        reasoningEffortSource: model.reasoning_effort_source ?? null,
+        contextTokens: model.facts?.effective_limits?.context_tokens ?? null,
+        outputTokens: model.facts?.effective_limits?.output_tokens ?? null,
+        factsSource: model.facts?.source?.kind ?? null,
+      })),
+    };
+  }
+
+  async refreshProviderModels(provider: string): Promise<{ ok: boolean; message: string }> {
+    if (!/^[a-z0-9][a-z0-9-]{0,63}$/.test(provider)) {
+      throw new AdapterError("MALFORMED_RESPONSE", "provider id is not a bounded identifier");
+    }
+    const response = await this.request(
+      "POST",
+      `/v1/providers/${encodeURIComponent(provider)}/models/refresh`,
+      {},
+      { timeoutMs: 60_000 },
+    );
+    this.throwForUnauthorized(response, "provider model refresh");
+    if (response.status < 200 || response.status >= 300) {
+      return { ok: false, message: failureMessage(response, "provider model refresh") };
+    }
+    return { ok: true, message: response.text.slice(0, 300) || "catalog refresh requested" };
+  }
+
+  async readRuntimeConfig(): Promise<EngineRuntimeConfig> {
+    const response = await this.request("GET", "/v1/config");
+    this.throwForUnauthorized(response, "runtime config");
+    this.expectOk(response, "runtime config");
+    const body = parseWith(WireRuntimeConfig, response.json, "runtime config");
+    return {
+      provider: body.provider ?? null,
+      model: body.model ?? null,
+      modelAvailable: body.model_available ?? null,
+      reasoningEffort: body.reasoning_effort ?? null,
+      baseUrl: body.base_url ?? null,
+      approvalMode: body.approval_mode ?? null,
+      sandboxMode: body.sandbox_mode ?? null,
+      allowShell: body.allow_shell ?? null,
+      mcpConfigPath: body.mcp_config_path ?? null,
+      defaultModel: body.default_model ?? null,
+    };
+  }
+
+  async writeRuntimeSetting(input: {
+    key: string;
+    value: string;
+    persist: boolean;
+  }): Promise<EngineConfigWrite> {
+    if (!/^[a-z][a-z0-9_.]{0,63}$/i.test(input.key)) {
+      throw new AdapterError("MALFORMED_RESPONSE", "setting key is not a bounded identifier");
+    }
+    const response = await this.request("POST", "/v1/config", {
+      key: input.key,
+      value: input.value,
+      persist: input.persist,
+    });
+    this.throwForUnauthorized(response, "config write");
+    if (response.status < 200 || response.status >= 300) {
+      throw new AdapterError("MALFORMED_RESPONSE", failureMessage(response, "config write"));
+    }
+    const body = parseWith(WireConfigWrite, response.json, "config write");
+    return {
+      key: body.key,
+      value: body.value,
+      message: body.message ?? null,
+      persisted: body.persisted === true,
+      requiresReload: body.requires_reload === true,
+    };
+  }
+
+  async reloadRuntimeConfig(): Promise<{ ok: boolean; message: string }> {
+    const response = await this.request("POST", "/v1/config/reload", {});
+    this.throwForUnauthorized(response, "config reload");
+    if (response.status < 200 || response.status >= 300) {
+      return { ok: false, message: failureMessage(response, "config reload") };
+    }
+    const message =
+      objectValue(response.json) &&
+      typeof (response.json as { message?: unknown }).message === "string"
+        ? String((response.json as { message: string }).message)
+        : "config reloaded";
+    return { ok: true, message };
+  }
+
+  async switchProvider(input: { provider: string; model: string }): Promise<EngineRouteSwitch> {
+    if (!/^[a-z0-9][a-z0-9-]{0,63}$/.test(input.provider)) {
+      throw new AdapterError("MALFORMED_RESPONSE", "provider id is not a bounded identifier");
+    }
+    if (!MODEL_ID.test(input.model)) {
+      throw new AdapterError("MALFORMED_RESPONSE", "model id is not a bounded identifier");
+    }
+    const response = await this.request(
+      "POST",
+      `/v1/providers/${encodeURIComponent(input.provider)}/switch`,
+      { model: input.model },
+    );
+    this.throwForUnauthorized(response, "provider switch");
+    if (response.status < 200 || response.status >= 300) {
+      throw new AdapterError("MALFORMED_RESPONSE", failureMessage(response, "provider switch"));
+    }
+    const body = parseWith(WireProviderSwitch, response.json, "provider switch");
+    return {
+      provider: body.provider,
+      model: body.model ?? null,
+      modelAvailable: body.model_available ?? null,
+      message: body.message ?? null,
+      persisted: body.persisted === true,
+    };
+  }
+
+  /** The key is passed through to the engine and never recorded or logged. */
+  async setProviderKey(input: {
+    provider: string;
+    key: string;
+    scope: "session" | "durable";
+  }): Promise<EngineKeyReceipt> {
+    if (!/^[a-z0-9][a-z0-9-]{0,63}$/.test(input.provider)) {
+      throw new AdapterError("MALFORMED_RESPONSE", "provider id is not a bounded identifier");
+    }
+    if (input.key.length === 0 || input.key.length > 8192) {
+      throw new AdapterError("MALFORMED_RESPONSE", "credential input is empty or oversized");
+    }
+    const response = await this.request(
+      "PUT",
+      `/v1/providers/${encodeURIComponent(input.provider)}/key`,
+      { key: input.key, scope: input.scope },
+    );
+    this.throwForUnauthorized(response, "provider key");
+    if (response.status < 200 || response.status >= 300) {
+      throw new AdapterError("MALFORMED_RESPONSE", failureMessage(response, "provider key"));
+    }
+    const body = parseWith(WireProviderKeyWrite, response.json, "provider key");
+    return {
+      provider: body.provider,
+      stored: body.stored === true,
+      scope: body.scope ?? input.scope,
+      backend: body.backend ?? null,
+      credentialState: body.credentialState ?? null,
+    };
+  }
+
+  async clearProviderKey(input: {
+    provider: string;
+    scope: "session" | "durable";
+  }): Promise<{ cleared: boolean; credentialState: string | null }> {
+    if (!/^[a-z0-9][a-z0-9-]{0,63}$/.test(input.provider)) {
+      throw new AdapterError("MALFORMED_RESPONSE", "provider id is not a bounded identifier");
+    }
+    const response = await this.request(
+      "DELETE",
+      `/v1/providers/${encodeURIComponent(input.provider)}/key`,
+      { scope: input.scope },
+    );
+    this.throwForUnauthorized(response, "provider key clear");
+    if (response.status < 200 || response.status >= 300) {
+      throw new AdapterError("MALFORMED_RESPONSE", failureMessage(response, "provider key clear"));
+    }
+    const body = (objectValue(response.json) ?? {}) as {
+      cleared?: unknown;
+      credentialState?: unknown;
+    };
+    return {
+      cleared: body.cleared === true,
+      credentialState: typeof body.credentialState === "string" ? body.credentialState : null,
+    };
+  }
+
+  // -------------------------------------------------------- P17 extensions
+
+  async listMcpServers(): Promise<EngineMcpList> {
+    const response = await this.request("GET", "/v1/apps/mcp/servers");
+    this.throwForUnauthorized(response, "MCP servers");
+    this.expectOk(response, "MCP servers");
+    const body = parseWith(WireMcpServerList, response.json, "MCP servers");
+    return {
+      revision: body.revision,
+      servers: body.servers.map(mapMcpServer),
+    };
+  }
+
+  async addMcpServer(input: {
+    revision: string;
+    name: string;
+    command: string | null;
+    args: string[];
+    url: string | null;
+    transport: "sse" | null;
+    enabled: boolean;
+  }): Promise<{ revision: string; name: string }> {
+    if (!MCP_NAME.test(input.name)) {
+      throw new AdapterError("MALFORMED_RESPONSE", "MCP server name is not a bounded identifier");
+    }
+    const body: Record<string, unknown> = { name: input.name, enabled: input.enabled };
+    if (input.command) {
+      body.command = input.command;
+      body.args = input.args;
+    }
+    if (input.url) {
+      body.url = input.url;
+      if (input.transport) body.transport = input.transport;
+    }
+    if (!input.command && !input.url) {
+      throw new AdapterError("MALFORMED_RESPONSE", "an MCP server needs a command or a URL");
+    }
+    const response = await this.request("POST", "/v1/apps/mcp/servers", body, {
+      headers: { "If-Match": input.revision },
+    });
+    this.throwForUnauthorized(response, "MCP add");
+    if (response.status < 200 || response.status >= 300) {
+      throw new AdapterError("MALFORMED_RESPONSE", failureMessage(response, "MCP add"));
+    }
+    const saved = parseWith(WireMcpServer, response.json, "MCP add");
+    return {
+      revision: String((response.json as { revision?: unknown }).revision ?? ""),
+      name: saved.name,
+    };
+  }
+
+  async controlMcpServer(input: {
+    revision: string;
+    name: string;
+    action: "enable" | "disable" | "reconnect" | "remove";
+  }): Promise<{
+    revision: string | null;
+    name: string;
+    action: string;
+    ok: boolean;
+    connection: EngineMcpConnection | null;
+    message: string;
+  }> {
+    if (!MCP_NAME.test(input.name)) {
+      throw new AdapterError("MALFORMED_RESPONSE", "MCP server name is not a bounded identifier");
+    }
+    const path = `/v1/apps/mcp/servers/${encodeURIComponent(input.name)}${
+      input.action === "remove" ? "" : `/${input.action}`
+    }`;
+    const response = await this.request(
+      input.action === "remove" ? "DELETE" : "POST",
+      path,
+      input.action === "remove" ? undefined : {},
+      { headers: { "If-Match": input.revision } },
+    );
+    this.throwForUnauthorized(response, `MCP ${input.action}`);
+    if (response.status < 200 || response.status >= 300) {
+      throw new AdapterError("MALFORMED_RESPONSE", failureMessage(response, `MCP ${input.action}`));
+    }
+    const body = parseWith(WireMcpReconnect, response.json, `MCP ${input.action}`);
+    return {
+      revision: body.revision ?? null,
+      name: body.name,
+      action: body.action ?? input.action,
+      ok: body.ok !== false,
+      connection: body.connection
+        ? {
+            server: body.connection.server ?? body.name,
+            connected: body.connection.connected === true,
+            authRequired: body.connection.auth_required === true,
+            error: body.connection.error ?? null,
+          }
+        : null,
+      message: body.connection?.error ?? body.action ?? input.action,
+    };
+  }
+
+  async readMcpTools(server?: string): Promise<{
+    tools: EngineMcpTool[];
+    connections: EngineMcpConnection[];
+  }> {
+    const query = server ? `?server=${encodeURIComponent(server)}` : "";
+    const response = await this.request("GET", `/v1/apps/mcp/tools${query}`, undefined, {
+      timeoutMs: 60_000,
+    });
+    this.throwForUnauthorized(response, "MCP tools");
+    this.expectOk(response, "MCP tools");
+    const body = parseWith(WireMcpTools, response.json, "MCP tools");
+    return {
+      tools: body.tools.map((tool) => ({
+        server: tool.server,
+        name: tool.name,
+        prefixedName: tool.prefixed_name ?? tool.name,
+        description: tool.description ?? "",
+        inputSchema: tool.input_schema ?? null,
+      })),
+      connections: (body.connections ?? []).map((connection) => ({
+        server: connection.server,
+        connected: connection.connected === true,
+        authRequired: connection.auth_required === true,
+        error: connection.error ?? null,
+      })),
+    };
+  }
+
+  async listSkills(): Promise<{
+    directory: string | null;
+    directories: string[];
+    warnings: string[];
+    skills: EngineSkill[];
+  }> {
+    const response = await this.request("GET", "/v1/skills");
+    this.throwForUnauthorized(response, "skills");
+    this.expectOk(response, "skills");
+    const body = parseWith(WireSkillList, response.json, "skills");
+    return {
+      directory: body.directory ?? null,
+      directories: body.directories ?? [],
+      warnings: body.warnings ?? [],
+      skills: body.skills.map(mapSkill),
+    };
+  }
+
+  async readSkill(name: string): Promise<EngineSkill & { body: string | null }> {
+    const response = await this.request("GET", `/v1/skills/${encodeURIComponent(name)}`);
+    this.throwForUnauthorized(response, "skill detail");
+    this.expectOk(response, "skill detail");
+    const body = parseWith(WireSkillDetail, response.json, "skill detail");
+    return { ...mapSkill(body), body: body.body ?? null };
+  }
+
+  async setSkillEnabled(
+    name: string,
+    enabled: boolean,
+  ): Promise<{ name: string; enabled: boolean }> {
+    const response = await this.request("POST", `/v1/skills/${encodeURIComponent(name)}`, {
+      enabled,
+    });
+    this.throwForUnauthorized(response, "skill toggle");
+    if (response.status < 200 || response.status >= 300) {
+      throw new AdapterError("MALFORMED_RESPONSE", failureMessage(response, "skill toggle"));
+    }
+    const body = (objectValue(response.json) ?? {}) as { name?: unknown; enabled?: unknown };
+    return {
+      name: typeof body.name === "string" ? body.name : name,
+      enabled: body.enabled === true,
+    };
+  }
+
+  async listPlugins(): Promise<{
+    plugins: EnginePlugin[];
+    registryDiagnostics: string[];
+    validationClean: boolean | null;
+  }> {
+    const response = await this.request("GET", "/v1/apps/plugins", undefined, {
+      timeoutMs: 60_000,
+    });
+    this.throwForUnauthorized(response, "plugins");
+    this.expectOk(response, "plugins");
+    const body = parseWith(WirePluginList, response.json, "plugins");
+    return {
+      plugins: body.plugins.map(mapPlugin),
+      registryDiagnostics: body.registry_diagnostics ?? [],
+      validationClean: body.validation_clean ?? null,
+    };
+  }
+
+  async controlPlugin(input: {
+    id: string;
+    action: "enable" | "disable" | "trust" | "revoke" | "remove";
+    token?: string | null;
+  }): Promise<{ ok: boolean; message: string }> {
+    if (!PLUGIN_ID.test(input.id) || input.id.length > 300) {
+      throw new AdapterError("MALFORMED_RESPONSE", "plugin id is not a bounded identifier");
+    }
+    const selector = encodeURIComponent(input.id);
+    const response =
+      input.action === "remove"
+        ? await this.request("DELETE", `/v1/apps/plugins/${selector}`)
+        : await this.request(
+            "POST",
+            `/v1/apps/plugins/${selector}/${input.action}`,
+            input.action === "trust" ? { token: input.token ?? "" } : {},
+          );
+    this.throwForUnauthorized(response, `plugin ${input.action}`);
+    if (response.status < 200 || response.status >= 300) {
+      throw new AdapterError(
+        "MALFORMED_RESPONSE",
+        failureMessage(response, `plugin ${input.action}`),
+      );
+    }
+    return { ok: true, message: response.text.slice(0, 500) || `plugin ${input.action}` };
+  }
+
+  async installPlugin(source: string): Promise<{ id: string; name: string; message: string }> {
+    const response = await this.request(
+      "POST",
+      "/v1/apps/plugins/install",
+      { source },
+      { timeoutMs: 120_000 },
+    );
+    this.throwForUnauthorized(response, "plugin install");
+    if (response.status < 200 || response.status >= 300) {
+      throw new AdapterError("MALFORMED_RESPONSE", failureMessage(response, "plugin install"));
+    }
+    const body = (objectValue(response.json) ?? {}) as {
+      plugin?: { id?: unknown; name?: unknown };
+      note?: unknown;
+      outcome?: unknown;
+    };
+    return {
+      id: typeof body.plugin?.id === "string" ? body.plugin.id : "",
+      name: typeof body.plugin?.name === "string" ? body.plugin.name : source,
+      message:
+        typeof body.note === "string"
+          ? body.note
+          : typeof body.outcome === "string"
+            ? body.outcome
+            : "installed",
+    };
+  }
+
+  async installSkill(source: string): Promise<{ name: string; message: string }> {
+    const response = await this.request(
+      "POST",
+      "/v1/skills/install",
+      { source },
+      { timeoutMs: 120_000 },
+    );
+    this.throwForUnauthorized(response, "skill install");
+    if (response.status < 200 || response.status >= 300) {
+      throw new AdapterError("MALFORMED_RESPONSE", failureMessage(response, "skill install"));
+    }
+    const body = (objectValue(response.json) ?? {}) as { name?: unknown; note?: unknown };
+    return {
+      name: typeof body.name === "string" ? body.name : source,
+      message: typeof body.note === "string" ? body.note : "installed",
+    };
+  }
+
+  async readHooks(): Promise<EngineHooks> {
+    const response = await this.request("GET", "/v1/hooks");
+    this.throwForUnauthorized(response, "hooks");
+    this.expectOk(response, "hooks");
+    const body = parseWith(WireHooks, response.json, "hooks");
+    return {
+      workspace: body.workspace ?? null,
+      enabled: body.enabled === true,
+      hooks: body.hooks.map((hook) => ({
+        name: hook.name,
+        event: hook.event ?? "unknown",
+        command: hook.command ?? "",
+        background: hook.background === true,
+        timeoutSecs: hook.timeout_secs ?? null,
+        source: hook.source ?? "unknown",
+      })),
+      problems: body.problems ?? [],
+    };
+  }
+
+  async readInstructions(): Promise<{
+    workspace: string | null;
+    sources: EngineInstructionSource[];
+  }> {
+    const response = await this.request("GET", "/v1/workspace/instructions");
+    this.throwForUnauthorized(response, "instructions");
+    this.expectOk(response, "instructions");
+    const body = parseWith(WireInstructions, response.json, "instructions");
+    return {
+      workspace: body.workspace ?? null,
+      sources: body.sources.map((source) => ({
+        kind: source.kind ?? "unknown",
+        status: source.status ?? "unknown",
+        path: source.path ?? "",
+        relativePath: source.relative_path ?? null,
+        exists: source.exists === true,
+        bytes: source.bytes ?? null,
+        warning: source.warning ?? null,
+      })),
+    };
+  }
+
+  async readWorkspaceTrust(): Promise<{ workspace: string | null; trusted: boolean }> {
+    const response = await this.request("GET", "/v1/workspace/status");
+    this.throwForUnauthorized(response, "workspace status");
+    this.expectOk(response, "workspace status");
+    const body = parseWith(WireWorkspaceStatus, response.json, "workspace status");
+    return {
+      workspace: body.workspace ?? null,
+      trusted: body.workspace_trusted === true,
+    };
+  }
+
+  async setWorkspaceTrust(trusted: boolean): Promise<EngineWorkspaceTrust> {
+    const response = await this.request("POST", "/v1/workspace/trust", { trusted });
+    this.throwForUnauthorized(response, "workspace trust");
+    if (response.status < 200 || response.status >= 300) {
+      throw new AdapterError("MALFORMED_RESPONSE", failureMessage(response, "workspace trust"));
+    }
+    const body = parseWith(WireWorkspaceTrust, response.json, "workspace trust");
+    return {
+      workspace: body.workspace ?? null,
+      trusted: body.workspace_trusted === true,
+      configPath: body.config_path ?? null,
+      message: body.message ?? null,
+    };
+  }
+
+  async listCommands(): Promise<EngineCommands> {
+    const response = await this.request("GET", "/v1/commands");
+    this.throwForUnauthorized(response, "commands");
+    this.expectOk(response, "commands");
+    const body = parseWith(WireCommandList, response.json, "commands");
+    return {
+      commands: body.commands.map((command) => ({
+        name: command.name,
+        summary: command.summary ?? "",
+        kind: command.kind ?? "unknown",
+        binding: command.binding ?? "unknown",
+        aliases: command.aliases ?? [],
+        hidden: command.hidden === true,
+      })),
+    };
+  }
+
   async invokeCapability(input: CapabilityInvocation): Promise<CapabilityResult> {
     switch (input.name) {
       case "runtime.info": {
@@ -1874,9 +2573,10 @@ export class CodewhaleAdapter implements EngineAdapter {
     method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE",
     path: string,
     body?: unknown,
+    options?: import("./transport").RequestOptions,
   ): Promise<TransportResponse> {
     try {
-      return await this.requireTransport().request(method, path, body);
+      return await this.requireTransport().request(method, path, body, options);
     } catch (error) {
       if (error instanceof AdapterError) throw error;
       throw new AdapterError("RUNTIME_UNAVAILABLE", `request failed: ${String(error)}`, true);
