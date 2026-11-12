@@ -7,9 +7,9 @@
   "sha256": "f7a650e485e84c417ccf28ef5091669c872820301db296780e32e9f2c66f4271",
   "size": 183824,
   "compiler": "Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)",
-  "file": "/Users/<user>/DS_Projects/Mona/native/macos-supervisor/build/mona-supervisor: Mach-O 64-bit executable arm64",
+  "file": "native/macos-supervisor/build/mona-supervisor: Mach-O 64-bit executable arm64",
   "signature": "ad-hoc",
   "signed": true,
   "verified": true,
-  "built_at": "2026-11-12T01:48:18.673Z"
+  "built_at": "2026-11-12T01:50:39.201Z"
 }

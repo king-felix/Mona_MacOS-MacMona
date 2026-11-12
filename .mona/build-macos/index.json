@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-12T01:25:34.600Z",
+  "generated_utc": "2026-11-12T01:50:42.680Z",
   "git": {
     "available": true,
-    "commit": "9a0628e0bb7a6aa40ebff6ea308a0ac6b0ebd9c7",
+    "commit": "31fe0e05869d7ebc4a70e25ae41a7efcc62be7fb",
     "dirty": true
   },
-  "digest": "7b7b00962c64d6156ef50f07ce927372549aa2cff7a9fdedbe9d935b4e1de031",
+  "digest": "b174d976bd938816381c9969f49c072ea19392e7f7052bb615778ea2416e9f55",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,8 +15,8 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "f95b219ca57208865baa1c4ff6beaa8c547bbf22011a27cf408b5499a3a105d4",
-      "bytes": 34698
+      "sha256": "58e1794434da754671371fc3e0831a7b464e2825ff78a36658991c46b5a38e23",
+      "bytes": 42532
     },
     {
       "path": "AGENTS.md",
@@ -159,6 +159,31 @@
       "bytes": 1282
     },
     {
+      "path": "docs/evidence/macos/artifacts/p04-ci.txt",
+      "sha256": "632c8e76890ef2bb04cecec8543b71f68e02f35a9f6a555672cd73c81dc07c2f",
+      "bytes": 4925
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p04-engine-smoke.json",
+      "sha256": "50285e353f88013e82965518e996a0e30d107c0e99883158fb2957f60454588c",
+      "bytes": 3432
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p04-lifecycle-smoke.json",
+      "sha256": "607b0a8a96fc191969214753809a3418e71a63e143f47382d696d9c0d5f4409a",
+      "bytes": 7545
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p04-supervisor-build.json",
+      "sha256": "7fc98915e286b7ae7f97715c27b6f64bbdcf2b4a84374b7ba161c2f44b5f6f49",
+      "bytes": 532
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p04-tests.txt",
+      "sha256": "9833cce3a684b4c6d5b6086ccae08ee066fd56c78f73533d27d02e04e6de3a45",
+      "bytes": 19114
+    },
+    {
       "path": "docs/evidence/macos/artifacts/signing-inventory.txt",
       "sha256": "3e45104c0497ce03bcba731224d253e6003d8addfb46933fc778a3b79ae07d7c",
       "bytes": 397
@@ -197,6 +222,11 @@
       "path": "docs/evidence/macos/P03-adapter.md",
       "sha256": "a1c7e16d45cd2e220ed942902bfd562f33ae1da62095e19de8383ce587dce734",
       "bytes": 8695
+    },
+    {
+      "path": "docs/evidence/macos/P04-supervisor.md",
+      "sha256": "0da8208f4e666b7632523501abcc1f31613a52f556aec930fc0c78288166937b",
+      "bytes": 9672
     },
     {
       "path": "docs/requirements-macos.json",

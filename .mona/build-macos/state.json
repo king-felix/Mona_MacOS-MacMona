@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "revision": 37,
+  "revision": 44,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
   "spec_sha256": "d1c02941151c71912bc3e9c8b2509612298d54e05e0bf16fe933b9bd93e3e028",
   "prompt_file_sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8",
   "current_prompt": "P04",
-  "current_prompt_status": "pending",
-  "last_verified_commit": "9a0628e",
+  "current_prompt_status": "completed",
+  "last_verified_commit": "31fe0e0",
   "tasks": {
     "P00": {
       "status": "completed",
@@ -81,7 +81,7 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "ff0c9b66a3d7f5fbc0e0a2ce1f744fd1ac08b4f3cc8a4cdea160cfd9f485b7f7"
+          "sha256": "85b3d6502bed1ef0f99135121c7d391f3346827a77a6972cbf07bb8d4cbafade"
         },
         {
           "path": "docs/evidence/macos/artifacts/p00-test-run.txt",
@@ -234,7 +234,7 @@
         },
         {
           "path": "package.json",
-          "sha256": "e53ce4d4df70bc9fac6c2d389ef3c4f0d70dcd769a4484c4f226cac83b37e135"
+          "sha256": "b75b587fa6f76046f9775bf1e93cbeabb66b5c097be2926a365432950d242ba5"
         },
         {
           "path": "package-lock.json",
@@ -262,7 +262,7 @@
         },
         {
           "path": "scripts/ci.mjs",
-          "sha256": "c8778de838d320defe2c3491ba8f0a521661fd511ffcda5b95d43baa7edd3394"
+          "sha256": "8e7fccc5a1a70f054802f6a83d2017c156e991197f8416abee9e3acc913dd7e0"
         },
         {
           "path": "scripts/smoke.mjs",
@@ -274,7 +274,7 @@
         },
         {
           "path": "native/macos-supervisor/README.md",
-          "sha256": "d7138d8a35c4c9772f3adb226817c10b62fb81fb3c46b19cefaaa4b1acc4f52f"
+          "sha256": "ab4000857cad3e300c1bb7490c8262fc024b942266a05899eab1967890c7c4a3"
         },
         {
           "path": "packaging/macos/README.md",
@@ -282,7 +282,7 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "51862769e6d1ad1f62aa3c60475aad7e17ede58313ce97b5ec3dc904da848b38"
+          "sha256": "7068a5c28efc630271edb62c8f492de9c3c70b0ef08a4e259cc09665ae2146d5"
         },
         {
           "path": "src/main/ipc-contract.ts",
@@ -459,7 +459,7 @@
         },
         {
           "path": "src/main/engine/adapter.ts",
-          "sha256": "c89a1dff9f52a607da4974be5228e25c75d1260408ebadb0c9997d0535147ba0"
+          "sha256": "5e8d3d2cd77da06922cb5e6af70b9a4ca828cbd3fc31f8a83f1fc581c0b45ede"
         },
         {
           "path": "src/main/engine/compat.ts",
@@ -467,7 +467,7 @@
         },
         {
           "path": "src/main/engine/errors.ts",
-          "sha256": "07f8b8be352857af0020ec0736d8fbf0f4f4f2ff54e4b216705bb74489308913"
+          "sha256": "ef28e3b9e51dbe9907cc88e0300499e50c977248a506847d2c2b82e54b83d5b3"
         },
         {
           "path": "src/main/engine/index.ts",
@@ -479,7 +479,7 @@
         },
         {
           "path": "src/main/engine/runtime-process.ts",
-          "sha256": "65971d912b9acf457fe6e03d3fbdbb6ab5e6217e75aab62278c86c2367fa9747"
+          "sha256": "789035b71cfba04c7597708d45a4bb9d4d1b41e458a099135a9ded0303ad2ac1"
         },
         {
           "path": "src/main/engine/sse.ts",
@@ -495,7 +495,7 @@
         },
         {
           "path": "src/main/engine/types.ts",
-          "sha256": "eca183628d356a6459f8a5181ea9442035212e1cf118381e80ce5bbba76e4a51"
+          "sha256": "bb29b404fa84624fdf6719a1bc3a7b5ca55ae5505938cf470f6bc8d7fc0697d6"
         },
         {
           "path": "src/main/engine/wire.ts",
@@ -539,11 +539,11 @@
         },
         {
           "path": "scripts/engine-smoke.mjs",
-          "sha256": "04325141c21727c841500f8128137bcacd106c510e3046f1971673e222044ac5"
+          "sha256": "8ae187a49f6e81d17d375a4e5a009ece28d2b872a65e56e4491cec1126e1754e"
         },
         {
           "path": "package.json",
-          "sha256": "e53ce4d4df70bc9fac6c2d389ef3c4f0d70dcd769a4484c4f226cac83b37e135"
+          "sha256": "b75b587fa6f76046f9775bf1e93cbeabb66b5c097be2926a365432950d242ba5"
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
@@ -566,17 +566,169 @@
       "updated_utc": "2026-11-12T01:32:00.000Z"
     },
     "P04": {
-      "status": "pending",
+      "status": "completed",
       "requirements": [
         "MONA-002",
         "MONA-012",
         "MONA-016",
         "MAC-003"
       ],
-      "completed_steps": [],
+      "completed_steps": [
+        "Implemented the native arm64 Swift supervisor: private process group, fd-3 owner-liveness channel carrying the token, 250 ms descendant sampling, escaped/reparented descendant cleanup by (pid,start), PID-reuse refusal, bounded TERM then KILL for verified survivors, and control-socket status/stop receipts",
+        "Implemented the Node supervisor layer: process identity, atomic 0600 token-free ownership records, one runtime per user store, workspace serialization, read-only external attach, stale-record reconciliation, and bounded process-only restart",
+        "Hardened runtime startup: workspace and executable validation with SHA-256, port bind preflight, child parent/start/executable verification, authenticated loopback runtime info, pinned compatibility, listener-in-tree verification, and typed actionable failures",
+        "Implemented desktop lifecycle: single instance with second-launch folder handoff, window close keeps work, renderer crash isolation, Dock reopen, sleep as reconnecting, resume health probe, and bounded restart with no automatic resubmission",
+        "Implemented distinct pause-after-task, interrupt-now, cancel-queued, and quit-and-stop transitions with uncertainty and no-rollback reporting",
+        "Verified: 119 tests pass, Electron lifecycle smoke 21/21, real pinned-engine smoke 17/17 through the supervisor, local CI and secret scan green"
+      ],
       "remaining_steps": [],
-      "evidence": [],
-      "blocker_ids": []
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P04-supervisor.md",
+          "sha256": "0da8208f4e666b7632523501abcc1f31613a52f556aec930fc0c78288166937b"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p04-supervisor-build.json",
+          "sha256": "7fc98915e286b7ae7f97715c27b6f64bbdcf2b4a84374b7ba161c2f44b5f6f49"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p04-lifecycle-smoke.json",
+          "sha256": "607b0a8a96fc191969214753809a3418e71a63e143f47382d696d9c0d5f4409a"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p04-engine-smoke.json",
+          "sha256": "50285e353f88013e82965518e996a0e30d107c0e99883158fb2957f60454588c"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p04-tests.txt",
+          "sha256": "9833cce3a684b4c6d5b6086ccae08ee066fd56c78f73533d27d02e04e6de3a45"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p04-ci.txt",
+          "sha256": "632c8e76890ef2bb04cecec8543b71f68e02f35a9f6a555672cd73c81dc07c2f"
+        },
+        {
+          "path": "docs/decisions/ADR-003-runtime-supervisor.md",
+          "sha256": "6bb36e5d99fa189d5fa887741c2a52470a30bf698f909c44b97d815775bb5d3d"
+        },
+        {
+          "path": "native/macos-supervisor/main.swift",
+          "sha256": "80ac620e50cbbfb128fb8b924a518306cf826b659759b958fb939f6eb6a2987b"
+        },
+        {
+          "path": "native/macos-supervisor/README.md",
+          "sha256": "ab4000857cad3e300c1bb7490c8262fc024b942266a05899eab1967890c7c4a3"
+        },
+        {
+          "path": "scripts/build-supervisor.mjs",
+          "sha256": "050d85408ba1a77f202c37f9634c190e34a063c13625f1787bf7f756fb7b8c79"
+        },
+        {
+          "path": "scripts/lifecycle-smoke.mjs",
+          "sha256": "836425f77abd518672f990a5664c8893c39802a06b025b2d929897cb90a42055"
+        },
+        {
+          "path": "scripts/engine-smoke.mjs",
+          "sha256": "8ae187a49f6e81d17d375a4e5a009ece28d2b872a65e56e4491cec1126e1754e"
+        },
+        {
+          "path": "scripts/ci.mjs",
+          "sha256": "8e7fccc5a1a70f054802f6a83d2017c156e991197f8416abee9e3acc913dd7e0"
+        },
+        {
+          "path": "src/main/supervisor/identity.ts",
+          "sha256": "0e29836da0d978a9fa3aad75411e89172a6693b4a44b90ee5c6f89b5426fcb6b"
+        },
+        {
+          "path": "src/main/supervisor/records.ts",
+          "sha256": "d94393abb4ddbb43ed306ce283b0096f7e4a9afbdfdf6d91d8a618314c26b52c"
+        },
+        {
+          "path": "src/main/supervisor/native.ts",
+          "sha256": "76495c0ea7372fa3eb84ff1a70882843ad98e646175ca6228cb1af9e2ffe7244"
+        },
+        {
+          "path": "src/main/supervisor/restart.ts",
+          "sha256": "09412fbf9ff4603fbdc27c9c7d84e4e3d2f95275bd9fbed29670b1eb35149114"
+        },
+        {
+          "path": "src/main/supervisor/runtime-supervisor.ts",
+          "sha256": "8e01a40bf39c2ffb2623d8da477501ca5b8151f994773ed61dcbe3fcd2e5912d"
+        },
+        {
+          "path": "src/main/supervisor/errors.ts",
+          "sha256": "50b868597ae6397f2bd52c4ffc986ebfc83de3ce603b6af53ac65acb178eb9f5"
+        },
+        {
+          "path": "src/main/work/control.ts",
+          "sha256": "fef3b48d6b76c152f162197b1772cad7919d993902efce0b2b25ef016bf381c4"
+        },
+        {
+          "path": "src/main/desktop-lifecycle.ts",
+          "sha256": "be6caf3a6a0f71165f6e56440e7feff8ae0c4a21b19a124b5f1f13091062a153"
+        },
+        {
+          "path": "src/main/index.ts",
+          "sha256": "7068a5c28efc630271edb62c8f492de9c3c70b0ef08a4e259cc09665ae2146d5"
+        },
+        {
+          "path": "src/main/engine/runtime-process.ts",
+          "sha256": "789035b71cfba04c7597708d45a4bb9d4d1b41e458a099135a9ded0303ad2ac1"
+        },
+        {
+          "path": "src/main/engine/types.ts",
+          "sha256": "bb29b404fa84624fdf6719a1bc3a7b5ca55ae5505938cf470f6bc8d7fc0697d6"
+        },
+        {
+          "path": "src/main/engine/adapter.ts",
+          "sha256": "5e8d3d2cd77da06922cb5e6af70b9a4ca828cbd3fc31f8a83f1fc581c0b45ede"
+        },
+        {
+          "path": "src/main/engine/errors.ts",
+          "sha256": "ef28e3b9e51dbe9907cc88e0300499e50c977248a506847d2c2b82e54b83d5b3"
+        },
+        {
+          "path": "test/supervisor-identity.test.ts",
+          "sha256": "2427a4cd914d14d0aab6573c0a60cf2c2b5a0ddf196995ccae88a8f7abf9e9d4"
+        },
+        {
+          "path": "test/supervisor-records.test.ts",
+          "sha256": "fbe419ef5c71f4e390142eba0aa6507f6b80503a0023b34258c91cad437d5e79"
+        },
+        {
+          "path": "test/supervisor-restart.test.ts",
+          "sha256": "8600258c067e2ade4266bd6c6d13723a5fb7f4a8ad44485fba9430169716b9ad"
+        },
+        {
+          "path": "test/supervisor-native.test.ts",
+          "sha256": "2048673b05659f5436c7a866d58bee85c5838e64fbf94b3923495a032bc2209e"
+        },
+        {
+          "path": "test/runtime-supervisor.test.ts",
+          "sha256": "991516aae4962d6283883ff73a7c488621668bc57b80c23bd6570771c2978cdc"
+        },
+        {
+          "path": "test/runtime-process.test.ts",
+          "sha256": "27044e4292ec4f7fc564fb468de0ed5ed2889db6a3e03f79f781910341d30267"
+        },
+        {
+          "path": "test/work-control.test.ts",
+          "sha256": "9066380921dfaf9745ba618aa4c34cf91f16f8225b0e71d063d9c9bced955dd5"
+        },
+        {
+          "path": "package.json",
+          "sha256": "b75b587fa6f76046f9775bf1e93cbeabb66b5c097be2926a365432950d242ba5"
+        }
+      ],
+      "blocker_ids": [],
+      "notes": [
+        "P04-01: native/macos-supervisor/build/mona-supervisor is a build artifact (gitignored); P21 packaging must ship the compiled arm64 binary beside app resources and P22 must sign it.",
+        "P04-02: suspend/resume is qualified with real Electron powerMonitor events and unit tests; a physical lid-close sleep was not performed and remains a manual qualification.",
+        "P04-03: bounded keep-awake cleanup is not implemented; the optional prompt item is not claimed.",
+        "P04-04: the renderer still shows the P02 disconnected placeholder; P07 consumes RuntimeSupervisor.status().",
+        "P04-05: an incomplete stop reports survivors and retains the handle for one bounded forced retry; it is never reported as stopped.",
+        "P04-06: one owned runtime per user store remains the enforced limit (P01 measurement); parallel ownership needs a future tested engine decision."
+      ]
     },
     "P05": {
       "status": "pending",
@@ -856,7 +1008,7 @@
   "next_eligible_prompts": [
     "P04"
   ],
-  "last_checkpoint_utc": "2026-11-12T01:25:10.187Z",
+  "last_checkpoint_utc": "2026-11-12T01:50:42.601Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

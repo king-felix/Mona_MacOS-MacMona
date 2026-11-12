@@ -62,7 +62,7 @@ const receipt = {
   sha256: createHash("sha256").update(bytes).digest("hex"),
   size: bytes.length,
   compiler: (swiftVersion.stdout ?? "").split("\n")[0] ?? "unknown",
-  file: (file.stdout ?? "").trim(),
+  file: (file.stdout ?? "").replace(ROOT + "/", "").trim(),
   signature: sign.status === 0 ? "ad-hoc" : "unsigned",
   signed: sign.status === 0,
   verified: verify.status === 0,

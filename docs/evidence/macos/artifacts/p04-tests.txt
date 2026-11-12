@@ -1,5 +1,5 @@
 
-[1m[30m[46m RUN [49m[39m[22m [36mv5.1.0 [39m[90m/Users/<user>/DS_Projects/Mona[39m
+[1m[30m[46m RUN [49m[39m[22m [36mv5.1.0 [39m[90m$HOME/DS_Projects/Mona[39m
 
  [32m✓[39m test/tool-discovery.test.ts[2m > [22mGUI-launch tool discovery[2m > [22mfinds a tool on the inherited PATH first[32m 7[2mms[22m[39m
  [32m✓[39m test/tool-discovery.test.ts[2m > [22mGUI-launch tool discovery[2m > [22mfalls back to the well-known Homebrew location[32m 2[2mms[22m[39m

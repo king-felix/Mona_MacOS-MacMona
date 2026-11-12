@@ -13,7 +13,7 @@ All matched files use Prettier code style!
 > eslint .
 
 
-/Users/<user>/DS_Projects/Mona/test/engine-adapter.test.ts
+$HOME/DS_Projects/Mona/test/engine-adapter.test.ts
   19:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
 ✖ 1 problem (0 errors, 1 warning)
@@ -35,7 +35,7 @@ All matched files use Prettier code style!
   "sha256": "f7a650e485e84c417ccf28ef5091669c872820301db296780e32e9f2c66f4271",
   "size": 183824,
   "compiler": "Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)",
-  "file": "/Users/<user>/DS_Projects/Mona/native/macos-supervisor/build/mona-supervisor: Mach-O 64-bit executable arm64",
+  "file": "$HOME/DS_Projects/Mona/native/macos-supervisor/build/mona-supervisor: Mach-O 64-bit executable arm64",
   "signature": "ad-hoc",
   "signed": true,
   "verified": true,
@@ -46,7 +46,7 @@ All matched files use Prettier code style!
 > vitest run
 
 
-[1m[30m[46m RUN [49m[39m[22m [36mv5.1.0 [39m[90m/Users/<user>/DS_Projects/Mona[39m
+[1m[30m[46m RUN [49m[39m[22m [36mv5.1.0 [39m[90m$HOME/DS_Projects/Mona[39m
 
  [32m✓[39m test/supervisor-records.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 8[2mms[22m[39m
  [32m✓[39m test/tool-discovery.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 14[2mms[22m[39m
