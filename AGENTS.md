@@ -78,6 +78,10 @@ node tools/monabuild/cli.mjs recover      # after any interruption
 node tools/monabuild/cli.mjs requirements sync
 ```
 
+`recover` restores the last committed revision from `state.json.bak`, or — on a
+fresh clone, where that local backup does not exist — from the committed blob at
+`HEAD`, preserving any damaged file as evidence first.
+
 `checkpoint` refuses to write when the revision you read is stale, validates
 against `tools/monabuild/schemas/state.schema.json`, writes atomically, and keeps
 the previous revision in `state.json.bak`. `recover` restores that backup when

@@ -26,7 +26,7 @@ Verified in this session:
   MAC-001..008, valid dependency order, no cycles.
 - Ledger: `tools/monabuild` (schema validation, atomic writes, revision
   conflicts, interrupted-checkpoint recovery, attempt enforcement, hash index,
-  evidence-hash verification, secret/machine-path scan) with **36 passing
+  evidence-hash verification, secret/machine-path scan) with **37 passing
   tests**; recovery demonstrated in
   `docs/evidence/macos/artifacts/p00-recovery-simulation.txt` and additional
   ledger probes in `docs/evidence/macos/artifacts/p00-adversarial-probes.txt`.

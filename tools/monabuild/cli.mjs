@@ -165,7 +165,8 @@ function commandCheckpoint(args) {
 
 function commandRecover(args) {
   const p = paths(rootFrom(args));
-  const report = recover(p.statePath);
+  const gitRef = args.flags["from-git"] === undefined ? "HEAD" : args.flags["from-git"];
+  const report = recover(p.statePath, { gitRef, root: p.root });
   printJson({ ok: report.ok, ...report });
   if (!report.ok) process.exitCode = EXIT.refused;
 }

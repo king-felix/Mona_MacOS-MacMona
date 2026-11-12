@@ -131,3 +131,27 @@ test("a recorded evidence hash that no longer matches its file is reported", asy
   assert.equal(report.ok, false);
   assert.match(report.errors.join("\n"), /evidence hash is stale/);
 });
+
+test("a fresh clone recovers from the committed git blob when no backup exists", async () => {
+  const { execFileSync } = await import("node:child_process");
+  const { cpSync, mkdirSync, rmSync, writeFileSync: write } = await import("node:fs");
+  const { join: joinPath, resolve: resolvePath } = await import("node:path");
+  const { fileURLToPath } = await import("node:url");
+  const home = tempDir("monabuild-git-");
+  const repo = joinPath(home, "repo");
+  mkdirSync(joinPath(repo, ".mona", "build-macos"), { recursive: true });
+  const statePath = joinPath(repo, ".mona", "build-macos", "state.json");
+  write(statePath, `${JSON.stringify(makeState({ revision: 4 }), null, 2)}\n`);
+  const git = (...args) => execFileSync("git", args, { cwd: repo, stdio: "ignore" });
+  git("init", "-q");
+  git("add", "-A");
+  git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "-m", "state");
+  rmSync(`${statePath}.bak`, { force: true });
+  write(statePath, "{ truncated");
+
+  const report = recover(statePath, { gitRef: "HEAD", root: repo });
+  assert.equal(report.ok, true);
+  assert.equal(report.restored_from_git, true);
+  assert.ok(report.preserved_corrupt_copy);
+  assert.equal(JSON.parse(readFileSync(statePath, "utf8")).revision, 4);
+});

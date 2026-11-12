@@ -2,7 +2,8 @@
 // One writer at a time; readers only ever see a complete revision.
 
 import { copyFileSync, existsSync, readFileSync, rmSync, statSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname, join, relative as relativeTo } from "node:path";
+import { execFileSync } from "node:child_process";
 import { validate, assertValid } from "./schema.mjs";
 import {
   acquireLock,
@@ -131,10 +132,11 @@ export function summarize(state, prompts) {
 // Recovery: an interrupted checkpoint can leave a temp file, a stale lock, or
 // (in the worst case) a truncated state file. The committed .bak is the
 // recovery source. Corrupt evidence is preserved, never deleted.
-export function recover(statePath, { now = new Date() } = {}) {
+export function recover(statePath, { now = new Date(), gitRef = null, root = null } = {}) {
   const report = {
     state_path: statePath,
     restored_from_backup: false,
+    restored_from_git: false,
     preserved_corrupt_copy: null,
     removed_temp_files: [],
     removed_stale_lock: false,
@@ -157,6 +159,7 @@ export function recover(statePath, { now = new Date() } = {}) {
   }
 
   const backupPath = `${statePath}.bak`;
+  let restoredFrom = null;
   if (!currentValid && existsSync(backupPath)) {
     const { result } = readValidated(backupPath, schema);
     if (result.valid) {
@@ -171,10 +174,44 @@ export function recover(statePath, { now = new Date() } = {}) {
       report.restored_from_backup = true;
       report.notes.push(`restored committed revision ${recovered.revision} from backup`);
       currentValid = true;
+      restoredFrom = "backup";
     } else {
-      report.notes.push("backup is also invalid; manual reconstruction required");
+      report.notes.push("backup is also invalid");
     }
   }
+
+  // A fresh clone has no .bak (it is a local artifact), so version control is
+  // the recovery source there. Only a blob that validates is accepted.
+  if (!currentValid && gitRef && root) {
+    try {
+      const relative = relativeTo(root, statePath);
+      const blob = execFileSync("git", ["show", `${gitRef}:${relative}`], {
+        cwd: root,
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "ignore"],
+      });
+      const candidate = JSON.parse(blob);
+      const result = validate(candidate, schema);
+      if (result.valid) {
+        if (existsSync(statePath)) {
+          const stamp = now.toISOString().replace(/[:.]/g, "-");
+          const corruptPath = `${statePath}.corrupt-${stamp}`;
+          copyFileSync(statePath, corruptPath);
+          report.preserved_corrupt_copy = corruptPath;
+        }
+        atomicWriteJson(statePath, candidate, { backup: false });
+        report.restored_from_git = true;
+        report.notes.push(`restored revision ${candidate.revision} from ${gitRef}`);
+        currentValid = true;
+        restoredFrom = "git";
+      } else {
+        report.notes.push(`${gitRef} state blob is invalid`);
+      }
+    } catch (error) {
+      report.notes.push(`no usable state blob at ${gitRef}: ${error.message.split("\n")[0]}`);
+    }
+  }
+  report.restored_from = restoredFrom;
 
   // A leftover lock is only removed when its owner is gone or it is old.
   const lockPath = `${statePath}.lock`;

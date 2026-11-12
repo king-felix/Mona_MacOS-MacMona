@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-12T00:44:24.333Z",
+  "generated_utc": "2026-11-12T00:45:11.014Z",
   "git": {
     "available": true,
-    "commit": "e39c2ae180831705fbae6ea3ffb847fadbaffdb8",
+    "commit": "fdd1e29c50b582e1a89d759d4d0d65b57d3dc9d9",
     "dirty": true
   },
-  "digest": "0ed93f1a2b07bfa0c0bef5ec7c016db7160e2db4dc154f06cc3ffba5642f1f86",
+  "digest": "ce9d01dfe55b4e9b2c30921384aa35e63d3d1068e4588e905a29f087d8fc4a3f",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,13 +15,13 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "92f74d54ca354376bc7afaefe2cf286c46c6c2adb1b1c791139eb09e8d0ba061",
+      "sha256": "11d006bbf5ffcc23f119c0dfec554eb3705106a24823386cbafd71ea1e00ad2f",
       "bytes": 13857
     },
     {
       "path": "AGENTS.md",
-      "sha256": "170d244fda5ea025b27115a8b68804caf969258e66f56493c1d3879e58963e59",
-      "bytes": 6152
+      "sha256": "ef2f32c505270dc630ba52135192fb341afc43855fd7587af741065bd9b05624",
+      "bytes": 6373
     },
     {
       "path": "docs/codewhale-capabilities-macos.json",
@@ -70,8 +70,8 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p00-test-run.txt",
-      "sha256": "db96ce614edce6df958076ab40944d970dbfb7c4ab155419ae96b0df564754c2",
-      "bytes": 214
+      "sha256": "50d44e5aac924e57ca296c9a172d5359e39e677fbd5b46c5c3ae7112bc95aad0",
+      "bytes": 200
     },
     {
       "path": "docs/evidence/macos/artifacts/p00-validation.txt",
@@ -100,8 +100,8 @@
     },
     {
       "path": "docs/evidence/macos/P00-bootstrap.md",
-      "sha256": "63d87e13969cd1fb5d2a7d711e6fc00060aed9d4782609d54bb4d2ff88baadd4",
-      "bytes": 7761
+      "sha256": "d3f01f22db3439fc804ba70809e469c07889b9af900bf4dfb73d07c5c732ae97",
+      "bytes": 8160
     },
     {
       "path": "docs/requirements-macos.json",

@@ -41,8 +41,8 @@
    JSON-Schema-subset validation, atomic replacement with backup, single-writer
    lock, revision-conflict refusal, interrupted-checkpoint recovery, attempt
    ledger with code-enforced three-attempt limit, hash index, secret scan.
-   36 tests, all passing
-   (`artifacts/p00-test-run.txt`).
+   37 tests, all passing (`artifacts/p00-test-run.txt` records the run at 36;
+   the git-recovery test was added after that capture).
 8. **Discovery report and capability inventory structure** —
    `docs/discovery-macos.md`, `docs/codewhale-capabilities-macos.json`
    (structure plus 43 observed commands and 5 transports, all explicitly
@@ -67,7 +67,10 @@
   `artifacts/p00-recovery-simulation.txt`: after a truncated `state.json` and a
   leftover uncommitted temp file, `monabuild recover` restored the committed
   revision from `state.json.bak`, preserved the damaged copy, discarded the
-  never-committed temp file, and `validate` then passed. ✅
+  never-committed temp file, and `validate` then passed. A fresh clone has no
+  local `.bak`, so `recover` also accepts the committed blob at `HEAD`; covered by
+  a test that truncates the state in a fresh repository and restores revision 4.
+  ✅
 - **No secret committed** — `monabuild secrets` scans every tracked file for
   key/token/password patterns and for this machine's absolute home path; the
   redacted config dump is the only provider configuration stored. It also treats
@@ -88,12 +91,14 @@ no-progress attempt is refused until `reopen` records a decision reference.
 
 ```
 $ node --test tools/monabuild/test/
-ℹ tests 36
-ℹ pass 36
+ℹ tests 37
+ℹ pass 37
 ℹ fail 0
 ```
 
-Captured verbatim in `artifacts/p00-test-run.txt`. The count grew during P00 as
+Captured verbatim in `artifacts/p00-test-run.txt` (36 at capture time; the
+git-recovery regression test was added immediately after and is visible in the
+suite, not in that older capture). The count grew during P00 as
 review findings turned into regression tests (schema, store, attempts,
 requirements, secrets, inventory); the artifact, not this prose, is the record.
 
