@@ -5,7 +5,7 @@
 ## Context
 
 P03 delivered a versioned adapter and P04 a native supervisor, but nothing owned
-a *live session*: which project holds the runtime, which thread a turn belongs
+a _live session_: which project holds the runtime, which thread a turn belongs
 to, where events are stored, and which of Mona's three stop controls is which.
 P08 has to turn those pieces into a studio that can be believed: real streaming,
 real cost, real permission posture, and honest uncertainty when the engine does
@@ -17,7 +17,7 @@ Three failure modes had to be designed out:
    but the studio could still let a second project claim the same runtime, or
    let navigation start an engine.
 2. **Blind retry.** A lost POST response cannot be distinguished from a lost
-   response *after* acceptance by the client alone.
+   response _after_ acceptance by the client alone.
 3. **Invented state.** A disconnected stream, a quiet stdout, or a stopped
    process must never be rendered as completion, progress, or zero cost.
 
@@ -45,7 +45,7 @@ reason instead of attaching read-only and pretending to drive it. The adapter is
 built over a loopback-only `HttpRuntimeTransport`; the token never enters the
 renderer, the snapshot contract, IPC payloads, or logs.
 
-The supervisor's report is verified against the project's *canonical* path
+The supervisor's report is verified against the project's _canonical_ path
 before any request, and the engine identity is discovered and compatibility
 checked before a thread is created.
 
@@ -59,7 +59,7 @@ a project has at most one engine thread per mode across launches.
 
 Mona's default profile mirrors the route measured at P01 (`deepseek` /
 `deepseek-flash`, full access) and is **written once** to settings on first read,
-then shown as *Configured*; it becomes *Observed* only when a real turn reports
+then shown as _Configured_; it becomes _Observed_ only when a real turn reports
 what actually ran. Plan is `ask` with no auto-approve, no trust mode, and no
 shell — a genuinely narrower posture that cannot escalate itself.
 
@@ -87,7 +87,7 @@ the second replay pass ingested **0** events with 61 duplicates and produced no
 duplicate rows; the renderer additionally de-duplicates by thread+seq.
 
 Threads are projections. `StateStore.readProjectEvents` reads a project's
-timeline across *all* its threads, so the live engine thread sits beside the
+timeline across _all_ its threads, so the live engine thread sits beside the
 local shell thread without fragmenting history; engine history remains
 authoritative upstream.
 
@@ -101,7 +101,7 @@ authoritative upstream.
   shows activity, not a fabricated rationale.
 - Engine plumbing (`item.started`, `turn.workspace_snapshot`,
   `model.tools.snapshot`, `turn.provider_request`, `turn.usage`,
-  `operation.activity_*`) is stored and *counted* in a visible line rather than
+  `operation.activity_*`) is stored and _counted_ in a visible line rather than
   flooding the transcript; genuinely unknown kinds get their own card and a
   diagnostics entry.
 - Approval and clarification waits are surfaced as a real wait with the next

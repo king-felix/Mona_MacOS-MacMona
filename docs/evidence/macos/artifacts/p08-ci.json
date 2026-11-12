@@ -13,7 +13,7 @@ All matched files use Prettier code style!
 > eslint .
 
 
-/Users/<user>/DS_Projects/Mona/test/engine-adapter.test.ts
+<workspace>/test/engine-adapter.test.ts
   19:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
 ✖ 1 problem (0 errors, 1 warning)
@@ -65,7 +65,7 @@ All matched files use Prettier code style!
 > vitest run
 
 
-[1m[30m[46m RUN [49m[39m[22m [36mv5.1.0 [39m[90m/Users/<user>/DS_Projects/Mona[39m
+[1m[30m[46m RUN [49m[39m[22m [36mv5.1.0 [39m[90m<workspace>[39m
 
  [32m✓[39m test/state-catalog.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 618[2mms[22m[39m
  [32m✓[39m test/state-portable.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 653[2mms[22m[39m
