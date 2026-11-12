@@ -1,6 +1,6 @@
 # Handoff — Mona macOS build
 
-**Last checkpoint:** 2026-11-12 (P17) · revision 329 · `monabuild validate` clean
+**Last checkpoint:** 2026-11-12 (P17) · revision 330 · `monabuild validate` clean
 **Current prompt:** P17 completed. Next eligible after P17: **P18** — not
 started, not authorized in this session.
 
