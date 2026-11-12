@@ -497,6 +497,38 @@ describe("agents screen", () => {
       (button) => button.textContent?.trim() === "Complete",
     );
     expect(complete?.disabled).toBe(true);
+    // Engine controls are disabled too: a stored view cannot start an operation.
+    const summary = Array.from(container?.querySelectorAll("summary") ?? []).find((node) =>
+      node.textContent?.includes("agent_8f9c0296"),
+    );
+    await act(async () => {
+      summary?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+    const cancel = Array.from(container?.querySelectorAll("button") ?? []).find((button) =>
+      button.textContent?.includes("Cancel run"),
+    );
+    expect(cancel?.disabled).toBe(true);
+    expect(container?.textContent).toContain("Reconnect the studio to cancel a run");
+  });
+
+  it("refuses to offer a fleet launch the runtime cannot start", async () => {
+    const view = observatory();
+    view.capabilities = { ...view.capabilities, fleetStart: false, fleetCreate: false };
+    installMona(view);
+    await render(
+      <AgentsScreen
+        detail={detail()}
+        engineThreadId="thr_0123456789abcdef"
+        onOpenFolder={() => undefined}
+        onShowStudio={() => undefined}
+      />,
+    );
+    expect(container?.textContent).toContain("This runtime cannot start a fleet");
+    expect(
+      Array.from(container?.querySelectorAll("button") ?? []).some((button) =>
+        button.textContent?.includes("Launch serial run"),
+      ),
+    ).toBe(false);
   });
 
   it("asks for a studio thread when no goal has ever been observed", async () => {

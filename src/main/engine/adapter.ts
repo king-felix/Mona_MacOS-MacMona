@@ -33,6 +33,7 @@ import type {
   EngineFleetRunDetail,
   EngineFleetWorker,
   EngineGoal,
+  EngineGoalTransition,
   EngineRunEvent,
   FileRevertReceipt,
   HistoryPage,
@@ -1515,7 +1516,7 @@ export class CodewhaleAdapter implements EngineAdapter {
     return normalizeGoal(parseWith(WireThreadGoal, response.json, "thread goal"));
   }
 
-  async setThreadGoal(threadId: ThreadId, objective: string): Promise<EngineGoal> {
+  async setThreadGoal(threadId: ThreadId, objective: string): Promise<EngineGoalTransition> {
     const trimmed = objective.trim();
     if (trimmed.length === 0 || trimmed.length > 4000) {
       throw new AdapterError("MALFORMED_RESPONSE", "goal objective must be 1-4000 characters");
@@ -1529,30 +1530,33 @@ export class CodewhaleAdapter implements EngineAdapter {
         body: response.text.slice(0, 500),
       });
     }
-    return normalizeGoal(parseWith(WireThreadGoal, response.json, "goal set"));
+    return {
+      goal: normalizeGoal(parseWith(WireThreadGoal, response.json, "goal set")),
+      status: response.status,
+    };
   }
 
-  async completeThreadGoal(threadId: ThreadId): Promise<EngineGoal> {
+  async completeThreadGoal(threadId: ThreadId): Promise<EngineGoalTransition> {
     return this.goalTransition(threadId, "complete");
   }
 
-  async blockThreadGoal(threadId: ThreadId): Promise<EngineGoal> {
+  async blockThreadGoal(threadId: ThreadId): Promise<EngineGoalTransition> {
     return this.goalTransition(threadId, "block");
   }
 
-  async clearThreadGoal(threadId: ThreadId): Promise<boolean> {
+  async clearThreadGoal(threadId: ThreadId): Promise<{ cleared: boolean; status: number }> {
     const response = await this.request(
       "DELETE",
       `/v1/threads/${encodeURIComponent(threadId)}/goal`,
     );
     this.throwForAuth(response, "goal clear");
-    if (response.status === 404) return false;
+    if (response.status === 404) return { cleared: false, status: 404 };
     if (response.status !== 204 && (response.status < 200 || response.status >= 300)) {
       throw new AdapterError("CONTROL_REFUSED", `goal clear returned ${response.status}`, false, {
         body: response.text.slice(0, 500),
       });
     }
-    return true;
+    return { cleared: true, status: response.status };
   }
 
   async listFleetRuns(): Promise<{
@@ -1730,7 +1734,7 @@ export class CodewhaleAdapter implements EngineAdapter {
   private async goalTransition(
     threadId: ThreadId,
     action: "complete" | "block",
-  ): Promise<EngineGoal> {
+  ): Promise<EngineGoalTransition> {
     const response = await this.request(
       "POST",
       `/v1/threads/${encodeURIComponent(threadId)}/goal/${action}`,
@@ -1745,7 +1749,10 @@ export class CodewhaleAdapter implements EngineAdapter {
         { status: response.status },
       );
     }
-    return normalizeGoal(parseWith(WireThreadGoal, response.json, `goal ${action}`));
+    return {
+      goal: normalizeGoal(parseWith(WireThreadGoal, response.json, `goal ${action}`)),
+      status: response.status,
+    };
   }
 
   private async fleetPost(runId: string, action: "start" | "stop"): Promise<EngineControlReceipt> {

@@ -436,11 +436,13 @@ function GoalCard({
 
 function LaunchCard({
   tasks,
+  fleetStartAvailable,
   busy,
   onAction,
   onShowStudio,
 }: {
   tasks: TaskView[];
+  fleetStartAvailable: boolean;
   busy: boolean;
   onAction: (work: () => Promise<void>) => void;
   onShowStudio: () => void;
@@ -458,7 +460,13 @@ function LaunchCard({
   const chosen = eligible.find((task) => task.id === taskId) ?? null;
   return (
     <Card title="Launch a native fleet task" eyebrow="One task, serial">
-      {eligible.length === 0 ? (
+      {!fleetStartAvailable ? (
+        <EmptyState
+          icon={<SparkIcon size={28} />}
+          title="This runtime cannot start a fleet"
+          description="Managed fleet creation and start are not advertised by the connected engine. Mona will not simulate a run; reconnect an engine that supports /v1/fleet/runs and /start."
+        />
+      ) : eligible.length === 0 ? (
         <EmptyState
           icon={<SparkIcon size={28} />}
           title="No eligible native task"
@@ -517,7 +525,11 @@ function LaunchCard({
             size="sm"
             variant="primary"
             disabled={
-              busy || !chosen || name.trim().length === 0 || instructions.trim().length === 0
+              busy ||
+              !fleetStartAvailable ||
+              !chosen ||
+              name.trim().length === 0 ||
+              instructions.trim().length === 0
             }
             onClick={() =>
               onAction(async () => {
@@ -616,6 +628,10 @@ export function AgentsScreen({
     const worker = fleet?.workers.find((candidate) => candidate.workerId === selection.id);
     return worker ? { kind: "worker" as const, worker, fleet: fleet ?? null } : null;
   }, [selection, view]);
+
+  // Controls are engine operations. A stored or detached view shows state and
+  // says why it cannot act, instead of offering a button that must fail.
+  const engineControls = view !== null && view.connected && view.source === "engine";
 
   if (!view && loading) {
     return (
@@ -763,6 +779,7 @@ export function AgentsScreen({
               />
               <LaunchCard
                 tasks={board?.tasks ?? []}
+                fleetStartAvailable={view.capabilities.fleetStart}
                 busy={busy}
                 onAction={runAction}
                 onShowStudio={onShowStudio}
@@ -800,12 +817,14 @@ export function AgentsScreen({
               {selected?.kind === "agent" ? (
                 <AgentInspector
                   run={selected.run}
+                  controlsEnabled={engineControls}
                   onCancel={() => setConfirm({ kind: "agent", run: selected.run })}
                 />
               ) : selected?.kind === "fleet" ? (
                 <FleetInspector
                   projectId={detail.project.id}
                   fleet={selected.run}
+                  controlsEnabled={engineControls}
                   onStop={() => setConfirm({ kind: "fleet", run: selected.run })}
                   onOpenDetail={async (fleet) => {
                     try {
@@ -830,6 +849,7 @@ export function AgentsScreen({
               ) : selected?.kind === "worker" ? (
                 <WorkerInspector
                   worker={selected.worker}
+                  controlsEnabled={engineControls}
                   onStop={() => setConfirm({ kind: "worker", worker: selected.worker })}
                   onRestart={() =>
                     runAction(async () => {
@@ -1105,9 +1125,11 @@ function FleetNode({
 
 function AgentInspector({
   run,
+  controlsEnabled,
   onCancel,
 }: {
   run: AgentRunView;
+  controlsEnabled: boolean;
   onCancel: () => void;
 }): JSX.Element {
   return (
@@ -1181,7 +1203,7 @@ function AgentInspector({
             size="sm"
             variant="danger"
             icon={<StopIcon size={15} />}
-            disabled={run.terminal}
+            disabled={run.terminal || !controlsEnabled}
             onClick={onCancel}
           >
             Cancel run
@@ -1191,6 +1213,11 @@ function AgentInspector({
           Aggregate totals are not additive: {run.spend.source}. Mona never adds a parent and child
           total together.
         </p>
+        {!controlsEnabled ? (
+          <p className="muted">
+            Reconnect the studio to cancel a run; a stored observation cannot start a control.
+          </p>
+        ) : null}
       </div>
     </Inspector>
   );
@@ -1199,11 +1226,13 @@ function AgentInspector({
 function FleetInspector({
   projectId,
   fleet,
+  controlsEnabled,
   onStop,
   onOpenDetail,
 }: {
   projectId: ProjectId;
   fleet: FleetRunView;
+  controlsEnabled: boolean;
   onStop: () => void;
   onOpenDetail: (fleet: FleetRunView) => Promise<void>;
 }): JSX.Element {
@@ -1344,13 +1373,19 @@ function FleetInspector({
             <pre>{JSON.stringify(evidence.content, null, 2).slice(0, 4000)}</pre>
           </div>
         ) : null}
+        {!controlsEnabled ? (
+          <p className="muted">
+            A stored observation cannot act on a run. Reconnect the studio to stop it or load its
+            workers.
+          </p>
+        ) : null}
         <h3 className="agent-section-title">Run history</h3>
         {fleet.events.length === 0 ? (
           <p className="muted">No bounded event history was returned.</p>
         ) : (
           <ol className="agent-events">
             {fleet.events.slice(-12).map((event, index) => (
-              <li key={`${event.status}:${event.at ?? index}`}>
+              <li key={`${index}:${event.status}:${event.at ?? ""}`}>
                 <Badge tone="neutral">{event.status}</Badge>
                 {event.at ? <span className="muted">{relativeTime(event.at)}</span> : null}
                 {event.message ? <span>{event.message}</span> : null}
@@ -1383,10 +1418,12 @@ function FleetInspector({
 
 function WorkerInspector({
   worker,
+  controlsEnabled,
   onStop,
   onRestart,
 }: {
   worker: FleetWorkerView;
+  controlsEnabled: boolean;
   onStop: () => void;
   onRestart: () => void;
 }): JSX.Element {
@@ -1438,12 +1475,18 @@ function WorkerInspector({
           <Button
             size="sm"
             variant="secondary"
-            disabled={worker.status === "offline"}
+            disabled={!controlsEnabled || worker.status === "offline"}
             onClick={onRestart}
           >
             Restart worker
           </Button>
-          <Button size="sm" variant="danger" icon={<StopIcon size={15} />} onClick={onStop}>
+          <Button
+            size="sm"
+            variant="danger"
+            icon={<StopIcon size={15} />}
+            disabled={!controlsEnabled}
+            onClick={onStop}
+          >
             Stop worker
           </Button>
         </div>

@@ -54,7 +54,7 @@ bearer token. No `--auth` or shell command was routed around the API.
 
 ## One real delegated workflow run
 
-`docs/evidence/macos/artifacts/p15-agents-live.json` — 9/9 checks.
+`docs/evidence/macos/artifacts/p15-agents-live.json` — 10/10 checks.
 
 1. Started an owned runtime (native binary, listener pid recorded).
 2. Created a board task owned by `native_workflow` with one acceptance criterion.
@@ -70,7 +70,9 @@ bearer token. No `--auth` or shell command was routed around the API.
    `spend: not_reported` and one unknown-spend row.
 6. The local task run settled and the task moved to **`verifying`** — not
    `completed`. The workspace fingerprint was recorded.
-7. The one-mutating-run owner was released.
+7. The worker row inherited the ledger's unknown usage and self-reported
+   verification instead of inventing either (`live-worker-inherits-ledger`).
+8. The one-mutating-run owner was released.
 
 The run was written to `/tmp` and the task prompt was "Reply with exactly
 P15-OK. Do not read, create, edit, or delete any file." The only inference was
@@ -123,7 +125,7 @@ store:
 
 ## Ownership and spend rules proven by tests
 
-`test/work-agents.test.ts` (15 tests): real identities and unknown spend; a
+`test/work-agents.test.ts` (17 tests): real identities and unknown spend; a
 sub-agent attributed to its origin turn without an invented parent; parent and
 child spend reported separately with no total in the view; stored fallback;
 `202` cancel; refused control without a live studio; refusal of a Mona-queue
@@ -134,7 +136,7 @@ scoping to project-bound threads; goal complete/block/clear with receipts.
 for agent runs, goals, fleet runs, workers, receipts, and evidence, including a
 `422` fleet refusal surfaced as `CONTROL_REFUSED`.
 
-`test/agents-screen.test.tsx` (4 tests): rendering of real identities, the
+`test/agents-screen.test.tsx` (5 tests): rendering of real identities, the
 serial boundary and gap rows, a deliberate confirmation before cancel, and the
 disconnected stored view with no enabled goal control.
 
@@ -145,18 +147,47 @@ strict object; `parallelism: "parallel"` and an unknown role are rejected.
 
 `p15-shell-agents.json` — 99/99 checks on the actual Electron app, including
 `nav_count: 7`, `Command-7` reaching the Agents screen, the honest
-"Not connected" / "The live studio is not attached" state with an empty engine
-list, seven gap rows, four failing parallel checks, a refused launch, a goal card
-that asks for a studio thread, and no horizontal overflow.
+"Not connected" / "The live studio is not attached" state with the last stored
+rows, seven gap rows, four failing parallel checks, a launch control refused
+because a detached view publishes no fleet capability, an inspector with real
+identity/parent/spend fields and a disabled cancel, a stored goal whose controls
+are locked, and no horizontal overflow.
 `p15-agents-daybreak.png`, `p15-agents-afterglow.png`, and `p15-agents-inspector.png` are the captures.
 
 ## Verification summary
 
-- 466 tests in 50 files.
+- 469 tests in 50 files.
 - `npm run ci` green: format, lint, typecheck, builds, tests, and five smokes
   (`board`, `cost`, `changes`, `polish`, `agents`) — `p15-ci.json`.
 - Shell smoke green — 99/99.
-- Live engine run green — 9/9; fixture suite — 13/13.
+- Live engine run green — 10/10; fixture suite — 13/13.
+
+## Review pass (D-041)
+
+An independent reviewer read the change and was interrupted after a thorough
+pass; its findings were verified against the code and six were real. All six are
+fixed with regression tests:
+
+1. **A failed route read rendered as an empty list.** Fixed: per-section fallback
+   to the stored projection, with the failure named (`keeps a section's last
+   observation when its live read fails`).
+2. **A failed launch could also return a result object.** `refused()` now returns
+   `never`; a refused create/start throws after recording its receipt
+   (`fails the local run and records a receipt when fleet creation is refused`).
+3. **Pruning deleted stored workers when a run's detail load failed.** Pruning is
+   now gated on every listed run's detail being read (`never prunes a run's
+   stored workers when that run's detail read failed`).
+4. **Goal receipts hardcoded HTTP `200`.** The adapter now returns the status the
+   engine answered (201/200/204/404) and the receipt carries it.
+5. **A fleet worker could lose its ledger spend, tools, and tests** when its
+   ledger row named the runtime workspace instead of the project root. The whole
+   ledger is normalized before the project filter
+   (`inherits a worker's tools, tests, and usage…`), and the live smoke asserts
+   it (`live-worker-inherits-ledger`).
+6. **Engine controls stayed enabled in a stored view.** Cancel, stop, restart,
+   and launch are now gated on a live, capable engine with a stated reason
+   (`refuses to offer a fleet launch the runtime cannot start`, plus the
+   disabled-cancel assertion).
 
 ## Gaps and limits recorded honestly
 

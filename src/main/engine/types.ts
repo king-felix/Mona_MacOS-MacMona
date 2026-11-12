@@ -355,10 +355,10 @@ export interface EngineAdapter {
   cancelAgentRun(runId: string): Promise<EngineControlReceipt>;
   listGoals(input?: { limit?: number; status?: string }): Promise<EngineGoal[]>;
   readThreadGoal(threadId: ThreadId): Promise<EngineGoal | null>;
-  setThreadGoal(threadId: ThreadId, objective: string): Promise<EngineGoal>;
-  completeThreadGoal(threadId: ThreadId): Promise<EngineGoal>;
-  blockThreadGoal(threadId: ThreadId): Promise<EngineGoal>;
-  clearThreadGoal(threadId: ThreadId): Promise<boolean>;
+  setThreadGoal(threadId: ThreadId, objective: string): Promise<EngineGoalTransition>;
+  completeThreadGoal(threadId: ThreadId): Promise<EngineGoalTransition>;
+  blockThreadGoal(threadId: ThreadId): Promise<EngineGoalTransition>;
+  clearThreadGoal(threadId: ThreadId): Promise<{ cleared: boolean; status: number }>;
   listFleetRuns(): Promise<{ runs: EngineFleetRun[]; status: Record<string, unknown> | null }>;
   readFleetRun(runId: string): Promise<EngineFleetRunDetail>;
   createFleetRun(
@@ -449,6 +449,12 @@ export interface EngineAgentRunList {
     paused: boolean | null;
     recentRateLimits: number | null;
   } | null;
+}
+
+/** A goal transition with the HTTP status the engine actually answered. */
+export interface EngineGoalTransition {
+  goal: EngineGoal;
+  status: number;
 }
 
 export interface EngineGoal {

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "captured_at": "2026-11-12T08:11:21.422Z",
+  "captured_at": "2026-11-12T08:27:45.003Z",
   "ok": true,
   "checks": {
     "ready": true,
@@ -207,7 +207,7 @@
     },
     "notification": {
       "receipt": true,
-      "text": "system refused completion \u00b7 the system did not accept the notification 11/12/2026, 1:11:19 AM",
+      "text": "system refused completion \u00b7 the system did not accept the notification 11/12/2026, 1:27:43 AM",
       "shown": false,
       "handed_over": false,
       "refused": true,

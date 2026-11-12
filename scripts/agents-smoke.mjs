@@ -222,7 +222,7 @@ function fixtureAdapter() {
     blockThreadGoal: async () => {
       throw new Error("fixture does not block goals");
     },
-    clearThreadGoal: async () => false,
+    clearThreadGoal: async () => ({ cleared: false, status: 404 }),
     listFleetRuns: async () => ({ runs: [fleet()], status: {} }),
     readFleetRun: async () => detail(),
     createFleetRun: async () => {
@@ -520,12 +520,31 @@ async function liveMode() {
         taskId: entry.taskId,
         workerCount: entry.workerCount,
         spend: entry.spend.confidence,
+        workers: entry.workers.map((worker) => ({
+          workerId: worker.workerId,
+          status: worker.status,
+          spend: worker.spend.confidence,
+          spendNote: worker.spend.note,
+          tests: worker.tests.state,
+          tools: worker.tools.names,
+        })),
       })),
       ownership: view.ownership,
       summary: view.summary,
     };
     const linked = view.fleets.find((entry) => entry.runId === launched.runId);
     check("live-fleet-visible", Boolean(linked));
+    // The fleet worker's ledger row carries unknown usage and a self-reported
+    // verification; the worker row must inherit both rather than invent either.
+    const liveWorker = linked?.workers[0];
+    check(
+      "live-worker-inherits-ledger",
+      liveWorker !== undefined &&
+        liveWorker.spend.confidence === "unknown" &&
+        liveWorker.tests.state === "self_reported" &&
+        (liveWorker.spend.note ?? "").length > 0,
+      liveWorker ? `${liveWorker.spend.confidence}/${liveWorker.tests.state}` : "no worker",
+    );
     check("live-task-linked", linked?.taskId === task.id);
     const after = await bench.store.getTask(task.id);
     check(

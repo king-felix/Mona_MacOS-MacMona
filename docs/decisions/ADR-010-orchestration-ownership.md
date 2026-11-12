@@ -114,8 +114,15 @@ transcripts. When the studio is detached, the view says `source: "stored"`, show
 `lastObservedAt`, marks goals `stale`, and disables controls. A terminal
 observation never regresses to a running one on a late list read.
 
-Local rows are pruned only after a **successful** live list read, so an offline
-session cannot be mistaken for a deleted run.
+Local rows are pruned only after a successful live list read **and** a complete
+detail read for every listed run. An unread section, or a run whose workers could
+not be fetched, keeps its previous rows: "not read" is never treated as "no
+workers", so an offline session cannot be mistaken for a deleted run.
+
+Stored and detached views disable engine controls — cancel, stop run, stop or
+restart worker, and fleet launch — and say why. A control is an engine
+operation, so offering one that must fail would be a promise the view cannot
+keep.
 
 ### Fleet workers are not duplicate agent rows
 

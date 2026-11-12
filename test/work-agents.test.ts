@@ -224,12 +224,13 @@ function adapter(overrides: Record<string, unknown> = {}): EngineAdapter {
     })),
     listGoals: vi.fn(async () => [goal()]),
     readThreadGoal: vi.fn(async () => goal()),
-    setThreadGoal: vi.fn(async (_thread: ThreadId, objective: string) =>
-      goal({ objective, status: "active" }),
-    ),
-    completeThreadGoal: vi.fn(async () => goal({ status: "complete" })),
-    blockThreadGoal: vi.fn(async () => goal({ status: "blocked" })),
-    clearThreadGoal: vi.fn(async () => true),
+    setThreadGoal: vi.fn(async (_thread: ThreadId, objective: string) => ({
+      goal: goal({ objective, status: "active" }),
+      status: 201,
+    })),
+    completeThreadGoal: vi.fn(async () => ({ goal: goal({ status: "complete" }), status: 200 })),
+    blockThreadGoal: vi.fn(async () => ({ goal: goal({ status: "blocked" }), status: 200 })),
+    clearThreadGoal: vi.fn(async () => ({ cleared: true, status: 204 })),
     listFleetRuns: vi.fn(async () => ({ runs: [fleetRun()], status: {} })),
     readFleetRun: vi.fn(async () => fleetDetail()),
     createFleetRun: vi.fn(async (spec: any) => ({
@@ -435,6 +436,31 @@ describe("agent observatory", () => {
     expect(view.runs[0]?.runId).toBe("agent_1");
   });
 
+  it("never prunes a run's stored workers when that run's detail read failed", async () => {
+    const b = await bench();
+    // First snapshot: the run's detail loads, so its worker is persisted.
+    await observatory(b.store, () => ({ adapter: adapter(), workspace: b.root })).snapshot(
+      b.projectId,
+    );
+    expect((await b.store.listOrchestrationRuns(b.projectId, "fleet_worker")).length).toBe(1);
+
+    // Second snapshot: the list works but the detail route fails for that run.
+    const flaky = adapter({
+      readFleetRun: vi.fn(async () => {
+        throw new Error("fleet detail returned 503");
+      }),
+    });
+    const view = await observatory(b.store, () => ({
+      adapter: flaky,
+      workspace: b.root,
+    })).snapshot(b.projectId);
+    expect(view.fleets[0]?.runId).toBe("fleet-abc");
+    // An unloaded detail is "not read", not "no workers": the stored worker stays.
+    expect((await b.store.listOrchestrationRuns(b.projectId, "fleet_worker")).length).toBe(1);
+    const offline = await observatory(b.store, () => null).snapshot(b.projectId);
+    expect(offline.fleets[0]?.workers.length).toBe(1);
+  });
+
   it("falls back to stored data with a stated reason when every list read fails", async () => {
     const b = await bench();
     await observatory(b.store, () => ({ adapter: adapter(), workspace: b.root })).snapshot(
@@ -480,6 +506,61 @@ describe("agent observatory", () => {
     await expect(live.cancelAgentRun(b.projectId, "agent_1")).rejects.toBeInstanceOf(
       ObservatoryError,
     );
+  });
+});
+
+describe("fleet worker inheritance", () => {
+  it("inherits a worker's tools, tests, and usage even when the ledger row names another workspace", async () => {
+    const b = await bench();
+    // The engine reports a fleet worker's ledger row with the runtime workspace,
+    // not the project root, and no owner session. It is still this project's
+    // worker because the fleet run is linked to a board task.
+    const workerRun = agentRun({
+      runId: "fleet-w1-local-1",
+      workerId: "fleet-w1-local-1",
+      ownerSessionId: null,
+      originTurnId: null,
+      workspace: "/private/tmp/runtime-store",
+      role: "reviewer",
+      verification: { status: "verified", summary: "Engine verified the run." },
+      usage: {
+        status: "reported",
+        inputTokens: 400,
+        outputTokens: 20,
+        cachedTokens: 0,
+        reasoningTokens: 0,
+        costUsd: 0.002,
+        note: null,
+      },
+    });
+    const engine = adapter({
+      listAgentRuns: vi.fn(async () => ({ runs: [workerRun], governor: null })),
+      listFleetRuns: vi.fn(async () => ({ runs: [fleetRun({ runId: "fleet-w1" })], status: {} })),
+      readFleetRun: vi.fn(async () => fleetDetail({ runId: "fleet-w1" })),
+    });
+    // The worker detail names the same id the ledger uses.
+    (
+      engine.readFleetRun as unknown as { mockImplementation: (fn: () => unknown) => void }
+    ).mockImplementation(async () => {
+      const base = fleetDetail({ runId: "fleet-w1" });
+      base.workers = base.workers.map((worker) => ({
+        ...worker,
+        workerId: "fleet-w1-local-1",
+      }));
+      return base;
+    });
+    const view = await observatory(b.store, () => ({
+      adapter: engine,
+      workspace: b.root,
+    })).snapshot(b.projectId);
+    // The ledger row is not a project sub-agent, so it is not a standalone row...
+    expect(view.runs).toHaveLength(0);
+    // ...but the fleet worker carries its spend, tools, and tests.
+    const worker = view.fleets[0]?.workers[0];
+    expect(worker?.workerId).toBe("fleet-w1-local-1");
+    expect(worker?.spend.confidence).toBe("priced");
+    expect(worker?.tools.names).toEqual(["read_file"]);
+    expect(worker?.tests.state).toBe("verified");
   });
 });
 
@@ -660,6 +741,8 @@ describe("goal controls", () => {
     const live = observatory(b.store, () => ({ adapter: engine, workspace: b.root }));
     const receipt = await live.setGoal(b.projectId, ENGINE_THREAD, "Ship it");
     expect(receipt.accepted).toBe(true);
+    // The receipt carries the status the engine answered, not a guessed 200.
+    expect(receipt.status).toBe(201);
     expect(receipt.message).toContain("engine now owns");
     await expect(
       live.setGoal(b.projectId, "thr_ffffffffffffffff", "Not this project"),

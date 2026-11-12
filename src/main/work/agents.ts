@@ -116,7 +116,10 @@ export class AgentObservatory {
     let reason: string | null = null;
     let agentRead = false;
     let fleetRead = false;
+    let fleetDetailsComplete = false;
     let goalRead = false;
+    /** Every normalized sub-agent record this refresh, keyed by run and worker id. */
+    const ledgerById = new Map<string, AgentRunView>();
 
     if (access) {
       const adapter = access.adapter;
@@ -138,11 +141,17 @@ export class AgentObservatory {
         if (capabilities.agentRuns) {
           try {
             const list = await adapter.listAgentRuns({ limit: 100 });
-            const relevant = list.runs.filter((run) =>
-              runBelongsToProject(run, project, engineThreadIds),
-            );
-            for (const run of relevant) {
-              agentRuns.push(await this.agentView(run, engagement, branchCache));
+            // Every record is normalized once. A fleet worker may carry a
+            // runtime workspace rather than the project root, so the display
+            // filter must not also strip the row that a fleet worker inherits
+            // its tools, tests, and usage from.
+            for (const run of list.runs) {
+              ledgerById.set(run.runId, await this.agentView(run, engagement, branchCache));
+              if (run.workerId) ledgerById.set(run.workerId, ledgerById.get(run.runId)!);
+            }
+            for (const run of list.runs) {
+              if (!runBelongsToProject(run, project, engineThreadIds)) continue;
+              agentRuns.push(ledgerById.get(run.runId)!);
             }
             agentRead = true;
           } catch (error) {
@@ -162,7 +171,6 @@ export class AgentObservatory {
                 notes.push(`Fleet run ${run.runId} detail unavailable: ${messageOf(error)}`);
               }
             }
-            const agentById = new Map(agentRuns.map((run) => [run.runId, run]));
             for (const run of list.runs) {
               fleets.push(
                 await this.fleetView(
@@ -170,7 +178,7 @@ export class AgentObservatory {
                   details.get(run.runId) ?? null,
                   project,
                   branchCache,
-                  agentById,
+                  ledgerById,
                 ),
               );
             }
@@ -186,6 +194,7 @@ export class AgentObservatory {
               (run) => !fleetIdentities.has(run.runId) && !fleetIdentities.has(run.workerId ?? ""),
             );
             fleetRead = true;
+            fleetDetailsComplete = details.size === list.runs.length;
             if (list.runs.length > detailed.length) {
               notes.push(
                 `Workers and receipts were loaded for the newest ${detailed.length} fleet run(s); open an older run to load its detail.`,
@@ -267,7 +276,10 @@ export class AgentObservatory {
           agentRuns.flatMap((run) => [run.runId, ...(run.workerId ? [run.workerId] : [])]),
         );
       }
-      if (fleetRead) {
+      // Prune only what was truly read. A run whose detail load failed keeps its
+      // previous workers; pruning them would silently empty the offline view
+      // because an empty `workers` array also means "not loaded".
+      if (fleetRead && fleetDetailsComplete) {
         await this.store.pruneOrchestrationRuns(
           projectId,
           "fleet_run",
@@ -455,17 +467,27 @@ export class AgentObservatory {
     const access = this.requireAccess(projectId);
     await this.requireProjectThread(projectId, engineThreadId);
     try {
-      const goal = await access.adapter.setThreadGoal(engineThreadId as never, objective);
+      const { goal, status } = await access.adapter.setThreadGoal(
+        engineThreadId as never,
+        objective,
+      );
       await this.persistGoal(projectId, goal, this.now().toISOString());
       const message =
         goal.status === "active"
           ? "Goal set. The engine now owns goal continuation and may start work."
           : `Goal set with engine status ${goal.status}.`;
-      await this.record(projectId, "goal_set", goal.goalId ?? engineThreadId, true, 200, message);
+      await this.record(
+        projectId,
+        "goal_set",
+        goal.goalId ?? engineThreadId,
+        true,
+        status,
+        message,
+      );
       return {
         action: "goal_set",
         accepted: true,
-        status: 200,
+        status,
         runId: goal.goalId,
         message,
         at: this.now().toISOString(),
@@ -503,16 +525,16 @@ export class AgentObservatory {
         projectId,
         "goal_clear",
         engineThreadId,
-        cleared,
-        cleared ? 204 : 404,
-        cleared ? "Goal cleared; no continuation remains." : "There was no goal to clear.",
+        cleared.cleared,
+        cleared.status,
+        cleared.cleared ? "Goal cleared; no continuation remains." : "There was no goal to clear.",
       );
       return {
         action: "goal_clear",
-        accepted: cleared,
-        status: cleared ? 204 : 404,
+        accepted: cleared.cleared,
+        status: cleared.status,
         runId: null,
-        message: cleared ? "Goal cleared." : "There was no goal to clear.",
+        message: cleared.cleared ? "Goal cleared." : "There was no goal to clear.",
         at: this.now().toISOString(),
         record: null,
       };
@@ -641,13 +663,13 @@ export class AgentObservatory {
     const access = this.requireAccess(projectId);
     await this.requireProjectThread(projectId, engineThreadId);
     try {
-      const goal =
+      const { goal, status } =
         action === "goal_complete"
           ? await access.adapter.completeThreadGoal(engineThreadId as never)
           : await access.adapter.blockThreadGoal(engineThreadId as never);
       await this.persistGoal(projectId, goal, this.now().toISOString());
       const message = `Goal is now ${goal.status}.`;
-      await this.record(projectId, action, goal.goalId ?? engineThreadId, true, 200, message);
+      await this.record(projectId, action, goal.goalId ?? engineThreadId, true, status, message);
       if (action === "goal_block" && reason) {
         // The engine block route carries no documented reason. Record the note
         // in Mona's own event log rather than inventing a request field.
@@ -663,7 +685,7 @@ export class AgentObservatory {
       return {
         action,
         accepted: true,
-        status: 200,
+        status,
         runId: goal.goalId,
         message,
         at: this.now().toISOString(),

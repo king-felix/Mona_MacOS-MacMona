@@ -2,10 +2,10 @@
   "schema_version": 1,
   "mode": "live",
   "ok": true,
-  "started_utc": "2026-11-12T08:15:50.215Z",
+  "started_utc": "2026-11-12T08:26:21.331Z",
   "project": {
-    "id": "prj_648801fc901f3d1b",
-    "root": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p15-live-y7SHD5/workspace"
+    "id": "prj_bf7d12fa17104c56",
+    "root": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p15-live-P6RNsI/workspace"
   },
   "checks": {
     "live-launch-accepted": {
@@ -32,6 +32,10 @@
       "ok": true,
       "detail": null
     },
+    "live-worker-inherits-ledger": {
+      "ok": true,
+      "detail": "unknown/self_reported"
+    },
     "live-task-linked": {
       "ok": true,
       "detail": null
@@ -47,18 +51,18 @@
   },
   "observations": [],
   "live": {
-    "port": 59633,
-    "listener_pid": 19319,
+    "port": 60049,
+    "listener_pid": 39349,
     "engine": {
       "version": "0.10.2",
       "commit": "ff466b2ed0bfb4ae5267d4d8d0ecb562cf46956e"
     },
-    "task_id": "tsk_30f407f3b0341878",
-    "run_id": "fleet-403be60c",
+    "task_id": "tsk_7eab6a0819ee80bc",
+    "run_id": "fleet-aa3cdba2",
     "launch": {
       "accepted": true,
       "status": 202,
-      "message": "Fleet fleet-403be60c scheduled for task tsk_30f407f3b0341878. The engine owns execution; Mona monitors it."
+      "message": "Fleet fleet-aa3cdba2 scheduled for task tsk_7eab6a0819ee80bc. The engine owns execution; Mona monitors it."
     },
     "run": {
       "lifecycle": "completed",
@@ -67,14 +71,14 @@
           "taskId": "task",
           "name": "P15 live workflow",
           "status": "completed",
-          "workerId": "fleet-403be60c-local-1",
+          "workerId": "fleet-aa3cdba2-local-1",
           "attempts": 1,
           "role": "reviewer"
         }
       ],
       "workers": [
         {
-          "workerId": "fleet-403be60c-local-1",
+          "workerId": "fleet-aa3cdba2-local-1",
           "role": "reviewer",
           "status": "online",
           "lastEvent": "completed exit_code=0 P15-OK"
@@ -94,50 +98,50 @@
       ],
       "events": [
         {
-          "cursor": "fev1_4d6836c390d5302c1a2c4f0141dfbf3052f214af83ff04073139c90c5d39e25b_heartbeat",
+          "cursor": "fev1_4a227915bf51c838ce6c13202f44ad700e202bbe511cd6031441004f252308a1_heartbeat",
           "event": "fleet.worker.heartbeat",
           "taskId": "task",
-          "workerId": "fleet-403be60c-local-1",
-          "at": "2026-11-12T08:15:52Z",
+          "workerId": "fleet-aa3cdba2-local-1",
+          "at": "2026-11-12T08:26:23Z",
           "summary": "fleet.worker.heartbeat"
         },
         {
-          "cursor": "fev1_4c91adecc04f855d4418a23ac117b83de9ebbabbe44a27a482626344b7fe2535_worker",
+          "cursor": "fev1_149e0e07f0b0bcd77cebdca59fc74e5a68b4b469ec2b67d025133d70e6c36417_worker",
           "event": "fleet.worker.completed",
           "taskId": "task",
-          "workerId": "fleet-403be60c-local-1",
-          "at": "2026-11-12T08:15:53Z",
+          "workerId": "fleet-aa3cdba2-local-1",
+          "at": "2026-11-12T08:26:23Z",
           "summary": "fleet.worker.completed (completed)"
         },
         {
-          "cursor": "fev1_9458236226c5d512c62fddca8f3b11ad0bf6c9eec24d0c6370f8fac476ce79f6_receipt",
+          "cursor": "fev1_87d79e917d97d876cbb63b50bd7fc48d6d30a9299493d27f67f9bbd03981dcc2_receipt",
           "event": "fleet.task.receipt_recorded",
           "taskId": "task",
-          "workerId": "fleet-403be60c-local-1",
-          "at": "2026-11-12T08:15:53Z",
+          "workerId": "fleet-aa3cdba2-local-1",
+          "at": "2026-11-12T08:26:23Z",
           "summary": "fleet.task.receipt_recorded"
         },
         {
-          "cursor": "fev1_ed245fad3cff9247bc29ad53c0eca7ffaad965262c220d223e8576c4fb323db7_run_status",
+          "cursor": "fev1_f37c11efe46348c7bae5ac166f68330512833ab01b37846f9e9dd05c38515c6d_run_status",
           "event": "fleet.run.status_changed",
           "taskId": null,
           "workerId": null,
-          "at": "2026-11-12T08:15:53Z",
+          "at": "2026-11-12T08:26:24Z",
           "summary": "fleet.run.status_changed (completed)"
         },
         {
-          "cursor": "fev1_8f81ec5fdc08f36121f4002c87ef195f9d3b9acb40d086a10efdeb431c2877a2_run_status",
+          "cursor": "fev1_fed9ee9a25b8b6827b5a961bb79a648fc914a26007a7da2e8421318fb935e52e_run_status",
           "event": "fleet.run.status_changed",
           "taskId": null,
           "workerId": null,
-          "at": "2026-11-12T08:15:53Z",
+          "at": "2026-11-12T08:26:24Z",
           "summary": "fleet.run.status_changed (completed)"
         }
       ]
     },
     "evidence": {
-      "path": ".codewhale/fleet/fleet-403be60c/task/fleet-403be60c-local-1/verification-receipt-attempt-0000000001-146cdc84c53e1f9ddac411e4ce57c50bbffdbe93197c84498deef8678eccaeec.json",
-      "checksum": "sha256:146cdc84c53e1f9ddac411e4ce57c50bbffdbe93197c84498deef8678eccaeec",
+      "path": ".codewhale/fleet/fleet-aa3cdba2/task/fleet-aa3cdba2-local-1/verification-receipt-attempt-0000000001-cf27267ae98e324e23c5715141d36275896f9b4f1ffcf5ce2e902877ba5eaa9c.json",
+      "checksum": "sha256:cf27267ae98e324e23c5715141d36275896f9b4f1ffcf5ce2e902877ba5eaa9c",
       "size_bytes": 1083,
       "truncated": false,
       "content_keys": [
@@ -157,11 +161,21 @@
       "connected": true,
       "fleets": [
         {
-          "runId": "fleet-403be60c",
+          "runId": "fleet-aa3cdba2",
           "lifecycle": "completed",
-          "taskId": "tsk_30f407f3b0341878",
+          "taskId": "tsk_7eab6a0819ee80bc",
           "workerCount": 1,
-          "spend": "not_reported"
+          "spend": "not_reported",
+          "workers": [
+            {
+              "workerId": "fleet-aa3cdba2-local-1",
+              "status": "online",
+              "spend": "unknown",
+              "spendNote": "Token usage is not yet reported by the sub-agent worker ledger.",
+              "tests": "self_reported",
+              "tools": []
+            }
+          ]
         }
       ],
       "ownership": {
@@ -185,5 +199,5 @@
     }
   },
   "error": null,
-  "finished_utc": "2026-11-12T08:15:54.879Z"
+  "finished_utc": "2026-11-12T08:26:24.102Z"
 }

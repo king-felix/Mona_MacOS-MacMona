@@ -226,13 +226,16 @@ describe("P15 goal routes", () => {
     });
     expect((await adapter.listGoals()).map((goal) => goal.goalId)).toEqual(["goal-1"]);
     expect((await adapter.readThreadGoal(THREAD))?.objective).toBe("Finish the migration");
-    expect((await adapter.setThreadGoal(THREAD, "  New objective  "))?.status).toBe("active");
+    const set = await adapter.setThreadGoal(THREAD, "  New objective  ");
+    expect(set.goal.status).toBe("active");
+    // The adapter reports the status the route answered (201), not a guess.
+    expect(set.status).toBe(201);
     expect(calls.find((call) => call.method === "PUT")?.body).toEqual({
       objective: "New objective",
     });
-    expect((await adapter.blockThreadGoal(THREAD))?.status).toBe("blocked");
-    expect((await adapter.completeThreadGoal(THREAD))?.status).toBe("complete");
-    expect(await adapter.clearThreadGoal(THREAD)).toBe(true);
+    expect((await adapter.blockThreadGoal(THREAD)).goal.status).toBe("blocked");
+    expect((await adapter.completeThreadGoal(THREAD)).goal.status).toBe("complete");
+    expect(await adapter.clearThreadGoal(THREAD)).toEqual({ cleared: true, status: 204 });
   });
 
   it("returns null for a thread with no goal", async () => {

@@ -975,7 +975,13 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
       serial_boundary: text.includes('Serial one-task launch is the only qualified mode.'),
       gap_rows: Array.from(document.querySelectorAll('.agent-gaps li')).length,
       parallel_checks: Array.from(document.querySelectorAll('.agent-check')).length,
-      launch_refused: text.includes('No eligible native task'),
+      // A detached view publishes no capabilities, so the honest gate is the
+      // capability message, not an offer to launch.
+      launch_refused:
+        text.includes('This runtime cannot start a fleet') &&
+        !Array.from(document.querySelectorAll('button')).some((node) =>
+          node.textContent?.includes('Launch serial run'),
+        ),
       stored_goal: text.includes('Finish the shell smoke goal'),
       goal_control_locked: text.includes('This goal comes from a stored observation.'),
       no_fake_percent: !/\b\d+%\b/.test(text),

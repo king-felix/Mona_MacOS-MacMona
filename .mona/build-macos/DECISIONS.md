@@ -764,3 +764,33 @@ and deviations discovered while building.
   total. Two rows for one identity is the fake-swarm failure mode in miniature.
 - **Consequence:** Summary counts are per real identity. A worker with no ledger
   entry keeps its own record's fields and shows spend as unknown.
+
+## D-041 — An unread section, an unverified detail, and a detached view are not success
+
+- **Date:** 2026-11-12 (P15, review follow-up)
+- **Decision:** Four claims were tightened after an independent review.
+  1. A list route that fails is no longer rendered as an empty list. The section
+     falls back to its last stored projection and names the failure; `source`
+     becomes `stored` with a stated reason unless at least one section was read.
+  2. `refused()` returns `never`, so a failed `fleet_create`/`fleet_start` throws
+     after recording its receipt instead of also returning a result object the
+     caller could treat as a launch.
+  3. Stored workers are pruned only when **every** listed run's detail was read.
+     An unloaded detail is "not read", not "no workers".
+  4. `HTTP status` on a goal receipt is the status the engine answered (201 on
+     set, 200 on block/complete, 204/404 on clear), not a hardcoded 200.
+  5. Every sub-agent ledger record is normalized before the project filter, so a
+     fleet worker's spend, tools, and tests survive even when its ledger row
+     names the runtime workspace rather than the project root.
+  6. Engine controls — cancel, stop run, stop/restart worker, fleet launch — are
+     disabled in a stored or detached view with a stated reason, and a launch is
+     offered only when the engine advertises fleet create and start.
+- **Why:** Each was a claim about something never observed: an emptier list than
+  reality, a launch that did not happen, a worker silently forgetting its usage,
+  a status nobody received, and buttons that could only fail. Spec §2 promise 2
+  and the three-attempt rule exist to forbid exactly this class of quiet
+  falsehood.
+- **Consequence:** A partial failure degrades to a labelled stored section, not
+  to zero rows. A refused launch surfaces as an error with a durable receipt.
+  The observatory's controls track the engine connection and advertised
+  capabilities rather than optimism.
