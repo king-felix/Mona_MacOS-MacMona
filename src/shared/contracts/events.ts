@@ -29,6 +29,8 @@ export const KNOWN_EVENT_KINDS = [
   "turn.completed",
   "turn.failed",
   "turn.interrupted",
+  "turn.artifacts",
+  "turn.workspace_snapshot",
   "item.started",
   "item.delta",
   "item.completed",

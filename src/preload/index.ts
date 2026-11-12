@@ -30,6 +30,15 @@ import type {
   CostRateCardView,
 } from "../shared/contracts/cost";
 import type {
+  ArtifactWindowView,
+  ChangesSnapshot,
+  FileWindowView,
+  FileWriteResultView,
+  GitActionResult,
+  RestorePreviewView,
+  RestoreResultView,
+} from "../shared/contracts/changes";
+import type {
   BoardSnapshot,
   ContextPreview,
   HandoffView,
@@ -214,6 +223,37 @@ const bridge: MonaBridge = {
   setRateCard: (input): Promise<IpcResult<CostRateCardView>> =>
     ipcRenderer.invoke("cost:rate-set", input),
   previewCostRecalculation: (input) => ipcRenderer.invoke("cost:recalc-preview", input),
+
+  changesSnapshot: (projectId: ProjectId, limit?: number): Promise<IpcResult<ChangesSnapshot>> =>
+    ipcRenderer.invoke(
+      "changes:snapshot",
+      limit === undefined ? { projectId } : { projectId, limit },
+    ),
+  refreshChanges: (projectId: ProjectId): Promise<IpcResult<ChangesSnapshot>> =>
+    ipcRenderer.invoke("changes:refresh", { projectId }),
+  readChangeFile: (input): Promise<IpcResult<FileWindowView>> =>
+    ipcRenderer.invoke("changes:file", input),
+  readChangeArtifact: (input): Promise<IpcResult<ArtifactWindowView>> =>
+    ipcRenderer.invoke("changes:artifact", input),
+  previewRestore: (
+    projectId: ProjectId,
+    changeSetId: string,
+    paths: string[],
+  ): Promise<IpcResult<RestorePreviewView>> =>
+    ipcRenderer.invoke("changes:restore-preview", { projectId, changeSetId, paths }),
+  restoreChanges: (input): Promise<IpcResult<RestoreResultView>> =>
+    ipcRenderer.invoke("changes:restore", input),
+  stageGitPaths: (projectId: ProjectId, paths: string[]): Promise<IpcResult<GitActionResult>> =>
+    ipcRenderer.invoke("changes:git-stage", { projectId, paths }),
+  commitGitPaths: (input): Promise<IpcResult<GitActionResult>> =>
+    ipcRenderer.invoke("changes:git-commit", input),
+  writeWorkspaceFile: (input): Promise<IpcResult<FileWriteResultView>> =>
+    ipcRenderer.invoke("changes:write-file", input),
+  revealWorkspacePath: (
+    projectId: ProjectId,
+    path: string,
+  ): Promise<IpcResult<{ revealed: boolean }>> =>
+    ipcRenderer.invoke("changes:reveal", { projectId, path }),
 
   onStudioChanged: (callback: (push: StudioPush) => void): (() => void) => {
     const listener = (_event: unknown, payload: unknown) => {

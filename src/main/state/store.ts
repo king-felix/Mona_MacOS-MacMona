@@ -159,6 +159,76 @@ export interface StoredEvent {
   payload: unknown;
   timestamp: string;
   recordedAt: string;
+  /** Null for rows recorded before v6; the envelope's turn is otherwise kept. */
+  turnId?: string | null;
+}
+
+export interface StoredChangeFile {
+  artifactId: string | null;
+  path: string;
+  previousPath: string | null;
+  kind: "file" | "tool_output" | "media";
+  change: "created" | "updated" | "deleted" | "renamed" | "unknown";
+  source: "tool_mutation" | "tool_output_spill" | "tool_media" | "workspace_changed_during_turn";
+  toolName: string | null;
+  toolCallId: string | null;
+  itemId: string | null;
+  sizeBytes: number | null;
+  revision: string | null;
+  restoreSnapshotId: string | null;
+}
+
+export type StoredChangeState = "settled" | "pending" | "unavailable";
+export type StoredChangeOrigin = "engine" | "turn.artifacts" | "turn.completed";
+
+export interface StoredChangeSet {
+  id: string;
+  projectId: ProjectId;
+  threadId: string;
+  engineThreadId: string;
+  turnId: string;
+  taskId: string | null;
+  state: StoredChangeState;
+  reason: string | null;
+  preSnapshotId: string | null;
+  postSnapshotId: string | null;
+  origin: StoredChangeOrigin;
+  evidenceRank: number;
+  truncated: boolean;
+  omitted: number | null;
+  note: string | null;
+  capturedAt: string;
+  files: StoredChangeFile[];
+}
+
+export interface StoredRestoreReceipt {
+  id: string;
+  projectId: ProjectId;
+  changeSetId: string | null;
+  threadId: string;
+  turnId: string;
+  path: string;
+  action: string;
+  snapshotId: string;
+  snapshotLabel: string | null;
+  expectedHash: string;
+  beforeRevision: string | null;
+  afterRevision: string | null;
+  outcome: "restored" | "failed";
+  note: string | null;
+  createdAt: string;
+}
+
+export interface StoredCommitReceipt {
+  id: string;
+  projectId: ProjectId;
+  commitHash: string;
+  shortHash: string;
+  subject: string;
+  paths: string[];
+  message: string;
+  note: string | null;
+  createdAt: string;
 }
 
 export interface UsageRecord {
@@ -3061,6 +3131,8 @@ export class StateStore {
     kind: string;
     payload: unknown;
     timestamp: string;
+    /** The envelope's turn identity, kept so tool items can be joined to it. */
+    turnId?: string | null;
   }): Promise<{ recorded: boolean; cursor: number }> {
     if (!Number.isInteger(input.seq) || input.seq < 1) {
       throw new StateError("CONFLICT", "event sequence must be a positive integer");
@@ -3068,8 +3140,8 @@ export class StateStore {
     return this.write((db, now) => {
       const result = db
         .prepare(
-          "INSERT OR IGNORE INTO events (thread_id, seq, kind, payload_json, timestamp, recorded_at) " +
-            "VALUES (?, ?, ?, ?, ?, ?)",
+          "INSERT OR IGNORE INTO events (thread_id, seq, kind, payload_json, timestamp, recorded_at, turn_id) " +
+            "VALUES (?, ?, ?, ?, ?, ?, ?)",
         )
         .run(
           input.threadId,
@@ -3078,6 +3150,7 @@ export class StateStore {
           JSON.stringify(input.payload),
           input.timestamp,
           now,
+          input.turnId ?? null,
         );
       const recorded = Number(result.changes) > 0;
       const row = db
@@ -3114,6 +3187,34 @@ export class StateStore {
         payload: JSON.parse(asString(row.payload_json)),
         timestamp: asString(row.timestamp),
         recordedAt: asString(row.recorded_at),
+        turnId: asNullableString(row.turn_id),
+      }));
+    });
+  }
+
+  /**
+   * Tool records for one turn, read from the stored event projection. Rows
+   * recorded before v6 have a null turn id, so they are simply absent here;
+   * nothing is invented to fill the gap.
+   */
+  async listTurnItems(
+    threadId: string,
+    turnId: string,
+    limit = 200,
+  ): Promise<Array<{ seq: number; kind: string; payload: unknown; timestamp: string }>> {
+    const bounded = Math.min(Math.max(1, Math.trunc(limit)), 1000);
+    return this.read((db) => {
+      const rows = db
+        .prepare(
+          "SELECT * FROM events WHERE thread_id = ? AND turn_id = ? " +
+            "AND kind IN ('item.completed', 'item.failed') ORDER BY seq LIMIT ?",
+        )
+        .all(threadId, turnId, bounded) as DbRow[];
+      return rows.map((row) => ({
+        seq: asNumber(row.seq),
+        kind: asString(row.kind),
+        payload: JSON.parse(asString(row.payload_json)),
+        timestamp: asString(row.timestamp),
       }));
     });
   }
@@ -3816,6 +3917,358 @@ export class StateStore {
         projectId,
         threadId,
       );
+    });
+  }
+
+  // --------------------------------------------------- changes and receipts
+
+  /**
+   * Upsert one turn's change projection. Evidence never regresses: a later
+   * `turn.completed` without files cannot overwrite a settled artifact receipt,
+   * and a newer settled route read replaces an older event projection.
+   */
+  async upsertChangeSet(input: {
+    projectId: ProjectId;
+    threadId: string;
+    engineThreadId: string;
+    turnId: string;
+    taskId?: string | null;
+    state: StoredChangeState;
+    reason?: string | null;
+    preSnapshotId?: string | null;
+    postSnapshotId?: string | null;
+    origin: StoredChangeOrigin;
+    evidenceRank: number;
+    truncated?: boolean;
+    omitted?: number | null;
+    note?: string | null;
+    files: StoredChangeFile[];
+  }): Promise<{ id: string; updated: boolean }> {
+    this.assertOpen();
+    if (!Number.isInteger(input.evidenceRank) || input.evidenceRank < 0) {
+      throw new StateError("CONFLICT", "evidence rank must be a non-negative integer");
+    }
+    return this.write((db, now) => {
+      const existing = db
+        .prepare("SELECT * FROM change_sets WHERE thread_id = ? AND turn_id = ?")
+        .get(input.threadId, input.turnId) as DbRow | undefined;
+      if (existing && Number(existing.evidence_rank) > input.evidenceRank) {
+        return { id: asString(existing.id), updated: false };
+      }
+      const id = existing ? asString(existing.id) : this.id("chg");
+      const truncated = input.truncated === true ? 1 : 0;
+      if (existing) {
+        db.prepare(
+          "UPDATE change_sets SET state = ?, reason = ?, pre_snapshot_id = ?, post_snapshot_id = ?, " +
+            "origin = ?, evidence_rank = ?, truncated = ?, omitted = ?, note = ?, captured_at = ?, " +
+            "updated_at = ? WHERE id = ?",
+        ).run(
+          input.state,
+          input.reason ?? null,
+          input.preSnapshotId ?? null,
+          input.postSnapshotId ?? null,
+          input.origin,
+          input.evidenceRank,
+          truncated,
+          input.omitted ?? null,
+          input.note ?? null,
+          now,
+          now,
+          id,
+        );
+        db.prepare("DELETE FROM change_files WHERE change_set_id = ?").run(id);
+      } else {
+        db.prepare(
+          "INSERT INTO change_sets (id, project_id, thread_id, engine_thread_id, turn_id, task_id, " +
+            "state, reason, pre_snapshot_id, post_snapshot_id, origin, evidence_rank, truncated, " +
+            "omitted, note, captured_at, updated_at) " +
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        ).run(
+          id,
+          input.projectId,
+          input.threadId,
+          input.engineThreadId,
+          input.turnId,
+          input.taskId ?? null,
+          input.state,
+          input.reason ?? null,
+          input.preSnapshotId ?? null,
+          input.postSnapshotId ?? null,
+          input.origin,
+          input.evidenceRank,
+          truncated,
+          input.omitted ?? null,
+          input.note ?? null,
+          now,
+          now,
+        );
+      }
+      const insert = db.prepare(
+        "INSERT INTO change_files (change_set_id, ordinal, artifact_id, path, previous_path, kind, " +
+          "change, source, tool_name, tool_call_id, item_id, size_bytes, revision, " +
+          "restore_snapshot_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      );
+      input.files.forEach((file, index) => {
+        insert.run(
+          id,
+          index,
+          file.artifactId,
+          file.path,
+          file.previousPath,
+          file.kind,
+          file.change,
+          file.source,
+          file.toolName,
+          file.toolCallId,
+          file.itemId,
+          file.sizeBytes,
+          file.revision,
+          file.restoreSnapshotId,
+        );
+      });
+      return { id, updated: true };
+    });
+  }
+
+  async readChangeSets(projectId: ProjectId, limit = 20): Promise<StoredChangeSet[]> {
+    const bounded = Math.min(Math.max(1, Math.trunc(limit)), 50);
+    return this.read((db) => {
+      const rows = db
+        .prepare(
+          "SELECT * FROM change_sets WHERE project_id = ? ORDER BY captured_at DESC, rowid DESC LIMIT ?",
+        )
+        .all(projectId, bounded) as DbRow[];
+      const statement = db.prepare(
+        "SELECT * FROM change_files WHERE change_set_id = ? ORDER BY ordinal",
+      );
+      return rows.map((row) => ({
+        id: asString(row.id),
+        projectId: asString(row.project_id) as ProjectId,
+        threadId: asString(row.thread_id),
+        engineThreadId: asString(row.engine_thread_id),
+        turnId: asString(row.turn_id),
+        taskId: asNullableString(row.task_id),
+        state: asString(row.state) as StoredChangeState,
+        reason: asNullableString(row.reason),
+        preSnapshotId: asNullableString(row.pre_snapshot_id),
+        postSnapshotId: asNullableString(row.post_snapshot_id),
+        origin: asString(row.origin) as StoredChangeOrigin,
+        evidenceRank: asNumber(row.evidence_rank),
+        truncated: Number(row.truncated) === 1,
+        omitted: asNumberOrNull(row.omitted),
+        note: asNullableString(row.note),
+        capturedAt: asString(row.captured_at),
+        files: (statement.all(asString(row.id)) as DbRow[]).map((file) => ({
+          artifactId: asNullableString(file.artifact_id),
+          path: asString(file.path),
+          previousPath: asNullableString(file.previous_path),
+          kind: asString(file.kind) as StoredChangeFile["kind"],
+          change: asString(file.change) as StoredChangeFile["change"],
+          source: asString(file.source) as StoredChangeFile["source"],
+          toolName: asNullableString(file.tool_name),
+          toolCallId: asNullableString(file.tool_call_id),
+          itemId: asNullableString(file.item_id),
+          sizeBytes: asNumberOrNull(file.size_bytes),
+          revision: asNullableString(file.revision),
+          restoreSnapshotId: asNullableString(file.restore_snapshot_id),
+        })),
+      }));
+    });
+  }
+
+  async getChangeSet(id: string): Promise<StoredChangeSet | null> {
+    return this.read((db) => {
+      const row = db.prepare("SELECT * FROM change_sets WHERE id = ?").get(id) as DbRow | undefined;
+      if (!row) return null;
+      const files = db
+        .prepare("SELECT * FROM change_files WHERE change_set_id = ? ORDER BY ordinal")
+        .all(id) as DbRow[];
+      return {
+        id: asString(row.id),
+        projectId: asString(row.project_id) as ProjectId,
+        threadId: asString(row.thread_id),
+        engineThreadId: asString(row.engine_thread_id),
+        turnId: asString(row.turn_id),
+        taskId: asNullableString(row.task_id),
+        state: asString(row.state) as StoredChangeState,
+        reason: asNullableString(row.reason),
+        preSnapshotId: asNullableString(row.pre_snapshot_id),
+        postSnapshotId: asNullableString(row.post_snapshot_id),
+        origin: asString(row.origin) as StoredChangeOrigin,
+        evidenceRank: asNumber(row.evidence_rank),
+        truncated: Number(row.truncated) === 1,
+        omitted: asNumberOrNull(row.omitted),
+        note: asNullableString(row.note),
+        capturedAt: asString(row.captured_at),
+        files: files.map((file) => ({
+          artifactId: asNullableString(file.artifact_id),
+          path: asString(file.path),
+          previousPath: asNullableString(file.previous_path),
+          kind: asString(file.kind) as StoredChangeFile["kind"],
+          change: asString(file.change) as StoredChangeFile["change"],
+          source: asString(file.source) as StoredChangeFile["source"],
+          toolName: asNullableString(file.tool_name),
+          toolCallId: asNullableString(file.tool_call_id),
+          itemId: asNullableString(file.item_id),
+          sizeBytes: asNumberOrNull(file.size_bytes),
+          revision: asNullableString(file.revision),
+          restoreSnapshotId: asNullableString(file.restore_snapshot_id),
+        })),
+      };
+    });
+  }
+
+  async recordRestore(input: {
+    id: string;
+    projectId: ProjectId;
+    changeSetId: string | null;
+    threadId: string;
+    turnId: string;
+    path: string;
+    action: string;
+    snapshotId: string;
+    snapshotLabel?: string | null;
+    expectedHash: string;
+    beforeRevision: string | null;
+    afterRevision: string | null;
+    outcome: "restored" | "failed";
+    note?: string | null;
+  }): Promise<StoredRestoreReceipt> {
+    return this.write((db, now) => {
+      db.prepare(
+        "INSERT INTO restore_receipts (id, project_id, change_set_id, thread_id, turn_id, path, " +
+          "action, snapshot_id, snapshot_label, expected_hash, before_revision, after_revision, " +
+          "outcome, note, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      ).run(
+        input.id,
+        input.projectId,
+        input.changeSetId,
+        input.threadId,
+        input.turnId,
+        input.path,
+        input.action,
+        input.snapshotId,
+        input.snapshotLabel ?? null,
+        input.expectedHash,
+        input.beforeRevision,
+        input.afterRevision,
+        input.outcome,
+        input.note ?? null,
+        now,
+      );
+      return {
+        id: input.id,
+        projectId: input.projectId,
+        changeSetId: input.changeSetId,
+        threadId: input.threadId,
+        turnId: input.turnId,
+        path: input.path,
+        action: input.action,
+        snapshotId: input.snapshotId,
+        snapshotLabel: input.snapshotLabel ?? null,
+        expectedHash: input.expectedHash,
+        beforeRevision: input.beforeRevision,
+        afterRevision: input.afterRevision,
+        outcome: input.outcome,
+        note: input.note ?? null,
+        createdAt: now,
+      };
+    });
+  }
+
+  async listRestoreReceipts(projectId: ProjectId, limit = 50): Promise<StoredRestoreReceipt[]> {
+    const bounded = Math.min(Math.max(1, Math.trunc(limit)), 200);
+    return this.read((db) => {
+      const rows = db
+        .prepare(
+          "SELECT * FROM restore_receipts WHERE project_id = ? ORDER BY created_at DESC LIMIT ?",
+        )
+        .all(projectId, bounded) as DbRow[];
+      return rows.map((row) => ({
+        id: asString(row.id),
+        projectId: asString(row.project_id) as ProjectId,
+        changeSetId: asNullableString(row.change_set_id),
+        threadId: asString(row.thread_id),
+        turnId: asString(row.turn_id),
+        path: asString(row.path),
+        action: asString(row.action),
+        snapshotId: asString(row.snapshot_id),
+        snapshotLabel: asNullableString(row.snapshot_label),
+        expectedHash: asString(row.expected_hash),
+        beforeRevision: asNullableString(row.before_revision),
+        afterRevision: asNullableString(row.after_revision),
+        outcome: asString(row.outcome) as StoredRestoreReceipt["outcome"],
+        note: asNullableString(row.note),
+        createdAt: asString(row.created_at),
+      }));
+    });
+  }
+
+  async recordCommit(input: {
+    id: string;
+    projectId: ProjectId;
+    commitHash: string;
+    shortHash: string;
+    subject: string;
+    paths: string[];
+    message: string;
+    note?: string | null;
+  }): Promise<StoredCommitReceipt> {
+    return this.write((db, now) => {
+      db.prepare(
+        "INSERT INTO commit_receipts (id, project_id, commit_hash, short_hash, subject, " +
+          "paths_json, message, note, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      ).run(
+        input.id,
+        input.projectId,
+        input.commitHash,
+        input.shortHash,
+        input.subject,
+        JSON.stringify(input.paths),
+        input.message,
+        input.note ?? null,
+        now,
+      );
+      return {
+        id: input.id,
+        projectId: input.projectId,
+        commitHash: input.commitHash,
+        shortHash: input.shortHash,
+        subject: input.subject,
+        paths: input.paths,
+        message: input.message,
+        note: input.note ?? null,
+        createdAt: now,
+      };
+    });
+  }
+
+  async latestCommit(projectId: ProjectId): Promise<StoredCommitReceipt | null> {
+    return this.read((db) => {
+      const row = db
+        .prepare(
+          "SELECT * FROM commit_receipts WHERE project_id = ? ORDER BY created_at DESC, rowid DESC LIMIT 1",
+        )
+        .get(projectId) as DbRow | undefined;
+      if (!row) return null;
+      let paths: string[] = [];
+      try {
+        const parsed = JSON.parse(asString(row.paths_json));
+        if (Array.isArray(parsed)) paths = parsed.filter((value) => typeof value === "string");
+      } catch {
+        paths = [];
+      }
+      return {
+        id: asString(row.id),
+        projectId: asString(row.project_id) as ProjectId,
+        commitHash: asString(row.commit_hash),
+        shortHash: asString(row.short_hash),
+        subject: asString(row.subject),
+        paths,
+        message: asString(row.message),
+        note: asNullableString(row.note),
+        createdAt: asString(row.created_at),
+      };
     });
   }
 

@@ -20,6 +20,7 @@ import { SqliteSubmissionStore } from "../state/submission-store";
 import type { StoredProject, StateStore } from "../state/store";
 import type { SupervisorStopReceipt } from "../supervisor/native";
 import type { OwnedEndpoint, RuntimeStatus } from "../supervisor/runtime-supervisor";
+import { ChangeLedger, type ChangeEngineAccess } from "./changes";
 import { WorkController } from "./control";
 import { CostLedger } from "./costs";
 import {
@@ -56,6 +57,8 @@ export interface WorkStudioOptions {
   onTurnFinished?: (projectId: ProjectId, turnId: string) => Promise<void> | void;
   /** P12 cost ledger. Optional so a test can inject its own rate-card world. */
   ledger?: CostLedger;
+  /** P13 change receipts. Optional so tests can omit capture. */
+  changes?: ChangeLedger;
   now?: () => Date;
   reconnect?: {
     attempts?: number;
@@ -197,6 +200,7 @@ export class WorkStudio {
   private readonly onTurnFinished:
     ((projectId: ProjectId, turnId: string) => Promise<void> | void) | null;
   private readonly ledger: CostLedger;
+  private readonly changes: ChangeLedger | null;
   private active: StudioSession | null = null;
   private closed = false;
 
@@ -205,6 +209,7 @@ export class WorkStudio {
     this.supervisor = options.supervisor;
     this.work = options.work;
     this.ledger = options.ledger ?? new CostLedger(options.store);
+    this.changes = options.changes ?? null;
     this.newAdapter =
       options.newAdapter ??
       ((transport, projectId) =>
@@ -648,6 +653,7 @@ export class WorkStudio {
       kind: event.kind,
       payload: event.payload,
       timestamp: event.timestamp,
+      turnId: event.turn_id ?? null,
     });
     if (!stored.recorded) return false;
     this.push(session, "event", "recorded", {
@@ -666,6 +672,20 @@ export class WorkStudio {
     if (event.kind === "approval.decided" || event.kind === "user_input.answered") {
       session.pendingInput = null;
       this.push(session, "control", "input_answered");
+      return false;
+    }
+    if (event.kind === "turn.artifacts" && event.turn_id && this.changes) {
+      try {
+        await this.changes.captureArtifactsEvent({
+          projectId: session.projectId,
+          threadId: binding.localThreadId,
+          engineThreadId: binding.engineThreadId,
+          turnId: event.turn_id,
+          payload: event.payload,
+        });
+      } catch (error) {
+        this.diagnose(session, `turn artifacts were not captured: ${errorMessage(error)}`);
+      }
       return false;
     }
     if (terminalStatus(event.kind) !== null) {
@@ -747,6 +767,21 @@ export class WorkStudio {
       }
     } catch (error) {
       this.diagnose(session, `history did not answer after ${status}: ${errorMessage(error)}`);
+    }
+
+    if (this.changes && turnId) {
+      try {
+        await this.changes.captureTurn({
+          projectId: session.projectId,
+          threadId: binding.localThreadId,
+          engineThreadId: binding.engineThreadId,
+          turnId,
+          adapter: session.adapter,
+          payload: event.payload,
+        });
+      } catch (error) {
+        this.diagnose(session, `the change receipt was not stored: ${errorMessage(error)}`);
+      }
     }
 
     if (session.lastSubmissionKey) {
@@ -1378,6 +1413,17 @@ export class WorkStudio {
   }
 
   /** Stop all stream work; used when the app quits or state closes. */
+  /**
+   * The live adapter for a project, or null. The change ledger uses this for
+   * receipt refreshes, restore, and checked writes. It never starts a runtime.
+   */
+  engineAccess(projectId: ProjectId): ChangeEngineAccess | null {
+    const session = this.active;
+    if (!session || session.projectId !== projectId || session.stopped) return null;
+    if (session.connection !== "connected" && session.connection !== "running") return null;
+    return { adapter: session.adapter, workspace: session.project.canonicalPath };
+  }
+
   async close(): Promise<void> {
     this.closed = true;
     const session = this.active;

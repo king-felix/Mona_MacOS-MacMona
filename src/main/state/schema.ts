@@ -510,12 +510,99 @@ CREATE UNIQUE INDEX usage_turn_once
 CREATE INDEX usage_project_task ON usage_records (project_id, task_id, captured_at);
 `;
 
+// v6 makes change, Git, and restore evidence durable. A change set is the
+// engine's own turn receipt projected locally; files keep the engine's source
+// and restore point so a revert never guesses. Restore and commit receipts make
+// the two mutating actions reviewable after the fact. `events.turn_id` lets a
+// stored tool item be joined to the turn that recorded it without re-parsing
+// the envelope.
+const V6 = `
+ALTER TABLE events ADD COLUMN turn_id TEXT;
+CREATE INDEX events_turn ON events (thread_id, turn_id);
+
+CREATE TABLE change_sets (
+  id                TEXT PRIMARY KEY,
+  project_id        TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  thread_id         TEXT NOT NULL,
+  engine_thread_id  TEXT NOT NULL,
+  turn_id           TEXT NOT NULL,
+  task_id           TEXT REFERENCES tasks(id) ON DELETE SET NULL,
+  state             TEXT NOT NULL CHECK (state IN ('settled', 'pending', 'unavailable')),
+  reason            TEXT,
+  pre_snapshot_id   TEXT,
+  post_snapshot_id  TEXT,
+  origin            TEXT NOT NULL CHECK (origin IN ('engine', 'turn.artifacts', 'turn.completed')),
+  evidence_rank     INTEGER NOT NULL DEFAULT 0 CHECK (evidence_rank >= 0),
+  truncated         INTEGER NOT NULL DEFAULT 0 CHECK (truncated IN (0, 1)),
+  omitted           INTEGER,
+  note              TEXT,
+  captured_at       TEXT NOT NULL,
+  updated_at        TEXT NOT NULL,
+  UNIQUE (thread_id, turn_id)
+);
+CREATE INDEX change_sets_project ON change_sets (project_id, captured_at);
+
+CREATE TABLE change_files (
+  change_set_id       TEXT NOT NULL REFERENCES change_sets(id) ON DELETE CASCADE,
+  ordinal             INTEGER NOT NULL CHECK (ordinal >= 0),
+  path                TEXT NOT NULL,
+  previous_path       TEXT,
+  kind                TEXT NOT NULL CHECK (kind IN ('file', 'tool_output', 'media')),
+  artifact_id         TEXT,
+  change              TEXT NOT NULL CHECK (change IN ('created', 'updated', 'deleted', 'renamed', 'unknown')),
+  source              TEXT NOT NULL CHECK (source IN (
+                        'tool_mutation', 'tool_output_spill',
+                        'tool_media', 'workspace_changed_during_turn')),
+  tool_name           TEXT,
+  tool_call_id        TEXT,
+  item_id             TEXT,
+  size_bytes          INTEGER CHECK (size_bytes IS NULL OR size_bytes >= 0),
+  revision            TEXT,
+  restore_snapshot_id TEXT,
+  PRIMARY KEY (change_set_id, ordinal)
+);
+CREATE INDEX change_files_path ON change_files (path);
+
+CREATE TABLE restore_receipts (
+  id              TEXT PRIMARY KEY,
+  project_id      TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  change_set_id   TEXT REFERENCES change_sets(id) ON DELETE SET NULL,
+  thread_id       TEXT NOT NULL,
+  turn_id         TEXT NOT NULL,
+  path            TEXT NOT NULL,
+  action          TEXT NOT NULL,
+  snapshot_id     TEXT NOT NULL,
+  snapshot_label  TEXT,
+  expected_hash   TEXT NOT NULL,
+  before_revision TEXT,
+  after_revision  TEXT,
+  outcome         TEXT NOT NULL CHECK (outcome IN ('restored', 'failed')),
+  note            TEXT,
+  created_at      TEXT NOT NULL
+);
+CREATE INDEX restore_receipts_project ON restore_receipts (project_id, created_at);
+
+CREATE TABLE commit_receipts (
+  id          TEXT PRIMARY KEY,
+  project_id  TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  commit_hash TEXT NOT NULL,
+  short_hash  TEXT NOT NULL,
+  subject     TEXT NOT NULL,
+  paths_json  TEXT NOT NULL,
+  message     TEXT NOT NULL,
+  note        TEXT,
+  created_at  TEXT NOT NULL
+);
+CREATE INDEX commit_receipts_project ON commit_receipts (project_id, created_at);
+`;
+
 export const MIGRATIONS: readonly Migration[] = [
   { version: 1, name: "core-project-state", sql: V1 },
   { version: 2, name: "project-identity-fields", sql: V2 },
   { version: 3, name: "task-board-and-continuity", sql: V3 },
   { version: 4, name: "attempt-ledger-and-boundaries", sql: V4 },
   { version: 5, name: "cost-ledger-rates-and-budgets", sql: V5 },
+  { version: 6, name: "change-receipts-git-and-restore", sql: V6 },
 ];
 
 export const CURRENT_SCHEMA_VERSION = MIGRATIONS[MIGRATIONS.length - 1]?.version ?? 0;
@@ -525,6 +612,9 @@ export const REQUIRED_TABLES: readonly string[] = [
   "attempts",
   "budgets",
   "capability_snapshots",
+  "change_files",
+  "change_sets",
+  "commit_receipts",
   "cost_thread_marks",
   "decisions",
   "drafts",
@@ -537,6 +627,7 @@ export const REQUIRED_TABLES: readonly string[] = [
   "projects",
   "rate_cards",
   "requirement_evidence",
+  "restore_receipts",
   "runtime_bindings",
   "schema_migrations",
   "settings",
@@ -556,10 +647,17 @@ export const REQUIRED_TABLES: readonly string[] = [
 const V3_TABLES: readonly string[] = ["task_acceptance", "task_events", "task_runs", "task_steps"];
 const V4_TABLES: readonly string[] = ["problem_events", "problems"];
 const V5_TABLES: readonly string[] = ["budgets", "cost_thread_marks", "rate_cards"];
+const V6_TABLES: readonly string[] = [
+  "change_files",
+  "change_sets",
+  "commit_receipts",
+  "restore_receipts",
+];
 
-/** Tables a database at `version` must have. Older targets predate v3–v5. */
+/** Tables a database at `version` must have. Older targets predate v3–v6. */
 export function requiredTablesFor(version: number): readonly string[] {
   let tables: readonly string[] = REQUIRED_TABLES;
+  if (version < 6) tables = tables.filter((t) => !V6_TABLES.includes(t));
   if (version < 5) tables = tables.filter((t) => !V5_TABLES.includes(t));
   if (version < 4) tables = tables.filter((t) => !V4_TABLES.includes(t));
   if (version < 3) tables = tables.filter((t) => !V3_TABLES.includes(t));

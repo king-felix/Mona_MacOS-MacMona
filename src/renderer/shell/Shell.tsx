@@ -23,6 +23,7 @@ import {
 } from "../design/primitives";
 import {
   BoardIcon,
+  ChangesIcon,
   CostIcon,
   FolderIcon,
   HomeIcon,
@@ -43,6 +44,7 @@ import { HomeScreen } from "./Home";
 import { StudioScreen } from "./Studio";
 import { BoardScreen } from "./Board";
 import { CostScreen } from "./Cost";
+import { ChangesScreen } from "./Changes";
 import { SettingsScreen } from "./Settings";
 import type { ScreenId } from "./types";
 import { projectMonogram, projectAccent } from "./visual";
@@ -51,6 +53,7 @@ const SCREENS: Array<{ id: ScreenId; label: string; icon: JSX.Element }> = [
   { id: "home", label: "Home", icon: <HomeIcon size={17} /> },
   { id: "studio", label: "Studio", icon: <SparkIcon size={17} /> },
   { id: "board", label: "Work board", icon: <BoardIcon size={17} /> },
+  { id: "changes", label: "Changes", icon: <ChangesIcon size={17} /> },
   { id: "cost", label: "Cost lens", icon: <CostIcon size={17} /> },
   { id: "settings", label: "Settings", icon: <SettingsIcon size={17} /> },
 ];
@@ -687,7 +690,7 @@ export function Shell(): JSX.Element {
       }
       // Command-modified digits are never text input, so screen switching
       // stays available while the composer has focus.
-      if (event.metaKey && !event.shiftKey && /^[1-5]$/.test(event.key)) {
+      if (event.metaKey && !event.shiftKey && /^[1-6]$/.test(event.key)) {
         const next = SCREEN_IDS[Number(event.key) - 1];
         if (next) {
           event.preventDefault();
@@ -916,6 +919,9 @@ export function Shell(): JSX.Element {
             onOpenFolder={() => void openFolder()}
             onShowStudio={() => setScreen("studio")}
           />
+        ) : null}
+        {screen === "changes" ? (
+          <ChangesScreen detail={selected} onOpenFolder={() => void openFolder()} />
         ) : null}
         {screen === "cost" ? (
           <CostScreen detail={selected} onOpenFolder={() => void openFolder()} />

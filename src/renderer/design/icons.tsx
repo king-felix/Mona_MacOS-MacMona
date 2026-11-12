@@ -119,6 +119,16 @@ export function BranchIcon(props: IconProps): JSX.Element {
   );
 }
 
+export function ChangesIcon(props: IconProps): JSX.Element {
+  return (
+    <svg {...iconProps(props)}>
+      <path d="M6.5 3.5h7l4 4v13h-11z" />
+      <path d="M13.5 3.5v4h4" />
+      <path d="M9 12.5h6M9 16.5h4" />
+    </svg>
+  );
+}
+
 export function CostIcon(props: IconProps): JSX.Element {
   return (
     <svg {...iconProps(props)}>

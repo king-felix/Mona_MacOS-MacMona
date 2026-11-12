@@ -243,6 +243,69 @@ export const IpcRequests = {
     projectId: ProjectId,
     format: z.enum(["json", "csv"]),
   }),
+
+  // Changes, Git, and restore. Reading never starts a runtime; every mutation
+  // is an explicit user action and restore is gated by a fresh preview.
+  "changes:snapshot": z.strictObject({
+    projectId: ProjectId,
+    limit: z.number().int().min(1).max(50).optional(),
+  }),
+  "changes:refresh": z.strictObject({ projectId: ProjectId }),
+  "changes:file": z.strictObject({
+    projectId: ProjectId,
+    changeSetId: z.string().min(1).max(200).optional(),
+    path: z.string().min(1).max(4096),
+    mode: z.enum(["text", "diff"]),
+    offset: z.number().int().min(0).max(20_000_000).optional(),
+    limit: z.number().int().min(1).max(262_144).optional(),
+  }),
+  "changes:artifact": z.strictObject({
+    projectId: ProjectId,
+    changeSetId: z.string().min(1).max(200),
+    artifactId: z.string().min(1).max(300),
+    offset: z.number().int().min(0).max(20_000_000).optional(),
+    limit: z.number().int().min(1).max(262_144).optional(),
+  }),
+  "changes:restore-preview": z.strictObject({
+    projectId: ProjectId,
+    changeSetId: z.string().min(1).max(200),
+    paths: z.array(z.string().min(1).max(4096)).min(1).max(200),
+  }),
+  "changes:restore": z.strictObject({
+    projectId: ProjectId,
+    changeSetId: z.string().min(1).max(200),
+    paths: z.array(z.string().min(1).max(4096)).min(1).max(200),
+    expected: z
+      .array(
+        z.strictObject({
+          path: z.string().min(1).max(4096),
+          expectedHash: z.string().min(1).max(100),
+        }),
+      )
+      .min(1)
+      .max(200),
+    acknowledge: z.array(z.string().min(1).max(4096)).max(200).optional(),
+  }),
+  "changes:git-stage": z.strictObject({
+    projectId: ProjectId,
+    paths: z.array(z.string().min(1).max(4096)).min(1).max(200),
+  }),
+  "changes:git-commit": z.strictObject({
+    projectId: ProjectId,
+    message: z.string().trim().min(1).max(500),
+    paths: z.array(z.string().min(1).max(4096)).min(1).max(200),
+    includeUnstaged: z.boolean().optional(),
+  }),
+  "changes:write-file": z.strictObject({
+    projectId: ProjectId,
+    path: z.string().min(1).max(4096),
+    content: z.string().max(1_048_576),
+    expectedRevision: z.string().regex(/^[a-f0-9]{64}$/),
+  }),
+  "changes:reveal": z.strictObject({
+    projectId: ProjectId,
+    path: z.string().min(1).max(4096),
+  }),
 } as const;
 
 export type IpcChannel = keyof typeof IpcRequests;

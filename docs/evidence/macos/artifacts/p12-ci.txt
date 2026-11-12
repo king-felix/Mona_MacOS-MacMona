@@ -13,7 +13,7 @@ All matched files use Prettier code style!
 > eslint .
 
 
-/Users/<user>/DS_Projects/Mona/test/engine-adapter.test.ts
+~/DS_Projects/Mona/test/engine-adapter.test.ts
   19:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
 ✖ 1 problem (0 errors, 1 warning)
@@ -55,15 +55,15 @@ All matched files use Prettier code style!
   "size": 232272,
   "compiler": "Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)",
   "file": "native/macos-services/build/Mona.service/Contents/MacOS/MonaService: Mach-O 64-bit executable arm64",
-  "plist_lint": "/Users/<user>/DS_Projects/Mona/native/macos-services/build/Mona.service/Contents/Info.plist: OK",
+  "plist_lint": "~/DS_Projects/Mona/native/macos-services/build/Mona.service/Contents/Info.plist: OK",
   "signature": "ad-hoc",
   "signed": true,
   "verified": true,
   "descriptor": {
     "app_bundle_identifier": "com.mona.workbench",
     "bundle_identifier": "com.mona.workbench.service",
-    "bundle_path": "/Users/<user>/DS_Projects/Mona/native/macos-services/build/Mona.service",
-    "executable": "/Users/<user>/DS_Projects/Mona/native/macos-services/build/Mona.service/Contents/MacOS/MonaService",
+    "bundle_path": "~/DS_Projects/Mona/native/macos-services/build/Mona.service",
+    "executable": "~/DS_Projects/Mona/native/macos-services/build/Mona.service/Contents/MacOS/MonaService",
     "message": "startProject",
     "schema_version": 1,
     "send_file_types": [
@@ -100,7 +100,7 @@ All matched files use Prettier code style!
 > vitest run
 
 
- RUN  v5.1.0 /Users/<user>/DS_Projects/Mona
+ RUN  v5.1.0 ~/DS_Projects/Mona
 
  ✓ test/work-board.test.ts (12 tests) 796ms
  ✓ test/work-studio.test.ts (11 tests) 812ms

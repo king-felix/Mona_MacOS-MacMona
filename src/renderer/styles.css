@@ -3050,3 +3050,355 @@ a {
   padding: 10px;
   margin-top: 10px;
 }
+
+/* ------------------------------------------------------ changes and restore */
+
+.changes-screen__actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.changes-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.changes-summary__item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.changes-summary__item strong {
+  font-size: 16px;
+  font-family: var(--font-mono);
+}
+
+.changes-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 440px);
+  gap: 14px;
+  align-items: start;
+}
+
+.changes-list,
+.changes-inspector {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.changes-inspector {
+  position: sticky;
+  top: 12px;
+}
+
+@media (max-width: 1120px) {
+  .changes-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .changes-inspector {
+    position: static;
+  }
+}
+
+.change-set__actions,
+.change-set__facts,
+.changes-review__actions,
+.changes-review__meta,
+.changes-review__footer,
+.changes-git__facts,
+.changes-git__actions,
+.changes-git__head,
+.changes-restore__footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.change-set__facts,
+.changes-review__meta {
+  margin-bottom: 8px;
+  font-size: var(--text-xs);
+}
+
+.change-files {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.change-file {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  grid-template-areas:
+    "check main"
+    ". badges"
+    ". actions";
+  column-gap: 10px;
+  row-gap: 4px;
+  align-items: start;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+}
+
+.change-file > input {
+  grid-area: check;
+  margin-top: 3px;
+}
+
+.change-file:nth-child(odd) {
+  background: var(--surface-sunken);
+}
+
+.change-file:hover {
+  border-color: var(--border);
+}
+
+.change-file__main {
+  grid-area: main;
+  min-width: 0;
+}
+
+.change-file__path {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: none;
+  color: var(--text);
+  padding: 0;
+  cursor: pointer;
+  font-size: var(--text-sm);
+  overflow-wrap: anywhere;
+}
+
+.change-file__path:hover {
+  text-decoration: underline;
+}
+
+.change-file__meta {
+  margin: 2px 0 0;
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+
+.change-file__badges {
+  grid-area: badges;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: flex-start;
+}
+
+.change-file__actions {
+  grid-area: actions;
+  display: flex;
+  gap: 2px;
+  justify-content: flex-start;
+}
+
+.change-tools {
+  margin-top: 10px;
+  border-top: 1px dashed var(--border);
+  padding-top: 8px;
+  font-size: var(--text-xs);
+}
+
+.change-tools summary {
+  cursor: pointer;
+  color: var(--muted);
+}
+
+.change-tools ul {
+  list-style: none;
+  margin: 8px 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.change-tools li > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.change-tools__artifacts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.changes-notes {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+.changes-review__actions {
+  justify-content: flex-end;
+}
+
+.changes-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.changes-editor__area {
+  width: 100%;
+  min-height: 260px;
+  resize: vertical;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.5;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+  color: var(--text);
+}
+
+.changes-editor__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.code-view {
+  position: relative;
+  max-height: 460px;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  line-height: 18px;
+}
+
+.code-view__spacer {
+  position: relative;
+  width: 100%;
+  min-width: max-content;
+}
+
+.code-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: flex;
+  gap: 10px;
+  padding-right: 12px;
+  white-space: pre;
+  min-width: max-content;
+}
+
+.code-line__no {
+  flex: none;
+  width: 46px;
+  text-align: right;
+  color: var(--muted);
+  user-select: none;
+}
+
+.code-line__text {
+  white-space: pre;
+}
+
+.code-line--add {
+  background: var(--success-soft);
+}
+
+.code-line--del {
+  background: var(--danger-soft);
+}
+
+.code-line--hunk {
+  color: var(--muted);
+}
+
+.changes-git__commit {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.changes-git__commit .field {
+  min-width: 260px;
+  flex: 1;
+}
+
+.changes-git__ack,
+.changes-restore__ack {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  margin-top: 4px;
+  font-size: var(--text-xs);
+}
+
+.changes-restore {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 62vh;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.changes-restore__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.changes-restore__heading {
+  margin: 0 0 6px;
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--muted);
+}
+
+.changes-restore__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: var(--text-xs);
+}
+
+.changes-restore__list li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.changes-restore__footer {
+  justify-content: flex-end;
+}

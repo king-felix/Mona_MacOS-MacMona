@@ -154,6 +154,117 @@ export interface UsageReport {
   buckets: UsageBucket[];
 }
 
+/** One engine-recorded artifact reference from a turn. */
+export interface TurnArtifactRef {
+  id: string;
+  kind: "file" | "tool_output" | "media" | "unknown";
+  path: string;
+  change: "created" | "updated" | "deleted" | "renamed" | "unknown";
+  previousPath: string | null;
+  sizeBytes: number | null;
+  revision: string | null;
+  contentType: string | null;
+  sessionId: string | null;
+  itemId: string | null;
+  toolCallId: string | null;
+  toolName: string | null;
+  source:
+    | "tool_mutation"
+    | "tool_output_spill"
+    | "tool_media"
+    | "workspace_changed_during_turn"
+    | "unknown";
+  restoreSnapshotId: string | null;
+  recordedAt: string | null;
+}
+
+export interface TurnWorkspaceState {
+  state: "pending" | "settled" | "unavailable";
+  reason: string | null;
+  preSnapshotId: string | null;
+  postSnapshotId: string | null;
+  truncated: boolean;
+  omitted: number | null;
+}
+
+export interface TurnArtifactsResult {
+  turnId: string;
+  workspace: TurnWorkspaceState | null;
+  artifacts: TurnArtifactRef[];
+}
+
+export interface ArtifactContentWindow {
+  artifactId: string;
+  availability: "available" | "binary" | "oversized" | "missing";
+  content: string | null;
+  encoding: "utf-8" | "base64" | null;
+  offset: number;
+  totalBytes: number | null;
+  revision: string | null;
+  source: string | null;
+  current: boolean | null;
+  truncated: boolean;
+  note: string | null;
+}
+
+export interface CallChangeFile {
+  path: string;
+  change: "created" | "updated" | "deleted" | "renamed" | "unknown";
+  added: number | null;
+  removed: number | null;
+  sizeBytes: number | null;
+  revision: string | null;
+  restoreSnapshotId: string | null;
+  diff: string | null;
+  diffTruncated: boolean;
+}
+
+export interface CallChangesResult {
+  state: "captured" | "pending" | "unavailable";
+  reason: string | null;
+  files: CallChangeFile[];
+  truncated: boolean;
+  note: string | null;
+}
+
+export interface FileRevertReceipt {
+  path: string;
+  action: "modified" | "recreated" | "removed";
+  snapshotId: string;
+  snapshotLabel: string | null;
+}
+
+export interface RestoreCapability {
+  fileRevert: boolean;
+  snapshots: boolean;
+  reason: string | null;
+}
+
+export interface SnapshotEntry {
+  id: string;
+  label: string;
+  timestamp: number | null;
+}
+
+export interface WorkspaceFileWindow {
+  availability: "available" | "binary" | "oversized" | "missing" | "forbidden" | "error";
+  content: string | null;
+  encoding: "utf-8" | "base64" | null;
+  offset: number;
+  sizeBytes: number | null;
+  revision: string | null;
+  truncated: boolean;
+  note: string | null;
+}
+
+export interface WorkspaceWriteReceipt {
+  path: string;
+  sizeBytes: number;
+  revision: string;
+  created: boolean;
+  writtenAt: string | null;
+}
+
 export type SubscriptionItem =
   | { type: "event"; event: EventEnvelope }
   | { type: "progress"; state: string; seq: number }
@@ -200,4 +311,40 @@ export interface EngineAdapter {
     strict?: boolean;
   }): Promise<EffectiveProfile>;
   invokeCapability(input: CapabilityInvocation): Promise<CapabilityResult>;
+
+  // P13 read-only receipts and the two verified mutation paths. All of these
+  // run over the same authenticated loopback transport as every other call.
+  readTurnArtifacts(input: { threadId: ThreadId; turnId: TurnId }): Promise<TurnArtifactsResult>;
+  readTurnArtifact(input: {
+    threadId: ThreadId;
+    turnId: TurnId;
+    artifactId: string;
+    offset?: number;
+    limit?: number;
+    revision?: string;
+  }): Promise<ArtifactContentWindow>;
+  readCallChanges(input: {
+    threadId: ThreadId;
+    turnId: TurnId;
+    toolCallId: string;
+    limit?: number;
+  }): Promise<CallChangesResult>;
+  probeRestore(threadId: ThreadId): Promise<RestoreCapability>;
+  listSnapshots(limit?: number): Promise<SnapshotEntry[]>;
+  revertFile(input: {
+    threadId: ThreadId;
+    path: string;
+    snapshotId: string;
+    expectedHash: string;
+  }): Promise<FileRevertReceipt>;
+  readWorkspaceFile(input: {
+    path: string;
+    offset?: number;
+    limit?: number;
+  }): Promise<WorkspaceFileWindow>;
+  writeWorkspaceFile(input: {
+    path: string;
+    content: string;
+    expectedRevision: string;
+  }): Promise<WorkspaceWriteReceipt>;
 }

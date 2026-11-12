@@ -11,6 +11,17 @@ import type { OpenFolderView, OpenResult, OpenStatusView, ServiceStatus } from "
 import type { UsageEvidence } from "./usage";
 import type { BudgetScope, BudgetView, CostExport, CostLedgerView, CostRateCardView } from "./cost";
 import type {
+  ArtifactWindowView,
+  ChangesSnapshot,
+  FileWindowMode,
+  FileWindowView,
+  FileWriteResultView,
+  GitActionResult,
+  RestorePreviewView,
+  RestoreRequestEntry,
+  RestoreResultView,
+} from "./changes";
+import type {
   BoardSnapshot,
   ContextPreview,
   HandoffView,
@@ -252,6 +263,55 @@ export interface MonaBridge {
       }>;
     }>
   >;
+
+  // Changes, Git, and restore. Reads are local or read-only engine routes;
+  // every mutation is an explicit user action and is checked against a preview.
+  changesSnapshot(projectId: ProjectId, limit?: number): Promise<IpcResult<ChangesSnapshot>>;
+  refreshChanges(projectId: ProjectId): Promise<IpcResult<ChangesSnapshot>>;
+  readChangeFile(input: {
+    projectId: ProjectId;
+    changeSetId?: string;
+    path: string;
+    mode: FileWindowMode;
+    offset?: number;
+    limit?: number;
+  }): Promise<IpcResult<FileWindowView>>;
+  readChangeArtifact(input: {
+    projectId: ProjectId;
+    changeSetId: string;
+    artifactId: string;
+    offset?: number;
+    limit?: number;
+  }): Promise<IpcResult<ArtifactWindowView>>;
+  previewRestore(
+    projectId: ProjectId,
+    changeSetId: string,
+    paths: string[],
+  ): Promise<IpcResult<RestorePreviewView>>;
+  restoreChanges(input: {
+    projectId: ProjectId;
+    changeSetId: string;
+    paths: string[];
+    expected: RestoreRequestEntry[];
+    acknowledge: string[];
+  }): Promise<IpcResult<RestoreResultView>>;
+  stageGitPaths(projectId: ProjectId, paths: string[]): Promise<IpcResult<GitActionResult>>;
+  commitGitPaths(input: {
+    projectId: ProjectId;
+    message: string;
+    paths: string[];
+    includeUnstaged?: boolean;
+  }): Promise<IpcResult<GitActionResult>>;
+  writeWorkspaceFile(input: {
+    projectId: ProjectId;
+    path: string;
+    content: string;
+    expectedRevision: string;
+  }): Promise<IpcResult<FileWriteResultView>>;
+  revealWorkspacePath(
+    projectId: ProjectId,
+    path: string,
+  ): Promise<IpcResult<{ revealed: boolean }>>;
 }
 
 export interface AppInfo {

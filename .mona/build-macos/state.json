@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "revision": 139,
+  "revision": 190,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
   "spec_sha256": "d1c02941151c71912bc3e9c8b2509612298d54e05e0bf16fe933b9bd93e3e028",
   "prompt_file_sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8",
-  "current_prompt": "P12",
+  "current_prompt": "P13",
   "current_prompt_status": "completed",
   "last_verified_commit": "4f2c7f7",
   "tasks": {
@@ -53,12 +53,12 @@
         },
         {
           "path": "docs/requirements-macos.json",
-          "sha256": "644fc187099416adf354d9cfb50354fc93c69b2a94284dc112fd2b805b49a4b6",
+          "sha256": "2d261bcfb4d51c22098b9edc07d6d4e25f68498bcccf424e22ce83b994672115",
           "note": "re-verified after P12 regenerated the registry and decisions"
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
-          "sha256": "7d8ac4fba976ddb5d2cd86e6d33733e0cbf6b77094ddc309aa02299c5e94d391"
+          "sha256": "d1154ab9656e71082dca591f3bec60a16fadf7400a1c01e064f8211a9bf36210"
         },
         {
           "path": "AGENTS.md",
@@ -82,7 +82,7 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "0eeab4a5745e9b43c10695d03b87a3164651d7ba03ad30bd9ca74e07b5914564",
+          "sha256": "0187d235da0adaf49f152e125e2abf830741e9cb8842939eadd29a4ec3dd6569",
           "note": "re-verified after P12 regenerated the registry and decisions"
         },
         {
@@ -159,7 +159,7 @@
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
-          "sha256": "7d8ac4fba976ddb5d2cd86e6d33733e0cbf6b77094ddc309aa02299c5e94d391"
+          "sha256": "d1154ab9656e71082dca591f3bec60a16fadf7400a1c01e064f8211a9bf36210"
         },
         {
           "path": "tools/p01-spike/spike.mjs",
@@ -236,7 +236,7 @@
         },
         {
           "path": "package.json",
-          "sha256": "d742ccfca6e6eb8628bf72a17eaa83389ad2be76671c4375c98520501a211d79"
+          "sha256": "0dd3faa4c0b85b36d71766b4b7b58b90a8bc0cd4299746160b443d73683b19be"
         },
         {
           "path": "package-lock.json",
@@ -264,7 +264,7 @@
         },
         {
           "path": "scripts/ci.mjs",
-          "sha256": "44810da6655d1845327cc9d8c447fbf0311b0ca070598517fa4f09a045f30361"
+          "sha256": "43db64ff4b8273e515a8cf7ba9fda6970f660ef94ffd8d5c0554a765ded2e364"
         },
         {
           "path": "scripts/smoke.mjs",
@@ -284,17 +284,17 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "ae8869728d626db79fabc688098e7a6ee8aa62985b45931e9168ad0c279feb4c",
+          "sha256": "cc50416cf000b34d2327eaa625bc9e2b1aa08827094c34ebe1f0dcd07b49381a",
           "note": "re-verified by the P11 CI run after the board IPC was added"
         },
         {
           "path": "src/main/ipc-contract.ts",
-          "sha256": "bb262287607b9120fce50f1d65f494f27c18043495f3a5396ab2dd2ef16a4d94",
+          "sha256": "c6b0d1110d342cdc3283818dc91412764c6bcfd76d96750ee6ae4b13f1fbdbdb",
           "note": "re-verified by the P11 CI run after the board IPC was added"
         },
         {
           "path": "src/main/ipc.ts",
-          "sha256": "dd16068b9c3b4743aa4361ea03725bd463ea83b664148ca449581f408457134d",
+          "sha256": "0e49dafeb055d0150dc14ef8a2ad5c43c2a3855086e21ce4e84f454904a90bc4",
           "note": "re-verified by the P11 CI run after the board IPC was added"
         },
         {
@@ -323,7 +323,7 @@
         },
         {
           "path": "src/preload/index.ts",
-          "sha256": "c4fab911a9d78f0596a9ce4053c0f82ebe4556c32790e01121d9208a62cfb461",
+          "sha256": "5ce9dcb20f8c583732c821b985484a46741fdc1752abac6ceb57438e76fd6723",
           "note": "re-verified by the P11 CI run after the board IPC was added"
         },
         {
@@ -344,11 +344,11 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "2889de62813b8e813d704e58afd918773c7267a805ce43e9b8cb7726256de545"
+          "sha256": "b7e25c0ba27794e31c918c78ec16e8bf47953e7e310b6816dcd1c9e67d088a25"
         },
         {
           "path": "src/shared/contracts/bridge.ts",
-          "sha256": "10e280a008f2601660f49b322daf984e92ff52d0d85c7c43ec032b3e5781e33a",
+          "sha256": "f73cfa71fb5c7e923fe6282947f2d1b248fd23c181774760ec8db50ad9fd6767",
           "note": "re-verified by the P11 CI run after the board IPC was added"
         },
         {
@@ -357,7 +357,7 @@
         },
         {
           "path": "src/shared/contracts/events.ts",
-          "sha256": "f406f2c22fe3657f6e906af40b8ffcd683976e0cd2b4ceacbddc8e8256412b4c"
+          "sha256": "7cb343e2a2af52eaad7034eaafa921544a281088a26718b7cbd93878bf377224"
         },
         {
           "path": "src/shared/contracts/ids.ts",
@@ -365,7 +365,7 @@
         },
         {
           "path": "src/shared/contracts/index.ts",
-          "sha256": "5358a13d332ca6d48479612c57b4174dcb9e788411726305fc55391c11801fd7"
+          "sha256": "263cca0b8d8de06fcae252637adb95faa75142250d244a0d560846b14a2cf347"
         },
         {
           "path": "src/shared/contracts/project.ts",
@@ -470,7 +470,7 @@
         },
         {
           "path": "src/main/engine/adapter.ts",
-          "sha256": "b2d2fd0fd25cf17a146c24795a8165ba28fdb797004661d0135767806f266d85"
+          "sha256": "2f0f5a8b2b38aed3b75d02abb070ca69f5edc03d0c78060cb16bac3afc578d4e"
         },
         {
           "path": "src/main/engine/compat.ts",
@@ -478,7 +478,7 @@
         },
         {
           "path": "src/main/engine/errors.ts",
-          "sha256": "f18ad8da66f643f7ec1fd71cdee2b119b47fee23332417fa699396cb38ec86a8"
+          "sha256": "4a204b199d38fc4452cdcec6cb21ded9da4b77c4c37b7f5653b476fbbd6afefc"
         },
         {
           "path": "src/main/engine/index.ts",
@@ -502,11 +502,11 @@
         },
         {
           "path": "src/main/engine/transport.ts",
-          "sha256": "cfa7f41f1e4a113d11deabc038a2b63f7b116ed03091eac736f19f14293b4735"
+          "sha256": "6b686901f2d07367d3f87cc1b5c4c1be684a6950624f72dbffae6336f00dc084"
         },
         {
           "path": "src/main/engine/types.ts",
-          "sha256": "bb29b404fa84624fdf6719a1bc3a7b5ca55ae5505938cf470f6bc8d7fc0697d6"
+          "sha256": "9fe186672cfe6ed2eeab11f592b5dec8d5e95a68ce1fecd5284878ed17991b78"
         },
         {
           "path": "src/main/engine/wire.ts",
@@ -546,7 +546,7 @@
         },
         {
           "path": "test/helpers/fixture-transport.ts",
-          "sha256": "6b86fe5ffa56b44c0b3d4f17776e676ca3382e0ecee0df47c1f76f64827696f5"
+          "sha256": "c6de745d11a3457e8d75ef3912d367397e2d65e3dc1b64c4cef3bf866aefd441"
         },
         {
           "path": "scripts/engine-smoke.mjs",
@@ -554,11 +554,11 @@
         },
         {
           "path": "package.json",
-          "sha256": "d742ccfca6e6eb8628bf72a17eaa83389ad2be76671c4375c98520501a211d79"
+          "sha256": "0dd3faa4c0b85b36d71766b4b7b58b90a8bc0cd4299746160b443d73683b19be"
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
-          "sha256": "7d8ac4fba976ddb5d2cd86e6d33733e0cbf6b77094ddc309aa02299c5e94d391"
+          "sha256": "d1154ab9656e71082dca591f3bec60a16fadf7400a1c01e064f8211a9bf36210"
         },
         {
           "path": "tools/p01-spike/build-inventory.mjs",
@@ -644,7 +644,7 @@
         },
         {
           "path": "scripts/ci.mjs",
-          "sha256": "44810da6655d1845327cc9d8c447fbf0311b0ca070598517fa4f09a045f30361"
+          "sha256": "43db64ff4b8273e515a8cf7ba9fda6970f660ef94ffd8d5c0554a765ded2e364"
         },
         {
           "path": "src/main/supervisor/identity.ts",
@@ -681,7 +681,7 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "ae8869728d626db79fabc688098e7a6ee8aa62985b45931e9168ad0c279feb4c",
+          "sha256": "cc50416cf000b34d2327eaa625bc9e2b1aa08827094c34ebe1f0dcd07b49381a",
           "note": "re-verified by the P11 CI run after the pause note changed"
         },
         {
@@ -690,15 +690,15 @@
         },
         {
           "path": "src/main/engine/types.ts",
-          "sha256": "bb29b404fa84624fdf6719a1bc3a7b5ca55ae5505938cf470f6bc8d7fc0697d6"
+          "sha256": "9fe186672cfe6ed2eeab11f592b5dec8d5e95a68ce1fecd5284878ed17991b78"
         },
         {
           "path": "src/main/engine/adapter.ts",
-          "sha256": "b2d2fd0fd25cf17a146c24795a8165ba28fdb797004661d0135767806f266d85"
+          "sha256": "2f0f5a8b2b38aed3b75d02abb070ca69f5edc03d0c78060cb16bac3afc578d4e"
         },
         {
           "path": "src/main/engine/errors.ts",
-          "sha256": "f18ad8da66f643f7ec1fd71cdee2b119b47fee23332417fa699396cb38ec86a8"
+          "sha256": "4a204b199d38fc4452cdcec6cb21ded9da4b77c4c37b7f5653b476fbbd6afefc"
         },
         {
           "path": "test/supervisor-identity.test.ts",
@@ -730,11 +730,11 @@
         },
         {
           "path": "package.json",
-          "sha256": "d742ccfca6e6eb8628bf72a17eaa83389ad2be76671c4375c98520501a211d79"
+          "sha256": "0dd3faa4c0b85b36d71766b4b7b58b90a8bc0cd4299746160b443d73683b19be"
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "0eeab4a5745e9b43c10695d03b87a3164651d7ba03ad30bd9ca74e07b5914564",
+          "sha256": "0187d235da0adaf49f152e125e2abf830741e9cb8842939eadd29a4ec3dd6569",
           "note": "re-verified by the P11 CI run after the pause note changed"
         }
       ],
@@ -1131,11 +1131,11 @@
         },
         {
           "path": "scripts/ci.mjs",
-          "sha256": "44810da6655d1845327cc9d8c447fbf0311b0ca070598517fa4f09a045f30361"
+          "sha256": "43db64ff4b8273e515a8cf7ba9fda6970f660ef94ffd8d5c0554a765ded2e364"
         },
         {
           "path": "package.json",
-          "sha256": "d742ccfca6e6eb8628bf72a17eaa83389ad2be76671c4375c98520501a211d79"
+          "sha256": "0dd3faa4c0b85b36d71766b4b7b58b90a8bc0cd4299746160b443d73683b19be"
         },
         {
           "path": "src/main/open/folder-request.ts",
@@ -1151,7 +1151,7 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "ae8869728d626db79fabc688098e7a6ee8aa62985b45931e9168ad0c279feb4c",
+          "sha256": "cc50416cf000b34d2327eaa625bc9e2b1aa08827094c34ebe1f0dcd07b49381a",
           "note": "re-verified by the P11 CI run after the open path's shared files changed"
         },
         {
@@ -1160,12 +1160,12 @@
         },
         {
           "path": "src/main/ipc.ts",
-          "sha256": "dd16068b9c3b4743aa4361ea03725bd463ea83b664148ca449581f408457134d",
+          "sha256": "0e49dafeb055d0150dc14ef8a2ad5c43c2a3855086e21ce4e84f454904a90bc4",
           "note": "re-verified by the P11 CI run after the open path's shared files changed"
         },
         {
           "path": "src/main/ipc-contract.ts",
-          "sha256": "bb262287607b9120fce50f1d65f494f27c18043495f3a5396ab2dd2ef16a4d94",
+          "sha256": "c6b0d1110d342cdc3283818dc91412764c6bcfd76d96750ee6ae4b13f1fbdbdb",
           "note": "re-verified by the P11 CI run after the open path's shared files changed"
         },
         {
@@ -1174,7 +1174,7 @@
         },
         {
           "path": "src/preload/index.ts",
-          "sha256": "c4fab911a9d78f0596a9ce4053c0f82ebe4556c32790e01121d9208a62cfb461",
+          "sha256": "5ce9dcb20f8c583732c821b985484a46741fdc1752abac6ceb57438e76fd6723",
           "note": "re-verified by the P11 CI run after the open path's shared files changed"
         },
         {
@@ -1183,12 +1183,12 @@
         },
         {
           "path": "src/shared/contracts/bridge.ts",
-          "sha256": "10e280a008f2601660f49b322daf984e92ff52d0d85c7c43ec032b3e5781e33a",
+          "sha256": "f73cfa71fb5c7e923fe6282947f2d1b248fd23c181774760ec8db50ad9fd6767",
           "note": "re-verified by the P11 CI run after the open path's shared files changed"
         },
         {
           "path": "src/renderer/shell/Shell.tsx",
-          "sha256": "60e45b45f60bbd8bac6cbcb4cdf6141eb87112561bf707648870f5237e795abf"
+          "sha256": "bd44ac57c1cfd69d1aa29bb13431b4f151ee38a781d033d2f06d0c79b8baf78a"
         },
         {
           "path": "src/renderer/shell/drop.ts",
@@ -1204,7 +1204,7 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "2889de62813b8e813d704e58afd918773c7267a805ce43e9b8cb7726256de545"
+          "sha256": "b7e25c0ba27794e31c918c78ec16e8bf47953e7e310b6816dcd1c9e67d088a25"
         },
         {
           "path": "test/folder-request.test.ts",
@@ -1228,7 +1228,7 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "0eeab4a5745e9b43c10695d03b87a3164651d7ba03ad30bd9ca74e07b5914564",
+          "sha256": "0187d235da0adaf49f152e125e2abf830741e9cb8842939eadd29a4ec3dd6569",
           "note": "re-verified by the P11 CI run after the open path's shared files changed"
         },
         {
@@ -1296,12 +1296,12 @@
         },
         {
           "path": "src/main/state/schema.ts",
-          "sha256": "587d35b3f6e0198e90299ed70d81b0553a187d953a01561aa35d7b7ce804709e",
+          "sha256": "ad6176623df3e8bf4e3302fa1db8545a8ab9220048a55dd51bd4a5d2b30dea28",
           "note": "re-verified by the P11 CI run; the board, schema, and IPC were extended"
         },
         {
           "path": "src/main/state/store.ts",
-          "sha256": "2fe38f78949146366cc89cb4a6fcdec971de356967b5ec2e686d974fb29f6868",
+          "sha256": "378a52932f678eea039996babc65660cbdb33ce74e8a76fe0e73f5dddb8c2711",
           "note": "re-verified by the P11 CI run; the board, schema, and IPC were extended"
         },
         {
@@ -1319,27 +1319,27 @@
         },
         {
           "path": "src/shared/contracts/bridge.ts",
-          "sha256": "10e280a008f2601660f49b322daf984e92ff52d0d85c7c43ec032b3e5781e33a",
+          "sha256": "f73cfa71fb5c7e923fe6282947f2d1b248fd23c181774760ec8db50ad9fd6767",
           "note": "re-verified by the P11 CI run; the board, schema, and IPC were extended"
         },
         {
           "path": "src/main/ipc-contract.ts",
-          "sha256": "bb262287607b9120fce50f1d65f494f27c18043495f3a5396ab2dd2ef16a4d94",
+          "sha256": "c6b0d1110d342cdc3283818dc91412764c6bcfd76d96750ee6ae4b13f1fbdbdb",
           "note": "re-verified by the P11 CI run; the board, schema, and IPC were extended"
         },
         {
           "path": "src/main/ipc.ts",
-          "sha256": "dd16068b9c3b4743aa4361ea03725bd463ea83b664148ca449581f408457134d",
+          "sha256": "0e49dafeb055d0150dc14ef8a2ad5c43c2a3855086e21ce4e84f454904a90bc4",
           "note": "re-verified by the P11 CI run; the board, schema, and IPC were extended"
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "ae8869728d626db79fabc688098e7a6ee8aa62985b45931e9168ad0c279feb4c",
+          "sha256": "cc50416cf000b34d2327eaa625bc9e2b1aa08827094c34ebe1f0dcd07b49381a",
           "note": "re-verified by the P11 CI run; the board, schema, and IPC were extended"
         },
         {
           "path": "src/preload/index.ts",
-          "sha256": "c4fab911a9d78f0596a9ce4053c0f82ebe4556c32790e01121d9208a62cfb461",
+          "sha256": "5ce9dcb20f8c583732c821b985484a46741fdc1752abac6ceb57438e76fd6723",
           "note": "re-verified by the P11 CI run; the board, schema, and IPC were extended"
         },
         {
@@ -1353,7 +1353,7 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "2889de62813b8e813d704e58afd918773c7267a805ce43e9b8cb7726256de545"
+          "sha256": "b7e25c0ba27794e31c918c78ec16e8bf47953e7e310b6816dcd1c9e67d088a25"
         },
         {
           "path": "test/work-board.test.ts",
@@ -1361,7 +1361,7 @@
         },
         {
           "path": "test/state-database.test.ts",
-          "sha256": "1703d8d4562266366ec2b85f8b07580591c558c2ecaa956b25b3eff36de7a395",
+          "sha256": "8ba82be71933f938a9c17fcb3a3ce370564c96aa2ec4f60bcae9adac743df1b6",
           "note": "re-verified by the P11 CI run; the board, schema, and IPC were extended"
         },
         {
@@ -1474,7 +1474,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p12-tests.txt",
-          "sha256": "ada3dabbcd7268cd8aa9b429966af86ff4916d4d39746da1ddd0bdb247d3cc13"
+          "sha256": "e12e6a4641fc7f44368ebd4480484b038ce4e82869230c446067778339672458"
         },
         {
           "path": "docs/evidence/macos/artifacts/p12-cost-sample.json",
@@ -1508,20 +1508,65 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p12-ci.txt",
-          "sha256": "6253f08c337c5a36ac85df1622d251aad6f69a021ad81aa865ccd4eef374e087"
+          "sha256": "84a1ec0dc92adb224802526e913898b0e3b2e91952f9b3f10605b18df3f841f2"
         }
       ],
       "blocker_ids": []
     },
     "P13": {
-      "status": "pending",
+      "status": "completed",
       "requirements": [
         "MONA-014",
         "MONA-015"
       ],
-      "completed_steps": [],
+      "completed_steps": [
+        "Engine change receipts stored as change sets/files with non-regressing evidence ranks and honest unavailable states",
+        "Attribution separates tool calls, workspace deltas, artifacts, and unreceipted Git paths",
+        "Lazy virtualized text/diff windows with binary, oversized, deleted, and missing states",
+        "Git status, branch, worktree, selected staging, and selected commits that preserve unrelated staged work",
+        "Native one-file restore with preview, exclusions, conflicts, acknowledgement, stale-preview refusal, and recovery receipts",
+        "Revision-checked editor writes with explicit conflict handling",
+        "Changes lens, IPC surface, tests, smoke, evidence, and migration v6"
+      ],
       "remaining_steps": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P13-review.md",
+          "sha256": "85b10d02a894a89b6bc852c6a79740ef4762fe6c6f05af72e599740b9226de25"
+        },
+        {
+          "path": "docs/decisions/ADR-008-changes-git-and-restore.md",
+          "sha256": "f653e3d46e0c5799bccee141451bb59e3acec125f4ca24e85efa9cd3ef51a13b"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p13-tests.txt",
+          "sha256": "6f72a88caa064ffce09e21d7c8d4d0f315468344a9ebbfe06f41621a690ce681"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p13-changes-sample.json",
+          "sha256": "486a9aa5ed4355a2cb72b8dca534852ce31eac5a20c8f0fa244ffe6411d3a851"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p13-shell-changes.json",
+          "sha256": "56438288a263a97a7f050c3d896eacbc80d621e68441ef433f10eb4793dfe7f6"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p13-shell-changes.png",
+          "sha256": "c95e2bdd059adec9be5e4b21a5b90990ab0a9b5d501f3a1811568a58b385d972"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p13-schema.txt",
+          "sha256": "b5738fb53726329f27c00a3f22fc5e62cba91a1a200169040ddf8f9e144f09b1"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p13-routes.txt",
+          "sha256": "744d22c2635b3eb1bbd038e3242135eb5048f995241c0f7f3c147fcad8f0ccf8"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p13-ci.txt",
+          "sha256": "9ace6dc108dd34e0bea3f016d0c94f83f4b69cdc1d143bf22f7d9fd071ba82c1"
+        }
+      ],
       "blocker_ids": []
     },
     "P14": {
@@ -1694,9 +1739,9 @@
     }
   },
   "next_eligible_prompts": [
-    "P08"
+    "P14"
   ],
-  "last_checkpoint_utc": "2026-11-12T06:25:29.025Z",
+  "last_checkpoint_utc": "2026-11-12T06:47:21.050Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

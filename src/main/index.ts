@@ -1,4 +1,5 @@
 import { app, BrowserWindow, Menu, dialog, powerMonitor, session, shell } from "electron";
+import { execFileSync } from "node:child_process";
 import {
   existsSync,
   mkdirSync,
@@ -38,6 +39,7 @@ import { WorkController } from "./work/control";
 import { WorkStudio } from "./work/studio";
 import { TaskBoard } from "./work/board";
 import { CostLedger } from "./work/costs";
+import { ChangeLedger } from "./work/changes";
 import { StateError } from "./state/errors";
 import { StateStore } from "./state/store";
 import { verifyPrivatePermissions } from "./state/paths";
@@ -78,6 +80,7 @@ let workController: WorkController | null = null;
 let workStudio: WorkStudio | null = null;
 let taskBoard: TaskBoard | null = null;
 let costLedger: CostLedger | null = null;
+let changeLedger: ChangeLedger | null = null;
 let studioSmokeProjectId: string | null = null;
 let studioSmokeRoot: string | null = null;
 let openCoordinator: OpenCoordinator | null = null;
@@ -760,8 +763,28 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
   const attemptShot = await window.webContents.capturePage();
   writeFileSync(join(outDir, "p11-shell-attempts.png"), attemptShot.toPNG());
 
+  // P13: receipts, attribution, and Git state from stored records.
   window.webContents.sendInputEvent({ type: "keyDown", keyCode: "4", modifiers: ["meta"] });
   window.webContents.sendInputEvent({ type: "keyUp", keyCode: "4", modifiers: ["meta"] });
+  const changesReady = await waitFor("document.documentElement.dataset.screen === 'changes'");
+  await new Promise((resolve) => setTimeout(resolve, 400));
+  const changes = await window.webContents.executeJavaScript(`(() => ({
+    screen: document.documentElement.dataset.screen,
+    settled: document.body.textContent.includes('Settled delta'),
+    file: document.body.textContent.includes('src-app.ts'),
+    tool: document.body.textContent.includes('Tool: edit_file'),
+    delta: document.body.textContent.includes('Workspace delta'),
+    receipt: document.body.textContent.includes('no restore point'),
+    restore_unavailable: document.body.textContent.includes('Start the studio for this project'),
+    git_branch: document.body.textContent.includes('main'),
+    unreceipted: document.body.textContent.includes('No recorded turn names this path'),
+    horizontal_overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1
+  }))()`);
+  const changesShot = await window.webContents.capturePage();
+  writeFileSync(join(outDir, "p13-shell-changes.png"), changesShot.toPNG());
+
+  window.webContents.sendInputEvent({ type: "keyDown", keyCode: "5", modifiers: ["meta"] });
+  window.webContents.sendInputEvent({ type: "keyUp", keyCode: "5", modifiers: ["meta"] });
   const costReady = await waitFor("document.documentElement.dataset.screen === 'cost'");
   await new Promise((resolve) => setTimeout(resolve, 250));
   const cost = await window.webContents.executeJavaScript(`(() => ({
@@ -795,8 +818,8 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
   const costDetailShot = await window.webContents.capturePage();
   writeFileSync(join(outDir, "p12-shell-cost-detail.png"), costDetailShot.toPNG());
 
-  window.webContents.sendInputEvent({ type: "keyDown", keyCode: "5", modifiers: ["meta"] });
-  window.webContents.sendInputEvent({ type: "keyUp", keyCode: "5", modifiers: ["meta"] });
+  window.webContents.sendInputEvent({ type: "keyDown", keyCode: "6", modifiers: ["meta"] });
+  window.webContents.sendInputEvent({ type: "keyUp", keyCode: "6", modifiers: ["meta"] });
   const settingsReady = await waitFor("document.documentElement.dataset.screen === 'settings'");
   await new Promise((resolve) => setTimeout(resolve, 300));
   const settings = await window.webContents.executeJavaScript(`(() => ({
@@ -827,7 +850,7 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
     ready,
     cards,
     home_screen: home.screen === "home",
-    nav_count: home.nav_count === 5,
+    nav_count: home.nav_count === 6,
     fixture_label_absent: home.fixture_label === false,
     version_rendered: typeof home.version === "string" && home.version.startsWith("Mona "),
     keyboard_studio: keyboardStudio,
@@ -858,6 +881,13 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
     victor_handoff_rendered: board.victor_handoff === true,
     blocked_attempt_counters: board.blocked_attempts === true,
     blocked_help_card: board.help_card === true,
+    changes_screen: changesReady && changes.screen === "changes",
+    changes_receipt_rendered: changes.settled === true && changes.file === true,
+    changes_attribution: changes.tool === true && changes.delta === true,
+    changes_missing_restore_point: changes.receipt === true,
+    changes_restore_unavailable: changes.restore_unavailable === true,
+    changes_git_state: changes.git_branch === true && changes.unreceipted === true,
+    changes_no_horizontal_overflow: changes.horizontal_overflow === false,
     cost_screen: costReady && cost.screen === "cost",
     cost_known_spend: cost.known_spend === true,
     cost_incomplete_disclosed: cost.incomplete === true,
@@ -893,6 +923,7 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
       "docs/evidence/macos/artifacts/p11-shell-board.png",
       "docs/evidence/macos/artifacts/p11-shell-attempts.png",
       "docs/evidence/macos/artifacts/p07-shell-settings.png",
+      "docs/evidence/macos/artifacts/p13-shell-changes.png",
       "docs/evidence/macos/artifacts/p12-shell-cost.png",
       "docs/evidence/macos/artifacts/p12-shell-cost-detail.png",
     ],
@@ -1254,8 +1285,8 @@ async function runOpenSmoke(window: BrowserWindow): Promise<void> {
     report.requests.push(second as unknown as Record<string, unknown>);
     await sleep(600);
     // The Finder panel must show what macOS actually reports, not a claim.
-    window.webContents.sendInputEvent({ type: "keyDown", keyCode: "5", modifiers: ["meta"] });
-    window.webContents.sendInputEvent({ type: "keyUp", keyCode: "5", modifiers: ["meta"] });
+    window.webContents.sendInputEvent({ type: "keyDown", keyCode: "6", modifiers: ["meta"] });
+    window.webContents.sendInputEvent({ type: "keyUp", keyCode: "6", modifiers: ["meta"] });
     await waitFor(
       async () =>
         (await evaluate<string>("document.documentElement.dataset.screen")) === "settings",
@@ -1735,12 +1766,17 @@ if (!gotLock) {
       });
       resolveCoordinatorReady?.();
       resolveCoordinatorReady = null;
-      if (workController && supervisor) {
+      if (workController && supervisor && productState) {
+        changeLedger = new ChangeLedger({
+          store: productState,
+          engine: (projectId) => workStudio?.engineAccess(projectId) ?? null,
+        });
         workStudio = new WorkStudio({
           store: productState,
           supervisor,
           work: workController,
           ledger: new CostLedger(productState),
+          changes: changeLedger,
           notify: (push) => {
             if (mainWindow && !mainWindow.isDestroyed()) {
               mainWindow.webContents.send("studio:changed", push);
@@ -1756,6 +1792,10 @@ if (!gotLock) {
       if (productState) {
         taskBoard = new TaskBoard({ store: productState });
         costLedger = new CostLedger(productState);
+        changeLedger ??= new ChangeLedger({
+          store: productState,
+          engine: (projectId) => workStudio?.engineAccess(projectId) ?? null,
+        });
       }
     } catch (error) {
       productStateError = error instanceof Error ? error.message : String(error);
@@ -1776,6 +1816,24 @@ if (!gotLock) {
       writeFileSync(join(shellRoot, "README.md"), "# Shell smoke\n", "utf8");
       const opened = await projectService.open(shellRoot);
       if (opened) {
+        // P13: a real dirty repository, so the changes lens renders real Git
+        // state rather than a fixture. Failure leaves it honestly non-Git.
+        try {
+          execFileSync("/usr/bin/git", ["init", "-q", "-b", "main"], { cwd: shellRoot });
+          execFileSync("/usr/bin/git", ["config", "user.email", "mona@example.test"], {
+            cwd: shellRoot,
+          });
+          execFileSync("/usr/bin/git", ["config", "user.name", "Mona Smoke"], { cwd: shellRoot });
+          execFileSync("/usr/bin/git", ["add", "README.md"], { cwd: shellRoot });
+          execFileSync("/usr/bin/git", ["commit", "-qm", "base"], { cwd: shellRoot });
+          writeFileSync(
+            join(shellRoot, "README.md"),
+            "# Shell smoke\n\nEdited in the working tree.\n",
+          );
+          writeFileSync(join(shellRoot, "user-notes.txt"), "pre-existing work\n");
+        } catch {
+          // The lens reports a non-Git folder honestly.
+        }
         await productState.createTask({
           projectId: opened.project.id,
           title: "Make the catalog real",
@@ -1859,6 +1917,69 @@ if (!gotLock) {
           scope: "project",
           limitUsd: 5,
           warnUsd: 1,
+        });
+        // P13: a settled engine receipt plus a stored tool item, so the changes
+        // lens renders attribution from state rather than a fixture.
+        const changesThread = thread?.id ?? detail.threads[0]?.id ?? "thr_shell000000001";
+        await productState.upsertChangeSet({
+          projectId: opened.project.id,
+          threadId: changesThread,
+          engineThreadId: "thr_engine_shell_0001",
+          turnId: "turn_shell_p13_0001",
+          state: "settled",
+          reason: null,
+          preSnapshotId: "tree_pre_shell_0001",
+          postSnapshotId: "tree_post_shell_0001",
+          origin: "engine",
+          evidenceRank: 3,
+          note: null,
+          files: [
+            {
+              artifactId: "file_shell_app",
+              path: "src-app.ts",
+              previousPath: null,
+              kind: "file",
+              change: "updated",
+              source: "tool_mutation",
+              toolName: "edit_file",
+              toolCallId: "call_shell_0001",
+              itemId: "item_shell_0001",
+              sizeBytes: 42,
+              revision: "a".repeat(64),
+              restoreSnapshotId: "tree_pre_shell_0001",
+            },
+            {
+              artifactId: "file_shell_notes",
+              path: "notes.txt",
+              previousPath: null,
+              kind: "file",
+              change: "created",
+              source: "workspace_changed_during_turn",
+              toolName: null,
+              toolCallId: null,
+              itemId: null,
+              sizeBytes: 12,
+              revision: "b".repeat(64),
+              restoreSnapshotId: null,
+            },
+          ],
+        });
+        await productState.recordEvent({
+          threadId: changesThread,
+          seq: 2,
+          kind: "item.completed",
+          turnId: "turn_shell_p13_0001",
+          payload: {
+            item: {
+              id: "item_shell_0001",
+              kind: "tool_call",
+              status: "completed",
+              summary: "edit_file: src-app.ts",
+              tool_name: "edit_file",
+              tool_call_id: "call_shell_0001",
+            },
+          },
+          timestamp: new Date().toISOString(),
         });
       }
     }
@@ -1948,6 +2069,18 @@ if (!gotLock) {
       studio: workStudio,
       board: taskBoard,
       cost: costLedger,
+      changes: changeLedger,
+      revealWorkspacePath: async (projectId, path) => {
+        const ledger = changeLedger;
+        if (!ledger) {
+          throw Object.assign(new Error("the changes surface is unavailable"), {
+            code: "RUNTIME_UNAVAILABLE",
+          });
+        }
+        const absolute = await ledger.absoluteWorkspacePath(projectId, path);
+        shell.showItemInFolder(absolute);
+        return { revealed: true };
+      },
       importPlanFile,
       exportPlanFile,
       exportCostFile,

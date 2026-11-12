@@ -3,7 +3,7 @@
   "productName": "Mona",
   "version": "0.1.0-p02",
   "private": true,
-  "description": "Mona — a native Apple Silicon workbench for the Codewhale engine",
+  "description": "Mona \u2014 a native Apple Silicon workbench for the Codewhale engine",
   "license": "UNLICENSED",
   "main": "dist/main/main/index.js",
   "engines": {
@@ -34,7 +34,8 @@
     "smoke:service": "node scripts/service-smoke.mjs",
     "smoke:open": "node scripts/open-smoke.mjs",
     "smoke:board": "npm run build:main && node scripts/board-smoke.mjs",
-    "smoke:cost": "npm run build:main && node scripts/cost-smoke.mjs"
+    "smoke:cost": "npm run build:main && node scripts/cost-smoke.mjs",
+    "smoke:changes": "npm run build:main && node scripts/changes-smoke.mjs"
   },
   "dependencies": {
     "react": "19.3.1",

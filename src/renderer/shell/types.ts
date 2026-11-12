@@ -1,6 +1,6 @@
 import type { ProjectSummary } from "../../shared/contracts/project-bridge";
 
-export type ScreenId = "home" | "studio" | "board" | "cost" | "settings";
+export type ScreenId = "home" | "studio" | "board" | "changes" | "cost" | "settings";
 
 export interface HomeProps {
   catalog: ProjectSummary[];

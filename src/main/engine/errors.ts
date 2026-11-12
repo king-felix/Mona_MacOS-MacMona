@@ -20,7 +20,12 @@ export type AdapterErrorCode =
   | "STARTUP_TIMEOUT"
   | "OWNERSHIP_MISMATCH"
   | "STALE_OWNERSHIP"
-  | "ALREADY_OWNED";
+  | "ALREADY_OWNED"
+  | "RESTORE_CONFLICT"
+  | "RESTORE_REFUSED"
+  | "RESTORE_UNAVAILABLE"
+  | "WRITE_CONFLICT"
+  | "WRITE_REFUSED";
 
 export class AdapterError extends Error {
   constructor(

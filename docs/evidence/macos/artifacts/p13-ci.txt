@@ -1,0 +1,717 @@
+# npm run ci (P13 final)
+
+
+> mona@0.1.0-p02 ci
+> node scripts/ci.mjs
+
+
+> mona@0.1.0-p02 format:check
+> prettier --check .
+
+Checking formatting...
+All matched files use Prettier code style!
+
+> mona@0.1.0-p02 lint
+> eslint .
+
+
+~/DS_Projects/Mona/test/engine-adapter.test.ts
+  19:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 1 problem (0 errors, 1 warning)
+
+
+> mona@0.1.0-p02 typecheck
+> tsc -p tsconfig.main.json --noEmit && tsc -p tsconfig.renderer.json --noEmit
+
+
+> mona@0.1.0-p02 build:supervisor
+> node scripts/build-supervisor.mjs
+
+{
+  "schema_version": 1,
+  "ok": true,
+  "binary": "native/macos-supervisor/build/mona-supervisor",
+  "target": "arm64-apple-macos14.0",
+  "arch": "arm64",
+  "sha256": "033ee5b279e5a46816ef69d529811b522bbcddec03a3f20b557b0808a708e07a",
+  "size": 201920,
+  "compiler": "Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)",
+  "file": "native/macos-supervisor/build/mona-supervisor: Mach-O 64-bit executable arm64",
+  "signature": "ad-hoc",
+  "signed": true,
+  "verified": true,
+  "built_at": "2026-11-12T06:46:07.013Z"
+}
+
+> mona@0.1.0-p02 build:service
+> node scripts/build-service.mjs
+
+{
+  "schema_version": 1,
+  "ok": true,
+  "bundle": "native/macos-services/build/Mona.service",
+  "target": "arm64-apple-macos14.0",
+  "arch": "arm64",
+  "sha256": "9addc0a8265b2f1b833352f8abe56eb1be86bfa6cd626dbcc48843996f94bf3c",
+  "size": 232272,
+  "compiler": "Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)",
+  "file": "native/macos-services/build/Mona.service/Contents/MacOS/MonaService: Mach-O 64-bit executable arm64",
+  "plist_lint": "~/DS_Projects/Mona/native/macos-services/build/Mona.service/Contents/Info.plist: OK",
+  "signature": "ad-hoc",
+  "signed": true,
+  "verified": true,
+  "descriptor": {
+    "app_bundle_identifier": "com.mona.workbench",
+    "bundle_identifier": "com.mona.workbench.service",
+    "bundle_path": "~/DS_Projects/Mona/native/macos-services/build/Mona.service",
+    "executable": "~/DS_Projects/Mona/native/macos-services/build/Mona.service/Contents/MacOS/MonaService",
+    "message": "startProject",
+    "schema_version": 1,
+    "send_file_types": [
+      "public.folder"
+    ],
+    "send_types": [
+      "public.file-url"
+    ],
+    "service": "Start new DS project with Mona"
+  },
+  "built_at": "2026-11-12T06:46:08.950Z"
+}
+
+> mona@0.1.0-p02 pretest
+> node scripts/build-supervisor.mjs
+
+{
+  "schema_version": 1,
+  "ok": true,
+  "binary": "native/macos-supervisor/build/mona-supervisor",
+  "target": "arm64-apple-macos14.0",
+  "arch": "arm64",
+  "sha256": "033ee5b279e5a46816ef69d529811b522bbcddec03a3f20b557b0808a708e07a",
+  "size": 201920,
+  "compiler": "Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)",
+  "file": "native/macos-supervisor/build/mona-supervisor: Mach-O 64-bit executable arm64",
+  "signature": "ad-hoc",
+  "signed": true,
+  "verified": true,
+  "built_at": "2026-11-12T06:46:10.977Z"
+}
+
+> mona@0.1.0-p02 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.1.0 [39m[90m~/DS_Projects/Mona[39m
+
+Switched to a new branch 'left'
+Switched to branch 'main'
+ [32m✓[39m test/work-attempts.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 760[2mms[22m[39m
+ [32m✓[39m test/projects-service.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 847[2mms[22m[39m
+ [32m✓[39m test/state-database.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 965[2mms[22m[39m
+Preparing worktree (new branch 'linked-branch')
+Not implemented: HTMLCanvasElement's getContext() method: without installing the @napi-rs/canvas npm package
+ [32m✓[39m test/work-costs.test.ts [2m([22m[2m19 tests[22m[2m)[22m[33m 418[2mms[22m[39m
+ [32m✓[39m test/design-components.test.tsx [2m([22m[2m17 tests[22m[2m)[22m[33m 933[2mms[22m[39m
+ [32m✓[39m test/work-studio.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 564[2mms[22m[39m
+ [32m✓[39m test/work-changes.test.ts [2m([22m[2m16 tests[22m[2m)[22m[33m 1626[2mms[22m[39m
+   [32m✓[39m stage and commit through the ledger [2m(2)[22m
+     [33m[2m✓[22m[39m keeps unrelated staged work and refuses mixed staging without an explicit choice[33m 640[2mms[22m[39m
+ [32m✓[39m test/work-board.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 501[2mms[22m[39m
+ [32m✓[39m test/runtime-process.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 370[2mms[22m[39m
+ [32m✓[39m test/state-portable.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 389[2mms[22m[39m
+ [32m✓[39m test/state-artifacts.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 245[2mms[22m[39m
+ [32m✓[39m test/work-git.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 2070[2mms[22m[39m
+   [32m✓[39m GitService status [2m(6)[22m
+     [33m[2m✓[22m[39m reports a merge conflict honestly[33m 325[2mms[22m[39m
+   [32m✓[39m GitService staging and selected commits [2m(3)[22m
+     [33m[2m✓[22m[39m stages and commits only the selected path, preserving unrelated staged work[33m 313[2mms[22m[39m
+ [32m✓[39m test/state-catalog.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 370[2mms[22m[39m
+ [32m✓[39m test/cost-screen.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 105[2mms[22m[39m
+ [32m✓[39m test/supervisor-native.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 2183[2mms[22m[39m
+   [32m✓[39m native supervisor [2m(8)[22m
+     [33m[2m✓[22m[39m stops the entire owned tree and leaves unrelated processes alone[33m 422[2mms[22m[39m
+     [33m[2m✓[22m[39m records the escaped process group and stops it by identity[33m 379[2mms[22m[39m
+     [33m[2m✓[22m[39m escalates a TERM-ignoring tree to a bounded SIGKILL[33m 790[2mms[22m[39m
+ [32m✓[39m test/boundary.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+ [32m✓[39m test/open-coordinator.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 79[2mms[22m[39m
+ [32m✓[39m test/work-profile.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 57[2mms[22m[39m
+ [32m✓[39m test/runtime-supervisor.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 141[2mms[22m[39m
+ [32m✓[39m test/engine-adapter.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 35[2mms[22m[39m
+ [32m✓[39m test/engine-sse.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m test/tool-discovery.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m test/contracts.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m test/state-paths.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m test/ipc-contract.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m test/supervisor-records.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m test/folder-request.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m test/studio-render.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m test/studio-screen.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 120[2mms[22m[39m
+ [32m✓[39m test/changes-screen.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 146[2mms[22m[39m
+ [32m✓[39m test/engine-compat.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m test/engine-artifacts.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m test/design-no-network.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m test/open-service-status.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m test/work-control.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m test/fixtures.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m test/design-tokens.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m test/supervisor-identity.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m test/supervisor-restart.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m test/open-drop.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m test/navigation.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m41 passed[39m[22m[90m (41)[39m
+[2m      Tests [22m [1m[32m382 passed[39m[22m[90m (382)[39m
+[2m   Start at [22m 23:46:11
+[2m   Duration [22m 3.02s[2m (tests 81%, import 9%, environment 8%, transform 2%, worker 1%)[22m
+
+[2m    Isolate [22m [33m41 workers spawned[39m[2m · ~137ms startup each (spawn + environment, per file)[22m
+[2m            [22m [2mat least ~664ms faster with [22m[33misolate: false[39m[2m — reuses workers across files instead of one per file[22m
+
+
+> mona@0.1.0-p02 build
+> npm run clean && npm run build:main && npm run build:renderer
+
+
+> mona@0.1.0-p02 clean
+> rm -rf dist coverage
+
+
+> mona@0.1.0-p02 build:main
+> tsc -p tsconfig.main.json
+
+
+> mona@0.1.0-p02 build:renderer
+> vite build
+
+[36mvite v8.3.8 [32mbuilding client environment for production...[36m[39m
+transforming...
+✓ 39 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/renderer/index.html                   0.68 kB │ gzip:   0.38 kB
+dist/renderer/assets/index-C85RAE2a.css   45.89 kB │ gzip:   8.39 kB
+dist/renderer/assets/index-CmFT4zXq.js   422.37 kB │ gzip: 120.13 kB
+
+[32m✓ built in 87ms[39m
+
+> mona@0.1.0-p02 smoke:board
+> npm run build:main && node scripts/board-smoke.mjs
+
+
+> mona@0.1.0-p02 build:main
+> tsc -p tsconfig.main.json
+
+P10/P11 sample run: PASS
+  ok   dependency_cycle_rejected
+  ok   no_partial_import
+  ok   import_is_inert
+  ok   imported_tasks_pending
+  ok   imported_owner_default
+  ok   deterministic_selection
+  ok   preview_has_prompt
+  ok   preview_excludes_spec
+  ok   queue_ran_one
+  ok   queue_stopped
+  ok   other_tasks_unstarted
+  ok   running_is_one
+  ok   evidence_gated_completion
+  ok   prerequisite_verified
+  ok   interrupted_next_step
+  ok   resume_at_recorded_step
+  ok   stale_after_code_change
+  ok   criteria_survive_export
+  ok   round_trip_criteria
+  ok   workspaces_isolated
+  ok   handoff_from_state
+  ok   transitions_audited
+  ok   attempt_one_open
+  ok   attempt_two_same_problem
+  ok   attempt_three_blocks
+  ok   attempt_task_blocked
+  ok   attempt_fourth_rejected
+  ok   attempt_ack_keeps_count
+  ok   independent_work_continues
+  ok   pause_gate_blocks_dispatch
+  ok   victor_handoff_card
+  ok   handoff_names_unblock_not_start
+  ok   interrupt_attribution_by_turn
+  ok   finished_turn_releases_link
+  ok   reopen_keeps_total
+  ok   reopen_allows_resume
+  ok   attempt_audit
+{
+  "schema_version": 1,
+  "prompts": [
+    "P10",
+    "P11"
+  ],
+  "ok": true,
+  "checks": {
+    "dependency_cycle_rejected": true,
+    "no_partial_import": true,
+    "import_is_inert": true,
+    "imported_tasks_pending": true,
+    "imported_owner_default": true,
+    "deterministic_selection": true,
+    "preview_has_prompt": true,
+    "preview_excludes_spec": true,
+    "queue_ran_one": true,
+    "queue_stopped": true,
+    "other_tasks_unstarted": true,
+    "running_is_one": true,
+    "evidence_gated_completion": true,
+    "prerequisite_verified": true,
+    "interrupted_next_step": true,
+    "resume_at_recorded_step": true,
+    "stale_after_code_change": true,
+    "criteria_survive_export": true,
+    "round_trip_criteria": true,
+    "workspaces_isolated": true,
+    "handoff_from_state": true,
+    "transitions_audited": true,
+    "attempt_one_open": true,
+    "attempt_two_same_problem": true,
+    "attempt_three_blocks": true,
+    "attempt_task_blocked": true,
+    "attempt_fourth_rejected": true,
+    "attempt_ack_keeps_count": true,
+    "independent_work_continues": true,
+    "pause_gate_blocks_dispatch": true,
+    "victor_handoff_card": true,
+    "handoff_names_unblock_not_start": true,
+    "interrupt_attribution_by_turn": true,
+    "finished_turn_releases_link": true,
+    "reopen_keeps_total": true,
+    "reopen_allows_resume": true,
+    "attempt_audit": true
+  },
+  "cycle_rejection": "CONFLICT: dependency cycle: a -> b -> a",
+  "imported_tasks": [
+    {
+      "key": "build",
+      "taskId": "tsk_00000003"
+    },
+    {
+      "key": "review",
+      "taskId": "tsk_00000004"
+    },
+    {
+      "key": "docs",
+      "taskId": "tsk_00000005"
+    }
+  ],
+  "attempts": {
+    "problem_id": "prb_00000026",
+    "total": 3,
+    "consecutive": 3,
+    "blocked_status": "blocked",
+    "task_status": "blocked",
+    "fourth_retry": "CONFLICT: this problem is blocked after three attempts without progress; reopen it with material new evidence or resolve it first",
+    "handoff": [
+      {
+        "problem": "prb_00000026",
+        "requirement": "MONA-011",
+        "help": "Unblock MONA-011: the same assertion still fails — new evidence or a decision is required.",
+        "evidence": []
+      }
+    ],
+    "audit": [
+      {
+        "kind": "created",
+        "actor": "agent"
+      },
+      {
+        "kind": "attempt",
+        "actor": "agent"
+      },
+      {
+        "kind": "attempt",
+        "actor": "agent"
+      },
+      {
+        "kind": "attempt",
+        "actor": "agent"
+      },
+      {
+        "kind": "blocked",
+        "actor": "agent"
+      },
+      {
+        "kind": "acknowledged",
+        "actor": "human"
+      },
+      {
+        "kind": "reopened",
+        "actor": "human"
+      }
+    ]
+  },
+  "queue": {
+    "ran": [
+      "tsk_00000003"
+    ],
+    "stopped_because": "one_prompt_per_assignment",
+    "executor_calls": 1
+  },
+  "handoff": {
+    "current_task": "Review the result",
+    "current_status": "running",
+    "last_verified_step": "read the output",
+    "next_exact_action": "Continue \"Review the result\"; the engine owns the active turn, and the recorded step is \"record the decision\".",
+    "open_attempts": 0
+  },
+  "stale": [
+    {
+      "taskId": "tsk_00000003",
+      "reason": "workspace changed after verification (8e106818 → 51330e4b)"
+    }
+  ],
+  "transitions": [
+    {
+      "task": "tsk_00000003",
+      "from": "pending",
+      "to": "running",
+      "actor": "mona_queue",
+      "reason": null
+    },
+    {
+      "task": "tsk_00000003",
+      "from": "running",
+      "to": "verifying",
+      "actor": "human",
+      "reason": null
+    },
+    {
+      "task": "tsk_00000003",
+      "from": "verifying",
+      "to": "completed",
+      "actor": "human",
+      "reason": "acceptance passed: 1 criteria"
+    },
+    {
+      "task": "tsk_00000004",
+      "from": "pending",
+      "to": "running",
+      "actor": "mona_queue",
+      "reason": null
+    },
+    {
+      "task": "tsk_00000004",
+      "from": "running",
+      "to": "interrupted",
+      "actor": "mona_queue",
+      "reason": "sample crash"
+    },
+    {
+      "task": "tsk_00000004",
+      "from": "interrupted",
+      "to": "running",
+      "actor": "mona_queue",
+      "reason": "resume at record the decision"
+    },
+    {
+      "task": "tsk_00000003",
+      "from": "completed",
+      "to": "verifying",
+      "actor": "reconciler",
+      "reason": "workspace changed after verification (8e106818 → 51330e4b)"
+    }
+  ],
+  "workspace_files": {
+    "feature": "<tmp>/workspace/src/feature.mjs",
+    "test_output": "<tmp>/workspace/evidence/test-output.txt"
+  }
+}
+
+> mona@0.1.0-p02 smoke:cost
+> npm run build:main && node scripts/cost-smoke.mjs
+
+
+> mona@0.1.0-p02 build:main
+> tsc -p tsconfig.main.json
+
+P12 cost sample: PASS
+  ok   inclusive_bucket_exact
+  ok   exclusive_bucket_exact
+  ok   replay_single_row
+  ok   reported_cost_exact
+  ok   thread_delta_exact
+  ok   unpriced_stays_unknown
+  ok   estimate_from_card_exact
+  ok   estimate_names_its_card
+  ok   rate_revision_preserves_history
+  ok   recalc_preview_is_read_only
+  ok   civil_day_dst
+  ok   budget_warns
+  ok   budget_reports_lower_bound
+  ok   budget_stops_next_dispatch
+  ok   budget_clear_restores_dispatch
+  ok   day_budget_uses_civil_day
+  ok   view_incomplete_when_unknown
+  ok   balance_unavailable
+  ok   export_csv_has_states
+  ok   export_json_has_no_balance
+{
+  "schema_version": 1,
+  "prompt": "P12",
+  "ok": true,
+  "checks": {
+    "inclusive_bucket_exact": true,
+    "exclusive_bucket_exact": true,
+    "replay_single_row": true,
+    "reported_cost_exact": true,
+    "thread_delta_exact": true,
+    "unpriced_stays_unknown": true,
+    "estimate_from_card_exact": true,
+    "estimate_names_its_card": true,
+    "rate_revision_preserves_history": true,
+    "recalc_preview_is_read_only": true,
+    "civil_day_dst": true,
+    "budget_warns": true,
+    "budget_reports_lower_bound": true,
+    "budget_stops_next_dispatch": true,
+    "budget_clear_restores_dispatch": true,
+    "day_budget_uses_civil_day": true,
+    "view_incomplete_when_unknown": true,
+    "balance_unavailable": true,
+    "export_csv_has_states": true,
+    "export_json_has_no_balance": true
+  },
+  "detail": {
+    "arithmetic": {
+      "inclusive": 1360800000,
+      "exclusive": 46902100000
+    },
+    "civil_day": {
+      "day": "2026-03-08",
+      "startIso": "2026-03-08T05:00:00.000Z",
+      "endIso": "2026-03-09T04:00:00.000Z"
+    },
+    "day_gate": {
+      "previous_day_allowed": false,
+      "same_day_allowed": true
+    }
+  },
+  "totals": {
+    "turns": 4,
+    "inputTokens": 4800,
+    "cachedTokens": 3200,
+    "cacheMissTokens": 0,
+    "outputTokens": 160,
+    "reasoningTokens": 48,
+    "costUsd": 0.0048608,
+    "costPicoUsd": 4860800000,
+    "costComplete": false,
+    "costBasis": "mixed",
+    "reportedTurns": 2,
+    "estimatedTurns": 1,
+    "unknownTurns": 1,
+    "missingTurns": 0,
+    "unallocatedTurns": 0,
+    "unallocatedUsd": 0
+  },
+  "routes": [
+    {
+      "provider": "deepseek",
+      "model": "deepseek-flash",
+      "state": "unknown_price",
+      "rateCardId": "rate_00000005",
+      "pricingReadAt": "2026-11-11T00:00:00.000Z"
+    }
+  ],
+  "days": [
+    {
+      "day": "2026-11-11",
+      "turns": 4,
+      "cost_usd": 0.0048608
+    }
+  ],
+  "notes": [
+    "Provider billing remains authoritative. Mona has no supported balance interface, so no remaining balance is shown."
+  ],
+  "database": "<tmp>/state/mona.sqlite"
+}
+
+> mona@0.1.0-p02 smoke:changes
+> npm run build:main && node scripts/changes-smoke.mjs
+
+
+> mona@0.1.0-p02 build:main
+> tsc -p tsconfig.main.json
+
+P13 changes sample: PASS
+  ok   settled_receipt
+  ok   missing_delta_is_not_empty
+  ok   tool_attribution
+  ok   delta_attribution
+  ok   artifact_attribution
+  ok   binary_and_large_marked
+  ok   deleted_file_kept
+  ok   restore_available
+  ok   text_window
+  ok   diff_window
+  ok   later_edit_is_conflict
+  ok   conflict_refused
+  ok   restore_through_engine
+  ok   restored_bytes
+  ok   restore_receipt_written
+  ok   stale_preview_refused
+  ok   stale_preview_did_not_overwrite
+  ok   artifact_not_restorable
+  ok   selected_commit_only
+  ok   unrelated_staged_preserved
+  ok   unreceipted_is_not_agent_authored
+  ok   commit_receipt_written
+  ok   mixed_commit_refused
+  ok   explicit_mixed_commit
+  ok   editor_conflict
+  ok   non_git_reported
+  ok   non_git_stage_refused
+{
+  "schema_version": 1,
+  "prompt": "P13",
+  "ok": true,
+  "checks": {
+    "settled_receipt": true,
+    "missing_delta_is_not_empty": true,
+    "tool_attribution": true,
+    "delta_attribution": true,
+    "artifact_attribution": true,
+    "binary_and_large_marked": true,
+    "deleted_file_kept": true,
+    "restore_available": true,
+    "text_window": true,
+    "diff_window": true,
+    "later_edit_is_conflict": true,
+    "conflict_refused": true,
+    "restore_through_engine": true,
+    "restored_bytes": true,
+    "restore_receipt_written": true,
+    "stale_preview_refused": true,
+    "stale_preview_did_not_overwrite": true,
+    "artifact_not_restorable": true,
+    "selected_commit_only": true,
+    "unrelated_staged_preserved": true,
+    "unreceipted_is_not_agent_authored": true,
+    "commit_receipt_written": true,
+    "mixed_commit_refused": true,
+    "explicit_mixed_commit": true,
+    "editor_conflict": true,
+    "non_git_reported": true,
+    "non_git_stage_refused": true
+  },
+  "detail": {
+    "receipts": [
+      {
+        "turn": "turn_missing",
+        "state": "unavailable",
+        "files": 0,
+        "notes": "Workspace snapshots are disabled for this runtime, so no delta was recorded. Tool receipts, when present, are still listed."
+      },
+      {
+        "turn": "turn_1",
+        "state": "settled",
+        "files": 5,
+        "notes": null
+      }
+    ],
+    "git": {
+      "branch": "main",
+      "worktree": null,
+      "counts": {
+        "staged": 1,
+        "unstaged": 0,
+        "untracked": 3,
+        "conflicted": 0
+      },
+      "head": "562ca1e"
+    },
+    "restore_receipts": 1,
+    "recovery": {
+      "mechanism": "engine pre-restore snapshot",
+      "durable": false,
+      "note": "Every revert is preceded by a mandatory pre-restore snapshot of the workspace. The engine keeps the newest 50 snapshots plus the newest 50 turn boundaries, so recovery is not permanent.",
+      "recent": [
+        {
+          "id": "snap_1",
+          "label": "pre-turn:1",
+          "timestamp": 1780730580
+        }
+      ]
+    }
+  },
+  "database": "<tmp>/state/mona.sqlite"
+}
+{
+  "ok": true,
+  "steps": [
+    {
+      "name": "format:check",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 1688
+    },
+    {
+      "name": "lint",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 1522
+    },
+    {
+      "name": "typecheck",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 2222
+    },
+    {
+      "name": "build:supervisor",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 2314
+    },
+    {
+      "name": "build:service",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 1940
+    },
+    {
+      "name": "test",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 5253
+    },
+    {
+      "name": "build",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 1742
+    },
+    {
+      "name": "smoke:board",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 1598
+    },
+    {
+      "name": "smoke:cost",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 1445
+    },
+    {
+      "name": "smoke:changes",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 1952
+    }
+  ],
+  "renderer_scan": {
+    "ok": true,
+    "files": 3,
+    "patterns": [],
+    "bytes": 468949
+  },
+  "dist_bytes": 468949
+}

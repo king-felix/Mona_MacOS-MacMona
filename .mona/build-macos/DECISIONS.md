@@ -540,3 +540,74 @@ and deviations discovered while building.
   the UI states that a local limit is not an invoice cap. A future qualified
   concurrent executor must re-run the gate per slot (P15/P21), not inherit this
   serialized assumption.
+
+## D-029 — Change receipts are engine projections with non-regressing evidence
+
+- **Date:** 2026-11-11 (P13)
+- **Decision:** A finished turn is stored as a `change_sets` row plus
+  `change_files`, projected from the engine's turn-artifact route or the
+  `turn.artifacts` event. Each projection carries an evidence rank (settled
+  route/event = 3, unavailable with tool files = 2, bare completion = 1) and a
+  later weaker receipt cannot overwrite a stronger one. An unavailable delta is
+  stored with the engine's reason; a route failure is stored as
+  `receipt_unavailable`. Only a settled set with no files means "nothing
+  changed".
+- **Why:** The engine explicitly says a delta is not attribution, and an
+  unreadable record is not an empty diff. Without an evidence rank, a late
+  `turn.completed` could erase a complete artifact list, and a missing route
+  could render as a clean turn.
+- **Consequence:** Receipts survive restarts and are refreshable from the live
+  engine. A route gap is visible, never converted into a claim.
+
+## D-030 — Attribution stops at the engine's evidence
+
+- **Date:** 2026-11-11 (P13)
+- **Decision:** Every changed path has an attribution of `tool` (a recorded tool
+  call wrote it), `workspace_delta` (changed during the turn without tool
+  attribution), `artifact` (tool output/media, not a workspace file), or
+  `unreceipted` (dirty in Git, named by no stored turn). A dirty path is never
+  presented as agent-authored because it changed near a turn.
+- **Why:** Spec §11 says to show staged/unstaged/user pre-existing work
+  separately where evidence supports it and not to attribute every workspace
+  change to the agent. Shell commands, other threads, editors, and the user can
+  write the same workspace.
+- **Consequence:** An unattributed change is a restore conflict requiring
+  explicit acknowledgement. The UI explains what it cannot claim.
+
+## D-031 — Git is a narrow, non-destructive allowlist
+
+- **Date:** 2026-11-11 (P13)
+- **Decision:** `GitService` issues only `rev-parse`, `status --porcelain=v2 -z`,
+  `diff`, `log`, `add`, and `commit`. Paths are literal, validated, and placed
+  after `--`. A commit names only the selected paths, so unrelated staged work
+  stays staged. A selected file with both staged and unstaged edits is refused
+  unless the user explicitly chooses to include the working-tree content. There
+  is no reset, clean, checkout, stash, rebase, force, or commit-all control, and
+  a non-Git folder is never initialized.
+- **Why:** Spec §15 scenario 2 and §11 source review require a dirty repository to
+  open without losing or committing unrelated work. The usual troubleshooting
+  shortcuts destroy precisely the work under review.
+- **Consequence:** Mona is not a full Git client: no partial hunk staging, no
+  history rewrite, no remote operation. A merge conflict is displayed and left
+  to the user.
+
+## D-032 — Restore is the engine's checked one-file revert, not a second snapshot engine
+
+- **Date:** 2026-11-11 (P13)
+- **Decision:** Restore previews exact scope, exclusions, conflicts, and recovery,
+  then calls `POST /v1/threads/{id}/file-revert` once per selected file with the
+  engine-recorded restore point and `expected_hash`. Later edits
+  (`changed_after_turn`) and unattributed deltas require path-by-path
+  acknowledgement; a changed hash between preview and execution is
+  `STALE_PREVIEW` and nothing runs. Every attempt is recorded in
+  `restore_receipts`. The engine's mandatory `pre-restore:` snapshot is the
+  recovery point, and its pruning limit is disclosed. Mona does not create a
+  local snapshot store, and whole-workspace restore and forking `patch-undo`
+  stay engine-native actions without a Mona control.
+- **Why:** Spec §11 and §15 scenario 9 require restore to refuse conflicting or
+  unsupported scope without destroying later user work. Building a second
+  incomplete snapshot engine would drift from the engine's receipts and invite
+  silent overwrites.
+- **Consequence:** Unsupported effects (excluded paths, build output,
+  deployments, API writes, installed software) are named, not promised.
+  Whole-workspace restore remains a recorded capability gap (MONA-CAP-063).

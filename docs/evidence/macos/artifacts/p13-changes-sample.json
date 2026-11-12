@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "prompt": "P13",
+  "ok": true,
+  "checks": {
+    "settled_receipt": true,
+    "missing_delta_is_not_empty": true,
+    "tool_attribution": true,
+    "delta_attribution": true,
+    "artifact_attribution": true,
+    "binary_and_large_marked": true,
+    "deleted_file_kept": true,
+    "restore_available": true,
+    "text_window": true,
+    "diff_window": true,
+    "later_edit_is_conflict": true,
+    "conflict_refused": true,
+    "restore_through_engine": true,
+    "restored_bytes": true,
+    "restore_receipt_written": true,
+    "stale_preview_refused": true,
+    "stale_preview_did_not_overwrite": true,
+    "artifact_not_restorable": true,
+    "selected_commit_only": true,
+    "unrelated_staged_preserved": true,
+    "unreceipted_is_not_agent_authored": true,
+    "commit_receipt_written": true,
+    "mixed_commit_refused": true,
+    "explicit_mixed_commit": true,
+    "editor_conflict": true,
+    "non_git_reported": true,
+    "non_git_stage_refused": true
+  },
+  "detail": {
+    "receipts": [
+      {
+        "turn": "turn_missing",
+        "state": "unavailable",
+        "files": 0,
+        "notes": "Workspace snapshots are disabled for this runtime, so no delta was recorded. Tool receipts, when present, are still listed."
+      },
+      {
+        "turn": "turn_1",
+        "state": "settled",
+        "files": 5,
+        "notes": null
+      }
+    ],
+    "git": {
+      "branch": "main",
+      "worktree": null,
+      "counts": {
+        "staged": 1,
+        "unstaged": 0,
+        "untracked": 3,
+        "conflicted": 0
+      },
+      "head": "0889ac1"
+    },
+    "restore_receipts": 1,
+    "recovery": {
+      "mechanism": "engine pre-restore snapshot",
+      "durable": false,
+      "note": "Every revert is preceded by a mandatory pre-restore snapshot of the workspace. The engine keeps the newest 50 snapshots plus the newest 50 turn boundaries, so recovery is not permanent.",
+      "recent": [
+        {
+          "id": "snap_1",
+          "label": "pre-turn:1",
+          "timestamp": 1780730580
+        }
+      ]
+    }
+  },
+  "database": "<tmp>/state/mona.sqlite"
+}

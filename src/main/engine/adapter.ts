@@ -17,24 +17,35 @@ import { SseParser } from "./sse";
 import type { SubmissionStore } from "./submission-store";
 import { startOwnedRuntime, stopOwnedRuntime, type OwnedRuntime } from "./runtime-process";
 import type {
+  ArtifactContentWindow,
+  CallChangeFile,
+  CallChangesResult,
   CapabilityInvocation,
   CapabilityResult,
   EngineAdapter,
+  FileRevertReceipt,
   HistoryPage,
   InterruptReceipt,
   ReconcileResult,
+  RestoreCapability,
   RouteRequest,
   RuntimeHandle,
   RuntimeStartInput,
+  SnapshotEntry,
   SubmissionReceipt,
   SubscribeInput,
   SubscriptionItem,
   ThreadRef,
   ThreadRequest,
+  TurnArtifactRef,
+  TurnArtifactsResult,
   TurnRecord,
+  TurnWorkspaceState,
   UsageQuery,
   UsageReport,
   SubmitTurnInput,
+  WorkspaceFileWindow,
+  WorkspaceWriteReceipt,
 } from "./types";
 import { HttpRuntimeTransport, type RuntimeTransport, type TransportResponse } from "./transport";
 import { WireInterrupt, WireRuntimeInfo, WireThread, WireTurn, WireUsageResponse } from "./wire";
@@ -96,6 +107,59 @@ function mapStatus(status: string): SubmissionStatus {
     default:
       return "outcome_unknown";
   }
+}
+
+// The receipt routes return loose projections. These helpers read only fields
+// that are present and leave every unknown as null instead of guessing.
+function objectValue(value: unknown): Record<string, unknown> | null {
+  return value !== null && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : null;
+}
+
+function stringValue(value: unknown): string | null {
+  return typeof value === "string" && value.length > 0 ? value : null;
+}
+
+function numberValue(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function booleanValue(value: unknown): boolean | null {
+  return typeof value === "boolean" ? value : null;
+}
+
+function arrayValue(value: unknown): unknown[] {
+  return Array.isArray(value) ? value : [];
+}
+
+function changeKind(value: unknown): TurnArtifactRef["change"] {
+  return value === "created" || value === "updated" || value === "deleted" || value === "renamed"
+    ? value
+    : "unknown";
+}
+
+const CHANGE_SOURCES = new Set([
+  "tool_mutation",
+  "tool_output_spill",
+  "tool_media",
+  "workspace_changed_during_turn",
+]);
+
+function changeSource(value: unknown): TurnArtifactRef["source"] {
+  return typeof value === "string" && CHANGE_SOURCES.has(value)
+    ? (value as TurnArtifactRef["source"])
+    : "unknown";
+}
+
+function artifactKind(value: unknown): TurnArtifactRef["kind"] {
+  return value === "file" || value === "tool_output" || value === "media" ? value : "unknown";
+}
+
+function errorBody(response: TransportResponse): string {
+  const body = objectValue(response.json);
+  const message = body ? (stringValue(body.message) ?? stringValue(body.error)) : null;
+  return (message ?? response.text).slice(0, 500);
 }
 
 export class CodewhaleAdapter implements EngineAdapter {
@@ -662,6 +726,405 @@ export class CodewhaleAdapter implements EngineAdapter {
     return profile;
   }
 
+  // -------------------------------------------- change receipts and restore
+
+  async readTurnArtifacts(input: {
+    threadId: ThreadId;
+    turnId: TurnId;
+  }): Promise<TurnArtifactsResult> {
+    const response = await this.request(
+      "GET",
+      `/v1/threads/${encodeURIComponent(input.threadId)}/turns/${encodeURIComponent(
+        input.turnId,
+      )}/artifacts`,
+    );
+    this.throwForAuth(response, "turn artifacts");
+    if (response.status === 404) {
+      throw new AdapterError("MALFORMED_RESPONSE", "the runtime does not know this turn", false, {
+        status: response.status,
+      });
+    }
+    this.expectOk(response, "turn artifacts");
+    const body = objectValue(response.json) ?? {};
+    const workspaceBody = objectValue(body.workspace);
+    let workspace: TurnWorkspaceState | null = null;
+    if (workspaceBody) {
+      const state = workspaceBody.state;
+      workspace = {
+        state:
+          state === "pending" || state === "settled" || state === "unavailable"
+            ? state
+            : "unavailable",
+        reason: stringValue(workspaceBody.reason),
+        preSnapshotId: stringValue(workspaceBody.pre_turn_snapshot_id),
+        postSnapshotId: stringValue(workspaceBody.post_turn_snapshot_id),
+        truncated: booleanValue(workspaceBody.truncated) === true,
+        omitted: numberValue(workspaceBody.omitted),
+      };
+    }
+    return {
+      turnId: stringValue(body.turn_id) ?? input.turnId,
+      workspace,
+      artifacts: arrayValue(body.artifacts).map((value) => this.mapArtifactRef(value)),
+    };
+  }
+
+  async readTurnArtifact(input: {
+    threadId: ThreadId;
+    turnId: TurnId;
+    artifactId: string;
+    offset?: number;
+    limit?: number;
+    revision?: string;
+  }): Promise<ArtifactContentWindow> {
+    const query = new URLSearchParams();
+    if (input.offset !== undefined) query.set("offset", String(input.offset));
+    if (input.limit !== undefined) query.set("limit", String(input.limit));
+    if (input.revision !== undefined) query.set("revision", input.revision);
+    const suffix = query.size > 0 ? `?${query.toString()}` : "";
+    const response = await this.request(
+      "GET",
+      `/v1/threads/${encodeURIComponent(input.threadId)}/turns/${encodeURIComponent(
+        input.turnId,
+      )}/artifacts/${encodeURIComponent(input.artifactId)}${suffix}`,
+    );
+    this.throwForUnauthorized(response, "turn artifact");
+    const base = {
+      artifactId: input.artifactId,
+      offset: input.offset ?? 0,
+      totalBytes: null,
+      revision: null,
+      source: null,
+      current: null,
+      truncated: false,
+    };
+    if (response.status === 413) {
+      return {
+        ...base,
+        availability: "oversized",
+        content: null,
+        encoding: null,
+        note: "the runtime refuses to serve content above 16 MiB",
+      };
+    }
+    if (response.status === 410 || response.status === 409 || response.status === 404) {
+      return {
+        ...base,
+        availability: "missing",
+        content: null,
+        encoding: null,
+        note:
+          response.status === 410
+            ? "the turn deleted this file, or the artifact bytes were pruned"
+            : response.status === 409
+              ? `the recorded revision is no longer available: ${errorBody(response)}`
+              : "the runtime does not know this artifact",
+      };
+    }
+    if (response.status === 403) {
+      return {
+        ...base,
+        availability: "missing",
+        content: null,
+        encoding: null,
+        note: "the reference is a symlink or leaves its root",
+      };
+    }
+    this.expectOk(response, "turn artifact");
+    const body = objectValue(response.json) ?? {};
+    const encoding = body.encoding === "base64" ? "base64" : "utf-8";
+    const binary = encoding === "base64";
+    return {
+      artifactId: input.artifactId,
+      availability: binary ? "binary" : "available",
+      content: binary ? null : stringValue(body.content),
+      encoding,
+      offset: numberValue(body.offset) ?? input.offset ?? 0,
+      totalBytes: numberValue(body.size),
+      revision: stringValue(body.revision),
+      source: stringValue(body.source),
+      current: booleanValue(body.current),
+      truncated: booleanValue(body.truncated) === true,
+      note: binary ? "binary content is read by the engine but not shown here" : null,
+    };
+  }
+
+  async readCallChanges(input: {
+    threadId: ThreadId;
+    turnId: TurnId;
+    toolCallId: string;
+    limit?: number;
+  }): Promise<CallChangesResult> {
+    const limit = Math.min(Math.max(1, Math.trunc(input.limit ?? 200)), 1000);
+    const response = await this.request(
+      "GET",
+      `/v1/threads/${encodeURIComponent(input.threadId)}/turns/${encodeURIComponent(
+        input.turnId,
+      )}/calls/${encodeURIComponent(input.toolCallId)}/changes?limit=${limit}`,
+    );
+    this.throwForAuth(response, "tool call changes");
+    if (response.status === 404) {
+      return {
+        state: "unavailable",
+        reason: "call_not_found",
+        files: [],
+        truncated: false,
+        note: "the runtime has no item or receipt for this tool call",
+      };
+    }
+    if (response.status === 400) {
+      return {
+        state: "unavailable",
+        reason: "bad_request",
+        files: [],
+        truncated: false,
+        note: errorBody(response),
+      };
+    }
+    this.expectOk(response, "tool call changes");
+    const body = objectValue(response.json) ?? {};
+    const rawState = body.state;
+    const state =
+      rawState === "captured" || rawState === "pending" || rawState === "unavailable"
+        ? rawState
+        : "unavailable";
+    return {
+      state,
+      reason: stringValue(body.reason),
+      files: arrayValue(body.files).map((value): CallChangeFile => {
+        const file = objectValue(value) ?? {};
+        return {
+          path: stringValue(file.path) ?? "",
+          change: changeKind(file.change),
+          added: numberValue(file.added),
+          removed: numberValue(file.removed),
+          sizeBytes: numberValue(file.size),
+          revision: stringValue(file.revision),
+          restoreSnapshotId: stringValue(file.restore_snapshot_id),
+          diff: typeof file.diff === "string" ? file.diff : null,
+          diffTruncated: booleanValue(file.diff_truncated) === true,
+        };
+      }),
+      truncated: booleanValue(body.truncated) === true,
+      note: stringValue(body.note),
+    };
+  }
+
+  async probeRestore(threadId: ThreadId): Promise<RestoreCapability> {
+    const fileRevert = await this.request(
+      "GET",
+      `/v1/threads/${encodeURIComponent(threadId)}/file-revert`,
+    );
+    this.throwForAuth(fileRevert, "file revert probe");
+    const revertAvailable = fileRevert.status !== 404;
+    const snapshots = await this.request("GET", "/v1/snapshots?limit=1");
+    this.throwForAuth(snapshots, "snapshot probe");
+    const snapshotAvailable = snapshots.status >= 200 && snapshots.status < 300;
+    const reason = !revertAvailable
+      ? "this engine build has no file-revert route; restore needs a newer runtime"
+      : !snapshotAvailable
+        ? `the snapshot listing answered ${snapshots.status}; recovery points cannot be listed`
+        : null;
+    return { fileRevert: revertAvailable, snapshots: snapshotAvailable, reason };
+  }
+
+  async listSnapshots(limit = 20): Promise<SnapshotEntry[]> {
+    const bounded = Math.min(Math.max(1, Math.trunc(limit)), 100);
+    const response = await this.request("GET", `/v1/snapshots?limit=${bounded}`);
+    this.throwForAuth(response, "snapshot listing");
+    this.expectOk(response, "snapshot listing");
+    const body = response.json;
+    const rows = Array.isArray(body) ? body : arrayValue(objectValue(body)?.snapshots);
+    return rows.flatMap((value) => {
+      const row = objectValue(value);
+      const id = row ? stringValue(row.id) : null;
+      if (!row || !id) return [];
+      return [
+        {
+          id,
+          label: stringValue(row.label) ?? "",
+          timestamp: numberValue(row.timestamp),
+        },
+      ];
+    });
+  }
+
+  async revertFile(input: {
+    threadId: ThreadId;
+    path: string;
+    snapshotId: string;
+    expectedHash: string;
+  }): Promise<FileRevertReceipt> {
+    const response = await this.request(
+      "POST",
+      `/v1/threads/${encodeURIComponent(input.threadId)}/file-revert`,
+      {
+        path: input.path,
+        snapshot_id: input.snapshotId,
+        expected_hash: input.expectedHash,
+      },
+    );
+    this.throwForAuth(response, "file revert");
+    if (response.status === 409) {
+      throw new AdapterError(
+        "RESTORE_CONFLICT",
+        `the engine refused the revert: ${errorBody(response)}`,
+        false,
+        { status: response.status, path: input.path },
+      );
+    }
+    if (response.status === 400 || response.status === 404 || response.status === 422) {
+      throw new AdapterError(
+        "RESTORE_REFUSED",
+        `the engine refused the revert: ${errorBody(response)}`,
+        false,
+        { status: response.status, path: input.path },
+      );
+    }
+    if (response.status === 405) {
+      throw new AdapterError(
+        "RESTORE_UNAVAILABLE",
+        "this engine build has no file-revert route",
+        false,
+      );
+    }
+    this.expectOk(response, "file revert");
+    const body = objectValue(response.json) ?? {};
+    const action = body.action;
+    return {
+      path: stringValue(body.path) ?? input.path,
+      action: action === "recreated" || action === "removed" ? action : "modified",
+      snapshotId: stringValue(body.snapshot_id) ?? input.snapshotId,
+      snapshotLabel: stringValue(body.snapshot_label),
+    };
+  }
+
+  async readWorkspaceFile(input: {
+    path: string;
+    offset?: number;
+    limit?: number;
+  }): Promise<WorkspaceFileWindow> {
+    const query = new URLSearchParams({ path: input.path });
+    if (input.offset !== undefined) query.set("offset", String(input.offset));
+    if (input.limit !== undefined) query.set("limit", String(input.limit));
+    const response = await this.request("GET", `/v1/workspace/files/read?${query.toString()}`);
+    this.throwForUnauthorized(response, "workspace file read");
+    const base = {
+      offset: input.offset ?? 0,
+      sizeBytes: null,
+      revision: null,
+      truncated: false,
+    };
+    if (response.status === 413) {
+      return {
+        ...base,
+        availability: "oversized",
+        content: null,
+        encoding: null,
+        note: "the runtime refuses to read files above 16 MiB",
+      };
+    }
+    if (response.status === 404) {
+      return {
+        ...base,
+        availability: "missing",
+        content: null,
+        encoding: null,
+        note: "the file does not exist in the runtime workspace",
+      };
+    }
+    if (response.status === 403 || response.status === 400) {
+      return {
+        ...base,
+        availability: "forbidden",
+        content: null,
+        encoding: null,
+        note: errorBody(response),
+      };
+    }
+    this.expectOk(response, "workspace file read");
+    const body = objectValue(response.json) ?? {};
+    const encoding = body.encoding === "base64" ? "base64" : "utf-8";
+    const binary = encoding === "base64";
+    return {
+      availability: binary ? "binary" : "available",
+      content: binary ? null : typeof body.content === "string" ? body.content : null,
+      encoding,
+      offset: numberValue(body.offset) ?? input.offset ?? 0,
+      sizeBytes: numberValue(body.size),
+      revision: stringValue(body.revision),
+      truncated: booleanValue(body.truncated) === true,
+      note: binary ? "binary content is not displayed" : null,
+    };
+  }
+
+  async writeWorkspaceFile(input: {
+    path: string;
+    content: string;
+    expectedRevision: string;
+  }): Promise<WorkspaceWriteReceipt> {
+    const response = await this.request("PUT", "/v1/workspace/files", {
+      path: input.path,
+      content: input.content,
+      expected_revision: input.expectedRevision,
+    });
+    this.throwForUnauthorized(response, "workspace file write");
+    if (response.status === 409) {
+      const body = objectValue(response.json);
+      const current =
+        (body ? (stringValue(body.current_revision) ?? stringValue(body.revision)) : null) ??
+        /[a-f0-9]{64}/.exec(response.text)?.[0] ??
+        null;
+      throw new AdapterError(
+        "WRITE_CONFLICT",
+        `the file changed since it was read: ${errorBody(response)}`,
+        false,
+        { status: response.status, currentRevision: current, path: input.path },
+      );
+    }
+    if (response.status === 400 || response.status === 403 || response.status === 404) {
+      throw new AdapterError(
+        "WRITE_REFUSED",
+        `the engine refused the write: ${errorBody(response)}`,
+        false,
+        { status: response.status, path: input.path },
+      );
+    }
+    if (response.status === 413) {
+      throw new AdapterError("WRITE_REFUSED", "the file exceeds the engine's 4 MiB write limit");
+    }
+    this.expectOk(response, "workspace file write");
+    const body = objectValue(response.json) ?? {};
+    return {
+      path: stringValue(body.path) ?? input.path,
+      sizeBytes: numberValue(body.size) ?? Buffer.byteLength(input.content, "utf8"),
+      revision: stringValue(body.revision) ?? "",
+      created: booleanValue(body.created) === true,
+      writtenAt: stringValue(body.written_at),
+    };
+  }
+
+  private mapArtifactRef(value: unknown): TurnArtifactRef {
+    const ref = objectValue(value) ?? {};
+    return {
+      id: stringValue(ref.id) ?? "",
+      kind: artifactKind(ref.kind),
+      path: stringValue(ref.path) ?? "",
+      change: changeKind(ref.change),
+      previousPath: stringValue(ref.previous_path),
+      sizeBytes: numberValue(ref.size),
+      revision: stringValue(ref.revision),
+      contentType: stringValue(ref.content_type),
+      sessionId: stringValue(ref.session_id),
+      itemId: stringValue(ref.item_id),
+      toolCallId: stringValue(ref.tool_call_id),
+      toolName: stringValue(ref.tool_name),
+      source: changeSource(ref.source),
+      restoreSnapshotId: stringValue(ref.restore_snapshot_id),
+      recordedAt: stringValue(ref.recorded_at),
+    };
+  }
+
   async invokeCapability(input: CapabilityInvocation): Promise<CapabilityResult> {
     switch (input.name) {
       case "runtime.info": {
@@ -728,7 +1191,7 @@ export class CodewhaleAdapter implements EngineAdapter {
   }
 
   private async request(
-    method: "GET" | "POST" | "PATCH" | "DELETE",
+    method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE",
     path: string,
     body?: unknown,
   ): Promise<TransportResponse> {
@@ -742,6 +1205,16 @@ export class CodewhaleAdapter implements EngineAdapter {
 
   private throwForAuth(response: { status: number }, context: string): void {
     if (response.status === 401 || response.status === 403) {
+      throw new AdapterError("AUTH_FAILED", `${context}: runtime rejected the bearer token`);
+    }
+  }
+
+  /**
+   * File routes use 403 for a real path refusal (a symlink, `.git`, a directory),
+   * so only a 401 is a credential failure there.
+   */
+  private throwForUnauthorized(response: { status: number }, context: string): void {
+    if (response.status === 401) {
       throw new AdapterError("AUTH_FAILED", `${context}: runtime rejected the bearer token`);
     }
   }

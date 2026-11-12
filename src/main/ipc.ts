@@ -8,6 +8,7 @@ import type { ProjectService } from "./projects/service";
 import type { WorkStudio } from "./work/studio";
 import type { TaskBoard } from "./work/board";
 import type { CostLedger } from "./work/costs";
+import type { ChangeLedger } from "./work/changes";
 import type { ProjectId } from "../shared/contracts/ids";
 import type { ImportPlanResult } from "../shared/contracts/board";
 import type { IpcResult, RuntimeStatusView, StateFacts } from "../shared/contracts/project-bridge";
@@ -39,6 +40,8 @@ export interface IpcDependencies {
   studio: WorkStudio | null;
   board: TaskBoard | null;
   cost: CostLedger | null;
+  changes: ChangeLedger | null;
+  revealWorkspacePath: (projectId: ProjectId, path: string) => Promise<{ revealed: boolean }>;
   /** Native file dialogs live in the main entry point, not in the IPC layer. */
   importPlanFile: (projectId: ProjectId) => Promise<ImportPlanResult | null>;
   exportPlanFile: (projectId: ProjectId) => Promise<{ saved: boolean; path: string | null }>;
@@ -66,12 +69,13 @@ async function envelope<T>(work: () => Promise<T> | T): Promise<IpcResult<T>> {
         error: { code: error.code, message: error.message, details: error.details },
       };
     }
-    const candidate = error as { code?: string; message?: string };
+    const candidate = error as { code?: string; message?: string; details?: unknown };
     return {
       ok: false,
       error: {
         code: typeof candidate.code === "string" ? candidate.code : "INTERNAL",
         message: candidate.message ?? String(error),
+        ...(candidate.details === undefined ? {} : { details: candidate.details }),
       },
     };
   }
@@ -565,5 +569,88 @@ export function registerIpc(rendererRoot: string, dependencies: IpcDependencies)
   handle("cost:export-file", (input) => {
     const value = input as { projectId: never; format: "json" | "csv" };
     return envelope(() => dependencies.exportCostFile(value.projectId, value.format));
+  });
+
+  // --------------------------------------------- changes, Git, and restore
+  const requireChanges = (): ChangeLedger => {
+    const changes = dependencies.changes;
+    if (!changes) {
+      throw Object.assign(
+        new Error("the changes surface is unavailable because project state did not open"),
+        { code: "RUNTIME_UNAVAILABLE" },
+      );
+    }
+    return changes;
+  };
+
+  handle("changes:snapshot", (input) => {
+    const value = input as { projectId: never; limit?: number };
+    return envelope(() => requireChanges().snapshot(value.projectId, { limit: value.limit }));
+  });
+  handle("changes:refresh", (input) =>
+    envelope(() => requireChanges().refresh((input as { projectId: never }).projectId)),
+  );
+  handle("changes:file", (input) => {
+    const value = input as {
+      projectId: never;
+      changeSetId?: string;
+      path: string;
+      mode: "text" | "diff";
+      offset?: number;
+      limit?: number;
+    };
+    return envelope(() => requireChanges().fileWindow(value));
+  });
+  handle("changes:artifact", (input) => {
+    const value = input as {
+      projectId: never;
+      changeSetId: string;
+      artifactId: string;
+      offset?: number;
+      limit?: number;
+    };
+    return envelope(() => requireChanges().artifactWindow(value));
+  });
+  handle("changes:restore-preview", (input) => {
+    const value = input as { projectId: never; changeSetId: string; paths: string[] };
+    return envelope(() => requireChanges().restorePreview(value));
+  });
+  handle("changes:restore", (input) => {
+    const value = input as {
+      projectId: never;
+      changeSetId: string;
+      paths: string[];
+      expected: Array<{ path: string; expectedHash: string }>;
+      acknowledge?: string[];
+    };
+    return envelope(() =>
+      requireChanges().restore({ ...value, acknowledge: value.acknowledge ?? [] }),
+    );
+  });
+  handle("changes:git-stage", (input) => {
+    const value = input as { projectId: never; paths: string[] };
+    return envelope(() => requireChanges().stagePaths(value));
+  });
+  handle("changes:git-commit", (input) => {
+    const value = input as {
+      projectId: never;
+      message: string;
+      paths: string[];
+      includeUnstaged?: boolean;
+    };
+    return envelope(() => requireChanges().commitPaths(value));
+  });
+  handle("changes:write-file", (input) => {
+    const value = input as {
+      projectId: never;
+      path: string;
+      content: string;
+      expectedRevision: string;
+    };
+    return envelope(() => requireChanges().writeFile(value));
+  });
+  handle("changes:reveal", (input) => {
+    const value = input as { projectId: never; path: string };
+    return envelope(() => dependencies.revealWorkspacePath(value.projectId, value.path));
   });
 }
