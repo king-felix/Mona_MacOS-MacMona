@@ -65,6 +65,12 @@ export interface WorkStudioOptions {
     baseDelayMs?: number;
     maxDelayMs?: number;
     sleep?: (ms: number) => Promise<void>;
+    /**
+     * How long the event stream may stay completely silent before Mona treats
+     * it as stalled and reconnects. The engine sends `stream.progress`
+     * keepalives, so only a dead or wedged peer reaches this.
+     */
+    idleTimeoutMs?: number;
   };
 }
 
@@ -129,8 +135,10 @@ interface StudioSession {
   usageRecorded: Set<string>;
   /** Set to the last contiguous sequence when a gap is observed. */
   resumeFrom: number | null;
-  /** Bounded recovery attempts so a genuinely non-contiguous numbering settles. */
-  gapRecoveries: number;
+  /** Gaps the engine declined to replay; recorded once, never asked twice. */
+  skippedGaps: Set<number>;
+  /** The hole this connection was opened to replay, if any. */
+  pendingGap: number | null;
 }
 
 const MAX_DIAGNOSTICS = 12;
@@ -200,6 +208,7 @@ export class WorkStudio {
   private readonly reconnectAttempts: number;
   private readonly reconnectBaseMs: number;
   private readonly reconnectMaxMs: number;
+  private readonly streamIdleMs: number;
   private readonly sleep: (ms: number) => Promise<void>;
   private readonly onTurnFinished:
     ((projectId: ProjectId, turnId: string) => Promise<void> | void) | null;
@@ -227,6 +236,7 @@ export class WorkStudio {
     this.reconnectAttempts = options.reconnect?.attempts ?? 6;
     this.reconnectBaseMs = options.reconnect?.baseDelayMs ?? 250;
     this.reconnectMaxMs = options.reconnect?.maxDelayMs ?? 4_000;
+    this.streamIdleMs = options.reconnect?.idleTimeoutMs ?? 120_000;
     this.sleep =
       options.reconnect?.sleep ?? ((ms) => new Promise<void>((resolve) => setTimeout(resolve, ms)));
   }
@@ -236,12 +246,31 @@ export class WorkStudio {
   async start(projectId: ProjectId): Promise<StudioSnapshot> {
     const existing = this.active;
     if (existing && existing.projectId === projectId && !existing.stopped) {
-      if (
+      const looksLive =
         existing.connection === "connected" ||
         existing.connection === "running" ||
-        existing.connection === "reconnecting"
-      ) {
-        return this.snapshot(projectId);
+        existing.connection === "reconnecting";
+      if (looksLive) {
+        // A session can *claim* to be live while its pump is gone: the stream
+        // ended, the reconnect budget was spent, or a stall killed the reader.
+        // Returning early there made "Reconnect" a no-op, which is exactly how
+        // a broken turn stayed broken across a reconnect.
+        const binding = existing.active?.binding ?? this.latestBinding(existing);
+        const pumping =
+          existing.pumpActive === true && existing.pumpKey === (binding?.engineThreadId ?? null);
+        if (pumping) return this.snapshot(projectId);
+        if (!pumping) {
+          this.diagnose(
+            existing,
+            "the previous stream reader is gone; re-attaching from the first missing event",
+          );
+        }
+        if (binding) {
+          this.setConnection(existing, "reconnecting", "re-attaching to the engine event stream");
+          await this.startPump(existing, binding);
+          return this.snapshot(projectId);
+        }
+        // No binding at all: fall through and build a fresh session.
       }
     }
     if (existing && existing.projectId !== projectId && !existing.stopped) {
@@ -294,7 +323,8 @@ export class WorkStudio {
       pumpKey: null,
       usageRecorded: new Set(),
       resumeFrom: null,
-      gapRecoveries: 0,
+      skippedGaps: new Set(),
+      pendingGap: null,
     };
     this.active = session;
     this.push(session, "connection", "connecting");
@@ -587,11 +617,19 @@ export class WorkStudio {
   private async runPump(session: StudioSession, binding: ModeBinding): Promise<void> {
     let attempts = 0;
     while (!session.stopped && !this.closed) {
-      const stored = await this.store.getCursor(binding.localThreadId);
-      // A gap rewrite asks the engine to replay from the last contiguous
-      // sequence instead of the highest stored one, so a frame lost in
-      // transport is fetched again rather than silently skipped.
-      const since = session.resumeFrom ?? stored;
+      // Resume from the FIRST MISSING sequence, not the highest stored one.
+      // The cursor is the highest stored seq, so resuming from it steps over a
+      // hole and the hole can never be refilled — the transcript stays
+      // incomplete no matter how many times the stream reconnects.
+      // `firstNeeded` is inclusive ("the first event I do not have"), while the
+      // transport's `since_seq` is exclusive ("everything after this"), so the
+      // subtraction happens once, here, at the boundary.
+      const firstNeeded = await this.store.firstMissingSeq(
+        binding.localThreadId,
+        session.skippedGaps,
+      );
+      const resumeFrom = session.resumeFrom;
+      const since = Math.max(0, Math.min(resumeFrom ?? firstNeeded, firstNeeded) - 1);
       session.resumeFrom = null;
       const controller = new AbortController();
       session.abort = controller;
@@ -601,19 +639,24 @@ export class WorkStudio {
           threadId: binding.engineThreadId,
           sinceSeq: since,
           signal: controller.signal,
+          idleMs: this.streamIdleMs,
         })) {
           if (session.stopped || controller.signal.aborted) return;
           if (item.type === "event") {
             sawEvent = true;
             attempts = 0;
             const outcome = await this.ingest(session, binding, item.event);
-            if (outcome.terminal) return;
+            // A gap is resolved before a terminal event is honoured: if the
+            // turn ended while frames were missing, returning here would end
+            // the pump with a permanent hole in the record. The replay
+            // re-delivers the terminal event, which then finalises the turn.
             if (outcome.rewind) {
               // Deliberate replay, not instability: the reconnect count stays
               // at zero so recovery cannot masquerade as a failing stream.
               attempts = 0;
               break;
             }
+            if (outcome.terminal) return;
           } else if (item.type === "diagnostic") {
             this.diagnose(session, `stream diagnostic: ${item.reason}`);
           } else if (item.type === "end") {
@@ -631,7 +674,35 @@ export class WorkStudio {
         if (session.abort === controller) session.abort = null;
       }
       if (session.stopped || this.closed) return;
-      if (!session.active) return;
+      // A turn that finished while frames were missing still gets one repair
+      // pass: the terminal event is stored, but the record has a hole and the
+      // replay is the only way to fill it.
+      if (!session.active && session.pendingGap === null) return;
+
+      // A hole this connection was opened for: if it is still missing now, the
+      // engine does not have it. Record that once and stop asking, so a
+      // legitimate numbering skip cannot loop the stream forever.
+      if (session.pendingGap !== null) {
+        const asked = session.pendingGap;
+        session.pendingGap = null;
+        const stillMissing = await this.store.firstMissingSeq(
+          binding.localThreadId,
+          session.skippedGaps,
+        );
+        if (stillMissing === asked) {
+          session.skippedGaps.add(asked);
+          this.diagnose(
+            session,
+            `event sequence gap from ${asked} was replayed and not sent; recorded as a gap the engine skips`,
+          );
+        }
+      }
+      if (!session.active) {
+        // The turn already finished and the repair pass has run. Stop quietly:
+        // a complete turn is not an unstable stream, and the hole stays visible
+        // in `connection.missing` rather than being denied.
+        return;
+      }
       attempts += sawEvent ? 1 : 2;
       if (attempts > this.reconnectAttempts) {
         this.fail(
@@ -644,7 +715,9 @@ export class WorkStudio {
       this.setConnection(
         session,
         "reconnecting",
-        "the event stream ended while the turn is active; reconnecting from the stored cursor",
+        sawEvent
+          ? "the event stream ended while the turn is active; reconnecting from the first missing event"
+          : "the event stream went quiet without ending; reconnecting from the first missing event",
       );
       await this.sleep(
         Math.min(this.reconnectBaseMs * 2 ** Math.max(0, attempts - 1), this.reconnectMaxMs),
@@ -675,18 +748,19 @@ export class WorkStudio {
       const from = before + 1;
       const to = event.seq - 1;
       const range = from === to ? String(from) : `${from}–${to}`;
-      if (session.gapRecoveries < 2) {
-        session.gapRecoveries += 1;
-        session.resumeFrom = before;
+      const firstMissing = before + 1;
+      if (!session.skippedGaps.has(firstMissing)) {
+        session.resumeFrom = firstMissing;
+        session.pendingGap = firstMissing;
         rewind = true;
         this.diagnose(
           session,
-          `event sequence gap: ${range} was not received; reconnecting from ${before} to ask the engine to replay it`,
+          `event sequence gap: ${range} was not received; reconnecting from ${firstMissing} to ask the engine to replay it`,
         );
       } else {
         this.diagnose(
           session,
-          `event sequence gap: ${range} did not arrive during replay. The engine's numbering may simply skip values; Mona records the gap instead of repeating the recovery.`,
+          `event sequence gap: ${range} is already recorded as a gap the engine skips`,
         );
       }
       this.push(session, "control", "sequence_gap", { seq: event.seq });
@@ -734,7 +808,10 @@ export class WorkStudio {
     }
     if (terminalStatus(event.kind) !== null) {
       await this.finishTurn(session, binding, event);
-      return { terminal: true, rewind: false };
+      // A terminal event that arrived across a hole finalises the turn, but the
+      // pump must still reconnect to fill the hole: reporting `terminal` here
+      // would end the stream with a permanent gap in the record.
+      return { terminal: !rewind, rewind };
     }
     if (event.kind === "turn.started" && event.turn_id && !session.active) {
       session.active = { turnId: event.turn_id, binding };
@@ -762,9 +839,6 @@ export class WorkStudio {
     binding: ModeBinding,
     event: EventEnvelope,
   ): Promise<void> {
-    // Each turn owns its own bounded gap-recovery budget: a long session must
-    // keep the ability to replay a genuinely lost frame in a later turn.
-    session.gapRecoveries = 0;
     const status = terminalStatus(event.kind) ?? "failed";
     const turnId = event.turn_id ?? session.active?.turnId ?? null;
     let effective: StudioSnapshot["profile"]["effective"] = null;
@@ -1249,6 +1323,24 @@ export class WorkStudio {
       : null;
     const work = this.work.snapshot();
     const status = this.supervisor.status();
+    // Silence and holes are read from the store, so they are facts about this
+    // thread rather than a guess from the last push.
+    const lastEvent = await this.store
+      .lastEventAt(
+        session?.active?.binding.localThreadId ??
+          session?.bindings[session.lastMode ?? "work"]?.localThreadId ??
+          "",
+      )
+      .catch(() => null);
+    const gaps = await this.store
+      .eventGaps(
+        session?.active?.binding.localThreadId ??
+          session?.bindings[session.lastMode ?? "work"]?.localThreadId ??
+          "",
+      )
+      .catch(() => null);
+    const silence =
+      lastEvent === null ? null : Math.max(0, this.now().getTime() - Date.parse(lastEvent));
     const connection = session
       ? {
           state: session.connection,
@@ -1258,6 +1350,9 @@ export class WorkStudio {
           engine: session.engine,
           owned: session.owned,
           external: session.external,
+          lastEventAt: lastEvent,
+          silentForMs: silence,
+          missing: (gaps?.gaps ?? []).map(([from, to]) => ({ from, to })),
         }
       : {
           state: "not_started" as const,
@@ -1273,6 +1368,9 @@ export class WorkStudio {
             : null,
           owned: this.supervisor.isOwned(),
           external: status.external,
+          lastEventAt: null,
+          silentForMs: null,
+          missing: [],
         };
     const block = this.submitBlock(session, project, status);
     return {

@@ -159,6 +159,27 @@ function TimelineCard({ entry }: { entry: TimelineEntry }): JSX.Element {
   );
 }
 
+/** How long the stream has been silent, or null when it is not stalled. */
+function stallSeconds(studio: StudioSnapshot): number | null {
+  const silent = studio.connection.silentForMs;
+  if (silent === null || silent === undefined) return null;
+  // Only a claimed-live connection can be "stalled": a stopped or failed
+  // runtime is already reported by its own state.
+  if (studio.connection.state !== "connected" && studio.connection.state !== "running") {
+    return null;
+  }
+  // A quiet stream during a long model call is normal; 45 s of complete silence
+  // while the engine promises keepalives is not.
+  if (silent < 45_000) return null;
+  return Math.round(silent / 1000);
+}
+
+function formatDuration(seconds: number): string {
+  if (seconds < 90) return `${seconds}s`;
+  const minutes = Math.round(seconds / 60);
+  return `${minutes}m`;
+}
+
 export function StudioScreen(props: StudioProps): JSX.Element {
   const [showAll, setShowAll] = useState(false);
   const timelineRef = useRef<HTMLDivElement | null>(null);
@@ -345,9 +366,24 @@ export function StudioScreen(props: StudioProps): JSX.Element {
           sent yet.
         </Callout>
       ) : connectionState === "reconnecting" ? (
-        <Callout tone="attention" title="Reconnecting from the stored cursor">
+        <Callout tone="attention" title="Reconnecting from the first missing event">
           {studio?.connection.reason ?? "The event stream ended while the turn is active."} Replay
           advances display state only; it never re-runs a tool.
+        </Callout>
+      ) : studio && stallSeconds(studio) !== null ? (
+        <Callout
+          tone="attention"
+          title={`No engine events for ${formatDuration(stallSeconds(studio) ?? 0)}`}
+          action={
+            canStart ? (
+              <Button size="sm" variant="secondary" onClick={props.onStart}>
+                Reconnect
+              </Button>
+            ) : undefined
+          }
+        >
+          The stream is open but silent. Mona reconnects automatically when the engine's keepalives
+          stop; reconnecting now re-subscribes from the first event it is missing.
         </Callout>
       ) : connectionState === "stopped" ? (
         <Callout
@@ -397,6 +433,20 @@ export function StudioScreen(props: StudioProps): JSX.Element {
         >
           The response was lost after the write may have been accepted. Mona will not resend it.
           {studio.submission.note ? ` ${studio.submission.note}` : ""}
+        </Callout>
+      ) : null}
+
+      {studio && studio.connection.missing.length > 0 ? (
+        <Callout tone="attention" title="Some engine events were never received">
+          {studio.connection.missing
+            .slice(0, 3)
+            .map((gap) => (gap.from === gap.to ? `#${gap.from}` : `#${gap.from}–${gap.to}`))
+            .join(", ")}
+          {studio.connection.missing.length > 3
+            ? ` and ${studio.connection.missing.length - 3} more`
+            : ""}{" "}
+          — the timeline below is missing those frames. Mona asked the engine to replay them and
+          recorded the gap rather than inventing content.
         </Callout>
       ) : null}
 

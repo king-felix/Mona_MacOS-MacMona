@@ -869,3 +869,22 @@ currently covered by the rehearsal and the unit/smoke suite instead.
      `--user-data-dir`, so it no longer loses `requestSingleInstanceLock()` and
      exits silently with no report. Verified with the product running: 124
      checks, 0 failures. `smoke:studio` was left alone for the reason above.
+
+121. **A silent engine stream froze a turn (fixed at P23).** `subscribe` had no
+     idle deadline, so an SSE body that stopped sending without closing blocked
+     the pump forever while the console showed a live turn. `subscribe` now takes
+     `idleMs` (default 120 s in the studio; every frame, including
+     `stream.progress`, resets it) and turns silence into a reconnect.
+122. **A hole below the cursor was unrepairable (fixed).** The pump resumed from
+     the highest stored sequence, so a gap could never be refetched. It now
+     resumes from `StateStore.firstMissingSeq`. A hole the engine declines to
+     replay is asked for once, then recorded in `skippedGaps` and shown in
+     `StudioConnection.missing`; it is never retried in a loop.
+123. **Reconnect was a no-op on a wedged session (fixed).** `start()` returned the
+     snapshot whenever the connection claimed to be live, without checking the
+     pump. It now re-attaches when the pump is gone.
+124. **The user's live state has a real hole:** thread `thr_2e0303d546909547`,
+     cursor 3523, gap `3173–3439` (267 events), about 12 minutes of silence. The
+     next attach asks from sequence 3172; if the engine still holds those events
+     the hole heals, otherwise the Studio lists the range as never received. It
+     is deliberately not rewritten or filled with invented content.

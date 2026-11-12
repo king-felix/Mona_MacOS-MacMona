@@ -106,6 +106,9 @@ function studio(overrides: Partial<StudioSnapshot> = {}): StudioSnapshot {
       engine: { version: "0.10.2", commit: "ff466b2ed0bfb4ae5267d4d8d0ecb562cf46956e" },
       owned: true,
       external: false,
+      lastEventAt: null,
+      silentForMs: null,
+      missing: [],
     },
     threadId: "thr_0123456789abcdef",
     engineThreadId: "thr_0123456789abcdef",
@@ -184,6 +187,46 @@ function render(props: Partial<Parameters<typeof StudioScreen>[0]> = {}): void {
 }
 
 describe("studio screen honesty and safety", () => {
+  it("says a silent stream is silent instead of showing a live-looking turn", () => {
+    render({
+      studio: studio({
+        activeTurnId: "turn_1",
+        connection: { ...studio().connection, state: "running", silentForMs: 90_000 },
+      }),
+    });
+    const text = container?.textContent ?? "";
+    expect(text).toContain("No engine events for");
+    expect(text).toContain("The stream is open but silent");
+  });
+
+  it("does not cry stall while events are still arriving", () => {
+    render({
+      studio: studio({
+        activeTurnId: "turn_1",
+        connection: { ...studio().connection, state: "running", silentForMs: 3_000 },
+      }),
+    });
+    expect(container?.textContent ?? "").not.toContain("No engine events for");
+  });
+
+  it("shows exactly which engine events are missing from the record", () => {
+    render({
+      studio: studio({
+        connection: {
+          ...studio().connection,
+          missing: [
+            { from: 3, to: 4 },
+            { from: 9, to: 9 },
+          ],
+        },
+      }),
+    });
+    const text = container?.textContent ?? "";
+    expect(text).toContain("Some engine events were never received");
+    expect(text).toContain("#3–4");
+    expect(text).toContain("#9");
+  });
+
   it("shows the saved profile and observed effective route separately", () => {
     render();
     expect(container?.textContent).toContain("deepseek / deepseek-flash");

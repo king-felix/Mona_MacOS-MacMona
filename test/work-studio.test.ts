@@ -135,6 +135,13 @@ async function setup(
     stream?: (path: string) => AsyncIterable<string>;
     adapter?: (transport: FixtureTransport) => EngineAdapter;
     now?: () => Date;
+    reconnect?: {
+      attempts?: number;
+      baseDelayMs?: number;
+      maxDelayMs?: number;
+      sleep?: (ms: number) => Promise<void>;
+      idleTimeoutMs?: number;
+    };
   } = {},
 ): Promise<Harness> {
   const handle = await openTestStore();
@@ -185,7 +192,13 @@ async function setup(
         })),
     notify: (push) => pushes.push(push),
     now: options.now ?? (() => new Date("2026-11-11T00:00:00.000Z")),
-    reconnect: { attempts: 2, baseDelayMs: 5, maxDelayMs: 10, sleep: async () => undefined },
+    reconnect: {
+      attempts: 2,
+      baseDelayMs: 5,
+      maxDelayMs: 10,
+      sleep: async () => undefined,
+      ...options.reconnect,
+    },
   });
   return {
     studio,
@@ -785,4 +798,156 @@ describe("live studio: gap budget is per turn", () => {
     expect(await diagnostics()).toMatch(/sequence gap: 5/);
     expect(harness.transport.count("POST", "/turns")).toBe(2);
   }, 20_000);
+});
+
+/**
+ * A stalled engine and a hole in the record.
+ *
+ * These three behaviours are one incident: a turn stopped mid-thought, the
+ * stream stayed "connected" because the socket was healthy, nothing timed out,
+ * and a reconnect resumed from the highest stored sequence so the missing
+ * events could never be fetched. The tests below pin each link.
+ */
+describe("live studio: a silent stream, and a hole in the record", () => {
+  function envelope(seq: number, kind: string, payload: Record<string, unknown> = {}) {
+    return {
+      schema_version: 1,
+      seq,
+      event: kind,
+      kind,
+      thread_id: THREAD,
+      ...(kind.startsWith("turn.") ? { turn_id: TURN } : {}),
+      timestamp: `2026-11-11T00:00:0${Math.min(seq, 9)}.000Z`,
+      payload,
+    };
+  }
+
+  it("reconnects when the stream goes silent instead of waiting forever", async () => {
+    const requests: string[] = [];
+    // First subscription: one event, then silence forever (no end, no error).
+    // This is what a wedged local SSE connection looks like.
+    let call = 0;
+    const harness = await setup({
+      reconnect: { attempts: 3, idleTimeoutMs: 40 },
+      stream: (path) => {
+        requests.push(path);
+        call += 1;
+        if (call === 1) {
+          return (async function* () {
+            yield sseFrames([envelope(1, "turn.started")]);
+            await new Promise(() => undefined); // never resolves, never ends
+          })();
+        }
+        return chunkText(sseFrames([envelope(2, "turn.completed")], { end: true }), 5);
+      },
+    });
+    await harness.studio.start(harness.project.id as ProjectId);
+    await harness.studio.submit(harness.project.id as ProjectId, { prompt: "x", mode: "work" });
+
+    // The watchdog turns silence into a reconnect; without it this test hangs.
+    await waitFor(async () => requests.length >= 2, 3_000);
+    await waitFor(async () => {
+      const snapshot = await harness.studio.snapshot(harness.project.id as ProjectId);
+      return (
+        snapshot.diagnostics.some((line) => line.includes("quiet")) ||
+        snapshot.connection.state === "connected"
+      );
+    });
+    expect(requests.length).toBeGreaterThanOrEqual(2);
+    // It resumed from what it had (seq 1), not from zero and not from nothing.
+    expect(requests[1]).toContain("since_seq=1");
+  }, 10_000);
+
+  it("resumes from the first missing event, not the highest stored one", async () => {
+    const requests: string[] = [];
+    const harness = await setup({
+      events: [],
+      stream: (path) => {
+        requests.push(path);
+        const from = Number(/since_seq=(\d+)/.exec(path)?.[1] ?? "0");
+        // A hole at 3–4 that the engine can fill: it replays from the hole.
+        // `since_seq` is exclusive, so 2 means "send me 3 and later".
+        if (from < 2) {
+          return chunkText(
+            sseFrames(
+              [
+                envelope(1, "thread.started"),
+                envelope(2, "turn.started"),
+                envelope(5, "item.completed", {
+                  item: { id: "i", kind: "agent_message", detail: "hi" },
+                }),
+                envelope(6, "turn.completed", { status: "completed" }),
+              ],
+              { end: true },
+            ),
+            5,
+          );
+        }
+        return chunkText(
+          sseFrames(
+            [
+              envelope(3, "item.delta", { kind: "agent_message", delta: "hi" }),
+              envelope(4, "item.delta", { kind: "agent_message", delta: "!" }),
+              envelope(5, "item.completed", {
+                item: { id: "i", kind: "agent_message", detail: "hi" },
+              }),
+              envelope(6, "turn.completed", { status: "completed" }),
+            ],
+            { end: true },
+          ),
+          5,
+        );
+      },
+    });
+    await harness.studio.start(harness.project.id as ProjectId);
+    await harness.studio.submit(harness.project.id as ProjectId, { prompt: "x", mode: "work" });
+
+    await waitFor(async () =>
+      (await harness.studio.snapshot(harness.project.id as ProjectId)).diagnostics
+        .join("\n")
+        .includes("sequence gap"),
+    );
+    // The resume point is the hole (3, i.e. since_seq=2), never the cursor (5).
+    expect(requests.some((path) => path.includes("since_seq=2"))).toBe(true);
+    expect(requests.every((path) => !path.includes("since_seq=5"))).toBe(true);
+    const stored = await harness.store.readProjectEvents(harness.project.id as ProjectId);
+    expect(new Set(stored.map((event) => event.seq))).toEqual(new Set([1, 2, 3, 4, 5, 6]));
+  }, 10_000);
+
+  it("records a hole the engine refuses to replay, once, and stops asking", async () => {
+    const requests: string[] = [];
+    const harness = await setup({
+      events: [],
+      reconnect: { attempts: 4 },
+      stream: (path) => {
+        requests.push(path);
+        const from = Number(/since_seq=(\d+)/.exec(path)?.[1] ?? "0");
+        // The engine skips 3–4 by design: it never sends them, whatever is asked.
+        return chunkText(
+          sseFrames(
+            from < 2
+              ? [
+                  envelope(1, "thread.started"),
+                  envelope(2, "turn.started"),
+                  envelope(5, "turn.completed"),
+                ]
+              : [envelope(5, "turn.completed")],
+            { end: true },
+          ),
+          5,
+        );
+      },
+    });
+    await harness.studio.start(harness.project.id as ProjectId);
+    await harness.studio.submit(harness.project.id as ProjectId, { prompt: "x", mode: "work" });
+    await waitFor(async () =>
+      (await harness.studio.snapshot(harness.project.id as ProjectId)).diagnostics
+        .join("\n")
+        .includes("engine skips"),
+    );
+    // It asked once for the hole, recorded it, and did not loop.
+    expect(requests.filter((path) => path.includes("since_seq=2")).length).toBeLessThanOrEqual(1);
+    const snapshot = await harness.studio.snapshot(harness.project.id as ProjectId);
+    expect(snapshot.connection.missing).toEqual([{ from: 3, to: 4 }]);
+  }, 10_000);
 });

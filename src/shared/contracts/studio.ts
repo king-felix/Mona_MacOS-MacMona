@@ -16,6 +16,15 @@ export interface StudioConnection {
   engine: { version: string; commit: string } | null;
   owned: boolean;
   external: boolean;
+  /**
+   * When the last engine event arrived, and how long the stream has been
+   * silent. A quiet stream is not a failure; a *silent* one is, and the screen
+   * has to be able to say which it is instead of showing a frozen turn.
+   */
+  lastEventAt: string | null;
+  silentForMs: number | null;
+  /** Stored sequences this thread never received, as inclusive ranges. */
+  missing: Array<{ from: number; to: number }>;
 }
 
 export interface StudioProfileView {

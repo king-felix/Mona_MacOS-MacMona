@@ -936,8 +936,42 @@ export class CodewhaleAdapter implements EngineAdapter {
     const projector = this.projectorFor(input.threadId);
     const parser = new SseParser();
     let lastSeq = input.sinceSeq ?? -1;
+    const idleMs = input.idleMs ?? 0;
+    // The iterator is advanced one frame at a time so a silent peer cannot pin
+    // the reader: `Promise.race` turns "nothing arrived" into a deadline, which
+    // is a reconnect instead of an eternal wait.
+    const chunks = stream.chunks[Symbol.asyncIterator]();
+    let idleExpired = false;
+    const nextChunk = async (): Promise<IteratorResult<string>> => {
+      if (idleMs <= 0) return chunks.next();
+      let timer: ReturnType<typeof setTimeout> | null = null;
+      const deadline = new Promise<{ idle: true }>((resolve) => {
+        timer = setTimeout(() => resolve({ idle: true }), idleMs);
+        timer.unref?.();
+      });
+      try {
+        return await Promise.race([chunks.next(), deadline]).then((result) => {
+          if (result && typeof result === "object" && "idle" in result) {
+            idleExpired = true;
+            return { done: true, value: undefined } as IteratorResult<string>;
+          }
+          return result as IteratorResult<string>;
+        });
+      } finally {
+        if (timer) clearTimeout(timer);
+      }
+    };
     try {
-      for await (const chunk of stream.chunks) {
+      for (;;) {
+        const next = await nextChunk();
+        if (next.done === true) {
+          if (idleExpired) {
+            yield { type: "end", reason: "idle_timeout", lastSeq };
+            return;
+          }
+          break;
+        }
+        const chunk = next.value;
         if (input.signal?.aborted) {
           yield { type: "end", reason: "aborted", lastSeq };
           return;

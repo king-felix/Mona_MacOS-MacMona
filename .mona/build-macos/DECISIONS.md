@@ -1488,3 +1488,49 @@ and from the running instance. The same change was tried for `smoke:studio` and
 **rejected**: with an isolated user-data directory that smoke fails with
 `state store is closed` inside `WorkStudio.replay` (22 checks pass without it),
 so the isolation was reverted there rather than shipped as a flaky gate.
+
+## D-095 — A silent stream is a failure, not a busy turn
+
+An operator report: a turn stopped mid-thought and never returned; "nothing else
+happened in the turn"; a reconnect claimed to pick up from the cursor and stayed
+broken. Reading the live state showed the shape of it — the stored cursor at
+3523 with sequences 3173–3439 (267 events) missing, and a 12-minute silence
+between two turns. Four defects, each independently reachable:
+
+1. **No deadline on the event stream.** `for await` over the SSE body with no
+   idle timeout: a healthy socket whose peer stops sending blocks the pump
+   forever, so the console shows a live-looking turn that will never advance.
+   Nothing errors, because nothing is wrong at the transport layer. `subscribe`
+   now takes `idleMs`; every frame (including `stream.progress`) resets it, and a
+   deadline yields `end: idle_timeout`, which is a reconnect.
+2. **Resume from the highest stored sequence.** The pump asked for events after
+   the cursor, so a hole *below* the cursor could never be fetched — no reconnect
+   could ever repair it. It now asks from the first missing sequence
+   (`StateStore.firstMissingSeq`), which is the hole.
+3. **Reconnect was a no-op on a wedged session.** `start()` returned the existing
+   snapshot whenever the connection merely *claimed* to be connected/running/
+   reconnecting, without checking that the pump was alive. Re-attaching now
+   requires a running pump; otherwise Start re-subscribes from the first missing
+   event. This is why pressing reconnect changed nothing.
+4. **A terminal event beat the gap repair.** `ingest` reported `terminal` even
+   when it had just asked for a rewind, so the pump returned before reconnecting
+   and the hole became permanent. A terminal event is now only honoured once no
+   rewind is pending.
+
+The gap budget (`gapRecoveries`, 2 per turn) is replaced by one rule: ask once per
+hole, and if the engine does not send it, record that hole in `skippedGaps` and
+stop asking. The engine's numbering may legitimately skip values, so retrying
+forever would be the loop this replaces; asking once and recording the result is
+both bounded and honest.
+
+The stall and the hole are now visible: `StudioConnection` carries `lastEventAt`,
+`silentForMs`, and `missing` ranges, the Studio shows "No engine events for Ns"
+past 45 s of silence with a Reconnect action, and a explicit banner lists the
+event ranges that were never received. A quiet stream during a long model call is
+not a stall; a stream that never speaks again is.
+
+Tests: `test/work-studio.test.ts` gains three — a stream that yields one event
+and then never ends or closes (the test hangs without the watchdog), a hole that
+must be filled by resuming from the hole rather than the cursor, and a hole the
+engine refuses to replay (asked once, recorded, visible in `missing`).
+`test/studio-screen.test.tsx` gains three that pin the banners.

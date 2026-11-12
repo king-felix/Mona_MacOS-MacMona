@@ -277,6 +277,15 @@ export interface SubscribeInput {
   threadId: ThreadId;
   sinceSeq?: number;
   signal?: AbortSignal;
+  /**
+   * Fail the subscription when no frame at all arrives for this long.
+   *
+   * A local SSE connection can stay open while the server stops sending: the
+   * socket is healthy, so nothing errors, and a reader with no deadline waits
+   * forever. Every frame (including a `stream.progress` keepalive) resets the
+   * clock, so this only fires when the peer has genuinely gone quiet.
+   */
+  idleMs?: number;
 }
 
 export type CapabilityName =

@@ -196,3 +196,47 @@ previous arrangement. `smoke:studio` cannot run while the installed Mona is open
 fail with `state store is closed` in `WorkStudio.replay`, so that change was
 reverted rather than shipped. Re-run `npm run smoke:studio` with Mona closed to
 refresh those two captures.
+
+## P23 defect — a silent stream froze a turn, and a gap could never be repaired
+
+**Reported:** an agent thought stopped mid-thought and never returned; nothing
+else happened in the turn; reconnecting "picked up from the cursor" and stayed
+broken.
+
+**Measured in the live state** (`~/Library/Application Support/Mona/state`):
+
+```
+thread   thr_2e0303d546909547
+cursor   3523          (highest stored sequence)
+stored   1567 events   first stored 1690
+gap      3173–3439     (267 events never received)
+silence  2026-11-12T21:41:34Z → 21:53:31Z (about 12 minutes)
+```
+
+**Four defects, each independently sufficient:**
+
+1. `subscribe` had no idle deadline. A socket that stays open while the peer
+   stops sending blocks the pump forever; the turn stays "active" and nothing
+   errors. Fixed with an `idleMs` watchdog that turns silence into
+   `end: idle_timeout` (every frame, including `stream.progress`, resets it).
+2. The pump resumed from `getCursor` — the *highest* stored sequence — so a hole
+   below the cursor could never be fetched by any reconnect. It now resumes from
+   `firstMissingSeq`, which points at the hole.
+3. `start()` returned the existing snapshot when the connection merely said
+   "connected"/"running"/"reconnecting", without checking the pump. That is why
+   the operator's reconnect did nothing. Re-attaching now requires a live pump.
+4. `ingest` reported `terminal` even when it had just requested a rewind, so the
+   pump returned before reconnecting. A terminal event is honoured only when no
+   rewind is pending.
+
+**Honest reporting:** `StudioConnection` now carries `lastEventAt`,
+`silentForMs`, and `missing` ranges. The Studio shows "No engine events for Ns"
+after 45 s of silence with a Reconnect action, and lists the exact ranges that
+were never received. Nothing is invented to fill a hole.
+
+**Verification:** 754 tests in 75 files (three new stream tests that hang without
+the watchdog, three new screen tests); `npm run ci` 21/21; shell smoke 124/124.
+
+The existing hole in this user's state is repaired on the next attach if the
+engine still holds those events (the pump now asks from 3172); otherwise it is
+shown as a gap rather than silently skipped.

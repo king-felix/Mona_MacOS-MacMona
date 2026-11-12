@@ -3523,6 +3523,74 @@ export class StateStore {
     });
   }
 
+  /**
+   * The first sequence this thread is missing, or the resume point when nothing
+   * is missing.
+   *
+   * The cursor is the *highest* stored sequence, so resuming from it steps over
+   * a hole and the hole becomes permanent. A reconnect has to resume from the
+   * first gap instead, or the transcript is silently incomplete forever.
+   */
+  async firstMissingSeq(threadId: string, skipped: Iterable<number> = []): Promise<number> {
+    const tombstoned = new Set(skipped);
+    return this.read((db) => {
+      const cursor = Number(
+        (
+          db.prepare("SELECT last_seq FROM event_cursors WHERE thread_id = ?").get(threadId) as
+            { last_seq: number } | undefined
+        )?.last_seq ?? 0,
+      );
+      const rows = db
+        .prepare("SELECT seq FROM events WHERE thread_id = ? ORDER BY seq")
+        .all(threadId) as Array<{ seq: number }>;
+      if (rows.length === 0) return cursor + 1;
+      // Sequences are not guaranteed to start at 1 (an engine may trim its
+      // history), so the first stored value is the baseline, not 1.
+      for (let index = 1; index < rows.length; index += 1) {
+        const previous = Number(rows[index - 1]?.seq ?? 0);
+        const current = Number(rows[index]?.seq ?? 0);
+        // A hole the engine already declined to replay is a gap it skips by
+        // design; retrying it forever would loop the stream.
+        if (current > previous + 1 && !tombstoned.has(previous + 1)) return previous + 1;
+      }
+      return Math.max(cursor, Number(rows[rows.length - 1]?.seq ?? 0)) + 1;
+    });
+  }
+
+  /** When this thread last received an event, or null when it never has. */
+  async lastEventAt(threadId: string): Promise<string | null> {
+    if (!threadId) return null;
+    return this.read((db) => {
+      const row = db
+        .prepare("SELECT MAX(recorded_at) AS at FROM events WHERE thread_id = ?")
+        .get(threadId) as { at: string | null } | undefined;
+      return row?.at ?? null;
+    });
+  }
+
+  /** The stored sequence range and the holes in it, for honest reporting. */
+  async eventGaps(
+    threadId: string,
+  ): Promise<{ first: number; last: number; gaps: Array<[number, number]> }> {
+    if (!threadId) return { first: 0, last: 0, gaps: [] };
+    return this.read((db) => {
+      const rows = db
+        .prepare("SELECT seq FROM events WHERE thread_id = ? ORDER BY seq")
+        .all(threadId) as Array<{ seq: number }>;
+      const gaps: Array<[number, number]> = [];
+      for (let index = 1; index < rows.length; index += 1) {
+        const previous = Number(rows[index - 1]?.seq ?? 0);
+        const current = Number(rows[index]?.seq ?? 0);
+        if (current > previous + 1) gaps.push([previous + 1, current - 1]);
+      }
+      return {
+        first: Number(rows[0]?.seq ?? 0),
+        last: Number(rows[rows.length - 1]?.seq ?? 0),
+        gaps,
+      };
+    });
+  }
+
   async readEvents(threadId: string, afterSeq = 0, limit = 200): Promise<StoredEvent[]> {
     const bounded = Math.min(Math.max(1, Math.trunc(limit)), 1000);
     return this.read((db) => {
