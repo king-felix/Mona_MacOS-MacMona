@@ -1,6 +1,6 @@
 # Handoff — Mona macOS build
 
-**Last checkpoint:** 2026-11-12 (P15) · revision 284 · `monabuild validate` clean
+**Last checkpoint:** 2026-11-12 (P15) · revision 294 · `monabuild validate` clean
 **Current prompt:** P15 completed. Next eligible after P15: **P16** — not
 started, not authorized in this session.
 
@@ -246,7 +246,7 @@ cost rate-card surface, and the P03/P08 profile plumbing. Then:
 
 ## Key files
 
-- `.mona/build-macos/state.json` — prompt status (revision 284).
+- `.mona/build-macos/state.json` — prompt status (revision 294).
 - `.mona/build-macos/attempts.jsonl` — empty; nothing failed three times.
 - `.mona/build-macos/DECISIONS.md` — D-001…D-040.
 - `.mona/build-macos/BLOCKERS.md` — external prerequisites only.
