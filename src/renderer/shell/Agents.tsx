@@ -1210,14 +1210,22 @@ function FleetInspector({
   const [evidence, setEvidence] = useState<FleetEvidenceView | null>(null);
   const [evidenceError, setEvidenceError] = useState<string | null>(null);
   const [evidenceBusy, setEvidenceBusy] = useState(false);
+  // The inspector instance is reused when the selection moves to another run.
+  // Evidence belongs to one run and one task, so it must not linger across them.
+  useEffect(() => {
+    setEvidence(null);
+    setEvidenceError(null);
+  }, [fleet.runId]);
   const loadEvidence = async (taskId: string): Promise<void> => {
+    // A slow read must not land on a different run the user has since selected.
+    const requestedRun = fleet.runId;
     setEvidenceBusy(true);
     setEvidenceError(null);
     try {
       const loaded = await unwrap(() =>
-        window.mona.agentFleetEvidence(projectId, fleet.runId, taskId),
+        window.mona.agentFleetEvidence(projectId, requestedRun, taskId),
       );
-      setEvidence(loaded);
+      setEvidence({ ...loaded, taskId });
     } catch (cause) {
       setEvidenceError(cause instanceof Error ? cause.message : String(cause));
     } finally {
@@ -1328,6 +1336,7 @@ function FleetInspector({
         {evidence ? (
           <div className="agent-evidence">
             <p className="muted">
+              Evidence for task <span className="mono">{evidence.taskId}</span>:{" "}
               <span className="mono">{evidence.path ?? "evidence"}</span>
               {evidence.checksum ? ` · ${evidence.checksum}` : ""}
               {evidence.truncated ? " · truncated by the engine" : ""}

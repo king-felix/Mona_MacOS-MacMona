@@ -342,6 +342,7 @@ export class AgentObservatory {
     const access = this.requireAccess(projectId);
     const evidence = await access.adapter.readFleetReceiptEvidence(runId, taskId);
     return {
+      taskId,
       path: evidence.path,
       checksum: evidence.checksum,
       sizeBytes: evidence.sizeBytes,

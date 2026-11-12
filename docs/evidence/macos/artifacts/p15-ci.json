@@ -5,80 +5,80 @@
       "name": "format:check",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 2041
+      "elapsed_ms": 2007
     },
     {
       "name": "lint",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 1754
+      "elapsed_ms": 1756
     },
     {
       "name": "typecheck",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 2599
+      "elapsed_ms": 2587
     },
     {
       "name": "build:supervisor",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 2033
+      "elapsed_ms": 2007
     },
     {
       "name": "build:service",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 1930
+      "elapsed_ms": 1958
     },
     {
       "name": "test",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 6071
+      "elapsed_ms": 5817
     },
     {
       "name": "build",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 2012
+      "elapsed_ms": 1920
     },
     {
       "name": "smoke:board",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 1786
+      "elapsed_ms": 1784
     },
     {
       "name": "smoke:cost",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 1740
+      "elapsed_ms": 1736
     },
     {
       "name": "smoke:changes",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 2113
+      "elapsed_ms": 2101
     },
     {
       "name": "smoke:polish",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 1812
+      "elapsed_ms": 1823
     },
     {
       "name": "smoke:agents",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 3660
+      "elapsed_ms": 3879
     }
   ],
   "renderer_scan": {
     "ok": true,
     "files": 3,
     "patterns": [],
-    "bytes": 611934
+    "bytes": 612093
   },
-  "dist_bytes": 611934
+  "dist_bytes": 612093
 }

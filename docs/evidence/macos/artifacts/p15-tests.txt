@@ -1,6 +1,6 @@
- ✓ test/work-agents.test.ts (14 tests) 580ms
- ✓ test/agents-screen.test.tsx (4 tests) 94ms
- ✓ test/ipc-contract.test.ts (27 tests) 15ms
- ✓ test/engine-orchestration.test.ts (10 tests) 25ms
+ ✓ test/work-agents.test.ts (15 tests) 652ms
+ ✓ test/agents-screen.test.tsx (4 tests) 116ms
+ ✓ test/ipc-contract.test.ts (27 tests) 21ms
+ ✓ test/engine-orchestration.test.ts (10 tests) 27ms
  Test Files  50 passed (50)
-      Tests  465 passed (465)
+      Tests  466 passed (466)

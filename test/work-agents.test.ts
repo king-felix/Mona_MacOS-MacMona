@@ -483,6 +483,34 @@ describe("agent observatory", () => {
   });
 });
 
+describe("fleet evidence", () => {
+  it("names the task it belongs to and refuses without a live studio", async () => {
+    const b = await bench();
+    const engine = adapter({
+      readFleetReceiptEvidence: vi.fn(async () => ({
+        path: ".codewhale/fleet/answer/verification.json",
+        checksum: "sha256:abc",
+        sizeBytes: 12,
+        truncated: false,
+        content: { result: "partial" },
+      })),
+    });
+    const live = observatory(b.store, () => ({ adapter: engine, workspace: b.root }));
+    const evidence = await live.fleetEvidence(b.projectId, "fleet-abc", "answer");
+    expect(evidence.taskId).toBe("answer");
+    expect(evidence.path).toContain("verification.json");
+    expect(evidence.content).toEqual({ result: "partial" });
+    // The adapter is asked for exactly this run and task, never a remembered one.
+    const calls = (engine.readFleetReceiptEvidence as unknown as { mock: { calls: unknown[][] } })
+      .mock.calls;
+    expect(calls[0]).toEqual(["fleet-abc", "answer"]);
+
+    await expect(
+      observatory(b.store, () => null).fleetEvidence(b.projectId, "fleet-abc", "answer"),
+    ).rejects.toBeInstanceOf(ObservatoryError);
+  });
+});
+
 describe("native task ownership and launch", () => {
   it("refuses a fleet launch for a Mona-queue task", async () => {
     const b = await bench();

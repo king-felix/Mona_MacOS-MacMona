@@ -193,6 +193,8 @@ export interface FleetWorkerView {
 }
 
 export interface FleetEvidenceView {
+  /** The fleet task this evidence belongs to; never inferred from selection. */
+  taskId: string | null;
   path: string | null;
   checksum: string | null;
   sizeBytes: number | null;
