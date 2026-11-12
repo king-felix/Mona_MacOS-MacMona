@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 19,
+  "revision": 21,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -49,7 +49,7 @@
         },
         {
           "path": "docs/discovery-macos.md",
-          "sha256": "f28bacfcdb898fc2d144b162ae2e45b79c73f5e5ada1664ece6f41afeaed59bd"
+          "sha256": "36e1f4a2259bfc10538dcda223671794d35519bb279b4d83079683cc856621b8"
         },
         {
           "path": "docs/requirements-macos.json",
@@ -57,7 +57,7 @@
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
-          "sha256": "3b2950e6569e8fecce407ed570381fd0610f1bd4f388eab0a489eb0769d040bf"
+          "sha256": "89bc762ecdd0894c339d436d414c9d7078bb7c5df7e31d0176c5df97c06a52e0"
         },
         {
           "path": "AGENTS.md",
@@ -81,7 +81,7 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "5aa5c77bd5e6f2597a1241da4ba5134384b3b493ebb754329a51d9d48dd6092e"
+          "sha256": "a3b66efd5fe2d6eb078d9daeff65d0e977b555cb339e41e7cd1b98a645447400"
         },
         {
           "path": "docs/evidence/macos/artifacts/p00-test-run.txt",
@@ -113,7 +113,60 @@
       ],
       "completed_steps": [],
       "remaining_steps": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P01-feasibility.md",
+          "sha256": "1d801dbabc951c36802cf78271c74cd44e780a44078a8d2a4cb86692990a28a3"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p01-probe.json",
+          "sha256": "f4177bc2ccfea5c60433dec05eafe86608edf93408093954de79cd4273a76543"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p01-live.json",
+          "sha256": "f41d21286a15c8f08b3b780f3237c55e74faddd1abaafcfe48e946fef085ba73"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p01-economics.json",
+          "sha256": "a381bb7add0c00bcaab398fc3f52e514ec99671090a77857d8fc8c2ab82bc82f"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p01-engine-surface.txt",
+          "sha256": "d685552eea8e11feeeba99e3fa1d8d4e41b1ab41d8f22826efadba283e61d668"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p01-native-binary.txt",
+          "sha256": "a81944adecd95d538af650948f222eaad173b4c0a9a5f309feeebcbaab309d07"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p01-finder-service.txt",
+          "sha256": "74eb1c0e4118c23fbd7e4c7ac14d062686bbf2d848e32340498a3ca62fd8d7c6"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p01-test-run.txt",
+          "sha256": "9bf8096673f9319e905250dbd91b6086e8024c4f1a451449523fd72ba352ee24"
+        },
+        {
+          "path": "docs/codewhale-capabilities-macos.json",
+          "sha256": "89bc762ecdd0894c339d436d414c9d7078bb7c5df7e31d0176c5df97c06a52e0"
+        },
+        {
+          "path": "tools/p01-spike/spike.mjs",
+          "sha256": "ed8f2155f3a89fe60322f8828c824e09f15c36a54c0d464f70576d4c25da6260"
+        },
+        {
+          "path": "tools/p01-spike/lib/runtime.mjs",
+          "sha256": "fcdf5027bfda740e337fb59f57e043a3183954b4336ced2c7ffd3fe9ad0177e5"
+        },
+        {
+          "path": "tools/p01-spike/lib/sse.mjs",
+          "sha256": "4a63176e0bfc2fbac52cf4ce75648e3858ccd1db7692e6591cecc5f7e250ff9b"
+        },
+        {
+          "path": "tools/p01-spike/build-inventory.mjs",
+          "sha256": "dda157631415e659e9fbd324f62c74e8acc7780cfd8adee9aacdfef0b97a229c"
+        }
+      ],
       "blocker_ids": []
     },
     "P02": {
@@ -432,7 +485,7 @@
   "next_eligible_prompts": [
     "P01"
   ],
-  "last_checkpoint_utc": "2026-11-12T00:46:02.862Z",
+  "last_checkpoint_utc": "2026-11-12T01:07:14.113Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

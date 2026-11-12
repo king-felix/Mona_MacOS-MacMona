@@ -141,3 +141,40 @@ the engine.
 - Finder Services discovery on macOS 26.5 with a signed standalone service —
   P09/P22.
 - Clean-recipient behavior with quarantine and no developer tools — P24.
+
+## P01 qualification addendum
+
+Measured 2026-11-12 UTC. Raw output: `docs/evidence/macos/artifacts/p01-*.json`
+and `p01-*.txt`; full verdicts: `docs/evidence/macos/P01-feasibility.md`.
+
+- **Primary transport works.** `app-server --http` served `/v1/runtime/info`,
+  providers, threads, sessions, usage, and the SSE event journal on loopback
+  with `CODEWHALE_RUNTIME_TOKEN`. A real tool turn wrote a file, ran its test,
+  completed, persisted history, resumed from a saved session, and was
+  interrupted with a confirmed `interrupted` turn.
+- **The listener is a grandchild.** `/opt/homebrew/bin/codewhale` is a Node
+  wrapper; the native binary it spawns owns the TCP socket. Ownership checks
+  must walk the process tree (`ps` ppid edges) and match the listening PID, not
+  the PID returned by the wrapper.
+- **One Runtime owner per user store.** A second `app-server --http` on another
+  port did not own its listener: the first runtime's native PID owned both
+  ports, and the first runtime's bearer token authenticated the second port. A
+  second server therefore attaches to the first owner rather than creating an
+  independent runtime. Mona must serialize owned runtimes; do not invent a
+  separate `CODEWHALE_HOME`.
+- **The native binary is self-contained enough to ship.** With
+  `env -i PATH=/usr/bin:/bin HOME=…` and no Node on PATH it started the runtime
+  and answered `/health` and `/v1/runtime/info`. `otool -L` lists only system
+  frameworks; `VersionMin = 11.0`, `VersionSDK = 14.4`, ad-hoc linker-signed.
+- **Finder Services are feasible with CLT.** A Swift/AppKit helper compiled
+  against SDK 14.4, read file URLs from `NSPasteboard`, carried an `NSServices`
+  Info.plist, passed `plutil`, was ad-hoc signed and verified, and LaunchServices
+  registered it (`service id: Open in Mona`). Full app-bundle behavior remains
+  P02/P21 work.
+- **Zero inference holds for non-turn actions.** Discovery, a 2 s idle, history
+  reads, and an empty-thread SSE reconnect left `/v1/usage` at zero turns and
+  zero tokens.
+- **Cost caveat.** `codewhale exec` in agent mode reports `total_tokens` in
+  session metadata but no token split and no price coverage
+  (`coverage_recorded = false`); its `0.0` is unknown, not free. The adapter's
+  engine-computed usage is priced per thread.

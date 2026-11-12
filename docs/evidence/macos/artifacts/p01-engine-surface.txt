@@ -1,0 +1,192 @@
+=== codewhale 0.10.2 — features list ===
+feature	stage	enabled
+shell_tool	stable	true
+subagents	stable	true
+web_search	stable	true
+apply_patch	stable	true
+mcp	stable	true
+exec_policy	stable	true
+vision_model	beta	false
+verify_tool	stable	true
+code_mode	experimental	true
+finance_host	experimental	false
+data_host	experimental	false
+speech_host	experimental	false
+pdf_host	experimental	false
+ocr_host	experimental	false
+github_host	experimental	false
+web_search_host	experimental	false
+web_extract_host	experimental	false
+review_host	experimental	false
+extension_host	experimental	false
+
+=== providers (help) ===
+Export the route catalog (`providers export --json`)
+
+Usage: codewhale providers [OPTIONS] <COMMAND>
+
+Commands:
+  export  Write the owned route catalog as JSON (cwc contract)
+  help    Print this message or the help of the given subcommand(s)
+
+Options:
+      --enable <FEATURE>   Enable a feature for this run (repeatable)
+      --disable <FEATURE>  Disable a feature for this run (repeatable)
+  -h, --help               Print help
+
+=== sandbox (help) ===
+Evaluate sandbox/approval policy decisions
+
+Usage: codewhale sandbox [OPTIONS] <COMMAND>
+
+Commands:
+  check  
+  help   Print this message or the help of the given subcommand(s)
+
+Options:
+      --enable <FEATURE>   Enable a feature for this run (repeatable)
+      --disable <FEATURE>  Disable a feature for this run (repeatable)
+  -h, --help               Print help
+
+=== thread (help) ===
+Manage thread/session metadata and resume/fork flows
+
+Usage: codewhale thread [OPTIONS] <COMMAND>
+
+Commands:
+  list        
+  read        
+  resume      Resume through the acknowledged owner and print its durable receipt
+  fork        Fork complete history through the owner and print the new receipt
+  archive     
+  unarchive   
+  set-name    
+  clear-name  Remove the custom name from a thread, restoring the default `(unnamed)` rendering in `thread list`
+  help        Print this message or the help of the given subcommand(s)
+
+Options:
+      --enable <FEATURE>   Enable a feature for this run (repeatable)
+      --disable <FEATURE>  Disable a feature for this run (repeatable)
+  -h, --help               Print help
+
+=== doctor --json (first 120 lines) ===
+{
+  "version": "0.10.2",
+  "config_path": "/Users/<user>/.codewhale/config.toml",
+  "config_present": true,
+  "sessions": {
+    "last_repair": {
+      "ran_at": "2026-11-12T01:04:32.374472Z",
+      "dry_run": false,
+      "skipped_concurrent": false,
+      "documents_set_aside": 0,
+      "documents_newer_schema": 0,
+      "stores_set_aside": 0,
+      "stores_kept_with_work": 0,
+      "stores_in_use": 0,
+      "sessions_recovered": 0,
+      "threads_unbound": 0,
+      "artifact_dirs_set_aside": 0,
+      "artifact_dirs_kept": 0,
+      "limit_reached": false
+    }
+  },
+  "paths": {
+    "home": "/Users/<user>/.codewhale",
+    "config": "/Users/<user>/.codewhale/config.toml",
+    "settings": "/Users/<user>/.codewhale/settings.toml",
+    "sessions": "/Users/<user>/.codewhale/sessions",
+    "logs": "/Users/<user>/.codewhale/logs",
+    "automations": "/Users/<user>/.codewhale/automations",
+    "task_manager_root": "/Users/<user>/.codewhale/tasks",
+    "task_manager_tasks": "/Users/<user>/.codewhale/tasks/tasks",
+    "task_manager_artifacts": "/Users/<user>/.codewhale/tasks/artifacts",
+    "runtime_store": "/Users/<user>/.codewhale/tasks/runtime",
+    "runtime_events": "/Users/<user>/.codewhale/tasks/runtime/events",
+    "personal_fleet_definitions": "/Users/<user>/.codewhale/fleets",
+    "personal_fleet_agents": "/Users/<user>/.codewhale/agents",
+    "secrets": "/Users/<user>/.codewhale/secrets/secrets.json"
+  },
+  "secret_backend": {
+    "backend": "file",
+    "inspection": "metadata_only",
+    "path": "/Users/<user>/.codewhale/secrets/secrets.json",
+    "presence": "present",
+    "legacy_path": "/Users/<user>/.deepseek/secrets/secrets.json",
+    "legacy_presence": "absent"
+  },
+  "workspace": "/Users/<user>/DS_Projects/Mona",
+  "legacy_state": {
+    "primary_root": "/Users/<user>/.codewhale",
+    "legacy_root": "/Users/<user>/.deepseek",
+    "needs_attention": false,
+    "legacy_only_count": 0,
+    "dual_present_count": 0,
+    "session_recovery": {
+      "status": "no_legacy_sessions",
+      "needs_attention": false,
+      "read_only": true,
+      "chat_contents_read": false,
+      "checkpoint_internals_scanned": false,
+      "session_descriptors_compared": false,
+      "counterpart_check": "top_level_filename_and_regular_file_only",
+      "codewhale_home_is_explicit": false,
+      "legacy_sessions_path": "/Users/<user>/.deepseek/sessions",
+      "primary_sessions_path": "/Users/<user>/.codewhale/sessions",
+      "legacy_session_file_count": 0,
+      "already_present_file_count": 0,
+      "recoverable_file_count": 0,
+      "recoverable_files": [],
+      "recoverable_files_truncated": false,
+      "error": null,
+      "recovery_command": null
+    },
+    "entries": [
+      {
+        "name": "sessions",
+        "primary_path": "/Users/<user>/.codewhale/sessions",
+        "legacy_path": "/Users/<user>/.deepseek/sessions",
+        "primary_present": true,
+        "legacy_present": false,
+        "status": "primary_only"
+      },
+      {
+        "name": "tasks",
+        "primary_path": "/Users/<user>/.codewhale/tasks",
+        "legacy_path": "/Users/<user>/.deepseek/tasks",
+        "primary_present": true,
+        "legacy_present": false,
+        "status": "primary_only"
+      },
+      {
+        "name": "skills",
+        "primary_path": "/Users/<user>/.codewhale/skills",
+        "legacy_path": "/Users/<user>/.deepseek/skills",
+        "primary_present": true,
+        "legacy_present": false,
+        "status": "primary_only"
+      },
+      {
+        "name": "slop_ledger",
+        "primary_path": "/Users/<user>/.codewhale/slop_ledger",
+        "legacy_path": "/Users/<user>/.deepseek/slop_ledger",
+        "primary_present": false,
+        "legacy_present": false,
+        "status": "absent"
+      },
+      {
+        "name": "trophies",
+        "primary_path": "/Users/<user>/.codewhale/trophies",
+        "legacy_path": "/Users/<user>/.deepseek/trophies",
+        "primary_present": false,
+        "legacy_present": false,
+        "status": "absent"
+      },
+      {
+        "name": "catalog",
+        "primary_path": "/Users/<user>/.codewhale/catalog",
+        "legacy_path": "/Users/<user>/.deepseek/catalog",
+        "primary_present": true,
+        "legacy_present": false,
+        "status": "primary_only"
+      },

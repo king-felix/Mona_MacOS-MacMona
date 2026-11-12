@@ -1,0 +1,42 @@
+=== Swift/CLT Finder Service feasibility ===
+Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)
+Target: arm64-apple-darwin25.5.0
+14.4
+
+=== compiled AppKit helper (reads Finder file URLs from pasteboard) ===
+.p01/finder/P01Service.app/Contents/MacOS/P01Service: Mach-O 64-bit executable arm64
+
+=== Info.plist NSServices ===
+{
+  "CFBundleExecutable" => "P01Service"
+  "CFBundleIdentifier" => "com.example.p01service"
+  "CFBundleName" => "P01Service"
+  "CFBundlePackageType" => "APPL"
+  "CFBundleShortVersionString" => "0.1"
+  "LSMinimumSystemVersion" => "14.0"
+  "NSServices" => [
+    0 => {
+      "NSMenuItem" => {
+        "default" => "Open in Mona"
+      }
+      "NSMessage" => "openFolder"
+      "NSRequiredContext" => {
+        "NSApplicationIdentifier" => "com.apple.finder"
+      }
+      "NSSendFileTypes" => [
+        0 => "public.folder"
+      ]
+    }
+  ]
+}
+
+=== ad-hoc signature ===
+.p01/finder/P01Service.app: valid on disk
+.p01/finder/P01Service.app: satisfies its Designated Requirement
+
+=== LaunchServices registration (temporary; unregistered after capture) ===
+service id: Open in Mona / message: openFolder (see lsregister dump in transcript)
+
+=== program run (empty pasteboard is expected in this session) ===
+file_urls=0 folders=0
+exit=0

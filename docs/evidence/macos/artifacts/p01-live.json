@@ -1,0 +1,304 @@
+{
+ "schema_version": 1,
+ "mode": "live",
+ "started_utc": "2026-11-12T00:58:56.603Z",
+ "engine": {
+  "version": "0.10.2",
+  "commit": "ff466b2ed0bfb4ae5267d4d8d0ecb562cf46956e",
+  "binary": "/opt/homebrew/bin/codewhale"
+ },
+ "steps": {
+  "g0_thread": {
+   "status": 201,
+   "id": "thr_76ab1fc69a304505a89f0cc078cdb540",
+   "body": {
+    "schema_version": 2,
+    "id": "thr_76ab1fc69a304505a89f0cc078cdb540",
+    "created_at": "2026-11-12T00:58:56.948573Z",
+    "updated_at": "2026-11-12T00:58:56.948573Z",
+    "model": "deepseek-flash",
+    "model_provider": "deepseek",
+    "model_provider_id": "deepseek",
+    "workspace": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p01-live-HqqBSO/ws-Hi2fgQ",
+    "mode": "agent",
+    "permission_posture": "full_access",
+    "allow_shell": true,
+    "trust_mode": true,
+    "auto_approve": true,
+    "archived": false
+   }
+  },
+  "g0_submit": {
+   "status": 201,
+   "turn_id": "turn_2c03a372e3d34ebd9960583073edd679",
+   "body": {
+    "thread": {
+     "schema_version": 2,
+     "id": "thr_76ab1fc69a304505a89f0cc078cdb540",
+     "created_at": "2026-11-12T00:58:56.948573Z",
+     "updated_at": "2026-11-12T00:58:57.000557Z",
+     "model": "deepseek-flash",
+     "model_provider": "deepseek",
+     "model_provider_id": "deepseek",
+     "workspace": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p01-live-HqqBSO/ws-Hi2fgQ",
+     "mode": "agent",
+     "permission_posture": "full_access",
+     "allow_shell": true,
+     "trust_mode": true,
+     "auto_approve": true,
+     "latest_turn_id": "turn_2c03a372e3d34ebd9960583073edd679",
+     "archived": false
+    },
+    "turn": {
+     "schema_version": 2,
+     "id": "turn_2c03a372e3d34ebd9960583073edd679",
+     "thread_id": "thr_76ab1fc69a304505a89f0cc078cdb540",
+     "status": "in_progress",
+     "input_summary": "Create the file hello.txt in this workspace containing exactly the text: hello mona\nThen run the shell command `node verify.mjs` and report its output. Change nothing else.",
+     "created_at": "2026-11-12T00:58:57.000557Z",
+     "started_at": "2026-11-12T00:58:57.000557Z",
+     "routing_settlement": false,
+     "permission_posture": "full_access",
+     "mode": "agent",
+     "effective_provider": "deepseek",
+     "effective_provider_id": "deepseek",
+     "effective_model": "deepseek-flash",
+     "item_ids": [
+      "item_b343a82bbf1b4e4e97d330dbc06c58b3"
+     ],
+     "steer_count": 0
+    }
+   }
+  },
+  "g0_result": {
+   "turn": {
+    "id": "turn_2c03a372e3d34ebd9960583073edd679",
+    "status": "completed",
+    "provider": "deepseek",
+    "model": "deepseek-flash",
+    "usage": {
+     "input_tokens": 53377,
+     "output_tokens": 412,
+     "prompt_cache_hit_tokens": 39680,
+     "prompt_cache_miss_tokens": 13697,
+     "reasoning_tokens": 94,
+     "request_usages": [
+      {
+       "input_tokens": 12904,
+       "output_tokens": 121,
+       "prompt_cache_hit_tokens": 0,
+       "prompt_cache_miss_tokens": 12904,
+       "reasoning_tokens": 32
+      },
+      {
+       "input_tokens": 13354,
+       "output_tokens": 118,
+       "prompt_cache_hit_tokens": 12928,
+       "prompt_cache_miss_tokens": 426,
+       "reasoning_tokens": 62
+      },
+      {
+       "input_tokens": 13493,
+       "output_tokens": 80,
+       "prompt_cache_hit_tokens": 13312,
+       "prompt_cache_miss_tokens": 181,
+       "reasoning_tokens": 0
+      },
+      {
+       "input_tokens": 13626,
+       "output_tokens": 93,
+       "prompt_cache_hit_tokens": 13440,
+       "prompt_cache_miss_tokens": 186,
+       "reasoning_tokens": 0
+      }
+     ]
+    },
+    "error": null,
+    "permission_posture": "full_access",
+    "mode": "agent"
+   },
+   "hello_txt": "hello mona",
+   "item_kinds": {
+    "user_message": 1,
+    "agent_reasoning": 2,
+    "tool_call": 2,
+    "status": 3,
+    "file_change": 1,
+    "agent_message": 1
+   },
+   "tool_items": [
+    {
+     "kind": "tool_call",
+     "status": "completed",
+     "summary": "bash: total 16\ndrwx------  5 <user>  staff  160 Nov 11 17:58 .\ndrwx------  3 <user>  staff   96 Nov 11 17:58 ..\ndrwxr-xr-x  3 <user>  staff   96 Nov 11 17:58 .codewhale\n-rw-r--r--  1 <user>  staff  336 Nov 11 17:58 verify.mjs\n-rw-r--r--  1 <user>  staff  262 Nov 11 1...",
+     "detail": "total 16\ndrwx------  5 <user>  staff  160 Nov 11 17:58 .\ndrwx------  3 <user>  staff   96 Nov 11 17:58 ..\ndrwxr-xr-x  3 <user>  staff   96 Nov 11 17:58 .codewhale\n-rw-r--r--  1 <user>  staff  336 Nov 11 17:58 verify.mjs\n-rw-r--r--  1 <user>  staff  262 Nov 11 17:58 verify2.mjs\n--- verify.mjs ---\nimport { readFileSync } from \"node:fs\";\ntry {\n  const text = readFileSync(\"hello.txt\", \"utf8\""
+    },
+    {
+     "kind": "file_change",
+     "status": "completed",
+     "summary": "write: Successfully wrote 10 bytes to hello.txt",
+     "detail": "Successfully wrote 10 bytes to hello.txt"
+    },
+    {
+     "kind": "tool_call",
+     "status": "completed",
+     "summary": "bash: PASS\nexit=0\n--- bytes ---\n0000000    h   e   l   l   o       m   o   n   a                        \n0000012\n",
+     "detail": "PASS\nexit=0\n--- bytes ---\n0000000    h   e   l   l   o       m   o   n   a                        \n0000012\n"
+    }
+   ],
+   "event_names": [
+    "stream.progress",
+    "thread.started",
+    "turn.started",
+    "item.started",
+    "item.completed",
+    "turn.lifecycle",
+    "turn.workspace_snapshot",
+    "model.tools.snapshot",
+    "item.delta",
+    "turn.provider_request",
+    "turn.usage",
+    "operation.activity_started",
+    "operation.activity_completed",
+    "turn.completed"
+   ],
+   "event_count": 64
+  },
+  "g0_history": {
+   "status": 200,
+   "turn_count": 1,
+   "latest": {
+    "id": "turn_2c03a372e3d34ebd9960583073edd679",
+    "status": "completed",
+    "provider": "deepseek",
+    "model": "deepseek-flash",
+    "usage": {
+     "input_tokens": 53377,
+     "output_tokens": 412,
+     "prompt_cache_hit_tokens": 39680,
+     "prompt_cache_miss_tokens": 13697,
+     "reasoning_tokens": 94,
+     "request_usages": [
+      {
+       "input_tokens": 12904,
+       "output_tokens": 121,
+       "prompt_cache_hit_tokens": 0,
+       "prompt_cache_miss_tokens": 12904,
+       "reasoning_tokens": 32
+      },
+      {
+       "input_tokens": 13354,
+       "output_tokens": 118,
+       "prompt_cache_hit_tokens": 12928,
+       "prompt_cache_miss_tokens": 426,
+       "reasoning_tokens": 62
+      },
+      {
+       "input_tokens": 13493,
+       "output_tokens": 80,
+       "prompt_cache_hit_tokens": 13312,
+       "prompt_cache_miss_tokens": 181,
+       "reasoning_tokens": 0
+      },
+      {
+       "input_tokens": 13626,
+       "output_tokens": 93,
+       "prompt_cache_hit_tokens": 13440,
+       "prompt_cache_miss_tokens": 186,
+       "reasoning_tokens": 0
+      }
+     ]
+    },
+    "error": null,
+    "permission_posture": "full_access",
+    "mode": "agent"
+   },
+   "body_keys": [
+    "thread",
+    "turns",
+    "items",
+    "latest_seq",
+    "pending_approvals",
+    "pending_user_inputs",
+    "pending_dynamic_tool_calls",
+    "approval_grants"
+   ]
+  },
+  "g0_session_export": {
+   "status": 201,
+   "body": {
+    "session_id": "thr_76ab1fc69a304505a89f0cc078cdb540",
+    "thread_id": "thr_76ab1fc69a304505a89f0cc078cdb540",
+    "message_count": 8,
+    "title": "Create the file hello.txt in this workspace con..."
+   }
+  },
+  "g0_resume": {
+   "session_id": "thr_76ab1fc69a304505a89f0cc078cdb540",
+   "status": 200,
+   "thread_id": "thr_76ab1fc69a304505a89f0cc078cdb540",
+   "keys": [
+    "thread_id",
+    "session_id",
+    "message_count",
+    "summary"
+   ]
+  },
+  "g0_interrupt": {
+   "request_status": 200,
+   "receipt": {
+    "schema_version": 2,
+    "id": "turn_7be1269754534cc981d75ea47ac3171a",
+    "thread_id": "thr_922c6e7a644b4de38883357c2993cf5b",
+    "status": "in_progress",
+    "input_summary": "Run the shell command `sleep 30` and wait for it to finish, then report done. Use the shell tool.",
+    "created_at": "2026-11-12T00:59:41.841288Z",
+    "started_at": "2026-11-12T00:59:41.864082Z",
+    "routing_settlement": false,
+    "permission_posture": "full_access",
+    "mode": "agent",
+    "effective_provider": "deepseek",
+    "effective_provider_id": "deepseek",
+    "effective_billing_surface": "first-party-payg",
+    "effective_endpoint_fingerprint": "812b1f7c4a8b1af438d207c4d010794296f83296c29dcd10b8b6dd22f64c79db",
+    "effective_billing_mode": "metered",
+    "effective_dispatched_at": "2026-11-12T00:59:41.943137Z",
+    "effective_model": "deepseek-flash",
+    "item_ids": [
+     "item_00ae4e3932994c3d8f7d34621f17a593"
+    ],
+    "steer_count": 0,
+    "workspace_snapshots": [
+     {
+      "kind": "pre_turn",
+      "snapshot_id": "48d8b328ae56b66a9c2cb00b84d9fdc534a55873",
+      "tree_id": "b8ac151e2d21fba9ea9177e17359a40d25fe31a4",
+      "session_id": "thr_922c6e7a644b4de38883357c2993cf5b"
+     }
+    ]
+   },
+   "final_turn": {
+    "id": "turn_7be1269754534cc981d75ea47ac3171a",
+    "status": "interrupted",
+    "provider": "deepseek",
+    "model": "deepseek-flash",
+    "usage": {
+     "input_tokens": 0,
+     "output_tokens": 0,
+     "request_usages": [
+      {
+       "input_tokens": 0,
+       "output_tokens": 0
+      }
+     ]
+    },
+    "error": null,
+    "permission_posture": "full_access",
+    "mode": "agent"
+   },
+   "stray_sleep_processes": []
+  }
+ },
+ "findings": [],
+ "finished_utc": "2026-11-12T00:59:43.958Z"
+}

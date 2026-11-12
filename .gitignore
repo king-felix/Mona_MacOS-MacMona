@@ -29,3 +29,6 @@ DerivedData/
 .mona/build-macos/state.json.lock/
 .mona/build-macos/*.tmp-*
 .mona/build-macos/state.json.corrupt-*
+
+# P01 integration-spike scratch output (raw evidence is copied to docs/evidence)
+.p01/

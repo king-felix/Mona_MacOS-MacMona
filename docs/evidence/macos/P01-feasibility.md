@@ -1,0 +1,168 @@
+# P01 — Feasibility: headless integration, economics, and surface coverage
+
+**Date:** 2026-11-11 (measured 2026-11-12 UTC) · **Engine:** Codewhale 0.10.2
+(`ff466b2ed0bfb4ae5267d4d8d0ecb562cf46956e`) · **Host:** Mac15,12, macOS 26.5.1,
+native arm64 · **Pilot ceiling:** $2.00
+
+## Verdict
+
+| Gate | Verdict | Basis |
+|---|---|---|
+| **G0 — Engine** | **PASS** | One real tool-enabled Full Access turn started, streamed, wrote a file, ran its test, completed, persisted history, resumed from a saved session, and was interrupted with a confirmed `interrupted` turn. Effective route was `deepseek` / `deepseek-flash`. |
+| **G1 — Economics** | **PASS, PROVISIONAL on exact cost** | Discovery, idle, history reads, and reconnect caused **zero** inference. Paired direct-vs-adapter tasks show total-token parity within ±0.8% (median −0.26%). Adapter cost is engine-reported; direct `exec` cost is **unknown**, not zero. One pair per task is not a statistical parity claim. |
+| **G2 — Surface coverage** | **PASS** | 71 capability rows: 43 CLI commands + 28 runtime/platform surfaces. 28 verified by execution or inspection, 42 discovered with a named route and a pending contract test, 1 honestly unavailable (`dispatch`, cloud paused), 0 blocked gaps. No mandatory capability requires terminal scraping, a replacement engine, or a new paid service. |
+
+G0 and G2 do not block P02. G1 is sufficient to proceed because the zero-inference
+property is deterministic and the adapter demonstrably adds no model call; the
+remaining cost uncertainty is recording precision, not a hidden call.
+
+## What was actually run
+
+The spike is `tools/p01-spike/` (Node stdlib only, disposable). It spawns
+`codewhale app-server --http` with `CODEWHALE_RUNTIME_TOKEN` in the environment,
+never argv, and verifies that the listening socket belongs to its own descendant
+process tree before using it. Raw results:
+
+- `artifacts/p01-probe.json` — endpoint discovery, zero-inference probe, concurrency.
+- `artifacts/p01-live.json` — the G0 tool task, history, resume, interrupt.
+- `artifacts/p01-economics.json` — the paired cost pilot.
+- `artifacts/p01-engine-surface.txt` — doctor, features, help surfaces.
+- `artifacts/p01-native-binary.txt` — direct binary launch, `otool -L`, signature.
+- `artifacts/p01-finder-service.txt` — CLT Finder Service feasibility.
+- `artifacts/p01-test-run.txt` — 7 passing SSE parser tests.
+
+### G0 — real execution (`p01-live.json`)
+
+- Thread `thr_76ab1fc69a304505a89f0cc078cdb540`, turn
+  `turn_2c03a372e3d34ebd9960583073edd679`, status **completed**,
+  `permission_posture = full_access`, `effective_provider = deepseek`,
+  `effective_model = deepseek-flash`.
+- The model read the workspace, wrote `hello.txt` (10 bytes, `hello mona`), ran
+  `node verify.mjs`, and received `PASS exit=0`.
+- Item kinds observed: `user_message` ×1, `agent_reasoning` ×2, `tool_call` ×2,
+  `file_change` ×1, `status` ×3, `agent_message` ×1 (64 SSE events total).
+- Usage: 53,377 input (39,680 cache hits + 13,697 misses), 412 output,
+  162 reasoning tokens across 3 provider requests.
+- History read returned the turn with the same identity and usage.
+- Export `POST /v1/sessions` → **201**; `POST /v1/sessions/{id}/resume-thread` →
+  **200** with `thread_id` and `message_count`.
+- Interrupt `POST /v1/threads/{id}/turns/{turn_id}/interrupt` → **200**; the
+  final turn status was **`interrupted`**; no `sleep 30` process survived. The
+  HTTP receipt is the turn record, not the stdio bridge's `{interrupted: true}`
+  shape.
+
+### G1 — economics (`p01-economics.json`, `p01-probe.json`)
+
+Zero inference — after startup, endpoint discovery, a 2 s idle, a history read,
+and an empty-thread SSE reconnect, `/v1/usage` still reported `turns = 0` and
+`input+output = 0`.
+
+Paired pilot (one pair per task, clean equivalent workspaces, same binary,
+provider, model, `--auto`/Full Access, same prompt):
+
+| Task | Direct total tokens | Adapter total tokens | Delta | Adapter cost (engine) | Accepted |
+|---|---|---|---|---|---|
+| file-change | 53,011 | 53,420 | +0.77% | $0.004416 | yes |
+| diagnostic | 26,193 | 26,107 | −0.33% | $0.003914 | yes |
+| multi-step | 39,618 | 39,516 | −0.26% | $0.004229 | yes |
+
+- Adapter-reported total: **$0.012559** for all three tasks, far below the $2
+  ceiling. Direct spend is **not reported**: `codewhale exec` in agent mode
+  records `total_tokens` in session metadata but no token split and
+  `cost.coverage_recorded = false`. Its `0.0` is **unknown**, never free.
+- `input_token_deltas` in the artifact are sorted; the per-task values above are
+  the unsorted pairing.
+- Quality: all six runs completed and both workspaces passed the deterministic
+  file checks.
+- Interpretation: token parity is measured and the adapter adds no inference.
+  Exact cost parity remains **provisional** until a pricing-bearing direct
+  receipt exists. The 5% project tolerance was not approached.
+
+### G2 — surface (`docs/codewhale-capabilities-macos.json`)
+
+Generated by `tools/p01-spike/build-inventory.mjs` from the pinned surface.
+Counts: 71 rows, 28 verified, 42 unqualified, 1 unavailable, 0 blocked gaps.
+Integrations: 45 native view, 18 advanced action, 7 integrated terminal,
+1 unavailable. Each row carries classification, permission and cost
+implications, arguments, integration route, UI location, test, status, and gap.
+
+## Architecture decision (ADR-P01)
+
+**Transport:** `codewhale app-server --http` (canonical `/v1/*` Runtime API,
+HTTP + SSE). Verified operations used by Mona: runtime info/capabilities,
+thread create, turn submit, SSE replay/live events, history, interrupt, session
+export/resume, usage aggregation, provider/model catalog.
+
+- `--stdio` is a compatibility control with tool-free turns only; it cannot
+  carry approvals, clarifications, or the full event journal.
+- `--socket` is the desktop daemon with a `daemon/attach` handshake; not chosen
+  because HTTP already exposes the full surface and a second auth/attach model
+  adds risk without capability.
+- `exec` is a one-shot path reserved for diagnostics and explicitly separate
+  from the persistent runtime.
+
+**Binary:** the self-contained native arm64 binary at
+`/opt/homebrew/lib/node_modules/codewhale/bin/downloads/codewhale`, not the npm
+wrapper. It launches with `env -i PATH=/usr/bin:/bin HOME=…` and no Node on
+PATH; `otool -L` shows only system frameworks (Vision, AppKit, CoreGraphics,
+Foundation, CoreFoundation, Security, libobjc, libiconv, libSystem). SHA-256
+`da022961…e590d`; ad-hoc linker-signed; `VersionMin = 11.0`, `VersionSDK = 14.4`.
+
+**Process model — measured correction to the naive plan:** the npm wrapper
+spawns the native binary as a **grandchild**, and the listener is the grandchild,
+not the PID returned by `spawn`. Ownership must be checked against the process
+tree (`ps` ppid walk), not the immediate child.
+
+**Concurrency — measured limitation:** a second `app-server --http` against the
+same user store does **not** own its listener. In the probe, the second port was
+owned by the first runtime's native PID, and the first runtime's bearer token
+authenticated the second port. The engine has a single Runtime owner per user
+store. Mona must **serialize owned runtimes** for now. Creating a separate
+`CODEWHALE_HOME` to manufacture isolation is forbidden by the specification.
+
+**Security:** bearer token supplied only through `CODEWHALE_RUNTIME_TOKEN`;
+loopback bind; endpoint identity verified by `/v1/runtime/info` port plus socket
+ownership; no credential value read or printed.
+
+## Platform and packaging findings
+
+- **Finder Service:** a CLT-built AppKit helper compiles (`swiftc` 5.10, SDK
+  14.4), reads Finder file URLs from `NSPasteboard`, passes `plutil -lint`, is
+  ad-hoc signed and verifies, and LaunchServices registers the `NSServices`
+  entry (`service id: Open in Mona`, `message: openFolder`). Full app-bundle
+  registration and Finder menu behavior remain P02/P21 work.
+- **Runtime dependencies:** no non-system dynamic libraries; Git is present but
+  is not required to start the runtime. Side-git snapshots may still expect Git
+  in the recipient environment — to be confirmed at P21, not assumed.
+- **Signing:** ad-hoc only, no TeamIdentifier. Developer ID remains the P22
+  external prerequisite.
+- **Version skew:** the installed engine's `VersionMin` is macOS 11.0 while the
+  CLT SDK is 14.4 and the host is macOS 26.5.1. The product's minimum macOS
+  version is a P02/P21 decision, not fixed here.
+
+## Upstream overlap (spec §2.3 reassessment)
+
+This release ships `codewhale web` and `codewhale rc`, a loopback browser client
+over the same Runtime API. It is functional but explicitly lacks Files/Changes,
+PTY, preview, artifacts, provider switching, Fleet creation, and
+undo/retry/restore controls; the installed npm package exposes no desktop
+binary. This does not remove the case for Mona (Finder-first folder launch,
+durable project work board, attempt tracking, cost attribution, Mac-native
+shell), but it does mean Mona must earn its keep through the workbench and
+native integration, not by re-implementing a chat page. Revisit before release.
+
+## Gaps carried forward
+
+1. **G2-01** — 42 rows are `unqualified`: discovered, routed, not yet
+   contract-tested. P03 owns the adapter contract; later prompts own their rows.
+2. **G2-02** — approvals, clarifications, artifacts, workspace search/restore,
+   terminal, MCP, skills, subagents, and fleet were inventoried but not exercised
+   live in P01. They are not claimed supported.
+3. **G1-01** — direct cost is unverified because `exec` agent mode omits usage
+   and pricing coverage. No exact-parity marketing claim may be made.
+4. **G0-01** — concurrent independent runtimes are unsupported; serialized mode
+   is the honest initial behavior.
+5. **P02 input** — process supervision must track the grandchild, not the
+   wrapper PID; port ownership must be proven by descendant socket identity.
+
+No attempt failed three times; `attempts.jsonl` remains empty.

@@ -112,3 +112,25 @@ and deviations discovered while building.
   Windows source tree exists here, so no shared worktree conflict arises.
 - **Consequence:** The Mac ledger is `.mona/build-macos/`; the Windows
   `.mona/build/` ledger and Windows sources are untouched and absent here.
+
+## D-010 — Runtime transport, binary, and serialized ownership
+
+- **Date:** 2026-11-11 (P01)
+- **Decision:** Mona integrates through `codewhale app-server --http` (canonical
+  `/v1/*` HTTP/SSE Runtime API) and launches the self-contained native arm64
+  binary directly, with the bearer token supplied only through
+  `CODEWHALE_RUNTIME_TOKEN`. One owned runtime per user store; project execution
+  is serialized until independent coexistence is proven.
+- **Why:** P01 exercised the full surface: thread/turn lifecycle, SSE replay and
+  live events, history, interrupt, session export/resume, usage, and
+  provider/model identity. `--stdio` is tool-free only; `--socket` adds a second
+  auth/attach model without extra capability. The native binary starts with no
+  Node on PATH and links only system frameworks. A second `app-server` was
+  measured to attach to the first Runtime owner (the first PID owned both ports
+  and the first token authenticated the second port), so claiming parallel
+  runtimes would be false.
+- **Consequence:** P02/P04 must supervise the process tree (the listener is a
+  grandson of the npm wrapper) and verify socket ownership, not just an HTTP
+  response. P03 builds the adapter against `/v1/*`. Parallel execution needs a
+  future, tested compatibility decision or native engine support. Creating a
+  separate `CODEWHALE_HOME` to force isolation is forbidden.

@@ -1,0 +1,161 @@
+{
+ "schema_version": 1,
+ "mode": "probe",
+ "started_utc": "2026-11-12T00:57:45.033Z",
+ "engine": {
+  "version": "0.10.2",
+  "commit": "ff466b2ed0bfb4ae5267d4d8d0ecb562cf46956e",
+  "binary": "/opt/homebrew/bin/codewhale",
+  "sha256": ""
+ },
+ "steps": {
+  "runtime_start": {
+   "pid": 9007,
+   "port": 62021,
+   "commit": "ff466b2ed0bfb4ae5267d4d8d0ecb562cf46956e",
+   "version": "0.10.2",
+   "identity": {
+    "listener_pid": 9008,
+    "descendants": [
+     9007,
+     9008
+    ]
+   },
+   "capabilities": {
+    "client_token_intents": true,
+    "account_session": true,
+    "account_model_owner": true,
+    "session_provider_keys": false,
+    "threads": true,
+    "thread_create_idempotency": true,
+    "thread_shell_consent": true,
+    "turns": true,
+    "turn_operation_idempotency": true,
+    "turn_operation_lookup": true,
+    "automation_mutation_preconditions": true,
+    "turn_image_inputs": true,
+    "turn_output_token_limit": true,
+    "profile_constitution": true,
+    "turn_steer": true,
+    "turn_interrupt": true,
+    "event_replay": true,
+    "external_tools": true,
+    "environments": false,
+    "worker_runtime": true,
+    "fleet_run_create": true,
+    "fleet_run_start": true,
+    "fleet_event_replay": true,
+    "fleet_event_stream": true,
+    "fleet_local_target": true,
+    "thread_goals": true,
+    "memory": true,
+    "mcp_server_management": true,
+    "skill_lifecycle": true,
+    "skill_detail": true,
+    "plugin_management": true,
+    "agent_mail": true,
+    "terminal_stream": true,
+    "terminal_input": true,
+    "terminal_resize": true,
+    "terminal_kill": true,
+    "event_stream_resume": true
+   }
+  },
+  "read_endpoints": {
+   "/health": {
+    "status": 200,
+    "bytes": 64,
+    "sample": "{\"status\":\"ok\",\"service\":\"codewhale-runtime-api\",\"mode\":\"local\"}"
+   },
+   "/v1/runtime/info": {
+    "status": 200,
+    "bytes": 1317,
+    "sample": "{\"service\":\"codewhale-runtime-api\",\"runtime_api_version\":\"1.0\",\"codewhale_version\":\"0.10.2\",\"codewhale_commit\":\"ff466b2ed0bfb4ae5267d4d8d0ecb562cf46956e\",\"bind_host\":\"127.0.0.1\",\"port\":62021,\"auth_required\":true,\"transports\":[\"http\",\"sse\"],\"capabilities\":{\"client_token_intents\":true,\"account_session"
+   },
+   "/v1/providers": {
+    "status": 200,
+    "bytes": 12145,
+    "sample": "{\"current\":\"deepseek\",\"current_provider_id\":\"deepseek\",\"providers\":[{\"id\":\"deepseek\",\"model_provider_id\":\"deepseek\",\"display_name\":\"DeepSeek\",\"default_model\":\"deepseek-flash\",\"has_model_catalog\":true,\"credentialState\":\"configured\",\"credentialSource\":\"secret_store\",\"credentialWritable\":true},{\"id\":\"d"
+   },
+   "/v1/providers/deepseek/models": {
+    "status": 200,
+    "bytes": 5970,
+    "sample": "{\"provider\":\"deepseek\",\"models\":[{\"id\":\"deepseek-chat\",\"image_input\":\"unsupported\",\"output_token_limit\":\"supported\",\"reasoning_effort\":\"unsupported\",\"reasoning_effort_levels\":[],\"reasoning_effort_source\":\"catalog\"},{\"id\":\"deepseek-chat-v3-0324\",\"image_input\":\"unsupported\",\"output_token_limit\":\"suppo"
+   },
+   "/v1/threads": {
+    "status": 200,
+    "bytes": 897,
+    "sample": "[{\"schema_version\":2,\"id\":\"thr_e7cf926267b547119db6ce35a49bcbf5\",\"created_at\":\"2026-11-12T00:55:44.905847Z\",\"updated_at\":\"2026-11-12T00:55:44.905847Z\",\"model\":\"deepseek-flash\",\"model_provider\":\"deepseek\",\"model_provider_id\":\"deepseek\",\"workspace\":\"/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mon"
+   },
+   "/v1/threads/summary": {
+    "status": 200,
+    "bytes": 881,
+    "sample": "[{\"id\":\"thr_e7cf926267b547119db6ce35a49bcbf5\",\"title\":\"New Thread\",\"preview\":\"New Thread\",\"model\":\"deepseek-flash\",\"mode\":\"agent\",\"workspace\":\"/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p01-probe-KravPV/ws-3mayCN\",\"branch\":null,\"head\":null,\"dirty\":false,\"archived\":false,\"updated_at\":\"2026"
+   },
+   "/v1/sessions": {
+    "status": 200,
+    "bytes": 69750,
+    "sample": "{\"sessions\":[{\"id\":\"360a9a52-1121-474f-b221-0efc0bc86e01\",\"runtime_store\":{\"data_dir\":\"/Users/<user>/.codewhale/sessions/7da331b0-8f1c-43b6-87ec-3fada71fb224/runtime\",\"execution_scope\":\"b1ed581769cdbebaabb03783476bea20eb7b8286db0c4b6a9a89fbeadd49a234\"},\"title\":\"New Session\",\"created_at\":\"2026-11-1"
+   },
+   "/v1/usage?group_by=thread": {
+    "status": 200,
+    "bytes": 560,
+    "sample": "{\"since\":null,\"until\":null,\"group_by\":\"thread\",\"totals\":{\"input_tokens\":0,\"output_tokens\":0,\"cached_tokens\":0,\"reasoning_tokens\":0,\"reasoning_replay_tokens\":0,\"cache_write_tokens\":0,\"cost_usd\":0.0,\"cost_cny\":0.0,\"priced_turns\":0,\"unpriced_turns\":0,\"cny_priced_turns\":0,\"cny_unpriced_turns\":0,\"cny_unp"
+   }
+  },
+  "probe_thread_create": {
+   "status": 201,
+   "id": "thr_3f1eba3acba84ef0a94223a6cd51eb26"
+  },
+  "empty_stream_reconnect": {
+   "aborted": true,
+   "message": "This operation was aborted"
+  },
+  "zero_inference": {
+   "before_turns": 0,
+   "after_turns": 0,
+   "before_tokens": 0,
+   "after_tokens": 0,
+   "zero_inference": true
+  },
+  "concurrency_result": {
+   "second_listener_pid": 9008,
+   "first_listener_pid": 9008,
+   "second_owned_socket": false,
+   "shared_owner": true,
+   "thread_create_status": 201,
+   "second_turn": {
+    "id": "turn_4bc6ef376210467289f165e05ed4c171",
+    "status": "completed",
+    "provider": "deepseek",
+    "model": "deepseek-flash",
+    "usage": {
+     "input_tokens": 4304,
+     "output_tokens": 3,
+     "prompt_cache_hit_tokens": 1024,
+     "prompt_cache_miss_tokens": 3280,
+     "reasoning_tokens": 0,
+     "request_usages": [
+      {
+       "input_tokens": 4304,
+       "output_tokens": 3,
+       "prompt_cache_hit_tokens": 1024,
+       "prompt_cache_miss_tokens": 3280,
+       "reasoning_tokens": 0
+      }
+     ]
+    },
+    "error": null,
+    "permission_posture": "ask",
+    "mode": "agent"
+   },
+   "first_runtime_healthy": 200,
+   "independent_coexistence": false,
+   "serialized_mode_required": true
+  }
+ },
+ "findings": [
+  "A second app-server attached to the first Runtime owner instead of owning its listener; Mona must serialize owned runtimes against one store rather than claim parallel isolation."
+ ],
+ "finished_utc": "2026-11-12T00:57:52.322Z"
+}

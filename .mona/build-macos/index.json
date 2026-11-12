@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-12T00:46:02.938Z",
+  "generated_utc": "2026-11-12T01:07:22.286Z",
   "git": {
     "available": true,
-    "commit": "bf1aede46365cd0843a3810c2ff8e024556ae7ae",
+    "commit": "44ead627b312e53313bfe48641d0c8dc77c786da",
     "dirty": true
   },
-  "digest": "a6eeb00c1e17159612efa5f07393e35edd63d4ee47d18b67e50b65fce0661117",
+  "digest": "afebba123535389976262b10e8b1c9bbbc58c7b430331f6f20765931a508f288",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,8 +15,8 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "44e8b410768fa03d534182a154eb877f67668abf4937aade87704221f72c7476",
-      "bytes": 14134
+      "sha256": "8b28cda6c34cafa32d50ec6f0ac325c91473b725df2f6baf4a87a1c76ca0a8ac",
+      "bytes": 16360
     },
     {
       "path": "AGENTS.md",
@@ -25,8 +25,8 @@
     },
     {
       "path": "docs/codewhale-capabilities-macos.json",
-      "sha256": "3b2950e6569e8fecce407ed570381fd0610f1bd4f388eab0a489eb0769d040bf",
-      "bytes": 9492
+      "sha256": "89bc762ecdd0894c339d436d414c9d7078bb7c5df7e31d0176c5df97c06a52e0",
+      "bytes": 52456
     },
     {
       "path": "docs/evidence/macos/artifacts/codewhale-app-server-help.txt",
@@ -84,6 +84,41 @@
       "bytes": 884
     },
     {
+      "path": "docs/evidence/macos/artifacts/p01-economics.json",
+      "sha256": "a381bb7add0c00bcaab398fc3f52e514ec99671090a77857d8fc8c2ab82bc82f",
+      "bytes": 9341
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p01-engine-surface.txt",
+      "sha256": "d685552eea8e11feeeba99e3fa1d8d4e41b1ab41d8f22826efadba283e61d668",
+      "bytes": 6561
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p01-finder-service.txt",
+      "sha256": "74eb1c0e4118c23fbd7e4c7ac14d062686bbf2d848e32340498a3ca62fd8d7c6",
+      "bytes": 1268
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p01-live.json",
+      "sha256": "f41d21286a15c8f08b3b780f3237c55e74faddd1abaafcfe48e946fef085ba73",
+      "bytes": 9330
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p01-native-binary.txt",
+      "sha256": "a81944adecd95d538af650948f222eaad173b4c0a9a5f309feeebcbaab309d07",
+      "bytes": 2731
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p01-probe.json",
+      "sha256": "f4177bc2ccfea5c60433dec05eafe86608edf93408093954de79cd4273a76543",
+      "bytes": 6271
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p01-test-run.txt",
+      "sha256": "9bf8096673f9319e905250dbd91b6086e8024c4f1a451449523fd72ba352ee24",
+      "bytes": 924
+    },
+    {
       "path": "docs/evidence/macos/artifacts/signing-inventory.txt",
       "sha256": "3e45104c0497ce03bcba731224d253e6003d8addfb46933fc778a3b79ae07d7c",
       "bytes": 397
@@ -107,6 +142,11 @@
       "path": "docs/evidence/macos/P00-bootstrap.md",
       "sha256": "6e9b2652e80445f03d2cafdf98201441480d943cf17bbf0a23d1a6a19809659e",
       "bytes": 8923
+    },
+    {
+      "path": "docs/evidence/macos/P01-feasibility.md",
+      "sha256": "1d801dbabc951c36802cf78271c74cd44e780a44078a8d2a4cb86692990a28a3",
+      "bytes": 10039
     },
     {
       "path": "docs/requirements-macos.json",

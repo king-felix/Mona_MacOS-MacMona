@@ -1,0 +1,21 @@
+✔ capability inventory satisfies its own row contract (2.59925ms)
+✔ coverage counts match the rows (1.23425ms)
+✔ every CLI command discovered in P00 has a row (0.566166ms)
+✔ processTree includes the root and a live child (163.742416ms)
+✔ listeningPids reports the process that owns an in-process listener (20.689583ms)
+✔ listeningPids is empty for a closed port (19.216708ms)
+✔ parses a complete frame with id, event and JSON data (0.492459ms)
+✔ holds a partial frame until the blank line arrives (0.302917ms)
+✔ handles CRLF frame boundaries (0.11975ms)
+✔ joins multi-line data with newlines (0.07175ms)
+✔ ignores comments and unknown fields (0.069125ms)
+✔ two frames in one chunk are both delivered (0.081ms)
+✔ rejects an unbounded frame instead of buffering forever (0.199167ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 272.141708
