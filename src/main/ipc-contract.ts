@@ -196,6 +196,53 @@ export const IpcRequests = {
     reason: z.string().min(1).max(2000),
     evidence: z.array(z.string().min(1).max(2048)).min(1).max(20),
   }),
+
+  // Cost ledger. Every call is a local read or an explicit human edit; none can
+  // start inference, and no call reads or writes a provider balance.
+  "cost:ledger": z.strictObject({
+    projectId: ProjectId,
+    since: z.string().datetime().nullable().optional(),
+    until: z.string().datetime().nullable().optional(),
+    timeZone: z.string().min(1).max(64).optional(),
+    format: z.enum(["view", "json", "csv"]).optional(),
+  }),
+  "cost:budget-set": z.strictObject({
+    projectId: ProjectId,
+    scope: z.enum(["session", "project", "day"]),
+    limitUsd: z.number().positive().max(1_000_000),
+    warnUsd: z.number().positive().max(1_000_000).nullable().optional(),
+    enabled: z.boolean().optional(),
+    timeZone: z.string().min(1).max(64).optional(),
+    expectedRevision: z.number().int().min(1).optional(),
+  }),
+  "cost:budget-clear": z.strictObject({
+    projectId: ProjectId,
+    budgetId: z.string().min(1).max(200),
+    expectedRevision: z.number().int().min(1).optional(),
+  }),
+  "cost:rate-set": z.strictObject({
+    provider: z.string().min(1).max(100),
+    model: z.string().min(1).max(200),
+    cacheHitPerMillion: z.number().nonnegative().max(100_000).nullable(),
+    cacheMissPerMillion: z.number().nonnegative().max(100_000).nullable(),
+    outputPerMillion: z.number().nonnegative().max(100_000).nullable(),
+    toolCallPerMillion: z.number().nonnegative().max(100_000).nullable().optional(),
+    reasoningInOutput: z.boolean().optional(),
+    sourceRef: z.string().max(500).nullable().optional(),
+  }),
+  "cost:recalc-preview": z.strictObject({
+    projectId: ProjectId,
+    provider: z.string().min(1).max(100),
+    model: z.string().min(1).max(200),
+    cacheHitPerMillion: z.number().nonnegative().max(100_000).nullable(),
+    cacheMissPerMillion: z.number().nonnegative().max(100_000).nullable(),
+    outputPerMillion: z.number().nonnegative().max(100_000).nullable(),
+    reasoningInOutput: z.boolean().optional(),
+  }),
+  "cost:export-file": z.strictObject({
+    projectId: ProjectId,
+    format: z.enum(["json", "csv"]),
+  }),
 } as const;
 
 export type IpcChannel = keyof typeof IpcRequests;

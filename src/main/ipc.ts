@@ -7,6 +7,7 @@ import { StateError } from "./state/errors";
 import type { ProjectService } from "./projects/service";
 import type { WorkStudio } from "./work/studio";
 import type { TaskBoard } from "./work/board";
+import type { CostLedger } from "./work/costs";
 import type { ProjectId } from "../shared/contracts/ids";
 import type { ImportPlanResult } from "../shared/contracts/board";
 import type { IpcResult, RuntimeStatusView, StateFacts } from "../shared/contracts/project-bridge";
@@ -37,9 +38,15 @@ export interface IpcDependencies {
   stateFacts: () => Promise<StateFacts>;
   studio: WorkStudio | null;
   board: TaskBoard | null;
+  cost: CostLedger | null;
   /** Native file dialogs live in the main entry point, not in the IPC layer. */
   importPlanFile: (projectId: ProjectId) => Promise<ImportPlanResult | null>;
   exportPlanFile: (projectId: ProjectId) => Promise<{ saved: boolean; path: string | null }>;
+  /** Save a generated ledger file through the native dialog. */
+  exportCostFile: (
+    projectId: ProjectId,
+    format: "json" | "csv",
+  ) => Promise<{ saved: boolean; path: string | null }>;
   /** The one dispatcher for externally supplied folders (validated, journaled). */
   openRequest: (input: string, source: FolderRequestSource) => Promise<OpenResult>;
   openStatus: () => OpenStatusView;
@@ -451,6 +458,15 @@ export function registerIpc(rendererRoot: string, dependencies: IpcDependencies)
         {
           owner: "mona_queue",
           preflight: async () => {
+            // A user-set budget blocks the next dispatch before any task run
+            // starts, so a refusal is never mistaken for an unknown outcome.
+            if (dependencies.cost) {
+              const gate = await dependencies.cost.dispatchGate(
+                value.projectId,
+                new Date().toISOString(),
+              );
+              if (!gate.allowed) return gate.reasons.join(" ");
+            }
             const snapshot = await studio.snapshot(value.projectId);
             if (snapshot.pauseAfterTask) {
               return "the Mona queue is paused after the current task; resume the queue before starting new work";
@@ -466,5 +482,88 @@ export function registerIpc(rendererRoot: string, dependencies: IpcDependencies)
         },
       );
     });
+  });
+
+  // ------------------------------------------------------------- cost ledger
+  const requireCost = (): CostLedger => {
+    const cost = dependencies.cost;
+    if (!cost) {
+      throw Object.assign(
+        new Error("the cost ledger is unavailable because project state did not open"),
+        { code: "RUNTIME_UNAVAILABLE" },
+      );
+    }
+    return cost;
+  };
+
+  handle("cost:ledger", (input) => {
+    const value = input as {
+      projectId: never;
+      since?: string | null;
+      until?: string | null;
+      timeZone?: string;
+      format?: "view" | "json" | "csv";
+    };
+    return envelope(async () => {
+      const ledger = requireCost();
+      const options = {
+        since: value.since ?? null,
+        until: value.until ?? null,
+        ...(value.timeZone ? { timeZone: value.timeZone } : {}),
+      };
+      if (value.format === "json" || value.format === "csv") {
+        return ledger.exportLedger(value.projectId, { ...options, format: value.format });
+      }
+      return ledger.ledger(value.projectId, options);
+    });
+  });
+  handle("cost:budget-set", (input) => {
+    const value = input as {
+      projectId: never;
+      scope: "session" | "project" | "day";
+      limitUsd: number;
+      warnUsd?: number | null;
+      enabled?: boolean;
+      timeZone?: string;
+      expectedRevision?: number;
+    };
+    return envelope(() => requireCost().setBudget(value));
+  });
+  handle("cost:budget-clear", (input) => {
+    const value = input as {
+      projectId: never;
+      budgetId: string;
+      expectedRevision?: number;
+    };
+    return envelope(() => requireCost().clearBudget(value));
+  });
+  handle("cost:rate-set", (input) => {
+    const value = input as {
+      provider: string;
+      model: string;
+      cacheHitPerMillion: number | null;
+      cacheMissPerMillion: number | null;
+      outputPerMillion: number | null;
+      toolCallPerMillion?: number | null;
+      reasoningInOutput?: boolean;
+      sourceRef?: string | null;
+    };
+    return envelope(() => requireCost().setRateCard(value));
+  });
+  handle("cost:recalc-preview", (input) => {
+    const value = input as {
+      projectId: never;
+      provider: string;
+      model: string;
+      cacheHitPerMillion: number | null;
+      cacheMissPerMillion: number | null;
+      outputPerMillion: number | null;
+      reasoningInOutput?: boolean;
+    };
+    return envelope(() => requireCost().previewRecalculation(value.projectId, value));
+  });
+  handle("cost:export-file", (input) => {
+    const value = input as { projectId: never; format: "json" | "csv" };
+    return envelope(() => dependencies.exportCostFile(value.projectId, value.format));
   });
 }

@@ -14,7 +14,7 @@
         "sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8"
       }
     ],
-    "indexed_utc": "2026-11-12T05:12:41.841Z"
+    "indexed_utc": "2026-11-12T06:23:33.389Z"
   },
   "prompts": [
     {
@@ -483,10 +483,47 @@
         "P12",
         "P26"
       ],
-      "status": "pending",
+      "status": "satisfied",
       "acceptance": "pending",
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P12-costs.md",
+          "note": "P12 cost ledger, dispatch gate, and verification"
+        },
+        {
+          "path": "docs/decisions/ADR-007-usage-semantics-and-rates.md",
+          "note": "usage semantics, five cost states, and rate provenance"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p12-tests.txt",
+          "note": "337 tests in 37 files, including 19 ledger and 5 cost-screen tests"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p12-cost-sample.json",
+          "note": "20/20 sample-ledger checks on a real database"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p12-shell-cost.json",
+          "note": "49/49 real-shell checks with a seeded reported and unpriced turn"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p12-shell-cost.png",
+          "note": "rendered cost lens: known spend, incomplete disclosure, budget"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p12-shell-cost-detail.png",
+          "note": "rendered price evidence, turn rows, and export controls"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p12-schema.txt",
+          "note": "migration v5: cost columns, rate cards, budgets, thread marks, one-row-per-turn index"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p12-ci.txt",
+          "note": "local CI green: format, lint, typecheck, builds, tests, board and cost smoke"
+        }
+      ],
+      "notes": "P12: one ledger row per (thread, turn) with a partial unique index; five labeled cost states (reported, estimated, unknown_price, missing_usage, unallocated); exact integer pico-USD; the engine's cumulative thread total stored as a non-negative per-turn delta with an unallocated residual when it cannot be split; inclusive turn input and exclusive usage buckets handled separately; cache and reasoning tokens never double-counted; human-recorded, revisioned rate cards with no shipped price table; preview-only recalculation; per-model/task/session/civil-day rollups; optional session/project/day budgets that warn or stop the next dispatch and disclose that a local limit is not an invoice cap; JSON and CSV export with no balance. Ledger reads and edits make zero inference calls (asserted against a fixture transport). P01's paid evidence is reused; no new live spend was required. Final human QA is P26."
     },
     {
       "id": "MONA-004",
@@ -854,10 +891,47 @@
       "prompts": [
         "P12"
       ],
-      "status": "pending",
+      "status": "satisfied",
       "acceptance": "pending",
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P12-costs.md",
+          "note": "P12 cost ledger, dispatch gate, and verification"
+        },
+        {
+          "path": "docs/decisions/ADR-007-usage-semantics-and-rates.md",
+          "note": "usage semantics, five cost states, and rate provenance"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p12-tests.txt",
+          "note": "337 tests in 37 files, including 19 ledger and 5 cost-screen tests"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p12-cost-sample.json",
+          "note": "20/20 sample-ledger checks on a real database"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p12-shell-cost.json",
+          "note": "49/49 real-shell checks with a seeded reported and unpriced turn"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p12-shell-cost.png",
+          "note": "rendered cost lens: known spend, incomplete disclosure, budget"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p12-shell-cost-detail.png",
+          "note": "rendered price evidence, turn rows, and export controls"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p12-schema.txt",
+          "note": "migration v5: cost columns, rate cards, budgets, thread marks, one-row-per-turn index"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p12-ci.txt",
+          "note": "local CI green: format, lint, typecheck, builds, tests, board and cost smoke"
+        }
+      ],
+      "notes": "P12: one ledger row per (thread, turn) with a partial unique index; five labeled cost states (reported, estimated, unknown_price, missing_usage, unallocated); exact integer pico-USD; the engine's cumulative thread total stored as a non-negative per-turn delta with an unallocated residual when it cannot be split; inclusive turn input and exclusive usage buckets handled separately; cache and reasoning tokens never double-counted; human-recorded, revisioned rate cards with no shipped price table; preview-only recalculation; per-model/task/session/civil-day rollups; optional session/project/day budgets that warn or stop the next dispatch and disclose that a local limit is not an invoice cap; JSON and CSV export with no balance. Ledger reads and edits make zero inference calls (asserted against a fixture transport). P01's paid evidence is reused; no new live spend was required. Final human QA is P26."
     },
     {
       "id": "MONA-014",
@@ -1391,7 +1465,7 @@
     "ok": true,
     "errors": [],
     "warnings": [],
-    "validated_utc": "2026-11-12T05:12:41.841Z",
+    "validated_utc": "2026-11-12T06:23:33.389Z",
     "prompt_count": 28,
     "requirement_count": 38
   }

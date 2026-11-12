@@ -37,6 +37,7 @@ import { createProductionDriver } from "./supervisor/driver";
 import { WorkController } from "./work/control";
 import { WorkStudio } from "./work/studio";
 import { TaskBoard } from "./work/board";
+import { CostLedger } from "./work/costs";
 import { StateError } from "./state/errors";
 import { StateStore } from "./state/store";
 import { verifyPrivatePermissions } from "./state/paths";
@@ -76,6 +77,7 @@ let projectService: ProjectService | null = null;
 let workController: WorkController | null = null;
 let workStudio: WorkStudio | null = null;
 let taskBoard: TaskBoard | null = null;
+let costLedger: CostLedger | null = null;
 let studioSmokeProjectId: string | null = null;
 let studioSmokeRoot: string | null = null;
 let openCoordinator: OpenCoordinator | null = null;
@@ -765,8 +767,33 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
   const cost = await window.webContents.executeJavaScript(`(() => ({
     screen: document.documentElement.dataset.screen,
     empty_usage: document.body.textContent.includes('No usage recorded for this project'),
+    known_spend: document.body.textContent.includes('Known spend'),
+    incomplete: document.body.textContent.includes('Spend is incomplete'),
+    unknown_state: document.body.textContent.includes('Unknown price'),
+    budget_row: document.body.textContent.includes('Within budget'),
+    no_balance_claim: document.body.textContent.includes('never derives a remaining balance'),
+    export_controls:
+      Array.from(document.querySelectorAll('button')).some((button) =>
+        button.textContent?.includes('Export CSV')) &&
+      Array.from(document.querySelectorAll('button')).some((button) =>
+        button.textContent?.includes('Export JSON')),
     horizontal_overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1
   }))()`);
+  await new Promise((resolve) => setTimeout(resolve, 200));
+  const costShot = await window.webContents.capturePage();
+  writeFileSync(join(outDir, "p12-shell-cost.png"), costShot.toPNG());
+  // The lower half of the lens: rollups, price evidence, turns, and export.
+  await window.webContents.executeJavaScript(`(() => {
+    const region = document.querySelector('.screen--cost');
+    if (region) window.scrollTo(0, region.scrollHeight);
+    const detail = Array.from(document.querySelectorAll('.card')).find((card) =>
+      card.textContent?.includes('Price evidence'));
+    detail?.scrollIntoView({ block: 'start' });
+    return true;
+  })()`);
+  await new Promise((resolve) => setTimeout(resolve, 250));
+  const costDetailShot = await window.webContents.capturePage();
+  writeFileSync(join(outDir, "p12-shell-cost-detail.png"), costDetailShot.toPNG());
 
   window.webContents.sendInputEvent({ type: "keyDown", keyCode: "5", modifiers: ["meta"] });
   window.webContents.sendInputEvent({ type: "keyUp", keyCode: "5", modifiers: ["meta"] });
@@ -832,7 +859,12 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
     blocked_attempt_counters: board.blocked_attempts === true,
     blocked_help_card: board.help_card === true,
     cost_screen: costReady && cost.screen === "cost",
-    cost_empty_usage: cost.empty_usage === true,
+    cost_known_spend: cost.known_spend === true,
+    cost_incomplete_disclosed: cost.incomplete === true,
+    cost_unknown_state_label: cost.unknown_state === true,
+    cost_budget_rendered: cost.budget_row === true,
+    cost_no_balance_claim: cost.no_balance_claim === true,
+    cost_export_controls: cost.export_controls === true,
     settings_ready: settingsReady && settings.screen === "settings",
     database_visible: settings.database_visible === true,
     runtime_panel: settings.runtime_visible === true,
@@ -861,6 +893,8 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
       "docs/evidence/macos/artifacts/p11-shell-board.png",
       "docs/evidence/macos/artifacts/p11-shell-attempts.png",
       "docs/evidence/macos/artifacts/p07-shell-settings.png",
+      "docs/evidence/macos/artifacts/p12-shell-cost.png",
+      "docs/evidence/macos/artifacts/p12-shell-cost-detail.png",
     ],
   };
   const out = process.env.MONA_SHELL_SMOKE_OUT;
@@ -1706,6 +1740,7 @@ if (!gotLock) {
           store: productState,
           supervisor,
           work: workController,
+          ledger: new CostLedger(productState),
           notify: (push) => {
             if (mainWindow && !mainWindow.isDestroyed()) {
               mainWindow.webContents.send("studio:changed", push);
@@ -1720,6 +1755,7 @@ if (!gotLock) {
       }
       if (productState) {
         taskBoard = new TaskBoard({ store: productState });
+        costLedger = new CostLedger(productState);
       }
     } catch (error) {
       productStateError = error instanceof Error ? error.message : String(error);
@@ -1786,6 +1822,44 @@ if (!gotLock) {
           thread?.id ?? detail.threads[0]?.id ?? "",
           "Keep this draft local to the shell smoke project.",
         );
+        // P12: real stored usage with a reported turn and an unpriced turn, so
+        // the cost lens renders mixed evidence rather than a fixture.
+        await productState.recordUsage({
+          projectId: opened.project.id,
+          threadId: thread?.id ?? null,
+          turnId: null,
+          provider: "deepseek",
+          model: "deepseek-flash",
+          inputTokens: 1200,
+          outputTokens: 40,
+          cachedTokens: 800,
+          cacheMissTokens: 400,
+          reasoningTokens: 12,
+          costUsd: 0.0042,
+          costState: "reported",
+          capturedAt: new Date().toISOString(),
+        });
+        await productState.recordUsage({
+          projectId: opened.project.id,
+          threadId: thread?.id ?? null,
+          turnId: null,
+          provider: "deepseek",
+          model: "deepseek-flash",
+          inputTokens: 900,
+          outputTokens: 20,
+          cachedTokens: 0,
+          cacheMissTokens: 900,
+          reasoningTokens: 0,
+          costUsd: null,
+          costState: "unknown_price",
+          capturedAt: new Date().toISOString(),
+        });
+        await costLedger?.setBudget({
+          projectId: opened.project.id,
+          scope: "project",
+          limitUsd: 5,
+          warnUsd: 1,
+        });
       }
     }
 
@@ -1846,14 +1920,37 @@ if (!gotLock) {
       return { saved: true, path: chosen.filePath };
     };
 
+    const exportCostFile = async (projectId: StudioProjectId, format: "json" | "csv") => {
+      if (!costLedger) throw new StateError("CONFLICT", "the cost ledger is unavailable");
+      const exported = await costLedger.exportLedger(projectId, { format });
+      const target = mainWindow;
+      const chosen = target
+        ? await dialog.showSaveDialog(target, {
+            title: "Export Mona cost ledger",
+            defaultPath: exported.filename,
+            filters: [
+              {
+                name: format === "csv" ? "Comma-separated values" : "Cost ledger JSON",
+                extensions: [format],
+              },
+            ],
+          })
+        : { canceled: true, filePath: undefined };
+      if (chosen.canceled || !chosen.filePath) return { saved: false, path: null };
+      writeFileSync(chosen.filePath, exported.content, "utf8");
+      return { saved: true, path: chosen.filePath };
+    };
+
     registerIpc(RENDERER_ROOT, {
       projects: projectService,
       runtimeStatus: () => runtimeStatusView(supervisor?.status() ?? fallbackStatus),
       stateFacts,
       studio: workStudio,
       board: taskBoard,
+      cost: costLedger,
       importPlanFile,
       exportPlanFile,
+      exportCostFile,
       openRequest: async (input, source) => {
         const result = await dispatchOpen(input, source);
         if (!result) {

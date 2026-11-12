@@ -20,6 +20,7 @@ export type StateErrorCode =
   | "IMPORT_DIGEST_MISMATCH"
   | "IMPORT_REVISION_CONFLICT"
   | "MAINTENANCE_FAILED"
+  | "INVALID_INPUT"
   | "PROTECTED_ARTIFACT";
 
 export class StateError extends Error {

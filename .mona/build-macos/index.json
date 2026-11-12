@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-12T05:13:36.470Z",
+  "generated_utc": "2026-11-12T06:25:18.133Z",
   "git": {
     "available": true,
-    "commit": "e32b1a1b83aa0d4797c3606b58947b2ca96138d4",
+    "commit": "6c838c0b38000e6a75134ca9ac3d23927b629962",
     "dirty": true
   },
-  "digest": "2b9cc1c0939189c0fa4e2f0ae6e34b60081d3a69e6ff7e0bc67556e41d2068da",
+  "digest": "1be1aca8ebaf9fa8354675dd72e73bb52ba38055216e834421dc9150714fd732",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,8 +15,8 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "9590918a4a99b4bf31902736e972af74cf10fe54c29837440ded81702923e51c",
-      "bytes": 80423
+      "sha256": "0293ad01cd5d1143ebc8e6e3c348a72dfe2a6ed74f6115b2408ac1cdd14ae9b6",
+      "bytes": 83994
     },
     {
       "path": "AGENTS.md",
@@ -449,6 +449,46 @@
       "bytes": 4623
     },
     {
+      "path": "docs/evidence/macos/artifacts/p12-ci.txt",
+      "sha256": "6253f08c337c5a36ac85df1622d251aad6f69a021ad81aa865ccd4eef374e087",
+      "bytes": 15921
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p12-cost-sample.json",
+      "sha256": "d38d8256f885f32e9c5cf51c2aa2cd150a14858241de456f1903437e9374f7dc",
+      "bytes": 2065
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p12-cost-sample.log",
+      "sha256": "070fe842941e003f9592ef1ce0fc8e15f12d2b212673460253dfc2f8e2e65c5f",
+      "bytes": 633
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p12-schema.txt",
+      "sha256": "f2e6a6a98594a8cb839549315710e19e6dccc4a50fcad6866f952ff775b24fd6",
+      "bytes": 1310
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p12-shell-cost-detail.png",
+      "sha256": "3813ffe5764e61fccb2f6c24acd0240115f620b27857f1ddeab7b4b79211c71d",
+      "bytes": 239722
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p12-shell-cost.json",
+      "sha256": "0234c8aa7bf873b093832bbb583256172e4ad99bce73b13e36ccd16db6cdc1db",
+      "bytes": 3951
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p12-shell-cost.png",
+      "sha256": "4ad2eb6547e8324e0cd5b19f65d53c000b53fb700c6ddc255857204437ecc053",
+      "bytes": 324030
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p12-tests.txt",
+      "sha256": "ada3dabbcd7268cd8aa9b429966af86ff4916d4d39746da1ddd0bdb247d3cc13",
+      "bytes": 4854
+    },
+    {
       "path": "docs/evidence/macos/artifacts/signing-inventory.txt",
       "sha256": "3e45104c0497ce03bcba731224d253e6003d8addfb46933fc778a3b79ae07d7c",
       "bytes": 397
@@ -529,14 +569,19 @@
       "bytes": 11315
     },
     {
-      "path": "docs/requirements-macos.json",
-      "sha256": "ceee54426c088f62f1ffabbc69e62747a58c6e444bf201f21f49061f389dbea2",
-      "bytes": 43077
+      "path": "docs/evidence/macos/P12-costs.md",
+      "sha256": "0c81ba7b4fd51ba335af0443596ea5925756518d286e551079c1edb4e0862d68",
+      "bytes": 10015
     },
     {
       "path": "docs/requirements-macos.json",
-      "sha256": "ceee54426c088f62f1ffabbc69e62747a58c6e444bf201f21f49061f389dbea2",
-      "bytes": 43077
+      "sha256": "644fc187099416adf354d9cfb50354fc93c69b2a94284dc112fd2b805b49a4b6",
+      "bytes": 47995
+    },
+    {
+      "path": "docs/requirements-macos.json",
+      "sha256": "644fc187099416adf354d9cfb50354fc93c69b2a94284dc112fd2b805b49a4b6",
+      "bytes": 47995
     },
     {
       "path": "Mona_macOS_Project.md",

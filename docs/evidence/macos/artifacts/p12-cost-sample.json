@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "prompt": "P12",
+  "ok": true,
+  "checks": {
+    "inclusive_bucket_exact": true,
+    "exclusive_bucket_exact": true,
+    "replay_single_row": true,
+    "reported_cost_exact": true,
+    "thread_delta_exact": true,
+    "unpriced_stays_unknown": true,
+    "estimate_from_card_exact": true,
+    "estimate_names_its_card": true,
+    "rate_revision_preserves_history": true,
+    "recalc_preview_is_read_only": true,
+    "civil_day_dst": true,
+    "budget_warns": true,
+    "budget_reports_lower_bound": true,
+    "budget_stops_next_dispatch": true,
+    "budget_clear_restores_dispatch": true,
+    "day_budget_uses_civil_day": true,
+    "view_incomplete_when_unknown": true,
+    "balance_unavailable": true,
+    "export_csv_has_states": true,
+    "export_json_has_no_balance": true
+  },
+  "detail": {
+    "arithmetic": {
+      "inclusive": 1360800000,
+      "exclusive": 46902100000
+    },
+    "civil_day": {
+      "day": "2026-03-08",
+      "startIso": "2026-03-08T05:00:00.000Z",
+      "endIso": "2026-03-09T04:00:00.000Z"
+    },
+    "day_gate": {
+      "previous_day_allowed": false,
+      "same_day_allowed": true
+    }
+  },
+  "totals": {
+    "turns": 4,
+    "inputTokens": 4800,
+    "cachedTokens": 3200,
+    "cacheMissTokens": 0,
+    "outputTokens": 160,
+    "reasoningTokens": 48,
+    "costUsd": 0.0048608,
+    "costPicoUsd": 4860800000,
+    "costComplete": false,
+    "costBasis": "mixed",
+    "reportedTurns": 2,
+    "estimatedTurns": 1,
+    "unknownTurns": 1,
+    "missingTurns": 0,
+    "unallocatedTurns": 0,
+    "unallocatedUsd": 0
+  },
+  "routes": [
+    {
+      "provider": "deepseek",
+      "model": "deepseek-flash",
+      "state": "unknown_price",
+      "rateCardId": "rate_00000005",
+      "pricingReadAt": "2026-11-11T00:00:00.000Z"
+    }
+  ],
+  "days": [
+    {
+      "day": "2026-11-11",
+      "turns": 4,
+      "cost_usd": 0.0048608
+    }
+  ],
+  "notes": [
+    "Provider billing remains authoritative. Mona has no supported balance interface, so no remaining balance is shown."
+  ],
+  "database": "<tmp>/state/mona.sqlite"
+}

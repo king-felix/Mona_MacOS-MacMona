@@ -98,3 +98,37 @@ describe("engine ownership boundary", () => {
     expect(retries.length).toBeLessThanOrEqual(2);
   });
 });
+
+describe("cost ledger boundary", () => {
+  it("keeps pricing arithmetic free of any inference or network path", async () => {
+    for (const relative of ["src/main/work/costs.ts", "src/main/work/cost-math.ts"]) {
+      const text = await readFile(join(ROOT, relative), "utf8");
+      for (const forbidden of [
+        "fetch(",
+        "HttpRuntimeTransport",
+        "CodewhaleAdapter",
+        "EngineAdapter",
+        "readUsage",
+        "submitTurn",
+      ]) {
+        expect(text, `${relative} must not reference ${forbidden}`).not.toContain(forbidden);
+      }
+    }
+  });
+
+  it("never lets the cost screen start work", async () => {
+    const text = await readFile(join(ROOT, "src/renderer/shell/Cost.tsx"), "utf8");
+    for (const forbidden of ["submitTask", "startStudio", "interruptNow", "dispatchNextTask"]) {
+      expect(text, `Cost.tsx must not call ${forbidden}`).not.toContain(forbidden);
+    }
+    expect(text).toContain("window.mona.costLedger");
+  });
+
+  it("carries no provider balance or price constant in the cost contracts", async () => {
+    const contract = await readFile(join(ROOT, "src/shared/contracts/cost.ts"), "utf8");
+    expect(contract).toContain("available: false");
+    const math = await readFile(join(ROOT, "src/main/work/cost-math.ts"), "utf8");
+    // No shipped price table: only the unit conversion constant is numeric.
+    expect(math).not.toMatch(/deepseek|claude|gpt-/i);
+  });
+});

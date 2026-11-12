@@ -220,3 +220,79 @@ describe("work board IPC validation", () => {
     expect(validateIpc("board:import", { projectId, plan })).toEqual({ projectId, plan });
   });
 });
+
+describe("cost ledger IPC validation", () => {
+  const projectId = "prj_0123456789abcdef";
+
+  it("accepts a bounded ledger read and rejects loose payloads", () => {
+    expect(validateIpc("cost:ledger", { projectId })).toEqual({ projectId });
+    expect(
+      validateIpc("cost:ledger", { projectId, since: "2026-11-01T00:00:00.000Z" }),
+    ).toBeTruthy();
+    expect(() => validateIpc("cost:ledger", { projectId, since: "yesterday" })).toThrow();
+    expect(() => validateIpc("cost:ledger", { projectId, timeZone: "x".repeat(65) })).toThrow();
+    expect(() => validateIpc("cost:ledger", { projectId, balance: true })).toThrow();
+  });
+
+  it("validates budgets as positive, scoped, optional limits", () => {
+    expect(validateIpc("cost:budget-set", { projectId, scope: "day", limitUsd: 2.5 })).toBeTruthy();
+    expect(() =>
+      validateIpc("cost:budget-set", { projectId, scope: "week", limitUsd: 2.5 }),
+    ).toThrow();
+    expect(() =>
+      validateIpc("cost:budget-set", { projectId, scope: "project", limitUsd: 0 }),
+    ).toThrow();
+    expect(() =>
+      validateIpc("cost:budget-set", { projectId, scope: "project", limitUsd: 1, unlimited: true }),
+    ).toThrow();
+    expect(
+      validateIpc("cost:budget-clear", { projectId, budgetId: "bdg_1", expectedRevision: 2 }),
+    ).toBeTruthy();
+  });
+
+  it("validates rate cards as explicit per-million numbers", () => {
+    expect(
+      validateIpc("cost:rate-set", {
+        provider: "deepseek",
+        model: "deepseek-flash",
+        cacheHitPerMillion: 0.28,
+        cacheMissPerMillion: 2.8,
+        outputPerMillion: 0.42,
+      }),
+    ).toBeTruthy();
+    expect(() =>
+      validateIpc("cost:rate-set", {
+        provider: "deepseek",
+        model: "deepseek-flash",
+        cacheHitPerMillion: 0.28,
+        cacheMissPerMillion: 2.8,
+      }),
+    ).toThrow();
+    expect(() =>
+      validateIpc("cost:rate-set", {
+        provider: "deepseek",
+        model: "deepseek-flash",
+        cacheHitPerMillion: -1,
+        cacheMissPerMillion: 2.8,
+        outputPerMillion: 0.42,
+      }),
+    ).toThrow();
+    expect(() =>
+      validateIpc("cost:recalc-preview", {
+        projectId,
+        provider: "deepseek",
+        model: "deepseek-flash",
+        cacheHitPerMillion: 0.28,
+        cacheMissPerMillion: 2.8,
+        outputPerMillion: 0.42,
+        write: true,
+      }),
+    ).toThrow();
+  });
+
+  it("exports only through a named format", () => {
+    expect(validateIpc("cost:export-file", { projectId, format: "csv" })).toBeTruthy();
+    expect(() => validateIpc("cost:export-file", { projectId, format: "xlsx" })).toThrow();
+    expect(() => validateIpc("cost:export-file", { projectId })).toThrow();
+  });
+});

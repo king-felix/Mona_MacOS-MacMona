@@ -1,0 +1,73 @@
+{
+  "version": {
+    "user_version": 5
+  },
+  "migrations": [
+    {
+      "version": 1,
+      "name": "core-project-state"
+    },
+    {
+      "version": 2,
+      "name": "project-identity-fields"
+    },
+    {
+      "version": 3,
+      "name": "task-board-and-continuity"
+    },
+    {
+      "version": 4,
+      "name": "attempt-ledger-and-boundaries"
+    },
+    {
+      "version": 5,
+      "name": "cost-ledger-rates-and-budgets"
+    }
+  ],
+  "cost_tables": {
+    "usage_records": true,
+    "rate_cards": true,
+    "budgets": true,
+    "cost_thread_marks": true
+  },
+  "usage_columns": [
+    "id",
+    "project_id",
+    "thread_id",
+    "turn_id",
+    "provider",
+    "model",
+    "input_tokens",
+    "output_tokens",
+    "cached_tokens",
+    "reasoning_tokens",
+    "cost_usd",
+    "cost_complete",
+    "captured_at",
+    "task_id",
+    "cache_miss_tokens",
+    "cost_pico_usd",
+    "cost_state",
+    "cost_allocation",
+    "rate_card_id",
+    "pricing_read_at",
+    "token_semantics",
+    "note"
+  ],
+  "usage_indexes": [
+    "sqlite_autoindex_usage_records_1",
+    "usage_project",
+    "usage_project_task",
+    "usage_turn_once"
+  ],
+  "stats": {
+    "projects": 0,
+    "tasks": 0,
+    "events": 0,
+    "artifacts": 0,
+    "settings": 0,
+    "stateRevision": 0,
+    "integrity": []
+  },
+  "integrity": []
+}

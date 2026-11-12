@@ -1,0 +1,21 @@
+P12 cost sample: PASS
+  ok   inclusive_bucket_exact
+  ok   exclusive_bucket_exact
+  ok   replay_single_row
+  ok   reported_cost_exact
+  ok   thread_delta_exact
+  ok   unpriced_stays_unknown
+  ok   estimate_from_card_exact
+  ok   estimate_names_its_card
+  ok   rate_revision_preserves_history
+  ok   recalc_preview_is_read_only
+  ok   civil_day_dst
+  ok   budget_warns
+  ok   budget_reports_lower_bound
+  ok   budget_stops_next_dispatch
+  ok   budget_clear_restores_dispatch
+  ok   day_budget_uses_civil_day
+  ok   view_incomplete_when_unknown
+  ok   balance_unavailable
+  ok   export_csv_has_states
+  ok   export_json_has_no_balance

@@ -141,7 +141,7 @@ describe("database + migrations", () => {
 
     const v3 = await migrateDatabase({ dbPath, migrations: MIGRATIONS, now: makeClock().now });
     try {
-      expect(v3.db.prepare("PRAGMA user_version").get()).toMatchObject({ user_version: 4 });
+      expect(v3.db.prepare("PRAGMA user_version").get()).toMatchObject({ user_version: 5 });
       const tasks = v3.db
         .prepare("SELECT id, status, execution_owner FROM tasks ORDER BY id")
         .all() as Array<{ id: string; status: string; execution_owner: string }>;
@@ -302,7 +302,7 @@ describe("database + migrations", () => {
     });
     v2.db.close();
 
-    const destructive: Migration = { version: 5, name: "drop-drafts", sql: "DROP TABLE drafts;" };
+    const destructive: Migration = { version: 6, name: "drop-drafts", sql: "DROP TABLE drafts;" };
     let failure: StateError | null = null;
     try {
       const outcome = await migrateDatabase({

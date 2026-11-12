@@ -7,6 +7,9 @@ import {
   SubmissionState,
   TaskId,
   type AcceptanceCriterion,
+  type BudgetScope,
+  type CostAllocation,
+  type CostState,
   type CriterionKind,
   type StepState,
   type SubmissionStatus,
@@ -14,6 +17,7 @@ import {
   type TaskRunView,
   type TaskState,
   type TaskStatus,
+  type TokenSemantics,
 } from "../../shared/contracts";
 import {
   ArtifactFileStore,
@@ -162,26 +166,109 @@ export interface UsageRecord {
   projectId: ProjectId | null;
   threadId: string | null;
   turnId: string | null;
+  taskId: TaskId | null;
   provider: string;
   model: string;
   inputTokens: number | null;
   outputTokens: number | null;
   cachedTokens: number | null;
+  cacheMissTokens: number | null;
   reasoningTokens: number | null;
   costUsd: number | null;
+  costPicoUsd: number | null;
   costComplete: boolean;
+  costState: CostState;
+  costAllocation: CostAllocation;
+  rateCardId: string | null;
+  pricingReadAt: string | null;
+  tokenSemantics: TokenSemantics;
+  note: string | null;
   capturedAt: string;
 }
+
+export type UsageInput = Omit<
+  UsageRecord,
+  | "id"
+  | "taskId"
+  | "cacheMissTokens"
+  | "costPicoUsd"
+  | "costComplete"
+  | "costState"
+  | "costAllocation"
+  | "rateCardId"
+  | "pricingReadAt"
+  | "tokenSemantics"
+  | "note"
+> & {
+  taskId?: TaskId | null;
+  cacheMissTokens?: number | null;
+  costPicoUsd?: number | null;
+  costComplete?: boolean;
+  costState?: CostState;
+  costAllocation?: CostAllocation;
+  rateCardId?: string | null;
+  pricingReadAt?: string | null;
+  tokenSemantics?: TokenSemantics;
+  note?: string | null;
+};
 
 export interface UsageSummary {
   turns: number;
   inputTokens: number;
   outputTokens: number;
   cachedTokens: number;
+  cacheMissTokens: number;
   reasoningTokens: number;
   costUsd: number;
+  costPicoUsd: number;
   costComplete: boolean;
   observed: boolean;
+  reportedTurns: number;
+  estimatedTurns: number;
+  unknownTurns: number;
+  missingTurns: number;
+  unallocatedTurns: number;
+  /** Known cost that belongs to earlier turns but cannot be attributed to one. */
+  residualPicoUsd: number;
+}
+
+export interface CostThreadMark {
+  threadId: string;
+  windowSince: string;
+  reportedTotalPico: number | null;
+  costComplete: boolean;
+  updatedAt: string;
+}
+
+export interface StoredRateCard {
+  id: string;
+  provider: string;
+  model: string;
+  currency: "USD";
+  unit: "per_million_tokens";
+  cacheHitPico: number | null;
+  cacheMissPico: number | null;
+  outputPico: number | null;
+  toolCallPico: number | null;
+  reasoningInOutput: boolean;
+  source: "user_supplied" | "provider_docs";
+  sourceRef: string | null;
+  revision: string;
+  revisionNo: number;
+  readAt: string;
+}
+
+export interface StoredBudget {
+  id: string;
+  projectId: ProjectId;
+  scope: BudgetScope;
+  limitPico: number;
+  warnPico: number | null;
+  enabled: boolean;
+  timeZone: string;
+  revision: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface StoredDecision {
@@ -375,6 +462,78 @@ function asNumber(value: unknown): number {
 
 function asNumberOrNull(value: unknown): number | null {
   return value === null || value === undefined ? null : Number(value);
+}
+
+function usageFromRow(row: DbRow): UsageRecord {
+  return {
+    id: asString(row.id),
+    projectId: asNullableString(row.project_id) as ProjectId | null,
+    threadId: asNullableString(row.thread_id),
+    turnId: asNullableString(row.turn_id),
+    taskId: asNullableString(row.task_id) as TaskId | null,
+    provider: asString(row.provider),
+    model: asString(row.model),
+    inputTokens: asNumberOrNull(row.input_tokens),
+    outputTokens: asNumberOrNull(row.output_tokens),
+    cachedTokens: asNumberOrNull(row.cached_tokens),
+    cacheMissTokens: asNumberOrNull(row.cache_miss_tokens),
+    reasoningTokens: asNumberOrNull(row.reasoning_tokens),
+    costUsd: asNumberOrNull(row.cost_usd),
+    costPicoUsd: asNumberOrNull(row.cost_pico_usd),
+    costComplete: Number(row.cost_complete) === 1,
+    costState: asString(row.cost_state) as CostState,
+    costAllocation: asString(row.cost_allocation) as CostAllocation,
+    rateCardId: asNullableString(row.rate_card_id),
+    pricingReadAt: asNullableString(row.pricing_read_at),
+    tokenSemantics: asString(row.token_semantics) as TokenSemantics,
+    note: asNullableString(row.note),
+    capturedAt: asString(row.captured_at),
+  };
+}
+
+function rateCardFromRow(row: DbRow): StoredRateCard {
+  return {
+    id: asString(row.id),
+    provider: asString(row.provider),
+    model: asString(row.model),
+    currency: "USD",
+    unit: "per_million_tokens",
+    cacheHitPico: asNumberOrNull(row.cache_hit_pico),
+    cacheMissPico: asNumberOrNull(row.cache_miss_pico),
+    outputPico: asNumberOrNull(row.output_pico),
+    toolCallPico: asNumberOrNull(row.tool_call_pico),
+    reasoningInOutput: Number(row.reasoning_in_output) === 1,
+    source: asString(row.source) as StoredRateCard["source"],
+    sourceRef: asNullableString(row.source_ref),
+    revision: asString(row.revision),
+    revisionNo: asNumber(row.revision_no),
+    readAt: asString(row.read_at),
+  };
+}
+
+function budgetFromRow(row: DbRow): StoredBudget {
+  return {
+    id: asString(row.id),
+    projectId: asString(row.project_id) as ProjectId,
+    scope: asString(row.scope) as BudgetScope,
+    limitPico: asNumber(row.limit_pico),
+    warnPico: asNumberOrNull(row.warn_pico),
+    enabled: Number(row.enabled) === 1,
+    timeZone: asString(row.time_zone),
+    revision: asNumber(row.revision),
+    createdAt: asString(row.created_at),
+    updatedAt: asString(row.updated_at),
+  };
+}
+
+function costMarkFromRow(row: DbRow): CostThreadMark {
+  return {
+    threadId: asString(row.thread_id),
+    windowSince: asString(row.window_since),
+    reportedTotalPico: asNumberOrNull(row.reported_total_pico),
+    costComplete: Number(row.cost_complete) === 1,
+    updatedAt: asString(row.updated_at),
+  };
 }
 
 function projectFromRow(row: DbRow): StoredProject {
@@ -3010,32 +3169,148 @@ export class StateStore {
 
   // ------------------------------------------------------------------ usage
 
-  async recordUsage(
-    input: Omit<UsageRecord, "id" | "costComplete"> & { costComplete?: boolean },
-  ): Promise<UsageRecord> {
+  /**
+   * Record one observed turn. A turn is written at most once per thread: a
+   * reconnect, a replay, or a restarted process returns the stored row instead
+   * of adding a second charge. Price provenance is explicit and never inferred
+   * from arrival order.
+   */
+  async recordUsage(input: UsageInput): Promise<UsageRecord> {
     return this.write((db, now) => {
+      if (input.threadId !== null && input.turnId !== null) {
+        const existing = db
+          .prepare("SELECT * FROM usage_records WHERE thread_id = ? AND turn_id = ?")
+          .get(input.threadId, input.turnId) as DbRow | undefined;
+        if (existing) return usageFromRow(existing);
+      }
       const id = this.id("usg");
-      const complete = input.costUsd !== null && (input.costComplete ?? true);
+      const costPico =
+        input.costPicoUsd ??
+        (input.costUsd === null ? null : Math.round(input.costUsd * 1_000_000_000_000));
+      const costState: CostState =
+        input.costState ??
+        (costPico !== null && (input.costComplete ?? true) ? "reported" : "unknown_price");
+      const costComplete = costState === "reported" || costState === "estimated";
+      let taskId = input.taskId ?? null;
+      if (!taskId && input.projectId && input.turnId) {
+        const linked = db
+          .prepare("SELECT id FROM tasks WHERE project_id = ? AND active_turn_id = ? LIMIT 1")
+          .get(input.projectId, input.turnId) as { id: string } | undefined;
+        taskId = (linked?.id as TaskId | undefined) ?? null;
+      }
+      const capturedAt = input.capturedAt || now;
       db.prepare(
-        "INSERT INTO usage_records (id, project_id, thread_id, turn_id, provider, model, input_tokens, " +
-          "output_tokens, cached_tokens, reasoning_tokens, cost_usd, cost_complete, captured_at) " +
-          "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO usage_records (id, project_id, thread_id, turn_id, task_id, provider, model, " +
+          "input_tokens, output_tokens, cached_tokens, cache_miss_tokens, reasoning_tokens, " +
+          "cost_usd, cost_pico_usd, cost_complete, cost_state, cost_allocation, rate_card_id, " +
+          "pricing_read_at, token_semantics, note, captured_at) " +
+          "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
       ).run(
         id,
         input.projectId,
         input.threadId,
         input.turnId,
+        taskId,
         input.provider,
         input.model,
         input.inputTokens,
         input.outputTokens,
         input.cachedTokens,
+        input.cacheMissTokens ?? null,
         input.reasoningTokens,
-        input.costUsd,
-        complete ? 1 : 0,
-        input.capturedAt || now,
+        costPico === null ? null : costPico / 1_000_000_000_000,
+        costPico,
+        costComplete ? 1 : 0,
+        costState,
+        input.costAllocation ?? "turn",
+        input.rateCardId ?? null,
+        input.pricingReadAt ?? null,
+        input.tokenSemantics ?? "inclusive_input",
+        input.note ?? null,
+        capturedAt,
       );
-      return { ...input, id, costComplete: complete, capturedAt: input.capturedAt || now };
+      return usageFromRow(db.prepare("SELECT * FROM usage_records WHERE id = ?").get(id) as DbRow);
+    });
+  }
+
+  /** Upgrade an existing turn's price evidence without touching its identity. */
+  async updateUsageCost(input: {
+    id: string;
+    costPicoUsd: number;
+    costState: CostState;
+    costAllocation: CostAllocation;
+    rateCardId: string | null;
+    pricingReadAt: string | null;
+    note: string | null;
+  }): Promise<UsageRecord> {
+    return this.write((db) => {
+      const row = db.prepare("SELECT * FROM usage_records WHERE id = ?").get(input.id) as
+        DbRow | undefined;
+      if (!row) throw new StateError("NOT_FOUND", "usage row disappeared");
+      const complete = input.costState === "reported" || input.costState === "estimated";
+      db.prepare(
+        "UPDATE usage_records SET cost_usd = ?, cost_pico_usd = ?, cost_complete = ?, " +
+          "cost_state = ?, cost_allocation = ?, rate_card_id = ?, pricing_read_at = ?, note = ? " +
+          "WHERE id = ?",
+      ).run(
+        input.costPicoUsd / 1_000_000_000_000,
+        input.costPicoUsd,
+        complete ? 1 : 0,
+        input.costState,
+        input.costAllocation,
+        input.rateCardId,
+        input.pricingReadAt,
+        input.note,
+        input.id,
+      );
+      return usageFromRow(
+        db.prepare("SELECT * FROM usage_records WHERE id = ?").get(input.id) as DbRow,
+      );
+    });
+  }
+
+  async getUsageForTurn(threadId: string, turnId: string): Promise<UsageRecord | null> {
+    return this.read((db) => {
+      const row = db
+        .prepare("SELECT * FROM usage_records WHERE thread_id = ? AND turn_id = ?")
+        .get(threadId, turnId) as DbRow | undefined;
+      return row ? usageFromRow(row) : null;
+    });
+  }
+
+  async countUsageForThread(threadId: string): Promise<number> {
+    return this.read((db) => {
+      const row = db
+        .prepare("SELECT COUNT(*) AS count FROM usage_records WHERE thread_id = ?")
+        .get(threadId) as DbRow;
+      return asNumber(row.count);
+    });
+  }
+
+  async listUsageRecords(
+    projectId: ProjectId,
+    range: { since?: string | null; until?: string | null; limit?: number } = {},
+  ): Promise<UsageRecord[]> {
+    return this.read((db) => {
+      const conditions = ["project_id = ?"];
+      const bind: Array<string | number> = [projectId];
+      if (range.since) {
+        conditions.push("captured_at >= ?");
+        bind.push(range.since);
+      }
+      if (range.until) {
+        conditions.push("captured_at < ?");
+        bind.push(range.until);
+      }
+      const limit = Math.min(Math.max(range.limit ?? 5000, 1), 20_000);
+      bind.push(limit);
+      const rows = db
+        .prepare(
+          `SELECT * FROM usage_records WHERE ${conditions.join(" AND ")} ` +
+            "ORDER BY captured_at ASC, id ASC LIMIT ?",
+        )
+        .all(...bind) as DbRow[];
+      return rows.map(usageFromRow);
     });
   }
 
@@ -3047,8 +3322,14 @@ export class StateStore {
       inputTokens: number;
       outputTokens: number;
       cachedTokens: number;
+      cacheMissTokens: number;
+      reasoningTokens: number;
       costUsd: number;
+      costPicoUsd: number;
       costComplete: boolean;
+      reportedTurns: number;
+      estimatedTurns: number;
+      unknownTurns: number;
     }>
   > {
     return this.read((db) => {
@@ -3058,23 +3339,38 @@ export class StateStore {
                   COALESCE(SUM(input_tokens), 0) AS input_tokens,
                   COALESCE(SUM(output_tokens), 0) AS output_tokens,
                   COALESCE(SUM(cached_tokens), 0) AS cached_tokens,
-                  COALESCE(SUM(cost_usd), 0) AS cost_usd,
-                  SUM(CASE WHEN cost_complete = 1 THEN 1 ELSE 0 END) AS complete_rows
+                  COALESCE(SUM(cache_miss_tokens), 0) AS cache_miss_tokens,
+                  COALESCE(SUM(reasoning_tokens), 0) AS reasoning_tokens,
+                  COALESCE(SUM(cost_pico_usd), 0) AS cost_pico_usd,
+                  SUM(CASE WHEN cost_state = 'reported' THEN 1 ELSE 0 END) AS reported_rows,
+                  SUM(CASE WHEN cost_state = 'estimated' THEN 1 ELSE 0 END) AS estimated_rows,
+                  SUM(CASE WHEN cost_state IN ('unknown_price', 'missing_usage', 'unallocated')
+                           THEN 1 ELSE 0 END) AS unknown_rows
            FROM usage_records WHERE project_id = ?
            GROUP BY provider, model ORDER BY model`,
         )
         .all(projectId) as DbRow[];
-      return rows.map((row) => ({
-        model: asString(row.model),
-        provider: asString(row.provider),
-        turns: asNumber(row.turns),
-        inputTokens: asNumber(row.input_tokens),
-        outputTokens: asNumber(row.output_tokens),
-        cachedTokens: asNumber(row.cached_tokens),
-        costUsd: asNumber(row.cost_usd),
-        costComplete:
-          asNumber(row.turns) > 0 && asNumber(row.complete_rows) === asNumber(row.turns),
-      }));
+      return rows.map((row) => {
+        const turns = asNumber(row.turns);
+        const unknown = asNumber(row.unknown_rows);
+        const costPico = asNumber(row.cost_pico_usd);
+        return {
+          model: asString(row.model),
+          provider: asString(row.provider),
+          turns,
+          inputTokens: asNumber(row.input_tokens),
+          outputTokens: asNumber(row.output_tokens),
+          cachedTokens: asNumber(row.cached_tokens),
+          cacheMissTokens: asNumber(row.cache_miss_tokens),
+          reasoningTokens: asNumber(row.reasoning_tokens),
+          costUsd: costPico / 1_000_000_000_000,
+          costPicoUsd: costPico,
+          costComplete: turns > 0 && unknown === 0,
+          reportedTurns: asNumber(row.reported_rows),
+          estimatedTurns: asNumber(row.estimated_rows),
+          unknownTurns: unknown,
+        };
+      });
     });
   }
 
@@ -3086,23 +3382,304 @@ export class StateStore {
                   COALESCE(SUM(input_tokens), 0) AS input_tokens,
                   COALESCE(SUM(output_tokens), 0) AS output_tokens,
                   COALESCE(SUM(cached_tokens), 0) AS cached_tokens,
+                  COALESCE(SUM(cache_miss_tokens), 0) AS cache_miss_tokens,
                   COALESCE(SUM(reasoning_tokens), 0) AS reasoning_tokens,
-                  COALESCE(SUM(cost_usd), 0) AS cost_usd,
-                  SUM(CASE WHEN cost_complete = 1 THEN 1 ELSE 0 END) AS complete_rows
+                  COALESCE(SUM(cost_pico_usd), 0) AS cost_pico_usd,
+                  SUM(CASE WHEN cost_state = 'reported' THEN 1 ELSE 0 END) AS reported_rows,
+                  SUM(CASE WHEN cost_state = 'estimated' THEN 1 ELSE 0 END) AS estimated_rows,
+                  SUM(CASE WHEN cost_state = 'unknown_price' THEN 1 ELSE 0 END) AS unknown_rows,
+                  SUM(CASE WHEN cost_state = 'missing_usage' THEN 1 ELSE 0 END) AS missing_rows,
+                  SUM(CASE WHEN cost_state = 'unallocated' THEN 1 ELSE 0 END) AS unallocated_rows
            FROM usage_records WHERE project_id = ?`,
         )
         .get(projectId) as DbRow;
+      const residual = db
+        .prepare(
+          `SELECT COALESCE(SUM(residual), 0) AS residual FROM (
+             SELECT MAX(0, m.reported_total_pico -
+               COALESCE((SELECT SUM(u.cost_pico_usd) FROM usage_records u
+                         WHERE u.thread_id = m.thread_id), 0)) AS residual
+             FROM cost_thread_marks m JOIN threads t ON t.id = m.thread_id
+             WHERE t.project_id = ? AND m.reported_total_pico IS NOT NULL
+           )`,
+        )
+        .get(projectId) as DbRow;
       const turns = asNumber(row.turns);
+      const definite = asNumber(row.reported_rows) + asNumber(row.estimated_rows);
+      const residualPico = asNumber(residual.residual);
+      const costPico = asNumber(row.cost_pico_usd) + residualPico;
       return {
         turns,
         inputTokens: asNumber(row.input_tokens),
         outputTokens: asNumber(row.output_tokens),
         cachedTokens: asNumber(row.cached_tokens),
+        cacheMissTokens: asNumber(row.cache_miss_tokens),
         reasoningTokens: asNumber(row.reasoning_tokens),
-        costUsd: asNumber(row.cost_usd),
-        costComplete: turns > 0 && asNumber(row.complete_rows) === turns,
+        costUsd: costPico / 1_000_000_000_000,
+        costPicoUsd: costPico,
+        costComplete: turns > 0 && definite === turns && residualPico === 0,
         observed: turns > 0,
+        reportedTurns: asNumber(row.reported_rows),
+        estimatedTurns: asNumber(row.estimated_rows),
+        unknownTurns: asNumber(row.unknown_rows),
+        missingTurns: asNumber(row.missing_rows),
+        unallocatedTurns: asNumber(row.unallocated_rows),
+        residualPicoUsd: residualPico,
       };
+    });
+  }
+
+  // ------------------------------------------------------------ cost marks
+
+  async getThread(id: string): Promise<StoredThread | null> {
+    return this.read((db) => {
+      const row = db.prepare("SELECT * FROM threads WHERE id = ?").get(id) as DbRow | undefined;
+      if (!row) return null;
+      return {
+        id: asString(row.id),
+        projectId: asString(row.project_id) as ProjectId,
+        engineThreadId: asNullableString(row.engine_thread_id),
+        title: asNullableString(row.title),
+        createdAt: asString(row.created_at),
+        updatedAt: asString(row.updated_at),
+      };
+    });
+  }
+
+  async getCostThreadMark(threadId: string): Promise<CostThreadMark | null> {
+    return this.read((db) => {
+      const row = db
+        .prepare("SELECT * FROM cost_thread_marks WHERE thread_id = ?")
+        .get(threadId) as DbRow | undefined;
+      return row ? costMarkFromRow(row) : null;
+    });
+  }
+
+  async putCostThreadMark(input: {
+    threadId: string;
+    windowSince: string;
+    reportedTotalPico: number | null;
+    costComplete: boolean;
+  }): Promise<CostThreadMark> {
+    return this.write((db, now) => {
+      db.prepare(
+        "INSERT INTO cost_thread_marks (thread_id, window_since, reported_total_pico, " +
+          "cost_complete, updated_at) VALUES (?, ?, ?, ?, ?) " +
+          "ON CONFLICT(thread_id) DO UPDATE SET window_since = excluded.window_since, " +
+          "reported_total_pico = excluded.reported_total_pico, " +
+          "cost_complete = excluded.cost_complete, updated_at = excluded.updated_at",
+      ).run(
+        input.threadId,
+        input.windowSince,
+        input.reportedTotalPico,
+        input.costComplete ? 1 : 0,
+        now,
+      );
+      return costMarkFromRow(
+        db
+          .prepare("SELECT * FROM cost_thread_marks WHERE thread_id = ?")
+          .get(input.threadId) as DbRow,
+      );
+    });
+  }
+
+  // ------------------------------------------------------------ rate cards
+
+  async currentRateCard(provider: string, model: string): Promise<StoredRateCard | null> {
+    return this.read((db) => {
+      const row = db
+        .prepare(
+          "SELECT * FROM rate_cards WHERE provider = ? AND model = ? AND superseded_at IS NULL",
+        )
+        .get(provider, model) as DbRow | undefined;
+      return row ? rateCardFromRow(row) : null;
+    });
+  }
+
+  async listRateCards(): Promise<StoredRateCard[]> {
+    return this.read((db) => {
+      const rows = db
+        .prepare("SELECT * FROM rate_cards WHERE superseded_at IS NULL ORDER BY provider, model")
+        .all() as DbRow[];
+      return rows.map(rateCardFromRow);
+    });
+  }
+
+  async saveRateCard(input: {
+    provider: string;
+    model: string;
+    cacheHitPico: number | null;
+    cacheMissPico: number | null;
+    outputPico: number | null;
+    toolCallPico: number | null;
+    reasoningInOutput: boolean;
+    source: "user_supplied" | "provider_docs";
+    sourceRef: string | null;
+    readAt: string;
+  }): Promise<StoredRateCard> {
+    const revision = createHash("sha256")
+      .update(
+        canonicalJson({
+          provider: input.provider,
+          model: input.model,
+          cacheHitPico: input.cacheHitPico,
+          cacheMissPico: input.cacheMissPico,
+          outputPico: input.outputPico,
+          toolCallPico: input.toolCallPico,
+          reasoningInOutput: input.reasoningInOutput,
+          readAt: input.readAt,
+        }),
+      )
+      .digest("hex");
+    return this.write((db, now) => {
+      const current = db
+        .prepare(
+          "SELECT * FROM rate_cards WHERE provider = ? AND model = ? AND superseded_at IS NULL",
+        )
+        .get(input.provider, input.model) as DbRow | undefined;
+      let revisionNo = 1;
+      if (current) {
+        revisionNo = asNumber(current.revision_no) + 1;
+        db.prepare("UPDATE rate_cards SET superseded_at = ? WHERE id = ?").run(
+          now,
+          asString(current.id),
+        );
+      }
+      const id = this.id("rate");
+      db.prepare(
+        "INSERT INTO rate_cards (id, provider, model, currency, unit, cache_hit_pico, " +
+          "cache_miss_pico, output_pico, tool_call_pico, reasoning_in_output, source, source_ref, " +
+          "revision, revision_no, read_at, created_at, superseded_at) " +
+          "VALUES (?, ?, ?, 'USD', 'per_million_tokens', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL)",
+      ).run(
+        id,
+        input.provider,
+        input.model,
+        input.cacheHitPico,
+        input.cacheMissPico,
+        input.outputPico,
+        input.toolCallPico,
+        input.reasoningInOutput ? 1 : 0,
+        input.source,
+        input.sourceRef,
+        revision,
+        revisionNo,
+        input.readAt,
+        now,
+      );
+      return rateCardFromRow(db.prepare("SELECT * FROM rate_cards WHERE id = ?").get(id) as DbRow);
+    });
+  }
+
+  // ---------------------------------------------------------------- budgets
+
+  async listBudgets(projectId: ProjectId): Promise<StoredBudget[]> {
+    return this.read((db) => {
+      const rows = db
+        .prepare("SELECT * FROM budgets WHERE project_id = ? ORDER BY scope")
+        .all(projectId) as DbRow[];
+      return rows.map(budgetFromRow);
+    });
+  }
+
+  async putBudget(input: {
+    projectId: ProjectId;
+    scope: BudgetScope;
+    limitPico: number;
+    warnPico: number | null;
+    enabled: boolean;
+    timeZone: string;
+    expectedRevision?: number;
+  }): Promise<StoredBudget> {
+    if (input.limitPico <= 0) {
+      throw new StateError("INVALID_INPUT", "a budget limit must be greater than zero");
+    }
+    if (input.warnPico !== null && (input.warnPico <= 0 || input.warnPico > input.limitPico)) {
+      throw new StateError(
+        "INVALID_INPUT",
+        "a warning threshold must be above zero and at or below the limit",
+      );
+    }
+    return this.write((db, now) => {
+      const current = db
+        .prepare("SELECT * FROM budgets WHERE project_id = ? AND scope = ?")
+        .get(input.projectId, input.scope) as DbRow | undefined;
+      if (current) {
+        if (
+          input.expectedRevision !== undefined &&
+          input.expectedRevision !== asNumber(current.revision)
+        ) {
+          throw new StateError("CONFLICT", "the budget changed since it was read", {
+            expected: input.expectedRevision,
+            actual: asNumber(current.revision),
+          });
+        }
+        db.prepare(
+          "UPDATE budgets SET limit_pico = ?, warn_pico = ?, enabled = ?, time_zone = ?, " +
+            "updated_at = ?, revision = revision + 1 WHERE id = ?",
+        ).run(
+          input.limitPico,
+          input.warnPico,
+          input.enabled ? 1 : 0,
+          input.timeZone,
+          now,
+          asString(current.id),
+        );
+        return budgetFromRow(
+          db.prepare("SELECT * FROM budgets WHERE id = ?").get(asString(current.id)) as DbRow,
+        );
+      }
+      const id = this.id("bdg");
+      db.prepare(
+        "INSERT INTO budgets (id, project_id, scope, limit_pico, warn_pico, enabled, time_zone, " +
+          "created_at, updated_at, revision) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)",
+      ).run(
+        id,
+        input.projectId,
+        input.scope,
+        input.limitPico,
+        input.warnPico,
+        input.enabled ? 1 : 0,
+        input.timeZone,
+        now,
+        now,
+      );
+      return budgetFromRow(db.prepare("SELECT * FROM budgets WHERE id = ?").get(id) as DbRow);
+    });
+  }
+
+  async clearBudget(input: {
+    projectId: ProjectId;
+    budgetId: string;
+    expectedRevision?: number;
+  }): Promise<{ cleared: boolean }> {
+    return this.write((db) => {
+      const row = db
+        .prepare("SELECT * FROM budgets WHERE id = ? AND project_id = ?")
+        .get(input.budgetId, input.projectId) as DbRow | undefined;
+      if (!row) return { cleared: false };
+      if (
+        input.expectedRevision !== undefined &&
+        input.expectedRevision !== asNumber(row.revision)
+      ) {
+        throw new StateError("CONFLICT", "the budget changed since it was read", {
+          expected: input.expectedRevision,
+          actual: asNumber(row.revision),
+        });
+      }
+      db.prepare("DELETE FROM budgets WHERE id = ?").run(input.budgetId);
+      return { cleared: true };
+    });
+  }
+
+  async countActiveTaskRuns(projectId: ProjectId): Promise<number> {
+    return this.read((db) => {
+      const row = db
+        .prepare(
+          "SELECT COUNT(*) AS count FROM task_runs WHERE project_id = ? AND state = 'running'",
+        )
+        .get(projectId) as DbRow;
+      return asNumber(row.count);
     });
   }
 
@@ -3587,6 +4164,13 @@ export class StateStore {
       costUsd: asNumberOrNull(row.cost_usd),
       costComplete: Number(row.cost_complete) === 1,
       capturedAt: asString(row.captured_at),
+      cacheMissTokens: asNumberOrNull(row.cache_miss_tokens),
+      costPicoUsd: asNumberOrNull(row.cost_pico_usd),
+      costState: asString(row.cost_state) as UsageRecord["costState"],
+      costAllocation: asString(row.cost_allocation) as UsageRecord["costAllocation"],
+      pricingReadAt: asNullableString(row.pricing_read_at),
+      tokenSemantics: asString(row.token_semantics) as UsageRecord["tokenSemantics"],
+      note: asNullableString(row.note),
     }));
     const drafts = (
       db
@@ -3941,10 +4525,16 @@ export class StateStore {
         );
       }
       for (const usage of payload.usage) {
+        const costPico =
+          usage.costPicoUsd ??
+          (usage.costUsd === null ? null : Math.round(usage.costUsd * 1_000_000_000_000));
+        const costState = usage.costState ?? (usage.costComplete ? "reported" : "unknown_price");
         db.prepare(
-          "INSERT INTO usage_records (id, project_id, thread_id, turn_id, provider, model, input_tokens, " +
-            "output_tokens, cached_tokens, reasoning_tokens, cost_usd, cost_complete, captured_at) " +
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+          "INSERT INTO usage_records (id, project_id, thread_id, turn_id, provider, model, " +
+            "input_tokens, output_tokens, cached_tokens, cache_miss_tokens, reasoning_tokens, " +
+            "cost_usd, cost_pico_usd, cost_complete, cost_state, cost_allocation, " +
+            "pricing_read_at, token_semantics, note, captured_at) " +
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         ).run(
           usage.id,
           payload.project.id,
@@ -3955,9 +4545,16 @@ export class StateStore {
           usage.inputTokens,
           usage.outputTokens,
           usage.cachedTokens,
+          usage.cacheMissTokens ?? null,
           usage.reasoningTokens,
-          usage.costUsd,
-          usage.costComplete ? 1 : 0,
+          costPico === null ? null : costPico / 1_000_000_000_000,
+          costPico,
+          costState === "reported" || costState === "estimated" ? 1 : 0,
+          costState,
+          usage.costAllocation ?? "turn",
+          usage.pricingReadAt ?? null,
+          usage.tokenSemantics ?? "inclusive_input",
+          usage.note ?? null,
           usage.capturedAt,
         );
       }
@@ -4057,6 +4654,9 @@ export class StateStore {
     db.prepare("DELETE FROM tasks WHERE project_id = ?").run(projectId);
     db.prepare("DELETE FROM decisions WHERE project_id = ?").run(projectId);
     db.prepare("DELETE FROM usage_records WHERE project_id = ?").run(projectId);
+    db.prepare(
+      "DELETE FROM cost_thread_marks WHERE thread_id IN (SELECT id FROM threads WHERE project_id = ?)",
+    ).run(projectId);
     db.prepare(
       "DELETE FROM turns WHERE thread_id IN (SELECT id FROM threads WHERE project_id = ?)",
     ).run(projectId);

@@ -9,6 +9,7 @@ import type { SupervisorStopReceipt } from "../src/main/supervisor/native";
 import type { OwnedEndpoint, RuntimeStatus } from "../src/main/supervisor/runtime-supervisor";
 import { WorkController } from "../src/main/work/control";
 import { WorkStudio, StudioError, type StudioSupervisor } from "../src/main/work/studio";
+import { CostLedger } from "../src/main/work/costs";
 import type { ProjectId, StudioPush } from "../src/shared/contracts";
 import {
   chunkText,
@@ -133,6 +134,7 @@ async function setup(
     ) => ReturnType<typeof jsonResponse> | Promise<ReturnType<typeof jsonResponse>>;
     stream?: (path: string) => AsyncIterable<string>;
     adapter?: (transport: FixtureTransport) => EngineAdapter;
+    now?: () => Date;
   } = {},
 ): Promise<Harness> {
   const handle = await openTestStore();
@@ -182,7 +184,7 @@ async function setup(
           now: () => new Date("2026-11-11T00:00:00.000Z"),
         })),
     notify: (push) => pushes.push(push),
-    now: () => new Date("2026-11-11T00:00:00.000Z"),
+    now: options.now ?? (() => new Date("2026-11-11T00:00:00.000Z")),
     reconnect: { attempts: 2, baseDelayMs: 5, maxDelayMs: 10, sleep: async () => undefined },
   });
   return {
@@ -552,6 +554,80 @@ describe("live studio: honest failure and offline states", () => {
     expect(snapshot.cost.turns).toBe(1);
     const events = await harness.store.readProjectEvents(harness.project.id as ProjectId);
     expect(events.some((event) => event.kind === "turn.completed")).toBe(true);
+  });
+});
+
+describe("cost budget gate at the studio", () => {
+  it("blocks the next dispatch when a user budget is reached, without calling the engine", async () => {
+    const harness = await setup({ now: () => new Date("2026-11-11T01:00:00.000Z") });
+    await harness.store.recordUsage({
+      projectId: harness.project.id,
+      threadId: null,
+      turnId: null,
+      provider: "deepseek",
+      model: "deepseek-flash",
+      inputTokens: 1000,
+      outputTokens: 10,
+      cachedTokens: 0,
+      reasoningTokens: 0,
+      costUsd: 0.05,
+      costState: "reported",
+      capturedAt: "2026-11-11T00:30:00.000Z",
+    });
+    await harness.store.putBudget({
+      projectId: harness.project.id,
+      scope: "project",
+      limitPico: 10_000_000_000, // $0.01
+      warnPico: null,
+      enabled: true,
+      timeZone: "UTC",
+    });
+    await harness.studio.start(harness.project.id as ProjectId);
+    const before = harness.transport.calls.length;
+    await expect(
+      harness.studio.submit(harness.project.id as ProjectId, {
+        prompt: "This dispatch must be refused by the local budget",
+        mode: "work",
+      }),
+    ).rejects.toMatchObject({ code: "BUDGET_STOP" });
+    // The gate is local state: no thread creation, no turn, no inference.
+    expect(harness.transport.count("POST", "/v1/threads")).toBe(0);
+    expect(harness.transport.count("POST", "/turns")).toBe(0);
+    expect(harness.transport.calls.length).toBe(before);
+    // A warning-level budget still allows the dispatch.
+    await harness.store.putBudget({
+      projectId: harness.project.id,
+      scope: "project",
+      limitPico: 10_000_000_000,
+      warnPico: 1_000_000_000,
+      enabled: false,
+      timeZone: "UTC",
+    });
+  });
+
+  it("answers ledger reads and edits with zero HTTP calls", async () => {
+    const harness = await setup();
+    const ledger = new CostLedger(harness.store);
+    const projectId = harness.project.id as ProjectId;
+    await ledger.ledger(projectId);
+    await ledger.setBudget({ projectId, scope: "day", limitUsd: 2, timeZone: "UTC" });
+    await ledger.setRateCard({
+      provider: "deepseek",
+      model: "deepseek-flash",
+      cacheHitPerMillion: 0.28,
+      cacheMissPerMillion: 2.8,
+      outputPerMillion: 0.42,
+    });
+    await ledger.dispatchGate(projectId, "2026-11-11T00:00:00.000Z");
+    await ledger.previewRecalculation(projectId, {
+      provider: "deepseek",
+      model: "deepseek-flash",
+      cacheHitPerMillion: 1,
+      cacheMissPerMillion: 1,
+      outputPerMillion: 1,
+    });
+    await ledger.exportLedger(projectId, { format: "json" });
+    expect(harness.transport.calls).toEqual([]);
   });
 });
 

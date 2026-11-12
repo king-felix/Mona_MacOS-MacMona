@@ -496,3 +496,47 @@ and deviations discovered while building.
 - **Consequence:** Turn completion → task verification remains P14. A finished
   turn does not silently complete a task, and stopping a process never promises
   rollback of external side effects.
+
+## D-027 — Cost is a ledger with explicit provenance; unknown never becomes zero
+
+- **Date:** 2026-11-11 (P12)
+- **Decision:** `usage_records` is the cost ledger. A turn is recorded once per
+  `(thread, turn)` by a partial unique index, with one of five cost states —
+  `reported`, `estimated`, `unknown_price`, `missing_usage`, `unallocated` — and
+  integer pico-USD amounts. The engine's cumulative `/v1/usage` thread total is
+  converted into an exact per-turn delta against a stored thread mark; a total
+  that moves backwards or arrives after unpriced turns becomes an unallocated
+  residual counted once. `cost_complete` is true only when every turn is
+  definite and no residual remains. Mona ships **no** price table; a rate card
+  is a human-recorded row with a revision hash and read time, and a new revision
+  never rewrites an already-priced turn.
+- **Why:** The engine exposes exactly one price signal (a cumulative thread
+  total) and no per-turn price or balance endpoint. A ledger that divided a total
+  across turns, or that printed `$0.00` for an unpriced turn, would invent the
+  number the spec forbids inventing (§9.3). Integer arithmetic makes fixtures
+  exact, and an empty rate table keeps Mona from copying a remembered price into
+  code.
+- **Consequence:** Unpriced traffic stays unknown until the engine prices it or a
+  human records a card. Recalculation is preview-only; applying it is a separate
+  explicit decision. `usage_records.cost_usd` remains a formatted mirror for
+  existing readers; every rollup uses `cost_pico_usd`.
+
+## D-028 — Budgets block the next dispatch and never claim to be an invoice cap
+
+- **Date:** 2026-11-11 (P12)
+- **Decision:** Budgets are optional, user-set, scoped to `session`, `project`, or
+  `day`, and evaluated with civil-day windows in a recorded IANA zone. The gate
+  runs in the board dispatch preflight and again in `studio.submit`, so a refused
+  dispatch starts no task run and sends no request. `stop` blocks the next
+  dispatch; `warn` does not. When any turn in scope is unpriced the known spend is
+  a lower bound and the UI says so. Mona serializes mutating work, so the
+  “reservation” is a count of in-flight slots rather than an invented per-turn
+  dollar estimate.
+- **Why:** Spec §9.3 permits local warn/stop thresholds while forbidding a
+  guessed remaining balance or a mandatory small cap. A budget evaluated inside
+  the executor would be recorded as an unknown outcome, which would misrepresent
+  a local refusal as a possible engine write; preflight keeps the distinction.
+- **Consequence:** An in-flight provider request can complete after a stop, and
+  the UI states that a local limit is not an invoice cap. A future qualified
+  concurrent executor must re-run the gate per slot (P15/P21), not inherit this
+  serialized assumption.

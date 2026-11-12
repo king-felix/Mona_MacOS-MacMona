@@ -9,6 +9,7 @@ import type {
 } from "./project-bridge";
 import type { OpenFolderView, OpenResult, OpenStatusView, ServiceStatus } from "./open";
 import type { UsageEvidence } from "./usage";
+import type { BudgetScope, BudgetView, CostExport, CostLedgerView, CostRateCardView } from "./cost";
 import type {
   BoardSnapshot,
   ContextPreview,
@@ -192,6 +193,65 @@ export interface MonaBridge {
     reason: string,
     evidence: string[],
   ): Promise<IpcResult<{ problem: ProblemView }>>;
+
+  // Cost ledger. Reads and explicit local edits only; no inference, no balance.
+  costLedger(
+    projectId: ProjectId,
+    options?: { since?: string | null; until?: string | null; timeZone?: string },
+  ): Promise<IpcResult<CostLedgerView>>;
+  exportCostLedger(
+    projectId: ProjectId,
+    format: "json" | "csv",
+    options?: { since?: string | null; until?: string | null; timeZone?: string },
+  ): Promise<IpcResult<CostExport>>;
+  exportCostLedgerFile(
+    projectId: ProjectId,
+    format: "json" | "csv",
+  ): Promise<IpcResult<{ saved: boolean; path: string | null }>>;
+  setCostBudget(input: {
+    projectId: ProjectId;
+    scope: BudgetScope;
+    limitUsd: number;
+    warnUsd?: number | null;
+    enabled?: boolean;
+    timeZone?: string;
+    expectedRevision?: number;
+  }): Promise<IpcResult<BudgetView>>;
+  clearCostBudget(input: {
+    projectId: ProjectId;
+    budgetId: string;
+    expectedRevision?: number;
+  }): Promise<IpcResult<{ cleared: boolean }>>;
+  setRateCard(input: {
+    provider: string;
+    model: string;
+    cacheHitPerMillion: number | null;
+    cacheMissPerMillion: number | null;
+    outputPerMillion: number | null;
+    toolCallPerMillion?: number | null;
+    reasoningInOutput?: boolean;
+    sourceRef?: string | null;
+  }): Promise<IpcResult<CostRateCardView>>;
+  previewCostRecalculation(input: {
+    projectId: ProjectId;
+    provider: string;
+    model: string;
+    cacheHitPerMillion: number | null;
+    cacheMissPerMillion: number | null;
+    outputPerMillion: number | null;
+    reasoningInOutput?: boolean;
+  }): Promise<
+    IpcResult<{
+      turns: number;
+      beforePico: number;
+      afterPico: number;
+      changes: Array<{
+        turnId: string | null;
+        beforePico: number | null;
+        afterPico: number | null;
+      }>;
+    }>
+  >;
 }
 
 export interface AppInfo {

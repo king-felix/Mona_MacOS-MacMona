@@ -419,11 +419,103 @@ CREATE TABLE problem_events (
 CREATE INDEX problem_events_problem ON problem_events (problem_id, created_at);
 `;
 
+// v5 makes cost a durable ledger with explicit provenance. A turn is recorded
+// once (partial unique index) so a replay cannot double-charge; the engine's
+// cumulative thread total is stored as an exact delta; rates are versioned rows
+// rather than code constants; budgets are user-set and evaluated locally.
+// Existing rows are preserved and mapped to the closest honest cost state.
+const V5 = `
+CREATE TABLE rate_cards (
+  id                  TEXT PRIMARY KEY,
+  provider            TEXT NOT NULL CHECK (length(provider) BETWEEN 1 AND 100),
+  model               TEXT NOT NULL CHECK (length(model) BETWEEN 1 AND 200),
+  currency            TEXT NOT NULL DEFAULT 'USD' CHECK (currency = 'USD'),
+  unit                TEXT NOT NULL DEFAULT 'per_million_tokens'
+                      CHECK (unit = 'per_million_tokens'),
+  cache_hit_pico      INTEGER CHECK (cache_hit_pico IS NULL OR cache_hit_pico >= 0),
+  cache_miss_pico     INTEGER CHECK (cache_miss_pico IS NULL OR cache_miss_pico >= 0),
+  output_pico         INTEGER CHECK (output_pico IS NULL OR output_pico >= 0),
+  tool_call_pico      INTEGER CHECK (tool_call_pico IS NULL OR tool_call_pico >= 0),
+  reasoning_in_output INTEGER NOT NULL DEFAULT 1 CHECK (reasoning_in_output IN (0, 1)),
+  source              TEXT NOT NULL CHECK (source IN ('user_supplied', 'provider_docs')),
+  source_ref          TEXT,
+  revision            TEXT NOT NULL,
+  revision_no         INTEGER NOT NULL DEFAULT 1 CHECK (revision_no >= 1),
+  read_at             TEXT NOT NULL,
+  effective_from      TEXT,
+  effective_to        TEXT,
+  created_at          TEXT NOT NULL,
+  superseded_at       TEXT
+);
+CREATE UNIQUE INDEX rate_cards_current
+  ON rate_cards (provider, model) WHERE superseded_at IS NULL;
+CREATE INDEX rate_cards_route ON rate_cards (provider, model, read_at);
+
+CREATE TABLE budgets (
+  id          TEXT PRIMARY KEY,
+  project_id  TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  scope       TEXT NOT NULL CHECK (scope IN ('session', 'project', 'day')),
+  limit_pico  INTEGER NOT NULL CHECK (limit_pico > 0),
+  warn_pico   INTEGER CHECK (warn_pico IS NULL OR (warn_pico > 0 AND warn_pico <= limit_pico)),
+  enabled     INTEGER NOT NULL DEFAULT 1 CHECK (enabled IN (0, 1)),
+  time_zone   TEXT NOT NULL CHECK (length(time_zone) BETWEEN 1 AND 64),
+  created_at  TEXT NOT NULL,
+  updated_at  TEXT NOT NULL,
+  revision    INTEGER NOT NULL DEFAULT 1 CHECK (revision >= 1),
+  UNIQUE (project_id, scope)
+);
+
+-- One mark per thread: the cumulative engine total last seen and the window it
+-- was read in. A total that moves backwards never becomes a negative delta.
+CREATE TABLE cost_thread_marks (
+  thread_id           TEXT PRIMARY KEY,
+  window_since        TEXT NOT NULL,
+  reported_total_pico INTEGER CHECK (reported_total_pico IS NULL OR reported_total_pico >= 0),
+  cost_complete       INTEGER NOT NULL DEFAULT 0 CHECK (cost_complete IN (0, 1)),
+  updated_at          TEXT NOT NULL
+);
+
+ALTER TABLE usage_records ADD COLUMN task_id TEXT REFERENCES tasks(id) ON DELETE SET NULL;
+ALTER TABLE usage_records ADD COLUMN cache_miss_tokens INTEGER;
+ALTER TABLE usage_records ADD COLUMN cost_pico_usd INTEGER;
+ALTER TABLE usage_records ADD COLUMN cost_state TEXT NOT NULL DEFAULT 'unknown_price'
+  CHECK (cost_state IN ('reported', 'estimated', 'unknown_price', 'missing_usage', 'unallocated'));
+ALTER TABLE usage_records ADD COLUMN cost_allocation TEXT NOT NULL DEFAULT 'turn'
+  CHECK (cost_allocation IN ('turn', 'thread_delta', 'none'));
+ALTER TABLE usage_records ADD COLUMN rate_card_id TEXT REFERENCES rate_cards(id);
+ALTER TABLE usage_records ADD COLUMN pricing_read_at TEXT;
+ALTER TABLE usage_records ADD COLUMN token_semantics TEXT NOT NULL DEFAULT 'inclusive_input'
+  CHECK (token_semantics IN ('inclusive_input', 'exclusive_input', 'unknown'));
+ALTER TABLE usage_records ADD COLUMN note TEXT;
+
+UPDATE usage_records
+SET cost_pico_usd = ROUND(cost_usd * 1000000000000),
+    cost_state = CASE WHEN cost_complete = 1 THEN 'reported' ELSE 'unknown_price' END;
+
+-- A pre-P12 session deduplicated turns only in memory, so a restart could
+-- insert the same turn twice. Keep the best-evidenced row per turn.
+DELETE FROM usage_records
+WHERE thread_id IS NOT NULL AND turn_id IS NOT NULL AND id IN (
+  SELECT id FROM (
+    SELECT id, ROW_NUMBER() OVER (
+      PARTITION BY thread_id, turn_id
+      ORDER BY cost_complete DESC, COALESCE(cost_pico_usd, -1) DESC, captured_at DESC, id DESC
+    ) AS rn
+    FROM usage_records
+    WHERE thread_id IS NOT NULL AND turn_id IS NOT NULL
+  ) WHERE rn > 1
+);
+CREATE UNIQUE INDEX usage_turn_once
+  ON usage_records (thread_id, turn_id) WHERE turn_id IS NOT NULL;
+CREATE INDEX usage_project_task ON usage_records (project_id, task_id, captured_at);
+`;
+
 export const MIGRATIONS: readonly Migration[] = [
   { version: 1, name: "core-project-state", sql: V1 },
   { version: 2, name: "project-identity-fields", sql: V2 },
   { version: 3, name: "task-board-and-continuity", sql: V3 },
   { version: 4, name: "attempt-ledger-and-boundaries", sql: V4 },
+  { version: 5, name: "cost-ledger-rates-and-budgets", sql: V5 },
 ];
 
 export const CURRENT_SCHEMA_VERSION = MIGRATIONS[MIGRATIONS.length - 1]?.version ?? 0;
@@ -431,7 +523,9 @@ export const CURRENT_SCHEMA_VERSION = MIGRATIONS[MIGRATIONS.length - 1]?.version
 export const REQUIRED_TABLES: readonly string[] = [
   "artifacts",
   "attempts",
+  "budgets",
   "capability_snapshots",
+  "cost_thread_marks",
   "decisions",
   "drafts",
   "event_cursors",
@@ -441,6 +535,7 @@ export const REQUIRED_TABLES: readonly string[] = [
   "problems",
   "project_paths",
   "projects",
+  "rate_cards",
   "requirement_evidence",
   "runtime_bindings",
   "schema_migrations",
@@ -460,10 +555,12 @@ export const REQUIRED_TABLES: readonly string[] = [
 
 const V3_TABLES: readonly string[] = ["task_acceptance", "task_events", "task_runs", "task_steps"];
 const V4_TABLES: readonly string[] = ["problem_events", "problems"];
+const V5_TABLES: readonly string[] = ["budgets", "cost_thread_marks", "rate_cards"];
 
-/** Tables a database at `version` must have. Older targets predate v3 and v4. */
+/** Tables a database at `version` must have. Older targets predate v3–v5. */
 export function requiredTablesFor(version: number): readonly string[] {
   let tables: readonly string[] = REQUIRED_TABLES;
+  if (version < 5) tables = tables.filter((t) => !V5_TABLES.includes(t));
   if (version < 4) tables = tables.filter((t) => !V4_TABLES.includes(t));
   if (version < 3) tables = tables.filter((t) => !V3_TABLES.includes(t));
   return tables;

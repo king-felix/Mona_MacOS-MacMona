@@ -4,6 +4,7 @@ export * from "./engine";
 export * from "./events";
 export * from "./submission";
 export * from "./usage";
+export * from "./cost";
 export * from "./studio";
 export * from "./bridge";
 export * from "./project-bridge";

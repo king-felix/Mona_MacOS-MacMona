@@ -166,6 +166,17 @@ export const PortableUsage = z.strictObject({
   costUsd: z.number().nonnegative().nullable(),
   costComplete: z.boolean(),
   capturedAt: Timestamp,
+  // P12 fields are optional so a pre-P12 bundle still imports. Rate-card ids
+  // are deliberately not portable: they reference machine-local provenance.
+  cacheMissTokens: z.number().int().nonnegative().nullable().optional(),
+  costPicoUsd: z.number().int().nonnegative().nullable().optional(),
+  costState: z
+    .enum(["reported", "estimated", "unknown_price", "missing_usage", "unallocated"])
+    .optional(),
+  costAllocation: z.enum(["turn", "thread_delta", "none"]).optional(),
+  pricingReadAt: Timestamp.nullable().optional(),
+  tokenSemantics: z.enum(["inclusive_input", "exclusive_input", "unknown"]).optional(),
+  note: z.string().max(2000).nullable().optional(),
 });
 
 export const PortableDraft = z.strictObject({

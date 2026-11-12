@@ -24,6 +24,12 @@ import type {
   StudioSubmitResult,
 } from "../shared/contracts/studio";
 import type {
+  BudgetView,
+  CostExport,
+  CostLedgerView,
+  CostRateCardView,
+} from "../shared/contracts/cost";
+import type {
   BoardSnapshot,
   ContextPreview,
   HandoffView,
@@ -183,6 +189,31 @@ const bridge: MonaBridge = {
     ),
   reopenProblem: (problemId: string, reason: string, evidence: string[]) =>
     ipcRenderer.invoke("board:problem-reopen", { problemId, reason, evidence }),
+
+  costLedger: (projectId, options): Promise<IpcResult<CostLedgerView>> =>
+    ipcRenderer.invoke("cost:ledger", {
+      projectId,
+      ...(options?.since ? { since: options.since } : {}),
+      ...(options?.until ? { until: options.until } : {}),
+      ...(options?.timeZone ? { timeZone: options.timeZone } : {}),
+    }),
+  exportCostLedger: (projectId, format, options): Promise<IpcResult<CostExport>> =>
+    ipcRenderer.invoke("cost:ledger", {
+      projectId,
+      format,
+      ...(options?.since ? { since: options.since } : {}),
+      ...(options?.until ? { until: options.until } : {}),
+      ...(options?.timeZone ? { timeZone: options.timeZone } : {}),
+    }),
+  exportCostLedgerFile: (projectId, format) =>
+    ipcRenderer.invoke("cost:export-file", { projectId, format }),
+  setCostBudget: (input): Promise<IpcResult<BudgetView>> =>
+    ipcRenderer.invoke("cost:budget-set", input),
+  clearCostBudget: (input): Promise<IpcResult<{ cleared: boolean }>> =>
+    ipcRenderer.invoke("cost:budget-clear", input),
+  setRateCard: (input): Promise<IpcResult<CostRateCardView>> =>
+    ipcRenderer.invoke("cost:rate-set", input),
+  previewCostRecalculation: (input) => ipcRenderer.invoke("cost:recalc-preview", input),
 
   onStudioChanged: (callback: (push: StudioPush) => void): (() => void) => {
     const listener = (_event: unknown, payload: unknown) => {

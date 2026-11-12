@@ -21,6 +21,7 @@ import type { StoredProject, StateStore } from "../state/store";
 import type { SupervisorStopReceipt } from "../supervisor/native";
 import type { OwnedEndpoint, RuntimeStatus } from "../supervisor/runtime-supervisor";
 import { WorkController } from "./control";
+import { CostLedger } from "./costs";
 import {
   loadExecutionProfile,
   postureFor,
@@ -53,6 +54,8 @@ export interface WorkStudioOptions {
    * attributed to a task whose turn already finished.
    */
   onTurnFinished?: (projectId: ProjectId, turnId: string) => Promise<void> | void;
+  /** P12 cost ledger. Optional so a test can inject its own rate-card world. */
+  ledger?: CostLedger;
   now?: () => Date;
   reconnect?: {
     attempts?: number;
@@ -69,7 +72,8 @@ export type StudioErrorCode =
   | "NOT_CONNECTED"
   | "INVALID_INPUT"
   | "RUNTIME_UNAVAILABLE"
-  | "UNSUPPORTED_INPUT";
+  | "UNSUPPORTED_INPUT"
+  | "BUDGET_STOP";
 
 export class StudioError extends Error {
   constructor(
@@ -192,6 +196,7 @@ export class WorkStudio {
   private readonly sleep: (ms: number) => Promise<void>;
   private readonly onTurnFinished:
     ((projectId: ProjectId, turnId: string) => Promise<void> | void) | null;
+  private readonly ledger: CostLedger;
   private active: StudioSession | null = null;
   private closed = false;
 
@@ -199,6 +204,7 @@ export class WorkStudio {
     this.store = options.store;
     this.supervisor = options.supervisor;
     this.work = options.work;
+    this.ledger = options.ledger ?? new CostLedger(options.store);
     this.newAdapter =
       options.newAdapter ??
       ((transport, projectId) =>
@@ -409,6 +415,17 @@ export class WorkStudio {
         "NOT_CONNECTED",
         `the studio is ${session.connection}: ${session.reason}`,
       );
+    }
+
+    // A user-set budget blocks the next dispatch only. It never interrupts an
+    // in-flight turn, and an in-flight provider request can still complete.
+    const gate = await this.ledger.dispatchGate(projectId, this.now().toISOString(), {
+      activeTurn: false,
+    });
+    if (!gate.allowed) {
+      throw new StudioError("BUDGET_STOP", gate.reasons.join(" "), {
+        gate,
+      });
     }
 
     const binding = await this.ensureModeThread(session, input.mode);
@@ -791,27 +808,23 @@ export class WorkStudio {
         inputTokens: number | null;
         outputTokens: number | null;
         cachedTokens: number | null;
+        cacheMissTokens?: number | null;
         reasoningTokens: number | null;
       } | null;
     },
-    timestamp: string,
+    _timestamp: string,
   ): Promise<void> {
     if (session.usageRecorded.has(turn.id)) return;
-    if (!turn.usage) {
-      session.usageRecorded.add(turn.id);
-      return;
-    }
     const provider = turn.effectiveProvider ?? session.profile.provider;
     const model = turn.effectiveModel ?? session.profile.model;
-    let costUsd: number | null = null;
-    let costComplete = false;
+    // The engine's aggregate is cumulative for a stable window, so the ledger
+    // converts it into an exact per-turn delta. A failed read stays unknown.
+    let aggregate: { costUsd: number; costComplete: boolean } | null = null;
     try {
-      const since = new Date(Date.parse(timestamp) - 60_000).toISOString();
-      const report = await session.adapter.readUsage({ since, groupBy: "thread" });
+      const report = await session.adapter.readUsage({ groupBy: "thread" });
       const bucket = report.buckets.find((entry) => entry.key === binding.engineThreadId);
-      if (bucket && bucket.costComplete) {
-        costUsd = bucket.costUsd;
-        costComplete = true;
+      if (bucket) {
+        aggregate = { costUsd: bucket.costUsd, costComplete: bucket.costComplete };
       }
     } catch (error) {
       this.diagnose(
@@ -819,20 +832,26 @@ export class WorkStudio {
         `usage cost could not be read; it stays unknown: ${errorMessage(error)}`,
       );
     }
+    const thread = await this.store.getThread(binding.localThreadId);
     try {
-      await this.store.recordUsage({
+      await this.ledger.recordTurn({
         projectId: session.projectId,
         threadId: binding.localThreadId,
         turnId: turn.id,
         provider,
         model,
-        inputTokens: turn.usage.inputTokens,
-        outputTokens: turn.usage.outputTokens,
-        cachedTokens: turn.usage.cachedTokens,
-        reasoningTokens: turn.usage.reasoningTokens,
-        costUsd,
-        costComplete,
+        usage: turn.usage
+          ? {
+              inputTokens: turn.usage.inputTokens,
+              outputTokens: turn.usage.outputTokens,
+              cachedTokens: turn.usage.cachedTokens,
+              cacheMissTokens: turn.usage.cacheMissTokens ?? null,
+              reasoningTokens: turn.usage.reasoningTokens,
+            }
+          : null,
         capturedAt: this.now().toISOString(),
+        windowSince: thread?.createdAt ?? session.since,
+        aggregate,
       });
       session.usageRecorded.add(turn.id);
     } catch (error) {

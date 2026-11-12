@@ -2088,6 +2088,18 @@ a {
   overflow-wrap: anywhere;
 }
 
+/* The shared row grid is sized for the six-column project tables; the cost
+   lens uses narrower tables, so each shape declares its own columns. */
+.table--4 .table__row {
+  grid-template-columns: minmax(150px, 1.6fr) 120px 140px 130px;
+  min-width: 0;
+}
+
+.table--5 .table__row {
+  grid-template-columns: 170px minmax(120px, 1fr) 140px 150px 130px;
+  min-width: 0;
+}
+
 .cost-columns {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -2247,6 +2259,22 @@ a {
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 12px;
   margin-bottom: 12px;
+}
+
+/* Cost lens: a quiet note under a table, and a right-aligned action row. */
+.muted {
+  color: var(--muted);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  margin: 8px 0;
+}
+
+.row-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
 }
 
 .inline-facts {
