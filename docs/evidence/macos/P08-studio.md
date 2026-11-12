@@ -158,3 +158,41 @@ an unconfirmed one is reported as uncertain with the engine's own note.
 6. **One runtime per user store** — parallel project execution stays disabled
    until upstream concurrency is proven; the second project gets a clear reason.
 7. **No Developer ID signing** — still P22; this evidence is a local build.
+
+## P23 polish — the console got the width and the height
+
+At the operator's request the studio was re-laid out so the agent console is the
+wide surface instead of a column squeezed beside a docked inspector:
+
+- The console (timeline) is now a full-width panel at the top. It was in a `1fr`
+  column beside a permanently docked 350 px inspector, capped at
+  `min(28vh, 320px)` — roughly six events on a laptop.
+- The prompt composer and the Task / Requirements / Context inspector now share
+  the row beneath it (composer `1fr`, inspector 350 px).
+- Console height is `clamp(300px, 44vh, 620px)`, so it grows with the window but
+  keeps the composer within a short scroll.
+
+Measured, not asserted — four new shell-smoke checks at 1280×800:
+
+```
+studio_console_spans_width        console 100% of the studio width
+studio_console_is_tall            console 352 px
+studio_console_above_composer     true
+studio_inspector_beside_composer  inspector 350 px beside a 632 px composer
+```
+
+The shell smoke also now passes its own `--user-data-dir`: it previously exited
+silently with no report whenever the user had the installed Mona open, because
+its second Electron lost the single-instance lock. Verified with the product
+running: **124 checks, 0 failures**.
+
+Captures `p07-shell-studio.png` and `p14-studio-focus-afterglow.png` show the new
+arrangement; all 36 hash-pinned captures were re-recorded, with no assertion
+removed.
+
+**Not regenerated:** `p08-studio-run.png` and `p08-studio-live.png` still show the
+previous arrangement. `smoke:studio` cannot run while the installed Mona is open
+(the single-instance lock), and giving it an isolated `--user-data-dir` makes it
+fail with `state store is closed` in `WorkStudio.replay`, so that change was
+reverted rather than shipped. Re-run `npm run smoke:studio` with Mona closed to
+refresh those two captures.

@@ -401,300 +401,306 @@ export function StudioScreen(props: StudioProps): JSX.Element {
       ) : null}
 
       <div className="studio">
-        <section className="studio__main" aria-label="Work timeline">
-          <div
-            className="studio__timeline"
-            tabIndex={0}
-            aria-label="Work timeline, scrollable"
-            data-testid="studio-timeline"
-            ref={timelineRef}
-            onScroll={(event) => {
-              const node = event.currentTarget;
-              followRef.current = node.scrollHeight - node.scrollTop - node.clientHeight < 48;
-            }}
-          >
-            {entries.length === 0 ? (
-              <EmptyState
-                icon={<ClockIcon size={26} />}
-                title="No engine history stored yet"
-                description="Mona stores thread, turn, and event projections only when the engine reports them. Nothing is simulated here."
-              />
-            ) : (
-              <>
-                {hidden > 0 ? (
-                  <div className="timeline__more">
-                    {hidden > 0 ? (
-                      <Button size="sm" variant="ghost" onClick={() => setShowAll(true)}>
-                        Show {hidden} earlier event{hidden === 1 ? "" : "s"}
-                      </Button>
-                    ) : null}
-                    {internalActivity > 0 || unprojected.length > 0 ? (
-                      <span className="hint-line" data-testid="studio-activity">
-                        {internalActivity} engine activity event
-                        {internalActivity === 1 ? "" : "s"} stored
-                        {unprojected.length > 0
-                          ? ` · unprojected kinds: ${unprojected.join(", ")}`
-                          : ""}
-                      </span>
-                    ) : null}
-                  </div>
-                ) : null}
-                <ol className="timeline">
-                  {visibleEntries.map((entry) => (
-                    <TimelineCard key={entry.key} entry={entry} />
-                  ))}
-                </ol>
-              </>
-            )}
-          </div>
-
-          <div className="composer">
-            <div className="composer__mode">
-              <SegmentedControl
-                label="Execution mode"
-                value={props.mode}
-                options={[
-                  { value: "plan", label: "Plan" },
-                  { value: "work", label: "Work" },
-                ]}
-                onChange={(value) => props.onMode(value === "plan" ? "plan" : "work")}
-              />
-              <span className="hint-line">
-                {props.mode === "plan"
-                  ? "Plan asks before shell or write actions; it cannot widen to Full Access."
-                  : profile
-                    ? `Work uses the saved Full Access profile: ${profile.provider} / ${profile.model}.`
-                    : "Work uses the saved Full Access profile."}
-              </span>
-            </div>
-            <div className="favorites" aria-label="Prompt favorites">
-              <span className="favorites__label">Favorites</span>
-              {props.favorites.length === 0 ? (
-                <span className="hint-line">
-                  None saved yet. A favorite is inert local text until you insert it.
-                </span>
-              ) : (
-                props.favorites.map((favorite) => (
-                  <span className="favorite-chip" key={favorite.id}>
-                    <button
-                      type="button"
-                      className="favorite-chip__insert"
-                      onClick={() => props.onUseFavorite(favorite)}
-                      title={favorite.text.slice(0, 240)}
-                    >
-                      {favorite.label}
-                    </button>
-                    <button
-                      type="button"
-                      className="favorite-chip__remove"
-                      aria-label={`Remove favorite ${favorite.label}`}
-                      onClick={() => props.onRemoveFavorite(favorite.id)}
-                    >
-                      ×
-                    </button>
-                  </span>
-                ))
-              )}
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={props.onRequestSaveFavorite}
-                disabled={props.draft.trim().length === 0}
-                title={
-                  props.draft.trim().length === 0
-                    ? "Write a prompt first; Mona saves exactly what is in the composer"
-                    : "Save the composer text as a reusable favorite"
-                }
-              >
-                Save prompt…
-              </Button>
-            </div>
-            <TextArea
-              label="Task prompt"
-              hint="Saved locally for this project and thread. Rendering Markdown is safe: raw HTML never executes."
-              placeholder="Describe one concrete outcome, its boundaries, and how to verify it…"
-              rows={3}
-              value={props.draft}
-              onChange={(event) => props.onDraft(event.target.value)}
+        <section
+          className="studio__timeline"
+          aria-label="Agent console"
+          tabIndex={0}
+          data-testid="studio-timeline"
+          ref={timelineRef}
+          onScroll={(event) => {
+            const node = event.currentTarget;
+            followRef.current = node.scrollHeight - node.scrollTop - node.clientHeight < 48;
+          }}
+        >
+          {entries.length === 0 ? (
+            <EmptyState
+              icon={<ClockIcon size={26} />}
+              title="No engine history stored yet"
+              description="Mona stores thread, turn, and event projections only when the engine reports them. Nothing is simulated here."
             />
-            <div className="composer__actions">
-              <div className="composer__left">
-                <span className="hint-line" aria-live="polite">
-                  {props.draftStatus === "saving"
-                    ? "Saving draft…"
-                    : props.draftStatus === "saved"
-                      ? "Draft saved locally"
-                      : props.draftStatus === "error"
-                        ? "Draft could not be saved"
-                        : "Draft is local to this project"}
-                  {sendReason && sendBlocked ? ` · ${sendReason}` : ""}
-                </span>
-              </div>
-              <div className="composer__right">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  disabled
-                  title="The pinned adapter does not support attachments; Mona will not fabricate one"
-                >
-                  Attach file
-                </Button>
-                <Button
-                  variant="primary"
-                  icon={<PlayIcon size={15} />}
-                  disabled={sendBlocked}
-                  title={
-                    sendBlocked ? (sendReason ?? "A turn is already active") : "Submit this task"
-                  }
-                  onClick={props.onSubmit}
-                  data-testid="studio-send"
-                >
-                  Send to engine
-                </Button>
-              </div>
-            </div>
-          </div>
+          ) : (
+            <>
+              {hidden > 0 ? (
+                <div className="timeline__more">
+                  {hidden > 0 ? (
+                    <Button size="sm" variant="ghost" onClick={() => setShowAll(true)}>
+                      Show {hidden} earlier event{hidden === 1 ? "" : "s"}
+                    </Button>
+                  ) : null}
+                  {internalActivity > 0 || unprojected.length > 0 ? (
+                    <span className="hint-line" data-testid="studio-activity">
+                      {internalActivity} engine activity event
+                      {internalActivity === 1 ? "" : "s"} stored
+                      {unprojected.length > 0
+                        ? ` · unprojected kinds: ${unprojected.join(", ")}`
+                        : ""}
+                    </span>
+                  ) : null}
+                </div>
+              ) : null}
+              <ol className="timeline">
+                {visibleEntries.map((entry) => (
+                  <TimelineCard key={entry.key} entry={entry} />
+                ))}
+              </ol>
+            </>
+          )}
         </section>
 
-        {props.focusMode ? null : (
-          <aside className="studio__inspector" aria-label="Inspector">
-            <Tabs
-              label="Inspector sections"
-              value={props.inspectorTab}
-              onChange={props.onInspectorTab}
-              tabs={[
-                { id: "task", label: "Task" },
-                { id: "requirements", label: "Requirements" },
-                { id: "context", label: "Context" },
-              ]}
-            />
-            <TabPanel id="task" active={props.inspectorTab === "task"}>
-              {currentTask ? (
-                <Inspector
-                  title="Current task"
-                  actions={<StatusBadge status={currentTask.status as WorkStatus} />}
-                  label="Current task"
+        {/* The console above is the wide surface. The composer and the
+            task/requirements/context inspector share the row beneath it, so a
+            long turn has room to breathe instead of being squeezed into a
+            narrow column beside the inspector. */}
+        <div className="studio__work">
+          <section className="studio__main" aria-label="Task prompt">
+            <div className="composer">
+              <div className="composer__mode">
+                <SegmentedControl
+                  label="Execution mode"
+                  value={props.mode}
+                  options={[
+                    { value: "plan", label: "Plan" },
+                    { value: "work", label: "Work" },
+                  ]}
+                  onChange={(value) => props.onMode(value === "plan" ? "plan" : "work")}
+                />
+                <span className="hint-line">
+                  {props.mode === "plan"
+                    ? "Plan asks before shell or write actions; it cannot widen to Full Access."
+                    : profile
+                      ? `Work uses the saved Full Access profile: ${profile.provider} / ${profile.model}.`
+                      : "Work uses the saved Full Access profile."}
+                </span>
+              </div>
+              <div className="favorites" aria-label="Prompt favorites">
+                <span className="favorites__label">Favorites</span>
+                {props.favorites.length === 0 ? (
+                  <span className="hint-line">
+                    None saved yet. A favorite is inert local text until you insert it.
+                  </span>
+                ) : (
+                  props.favorites.map((favorite) => (
+                    <span className="favorite-chip" key={favorite.id}>
+                      <button
+                        type="button"
+                        className="favorite-chip__insert"
+                        onClick={() => props.onUseFavorite(favorite)}
+                        title={favorite.text.slice(0, 240)}
+                      >
+                        {favorite.label}
+                      </button>
+                      <button
+                        type="button"
+                        className="favorite-chip__remove"
+                        aria-label={`Remove favorite ${favorite.label}`}
+                        onClick={() => props.onRemoveFavorite(favorite.id)}
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))
+                )}
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={props.onRequestSaveFavorite}
+                  disabled={props.draft.trim().length === 0}
+                  title={
+                    props.draft.trim().length === 0
+                      ? "Write a prompt first; Mona saves exactly what is in the composer"
+                      : "Save the composer text as a reusable favorite"
+                  }
                 >
-                  <p className="inspector__task-title">{currentTask.title}</p>
+                  Save prompt…
+                </Button>
+              </div>
+              <TextArea
+                label="Task prompt"
+                hint="Saved locally for this project and thread. Rendering Markdown is safe: raw HTML never executes."
+                placeholder="Describe one concrete outcome, its boundaries, and how to verify it…"
+                rows={3}
+                value={props.draft}
+                onChange={(event) => props.onDraft(event.target.value)}
+              />
+              <div className="composer__actions">
+                <div className="composer__left">
+                  <span className="hint-line" aria-live="polite">
+                    {props.draftStatus === "saving"
+                      ? "Saving draft…"
+                      : props.draftStatus === "saved"
+                        ? "Draft saved locally"
+                        : props.draftStatus === "error"
+                          ? "Draft could not be saved"
+                          : "Draft is local to this project"}
+                    {sendReason && sendBlocked ? ` · ${sendReason}` : ""}
+                  </span>
+                </div>
+                <div className="composer__right">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    disabled
+                    title="The pinned adapter does not support attachments; Mona will not fabricate one"
+                  >
+                    Attach file
+                  </Button>
+                  <Button
+                    variant="primary"
+                    icon={<PlayIcon size={15} />}
+                    disabled={sendBlocked}
+                    title={
+                      sendBlocked ? (sendReason ?? "A turn is already active") : "Submit this task"
+                    }
+                    onClick={props.onSubmit}
+                    data-testid="studio-send"
+                  >
+                    Send to engine
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {props.focusMode ? null : (
+            <aside className="studio__inspector" aria-label="Inspector">
+              <Tabs
+                label="Inspector sections"
+                value={props.inspectorTab}
+                onChange={props.onInspectorTab}
+                tabs={[
+                  { id: "task", label: "Task" },
+                  { id: "requirements", label: "Requirements" },
+                  { id: "context", label: "Context" },
+                ]}
+              />
+              <TabPanel id="task" active={props.inspectorTab === "task"}>
+                {currentTask ? (
+                  <Inspector
+                    title="Current task"
+                    actions={<StatusBadge status={currentTask.status as WorkStatus} />}
+                    label="Current task"
+                  >
+                    <p className="inspector__task-title">{currentTask.title}</p>
+                    <dl className="detail-list">
+                      <div className="detail-row">
+                        <dt>Task</dt>
+                        <dd className="mono">{currentTask.id}</dd>
+                      </div>
+                      <div className="detail-row">
+                        <dt>Updated</dt>
+                        <dd>{relativeTime(currentTask.updatedAt)}</dd>
+                      </div>
+                      <div className="detail-row">
+                        <dt>Depends on</dt>
+                        <dd>
+                          {currentTask.dependsOn.length === 0
+                            ? "Nothing"
+                            : currentTask.dependsOn.join(", ")}
+                        </dd>
+                      </div>
+                    </dl>
+                    <div className="inspector__actions">
+                      <Button size="sm" variant="secondary" onClick={props.onShowBoard}>
+                        Open work board
+                      </Button>
+                    </div>
+                  </Inspector>
+                ) : (
+                  <EmptyState
+                    icon={<ClockIcon size={24} />}
+                    title="No tasks yet"
+                    description="Tasks are created explicitly. Mona does not infer a task or a percentage from project activity."
+                  />
+                )}
+              </TabPanel>
+              <TabPanel id="requirements" active={props.inspectorTab === "requirements"}>
+                {detail.evidence.length === 0 ? (
+                  <EmptyState
+                    icon={<InfoIcon size={24} />}
+                    title="No requirement evidence"
+                    description="Evidence appears here when a task records it. Completion is never inferred from a checked box."
+                  />
+                ) : (
+                  <ul className="requirement-list">
+                    {detail.evidence.map((entry) => (
+                      <li className="requirement-row" key={`${entry.requirementId}-${entry.path}`}>
+                        <span className="requirement-row__id mono">{entry.requirementId}</span>
+                        <span className="requirement-row__title mono">{entry.path}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </TabPanel>
+              <TabPanel id="context" active={props.inspectorTab === "context"}>
+                <Card title="Context" eyebrow="Real local state">
                   <dl className="detail-list">
                     <div className="detail-row">
-                      <dt>Task</dt>
-                      <dd className="mono">{currentTask.id}</dd>
-                    </div>
-                    <div className="detail-row">
-                      <dt>Updated</dt>
-                      <dd>{relativeTime(currentTask.updatedAt)}</dd>
-                    </div>
-                    <div className="detail-row">
-                      <dt>Depends on</dt>
+                      <dt>Connection</dt>
                       <dd>
-                        {currentTask.dependsOn.length === 0
-                          ? "Nothing"
-                          : currentTask.dependsOn.join(", ")}
+                        {studio
+                          ? `${studio.connection.state}: ${studio.connection.reason}`
+                          : "The studio has not started in this launch"}
+                      </dd>
+                    </div>
+                    <div className="detail-row">
+                      <dt>Submission</dt>
+                      <dd>
+                        {studio?.submission
+                          ? `${studio.submission.status} · ${studio.submission.reconciled ? "reconciled" : "not reconciled"}`
+                          : "No submission recorded"}
+                      </dd>
+                    </div>
+                    <div className="detail-row">
+                      <dt>Repository</dt>
+                      <dd>
+                        {detail.project.repositoryKind === "none"
+                          ? "Plain folder"
+                          : detail.project.repositoryKind}
+                      </dd>
+                    </div>
+                    <div className="detail-row">
+                      <dt>Threads</dt>
+                      <dd>{detail.threads.length}</dd>
+                    </div>
+                    <div className="detail-row">
+                      <dt>Events</dt>
+                      <dd>{detail.events.length} stored</dd>
+                    </div>
+                    <div className="detail-row">
+                      <dt>Runtime</dt>
+                      <dd>{engine.blockedReason ?? "Bound to this workspace"}</dd>
+                    </div>
+                    <div className="detail-row">
+                      <dt>Binding</dt>
+                      <dd className="mono wrap">
+                        {engine.binding
+                          ? `${engine.binding.executable} · ${engine.binding.state}`
+                          : "No runtime binding"}
+                      </dd>
+                    </div>
+                    <div className="detail-row">
+                      <dt>Tokens</dt>
+                      <dd>
+                        {formatTokens(usage.inputTokens)} input · {formatTokens(usage.outputTokens)}{" "}
+                        output
                       </dd>
                     </div>
                   </dl>
-                  <div className="inspector__actions">
-                    <Button size="sm" variant="secondary" onClick={props.onShowBoard}>
-                      Open work board
-                    </Button>
-                  </div>
-                </Inspector>
-              ) : (
-                <EmptyState
-                  icon={<ClockIcon size={24} />}
-                  title="No tasks yet"
-                  description="Tasks are created explicitly. Mona does not infer a task or a percentage from project activity."
-                />
-              )}
-            </TabPanel>
-            <TabPanel id="requirements" active={props.inspectorTab === "requirements"}>
-              {detail.evidence.length === 0 ? (
-                <EmptyState
-                  icon={<InfoIcon size={24} />}
-                  title="No requirement evidence"
-                  description="Evidence appears here when a task records it. Completion is never inferred from a checked box."
-                />
-              ) : (
-                <ul className="requirement-list">
-                  {detail.evidence.map((entry) => (
-                    <li className="requirement-row" key={`${entry.requirementId}-${entry.path}`}>
-                      <span className="requirement-row__id mono">{entry.requirementId}</span>
-                      <span className="requirement-row__title mono">{entry.path}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </TabPanel>
-            <TabPanel id="context" active={props.inspectorTab === "context"}>
-              <Card title="Context" eyebrow="Real local state">
-                <dl className="detail-list">
-                  <div className="detail-row">
-                    <dt>Connection</dt>
-                    <dd>
-                      {studio
-                        ? `${studio.connection.state}: ${studio.connection.reason}`
-                        : "The studio has not started in this launch"}
-                    </dd>
-                  </div>
-                  <div className="detail-row">
-                    <dt>Submission</dt>
-                    <dd>
-                      {studio?.submission
-                        ? `${studio.submission.status} · ${studio.submission.reconciled ? "reconciled" : "not reconciled"}`
-                        : "No submission recorded"}
-                    </dd>
-                  </div>
-                  <div className="detail-row">
-                    <dt>Repository</dt>
-                    <dd>
-                      {detail.project.repositoryKind === "none"
-                        ? "Plain folder"
-                        : detail.project.repositoryKind}
-                    </dd>
-                  </div>
-                  <div className="detail-row">
-                    <dt>Threads</dt>
-                    <dd>{detail.threads.length}</dd>
-                  </div>
-                  <div className="detail-row">
-                    <dt>Events</dt>
-                    <dd>{detail.events.length} stored</dd>
-                  </div>
-                  <div className="detail-row">
-                    <dt>Runtime</dt>
-                    <dd>{engine.blockedReason ?? "Bound to this workspace"}</dd>
-                  </div>
-                  <div className="detail-row">
-                    <dt>Binding</dt>
-                    <dd className="mono wrap">
-                      {engine.binding
-                        ? `${engine.binding.executable} · ${engine.binding.state}`
-                        : "No runtime binding"}
-                    </dd>
-                  </div>
-                  <div className="detail-row">
-                    <dt>Tokens</dt>
-                    <dd>
-                      {formatTokens(usage.inputTokens)} input · {formatTokens(usage.outputTokens)}{" "}
-                      output
-                    </dd>
-                  </div>
-                </dl>
-              </Card>
-              {studio && studio.diagnostics.length > 0 ? (
-                <details className="diagnostics">
-                  <summary>Diagnostics ({studio.diagnostics.length})</summary>
-                  <ul>
-                    {studio.diagnostics.map((entry) => (
-                      <li key={entry}>{entry}</li>
-                    ))}
-                  </ul>
-                </details>
-              ) : null}
-            </TabPanel>
-          </aside>
-        )}
+                </Card>
+                {studio && studio.diagnostics.length > 0 ? (
+                  <details className="diagnostics">
+                    <summary>Diagnostics ({studio.diagnostics.length})</summary>
+                    <ul>
+                      {studio.diagnostics.map((entry) => (
+                        <li key={entry}>{entry}</li>
+                      ))}
+                    </ul>
+                  </details>
+                ) : null}
+              </TabPanel>
+            </aside>
+          )}
+        </div>
       </div>
 
       <div className="control-strip" role="region" aria-label="Execution controls">

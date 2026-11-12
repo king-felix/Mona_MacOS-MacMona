@@ -1539,11 +1539,15 @@ a {
   font-weight: 600;
 }
 
+/* The Studio is a column: the agent console is the wide surface at the top, and
+   the composer and the task/requirements/context inspector share the row below
+   it. Watching agents work is the point of this screen, so the console gets the
+   width and the height and the inspector no longer squeezes it into a column. */
 .studio {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 350px;
+  display: flex;
+  flex-direction: column;
   gap: 14px;
-  align-items: start;
+  align-items: stretch;
 }
 
 .studio__main {
@@ -1551,6 +1555,13 @@ a {
   flex-direction: column;
   gap: 12px;
   min-width: 0;
+}
+
+.studio__work {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 350px;
+  gap: 14px;
+  align-items: start;
 }
 
 .screen--studio {
@@ -1562,10 +1573,13 @@ a {
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
-  padding: 14px 16px;
-  min-height: 140px;
-  max-height: min(28vh, 320px);
+  padding: 14px 18px;
+  /* A generous window over the live record: the old cap (28vh / 320px) showed
+     about six events on a laptop. It grows with the window but stays bounded,
+     so the composer below is reachable with a short scroll rather than lost. */
+  height: clamp(300px, 44vh, 620px);
   overflow-y: auto;
+  scroll-behavior: smooth;
 }
 
 .timeline {
@@ -2361,7 +2375,7 @@ a {
     grid-template-columns: 1fr;
   }
 
-  .studio {
+  .studio__work {
     grid-template-columns: minmax(0, 1fr);
   }
 
@@ -3527,8 +3541,8 @@ a {
   white-space: nowrap;
 }
 
-/* Focus Mode: one task, the timeline, the composer, and the emergency strip. */
-.screen--studio-focus .studio {
+/* Focus Mode: one task, the console, the composer, and the emergency strip. */
+.screen--studio-focus .studio__work {
   grid-template-columns: minmax(0, 1fr);
 }
 
@@ -3543,7 +3557,7 @@ a {
 }
 
 .screen--studio-focus .studio__timeline {
-  max-height: min(38vh, 400px);
+  height: clamp(280px, 48vh, 660px);
 }
 
 .favorites {

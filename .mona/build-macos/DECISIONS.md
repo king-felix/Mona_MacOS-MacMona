@@ -1458,3 +1458,33 @@ package-level gates — before the install gate, leaving the install-dependent
 gates explicitly `pending`. A later run rewrites `manifest.json` as before. This
 was found by asking, in plain terms, how a person could tell which package they
 had installed; the answer has to be checkable, not asserted. ADR-016 §6.
+
+## D-094 — The Studio puts the agent console where the width is
+
+At the operator's request, the Studio changed shape: the agent console (timeline)
+is now a full-width panel at the top, and the prompt composer shares the row
+beneath it with the Task / Requirements / Context inspector (350 px). Previously
+the console sat in a `1fr` column beside a permanently docked inspector, so its
+width was ~72% of the screen and its height was capped at `min(28vh, 320px)` —
+about six events. Watching a turn was the point of the screen and the layout
+fought it.
+
+The console height is now `clamp(300px, 44vh, 620px)`: generous, but bounded so
+the composer stays within a short scroll on a small window. Focus Mode keeps a
+single column (the inspector is hidden there anyway) with a taller console.
+
+This is measured, not asserted: the shell smoke gained four checks —
+`studio_console_spans_width` (console ≥ 90% of the studio width),
+`studio_console_is_tall` (≥ 340 px), `studio_console_above_composer`, and
+`studio_inspector_beside_composer` (inspector starts after the composer ends and
+their vertical ranges overlap). Measured at 1280×800: console 100% wide, 352 px
+tall, inspector 350 px beside a 632 px composer.
+
+The same run found a verification defect: the shell smoke could not run while
+the user had the installed Mona open, because the smoke's second Electron lost
+`requestSingleInstanceLock()` and exited silently with no report. The shell smoke
+now passes its own `--user-data-dir`, so it is isolated from the real app state
+and from the running instance. The same change was tried for `smoke:studio` and
+**rejected**: with an isolated user-data directory that smoke fails with
+`state store is closed` inside `WorkStudio.replay` (22 checks pass without it),
+so the isolation was reverted there rather than shipped as a flaky gate.

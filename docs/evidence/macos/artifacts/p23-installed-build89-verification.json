@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "purpose": "Chain of custody for the artifact a human installed on this Mac. Every value was read from the running system, not from a build variable.",
+  "verified_at": "2026-11-12T21:11:29.494Z",
+  "package": {
+    "path": "packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg",
+    "name": "Mona-0.1.0-macOS-arm64-local.pkg",
+    "sha256": "9dab34b62e4293ad6b5e37b88ac6a09e41feffefe511870b6dd3a72c6a8d1ef9",
+    "size_bytes": 161971376,
+    "signature": "Status: no signature"
+  },
+  "install": {
+    "receipt": {
+      "schema_version": 1,
+      "product": "Mona",
+      "version": "0.1.0",
+      "channel": "local",
+      "package": "Mona-0.1.0-macOS-arm64-local.pkg",
+      "manifest_sha256": "3a3af7935b75be2579551236ded1da28849017fc42c563c976119f31339cb372",
+      "installed_at": "2026-11-12T21:08:18Z",
+      "app_path": "/Applications/Mona.app",
+      "service_path": "/Library/Services/Mona.service",
+      "receipt_path": "/Library/Application Support/Mona/install-receipt.json"
+    },
+    "installed_at": "2026-11-12T21:08:18Z",
+    "bundle_version": "89",
+    "app_signature_verifies": true
+  },
+  "chain": {
+    "component_manifest_sha256_installed": "3a3af7935b75be2579551236ded1da28849017fc42c563c976119f31339cb372",
+    "receipt_manifest_sha256": "3a3af7935b75be2579551236ded1da28849017fc42c563c976119f31339cb372",
+    "matches": true
+  },
+  "p23_features_present": true,
+  "uninstall_utility_present": true,
+  "how_to_reverify": [
+    "shasum -a 256 \"packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg\"",
+    "shasum -a 256 \"/Applications/Mona.app/Contents/Resources/component-manifest.json\"",
+    "plutil -extract manifest_sha256 raw \"/Library/Application Support/Mona/install-receipt.json\"",
+    "plutil -extract CFBundleVersion raw \"/Applications/Mona.app/Contents/Info.plist\""
+  ],
+  "note": "The receipt's manifest_sha256 is the SHA-256 of the component manifest inside the installed app, and it equals the digest of the same file inside the package. That is what ties the installed app to those exact bytes."
+}

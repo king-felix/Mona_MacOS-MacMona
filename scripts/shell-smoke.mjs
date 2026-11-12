@@ -14,8 +14,12 @@ const electron = require("electron");
 const ROOT = resolve(new URL("..", import.meta.url).pathname);
 const outDir = await mkdtemp(join(tmpdir(), "mona-shell-smoke-"));
 const outFile = join(outDir, "report.json");
+// An isolated Electron user-data directory, for the same reason the state store
+// is temporary: the smoke must not read the real user's app state, and it must
+// not lose the single-instance lock to a Mona the user already has open.
+const userDataDir = await mkdtemp(join(tmpdir(), "mona-shell-smoke-userdata-"));
 
-const child = spawn(electron, [".", "--shell-smoke"], {
+const child = spawn(electron, [".", "--shell-smoke", `--user-data-dir=${userDataDir}`], {
   cwd: ROOT,
   env: {
     ...process.env,
@@ -51,4 +55,5 @@ const output = {
 };
 console.log(JSON.stringify(output, null, 2));
 await rm(outDir, { recursive: true, force: true });
+await rm(userDataDir, { recursive: true, force: true });
 process.exit(report.ok === true && code === 0 ? 0 : 1);

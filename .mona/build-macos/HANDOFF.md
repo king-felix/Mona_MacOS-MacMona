@@ -855,3 +855,17 @@ currently covered by the rehearsal and the unit/smoke suite instead.
      precedent (items 33/51/63/83/95/112) stands: re-run
      `npm run smoke:shell` only when the shell actually changed, then re-record
      the captures with `monabuild evidence` before the checkpoint.
+
+119. **The Studio layout changed at the operator's request (D-094).** The agent
+     console is now the full-width panel at the top (100% of the studio width,
+     352 px tall at 1280×800), and the Task / Requirements / Context inspector
+     sits beside the prompt composer (350 px beside 632 px). Four shell-smoke
+     checks measure this so a later CSS edit cannot silently undo it. All 36
+     hash-pinned captures were re-recorded. `p08-studio-run.png` and
+     `p08-studio-live.png` were **not** regenerated — `smoke:studio` cannot run
+     while the installed Mona is open, and an isolated `--user-data-dir` makes it
+     fail with `state store is closed`; re-run it with Mona closed.
+120. **The shell smoke now runs alongside an open Mona.** It passes its own
+     `--user-data-dir`, so it no longer loses `requestSingleInstanceLock()` and
+     exits silently with no report. Verified with the product running: 124
+     checks, 0 failures. `smoke:studio` was left alone for the reason above.

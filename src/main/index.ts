@@ -957,7 +957,40 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
     profile_reported: document.querySelector('[data-testid="studio-profile"]')?.textContent?.includes('deepseek / deepseek-flash') ?? false,
     event_present: document.body.textContent.includes('status.disconnected'),
     fake_percent: /\b\d+%\b/.test(document.body.textContent ?? ''),
-    horizontal_overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1
+    horizontal_overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+    // P23 polish: the agent console is the wide surface, and the task /
+    // requirements / context inspector sits beside the prompt box, not beside
+    // the console. Measure it, so a future CSS edit cannot quietly undo it.
+    layout: (() => {
+      const studioEl = document.querySelector('.studio');
+      const consoleEl = document.querySelector('.studio__timeline');
+      const composerEl = document.querySelector('.composer');
+      const inspectorEl = document.querySelector('.studio__inspector');
+      if (!studioEl || !consoleEl || !composerEl || !inspectorEl) {
+        return { ok: false, reason: 'missing studio regions' };
+      }
+      const box = (node) => node.getBoundingClientRect();
+      const studioRect = box(studioEl);
+      const consoleRect = box(consoleEl);
+      const composerRect = box(composerEl);
+      const inspectorRect = box(inspectorEl);
+      const consoleShare = studioRect.width > 0 ? consoleRect.width / studioRect.width : 0;
+      // Side by side: the inspector starts after the composer ends, and their
+      // vertical ranges overlap, so they really share a row.
+      const beside = inspectorRect.left >= composerRect.right - 1;
+      const sameRow =
+        inspectorRect.top < composerRect.bottom - 1 &&
+        composerRect.top < inspectorRect.bottom - 1;
+      return {
+        ok: true,
+        console_share: Math.round(consoleShare * 100) / 100,
+        console_height: Math.round(consoleRect.height),
+        console_above_composer: consoleRect.bottom <= composerRect.top + 1,
+        inspector_beside_composer: beside && sameRow,
+        inspector_width: Math.round(inspectorRect.width),
+        composer_width: Math.round(composerRect.width),
+      };
+    })()
   }))()`);
   const composerFits = await window.webContents.executeJavaScript(`(() => {
     window.scrollTo(0, document.documentElement.scrollHeight);
@@ -1945,6 +1978,12 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
     palette_focus: palette.focus_inside === true,
     palette_project_action: palette.has_project_action === true,
     palette_escape: paletteClosed,
+    studio_console_spans_width: studio.layout.ok === true && studio.layout.console_share >= 0.9,
+    studio_console_is_tall: studio.layout.ok === true && studio.layout.console_height >= 340,
+    studio_console_above_composer:
+      studio.layout.ok === true && studio.layout.console_above_composer === true,
+    studio_inspector_beside_composer:
+      studio.layout.ok === true && studio.layout.inspector_beside_composer === true,
     no_horizontal_overflow:
       home.horizontal_overflow === false &&
       studio.horizontal_overflow === false &&

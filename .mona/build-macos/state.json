@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 579,
+  "revision": 605,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -83,7 +83,7 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "a5100114f0b658493c6d59a858327e101aef82ebd44f7615b426bde24b179d6e",
+          "sha256": "60cc94036a91ebd3e1733d5b1c83a261c24ac5f3e4260acf8737ebe055eebb41",
           "note": "P15 appended D-037..D-041; earlier entries unchanged"
         },
         {
@@ -288,7 +288,7 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "4fc7d6c91dfb158bb98c004e86aad2cb06977a06029035112a71dfd0421072c8",
+          "sha256": "3bb38e15802fe667a638a809d8374a482b7f381cf4ae93f58d08181a9b005b35",
           "note": "P15 shell-smoke driver: Agents screen capture and honest capability-gated launch assertion"
         },
         {
@@ -349,7 +349,7 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "6c07934d40a7f5ac24402909c02a912a37346ad4dcdc273d5cf49505bb7a9b1d",
+          "sha256": "73238039362b9392c38c80fd00168bf0728c39bd06bbecb3ecd2024f74b1e5a8",
           "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run"
         },
         {
@@ -698,7 +698,7 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "4fc7d6c91dfb158bb98c004e86aad2cb06977a06029035112a71dfd0421072c8",
+          "sha256": "3bb38e15802fe667a638a809d8374a482b7f381cf4ae93f58d08181a9b005b35",
           "note": "P15 shell-smoke driver updated; supervisor paths unchanged"
         },
         {
@@ -755,7 +755,7 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "a5100114f0b658493c6d59a858327e101aef82ebd44f7615b426bde24b179d6e",
+          "sha256": "60cc94036a91ebd3e1733d5b1c83a261c24ac5f3e4260acf8737ebe055eebb41",
           "note": "P15 appended D-037..D-041; earlier entries unchanged"
         }
       ],
@@ -969,17 +969,17 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p07-shell-home.png",
-          "sha256": "70e1045d972c834f0099b99370060f985911487ea1d8280acf9a1fe1caa51360",
+          "sha256": "13796914c428646c6c7253d9ab2be5df0de67c54b1af71d4ba040288226dc57b",
           "note": "P15's smoke run rewrote this capture because the rail gained a 7th screen; the screen itself is unchanged and verified"
         },
         {
           "path": "docs/evidence/macos/artifacts/p07-shell-studio.png",
-          "sha256": "f4b2eca63a5a93825718f35fc371b2758f9fb195bb2ee5d75d11e15d48ca38f7",
+          "sha256": "6e592e6e10ed21183ae558e307dc2b86012cc14e24781f8717f63d4b62de37b9",
           "note": "P15's smoke run rewrote this capture because the rail gained a 7th screen; the screen itself is unchanged and verified"
         },
         {
           "path": "docs/evidence/macos/artifacts/p07-shell-board.png",
-          "sha256": "1354f453c39b62dfa4da164f48fd3c326d1aad245ca42fced6b89e2e3f82315e",
+          "sha256": "5a6603ad40d392f91ae2751972b32ed6bb6cb48b45faf49624d24cddbd9a789d",
           "note": "P15's smoke run rewrote this capture because the rail gained a 7th screen; the screen itself is unchanged and verified"
         },
         {
@@ -1019,7 +1019,7 @@
       "evidence": [
         {
           "path": "docs/evidence/macos/P08-studio.md",
-          "sha256": "4090d50d4a8df77c80f0f5256b5e68e64b6406240f405c70106f25abe461c501"
+          "sha256": "fd91c3d315a75be3cf1afe3cb4f94f825a8feac959d7022cc0021d311ab8ef8c"
         },
         {
           "path": "docs/evidence/macos/artifacts/p08-studio-smoke.json",
@@ -1027,15 +1027,15 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p08-studio-run.png",
-          "sha256": "42bf508bacaebf3442597806d2b59424fa3c651c0f2bbcde48524e0b2ceea823"
+          "sha256": "9537af2a3ccbf1b6c80ae1aead69eb2cef18cff24c98f89316b0f59784cf33c3"
         },
         {
           "path": "docs/evidence/macos/artifacts/p08-studio-live.png",
-          "sha256": "b608d12aab2f7d3522af11ca74b12d040b9f99521547db7936b3a23e977633ec"
+          "sha256": "70cb90339984bf6780de0bcf45059e5d867396ce5ed54392985c4fad1d875b57"
         },
         {
           "path": "docs/evidence/macos/artifacts/p08-studio-offline.png",
-          "sha256": "f52cec26a1948bc99204720ecf3569bec327d733977597a0a9d708c14586aa5e"
+          "sha256": "ce1bca783e0e0f3dc37f850d7751d376ca07f30e4bebca575e20a5b219ee8034"
         },
         {
           "path": "docs/evidence/macos/artifacts/p08-tests.txt",
@@ -1178,7 +1178,7 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "4fc7d6c91dfb158bb98c004e86aad2cb06977a06029035112a71dfd0421072c8",
+          "sha256": "3bb38e15802fe667a638a809d8374a482b7f381cf4ae93f58d08181a9b005b35",
           "note": "P15 shell-smoke driver updated; Finder handoff unchanged"
         },
         {
@@ -1233,7 +1233,7 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "6c07934d40a7f5ac24402909c02a912a37346ad4dcdc273d5cf49505bb7a9b1d",
+          "sha256": "73238039362b9392c38c80fd00168bf0728c39bd06bbecb3ecd2024f74b1e5a8",
           "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run"
         },
         {
@@ -1259,7 +1259,7 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "a5100114f0b658493c6d59a858327e101aef82ebd44f7615b426bde24b179d6e",
+          "sha256": "60cc94036a91ebd3e1733d5b1c83a261c24ac5f3e4260acf8737ebe055eebb41",
           "note": "P15 appended D-037..D-041; earlier entries unchanged"
         },
         {
@@ -1365,7 +1365,7 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "4fc7d6c91dfb158bb98c004e86aad2cb06977a06029035112a71dfd0421072c8",
+          "sha256": "3bb38e15802fe667a638a809d8374a482b7f381cf4ae93f58d08181a9b005b35",
           "note": "P15 shell-smoke driver updated; board paths unchanged"
         },
         {
@@ -1384,7 +1384,7 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "6c07934d40a7f5ac24402909c02a912a37346ad4dcdc273d5cf49505bb7a9b1d",
+          "sha256": "73238039362b9392c38c80fd00168bf0728c39bd06bbecb3ecd2024f74b1e5a8",
           "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run"
         },
         {
@@ -1454,12 +1454,12 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p11-shell-board.png",
-          "sha256": "1354f453c39b62dfa4da164f48fd3c326d1aad245ca42fced6b89e2e3f82315e",
+          "sha256": "5a6603ad40d392f91ae2751972b32ed6bb6cb48b45faf49624d24cddbd9a789d",
           "note": "P15's smoke run rewrote this capture because the rail gained a 7th screen; attempt assertions still pass"
         },
         {
           "path": "docs/evidence/macos/artifacts/p11-shell-attempts.png",
-          "sha256": "71464b1e11e9dd195e5187cc975b12b77e9831fe2ea5fbf17a9da6acafe165eb",
+          "sha256": "e5751f10cb85dd1ad6c0fb6f9b9a368f945df1b9643e20a164d2af9d41948340",
           "note": "P15's smoke run rewrote this capture because the rail gained a 7th screen; attempt assertions still pass"
         },
         {
@@ -1530,7 +1530,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p12-shell-cost-detail.png",
-          "sha256": "1abf608b50140baf910e41b941ebaeae7cca1de4d4ef88a3e78581b9758e6b15",
+          "sha256": "49a715e0c0d95fa9a7fa0e96b20c6e011c6bc8fcd766fbfaffb3b5616208c2cd",
           "note": "P15's smoke run rewrote this capture because the rail gained a 7th screen; cost assertions still pass"
         },
         {
@@ -1651,7 +1651,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p14-home-daybreak.png",
-          "sha256": "70e1045d972c834f0099b99370060f985911487ea1d8280acf9a1fe1caa51360",
+          "sha256": "13796914c428646c6c7253d9ab2be5df0de67c54b1af71d4ba040288226dc57b",
           "note": "P15's smoke run rewrote this capture because the rail gained a 7th screen; polish assertions still pass"
         },
         {
@@ -1661,17 +1661,17 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p14-settings-attention-native.png",
-          "sha256": "ce5d38d79b3f79223957b45f7bd1909d9336ff9d0e4dc8e2837730dddfb25306",
+          "sha256": "5352e0c63a947ee183c03ffa16406d8dea3c09c75d802d33e4850c32f79825b3",
           "note": "P15's smoke run rewrote this capture because the rail gained a 7th screen; polish assertions still pass"
         },
         {
           "path": "docs/evidence/macos/artifacts/p14-settings-receipts.png",
-          "sha256": "970e69f04d8d469cd9466133bf014edf1a9be7d3b6aae2248135aa17adc85a52",
+          "sha256": "763a433fd8fab519fda99c411de129721a558c52951300660861e562fc0c4d08",
           "note": "P15's smoke run rewrote this capture because the rail gained a 7th screen; polish assertions still pass"
         },
         {
           "path": "docs/evidence/macos/artifacts/p14-studio-focus-afterglow.png",
-          "sha256": "3b22bbe6d8d38fe884f48376490b9e84495fb4135f87cef2508205f6ee687a6a",
+          "sha256": "ba52c1c8085f109a33f59aeca0589d3bd30f44df05b75a59fbb78238e82be802",
           "note": "P15's smoke run rewrote this capture because the rail gained a 7th screen; polish assertions still pass"
         },
         {
@@ -1753,17 +1753,17 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p15-agents-daybreak.png",
-          "sha256": "27c51aef07ce890db5ee17c672e7725de744707225321c7f0096ed1326178f4f",
+          "sha256": "50bca2bfc84c210e19563f4667468a6efa44c813454e5f723e61b0274146cf16",
           "note": "P15 evidence after the D-041 review pass"
         },
         {
           "path": "docs/evidence/macos/artifacts/p15-agents-afterglow.png",
-          "sha256": "482bf4794cea7e9af7dbd0967632faf1357ff0468f355d4da739b40416a76d61",
+          "sha256": "3da157e57160badb6d69e27621428a43e397146cd0fe6d33762a64ab3e3af779",
           "note": "P15 evidence after the D-041 review pass"
         },
         {
           "path": "docs/evidence/macos/artifacts/p15-agents-inspector.png",
-          "sha256": "5d55194ce3572d4da36507a5471b6f68c012c73e7e254bcd2092b2e9d1d1088b",
+          "sha256": "889583532998fe30998ae2eea27e0509382be32ffda086115798ef0175154852",
           "note": "P15 evidence after the D-041 review pass"
         }
       ],
@@ -1800,7 +1800,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p16-settings-smoke.json",
-          "sha256": "c3d7f9d55b1e4fe27b87afd550139a09413e9ad84b4d1617a38a9ccf7ceb06b2"
+          "sha256": "1d96dc3303ca941add57c1be2c34c7b785f968585070635cd8203e458bcaa7ca"
         },
         {
           "path": "docs/evidence/macos/artifacts/p16-settings-route.png",
@@ -1841,7 +1841,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p17-extensions-smoke.json",
-          "sha256": "66dec06ccde1c745460665df918a3aa2b3df1e5441b6e4577e637a7d99062afc"
+          "sha256": "f7ce1bab6e7b0fb573c4386d7d191a99e9f7d5b357ef70e6cdc0e8ab24c9d7c3"
         },
         {
           "path": "docs/evidence/macos/artifacts/p17-settings-extensions.png",
@@ -1887,19 +1887,19 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-terminal-smoke.json",
-          "sha256": "4f828fb070fe656bc83c67d3cffe3fe8640c2ce5ace79e218924c5785347b040"
+          "sha256": "5108c7a655c1ddca7c67634d4e46fb23d38ca0503ad9c740436afb41dc372088"
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capability-smoke.json",
-          "sha256": "371737cd10e828b02a8be9fde05d9d0dff35593e0c120cd5a8f9a5f6236288e4"
+          "sha256": "c80ef01156e89f23c07e113b3f796c98b02d9d564d41b42fcd041ceb1246619e"
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capability-coverage.md",
-          "sha256": "5ac4ce9af76e6d2b4107748bdcff8fd3e630dcda6bf1ddefb1441480dc709192"
+          "sha256": "11a4a3e10f9df4a188e51a82282b63f82fae3cb7d52dc68efb24d0c57ca3b957"
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capability-coverage.json",
-          "sha256": "5f1e4ed715639658ef4f90766b8711a4d4c10ccd292438efde7214433a0b8805"
+          "sha256": "f8f5b4884f8dc6306b119948f2fea2add4de1864f403e22b08845a65fab75078"
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-shell-smoke.json",
@@ -1915,7 +1915,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-terminal.png",
-          "sha256": "cad17308f1c678df50036fc2d122a49fb4e3f0bd949e82d5c130e9885e3ad317"
+          "sha256": "affc6f29b685b036da410accc20c74d6e26e8b05375d68bc9f064c3502e51d58"
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capabilities.png",
@@ -2011,7 +2011,7 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "4fc7d6c91dfb158bb98c004e86aad2cb06977a06029035112a71dfd0421072c8"
+          "sha256": "3bb38e15802fe667a638a809d8374a482b7f381cf4ae93f58d08181a9b005b35"
         },
         {
           "path": "src/renderer/shell/Shell.tsx",
@@ -2027,7 +2027,7 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "6c07934d40a7f5ac24402909c02a912a37346ad4dcdc273d5cf49505bb7a9b1d"
+          "sha256": "73238039362b9392c38c80fd00168bf0728c39bd06bbecb3ecd2024f74b1e5a8"
         },
         {
           "path": "test/terminal-buffer.test.ts",
@@ -2075,7 +2075,7 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "a5100114f0b658493c6d59a858327e101aef82ebd44f7615b426bde24b179d6e"
+          "sha256": "60cc94036a91ebd3e1733d5b1c83a261c24ac5f3e4260acf8737ebe055eebb41"
         }
       ],
       "blocker_ids": []
@@ -2109,7 +2109,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p19-memory-smoke.json",
-          "sha256": "2cb5e2b8fad255fde91400ff829aee9849a70b0c4e7392560cdc7c8783da645c"
+          "sha256": "69032708c236a2214a7bee1364f47ff1c0b3af05ae6791dec9dd51052edf4793"
         },
         {
           "path": "docs/evidence/macos/artifacts/p19-ci.txt",
@@ -2117,7 +2117,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p19-memory-search.png",
-          "sha256": "b74d6b936275ae12f6b904a5c582d5f327c4ffd452cdd8e5e4e20a33a4986e5b"
+          "sha256": "17866e5b4532df0025adb0bd1820930c7565b19e2d8e52104b12b8ac4724cda1"
         },
         {
           "path": "docs/evidence/macos/artifacts/p19-memory-handoff.png",
@@ -2193,11 +2193,11 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "a5100114f0b658493c6d59a858327e101aef82ebd44f7615b426bde24b179d6e"
+          "sha256": "60cc94036a91ebd3e1733d5b1c83a261c24ac5f3e4260acf8737ebe055eebb41"
         },
         {
           "path": ".mona/build-macos/HANDOFF.md",
-          "sha256": "7f4a300b353636ffbb1cda718927395e0ee41ce41753774b221254a889d6011c"
+          "sha256": "f9e8ebaf08444ce0266564aa66e7086de5e21823be98b22968c7aa170deddce2"
         }
       ],
       "blocker_ids": []
@@ -2236,7 +2236,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p20-failure-smoke.json",
-          "sha256": "0bca143d324a27e33da44a0f37ea5e579b590990e805c76d71dc96167e1df585"
+          "sha256": "184943b654c59da88566abdf767006c38a4f3473696f3d5a274ecfcafe0803ef"
         },
         {
           "path": "docs/evidence/macos/artifacts/p20-lifecycle-crash.json",
@@ -2411,11 +2411,11 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "a5100114f0b658493c6d59a858327e101aef82ebd44f7615b426bde24b179d6e"
+          "sha256": "60cc94036a91ebd3e1733d5b1c83a261c24ac5f3e4260acf8737ebe055eebb41"
         },
         {
           "path": ".mona/build-macos/HANDOFF.md",
-          "sha256": "7f4a300b353636ffbb1cda718927395e0ee41ce41753774b221254a889d6011c"
+          "sha256": "f9e8ebaf08444ce0266564aa66e7086de5e21823be98b22968c7aa170deddce2"
         },
         {
           "path": "test/work-git.test.ts",
@@ -2464,7 +2464,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p23-lifecycle-smoke.json",
-          "sha256": "dc558304cf1c508118842d55e1386f9e0c7c95665c400e403cac175b4e071660"
+          "sha256": "eae49d0a63c6022a464819f99ae740511f4a5a4feec686076b499fe34c614705"
         },
         {
           "path": "docs/evidence/macos/artifacts/p23-uninstall-rehearsal.json",
@@ -2540,7 +2540,7 @@
   "next_eligible_prompts": [
     "P14"
   ],
-  "last_checkpoint_utc": "2026-11-12T21:13:07.324Z",
+  "last_checkpoint_utc": "2026-11-12T21:45:54.408Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",
