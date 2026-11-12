@@ -18,14 +18,28 @@ const PATTERNS = [
   { name: "assigned-password", regex: /\b(password|passwd)\b\s*[:=]\s*["'][^"'\s]{8,}["']/i },
 ];
 
+// Documentation placeholders are not credentials. This matches values that are
+// self-evidently examples: uppercase-with-underscore tokens such as
+// YOUR_GATEWAY_API_KEY, or values wrapped in angle brackets.
+const PLACEHOLDER_VALUE = /^(YOUR[_-]|EXAMPLE|PLACEHOLDER|CHANGEME|REDACTED|<|\.\.\.)/;
+
+function hasPlaceholderValue(line) {
+  const quoted = line.match(/["']([^"']*)["']/);
+  const value = quoted?.[1] ?? "";
+  if (PLACEHOLDER_VALUE.test(value)) return true;
+  // A quoted value that is entirely SCREAMING_SNAKE_CASE is documentation.
+  return /^[A-Z][A-Z0-9_]*$/.test(value);
+}
+
 export function scanText(text, file = "<text>") {
   const findings = [];
   const lines = text.split("\n");
   lines.forEach((line, index) => {
     for (const pattern of PATTERNS) {
-      if (pattern.regex.test(line)) {
-        findings.push({ file, line: index + 1, pattern: pattern.name });
-      }
+      const match = line.match(pattern.regex);
+      if (!match) continue;
+      if (pattern.name.startsWith("assigned-") && hasPlaceholderValue(line)) continue;
+      findings.push({ file, line: index + 1, pattern: pattern.name });
     }
   });
   return findings;

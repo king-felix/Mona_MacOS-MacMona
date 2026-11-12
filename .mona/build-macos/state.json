@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 11,
+  "revision": 12,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -413,7 +413,7 @@
   "next_eligible_prompts": [
     "P01"
   ],
-  "last_checkpoint_utc": "2026-11-12T00:39:12.993Z",
+  "last_checkpoint_utc": "2026-11-12T00:39:45.720Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",
@@ -475,7 +475,15 @@
       "resolved_fallback": false,
       "endpoint": "https://api.deepseek.com/beta (route catalog default; no base_url override observed)",
       "wire": "model-aware",
-      "key_env_var": "DEEPSEEK_API_KEY"
+      "key_env_var": "DEEPSEEK_API_KEY",
+      "source_tag": "v0.10.2",
+      "source_commit": "ff466b2ed0bfb4ae5267d4d8d0ecb562cf46956e",
+      "source_docs": [
+        "docs/evidence/macos/artifacts/upstream-RUNTIME_API.md",
+        "docs/evidence/macos/artifacts/upstream-ARCHITECTURE.md",
+        "docs/evidence/macos/artifacts/upstream-PROVIDERS.md"
+      ],
+      "source_docs_note": "Fetched at tag v0.10.2; tag commit equals the commit printed by the installed binary."
     },
     "captured_utc": "2026-11-12T00:33:09.865Z"
   },
