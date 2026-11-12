@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-12T22:15:38.414Z",
+  "generated_utc": "2026-11-12T22:15:51.523Z",
   "git": {
     "available": true,
-    "commit": "f24c9ac2c6e993f010c60459019299990f3c0495",
+    "commit": "76c986343ebe737e6a176051e189f6b2b07c7a1f",
     "dirty": true
   },
-  "digest": "84dc1b7de240a6deeb688fcd73941d74da415eba07704004e8385a713d712128",
+  "digest": "3c7fc0f474f3b6f40de05af82eaa1096f7a9f38d67a9488a247e0b7a539bf213",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,7 +15,7 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "68f4b4e00fa1a85f3fd3852462af72048c1374213cc1d99d409a4f1d18b10b16",
+      "sha256": "f9f20a293e834427272b05e303b702c3576bf955305045172abd715049f73895",
       "bytes": 138744
     },
     {
@@ -790,8 +790,8 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p23-ci.txt",
-      "sha256": "6adb364fcf538a43d73f589db8b1674991e3579ca68a8e689db6cebdd4508072",
-      "bytes": 74231
+      "sha256": "cf03d7a20f4cfe83f99027414497c545460910d19a7c4a4c0dd022a5ed999861",
+      "bytes": 73958
     },
     {
       "path": "docs/evidence/macos/artifacts/p23-installed-build89-verification.json",
