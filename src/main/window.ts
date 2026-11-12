@@ -16,7 +16,7 @@ export function createMainWindow({ rendererRoot, preloadPath }: WindowOptions): 
     show: false,
     titleBarStyle: "hiddenInset",
     trafficLightPosition: { x: 18, y: 18 },
-    backgroundColor: "#f6f1e7",
+    backgroundColor: "#f7f8fc",
     webPreferences: {
       preload: preloadPath,
       sandbox: true,

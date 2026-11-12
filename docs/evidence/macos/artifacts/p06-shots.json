@@ -1,0 +1,431 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-11-12T03:05:06.415Z",
+  "window": {
+    "width": 1280,
+    "height": 800
+  },
+  "label": "TEST FIXTURE — NOT LIVE STATE",
+  "shots": [
+    {
+      "name": "home-daybreak",
+      "state": {
+        "screen": "home",
+        "theme": "daybreak",
+        "density": "comfortable",
+        "scenario": "default",
+        "reducedMotion": false
+      },
+      "file": "docs/evidence/macos/artifacts/p06-home-daybreak.png",
+      "bytes": 404563,
+      "width": 2560,
+      "height": 1600,
+      "facts": {
+        "screen": "home",
+        "theme": "daybreak",
+        "density": "comfortable",
+        "body_ready": true,
+        "nav_count": 6,
+        "fixture_label_visible": true,
+        "horizontal_overflow": false,
+        "viewport": {
+          "width": 1280,
+          "height": 800
+        },
+        "body_zoom": "1"
+      }
+    },
+    {
+      "name": "home-afterglow-dense",
+      "state": {
+        "screen": "home",
+        "theme": "afterglow",
+        "density": "dense",
+        "scenario": "default",
+        "reducedMotion": false
+      },
+      "file": "docs/evidence/macos/artifacts/p06-home-afterglow-dense.png",
+      "bytes": 388691,
+      "width": 2560,
+      "height": 1600,
+      "facts": {
+        "screen": "home",
+        "theme": "afterglow",
+        "density": "dense",
+        "body_ready": true,
+        "nav_count": 6,
+        "fixture_label_visible": true,
+        "horizontal_overflow": false,
+        "viewport": {
+          "width": 1280,
+          "height": 800
+        },
+        "body_zoom": "1"
+      }
+    },
+    {
+      "name": "home-empty",
+      "state": {
+        "screen": "home",
+        "theme": "daybreak",
+        "density": "comfortable",
+        "scenario": "empty",
+        "reducedMotion": false
+      },
+      "file": "docs/evidence/macos/artifacts/p06-home-empty.png",
+      "bytes": 229868,
+      "width": 2560,
+      "height": 1600,
+      "facts": {
+        "screen": "home",
+        "theme": "daybreak",
+        "density": "comfortable",
+        "body_ready": true,
+        "nav_count": 6,
+        "fixture_label_visible": true,
+        "horizontal_overflow": false,
+        "viewport": {
+          "width": 1280,
+          "height": 800
+        },
+        "body_zoom": "1"
+      }
+    },
+    {
+      "name": "studio-daybreak",
+      "state": {
+        "screen": "studio",
+        "theme": "daybreak",
+        "density": "comfortable",
+        "scenario": "default",
+        "reducedMotion": false
+      },
+      "file": "docs/evidence/macos/artifacts/p06-studio-daybreak.png",
+      "bytes": 376290,
+      "width": 2560,
+      "height": 1600,
+      "facts": {
+        "screen": "studio",
+        "theme": "daybreak",
+        "density": "comfortable",
+        "body_ready": true,
+        "nav_count": 6,
+        "fixture_label_visible": true,
+        "horizontal_overflow": false,
+        "viewport": {
+          "width": 1280,
+          "height": 800
+        },
+        "body_zoom": "1"
+      }
+    },
+    {
+      "name": "studio-afterglow",
+      "state": {
+        "screen": "studio",
+        "theme": "afterglow",
+        "density": "comfortable",
+        "scenario": "default",
+        "reducedMotion": false
+      },
+      "file": "docs/evidence/macos/artifacts/p06-studio-afterglow.png",
+      "bytes": 361892,
+      "width": 2560,
+      "height": 1600,
+      "facts": {
+        "screen": "studio",
+        "theme": "afterglow",
+        "density": "comfortable",
+        "body_ready": true,
+        "nav_count": 6,
+        "fixture_label_visible": true,
+        "horizontal_overflow": false,
+        "viewport": {
+          "width": 1280,
+          "height": 800
+        },
+        "body_zoom": "1"
+      }
+    },
+    {
+      "name": "studio-disconnected",
+      "state": {
+        "screen": "studio",
+        "theme": "daybreak",
+        "density": "comfortable",
+        "scenario": "disconnected",
+        "reducedMotion": false
+      },
+      "file": "docs/evidence/macos/artifacts/p06-studio-disconnected.png",
+      "bytes": 390783,
+      "width": 2560,
+      "height": 1600,
+      "facts": {
+        "screen": "studio",
+        "theme": "daybreak",
+        "density": "comfortable",
+        "body_ready": true,
+        "nav_count": 6,
+        "fixture_label_visible": true,
+        "horizontal_overflow": false,
+        "viewport": {
+          "width": 1280,
+          "height": 800
+        },
+        "body_zoom": "1"
+      }
+    },
+    {
+      "name": "studio-zoom-200",
+      "state": {
+        "screen": "studio",
+        "theme": "afterglow",
+        "density": "comfortable",
+        "scenario": "default",
+        "reducedMotion": false
+      },
+      "file": "docs/evidence/macos/artifacts/p06-studio-zoom-200.png",
+      "bytes": 177468,
+      "width": 2560,
+      "height": 1600,
+      "facts": {
+        "screen": "studio",
+        "theme": "afterglow",
+        "density": "comfortable",
+        "body_ready": true,
+        "nav_count": 6,
+        "fixture_label_visible": true,
+        "horizontal_overflow": false,
+        "viewport": {
+          "width": 640,
+          "height": 400
+        },
+        "body_zoom": "1"
+      }
+    },
+    {
+      "name": "board-daybreak-dense",
+      "state": {
+        "screen": "board",
+        "theme": "daybreak",
+        "density": "dense",
+        "scenario": "default",
+        "reducedMotion": false
+      },
+      "file": "docs/evidence/macos/artifacts/p06-board-daybreak-dense.png",
+      "bytes": 433462,
+      "width": 2560,
+      "height": 1600,
+      "facts": {
+        "screen": "board",
+        "theme": "daybreak",
+        "density": "dense",
+        "body_ready": true,
+        "nav_count": 6,
+        "fixture_label_visible": true,
+        "horizontal_overflow": false,
+        "viewport": {
+          "width": 1280,
+          "height": 800
+        },
+        "body_zoom": "1"
+      }
+    },
+    {
+      "name": "board-blocked",
+      "state": {
+        "screen": "board",
+        "theme": "afterglow",
+        "density": "comfortable",
+        "scenario": "blocked",
+        "reducedMotion": false
+      },
+      "file": "docs/evidence/macos/artifacts/p06-board-blocked.png",
+      "bytes": 428361,
+      "width": 2560,
+      "height": 1600,
+      "facts": {
+        "screen": "board",
+        "theme": "afterglow",
+        "density": "comfortable",
+        "body_ready": true,
+        "nav_count": 6,
+        "fixture_label_visible": true,
+        "horizontal_overflow": false,
+        "viewport": {
+          "width": 1280,
+          "height": 800
+        },
+        "body_zoom": "1"
+      }
+    },
+    {
+      "name": "cost-daybreak",
+      "state": {
+        "screen": "cost",
+        "theme": "daybreak",
+        "density": "comfortable",
+        "scenario": "default",
+        "reducedMotion": false
+      },
+      "file": "docs/evidence/macos/artifacts/p06-cost-daybreak.png",
+      "bytes": 326867,
+      "width": 2560,
+      "height": 1600,
+      "facts": {
+        "screen": "cost",
+        "theme": "daybreak",
+        "density": "comfortable",
+        "body_ready": true,
+        "nav_count": 6,
+        "fixture_label_visible": true,
+        "horizontal_overflow": false,
+        "viewport": {
+          "width": 1280,
+          "height": 800
+        },
+        "body_zoom": "1"
+      }
+    },
+    {
+      "name": "cost-unknown-afterglow",
+      "state": {
+        "screen": "cost",
+        "theme": "afterglow",
+        "density": "dense",
+        "scenario": "unknown-cost",
+        "reducedMotion": false
+      },
+      "file": "docs/evidence/macos/artifacts/p06-cost-unknown-afterglow.png",
+      "bytes": 323078,
+      "width": 2560,
+      "height": 1600,
+      "facts": {
+        "screen": "cost",
+        "theme": "afterglow",
+        "density": "dense",
+        "body_ready": true,
+        "nav_count": 6,
+        "fixture_label_visible": true,
+        "horizontal_overflow": false,
+        "viewport": {
+          "width": 1280,
+          "height": 800
+        },
+        "body_zoom": "1"
+      }
+    },
+    {
+      "name": "blocker-daybreak",
+      "state": {
+        "screen": "blocker",
+        "theme": "daybreak",
+        "density": "comfortable",
+        "scenario": "default",
+        "reducedMotion": false
+      },
+      "file": "docs/evidence/macos/artifacts/p06-blocker-daybreak.png",
+      "bytes": 436251,
+      "width": 2560,
+      "height": 1600,
+      "facts": {
+        "screen": "blocker",
+        "theme": "daybreak",
+        "density": "comfortable",
+        "body_ready": true,
+        "nav_count": 6,
+        "fixture_label_visible": true,
+        "horizontal_overflow": false,
+        "viewport": {
+          "width": 1280,
+          "height": 800
+        },
+        "body_zoom": "1"
+      }
+    },
+    {
+      "name": "blocker-afterglow-dense",
+      "state": {
+        "screen": "blocker",
+        "theme": "afterglow",
+        "density": "dense",
+        "scenario": "default",
+        "reducedMotion": false
+      },
+      "file": "docs/evidence/macos/artifacts/p06-blocker-afterglow-dense.png",
+      "bytes": 431512,
+      "width": 2560,
+      "height": 1600,
+      "facts": {
+        "screen": "blocker",
+        "theme": "afterglow",
+        "density": "dense",
+        "body_ready": true,
+        "nav_count": 6,
+        "fixture_label_visible": true,
+        "horizontal_overflow": false,
+        "viewport": {
+          "width": 1280,
+          "height": 800
+        },
+        "body_zoom": "1"
+      }
+    },
+    {
+      "name": "settings-daybreak",
+      "state": {
+        "screen": "settings",
+        "theme": "daybreak",
+        "density": "comfortable",
+        "scenario": "default",
+        "reducedMotion": false
+      },
+      "file": "docs/evidence/macos/artifacts/p06-settings-daybreak.png",
+      "bytes": 291333,
+      "width": 2560,
+      "height": 1600,
+      "facts": {
+        "screen": "settings",
+        "theme": "daybreak",
+        "density": "comfortable",
+        "body_ready": true,
+        "nav_count": 6,
+        "fixture_label_visible": true,
+        "horizontal_overflow": false,
+        "viewport": {
+          "width": 1280,
+          "height": 800
+        },
+        "body_zoom": "1"
+      }
+    },
+    {
+      "name": "settings-afterglow",
+      "state": {
+        "screen": "settings",
+        "theme": "afterglow",
+        "density": "comfortable",
+        "scenario": "disconnected",
+        "reducedMotion": false
+      },
+      "file": "docs/evidence/macos/artifacts/p06-settings-afterglow.png",
+      "bytes": 318137,
+      "width": 2560,
+      "height": 1600,
+      "facts": {
+        "screen": "settings",
+        "theme": "afterglow",
+        "density": "comfortable",
+        "body_ready": true,
+        "nav_count": 6,
+        "fixture_label_visible": true,
+        "horizontal_overflow": false,
+        "viewport": {
+          "width": 1280,
+          "height": 800
+        },
+        "body_zoom": "1"
+      }
+    }
+  ]
+}

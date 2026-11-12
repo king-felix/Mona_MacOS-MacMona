@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-11-12T03:05:12.229Z",
+  "first_tab": {
+    "tag": "a",
+    "label": "Skip to content",
+    "outline": "solid 2px",
+    "focus_visible": true
+  },
+  "second_tab": {
+    "tag": "button",
+    "label": "Home",
+    "outline": "solid 2px",
+    "focus_visible": true
+  },
+  "command_2_screen": "studio",
+  "palette_open": {
+    "open": true,
+    "focused_inside": true,
+    "title": "Command palette"
+  },
+  "palette_escape_closed": true
+}

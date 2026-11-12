@@ -256,3 +256,26 @@ and deviations discovered while building.
   account was not created here; P24 owns the literal multi-user test. Network
   filesystem classification depends on `/usr/bin/stat -f %T` and is skipped if
   unavailable, which the P24 host audit must confirm.
+
+## D-016 — Design tokens, measured contrast, and an explicit harness
+
+- **Date:** 2026-11-11 (P06)
+- **Decision:** Daybreak and Afterglow are defined once in
+  `src/renderer/design/tokens.ts` and applied as CSS custom properties; the
+  structural stylesheet contains no palette values. Twenty-three foreground/
+  background pairs per theme are measured in tests (16 text at 4.5:1, 7 UI at
+  3:1). The specification's coral becomes a decorative accent; normal danger text
+  uses the darker `#B8324C`. Interactive borders are strengthened to meet 3:1.
+  Focus uses an explicit `:focus { outline: 2px solid var(--focus) }` so the
+  indicator does not depend on Chromium's `:focus-visible` heuristic. The P06
+  renderer is a labeled fixture harness with local SVG icons and system fonts;
+  P07 replaces it with the real catalog and engine state.
+- **Why:** The starting palette is explicitly "subject to measured contrast
+  validation"; coral-on-white measured 4.10:1 and interactive borders measured
+  far below 3:1. A design system that assumed its own hex values would ship an
+  inaccessible shell. The harness keeps P06's visual work honest while P07 wires
+  real state.
+- **Consequence:** Every new color pair is added to `CONTRAST_PAIRS` before it is
+  used in a component. axe remains a semantics check; contrast stays a direct
+  token measurement because jsdom has no layout engine. P26 collects human
+  aesthetic review; the P06 evidence does not claim it already occurred.

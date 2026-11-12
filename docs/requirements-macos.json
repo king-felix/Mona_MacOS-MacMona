@@ -14,7 +14,7 @@
         "sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8"
       }
     ],
-    "indexed_utc": "2026-11-12T02:52:02.725Z"
+    "indexed_utc": "2026-11-12T03:06:43.407Z"
   },
   "prompts": [
     {
@@ -537,10 +537,31 @@
         "P07",
         "P26"
       ],
-      "status": "pending",
+      "status": "partial",
       "acceptance": "pending",
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        {
+          "path": "docs/design-system.md",
+          "note": "tokens, components, measured contrast, keyboard map"
+        },
+        {
+          "path": "docs/evidence/macos/P06-design.md",
+          "note": "P06 verification: axe, keyboard, screenshots"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p06-shots.json",
+          "note": "15 rendered screenshots, both themes and 200% zoom"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p06-keyboard.json",
+          "note": "real Tab/Command-key inspection with visible focus"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p06-tests.txt",
+          "note": "26 design tests"
+        }
+      ],
+      "notes": "P06: Daybreak and Afterglow tokens with 23 measured contrast pairs per theme, density and 200% scaling, reduced motion, accessible primitives (button, input, select, tab, dialog, menu, notification, badge, card, inspector, empty, skeleton, error), and six fixture-backed screens. P07 wires the real shell; P24/P26 own VoiceOver and final aesthetic QA."
     },
     {
       "id": "MONA-007",
@@ -879,10 +900,31 @@
         "P07",
         "P14"
       ],
-      "status": "pending",
+      "status": "partial",
       "acceptance": "pending",
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        {
+          "path": "docs/design-system.md",
+          "note": "tokens, components, measured contrast, keyboard map"
+        },
+        {
+          "path": "docs/evidence/macos/P06-design.md",
+          "note": "P06 verification: axe, keyboard, screenshots"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p06-shots.json",
+          "note": "15 rendered screenshots, both themes and 200% zoom"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p06-keyboard.json",
+          "note": "real Tab/Command-key inspection with visible focus"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p06-tests.txt",
+          "note": "26 design tests"
+        }
+      ],
+      "notes": "P06: deterministic since-you-left digest, evidence-linked completion/inspector actions, keyboard map (Command+1-6, Command+K, tab roving), and a visible command palette shell over fixture data. Resume Brief, Focus Mode, and live evidence cards are P14."
     },
     {
       "id": "MONA-030",
@@ -930,10 +972,31 @@
         "P09",
         "P26"
       ],
-      "status": "pending",
+      "status": "partial",
       "acceptance": "pending",
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        {
+          "path": "docs/design-system.md",
+          "note": "tokens, components, measured contrast, keyboard map"
+        },
+        {
+          "path": "docs/evidence/macos/P06-design.md",
+          "note": "P06 verification: axe, keyboard, screenshots"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p06-shots.json",
+          "note": "15 rendered screenshots, both themes and 200% zoom"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p06-keyboard.json",
+          "note": "real Tab/Command-key inspection with visible focus"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p06-tests.txt",
+          "note": "26 design tests"
+        }
+      ],
+      "notes": "P06: native window chrome and Command-key conventions, keyboard-reachable screens, visible focus, VoiceOver-readable labels and roles. Finder selected-folder Service and file-URL dispatch remain P09; spoken walkthrough is P24/P26."
     },
     {
       "id": "MAC-003",
@@ -1059,7 +1122,7 @@
     "ok": true,
     "errors": [],
     "warnings": [],
-    "validated_utc": "2026-11-12T02:52:02.725Z",
+    "validated_utc": "2026-11-12T03:06:43.407Z",
     "prompt_count": 28,
     "requirement_count": 38
   }

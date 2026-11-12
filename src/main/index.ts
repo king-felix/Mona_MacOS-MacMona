@@ -1,5 +1,5 @@
 import { app, BrowserWindow, Menu, powerMonitor, session } from "electron";
-import { mkdtempSync, realpathSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, realpathSync, writeFileSync } from "node:fs";
 import { randomBytes } from "node:crypto";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -36,6 +36,7 @@ const RENDERER_ROOT = join(__dirname, "../../renderer");
 const PRELOAD_PATH = join(__dirname, "../preload/index.js");
 const IS_SMOKE = process.argv.includes("--smoke");
 const IS_LIFECYCLE_SMOKE = process.argv.includes("--lifecycle-smoke");
+const IS_DESIGN_SHOTS = process.argv.includes("--design-shots");
 
 let mainWindow: BrowserWindow | null = null;
 let lifecycle: DesktopLifecycle | null = null;
@@ -71,6 +72,16 @@ function openWindow(): BrowserWindow {
         writeSmoke({ ok: false, error: String(error) });
         app.exit(1);
       });
+    });
+  }
+  if (IS_DESIGN_SHOTS) {
+    window.webContents.once("did-finish-load", () => {
+      void captureDesignShots(window)
+        .catch((error: unknown) => {
+          process.stderr.write(`design shots failed: ${String(error)}\n`);
+          process.exitCode = 1;
+        })
+        .finally(() => app.quit());
     });
   }
   if (IS_LIFECYCLE_SMOKE && !lifecycleSmokeStarted) {
@@ -191,6 +202,301 @@ async function captureSmoke(window: BrowserWindow): Promise<void> {
     total_working_set_kb: metrics.reduce((sum, metric) => sum + (metric.workingSetKb ?? 0), 0),
   });
   setTimeout(() => app.quit(), 250);
+}
+
+interface ShotDefinition {
+  name: string;
+  state: {
+    screen: string;
+    theme: string;
+    density: string;
+    scenario: string;
+    reducedMotion: boolean;
+  };
+  zoom?: number;
+  chrome?: "full" | "minimal";
+}
+
+const DESIGN_SHOTS: ShotDefinition[] = [
+  {
+    name: "home-daybreak",
+    state: {
+      screen: "home",
+      theme: "daybreak",
+      density: "comfortable",
+      scenario: "default",
+      reducedMotion: false,
+    },
+  },
+  {
+    name: "home-afterglow-dense",
+    state: {
+      screen: "home",
+      theme: "afterglow",
+      density: "dense",
+      scenario: "default",
+      reducedMotion: false,
+    },
+  },
+  {
+    name: "home-empty",
+    state: {
+      screen: "home",
+      theme: "daybreak",
+      density: "comfortable",
+      scenario: "empty",
+      reducedMotion: false,
+    },
+  },
+  {
+    name: "studio-daybreak",
+    state: {
+      screen: "studio",
+      theme: "daybreak",
+      density: "comfortable",
+      scenario: "default",
+      reducedMotion: false,
+    },
+  },
+  {
+    name: "studio-afterglow",
+    state: {
+      screen: "studio",
+      theme: "afterglow",
+      density: "comfortable",
+      scenario: "default",
+      reducedMotion: false,
+    },
+  },
+  {
+    name: "studio-disconnected",
+    state: {
+      screen: "studio",
+      theme: "daybreak",
+      density: "comfortable",
+      scenario: "disconnected",
+      reducedMotion: false,
+    },
+  },
+  {
+    name: "studio-zoom-200",
+    state: {
+      screen: "studio",
+      theme: "afterglow",
+      density: "comfortable",
+      scenario: "default",
+      reducedMotion: false,
+    },
+    zoom: 2,
+    chrome: "minimal",
+  },
+  {
+    name: "board-daybreak-dense",
+    state: {
+      screen: "board",
+      theme: "daybreak",
+      density: "dense",
+      scenario: "default",
+      reducedMotion: false,
+    },
+  },
+  {
+    name: "board-blocked",
+    state: {
+      screen: "board",
+      theme: "afterglow",
+      density: "comfortable",
+      scenario: "blocked",
+      reducedMotion: false,
+    },
+  },
+  {
+    name: "cost-daybreak",
+    state: {
+      screen: "cost",
+      theme: "daybreak",
+      density: "comfortable",
+      scenario: "default",
+      reducedMotion: false,
+    },
+  },
+  {
+    name: "cost-unknown-afterglow",
+    state: {
+      screen: "cost",
+      theme: "afterglow",
+      density: "dense",
+      scenario: "unknown-cost",
+      reducedMotion: false,
+    },
+  },
+  {
+    name: "blocker-daybreak",
+    state: {
+      screen: "blocker",
+      theme: "daybreak",
+      density: "comfortable",
+      scenario: "default",
+      reducedMotion: false,
+    },
+  },
+  {
+    name: "blocker-afterglow-dense",
+    state: {
+      screen: "blocker",
+      theme: "afterglow",
+      density: "dense",
+      scenario: "default",
+      reducedMotion: false,
+    },
+  },
+  {
+    name: "settings-daybreak",
+    state: {
+      screen: "settings",
+      theme: "daybreak",
+      density: "comfortable",
+      scenario: "default",
+      reducedMotion: false,
+    },
+  },
+  {
+    name: "settings-afterglow",
+    state: {
+      screen: "settings",
+      theme: "afterglow",
+      density: "comfortable",
+      scenario: "disconnected",
+      reducedMotion: false,
+    },
+  },
+];
+
+async function settle(window: BrowserWindow, ms = 260): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, ms));
+  await window.webContents.executeJavaScript(
+    "new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))",
+  );
+}
+
+async function captureDesignShots(window: BrowserWindow): Promise<void> {
+  const outDir =
+    process.env.MONA_DESIGN_SHOTS_DIR ??
+    join(process.cwd(), "docs", "evidence", "macos", "artifacts");
+  mkdirSync(outDir, { recursive: true });
+  window.setSize(1280, 800);
+  await window.webContents.executeJavaScript(
+    "new Promise((resolve) => { const check = () => (document.body.dataset.ready === 'true' && window.__monaHarness) ? resolve(true) : setTimeout(check, 50); check(); })",
+  );
+
+  const manifest: Record<string, unknown> = {
+    schema_version: 1,
+    captured_at: new Date().toISOString(),
+    window: { width: 1280, height: 800 },
+    label: "TEST FIXTURE — NOT LIVE STATE",
+    shots: [],
+  };
+  const shots: Array<Record<string, unknown>> = [];
+  for (const shot of DESIGN_SHOTS) {
+    window.webContents.setZoomFactor(shot.zoom ?? 1);
+    await window.webContents.executeJavaScript(
+      `document.documentElement.dataset.chrome = ${JSON.stringify(shot.chrome ?? "full")};
+
+       window.__monaHarness.set(${JSON.stringify(shot.state)}); true`,
+    );
+    await settle(window);
+    const image = await window.webContents.capturePage();
+    const png = image.toPNG();
+    const relative = `docs/evidence/macos/artifacts/p06-${shot.name}.png`;
+    writeFileSync(join(outDir, `p06-${shot.name}.png`), png);
+    const facts = await window.webContents.executeJavaScript(`(() => {
+      const root = document.documentElement;
+      const label = ${JSON.stringify("TEST FIXTURE")};
+      return {
+        screen: root.dataset.screen,
+        theme: root.dataset.theme,
+        density: root.dataset.density,
+        body_ready: document.body.dataset.ready === 'true',
+        nav_count: document.querySelectorAll('[data-nav]').length,
+        fixture_label_visible: document.body.textContent.includes(label),
+        horizontal_overflow: root.scrollWidth > root.clientWidth + 1,
+        viewport: { width: window.innerWidth, height: window.innerHeight },
+        body_zoom: document.body.style.zoom || '1',
+      };
+    })()`);
+    shots.push({
+      name: shot.name,
+      state: shot.state,
+      file: relative,
+      bytes: png.length,
+      width: image.getSize().width,
+      height: image.getSize().height,
+      facts,
+    });
+  }
+  window.webContents.setZoomFactor(1);
+  await window.webContents.executeJavaScript(
+    'document.documentElement.dataset.chrome = "full"; true',
+  );
+  manifest.shots = shots;
+
+  // Keyboard inspection: real Tab and Command-key input through Chromium.
+  await window.webContents.executeJavaScript(
+    `window.__monaHarness.set({ screen: 'home', theme: 'daybreak', density: 'comfortable', scenario: 'default', reducedMotion: false });
+     document.querySelector('[data-nav]')?.blur();
+     document.body.focus();
+     true`,
+  );
+  await settle(window, 120);
+  const describe = `(() => {
+    const el = document.activeElement;
+    if (!el || el === document.body) return { tag: 'body', label: null, outline: null };
+    const label = el.getAttribute('aria-label') || (el.textContent || '').trim().slice(0, 60) || el.getAttribute('placeholder');
+    const style = getComputedStyle(el);
+    return { tag: el.tagName.toLowerCase(), label, outline: style.outlineStyle + ' ' + style.outlineWidth, focus_visible: el.matches(':focus-visible') };
+  })()`;
+
+  window.webContents.sendInputEvent({ type: "keyDown", keyCode: "Tab" });
+  window.webContents.sendInputEvent({ type: "keyUp", keyCode: "Tab" });
+  await settle(window, 80);
+  const firstTab = await window.webContents.executeJavaScript(describe);
+  window.webContents.sendInputEvent({ type: "keyDown", keyCode: "Tab" });
+  window.webContents.sendInputEvent({ type: "keyUp", keyCode: "Tab" });
+  await settle(window, 80);
+  const secondTab = await window.webContents.executeJavaScript(describe);
+
+  window.webContents.sendInputEvent({ type: "keyDown", keyCode: "2", modifiers: ["meta"] });
+  window.webContents.sendInputEvent({ type: "keyUp", keyCode: "2", modifiers: ["meta"] });
+  await settle(window, 120);
+  const commandScreen = await window.webContents.executeJavaScript(
+    "document.documentElement.dataset.screen",
+  );
+
+  window.webContents.sendInputEvent({ type: "keyDown", keyCode: "k", modifiers: ["meta"] });
+  window.webContents.sendInputEvent({ type: "keyUp", keyCode: "k", modifiers: ["meta"] });
+  await settle(window, 120);
+  const palette = await window.webContents.executeJavaScript(`(() => {
+    const dialog = document.querySelector('[role="dialog"]');
+    return { open: Boolean(dialog), focused_inside: Boolean(dialog && dialog.contains(document.activeElement)), title: dialog?.querySelector('h2')?.textContent ?? null };
+  })()`);
+  window.webContents.sendInputEvent({ type: "keyDown", keyCode: "Escape" });
+  window.webContents.sendInputEvent({ type: "keyUp", keyCode: "Escape" });
+  await settle(window, 120);
+  const paletteClosed = await window.webContents.executeJavaScript(
+    "document.querySelector('[role=\"dialog\"]') === null",
+  );
+
+  const keyboard = {
+    schema_version: 1,
+    captured_at: new Date().toISOString(),
+    first_tab: firstTab,
+    second_tab: secondTab,
+    command_2_screen: commandScreen,
+    palette_open: palette,
+    palette_escape_closed: paletteClosed,
+  };
+  writeFileSync(join(outDir, "p06-keyboard.json"), JSON.stringify(keyboard, null, 2) + "\n");
+  writeFileSync(join(outDir, "p06-shots.json"), JSON.stringify(manifest, null, 2) + "\n");
 }
 
 function writeSmoke(value: unknown): void {

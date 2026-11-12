@@ -1,0 +1,40 @@
+
+ RUN  v5.1.0 /Users/example/DS_Projects/Mona
+
+ ✓ test/state-artifacts.test.ts (5 tests) 278ms
+ ✓ test/runtime-process.test.ts (8 tests) 358ms
+ ✓ test/state-catalog.test.ts (10 tests) 442ms
+ ✓ test/state-portable.test.ts (6 tests) 468ms
+ ✓ test/runtime-supervisor.test.ts (16 tests) 147ms
+ ✓ test/engine-adapter.test.ts (16 tests) 38ms
+ ✓ test/supervisor-records.test.ts (6 tests) 12ms
+ ✓ test/boundary.test.ts (4 tests) 17ms
+ ✓ test/tool-discovery.test.ts (5 tests) 17ms
+ ✓ test/state-database.test.ts (12 tests) 734ms
+ ✓ test/state-paths.test.ts (4 tests) 11ms
+ ✓ test/fixtures.test.ts (9 tests) 5ms
+ ✓ test/contracts.test.ts (15 tests) 7ms
+ ✓ test/ipc-contract.test.ts (5 tests) 4ms
+ ✓ test/engine-sse.test.ts (6 tests) 4ms
+ ✓ test/engine-compat.test.ts (4 tests) 8ms
+ ✓ test/work-control.test.ts (8 tests) 4ms
+ ✓ test/design-tokens.test.ts (5 tests) 7ms
+ ✓ test/design-no-network.test.ts (4 tests) 3ms
+ ✓ test/supervisor-identity.test.ts (9 tests) 3ms
+ ✓ test/supervisor-restart.test.ts (3 tests) 2ms
+ ✓ test/navigation.test.ts (6 tests) 2ms
+Not implemented: HTMLCanvasElement's getContext() method: without installing the @napi-rs/canvas npm package
+ ✓ test/design-components.test.tsx (17 tests) 871ms
+ ✓ test/supervisor-native.test.ts (9 tests) 1844ms
+   ✓ native supervisor (8)
+     ✓ records the escaped process group and stops it by identity 369ms
+     ✓ escalates a TERM-ignoring tree to a bounded SIGKILL 764ms
+
+ Test Files  24 passed (24)
+      Tests  192 passed (192)
+   Start at  20:05:52
+   Duration  1.97s (tests 83%, import 10%, environment 4%, transform 2%, worker 1%)
+
+    Isolate  24 workers spawned · ~113ms startup each (spawn + environment, per file)
+             at least ~274ms faster with isolate: false — reuses workers across files instead of one per file
+
