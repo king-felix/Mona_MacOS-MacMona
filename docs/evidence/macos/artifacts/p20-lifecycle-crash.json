@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "label": "P20 lifecycle main-crash proof",
+  "captured_at": "2026-11-12T17:08:03.689602Z",
+  "ok": true,
+  "checks": {
+    "owner_exit_zero": true,
+    "second_instance_exit_zero": true,
+    "evidence_written": true,
+    "runtime_started": true,
+    "tree_alive_before_crash": true,
+    "sleep_became_reconnecting": true,
+    "sleep_kept_process": true,
+    "wake_resumed": true,
+    "wake_kept_same_work": true,
+    "renderer_crash_kept_main": true,
+    "renderer_crash_counted": true,
+    "renderer_crash_kept_work": true,
+    "window_closed_app_alive": true,
+    "window_closed_kept_work": true,
+    "dock_reopen_created_window": true,
+    "dock_reopen_same_work": true,
+    "dock_reopen_menu_bar_installed": true,
+    "second_instance_dispatched": true,
+    "quit_stopped_tree": true,
+    "quit_reported_no_rollback": true,
+    "quit_receipt_names_interrupt": true,
+    "all_children_dead_after_quit": true,
+    "crash_runtime_was_running": true,
+    "crash_killed_main": true,
+    "crash_left_no_orphan": true,
+    "crash_left_no_orphan_supervisor": true,
+    "crash_shutdown_settled": true
+  },
+  "crash": {
+    "tree": [
+      91130,
+      91131,
+      91132
+    ],
+    "alive": [],
+    "supervisor_alive": false,
+    "checked_after_ms": 2142,
+    "settled": true
+  }
+}

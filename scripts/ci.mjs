@@ -40,6 +40,8 @@ for (const script of [
   "smoke:terminal",
   "smoke:capability",
   "smoke:memory",
+  "smoke:failure",
+  "smoke:lifecycle",
 ]) {
   if (!run(script, "npm", ["run", script])) break;
 }

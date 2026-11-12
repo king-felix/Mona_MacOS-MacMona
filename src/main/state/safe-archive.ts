@@ -1,5 +1,16 @@
 import { createHash } from "node:crypto";
-import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  chmodSync,
+  closeSync,
+  constants as fsConstants,
+  lstatSync,
+  mkdirSync,
+  openSync,
+  readFileSync,
+  realpathSync,
+  writeFileSync,
+  writeSync,
+} from "node:fs";
 import { inflateRawSync } from "node:zlib";
 import { dirname, isAbsolute, join, normalize, resolve, sep } from "node:path";
 import { StateError } from "./errors";
@@ -387,7 +398,11 @@ export function readArchive(buffer: Buffer, options: ArchiveReadOptions = {}): A
     }
     totalBytes += data.length;
     if (totalBytes > limits.maxTotalBytes) {
+      // The archive is over budget: refuse every entry, not just the one that
+      // crossed the line, so a caller can never import a prefix of a bundle
+      // that was declared too large.
       fail("ARCHIVE_TOO_LARGE", name, "archive exceeds the accepted total size");
+      entries.length = 0;
       break;
     }
     totalDigest.update(name);
@@ -415,9 +430,80 @@ export interface ExtractOptions extends ArchiveReadOptions {
 }
 
 /**
- * Extract beneath `root` only. Every path is revalidated with `safeJoin`, symlink
- * entries were already dropped by the reader, and files are created `0600` with
- * no executable bit.
+ * Prepare one destination path and return it only when every component is a
+ * real directory (or, for the final component, a regular file). A pre-existing
+ * symlink anywhere beneath the root is refused: lexical validation alone cannot
+ * see a link planted before extraction, and `mkdirSync({recursive})` and
+ * `writeFileSync` would both follow it out of the root.
+ */
+function prepareTarget(baseReal: string, entryPath: string, overwrite: boolean): string {
+  assertSafeEntryPath(entryPath);
+  const segments = entryPath.split("/");
+  let current = baseReal;
+  for (let index = 0; index < segments.length; index += 1) {
+    const segment = segments[index] as string;
+    const next = join(current, segment);
+    const last = index === segments.length - 1;
+    let stats: ReturnType<typeof lstatSync> | null = null;
+    try {
+      stats = lstatSync(next);
+    } catch (error) {
+      const code = (error as { code?: string }).code;
+      if (code !== "ENOENT") throw error;
+    }
+    if (stats) {
+      if (stats.isSymbolicLink()) {
+        throw new StateError("IMPORT_INVALID", "archive destination contains a symlink", {
+          path: entryPath,
+          component: next,
+        });
+      }
+      if (last) {
+        if (!stats.isFile()) {
+          throw new StateError("IMPORT_INVALID", "archive destination is not a regular file", {
+            path: entryPath,
+            component: next,
+          });
+        }
+        if (!overwrite) {
+          throw new StateError(
+            "IMPORT_INVALID",
+            "file already exists; extraction never overwrites",
+            {
+              path: entryPath,
+            },
+          );
+        }
+      } else if (!stats.isDirectory()) {
+        throw new StateError("IMPORT_INVALID", "archive destination path is not a directory", {
+          path: entryPath,
+          component: next,
+        });
+      }
+    } else if (!last) {
+      mkdirSync(next, { mode: 0o700 });
+    }
+    current = next;
+  }
+  // Belt and braces: the parent we are about to write into must still resolve
+  // inside the root, so a race that swapped a directory for a link is refused
+  // before any byte is written.
+  const parentReal = realpathSync(dirname(current));
+  if (parentReal !== baseReal && !parentReal.startsWith(`${baseReal}${sep}`)) {
+    throw new StateError("IMPORT_INVALID", "archive entry escapes the extraction root", {
+      path: entryPath,
+      root: baseReal,
+    });
+  }
+  return current;
+}
+
+/**
+ * Extract beneath `root` only. Every path is revalidated lexically and against
+ * the real filesystem, symlink entries were already dropped by the reader, and
+ * files are created `0600` with no executable bit. A write is opened with
+ * `O_NOFOLLOW`/`O_EXCL` so a link planted between the check and the write is
+ * still refused.
  */
 export function extractArchive(
   buffer: Buffer,
@@ -431,13 +517,14 @@ export function extractArchive(
   const parsed = readArchive(buffer, options);
   const written: string[] = [];
   const skipped: Array<{ path: string; reason: string }> = [];
-  const base = resolve(root);
-  mkdirSync(base, { recursive: true, mode: 0o700 });
+  mkdirSync(resolve(root), { recursive: true, mode: 0o700 });
+  const base = realpathSync(resolve(root));
+  const overwrite = options.overwrite === true;
 
   for (const entry of parsed.entries) {
     let target: string;
     try {
-      target = safeJoin(base, entry.path);
+      target = prepareTarget(base, entry.path, overwrite);
     } catch (error) {
       skipped.push({
         path: entry.path,
@@ -445,16 +532,18 @@ export function extractArchive(
       });
       continue;
     }
-    if (existsSync(target) && options.overwrite !== true) {
-      skipped.push({
-        path: entry.path,
-        reason: "file already exists; extraction never overwrites",
-      });
-      continue;
+    const flags =
+      fsConstants.O_WRONLY |
+      fsConstants.O_CREAT |
+      (overwrite ? fsConstants.O_TRUNC : fsConstants.O_EXCL) |
+      (fsConstants.O_NOFOLLOW ?? 0);
+    const descriptor = openSync(target, flags, 0o600);
+    try {
+      writeSync(descriptor, entry.data);
+      chmodSync(target, 0o600);
+    } finally {
+      closeSync(descriptor);
     }
-    mkdirSync(dirname(target), { recursive: true, mode: 0o700 });
-    writeFileSync(target, entry.data, { mode: 0o600 });
-    chmodSync(target, 0o600);
     written.push(entry.path);
   }
 

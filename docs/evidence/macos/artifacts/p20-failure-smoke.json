@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "label": "P20 — failure injection across durable boundaries",
+  "captured_at": "2026-11-12T17:06:51.465Z",
+  "ok": true,
+  "checks": {
+    "stale_revision_refused": {
+      "ok": true,
+      "detail": {
+        "code": "STALE_REVISION"
+      }
+    },
+    "stale_revision_left_row_untouched": {
+      "ok": true,
+      "detail": {
+        "name": "First",
+        "revision": 2
+      }
+    },
+    "disk_full_refused": {
+      "ok": true,
+      "detail": {
+        "code": "DISK_FULL"
+      }
+    },
+    "disk_full_left_task_pending": {
+      "ok": true,
+      "detail": {
+        "status": "pending",
+        "revision": 1
+      }
+    },
+    "maintenance_barrier_quiesces_writers": {
+      "ok": true,
+      "detail": {
+        "active_writers": 0
+      }
+    },
+    "queued_write_runs_after_maintenance": {
+      "ok": true
+    },
+    "corrupt_database_named": {
+      "ok": true,
+      "detail": {
+        "code": "CORRUPT_DATABASE"
+      }
+    },
+    "corrupt_database_preserved_for_diagnosis": {
+      "ok": true
+    },
+    "backup_written": {
+      "ok": true
+    },
+    "interrupted_restore_refused": {
+      "ok": true,
+      "detail": {
+        "code": "MAINTENANCE_FAILED"
+      }
+    },
+    "interrupted_restore_kept_state": {
+      "ok": true,
+      "detail": {
+        "name": "Before restore"
+      }
+    },
+    "interrupted_restore_kept_journal": {
+      "ok": true,
+      "detail": {
+        "journal": "recorded"
+      }
+    },
+    "missing_artifact_named": {
+      "ok": true,
+      "detail": {
+        "code": "ARTIFACT_MISSING"
+      }
+    },
+    "archive_escape_write_refused": {
+      "ok": true,
+      "detail": {
+        "written": []
+      }
+    },
+    "archive_escape_left_outside_clean": {
+      "ok": true
+    },
+    "archive_over_budget_returns_no_entries": {
+      "ok": true,
+      "detail": {
+        "problems": [
+          "ARCHIVE_TOO_LARGE"
+        ]
+      }
+    },
+    "git_hook_ran": {
+      "ok": true
+    },
+    "git_hook_saw_no_provider_key": {
+      "ok": true
+    },
+    "redaction_respects_path_separator": {
+      "ok": true
+    },
+    "redactor_hides_secret": {
+      "ok": true,
+      "detail": {
+        "redactions": 2
+      }
+    },
+    "crash_during_transaction_left_readable_db": {
+      "ok": true,
+      "detail": {
+        "integrity": []
+      }
+    },
+    "crash_left_no_uncommitted_task": {
+      "ok": true,
+      "detail": {
+        "tasks": 0
+      }
+    }
+  },
+  "observations": {},
+  "error": null,
+  "first_failure": null
+}

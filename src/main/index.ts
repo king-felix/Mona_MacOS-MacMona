@@ -86,6 +86,7 @@ let mainWindow: BrowserWindow | null = null;
 let lifecycle: DesktopLifecycle | null = null;
 let supervisor: RuntimeSupervisor | null = null;
 let smokeWorkspace: string | null = null;
+let smokeStateDirectory: string | null = null;
 let lifecycleEvidence: Record<string, unknown> = { schema_version: 1, ok: false, phases: [] };
 let lifecycleSmokeStarted = false;
 let productState: StateStore | null = null;
@@ -2609,6 +2610,26 @@ async function runLifecycleSmoke(initialWindow: BrowserWindow): Promise<void> {
     runtime_status: runtime.status(),
   });
 
+  // P20 main-crash phase: publish the live tree and then wait to be killed.
+  // The owner-liveness channel in the supervisor is what must clean up, not a
+  // graceful path, so nothing here may run a shutdown before the signal.
+  const crashPath = process.env.MONA_LIFECYCLE_SMOKE_CRASH_PATH;
+  if (crashPath) {
+    lifecycleEvidence = { ...lifecycleEvidence, ok: true, phases, pids };
+    writeFileSync(
+      crashPath,
+      JSON.stringify(
+        { pids, runtime_state: runtime.status().state, workspace, ownership: smokeStateDirectory },
+        null,
+        2,
+      ) + "\n",
+      "utf8",
+    );
+    await new Promise<void>(() => {
+      // Never resolves: the smoke script sends SIGKILL to this process.
+    });
+  }
+
   // Synthetic power events exercise the real wiring; a lid close cannot be
   // scripted safely on the build machine.
   powerMonitor.emit("suspend");
@@ -2718,6 +2739,7 @@ if (!gotLock) {
   let runtimeSupervisor: RuntimeSupervisor;
   if (IS_LIFECYCLE_SMOKE) {
     const smokeStateDir = mkdtempSync(join(tmpdir(), "mona-lifecycle-smoke-"));
+    smokeStateDirectory = smokeStateDir;
     smokeWorkspace = realpathSync(mkdtempSync(join(tmpdir(), "mona-lifecycle-work-")));
     runtimeSupervisor = new RuntimeSupervisor({
       driver: smokeDriver(smokeStateDir),

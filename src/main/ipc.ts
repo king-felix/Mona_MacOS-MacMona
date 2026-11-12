@@ -1,8 +1,8 @@
-import { app, ipcMain, type IpcMainInvokeEvent } from "electron";
+import { app, ipcMain } from "electron";
 import { discoverTools } from "./tool-discovery";
 import { resolveAppPaths } from "./paths";
 import { validateIpc, type IpcChannel } from "./ipc-contract";
-import { isAllowedNavigation } from "./navigation";
+import { senderIsTrusted } from "./ipc-sender";
 import { StateError } from "./state/errors";
 import type { ProjectService } from "./projects/service";
 import type { WorkStudio } from "./work/studio";
@@ -33,20 +33,6 @@ import type {
   ServiceStatus,
 } from "../shared/contracts/open";
 import type { SettingsDiagnosticsView } from "../shared/contracts/settings";
-
-/**
- * Trusted-sender check. IPC answers only the local renderer document this
- * process loaded; a navigated or remote frame cannot invoke the bridge.
- */
-export function senderIsTrusted(event: IpcMainInvokeEvent, rendererRoot: string): boolean {
-  let url = "";
-  try {
-    url = event.senderFrame?.url ?? event.sender.getURL();
-  } catch {
-    return false;
-  }
-  return isAllowedNavigation(url, rendererRoot);
-}
 
 export interface IpcDependencies {
   projects: ProjectService;

@@ -1,0 +1,27 @@
+# P20 local CI — captured output
+# Command: npm run ci
+# Host: darwin-arm64 (checkout path redacted)
+
+ok: True
+format:check             ok=True  exit=0 elapsed_ms=2824
+lint                     ok=True  exit=0 elapsed_ms=2278
+typecheck                ok=True  exit=0 elapsed_ms=3235
+build:supervisor         ok=True  exit=0 elapsed_ms=2382
+build:pty                ok=True  exit=0 elapsed_ms=1135
+build:service            ok=True  exit=0 elapsed_ms=1970
+test                     ok=True  exit=0 elapsed_ms=8728
+build                    ok=True  exit=0 elapsed_ms=2529
+smoke:board              ok=True  exit=0 elapsed_ms=2213
+smoke:cost               ok=True  exit=0 elapsed_ms=2066
+smoke:changes            ok=True  exit=0 elapsed_ms=2544
+smoke:polish             ok=True  exit=0 elapsed_ms=2244
+smoke:agents             ok=True  exit=0 elapsed_ms=4078
+smoke:settings           ok=True  exit=0 elapsed_ms=2891
+smoke:extensions         ok=True  exit=0 elapsed_ms=2853
+smoke:terminal           ok=True  exit=0 elapsed_ms=10827
+smoke:capability         ok=True  exit=0 elapsed_ms=5668
+smoke:memory             ok=True  exit=0 elapsed_ms=2137
+smoke:failure            ok=True  exit=0 elapsed_ms=2688
+smoke:lifecycle          ok=True  exit=0 elapsed_ms=33021
+
+renderer_scan: ok=True files=3 bytes=744673 patterns=[]

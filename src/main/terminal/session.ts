@@ -15,7 +15,7 @@ import {
   type TerminalSnapshot,
   type TerminalStatus,
 } from "../../shared/contracts/terminal";
-import { redactDiagnostics } from "../work/settings";
+import { redactDiagnostics, redactHomePath } from "../work/settings";
 import { TerminalBuffer } from "./buffer";
 import {
   DEFAULT_SHELL,
@@ -73,9 +73,7 @@ export interface TerminalManagerOptions {
   limits?: Partial<typeof TERMINAL_LIMITS>;
 }
 
-function redactHome(path: string): string {
-  return path.startsWith(HOME) ? `~${path.slice(HOME.length)}` : path;
-}
+const redactHome = (path: string): string => redactHomePath(path, HOME);
 
 /**
  * Terminal session owner.

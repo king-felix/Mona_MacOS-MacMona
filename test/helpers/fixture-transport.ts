@@ -21,6 +21,8 @@ export type RequestHandler = (
 
 export class FixtureTransport implements RuntimeTransport {
   readonly calls: RecordedCall[] = [];
+  /** Force the stream's HTTP status; a revoked token must not look like a replay. */
+  streamStatus = 200;
 
   constructor(
     private readonly handler: RequestHandler,
@@ -39,13 +41,21 @@ export class FixtureTransport implements RuntimeTransport {
 
   async stream(path: string): Promise<StreamResponse> {
     if (!this.streamHandler) throw new Error(`no stream fixture for ${path}`);
-    return { status: 200, chunks: this.streamHandler(path) };
+    const status = this.streamStatus;
+    return {
+      status,
+      chunks: status === 200 ? this.streamHandler(path) : emptyStream(),
+    };
   }
 
   count(method: string, pathIncludes: string): number {
     return this.calls.filter((call) => call.method === method && call.path.includes(pathIncludes))
       .length;
   }
+}
+
+async function* emptyStream(): AsyncIterable<string> {
+  // A non-200 stream carries no frames, exactly like the real transport.
 }
 
 export function jsonResponse(status: number, value: unknown): TransportResponse {

@@ -1,8 +1,8 @@
 import { execFileSync } from "node:child_process";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { GitError, GitService, validateGitPath } from "../src/main/work/git";
+import { GitError, GitService, buildGitEnvironment, validateGitPath } from "../src/main/work/git";
 import { tempDir } from "./helpers/state";
 
 function git(cwd: string, args: string[]): string {
@@ -143,6 +143,67 @@ describe("GitService staging and selected commits", () => {
     await expect(service.commit(cwd, "no changes", ["README.md"])).rejects.toMatchObject({
       code: "NOTHING_TO_COMMIT",
     });
+  });
+
+  it("never hands Mona's provider secrets to a repository hook", async () => {
+    const cwd = repo();
+    const service = new GitService();
+    const seen = join(cwd, "hook-env.txt");
+    const hook = join(cwd, ".git", "hooks", "pre-commit");
+    writeFileSync(hook, `#!/bin/sh\nenv > ${JSON.stringify(seen)}\n`, { mode: 0o755 });
+    chmodSync(hook, 0o755);
+    write(cwd, "hooked.txt", "hooked\n");
+
+    const previous = {
+      key: process.env.DEEPSEEK_API_KEY,
+      token: process.env.CODEWHALE_RUNTIME_TOKEN,
+      session: process.env.MONA_SESSION_SECRET,
+    };
+    process.env.DEEPSEEK_API_KEY = "sk-p20-fixture-value";
+    process.env.CODEWHALE_RUNTIME_TOKEN = "p20-runtime-token-value";
+    process.env.MONA_SESSION_SECRET = "p20-session-secret";
+    try {
+      await service.stage(cwd, ["hooked.txt"]);
+      await service.commit(cwd, "with a hook", ["hooked.txt"]);
+    } finally {
+      for (const [name, value] of [
+        ["DEEPSEEK_API_KEY", previous.key],
+        ["CODEWHALE_RUNTIME_TOKEN", previous.token],
+        ["MONA_SESSION_SECRET", previous.session],
+      ] as const) {
+        if (value === undefined) delete process.env[name];
+        else process.env[name] = value;
+      }
+    }
+
+    // The hook really ran, so this is not a vacuous pass.
+    expect(existsSync(seen)).toBe(true);
+    const environment = readFileSync(seen, "utf8");
+    expect(environment).not.toContain("sk-p20-fixture-value");
+    expect(environment).not.toContain("p20-runtime-token-value");
+    expect(environment).not.toContain("p20-session-secret");
+    expect(environment).toContain("GIT_TERMINAL_PROMPT=0");
+    // Identity and locale still reach Git, so ordinary commits keep working.
+    expect(environment).toMatch(/^HOME=/m);
+    expect(environment).toMatch(/^PATH=/m);
+  });
+
+  it("builds a Git environment with an explicit allowlist", () => {
+    const environment = buildGitEnvironment({
+      PATH: "/usr/bin:/bin",
+      HOME: "/Users/example",
+      DEEPSEEK_API_KEY: "secret",
+      CODEWHALE_RUNTIME_TOKEN: "secret",
+      GIT_AUTHOR_NAME: "Example",
+      UNRELATED: "dropped",
+    });
+    expect(environment.PATH).toBe("/usr/bin:/bin");
+    expect(environment.HOME).toBe("/Users/example");
+    expect(environment.GIT_AUTHOR_NAME).toBe("Example");
+    expect(environment.DEEPSEEK_API_KEY).toBeUndefined();
+    expect(environment.CODEWHALE_RUNTIME_TOKEN).toBeUndefined();
+    expect(environment.UNRELATED).toBeUndefined();
+    expect(environment.LC_ALL).toBe("C");
   });
 });
 

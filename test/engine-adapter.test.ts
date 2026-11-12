@@ -399,3 +399,53 @@ describe("route failure stays on the configured route", () => {
     expect(transport.calls.filter((call) => call.path.includes("/switch"))).toHaveLength(0);
   });
 });
+
+describe("revoked credentials", () => {
+  it("fails a submission closed on 401 without retrying or changing the request", async () => {
+    const info = await fixture<Json>("runtime-info.json");
+    const thread = await fixture<Json>("thread.json");
+    const transport = new FixtureTransport((method, path) => {
+      if (path === "/v1/runtime/info") return jsonResponse(200, info);
+      if (method === "POST" && path === "/v1/threads") return jsonResponse(201, thread);
+      if (method === "POST" && path.endsWith("/turns"))
+        return jsonResponse(401, { error: "invalid bearer token" });
+      return jsonResponse(404, {});
+    });
+    const store = new MemorySubmissionStore();
+    const adapter = new CodewhaleAdapter({ transport, store });
+
+    await expect(
+      adapter.submitTurn({
+        threadId: THREAD,
+        prompt: "Reply with exactly: pong",
+        operationKey: KEY,
+      }),
+    ).rejects.toMatchObject({ code: "AUTH_FAILED" });
+
+    // One attempt, no silent retry, and the durable intent records the refusal
+    // rather than claiming an accepted turn.
+    expect(transport.count("POST", "/turns")).toBe(1);
+    expect(transport.count("GET", "/v1/runtime/info")).toBe(1);
+    const stored = await store.get(KEY);
+    expect(stored?.turnId).toBeNull();
+    expect(stored?.status).not.toBe("completed");
+  });
+
+  it("treats an unauthenticated event stream as fatal, not as a reconnect loop", async () => {
+    const info = await fixture<Json>("runtime-info.json");
+    const transport = new FixtureTransport(
+      (method, path) => {
+        if (path === "/v1/runtime/info") return jsonResponse(200, info);
+        return jsonResponse(404, {});
+      },
+      () => chunkText("", 5),
+    );
+    transport.streamStatus = 401;
+    const adapter = new CodewhaleAdapter({ transport, store: new MemorySubmissionStore() });
+    const frames: unknown[] = [];
+    await expect(async () => {
+      for await (const item of adapter.subscribe({ threadId: THREAD })) frames.push(item);
+    }).rejects.toMatchObject({ code: "AUTH_FAILED" });
+    expect(frames).toEqual([]);
+  });
+});

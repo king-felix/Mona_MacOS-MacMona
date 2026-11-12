@@ -14,7 +14,7 @@
         "sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8"
       }
     ],
-    "indexed_utc": "2026-11-12T16:34:43.949Z"
+    "indexed_utc": "2026-11-12T17:04:27.843Z"
   },
   "prompts": [
     {
@@ -1058,8 +1058,8 @@
         "P05",
         "P20"
       ],
-      "status": "partial",
-      "acceptance": "pending",
+      "status": "satisfied",
+      "acceptance": "accepted",
       "evidence": [
         {
           "path": "docs/evidence/macos/P05-state.md",
@@ -1072,9 +1072,29 @@
         {
           "path": "docs/decisions/ADR-004-project-state.md",
           "note": "schema, ownership, and recovery decision"
+        },
+        {
+          "path": "docs/evidence/macos/P20-failure-matrix.md",
+          "note": "failure matrix: crash, disk full, stale revision, corrupted DB, migration failure, restore, gaps"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p20-failure-smoke.json",
+          "note": "22 real fault injections against real stores"
+        },
+        {
+          "path": "docs/decisions/ADR-014-hardening-and-failure-boundaries.md",
+          "note": "gap detection, uncertain outcomes, and no orphan ownership"
+        },
+        {
+          "path": "test/work-studio.test.ts",
+          "note": "13 tests: submission, replay dedupe, lost response, stream gap recovery"
+        },
+        {
+          "path": "test/supervisor-native.test.ts",
+          "note": "10 tests: owner-liveness stop with a dead receipt pipe, escaped group, bounded escalation"
         }
       ],
-      "notes": "P05: crash-injection coverage before/during/after a transaction, event deduplication by (thread, seq), monotonic cursors, submission persistence, stale-revision refusal, migration failure restore, and disk-full rollback that cannot claim completion. Live stream reconnect and projection reconciliation remain P08."
+      "notes": "P20 closes MONA-016: crash/reconnect recovery (bounded restart, no auto-resubmit), duplicate suppression by (thread, seq) with a cursor that never moves backwards, explicit sequence-gap detection with one bounded replay from the last contiguous seq, and uncertain submission reconciliation through read-only operation lookup with a durable non-completed intent. The failure matrix also proves stale-revision refusal, disk-full rollback, corrupted database naming, migration rollback, and interrupted-restore preservation. A killed main process now stops its owned tree (P20-06)."
     },
     {
       "id": "MONA-017",
@@ -1437,9 +1457,17 @@
         {
           "path": "docs/decisions/ADR-004-project-state.md",
           "note": "schema, ownership, and recovery decision"
+        },
+        {
+          "path": "docs/evidence/macos/P20-failure-matrix.md",
+          "note": "restore and archive hostility under the maintenance barrier"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p20-failure-smoke.json",
+          "note": "interrupted restore, archive escape, over-budget archive"
         }
       ],
-      "notes": "P19 completes the P19 scope of MONA-025: settings backup/restore under the exclusive maintenance barrier with a snapshot, a journal, and read-back; a portable project handoff in a fail-closed store-only archive (sha256 manifest, refused traversal and tamper, in-memory import that starts no work); a redacted diagnostics bundle with an explicit preview and digest; and offline browsing of the same records. P20 owns failure injection and P23 the final matrix, so the wider requirement stays open there. Carried-forward item 27 (plan export status) is closed in P19."
+      "notes": "P19 completes the P19 scope of MONA-025: settings backup/restore under the exclusive maintenance barrier with a snapshot, a journal, and read-back; a portable project handoff in a fail-closed store-only archive (sha256 manifest, refused traversal and tamper, in-memory import that starts no work); a redacted diagnostics bundle with an explicit preview and digest; and offline browsing of the same records. P20 owns failure injection and P23 the final matrix, so the wider requirement stays open there. Carried-forward item 27 (plan export status) is closed in P19. P20 adds the failure evidence for the same surfaces: an interrupted restore leaves prior state and a journal, a symlinked extraction parent cannot redirect a write, and an over-budget archive yields no entries."
     },
     {
       "id": "MONA-026",
@@ -1449,10 +1477,39 @@
         "P02",
         "P20"
       ],
-      "status": "pending",
-      "acceptance": "pending",
-      "evidence": [],
-      "notes": ""
+      "status": "satisfied",
+      "acceptance": "accepted",
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P20-failure-matrix.md",
+          "note": "security boundary review across every listed surface"
+        },
+        {
+          "path": "docs/decisions/ADR-014-hardening-and-failure-boundaries.md",
+          "note": "child-process allowlist, extraction, redaction, IPC sender"
+        },
+        {
+          "path": "src/main/ipc-sender.ts",
+          "note": "frame-aware sender policy, pure and testable"
+        },
+        {
+          "path": "test/p20-failure-matrix.test.ts",
+          "note": "12 tests: sender trust, artifact naming, redaction, names, events, archives"
+        },
+        {
+          "path": "test/work-git.test.ts",
+          "note": "13 tests: a repository hook cannot read Mona's provider key"
+        },
+        {
+          "path": "test/safe-archive.test.ts",
+          "note": "12 tests: determinism, traversal, symlinked parent, caps"
+        },
+        {
+          "path": "docs/evidence/macos/P02-foundation.md",
+          "note": "P02 contribution: sandbox, context isolation, CSP, deny-all permissions"
+        }
+      ],
+      "notes": "P20 completes MONA-026: renderer isolation and a restrictive CSP are unchanged, IPC stays a narrow strict-schema surface with frame-aware sender validation, runtime auth is a random bearer token over loopback only, secrets are withheld from Git children and the PTY, Markdown and terminal links are inert, archives are fail-closed and extracted against real paths, and paths are canonicalized by (dev, ino). No formal security certification is claimed."
     },
     {
       "id": "MONA-027",
@@ -1792,7 +1849,7 @@
     "ok": true,
     "errors": [],
     "warnings": [],
-    "validated_utc": "2026-11-12T16:34:43.949Z",
+    "validated_utc": "2026-11-12T17:04:27.843Z",
     "prompt_count": 28,
     "requirement_count": 38
   }

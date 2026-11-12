@@ -197,6 +197,22 @@ setInterval(() => {}, 1000);
     }
   }, 20_000);
 
+  it("still stops the tree when the owner dies and nobody reads its receipts", async () => {
+    const tree = await startTree(GRACEFUL_PARENT);
+    try {
+      // A dead desktop owner breaks both pipes at once. Destroy the receipt pipe
+      // first: the stop path emits before it signals anything, so a receipt
+      // write that aborts on EPIPE would abandon the whole tree.
+      tree.handle.process.stdout?.destroy();
+      tree.handle.closeOwnerChannel();
+      expect(await waitFor(() => tree.pids.every((pid) => !isLive(pid)), 8_000)).toBe(true);
+      expect(await waitFor(() => tree.handle.exitCode() !== null, 5_000)).toBe(true);
+      expect(tree.handle.exitCode()).toBe(0);
+    } finally {
+      await tree.stop();
+    }
+  }, 20_000);
+
   it("never signals a live pid whose start time does not match", async () => {
     const unrelated = spawn("/bin/sleep", ["120"], { stdio: "ignore" });
     try {

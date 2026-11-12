@@ -12,8 +12,11 @@ import type { FolderRequestSource } from "../../shared/contracts/open";
  *  - only local `file:` URLs and absolute POSIX paths are accepted;
  *  - `file://other-host/...` is refused (it names a server, not a folder);
  *  - the item must exist, be a directory, and be readable;
- *  - symlinks and Finder aliases are resolved to the real folder so the same
- *    directory cannot become two catalog entries;
+ *  - symlinks are resolved to the real folder, and the catalog further dedupes
+ *    by `(dev, ino)`, so one directory cannot become two entries;
+ *  - a Finder alias *file* is not a folder: when macOS hands the resolved folder
+ *    URL (the Service and Dock paths) it opens normally, and when an alias file
+ *    arrives directly it is refused with an explanation rather than followed;
  *  - a disk root is refused;
  *  - an empty selection is refused, never treated as "the default folder";
  *  - the path is never interpolated into a shell command anywhere downstream.
@@ -194,7 +197,7 @@ export function resolveFolderRequest(
     return rejection(
       input,
       "NOT_A_DIRECTORY",
-      "That item is a file, not a folder. Mona opens project folders.",
+      "That item is a file, not a folder. If it is a Finder alias, open the folder the alias points at; Mona opens project folders only.",
     );
   }
 

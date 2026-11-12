@@ -5,7 +5,8 @@
 //  - closing the last window keeps the work alive;
 //  - Dock reopen shows the same runtime;
 //  - a second launcher hands its folder to the existing owner and exits;
-//  - Quit interrupts/stops the owned tree, and every child is gone afterwards.
+//  - Quit interrupts/stops the owned tree, and every child is gone afterwards;
+//  - a SIGKILLed main process (P20) leaves no orphaned supervisor or child.
 import { spawn, spawnSync } from "node:child_process";
 import { createRequire } from "node:module";
 import { existsSync, mkdtempSync, readFileSync, realpathSync, rmSync } from "node:fs";
@@ -62,18 +63,61 @@ function isLive(pid) {
   return stat.length > 0 && !stat.startsWith("Z");
 }
 
+// P20: a killed main process must take its owned tree with it through the
+// supervisor's owner-liveness channel. This runs first and alone, because the
+// second instance would otherwise lose the single-owner lock.
+const crashFile = join(dir, "crash.json");
+const crash = launch(["--lifecycle-smoke"], {
+  MONA_LIFECYCLE_SMOKE_OUT: join(dir, "crash-lifecycle.json"),
+  MONA_LIFECYCLE_SMOKE_READY: join(dir, "crash-ready"),
+  MONA_LIFECYCLE_SMOKE_CRASH_PATH: crashFile,
+});
+
+let secondExit = null;
+let ownerExit = null;
+let crashExit = null;
+let crashPids = [];
+let orphanCheck = null;
+let error = null;
+let evidence = null;
+
+try {
+  await waitForFile(crashFile, 60_000);
+  const crashEvidence = JSON.parse(readFileSync(crashFile, "utf8"));
+  crashPids = crashEvidence.pids.tree;
+  // SIGKILL the whole Electron process, not a graceful quit: this is the fault.
+  crash.child.kill("SIGKILL");
+  crashExit = await crash.exit;
+
+  // Give the supervisor's owner channel the chance to do its job. Both the
+  // tree and the supervisor itself must finish: the supervisor legitimately
+  // stays alive through its grace window while it stops the group.
+  const startedAt = Date.now();
+  const deadline = startedAt + 20_000;
+  const finished = () => !crashPids.some(isLive) && !isLive(crashEvidence.pids.supervisor);
+  while (Date.now() < deadline && !finished()) {
+    await new Promise((resolveWait) => setTimeout(resolveWait, 100));
+  }
+  orphanCheck = {
+    tree: crashPids,
+    alive: crashPids.filter(isLive),
+    supervisor_alive: isLive(crashEvidence.pids.supervisor),
+    checked_after_ms: Date.now() - startedAt,
+    settled: finished(),
+  };
+} catch (caught) {
+  error = String(caught);
+  crash.child.kill("SIGKILL");
+}
+
 const owner = launch(["--lifecycle-smoke"], {
   MONA_LIFECYCLE_SMOKE_OUT: outFile,
   MONA_LIFECYCLE_SMOKE_READY: readyFile,
   MONA_LIFECYCLE_SMOKE_OPEN_PATH: openPath,
 });
 
-let secondExit = null;
-let ownerExit = null;
-let error = null;
-let evidence = null;
-
 try {
+  if (error !== null) throw new Error(error);
   await waitForFile(readyFile, 45_000);
   // A second launch with a folder must dispatch to the owner, not own anything.
   const second = launch([openPath], {});
@@ -141,6 +185,13 @@ const checks = {
   quit_reported_no_rollback: shutdown?.rollback === "not_promised",
   quit_receipt_names_interrupt: typeof shutdown?.interrupted === "boolean",
   all_children_dead_after_quit: aliveAfterQuit.length === 0,
+  // P20 main-process failure: the killed owner's tree must not survive it.
+  crash_runtime_was_running: crashPids.length > 0,
+  crash_killed_main: crashExit?.signal === "SIGKILL",
+  crash_left_no_orphan: orphanCheck !== null && orphanCheck.alive.length === 0,
+  crash_left_no_orphan_supervisor:
+    orphanCheck !== null && crashPids.length > 0 && orphanCheck.supervisor_alive === false,
+  crash_shutdown_settled: orphanCheck?.settled === true,
 };
 
 const ok = error === null && Object.values(checks).every(Boolean);
@@ -157,6 +208,7 @@ const report = {
     stderr: owner.log.stderr.slice(0, 2000),
   },
   second_exit: secondExit,
+  crash: orphanCheck,
 };
 console.log(JSON.stringify(report, null, 2));
 rmSync(dir, { recursive: true, force: true });

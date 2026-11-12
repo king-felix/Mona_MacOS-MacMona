@@ -151,7 +151,25 @@ export class ArtifactFileStore {
 
   read(relPath: string, options: { verifyDigest?: boolean } = {}): Buffer {
     const path = this.absolute(relPath);
-    const data = readFileSync(path);
+    let data: Buffer;
+    try {
+      data = readFileSync(path);
+    } catch (error) {
+      const code = (error as { code?: string }).code;
+      if (code === "ENOENT" || code === "ENOTDIR") {
+        // A missing file is a named state condition, not a raw ENOENT: the UI
+        // must be able to say "this artifact is missing" instead of surfacing a
+        // filesystem error it cannot interpret.
+        throw new StateError(
+          "ARTIFACT_MISSING",
+          "the artifact file is missing from local storage",
+          {
+            relPath,
+          },
+        );
+      }
+      throw error;
+    }
     if (options.verifyDigest) {
       const digest = createHash("sha256").update(data).digest("hex");
       const expected = relPath.split("/")[1]?.split(".")[0];

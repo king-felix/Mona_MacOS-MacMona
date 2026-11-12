@@ -127,6 +127,10 @@ interface StudioSession {
   pumpActive: boolean;
   pumpKey: string | null;
   usageRecorded: Set<string>;
+  /** Set to the last contiguous sequence when a gap is observed. */
+  resumeFrom: number | null;
+  /** Bounded recovery attempts so a genuinely non-contiguous numbering settles. */
+  gapRecoveries: number;
 }
 
 const MAX_DIAGNOSTICS = 12;
@@ -289,6 +293,8 @@ export class WorkStudio {
       pumpActive: false,
       pumpKey: null,
       usageRecorded: new Set(),
+      resumeFrom: null,
+      gapRecoveries: 0,
     };
     this.active = session;
     this.push(session, "connection", "connecting");
@@ -581,7 +587,12 @@ export class WorkStudio {
   private async runPump(session: StudioSession, binding: ModeBinding): Promise<void> {
     let attempts = 0;
     while (!session.stopped && !this.closed) {
-      const since = await this.store.getCursor(binding.localThreadId);
+      const stored = await this.store.getCursor(binding.localThreadId);
+      // A gap rewrite asks the engine to replay from the last contiguous
+      // sequence instead of the highest stored one, so a frame lost in
+      // transport is fetched again rather than silently skipped.
+      const since = session.resumeFrom ?? stored;
+      session.resumeFrom = null;
       const controller = new AbortController();
       session.abort = controller;
       let sawEvent = false;
@@ -595,8 +606,14 @@ export class WorkStudio {
           if (item.type === "event") {
             sawEvent = true;
             attempts = 0;
-            const terminal = await this.ingest(session, binding, item.event);
-            if (terminal) return;
+            const outcome = await this.ingest(session, binding, item.event);
+            if (outcome.terminal) return;
+            if (outcome.rewind) {
+              // Deliberate replay, not instability: the reconnect count stays
+              // at zero so recovery cannot masquerade as a failing stream.
+              attempts = 0;
+              break;
+            }
           } else if (item.type === "diagnostic") {
             this.diagnose(session, `stream diagnostic: ${item.reason}`);
           } else if (item.type === "end") {
@@ -635,18 +652,44 @@ export class WorkStudio {
     }
   }
 
-  /** Store one engine event, then update projections. Returns true on terminal. */
+  /**
+   * Store one engine event, then update projections. \
+   * `terminal` ends the pump; `rewind` asks it to reconnect from the last
+   * contiguous sequence so a detected gap is replayed.
+   */
   private async ingest(
     session: StudioSession,
     binding: ModeBinding,
     event: EventEnvelope,
-  ): Promise<boolean> {
+  ): Promise<{ terminal: boolean; rewind: boolean }> {
+    let rewind = false;
     if (event.thread_id !== binding.engineThreadId) {
       this.diagnose(
         session,
         `ignored an event for ${event.thread_id}; this studio is bound to ${binding.engineThreadId}`,
       );
-      return false;
+      return { terminal: false, rewind };
+    }
+    const before = await this.store.getCursor(binding.localThreadId);
+    if (before > 0 && event.seq > before + 1) {
+      const from = before + 1;
+      const to = event.seq - 1;
+      const range = from === to ? String(from) : `${from}–${to}`;
+      if (session.gapRecoveries < 2) {
+        session.gapRecoveries += 1;
+        session.resumeFrom = before;
+        rewind = true;
+        this.diagnose(
+          session,
+          `event sequence gap: ${range} was not received; reconnecting from ${before} to ask the engine to replay it`,
+        );
+      } else {
+        this.diagnose(
+          session,
+          `event sequence gap: ${range} did not arrive during replay. The engine's numbering may simply skip values; Mona records the gap instead of repeating the recovery.`,
+        );
+      }
+      this.push(session, "control", "sequence_gap", { seq: event.seq });
     }
     const stored = await this.store.recordEvent({
       threadId: binding.localThreadId,
@@ -656,7 +699,7 @@ export class WorkStudio {
       timestamp: event.timestamp,
       turnId: event.turn_id ?? null,
     });
-    if (!stored.recorded) return false;
+    if (!stored.recorded) return { terminal: false, rewind };
     this.push(session, "event", "recorded", {
       seq: event.seq,
       eventKind: event.kind,
@@ -668,12 +711,12 @@ export class WorkStudio {
       session.pendingInput = pending;
       this.diagnose(session, pending);
       this.push(session, "control", "pending_input");
-      return false;
+      return { terminal: false, rewind };
     }
     if (event.kind === "approval.decided" || event.kind === "user_input.answered") {
       session.pendingInput = null;
       this.push(session, "control", "input_answered");
-      return false;
+      return { terminal: false, rewind };
     }
     if (event.kind === "turn.artifacts" && event.turn_id && this.changes) {
       try {
@@ -687,11 +730,11 @@ export class WorkStudio {
       } catch (error) {
         this.diagnose(session, `turn artifacts were not captured: ${errorMessage(error)}`);
       }
-      return false;
+      return { terminal: false, rewind };
     }
     if (terminalStatus(event.kind) !== null) {
       await this.finishTurn(session, binding, event);
-      return true;
+      return { terminal: true, rewind: false };
     }
     if (event.kind === "turn.started" && event.turn_id && !session.active) {
       session.active = { turnId: event.turn_id, binding };
@@ -711,7 +754,7 @@ export class WorkStudio {
         `Event "${event.kind}" is stored and inspectable but this build does not project it.`,
       );
     }
-    return false;
+    return { terminal: false, rewind };
   }
 
   private async finishTurn(

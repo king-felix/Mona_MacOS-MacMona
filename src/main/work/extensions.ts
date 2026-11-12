@@ -33,7 +33,7 @@ import type {
   EngineSkill,
 } from "../engine/types";
 import type { StateStore } from "../state/store";
-import { redactDiagnostics } from "./settings";
+import { redactDiagnostics, redactHomePath } from "./settings";
 
 const HOME = homedir();
 const MCP_NAME = /^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/;
@@ -88,7 +88,7 @@ function describe(error: unknown): string {
 
 function redactPath(path: string | null): string | null {
   if (!path) return null;
-  return path.startsWith(HOME) ? `~${path.slice(HOME.length)}` : path;
+  return redactHomePath(path, HOME);
 }
 
 function redactText(text: string, limit = 2000): string {

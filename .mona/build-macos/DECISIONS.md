@@ -1139,3 +1139,83 @@ and deviations discovered while building.
   12, `test/memory-shelf.test.ts` from 12 to 14, and
   `test/settings-restore.test.ts` was added (5). Evidence:
   `docs/evidence/macos/P19-memory.md`, section "Review".
+
+## D-060 — A child process inherits trust, so Git gets an allowlist
+
+`runGit` passed `{...process.env}`. Git runs hooks supplied by the repository
+under review, so any opened project could read Mona's provider key and runtime
+token from its own `pre-commit`. `buildGitEnvironment` now passes only PATH,
+HOME, USER, LOGNAME, TMPDIR, locale, `SSH_AUTH_SOCK`, Git identity variables,
+and `XDG_CONFIG_HOME`, drops any secret-shaped name even inside that list, and
+forces `GIT_TERMINAL_PROMPT=0`, `GIT_OPTIONAL_LOCKS=0`, `GIT_PAGER=cat`,
+`LC_ALL=C`. A plain-Git control run confirms the leak was real, so the test is
+not vacuous. The same reasoning already governed the PTY allowlist (ADR-012);
+it now applies to every child Mona spawns with a repository-controlled input.
+
+## D-061 — A sequence gap is detected, replayed once, then reported
+
+The pump resumed from `store.getCursor()`, the **highest** stored sequence. A
+frame lost in transport therefore advanced the cursor past itself and the
+timeline silently lost an item while claiming a complete turn. `ingest` now
+compares the incoming `seq` to the stored cursor, records
+`sequence gap: <range>`, and asks the pump to reconnect from the last contiguous
+sequence. That replay does not count against the instability budget, because a
+deliberate rewind is not a flapping stream. After two recoveries the gap stays
+recorded: the engine contract does not promise contiguous numbering, and looping
+forever would misrepresent what recovery can achieve. Unknown stays unknown.
+
+## D-062 — A cap that keeps a prefix is not a cap
+
+When the total-byte budget was crossed, `readArchive` returned the entries it had
+already accepted alongside an `ARCHIVE_TOO_LARGE` problem. A caller could then
+import a truncated bundle and describe it as complete. The reader now clears
+`entries` when the total cap is hit, matching the all-or-nothing behaviour the
+entry-count and entry-size caps already had.
+
+## D-063 — Extraction validates the real tree, not only the name
+
+`safeJoin` is lexical by design. A pre-existing `<root>/nested → /tmp/out`
+redirected `writeFileSync` outside the root, which is why P19 recorded it as a
+limit rather than claiming safety. `prepareTarget` now `lstat`s every component,
+refuses a symlink anywhere in the path and a non-regular final target,
+re-resolves the parent and re-checks containment, and the write uses
+`O_EXCL`/`O_NOFOLLOW` (`O_TRUNC` only for an explicit overwrite). A symlinked
+*root* resolves to its real directory: the caller named that destination.
+
+## D-064 — A receipt is worth nothing compared with stopping the tree
+
+The native supervisor's `emit` used `FileHandle.standardOutput.write`, which
+raises an uncatchable Objective-C exception on `EPIPE`. `stopTree` emits before
+it signals anything, so when the desktop owner died the supervisor aborted
+before stopping a single process and the runtime was reparented to `launchd`.
+`emit` now uses `write(2)` and discards `EPIPE`; stopping always runs to
+completion. The P04 test missed this because it closed the owner channel while
+the receipt pipe was still readable. The new test destroys the receipt pipe
+first, and was verified to fail against the pre-fix binary. The Electron
+lifecycle smoke adds a real `SIGKILL` phase for the same guarantee end to end.
+
+## D-065 — Named state conditions, and one redactor
+
+`ARTIFACT_MISSING` is a `StateErrorCode`, so a vanished artifact byte file is
+reported as that condition instead of a raw `ENOENT` the UI cannot interpret;
+digest mismatch keeps `CORRUPT_DATABASE`. `redactHomePath` is the single home
+redactor for settings, capability, extensions, and the terminal. It requires
+`home + "/"`, handles `home` itself, and does not operate on a degenerate home,
+because a bare prefix match renamed `/Users/victor2/...` to `~2/...`.
+
+## D-066 — IPC sender policy is a pure, testable rule
+
+`senderIsTrusted` moved to `src/main/ipc-sender.ts`, free of Electron imports.
+It refuses a destroyed sender, a child frame, a non-`file:` URL, a path outside
+the renderer root, and any evaluation that throws. The policy is now proven
+directly in `test/p20-failure-matrix.test.ts` rather than only asserted through
+the shell smoke's observed `require`/`process` values.
+
+## D-067 — Finder aliases are refused, not silently resolved
+
+The folder policy claimed aliases were "resolved"; `realpathSync` resolves
+symlinks, not alias files. The Service and Dock paths deliver the resolved
+folder URL, which opens normally. When an alias *file* arrives directly it is
+now refused as `NOT_A_DIRECTORY` with the instruction to open the folder it
+points at, and the comment states what is true. Interactive alias delivery
+remains P24 QA.

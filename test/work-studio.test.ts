@@ -632,3 +632,96 @@ describe("cost budget gate at the studio", () => {
 });
 
 const harnessPlaceholder = "/tmp/placeholder";
+
+describe("live studio: hostile and failing event streams", () => {
+  function envelope(seq: number, kind: string, payload: Record<string, unknown> = {}) {
+    return {
+      schema_version: 1,
+      seq,
+      event: kind,
+      kind,
+      thread_id: THREAD,
+      ...(kind.startsWith("turn.") ? { turn_id: TURN } : {}),
+      timestamp: `2026-11-11T00:00:0${Math.min(seq, 9)}.000Z`,
+      payload,
+    };
+  }
+
+  it("detects a sequence gap, replays it from the last contiguous event, and says so", async () => {
+    const paths: string[] = [];
+    const first = [envelope(1, "thread.started"), envelope(2, "turn.started")];
+    // Sequence 5 arrives with 3 and 4 missing: a frame lost in transport.
+    const lossy = [
+      ...first,
+      envelope(5, "item.completed", {
+        item: { id: "item_a", kind: "agent_message", detail: "hi" },
+      }),
+    ];
+    const replay = [
+      envelope(3, "stream.progress"),
+      envelope(4, "item.delta", { kind: "agent_message", delta: "hi" }),
+      envelope(6, "turn.completed", { status: "completed" }),
+    ];
+    const harness = await setup({
+      events: [],
+      stream: (path) => {
+        paths.push(path);
+        const from = /since_seq=(\d+)/.exec(path)?.[1] ?? "0";
+        return chunkText(sseFrames(from === "2" ? replay : lossy, { end: true }), 5);
+      },
+    });
+    await harness.studio.start(harness.project.id as ProjectId);
+    await harness.studio.submit(harness.project.id as ProjectId, { prompt: "x", mode: "work" });
+    await waitFor(async () =>
+      (await harness.studio.snapshot(harness.project.id as ProjectId)).diagnostics
+        .join("\n")
+        .includes("sequence gap"),
+    );
+
+    // The reconnect deliberately resumed from the last contiguous sequence, not
+    // from the highest stored one.
+    expect(paths.some((path) => path.includes("since_seq=2"))).toBe(true);
+    const snapshot = await harness.studio.snapshot(harness.project.id as ProjectId);
+    expect(snapshot.diagnostics.join("\n")).toMatch(/sequence gap: 3–4/);
+    const stored = await harness.store.readProjectEvents(harness.project.id as ProjectId);
+    // 3 is a stream.progress frame, which this build deliberately does not
+    // store. 4 is the frame that was lost in transport and recovered by replay.
+    expect(new Set(stored.map((event) => event.seq))).toEqual(new Set([1, 2, 4, 5, 6]));
+    expect(stored.find((event) => event.seq === 4)?.payload).toMatchObject({ delta: "hi" });
+    expect(harness.transport.count("POST", "/turns")).toBe(1);
+  });
+
+  it("records a gap instead of looping when replay never fills it", async () => {
+    const paths: string[] = [];
+    const harness = await setup({
+      events: [],
+      stream: (path) => {
+        paths.push(path);
+        return chunkText(
+          sseFrames(
+            [
+              envelope(1, "thread.started"),
+              envelope(2, "turn.started"),
+              envelope(9, "turn.completed", { status: "completed" }),
+            ],
+            { end: true },
+          ),
+          5,
+        );
+      },
+    });
+    await harness.studio.start(harness.project.id as ProjectId);
+    await harness.studio.submit(harness.project.id as ProjectId, { prompt: "x", mode: "work" });
+    await waitFor(async () =>
+      (await harness.studio.snapshot(harness.project.id as ProjectId)).diagnostics
+        .join("\n")
+        .includes("sequence gap"),
+    );
+    const snapshot = await harness.studio.snapshot(harness.project.id as ProjectId);
+    const text = snapshot.diagnostics.join("\n");
+    expect(text).toMatch(/sequence gap: 3–8/);
+    // At most two recovery attempts, then the gap stays recorded rather than
+    // spinning: a non-contiguous numbering is allowed by the engine contract.
+    expect(paths.filter((path) => path.includes("since_seq=2")).length).toBeLessThanOrEqual(2);
+  });
+});

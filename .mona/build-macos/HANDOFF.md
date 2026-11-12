@@ -1,7 +1,7 @@
 # Handoff — Mona macOS build
 
-**Last checkpoint:** 2026-11-12 (P19) · revision 404 · `monabuild validate` clean
-**Current prompt:** P19 completed. Next eligible after P19: **P20** — not
+**Last checkpoint:** 2026-11-12 (P20) · `monabuild validate` clean
+**Current prompt:** P20 completed. Next eligible after P20: **P21** — not
 started, not authorized in this session.
 
 ## Where the build stands
@@ -16,6 +16,51 @@ daily-use polish, P15 makes native agent work visible and controllable, P16/P17
 complete configuration and extensions, P18 adds the integrated terminal, the
 command palette, and an auditable capability explorer, and P19 adds project
 memory, the prompt shelf, portable handoff, and diagnostics.
+
+### P20 — Recovery, security, and failure testing
+
+Six real defects found by adversarial testing, each with a reproduction and a
+root-cause repair. **No feature was disabled, no test removed, no trust
+widened.**
+
+- **P20-06 (critical)** — `native/macos-supervisor/main.swift`: `emit` used
+  `FileHandle.write`, which aborts on `EPIPE`, and `stopTree` emits *before* it
+  signals. A `SIGKILL`ed Electron therefore orphaned the entire runtime tree to
+  `launchd`. `emit` now uses `write(2)` and discards `EPIPE`. Proven by a native
+  test that **fails against the pre-fix binary**, and by a new real
+  `SIGKILL` lifecycle phase (27/27 checks).
+- **P20-01 (high)** — `src/main/work/git.ts`: `runGit` passed `process.env`, so a
+  repository's own `pre-commit` hook could read `DEEPSEEK_API_KEY` and the
+  runtime token. `buildGitEnvironment` is an explicit allowlist with a
+  whole-token secret filter; a plain-Git control run proves the leak was real.
+- **P20-02 (high)** — `src/main/work/studio.ts`: the pump resumed from the
+  *highest* stored sequence, so a frame lost in transport vanished and the
+  timeline claimed a complete turn. `ingest` now reports `sequence gap: <range>`
+  and replays once from the last contiguous sequence (bounded to 2), then keeps
+  the gap recorded.
+- **P20-03 (high)** — `src/main/state/safe-archive.ts`: extraction followed a
+  symlinked parent out of its root. `prepareTarget` lstats every component,
+  refuses symlinks, re-checks realpath containment, and writes `O_EXCL`/
+  `O_NOFOLLOW`. Closes carried-forward item 89.
+- **P20-04 (medium)** — `ARTIFACT_MISSING` is a `StateErrorCode`; a vanished
+  artifact is no longer a raw `ENOENT`.
+- **P20-05 (medium)** — one `redactHomePath` requires `home + "/"`, so
+  `/Users/victor2/...` is no longer renamed to `~2/...`.
+- **Adjacent** — an over-budget archive now yields **no** entries (was a
+  prefix); `senderIsTrusted` moved to `src/main/ipc-sender.ts` and refuses child
+  frames, destroyed senders, and throwing frame getters; the Finder-alias claim
+  in the folder policy now matches behaviour (an alias file is refused with
+  instructions).
+- **New evidence paths** — `scripts/p20-failure-smoke.mjs`
+  (`npm run smoke:failure`, 22 checks, in CI), `test/p20-failure-matrix.test.ts`
+  (12), `test/work-git.test.ts` +2, `test/work-studio.test.ts` +2,
+  `test/safe-archive.test.ts` +3, `test/supervisor-native.test.ts` +1,
+  `test/engine-adapter.test.ts` +2, and the lifecycle smoke's main-crash phase.
+- **Verification** — 649 tests in 67 files; typecheck, lint, format clean;
+  `npm run ci` 21/21 steps including `smoke:failure` and `smoke:lifecycle`.
+  Evidence: `docs/evidence/macos/P20-failure-matrix.md`,
+  `artifacts/p20-failure-smoke.json`, `artifacts/p20-lifecycle-crash.json`,
+  `artifacts/p20-ci.txt`; `docs/decisions/ADR-014`, D-060…D-067.
 
 ### P19 — Project memory, portable handoff, diagnostics
 
@@ -230,29 +275,24 @@ memory, the prompt shelf, portable handoff, and diagnostics.
   notification-focus message; lifecycle **22/22**; local CI green including the
   new `smoke:polish`. Evidence: `docs/evidence/macos/P14-polish.md`.
 
-## Next exact action (P20)
+## Next exact action (P21)
 
-Read spec §6.4, §10, §13, §15, the P20 prompt body, and every unresolved risk
-recorded here. P20 is a hardening prompt, not a feature prompt: it must prove
-the assembled product survives hostile and failing inputs. Then:
+Read spec §3, §14, §19–§21 and the P21 prompt body. P21 packages the product:
+a deterministic, offline, self-contained arm64 `.pkg` for `/Applications` plus
+the signed service payload under `/Library/Services`. Before starting:
 
-1. Add targeted failure injection for renderer crash, main crash, runtime crash,
-   lost stream, lost submission response, duplicate/out-of-order events, disk
-   full, stale revision, corrupted metadata, failed migration, missing artifact,
-   revoked credentials, occupied port, sleep/wake, and interrupted restore.
-   Reconcile from durable evidence; never auto-replay uncertain tool effects.
-2. Audit IPC sender validation, renderer isolation, runtime auth, loopback
-   binding, secret storage/redaction, Markdown and file links, terminal links,
-   imported archives and prompt packs, path canonicalization, and generated-app
-   previews. Start with `extractArchive` (P19 left it unused and it does not yet
-   reject a symlinked parent directory).
-3. Test suspicious folder names and symlinks, Finder aliases, Unicode
-   normalization, and APFS case behavior.
-4. Verify every write path obeys maintenance mode and every owned process obeys
-   shutdown; check task/usage state after each fault.
-5. Evidence: `docs/evidence/macos/P20-failure-matrix.md`, a security boundary
-   review, and reproducible failing cases with repairs. No formal security
-   certification is claimed.
+1. Enumerate exactly what the package owns, and keep the developer's config,
+   keys, databases, sessions, projects, and test home out of it. There is a
+   component manifest and a secret-scan gate to build.
+2. Ship the qualified native Codewhale binary, the supervisor, the PTY helper,
+   and the Services helper with verified arm64 Mach-O slices and Electron ABI.
+   No Homebrew cellar, global npm, Xcode, Rust, or Python dependency.
+3. Honour the two carried-forward packaging items: the packaged installer must
+   put the Service in `/Library/Services` (item 19), and LaunchServices delivery
+   of a `/tmp` bundle is not evidence for a real install location (item 20).
+4. EXT-SIGNING is still open: 0 Developer ID identities on this host. Local mode
+   must work and must be visibly labelled as development; release mode requires
+   P22. Do not block local work on it.
 
 ## Nonblocking issues carried forward
 
@@ -476,10 +516,9 @@ the assembled product survives hostile and failing inputs. Then:
 88. **Engine identity is only as fresh as the last capability snapshot.** With
     no snapshot, requalification reports `unavailable` and names the next step
     (run the capability explorer). Nothing refreshes it implicitly.
-89. **`extractArchive` is unused and not hardened against a symlinked parent
-    directory.** Import parses in memory, so P19 never reaches it; the reader
-    refuses unsafe names and `safeJoin` re-validates, but a future caller that
-    extracts must resolve real paths first. P20 owns this.
+89. **Resolved at P20** — `extractArchive` now refuses a symlinked parent, a
+    symlinked entry name, and a non-regular target, re-checks realpath
+    containment, and writes with `O_NOFOLLOW` (`P20-03`).
 90. **Search is a substring match, not a query language** — no fuzzy matching,
     no recency weighting, no per-field weights. Deterministic and inspectable was
     the goal; a richer scorer needs its own evidence.
@@ -517,26 +556,61 @@ the assembled product survives hostile and failing inputs. Then:
     before it is committed. Item 84's two P16/P17/P18 findings are the same class
     left unredacted at the time; P19's own artifacts scan clean.
 
+98. **A smoke report is a run record, so re-running rewrites it.** The P16–P19
+    `*-smoke.json` artifacts and the P18 coverage JSON/markdown changed when P20's
+    CI re-ran their smokes; their recorded hashes were re-recorded with
+    `monabuild evidence` (same class as item 97). No assertion was removed and no
+    status was lowered.
+99. **`monabuild secrets` still reports four pre-existing false positives**
+    (present before P20): two captured CI logs contain the build machine's home
+    path (`p16-p17-ci.txt`, `p18-tests.txt`), and `sk-…` samples exist in
+    `scripts/terminal-smoke.mjs` and `test/settings-workbench.test.ts` to prove
+    redaction. P20's own artifacts scan clean: `p20-ci.txt` redacts
+    `/Users/<name>` to `~`.
+100. **The main-crash proof uses `SIGKILL`, not power loss.** The supervisor's
+    owner-liveness channel is closed by the kernel when the owner dies, which is
+    the same event a power cut produces for the *supervisor* — but a real power
+    loss also leaves SQLite mid-`fsync`, which is covered separately by the
+    crash-writer and, ultimately, by P24 manual QA.
+101. **A physical lid-close is still simulated.** `powerMonitor.emit("suspend")`
+    drives the real wiring; the lifecycle smoke says so. Real sleep and a second
+    macOS account are P24/P26.
+102. **`extractArchive` has no production caller.** It is now safe, but import
+    still parses in memory (D-056), so the hardening is proven by tests and the
+    smoke rather than by a user-reachable path.
+103. **Over-budget archives now fail closed for every entry.** That changes
+    observable behaviour from P19: a bundle just over the cap previously yielded
+    its accepted prefix. Nothing in the product relied on the prefix, and
+    `test/safe-archive.test.ts` covers the new all-or-nothing rule.
+104. **The supervisor lingers through its grace window after owner death**
+    (observed ~2 s at `--grace-ms 2000`). That is correct — it is stopping the
+    tree — but a check that samples immediately will see it alive. The lifecycle
+    smoke waits for both the tree and the supervisor to settle.
+
 ## Key files
 
-- `.mona/build-macos/state.json` — prompt status (revision 404).
+- `.mona/build-macos/state.json` — prompt status (P20 completed).
 - `.mona/build-macos/attempts.jsonl` — empty; nothing failed three times.
-- `.mona/build-macos/DECISIONS.md` — D-001…D-059.
+- `.mona/build-macos/DECISIONS.md` — D-001…D-067.
 - `.mona/build-macos/BLOCKERS.md` — external prerequisites only.
-- `docs/requirements-macos.json` — MONA-017/018/021/022/023/024/025/029
-  satisfied with P14/P15/P17/P18/P19 evidence; MONA-019 keeps the workflow/lane
-  gaps and MONA-030 is `partial` (P26 owns the final matrix); MONA-006/MAC-002
-  carry contributions without claiming completion.
-- `docs/decisions/ADR-001…013`; ADR-009 is polish, ADR-010 orchestration
+- `docs/requirements-macos.json` — MONA-016, MONA-017/018/021/022/023/024/025/026/
+  029 satisfied with P14/P15/P17/P18/P19/P20 evidence; MONA-019 keeps the
+  workflow/lane gaps and MONA-030 is `partial` (P26 owns the final matrix);
+  MONA-006/MAC-002 carry contributions without claiming completion.
+- `docs/decisions/ADR-001…014`; ADR-009 is polish, ADR-010 orchestration
   ownership, ADR-011 configuration and extensions, ADR-012 the terminal and
-  capability coverage, ADR-013 memory and handoff.
+  capability coverage, ADR-013 memory and handoff, ADR-014 hardening and
+  failure boundaries.
 - `src/main/work/` — `agents.ts`, `attention.ts`, `board.ts`, `capability.ts`,
   `changes.ts`, `control.ts`, `costs.ts`, `cost-math.ts`, `digest.ts`,
   `extensions.ts`, `fingerprint.ts`, `git.ts`, `handoff.ts`, `memory.ts`,
   `notifications.ts`, `polish.ts`, `preferences.ts`, `profile.ts`, `settings.ts`,
   `shelf.ts`, `studio.ts`.
-- `src/main/state/` — `safe-archive.ts` is the fail-closed zip reader/writer;
-  `portable.ts` holds the project bundle; `store.ts` owns the barrier.
+- `src/main/state/` — `safe-archive.ts` is the fail-closed zip reader/writer
+  (extraction validates real paths); `portable.ts` holds the project bundle;
+  `store.ts` owns the barrier.
+- `src/main/ipc-sender.ts` — the pure, testable IPC sender/frame policy.
+- `scripts/p20-failure-smoke.mjs` — the 22-check fault-injection smoke.
 - `src/main/terminal/` — `buffer.ts`, `pty.ts`, `session.ts`;
   `native/macos-pty/` holds the Swift helper.
 - `src/renderer/shell/` — Shell, Home, Studio, Board, Changes, Cost, Agents,

@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, symlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
@@ -175,6 +175,52 @@ describe("safe archive", () => {
     const again = extractArchive(archive, root);
     expect(again.written).toEqual([]);
     expect(again.skipped[0]?.reason).toMatch(/never overwrites/);
+  });
+
+  it("refuses a symlinked parent directory planted beneath the extraction root", () => {
+    const base = tempDir("mona-extract-link-");
+    const root = join(base, "root");
+    const outside = join(base, "outside");
+    mkdirSync(root, { recursive: true });
+    mkdirSync(outside, { recursive: true });
+    symlinkSync(outside, join(root, "nested"));
+    const archive = writeArchive([{ path: "nested/owned.txt", data: Buffer.from("pwn") }]);
+
+    for (const overwrite of [false, true]) {
+      const result = extractArchive(archive, root, { overwrite });
+      expect(result.written).toEqual([]);
+      expect(result.skipped[0]?.reason).toMatch(/symlink/);
+      expect(existsSync(join(outside, "owned.txt"))).toBe(false);
+    }
+  });
+
+  it("refuses a symlink at the final entry name even with overwrite enabled", () => {
+    const base = tempDir("mona-extract-final-link-");
+    const root = join(base, "root");
+    const victim = join(base, "victim.txt");
+    mkdirSync(root, { recursive: true });
+    writeFileSync(victim, "original");
+    symlinkSync(victim, join(root, "name.txt"));
+    const archive = writeArchive([{ path: "name.txt", data: Buffer.from("pwn") }]);
+
+    const result = extractArchive(archive, root, { overwrite: true });
+    expect(result.written).toEqual([]);
+    expect(result.skipped[0]?.reason).toMatch(/symlink/);
+    expect(readFileSync(victim, "utf8")).toBe("original");
+  });
+
+  it("treats a symlinked root as its real directory, never as an escape", () => {
+    const base = tempDir("mona-extract-root-link-");
+    const real = join(base, "real");
+    const link = join(base, "link");
+    mkdirSync(real, { recursive: true });
+    symlinkSync(real, link);
+    const archive = writeArchive([{ path: "ok.txt", data: Buffer.from("ok") }]);
+
+    const result = extractArchive(archive, link);
+    expect(result.written).toEqual(["ok.txt"]);
+    expect(readFileSync(join(real, "ok.txt"), "utf8")).toBe("ok");
+    expect(existsSync(join(base, "ok.txt"))).toBe(false);
   });
 
   it("keeps safeJoin inside the root and rejects escapes", () => {

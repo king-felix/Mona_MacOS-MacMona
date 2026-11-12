@@ -39,6 +39,18 @@ const PROVIDER = /^[a-z0-9][a-z0-9-]{0,63}$/;
 const MODEL = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/;
 const HOME = homedir();
 
+/**
+ * Replace a leading home directory with `~`. The separator check matters: a
+ * prefix match alone would turn `/Users/victor2/x` into `~2/x` when the home is
+ * `/Users/victor`, which names a different file. One implementation, so the four
+ * screens that redact paths cannot drift apart.
+ */
+export function redactHomePath(path: string, home: string = HOME): string {
+  if (!home || home.length <= 1) return path;
+  if (path === home) return "~";
+  return path.startsWith(`${home}/`) ? `~${path.slice(home.length)}` : path;
+}
+
 export class SettingsError extends Error {
   constructor(
     readonly code:

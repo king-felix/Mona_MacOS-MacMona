@@ -103,14 +103,52 @@ export function validateGitPath(path: string): string | null {
   return path;
 }
 
-function gitEnv(): NodeJS.ProcessEnv {
+/** Whole-token match, so `GIT_AUTHOR_NAME` is not mistaken for a credential. */
+const SECRET_NAME = /(^|_)(API_?KEY|KEY|TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL)(_|$)/i;
+
+/**
+ * A controlled environment for Git child processes.
+ *
+ * `git commit` runs hooks that the opened repository supplies, so Git must not
+ * see Mona's provider keys or runtime token: an untrusted repository would
+ * otherwise be able to read them from its own pre-commit hook. Only variables
+ * Git genuinely needs are inherited, and a secret-shaped name is withheld even
+ * when it appears in the allowlist by accident.
+ */
+export function buildGitEnvironment(source: NodeJS.ProcessEnv = process.env): NodeJS.ProcessEnv {
+  const allowed = [
+    "PATH",
+    "HOME",
+    "USER",
+    "LOGNAME",
+    "TMPDIR",
+    "LANG",
+    "LC_ALL",
+    "SSH_AUTH_SOCK",
+    "GIT_AUTHOR_NAME",
+    "GIT_AUTHOR_EMAIL",
+    "GIT_COMMITTER_NAME",
+    "GIT_COMMITTER_EMAIL",
+    "XDG_CONFIG_HOME",
+  ];
+  const environment: NodeJS.ProcessEnv = {};
+  for (const name of allowed) {
+    const value = source[name];
+    if (typeof value === "string" && value.length > 0 && !SECRET_NAME.test(name)) {
+      environment[name] = value;
+    }
+  }
   return {
-    ...process.env,
+    ...environment,
     GIT_TERMINAL_PROMPT: "0",
     GIT_OPTIONAL_LOCKS: "0",
     GIT_PAGER: "cat",
     LC_ALL: "C",
   };
+}
+
+function gitEnv(): NodeJS.ProcessEnv {
+  return buildGitEnvironment();
 }
 
 /** Spawn with a hard output cap and timeout; never a shell, never a pager. */

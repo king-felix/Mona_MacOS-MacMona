@@ -23,13 +23,35 @@ import Foundation
 
 // MARK: - Receipts
 
+/// Write one JSON receipt to fd 1.
+///
+/// This must never abort the supervisor. `FileHandle.standardOutput.write`
+/// raises an Objective-C exception on a broken pipe, and the first thing the
+/// stop path does is emit — so a dead owner would kill the supervisor *before*
+/// it signalled the child tree, leaving the runtime orphaned to launchd.
+/// `write(2)` with `SIGPIPE` ignored degrades to a discarded receipt instead.
 func emit(_ object: [String: Any]) {
     guard JSONSerialization.isValidJSONObject(object),
           let data = try? JSONSerialization.data(withJSONObject: object, options: []),
           var line = String(data: data, encoding: .utf8)
     else { return }
     line += "\n"
-    FileHandle.standardOutput.write(Data(line.utf8))
+    let bytes = Array(line.utf8)
+    var offset = 0
+    while offset < bytes.count {
+        let written = bytes.withUnsafeBytes { raw -> Int in
+            guard let base = raw.baseAddress else { return 0 }
+            return Darwin.write(1, base.advanced(by: offset), bytes.count - offset)
+        }
+        if written > 0 {
+            offset += written
+            continue
+        }
+        if written < 0 && errno == EINTR { continue }
+        // EPIPE or any other failure: the observer is gone. Stopping the tree
+        // is more important than delivering the receipt about it.
+        return
+    }
 }
 
 func fail(_ code: Int32, _ message: String) -> Never {

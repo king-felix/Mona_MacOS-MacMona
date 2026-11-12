@@ -12,6 +12,7 @@ import {
   type CapabilityStatus,
 } from "../../shared/contracts/capability";
 import type { StateStore } from "../state/store";
+import { redactHomePath } from "./settings";
 import { discoverTool } from "../tool-discovery";
 
 const HOME = homedir();
@@ -45,9 +46,7 @@ export class CapabilityError extends Error {
   }
 }
 
-function redactPath(path: string): string {
-  return path.startsWith(HOME) ? `~${path.slice(HOME.length)}` : path;
-}
+const redactPath = (path: string): string => redactHomePath(path, HOME);
 
 /** Find the checked-in inventory in a dev checkout or a packaged resource bundle. */
 export function resolveInventoryPath(explicitPath?: string): string {
