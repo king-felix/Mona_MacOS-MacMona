@@ -78,12 +78,60 @@ const GIT_CANDIDATES = ["/usr/bin/git", "/opt/homebrew/bin/git", "/usr/local/bin
 const MAX_OUTPUT_BYTES = 512 * 1024;
 const COMMAND_TIMEOUT_MS = 8_000;
 
-export function resolveGitBinary(explicit?: string): string | null {
-  if (explicit) return existsSync(explicit) ? explicit : null;
-  for (const candidate of GIT_CANDIDATES) {
-    if (existsSync(candidate)) return candidate;
+const SYSTEM_GIT = "/usr/bin/git";
+const TOOLCHAIN_GIT = [
+  "/Library/Developer/CommandLineTools/usr/bin/git",
+  "/Applications/Xcode.app/Contents/Developer/usr/bin/git",
+];
+
+export interface GitResolution {
+  path: string | null;
+  reason: string | null;
+}
+
+/**
+ * `/usr/bin/git` is a stub that offers to install Apple's Command Line Tools
+ * when the toolchain is absent. A packaged Mona must not trigger a developer
+ * tools install merely because its Changes view opened, so the stub is only
+ * executed when a real toolchain is present. The feature then reports itself
+ * unavailable instead of surprising the recipient with an OS installer.
+ */
+export function resolveGit(
+  options: {
+    explicit?: string;
+    packaged?: boolean;
+    exists?: (path: string) => boolean;
+  } = {},
+): GitResolution {
+  const exists = options.exists ?? existsSync;
+  if (options.explicit) {
+    return exists(options.explicit)
+      ? { path: options.explicit, reason: null }
+      : { path: null, reason: `Git was not found at ${options.explicit}` };
   }
-  return null;
+  const packaged = options.packaged ?? Boolean(process.resourcesPath);
+  let stubSeen = false;
+  for (const candidate of GIT_CANDIDATES) {
+    if (!exists(candidate)) continue;
+    if (packaged && candidate === SYSTEM_GIT && !TOOLCHAIN_GIT.some((path) => exists(path))) {
+      // Never execute the stub just to discover it is a stub; keep looking for a
+      // real Git at a later candidate.
+      stubSeen = true;
+      continue;
+    }
+    return { path: candidate, reason: null };
+  }
+  return {
+    path: null,
+    reason: stubSeen
+      ? "Git features need Apple's Command Line Tools or a separately installed Git; " +
+        "Mona does not trigger the developer-tools installer."
+      : "Git was not found at a known system location",
+  };
+}
+
+export function resolveGitBinary(explicit?: string): string | null {
+  return resolveGit({ explicit }).path;
 }
 
 /**
@@ -341,9 +389,12 @@ function realpathOrNull(path: string): string | null {
 
 export class GitService {
   private readonly binary: string | null;
+  private readonly missingReason: string;
 
   constructor(options: { binary?: string } = {}) {
-    this.binary = resolveGitBinary(options.binary);
+    const resolved = resolveGit({ explicit: options.binary });
+    this.binary = resolved.path;
+    this.missingReason = resolved.reason ?? "Git was not found at a known system location";
   }
 
   get available(): boolean {
@@ -352,7 +403,7 @@ export class GitService {
 
   private require(): string {
     if (!this.binary) {
-      throw new GitError("GIT_MISSING", "Git was not found at a known system location");
+      throw new GitError("GIT_MISSING", this.missingReason);
     }
     return this.binary;
   }
@@ -375,7 +426,7 @@ export class GitService {
     if (!this.binary) {
       return {
         available: false,
-        reason: "Git was not found at a known system location",
+        reason: this.missingReason,
         root: null,
         branch: null,
         detached: false,

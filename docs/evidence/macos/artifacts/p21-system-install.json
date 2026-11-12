@@ -1,0 +1,215 @@
+{
+  "schema_version": 1,
+  "prompt": "P21",
+  "captured_at": "2026-11-12T18:21:48.715Z",
+  "ok": true,
+  "package": {
+    "file": "Mona-0.1.0-macOS-arm64-local.pkg",
+    "sha256": "06c06042a7da48e2edf24b78cf4d75f3d53eaf6c470fbe29bcee81572b2e9eb0",
+    "size": 161927839
+  },
+  "pkg_info": {
+    "package-id": "com.mona.workbench.pkg",
+    "version": "0.1.0",
+    "volume": "/",
+    "location": "",
+    "install-time": "1794507693"
+  },
+  "installed": {
+    "app": {
+      "path": "/Applications/Mona.app",
+      "exists": true,
+      "owner": 0,
+      "group": 0,
+      "signature_verified": true,
+      "bundle_identifier": "com.mona.workbench",
+      "build_channel": "local",
+      "component_manifest_sha256": "61592ef13b2fd0e5048fdc7aa4fdf8a326b7c143b7706d76afea2511621f2f47"
+    },
+    "service": {
+      "path": "/Library/Services/Mona.service",
+      "exists": true,
+      "owner": 0,
+      "group": 0,
+      "signature_verified": true,
+      "info": {
+        "CFBundleShortVersionString": "0.1.0",
+        "CFBundleIdentifier": "com.mona.workbench.service",
+        "NSServices": [
+          {
+            "NSMessage": "startProject",
+            "NSPortName": "MonaService",
+            "NSRestricted": false,
+            "NSMenuItem": {
+              "default": "Start new DS project with Mona"
+            },
+            "NSSendFileTypes": [
+              "public.folder"
+            ]
+          }
+        ],
+        "CFBundleName": "MonaService",
+        "CFBundleDisplayName": "Mona",
+        "CFBundleInfoDictionaryVersion": "6.0",
+        "CFBundleDevelopmentRegion": "en",
+        "CFBundleExecutable": "MonaService",
+        "CFBundlePackageType": "BNDL",
+        "CFBundleVersion": "81",
+        "LSMinimumSystemVersion": "14.0"
+      }
+    },
+    "receipt": {
+      "path": "/Library/Application Support/Mona/install-receipt.json",
+      "exists": true,
+      "content": {
+        "schema_version": 1,
+        "product": "Mona",
+        "version": "0.1.0",
+        "channel": "local",
+        "package": "Mona-0.1.0-macOS-arm64-local.pkg",
+        "manifest_sha256": "61592ef13b2fd0e5048fdc7aa4fdf8a326b7c143b7706d76afea2511621f2f47",
+        "installed_at": "2026-11-12T18:21:33Z",
+        "app_path": "/Applications/Mona.app",
+        "service_path": "/Library/Services/Mona.service",
+        "receipt_path": "/Library/Application Support/Mona/install-receipt.json"
+      }
+    },
+    "owned_paths": {
+      "path": "/Library/Application Support/Mona/owned-paths.json",
+      "exists": true,
+      "owned": [
+        {
+          "path": "/Applications/Mona.app",
+          "kind": "app-bundle"
+        },
+        {
+          "path": "/Library/Services/Mona.service",
+          "kind": "service-bundle"
+        },
+        {
+          "path": "/Library/Application Support/Mona/install-receipt.json",
+          "kind": "install-receipt"
+        },
+        {
+          "path": "/Library/Application Support/Mona/owned-paths.json",
+          "kind": "ownership-manifest"
+        }
+      ],
+      "preserves": [
+        "~/Library/Application Support/Mona (per-user state, projects, sessions)",
+        "~/.codewhale and any external Codewhale installation",
+        "user project folders"
+      ]
+    }
+  },
+  "finder_service": {
+    "registered_by_launch_services": true,
+    "registered_paths": [
+      "/Library/Services/Mona.service",
+      "<repo>/native/macos-services/build/Mona.service",
+      "<repo>/packaging/macos/out/stage/payload/Library/Services/Mona.service"
+    ],
+    "packaged_bundle_smoke": {
+      "ok": true,
+      "checks": {
+        "service_registered": true,
+        "service_listed_by_system": true,
+        "service_discovered_by_macos": true,
+        "folder_forwarded": true,
+        "app_located_by_identity": true,
+        "exact_folder_received": true,
+        "service_receipt_matches": true,
+        "awkward_characters_forwarded": true,
+        "newline_forwarded": true,
+        "unicode_forwarded": true,
+        "declared_folder_only": true,
+        "file_selection_refused": true,
+        "empty_selection_refused": true,
+        "text_selection_refused": true,
+        "multi_requires_choice": true,
+        "multi_pick_first_forwards": true,
+        "cli_file_refused": true,
+        "cli_missing_refused": true,
+        "cli_scheme_refused": true,
+        "no_engine_process_spawned": true,
+        "no_orphaned_service": true
+      }
+    }
+  },
+  "acceptance_sample": {
+    "ok": true,
+    "version": "0.1.0",
+    "build_channel": "local",
+    "install_path": "/Applications/Mona.app",
+    "service": {
+      "install_path": "/Library/Services/Mona.service",
+      "installed": true,
+      "enabled": null
+    },
+    "state_directory_initialized": true,
+    "runtime_started": false,
+    "inference_calls": 0,
+    "component_digests": "11/11",
+    "checks": [
+      {
+        "name": "packaged",
+        "ok": true,
+        "detail": "running from an app bundle"
+      },
+      {
+        "name": "arm64 executable",
+        "ok": true,
+        "detail": "/Applications/Mona.app/Contents/MacOS/Mona: Mach-O 64-bit executable arm64"
+      },
+      {
+        "name": "bundled engine version",
+        "ok": true,
+        "detail": "codewhale 0.10.2 (ff466b2ed0bf) via bundled"
+      },
+      {
+        "name": "bundled engine location",
+        "ok": true,
+        "detail": "/Applications/Mona.app/Contents/Resources/engine/codewhale"
+      },
+      {
+        "name": "native supervisor",
+        "ok": true,
+        "detail": "/Applications/Mona.app/Contents/Resources/native/mona-supervisor (runs)"
+      },
+      {
+        "name": "native pty",
+        "ok": true,
+        "detail": "/Applications/Mona.app/Contents/Resources/native/mona-pty (spawned a shell)"
+      },
+      {
+        "name": "capability inventory",
+        "ok": true,
+        "detail": "/Applications/Mona.app/Contents/Resources/docs/codewhale-capabilities-macos.json"
+      },
+      {
+        "name": "component manifest",
+        "ok": true,
+        "detail": "/Applications/Mona.app/Contents/Resources/component-manifest.json"
+      },
+      {
+        "name": "component digests",
+        "ok": true,
+        "detail": "11/11 hashes match the manifest"
+      },
+      {
+        "name": "install location",
+        "ok": true,
+        "detail": "/Applications/Mona.app"
+      },
+      {
+        "name": "state directory",
+        "ok": true,
+        "detail": "/private<tmp>/Library/Application Support/Mona/state"
+      }
+    ]
+  },
+  "external_codewhale": {
+    "config_doctor_status": 0,
+    "config_doctor_redacted": "# ~/.codewhale/config.toml\ndoctor: credentials and endpoints clean"
+  }
+}

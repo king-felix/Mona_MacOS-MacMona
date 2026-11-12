@@ -1219,3 +1219,82 @@ folder URL, which opens normally. When an alias *file* arrives directly it is
 now refused as `NOT_A_DIRECTORY` with the instruction to open the folder it
 points at, and the comment states what is true. Interactive alias delivery
 remains P24 QA.
+
+## D-068 — The installed copy owns Finder handoffs
+
+The Service originally resolved Mona only through
+`NSWorkspace.urlForApplication(withBundleIdentifier:)`. With a staged or
+development copy registered, macOS could hand a folder to that copy while the
+installed app sat in `/Applications`. The Service now prefers
+`/Applications/Mona.app` when it is the expected bundle, executable, and validly
+signed, then falls back to LaunchServices. The installer marks the app
+non-relocatable, and a packaged copy running from elsewhere warns when the
+installed copy exists. ADR-015 §2. Proven by the packaged Service smoke after
+unregistering the competing copies.
+
+## D-069 — Re-signing changes the engine's identity; record both
+
+The bundled Codewhale binary is the qualified 0.10.2 arm64 artifact
+(`da022961…`), re-signed inside Mona (`41e6dfd8…`). Packaging records both
+hashes and refuses an engine whose version/commit is not pinned, or whose
+default artifact bytes changed. The packaged digest is the payload identity; the
+upstream digest is provenance. ADR-015 §3.
+
+## D-070 — Local is not release, and release refuses to pretend
+
+`--mode local` produces an ad-hoc, `-local`-named package with a visible
+“Local development build” channel. `--mode release` requires Developer ID
+Application and Installer identities and still stops before producing anything
+until P22 adds signing, notarization, stapling, and release verification. A
+missing identity is a P22 prerequisite, not a reason to emit an unsigned
+production package. ADR-015 §6.
+
+## D-071 — Installer scripts touch only owned paths
+
+`preinstall` performs the arm64/OS gate and removes the previous app/service
+after checking their bundle identifiers. `postinstall` verifies the bundles,
+registers the Service, and writes the receipt. Neither launches Mona, uses the
+network, changes TCC, or reads user state. `MONA_INSTALL_ROOT` rehearses both
+against a temporary root twice; the real install uses `/` and standard Installer
+authorization. ADR-015 §7.
+
+## D-072 — The payload is visible and complete
+
+ASAR is disabled and there are no native Node modules; every executable is a
+real file in the signed payload. The pinned engine, supervisor, PTY helper,
+capability inventory, component manifest, and third-party notices are all
+inside `Contents/Resources`, and the app verifies their digests at package-smoke
+time. ADR-015 §4, §10.
+
+## D-073 — Git is probed, not invited
+
+On a clean Mac `/usr/bin/git` is Apple's Command Line Tools stub. Packaged Mona
+now returns Git unavailable with an explanation when only the stub exists,
+instead of triggering an OS developer-tools install. Development behavior is
+unchanged. Bundling a GPL Git is a release decision with source obligations,
+recorded as an open MAC-004/P26 item. ADR-015 §8.
+
+## D-074 — Packaging is verified by running the installed artifact
+
+The package gate is not a checklist. It expands the product, compares every
+file and symlink to the staged payload, rehearses both scripts twice, launches
+the installed app through LaunchServices with a fresh home, runs the in-app
+component-digest acceptance sample, and (with the Service installed) runs the
+package smoke from `/Applications`. The real `installer` run was performed with
+administrator authorization and its receipt, signatures, and Service
+registration are recorded. ADR-015 §7, §9.
+
+## D-075 — Determinism covers inputs and content, not every container byte
+
+The build rebuilds all inputs, stages a fixed sorted file set, normalizes
+modification times, and records content digests. The app content digest is
+stable across repeated builds here. Flat-package xar/BOM metadata and native
+Mach-O compiler UUIDs can still differ, so the release receipt freezes the exact
+package digest rather than promising byte-identical rebuilds. ADR-015 §9.
+
+## D-076 — The product floor is 14.0 because the native helpers say so
+
+The supervisor and PTY helper target `arm64-apple-macos14.0`; Electron's floor is
+13.0 and the engine's 11.0. Installer declares 14.0 and the script repeats it.
+The floor has not yet been executed on a 14.x host; P26 owns the version matrix.
+ADR-015 §5.

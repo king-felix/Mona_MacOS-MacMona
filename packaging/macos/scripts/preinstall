@@ -1,0 +1,66 @@
+#!/bin/sh
+# Mona preinstall. Runs as root from Apple Installer. It performs only the
+# arm64/OS gate and removal of the previous package-owned bundles so a reinstall
+# is idempotent. It never touches user state, credentials, projects, or an
+# external Codewhale installation, and it never launches Mona.
+set -eu
+
+version="@@VERSION@@"
+
+ROOT=""
+if [ -n "${MONA_INSTALL_ROOT:-}" ]; then
+  case "$MONA_INSTALL_ROOT" in
+    /*) ROOT="$MONA_INSTALL_ROOT" ;;
+    *)
+      echo "Mona: invalid MONA_INSTALL_ROOT (must be absolute)" >&2
+      exit 1
+      ;;
+  esac
+  [ "$ROOT" = "/" ] && ROOT=""
+fi
+
+if [ "$(/usr/bin/uname -m)" != "arm64" ]; then
+  echo "Mona requires an Apple Silicon Mac (arm64); this Mac reports $(/usr/bin/uname -m)." >&2
+  exit 1
+fi
+
+os_version="$(/usr/bin/sw_vers -productVersion)"
+major="${os_version%%.*}"
+case "$major" in
+  '' | *[!0-9]*)
+    echo "Mona cannot read this macOS version: $os_version" >&2
+    exit 1
+    ;;
+esac
+if [ "$major" -lt 14 ]; then
+  echo "Mona requires macOS 14.0 or later; this Mac runs $os_version." >&2
+  exit 1
+fi
+
+bundle_id() {
+  /usr/bin/plutil -extract CFBundleIdentifier raw "$1/Contents/Info.plist" 2>/dev/null || true
+}
+
+APP="$ROOT/Applications/Mona.app"
+if [ -e "$APP" ]; then
+  if [ "$(bundle_id "$APP")" = "com.mona.workbench" ]; then
+    # Package-owned copy: replacing it is the documented upgrade path.
+    /bin/rm -rf "$APP"
+  else
+    echo "Mona: $APP exists but is not Mona (com.mona.workbench). Move it aside, then install again." >&2
+    exit 1
+  fi
+fi
+
+SERVICE="$ROOT/Library/Services/Mona.service"
+if [ -e "$SERVICE" ]; then
+  if [ "$(bundle_id "$SERVICE")" = "com.mona.workbench.service" ]; then
+    /bin/rm -rf "$SERVICE"
+  else
+    echo "Mona: $SERVICE exists but is not Mona's Finder Service. Move it aside, then install again." >&2
+    exit 1
+  fi
+fi
+
+echo "Mona $version: installing for Apple Silicon on macOS $os_version."
+exit 0

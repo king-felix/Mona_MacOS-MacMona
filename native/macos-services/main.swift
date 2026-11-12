@@ -342,12 +342,35 @@ func signatureSummary(of appURL: URL) -> (valid: Bool, detail: String) {
     return (true, "signed:\(identifier)")
 }
 
+/// The installer owns `/Applications/Mona.app`. When a developer also has a
+/// copy registered with the same bundle identifier, LaunchServices may return
+/// either one; prefer the installed location so a stray build cannot intercept
+/// a Finder handoff. A candidate is only accepted when it is the expected
+/// bundle, executable, and validly signed.
+func installedAppCandidate() -> URL? {
+    let installed = URL(fileURLWithPath: "/Applications/Mona.app", isDirectory: true)
+        .standardizedFileURL
+    guard FileManager.default.fileExists(atPath: installed.path),
+        let bundle = Bundle(url: installed),
+        bundle.bundleIdentifier == kAppBundleIdentifier,
+        let executable = bundle.executableURL,
+        FileManager.default.isExecutableFile(atPath: executable.path),
+        signatureSummary(of: installed).valid
+    else {
+        return nil
+    }
+    return installed
+}
+
 func locateApp(override: String?) throws -> AppIdentity {
     var notes: [String] = []
     var appURL: URL
     if let override, !override.isEmpty {
         appURL = URL(fileURLWithPath: override).standardizedFileURL
         notes.append("app: located by explicit path (development)")
+    } else if let installed = installedAppCandidate() {
+        appURL = installed
+        notes.append("app: preferred the installed copy at \(installed.path)")
     } else {
         guard
             let located = NSWorkspace.shared.urlForApplication(

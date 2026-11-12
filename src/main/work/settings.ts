@@ -1012,7 +1012,9 @@ export class RouteWorkbench {
         note:
           binary.source === "env"
             ? "An explicit external binary was adopted through CODEWHALE_BIN. Mona records its path and SHA-256 and never resolves an arbitrary PATH name."
-            : "Mona uses the installed native arm64 engine resolved at a fixed path. Platform binaries are selected by packaging, never by PATH.",
+            : binary.source === "bundled"
+              ? "Mona runs the pinned engine carried inside the signed app bundle. Its path and SHA-256 are recorded; PATH and Homebrew are not consulted."
+              : "This development build runs the pinned host installation of Codewhale. Packaged Mona carries its own engine instead.",
       };
     } catch (error) {
       return {

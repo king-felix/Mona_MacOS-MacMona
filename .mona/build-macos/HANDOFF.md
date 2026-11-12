@@ -1,10 +1,11 @@
 # Handoff — Mona macOS build
 
-**Last checkpoint:** 2026-11-12 (P20) · `monabuild validate` clean
-**Current prompt:** P20 completed. `monabuild next` reports two eligible
-prompts: **P21** (the packaging prompt, the natural next step) and **P25**
-(shared-core/Windows coordination audit, which depends only on P20). Neither is
-started or authorized in this session.
+**Last checkpoint:** 2026-11-12 (P21) · `monabuild validate` clean
+**Current prompt:** P21 completed (local milestone). `monabuild next` reports
+**P22** (signing/notarization/release automation), **P23** (update/migration/
+uninstall lifecycle), and **P25** (shared-core/Windows coordination) as
+eligible. P22 needs the Developer ID prerequisite from `BLOCKERS.md`; P23 and
+P25 are independent. None is started in this session.
 
 ## Where the build stands
 
@@ -18,6 +19,41 @@ daily-use polish, P15 makes native agent work visible and controllable, P16/P17
 complete configuration and extensions, P18 adds the integrated terminal, the
 command palette, and an auditable capability explorer, and P19 adds project
 memory, the prompt shelf, portable handoff, and diagnostics.
+
+### P21 — Self-contained arm64 app and offline installer
+
+A real `Mona-0.1.0-macOS-arm64-local.pkg` (154.4 MiB, SHA-256 `cfe12281…`) was
+built from this checkout and **installed with administrator authorization**.
+`/Applications/Mona.app` carries the pinned 0.10.2 engine, the native
+supervisor, the PTY helper, the capability inventory, the Finder Service
+payload, and complete third-party notices; the flat package also installs
+`/Library/Services/Mona.service` and an ownership/install receipt. The app
+launches through LaunchServices from Applications with a fresh home, creates
+per-user state, and exits cleanly. The packaged Service passed **21/21** Finder
+checks. The package smoke verified 11/11 component digests with the bundled
+engine, and `codewhale config doctor` still reports clean after packaging.
+
+- `packaging/macos/build.mjs` — deterministic staging, inside-out ad-hoc signing,
+  `pkgbuild`/`productbuild`, architecture/dylib/secret scans, package expansion
+  (files + 14 symlinks), installer-script rehearsal (twice), package smoke, and
+  GUI launch. `--mode release` fails closed until P22.
+- `packaging/macos/{doctor,icon,lib/*}.mjs` and `scripts/{preinstall,postinstall}`
+  — host readiness, generated icon, Mach-O/hygiene/distribution helpers, and
+  minimal owned-path installer scripts.
+- App changes: `src/main/engine/runtime-process.ts` prefers the bundled engine;
+  `src/main/package-smoke.ts` is the in-app acceptance sample;
+  `src/main/install-location.ts` plus a duplicate-copy notice; `src/main/work/git.ts`
+  refuses to execute Apple's CLT stub on a clean Mac; the Finder Service now
+  prefers `/Applications/Mona.app` over a stray registered copy.
+- Verification: **666 tests in 69 files**, `npm run ci` **20/20** steps,
+  `npm run mac:doctor` all green, `npm run mac:package:local` all seven gates
+  green, real `installer` receipt with matching manifest digest, app/service
+  signatures verified, Service registered by LaunchServices.
+- Evidence: `docs/evidence/macos/P21-package.md`,
+  `docs/evidence/macos/artifacts/p21-*`, `docs/decisions/ADR-015`, D-068…D-076.
+- Open: signed/notarized release is P22; Git on a clean recipient needs a
+  P26/P27 decision (bundle GPL Git or accept the CLT dependency); the 14.0
+  floor is not yet tested on a 14.x host.
 
 ### P20 — Recovery, security, and failure testing
 
@@ -278,24 +314,30 @@ widened.**
   notification-focus message; lifecycle **22/22**; local CI green including the
   new `smoke:polish`. Evidence: `docs/evidence/macos/P14-polish.md`.
 
-## Next exact action (P21)
+## Next exact action (P22, P23, or P25)
 
-Read spec §3, §14, §19–§21 and the P21 prompt body. P21 packages the product:
-a deterministic, offline, self-contained arm64 `.pkg` for `/Applications` plus
-the signed service payload under `/Library/Services`. Before starting:
+P21 is complete for the local milestone. Three prompts are eligible:
 
-1. Enumerate exactly what the package owns, and keep the developer's config,
-   keys, databases, sessions, projects, and test home out of it. There is a
-   component manifest and a secret-scan gate to build.
-2. Ship the qualified native Codewhale binary, the supervisor, the PTY helper,
-   and the Services helper with verified arm64 Mach-O slices and Electron ABI.
-   No Homebrew cellar, global npm, Xcode, Rust, or Python dependency.
-3. Honour the two carried-forward packaging items: the packaged installer must
-   put the Service in `/Library/Services` (item 19), and LaunchServices delivery
-   of a `/tmp` bundle is not evidence for a real install location (item 20).
-4. EXT-SIGNING is still open: 0 Developer ID identities on this host. Local mode
-   must work and must be visibly labelled as development; release mode requires
-   P22. Do not block local work on it.
+- **P22 — signing, notarization, release verification.** Read spec §14.3, §20,
+  §21 and the P22 prompt body. The payload layout, component manifest, installer
+  scripts, and release-gate refusal already exist; P22 adds the inside-out
+  Developer ID signing, Hardened Runtime/entitlements, `notarytool` submission,
+  stapling, `spctl`/`stapler` verification, and the release receipt. EXT-SIGNING
+  is still open: 0 Developer ID identities (see `BLOCKERS.md`). Do not block
+  independent P23/P25 work on it.
+- **P23 — update, migration, rollback, uninstall.** P21's `owned-paths.json`,
+  install receipt, component manifest, and non-relocatable layout are the
+  inputs. Read spec §10, §22 and the P23 prompt body; test upgrade, failed
+  migration, active-run deferral, wrong-package rejection, and uninstall.
+- **P25 — shared-core/Windows coordination.** Read its prompt and the
+  `.mona/build/` ledger; do not touch the Windows ledger or sources.
+
+P21's first exact action for a future packaging change: run
+`npm run mac:doctor`, then `npm run mac:package:local`; the gate must be all
+seven true before any install. The real install command is
+`sudo installer -pkg packaging/macos/out/Mona-<version>-macOS-arm64-local.pkg -target /`
+and must be followed by `node`-based receipt/hash verification as recorded in
+`docs/evidence/macos/P21-package.md`.
 
 ## Nonblocking issues carried forward
 
@@ -323,11 +365,15 @@ the signed service payload under `/Library/Services`. Before starting:
     the *settings* backup is scopes only and does not.
 17. **Confirmed live interrupt remains P08 evidence**; interactive QA is P24/P26.
 18. **No automatic runtime start from a Finder handoff** — deliberate (D-019).
-19. **Service install scope** — `~/Library/Services` for development; packaged
-    installer must use `/Library/Services` (D-020, P21).
-20. **LaunchServices ignores `/tmp` bundles** (D-021); P21/P24 verify the pair.
+19. **Service install scope** — resolved at P21: the package installs
+    `/Library/Services/Mona.service`; development still uses
+    `~/Library/Services` (D-020).
+20. **LaunchServices ignores `/tmp` bundles** (D-021). P21 verified the real
+    install pair from `/Applications` and `/Library/Services`; P24 still owns
+    interactive QA.
 21. **Interactive multi-selection alert and VoiceOver** — P24/P26.
-22. **No Developer ID signing** — P22 prerequisite; ad-hoc locally.
+22. **No Developer ID signing** — P22 prerequisite; P21's package is ad-hoc
+    and visibly local.
 23. **Single-owner runtime** is enforced; parallel ownership needs an engine
     decision.
 24. **Adapter gaps** — approvals, clarifications, steer, artifacts older than
@@ -338,7 +384,8 @@ the signed service payload under `/Library/Services`. Before starting:
     is reported in `ImportPlanResult.deferredStatuses` and never applied, so a
     plan cannot manufacture a completion (`test/board-plan-status.test.ts`).
 28. **Electron embedded Node is 24.22.2**, not the host 26.13.0.
-29. **Supervisor and Service binaries are gitignored** — P21/P22 ship them.
+29. **Supervisor and Service binaries are gitignored** — P21 ships them inside
+    the app and the Service bundle; P22 re-signs the same layout.
 30. **Physical sleep and a second macOS account** — manual QA (P24).
 31. **Artifact bytes are not portable** — import reports missing digests.
 32. **Evidence generation redacts the build machine's home directory.**
@@ -590,20 +637,42 @@ the signed service payload under `/Library/Services`. Before starting:
     tree — but a check that samples immediately will see it alive. The lifecycle
     smoke waits for both the tree and the supervisor to settle.
 
+105. **Git on a clean recipient needs Apple's Command Line Tools** or a
+     separately installed Git. Packaged Mona refuses to execute `/usr/bin/git`
+     when it is only the CLT stub, so it never triggers the developer-tools
+     installer; the feature reports itself unavailable. P26/P27 must decide
+     whether to bundle a GPL Git (source-offer obligation) or accept and document
+     the dependency. Open MAC-004 item.
+106. **The 14.0 minimum has not been tested on a 14.x host.** The native helpers
+     target 14.0 and the installer enforces it; P26 owns the tested version
+     matrix.
+107. **The local package is ad-hoc signed and not shareable.** Gatekeeper will
+     not accept it on another Mac. P22 owns the signed/notarized/stapled release.
+108. **Flat-package container bytes are not promised to be identical between
+     builds** even when the payload content digest is stable; the receipt freezes
+     the exact package digest. Native Swift rebuilds can change Mach-O UUIDs.
+109. **The installed Service's macOS enabled state is unknown** after install
+     (`enabled: null`); registration by LaunchServices and the packaged Service's
+     21/21 discovery/launch proof are recorded. P24/P26 own an interactive
+     enablement check.
+110. **No screen capture in this session** (no Screen Recording permission).
+     P21's GUI evidence is process, state-initialization, and LaunchServices
+     based.
+
 ## Key files
 
-- `.mona/build-macos/state.json` — prompt status (P20 completed).
+- `.mona/build-macos/state.json` — prompt status (P21 completed).
 - `.mona/build-macos/attempts.jsonl` — empty; nothing failed three times.
-- `.mona/build-macos/DECISIONS.md` — D-001…D-067.
+- `.mona/build-macos/DECISIONS.md` — D-001…D-076.
 - `.mona/build-macos/BLOCKERS.md` — external prerequisites only.
 - `docs/requirements-macos.json` — MONA-016, MONA-017/018/021/022/023/024/025/026/
   029 satisfied with P14/P15/P17/P18/P19/P20 evidence; MONA-019 keeps the
   workflow/lane gaps and MONA-030 is `partial` (P26 owns the final matrix);
   MONA-006/MAC-002 carry contributions without claiming completion.
-- `docs/decisions/ADR-001…014`; ADR-009 is polish, ADR-010 orchestration
+- `docs/decisions/ADR-001…015`; ADR-009 is polish, ADR-010 orchestration
   ownership, ADR-011 configuration and extensions, ADR-012 the terminal and
   capability coverage, ADR-013 memory and handoff, ADR-014 hardening and
-  failure boundaries.
+  failure boundaries, ADR-015 the packaged payload and its trust boundary.
 - `src/main/work/` — `agents.ts`, `attention.ts`, `board.ts`, `capability.ts`,
   `changes.ts`, `control.ts`, `costs.ts`, `cost-math.ts`, `digest.ts`,
   `extensions.ts`, `fingerprint.ts`, `git.ts`, `handoff.ts`, `memory.ts`,
@@ -613,6 +682,9 @@ the signed service payload under `/Library/Services`. Before starting:
   (extraction validates real paths); `portable.ts` holds the project bundle;
   `store.ts` owns the barrier.
 - `src/main/ipc-sender.ts` — the pure, testable IPC sender/frame policy.
+- `src/main/package-smoke.ts` — the in-app installed-payload acceptance sample.
+- `packaging/macos/` — `build.mjs`, `doctor.mjs`, `icon.mjs`, `lib/`,
+  `scripts/{preinstall,postinstall}`, `README.md`; `out/` is gitignored.
 - `scripts/p20-failure-smoke.mjs` — the 22-check fault-injection smoke.
 - `src/main/terminal/` — `buffer.ts`, `pty.ts`, `session.ts`;
   `native/macos-pty/` holds the Swift helper.

@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "prompt": "P21",
+  "ok": true,
+  "host": {
+    "os": "26.5.1",
+    "arch": "arm64",
+    "rosetta": false,
+    "free_gib": 9.9
+  },
+  "tools": {
+    "codesign": null,
+    "pkgbuild": null,
+    "productbuild": null,
+    "swift": "Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)",
+    "xcode_select": "/Library/Developer/CommandLineTools"
+  },
+  "engine": {
+    "path_present": true,
+    "version": "codewhale 0.10.2 (ff466b2ed0bf)"
+  },
+  "signing": {
+    "identities": [],
+    "developer_id_application": false,
+    "developer_id_installer": false,
+    "note": "P22 owns signed release qualification. Local packaging works without an identity."
+  },
+  "artifacts": {
+    "supervisor": true,
+    "pty": true,
+    "service": true,
+    "dist": true
+  },
+  "product_version": "0.1.0",
+  "checks": {
+    "macos": true,
+    "arm64": true,
+    "not_translated": true,
+    "tools": true,
+    "swift": true,
+    "engine": true,
+    "artifacts": true,
+    "disk_5gib": true
+  },
+  "next": "npm run mac:package:local"
+}

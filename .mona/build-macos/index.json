@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-12T17:18:24.408Z",
+  "generated_utc": "2026-11-12T18:24:11.449Z",
   "git": {
     "available": true,
-    "commit": "d9d4eaf4fdd6b92a6e54575d47417857ffc5f99f",
+    "commit": "233c0acc3bb8e05fc733307a36c24b420335797a",
     "dirty": true
   },
-  "digest": "d8e1781aa937eb8818db2e75a65ce2911a45e9aa02e7c836fa4a8a0e943e53c9",
+  "digest": "8e8bd8c58d80594722a776846d393049aa1941ee6418b6a7351f674b4729c963",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,8 +15,8 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "6015674022f15c33b1cc6620fdf01b2cb51e0c34d6c0e825faba9ffa74eae4f3",
-      "bytes": 126145
+      "sha256": "e69dd49122ed87e749090ba94f95fddf121d9a2125c9b9cda8447b6ed6cf46b1",
+      "bytes": 135018
     },
     {
       "path": "AGENTS.md",
@@ -739,6 +739,56 @@
       "bytes": 1304
     },
     {
+      "path": "docs/evidence/macos/artifacts/p21-ci.txt",
+      "sha256": "6bc1795e3fb6a07546945a3dbee5c6542c18c70c8fa95da2ba234922b046f0b2",
+      "bytes": 71545
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p21-doctor.json",
+      "sha256": "905fae33d887e267dc0416d17536e5158c20c5c7d42b28c4104753a8c404f381",
+      "bytes": 1051
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p21-installed-package-smoke.json",
+      "sha256": "6a2a9b33a0fa2ad41c0c1eef527b182901d566bc4ba8fb739abdfcfff4c98b84",
+      "bytes": 3090
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p21-package-manifest.json",
+      "sha256": "754698f2eac1ce9dd60d3fffc61d1e79da4dfcb886e95f750d1b8d8bba7dcadc",
+      "bytes": 21422
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p21-package-receipt.json",
+      "sha256": "5bac2f72b11e9f6aa7e64a5081ac3d1aaa0771438d3746f10929cf7b91e8f8f8",
+      "bytes": 741
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p21-package-sha256.txt",
+      "sha256": "ec823d790fc04db7c08bcb90c449eefef89a54e2b5415728162bb88d0c7b8dcc",
+      "bytes": 184
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p21-package-smoke.json",
+      "sha256": "eaa2c68b2dc52a137da27779ec6584681759406fbaeffcd3b35e9fa3c2c42229",
+      "bytes": 3090
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p21-release-gate.txt",
+      "sha256": "9443eef6414a44aabed2a8b808a05e8d7deabf99fd717b51afc4ce77a153a748",
+      "bytes": 306
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p21-service-smoke.json",
+      "sha256": "d1f2c290cc8d3a720880986b8c1d421d7cfeba7b85f34dcd078420729e977bba",
+      "bytes": 15656
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p21-system-install.json",
+      "sha256": "654e07f3d14d3ccf4ae45bb46c6f8bf690cc5dd9e25f3edde3eab2bea9d7e852",
+      "bytes": 6633
+    },
+    {
       "path": "docs/evidence/macos/artifacts/signing-inventory.txt",
       "sha256": "3e45104c0497ce03bcba731224d253e6003d8addfb46933fc778a3b79ae07d7c",
       "bytes": 397
@@ -864,14 +914,19 @@
       "bytes": 17499
     },
     {
-      "path": "docs/requirements-macos.json",
-      "sha256": "bbce1986382bf7e8bf26414b2d64a206ef61978f2f9035ea17c9626c335cb0e0",
-      "bytes": 74510
+      "path": "docs/evidence/macos/P21-package.md",
+      "sha256": "ecaec897c5eafdd59bb2bb63a83de6987156f245fc70af783a2c139262637ea6",
+      "bytes": 8817
     },
     {
       "path": "docs/requirements-macos.json",
-      "sha256": "bbce1986382bf7e8bf26414b2d64a206ef61978f2f9035ea17c9626c335cb0e0",
-      "bytes": 74510
+      "sha256": "74829a1988c2a01b539b90c6e37f4bd63934fbe95e91021686b2e6f3d7178f61",
+      "bytes": 79274
+    },
+    {
+      "path": "docs/requirements-macos.json",
+      "sha256": "74829a1988c2a01b539b90c6e37f4bd63934fbe95e91021686b2e6f3d7178f61",
+      "bytes": 79274
     },
     {
       "path": "Mona_macOS_Project.md",

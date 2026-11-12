@@ -4,10 +4,11 @@ Open problems that stop a requirement, with the three-attempt count preserved.
 Attempt records live in `attempts.jsonl`; this file is the human-readable view
 and the place that says exactly what help is needed.
 
-Status: **no blocked problems** as of the P20 checkpoint. P16/P17 added known
-limits with verified routes, not blocked work; P20's six defects were all
-reproduced, root-caused, fixed, and regression-tested inside one prompt, so none
-of them became an open problem and no attempt count was consumed.
+Status: **no blocked problems** as of the P21 checkpoint. P20's six defects were
+all reproduced, root-caused, fixed, and regression-tested inside one prompt, so
+none became an open problem and no attempt count was consumed. P21 produced a
+real installed local package and added one open release-scope decision (Git on a
+clean recipient, below); it is not attempt-counted because no attempt failed.
 
 ## External prerequisites (not blocked work, not attempt-counted)
 
@@ -25,6 +26,40 @@ of them became an open problem and no attempt count was consumed.
   and notarization credentials stored in the login Keychain (for example a
   `notarytool` keychain profile). Do not paste keys or certificates into chat.
 - **Rule:** this must not block independent local work before P22.
+
+### OPEN-GIT — Git features on a clean recipient without developer tools
+
+- **Needed for:** MAC-004 “no mandatory consumer development tools”, MONA-027,
+  and the P26 recipient matrix.
+- **Measured 2026-11-12:** `/usr/bin/git` is a 118,928-byte universal (x86_64 +
+  arm64e) **Command Line Tools stub**; no `/opt/homebrew/bin/git` exists on this
+  host; this host has CLT installed, which is why Git features work here.
+- **Current behavior:** packaged Mona detects that only the stub exists and
+  refuses to execute it, so it never triggers Apple's developer-tools install.
+  Git features report unavailable with the reason. Development builds are
+  unchanged.
+- **Decision needed from Victor at P26/P27:** either (a) bundle a relocatable
+  Git with its GPL source-distribution obligation and notices, or (b) accept
+  that Git features require CLT/another Git and state it in the release scope.
+  P21 does not improvise a GPL payload.
+- **Rule:** this does not block P22 signing or P25 coordination.
+
+### OPEN-OSFLOOR — the 14.0 floor is declared, not yet executed
+
+- **Needed for:** MAC-001/ MAC-004's explicit tested version matrix.
+- **Measured:** native helpers target `arm64-apple-macos14.0`; Electron 45
+  reports 13.0; the engine reports 11.0. The installer enforces 14.0.
+- **Help needed:** P26 runs the recipient matrix on an actual 14.x host (or a
+  supported VM). No local workaround is warranted.
+
+### OPEN-LOCAL-TRUST — the installed package is ad-hoc
+
+- **Needed for:** the shareable-release tier (MAC-005/MONA-027).
+- **Measured:** `security find-identity` still returns 0 identities; the local
+  package is unsigned and the app/service are ad-hoc. It installed and ran on
+  this Mac, which is the intended local milestone, but it is not a
+  Gatekeeper-acceptable shareable artifact.
+- **Help needed:** the Developer ID/notary setup in EXT-SIGNING, then P22.
 
 ### EXT-SIGNING remains the P21/P22 gate
 

@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "product": "Mona",
+  "version": "0.1.0",
+  "channel": "local",
+  "package": "Mona-0.1.0-macOS-arm64-local.pkg",
+  "package_sha256": "06c06042a7da48e2edf24b78cf4d75f3d53eaf6c470fbe29bcee81572b2e9eb0",
+  "package_size": 161927839,
+  "app_content_sha256": "ce4ff5df307c768860214453afd0f8da7f081b8a148072954320ff85e6295af7",
+  "engine_version": "0.10.2",
+  "engine_commit": "ff466b2ed0bfb4ae5267d4d8d0ecb562cf46956e",
+  "engine_packaged_sha256": "41e6dfd8577ad449a93346e695d178885c7de44e1e33acd24ba8bc9d20fe4d49",
+  "build": "81",
+  "built_at": "2026-11-12T18:21:22.979Z",
+  "installable_checks": {
+    "payload_expanded": true,
+    "installer_rehearsal": true,
+    "package_smoke": true,
+    "gui_launch": true
+  }
+}

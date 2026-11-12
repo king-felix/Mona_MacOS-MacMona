@@ -1,0 +1,699 @@
+{
+  "schema_version": 1,
+  "prompt": "P21",
+  "mode": "local",
+  "channel": "local",
+  "version": "0.1.0",
+  "build": "81",
+  "started_at": "2026-11-12T18:20:45.014Z",
+  "finished_at": "2026-11-12T18:21:22.979Z",
+  "host": {
+    "os": "26.5.1",
+    "arch": "arm64",
+    "xcode_select": "/Library/Developer/CommandLineTools",
+    "swift": "Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)",
+    "node": "v26.13.0"
+  },
+  "source": {
+    "git_head": "233c0acc3bb8e05fc733307a36c24b420335797a",
+    "dirty": true,
+    "package_lock_sha256": "30d9d56df1996e51f4a71b3b563c729cf6e97566db53c9cd807d173053622025"
+  },
+  "electron": {
+    "version": "45.3.0",
+    "abi": "150",
+    "zip_source": "cache"
+  },
+  "engine": {
+    "version": "0.10.2",
+    "commit": "ff466b2ed0bfb4ae5267d4d8d0ecb562cf46956e",
+    "source": "installed_native",
+    "upstream_sha256": "da0229610647f1cc2dd14c4227b333a92ea276a49f5d4d79160fa19e515e590d",
+    "packaged_sha256": "41e6dfd8577ad449a93346e695d178885c7de44e1e33acd24ba8bc9d20fe4d49",
+    "architectures": [
+      "arm64"
+    ],
+    "min_os": "11.0"
+  },
+  "app": {
+    "path": "Applications/Mona.app",
+    "bundle_identifier": "com.mona.workbench",
+    "minimum_macos": "14.0",
+    "content_sha256": "ce4ff5df307c768860214453afd0f8da7f081b8a148072954320ff85e6295af7",
+    "size": 364218636
+  },
+  "service": {
+    "path": "Library/Services/Mona.service",
+    "bundle_identifier": "com.mona.workbench.service",
+    "signature": {
+      "authority": null,
+      "team_identifier": "not set",
+      "ad_hoc": true,
+      "verified": true
+    },
+    "descriptor": {
+      "ok": true,
+      "status": 0,
+      "descriptor": {
+        "app_bundle_identifier": "com.mona.workbench",
+        "bundle_identifier": "com.mona.workbench.service",
+        "bundle_path": "<repo>/packaging/macos/out/stage/payload/Library/Services/Mona.service",
+        "executable": "<repo>/packaging/macos/out/stage/payload/Library/Services/Mona.service/Contents/MacOS/MonaService",
+        "message": "startProject",
+        "schema_version": 1,
+        "send_file_types": [
+          "public.folder"
+        ],
+        "send_types": [
+          "public.file-url"
+        ],
+        "service": "Start new DS project with Mona"
+      }
+    }
+  },
+  "package": {
+    "file": "Mona-0.1.0-macOS-arm64-local.pkg",
+    "sha256": "06c06042a7da48e2edf24b78cf4d75f3d53eaf6c470fbe29bcee81572b2e9eb0",
+    "size": 161927839,
+    "identifier": "com.mona.workbench.pkg",
+    "signed": false,
+    "signature": {
+      "signed": false,
+      "ad_hoc": false,
+      "stdout": "Package \"Mona-0.1.0-macOS-arm64-local.pkg\":\n   Status: no signature"
+    },
+    "payload_files": 1040
+  },
+  "components": [
+    {
+      "path": "engine/codewhale",
+      "kind": "engine",
+      "sha256": "41e6dfd8577ad449a93346e695d178885c7de44e1e33acd24ba8bc9d20fe4d49",
+      "size": 89793568,
+      "architectures": [
+        "arm64"
+      ],
+      "min_os": "11.0",
+      "upstream_sha256": "da0229610647f1cc2dd14c4227b333a92ea276a49f5d4d79160fa19e515e590d"
+    },
+    {
+      "path": "native/mona-supervisor",
+      "kind": "native-helper",
+      "sha256": "15db348b18d6b31ab5cc236b94248db9c29d0605e06a4ecdf246d91cb3d422ce",
+      "size": 201920,
+      "architectures": [
+        "arm64"
+      ],
+      "min_os": "14.0",
+      "upstream_sha256": null
+    },
+    {
+      "path": "native/mona-pty",
+      "kind": "native-helper",
+      "sha256": "9c23d0387e4fe3de0b743385b224c37e06ba8cbb5c56af5e6b0f71faeadea68b",
+      "size": 105136,
+      "architectures": [
+        "arm64"
+      ],
+      "min_os": "14.0",
+      "upstream_sha256": null
+    },
+    {
+      "path": "docs/codewhale-capabilities-macos.json",
+      "kind": "data",
+      "sha256": "10d45d85228dbae54bd9ea3470eebea04c51d46f7921347b867c1ec7b6658a2b",
+      "size": 98447,
+      "architectures": null,
+      "min_os": null,
+      "upstream_sha256": null
+    },
+    {
+      "path": "notices/THIRD-PARTY-NOTICES.txt",
+      "kind": "notice",
+      "sha256": "706c35111d5712b6b5e118ec367ffb50ac98322fc6554e1b1df2faac7c9f685d",
+      "size": 6053,
+      "architectures": null,
+      "min_os": null,
+      "upstream_sha256": null
+    },
+    {
+      "path": "notices/LICENSE.electron.txt",
+      "kind": "notice",
+      "sha256": "5154e165bd6c2cc0cfbcd8916498c7abab0497923bafcd5cb07673fe8480087d",
+      "size": 1096,
+      "architectures": null,
+      "min_os": null,
+      "upstream_sha256": null
+    },
+    {
+      "path": "notices/LICENSE.codewhale.txt",
+      "kind": "notice",
+      "sha256": "25b5d5a7553af7604772f65aac936540d7e9f5562a9e6a8ca9d02e4f628e9d51",
+      "size": 1087,
+      "architectures": null,
+      "min_os": null,
+      "upstream_sha256": null
+    },
+    {
+      "path": "notices/LICENSE.react.txt",
+      "kind": "notice",
+      "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93",
+      "size": 1088,
+      "architectures": null,
+      "min_os": null,
+      "upstream_sha256": null
+    },
+    {
+      "path": "notices/LICENSE.react-dom.txt",
+      "kind": "notice",
+      "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93",
+      "size": 1088,
+      "architectures": null,
+      "min_os": null,
+      "upstream_sha256": null
+    },
+    {
+      "path": "notices/LICENSE.zod.txt",
+      "kind": "notice",
+      "sha256": "3f1189b28e3866e0d979968d466b78f813f76827cfdca1fbb124cc0a5c8841f8",
+      "size": 1072,
+      "architectures": null,
+      "min_os": null,
+      "upstream_sha256": null
+    },
+    {
+      "path": "notices/LICENSES.chromium.html",
+      "kind": "notice",
+      "sha256": "214152f78cc0b611f63ff8faefcc6670c4605ffbff05f092bb671e6df80ce741",
+      "size": 5598206,
+      "architectures": null,
+      "min_os": null,
+      "upstream_sha256": null
+    }
+  ],
+  "licenses": [
+    {
+      "name": "Electron",
+      "version": "45.3.0",
+      "license": "MIT",
+      "sha256": "5154e165bd6c2cc0cfbcd8916498c7abab0497923bafcd5cb07673fe8480087d"
+    },
+    {
+      "name": "Chromium and third-party notices (Electron distribution)",
+      "version": "45.3.0",
+      "license": "see LICENSES.chromium.html",
+      "sha256": "214152f78cc0b611f63ff8faefcc6670c4605ffbff05f092bb671e6df80ce741"
+    },
+    {
+      "name": "Codewhale",
+      "version": "0.10.2",
+      "license": "MIT",
+      "sha256": "25b5d5a7553af7604772f65aac936540d7e9f5562a9e6a8ca9d02e4f628e9d51"
+    },
+    {
+      "name": "React",
+      "version": "19.3.1",
+      "license": "MIT",
+      "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93"
+    },
+    {
+      "name": "React DOM",
+      "version": "19.3.1",
+      "license": "MIT",
+      "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93"
+    },
+    {
+      "name": "zod",
+      "version": "4.6.7",
+      "license": "MIT",
+      "sha256": "3f1189b28e3866e0d979968d466b78f813f76827cfdca1fbb124cc0a5c8841f8"
+    }
+  ],
+  "checks": {
+    "architecture": {
+      "ok": true,
+      "app_mach_o": 17,
+      "service_mach_o": 1,
+      "min_os_by_component": [
+        {
+          "path": "Mona.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Electron Framework",
+          "min_os": "13.0"
+        },
+        {
+          "path": "Mona.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Helpers/app_shim_loader",
+          "min_os": "13.0"
+        },
+        {
+          "path": "Mona.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Helpers/chrome_crashpad_handler",
+          "min_os": "13.0"
+        },
+        {
+          "path": "Mona.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Libraries/libffmpeg.dylib",
+          "min_os": "13.0"
+        },
+        {
+          "path": "Mona.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Libraries/libvk_swiftshader.dylib",
+          "min_os": "13.0"
+        },
+        {
+          "path": "Mona.app/Contents/Frameworks/Mantle.framework/Versions/A/Mantle",
+          "min_os": "13.0"
+        },
+        {
+          "path": "Mona.app/Contents/Frameworks/Mona Helper (GPU).app/Contents/MacOS/Mona Helper (GPU)",
+          "min_os": "13.0"
+        },
+        {
+          "path": "Mona.app/Contents/Frameworks/Mona Helper (Plugin).app/Contents/MacOS/Mona Helper (Plugin)",
+          "min_os": "13.0"
+        },
+        {
+          "path": "Mona.app/Contents/Frameworks/Mona Helper (Renderer).app/Contents/MacOS/Mona Helper (Renderer)",
+          "min_os": "13.0"
+        },
+        {
+          "path": "Mona.app/Contents/Frameworks/Mona Helper.app/Contents/MacOS/Mona Helper",
+          "min_os": "13.0"
+        },
+        {
+          "path": "Mona.app/Contents/Frameworks/ReactiveObjC.framework/Versions/A/ReactiveObjC",
+          "min_os": "13.0"
+        },
+        {
+          "path": "Mona.app/Contents/Frameworks/Squirrel.framework/Versions/A/Resources/ShipIt",
+          "min_os": "13.0"
+        },
+        {
+          "path": "Mona.app/Contents/Frameworks/Squirrel.framework/Versions/A/Squirrel",
+          "min_os": "13.0"
+        },
+        {
+          "path": "Mona.app/Contents/MacOS/Mona",
+          "min_os": "13.0"
+        },
+        {
+          "path": "Mona.app/Contents/Resources/engine/codewhale",
+          "min_os": "11.0"
+        },
+        {
+          "path": "Mona.app/Contents/Resources/native/mona-pty",
+          "min_os": "14.0"
+        },
+        {
+          "path": "Mona.app/Contents/Resources/native/mona-supervisor",
+          "min_os": "14.0"
+        }
+      ]
+    },
+    "dependencies": {
+      "ok": true,
+      "scanned": 5,
+      "problems": []
+    },
+    "secrets": {
+      "ok": true,
+      "scanned_text_files": 401,
+      "hits": [],
+      "forbidden_names": []
+    },
+    "native_modules": {
+      "ok": true,
+      "found": []
+    },
+    "asar": {
+      "ok": true,
+      "note": "no ASAR archive; app code and executables remain in the signed payload"
+    },
+    "service_signature": {
+      "authority": null,
+      "team_identifier": "not set",
+      "ad_hoc": true,
+      "verified": true
+    },
+    "service_descriptor": {
+      "ok": true,
+      "status": 0,
+      "descriptor": {
+        "app_bundle_identifier": "com.mona.workbench",
+        "bundle_identifier": "com.mona.workbench.service",
+        "bundle_path": "<repo>/packaging/macos/out/stage/payload/Library/Services/Mona.service",
+        "executable": "<repo>/packaging/macos/out/stage/payload/Library/Services/Mona.service/Contents/MacOS/MonaService",
+        "message": "startProject",
+        "schema_version": 1,
+        "send_file_types": [
+          "public.folder"
+        ],
+        "send_types": [
+          "public.file-url"
+        ],
+        "service": "Start new DS project with Mona"
+      }
+    },
+    "package_signature": {
+      "signed": false,
+      "ad_hoc": false,
+      "stdout": "Package \"Mona-0.1.0-macOS-arm64-local.pkg\":\n   Status: no signature"
+    },
+    "payload_files": 1040,
+    "package_expand": {
+      "ok": true,
+      "files": 644,
+      "links": 14,
+      "mismatches": [],
+      "extras": [],
+      "link_mismatches": []
+    },
+    "install_rehearsal": {
+      "ok": true,
+      "idempotent_reinstall": true,
+      "receipt": {
+        "schema_version": 1,
+        "product": "Mona",
+        "version": "0.1.0",
+        "channel": "local",
+        "package": "Mona-0.1.0-macOS-arm64-local.pkg",
+        "manifest_sha256": "61592ef13b2fd0e5048fdc7aa4fdf8a326b7c143b7706d76afea2511621f2f47",
+        "installed_at": "2026-11-12T18:21:15Z",
+        "app_path": "/Applications/Mona.app",
+        "service_path": "/Library/Services/Mona.service",
+        "receipt_path": "/Library/Application Support/Mona/install-receipt.json"
+      }
+    },
+    "package_smoke": {
+      "ok": true,
+      "report": {
+        "schema_version": 1,
+        "ok": true,
+        "packaged": true,
+        "app_path": "/Applications/Mona.app/Contents/Resources/app",
+        "executable": "/Applications/Mona.app/Contents/MacOS/Mona",
+        "arch": "arm64",
+        "version": "0.1.0",
+        "build_channel": "local",
+        "install_path": "/Applications/Mona.app",
+        "installed_at_standard_location": true,
+        "service": {
+          "install_path": "/Library/Services/Mona.service",
+          "installed": true,
+          "enabled": null
+        },
+        "state_directory": "/private<tmp>/Library/Application Support/Mona/state",
+        "runtime_started": false,
+        "inference_calls": 0,
+        "components": [
+          {
+            "path": "engine/codewhale",
+            "sha256_ok": true
+          },
+          {
+            "path": "native/mona-supervisor",
+            "sha256_ok": true
+          },
+          {
+            "path": "native/mona-pty",
+            "sha256_ok": true
+          },
+          {
+            "path": "docs/codewhale-capabilities-macos.json",
+            "sha256_ok": true
+          },
+          {
+            "path": "notices/THIRD-PARTY-NOTICES.txt",
+            "sha256_ok": true
+          },
+          {
+            "path": "notices/LICENSE.electron.txt",
+            "sha256_ok": true
+          },
+          {
+            "path": "notices/LICENSE.codewhale.txt",
+            "sha256_ok": true
+          },
+          {
+            "path": "notices/LICENSE.react.txt",
+            "sha256_ok": true
+          },
+          {
+            "path": "notices/LICENSE.react-dom.txt",
+            "sha256_ok": true
+          },
+          {
+            "path": "notices/LICENSE.zod.txt",
+            "sha256_ok": true
+          },
+          {
+            "path": "notices/LICENSES.chromium.html",
+            "sha256_ok": true
+          }
+        ],
+        "checks": [
+          {
+            "name": "packaged",
+            "ok": true,
+            "detail": "running from an app bundle"
+          },
+          {
+            "name": "arm64 executable",
+            "ok": true,
+            "detail": "/Applications/Mona.app/Contents/MacOS/Mona: Mach-O 64-bit executable arm64"
+          },
+          {
+            "name": "bundled engine version",
+            "ok": true,
+            "detail": "codewhale 0.10.2 (ff466b2ed0bf) via bundled"
+          },
+          {
+            "name": "bundled engine location",
+            "ok": true,
+            "detail": "/Applications/Mona.app/Contents/Resources/engine/codewhale"
+          },
+          {
+            "name": "native supervisor",
+            "ok": true,
+            "detail": "/Applications/Mona.app/Contents/Resources/native/mona-supervisor (runs)"
+          },
+          {
+            "name": "native pty",
+            "ok": true,
+            "detail": "/Applications/Mona.app/Contents/Resources/native/mona-pty (spawned a shell)"
+          },
+          {
+            "name": "capability inventory",
+            "ok": true,
+            "detail": "/Applications/Mona.app/Contents/Resources/docs/codewhale-capabilities-macos.json"
+          },
+          {
+            "name": "component manifest",
+            "ok": true,
+            "detail": "/Applications/Mona.app/Contents/Resources/component-manifest.json"
+          },
+          {
+            "name": "component digests",
+            "ok": true,
+            "detail": "11/11 hashes match the manifest"
+          },
+          {
+            "name": "install location",
+            "ok": true,
+            "detail": "/Applications/Mona.app"
+          },
+          {
+            "name": "state directory",
+            "ok": true,
+            "detail": "/private<tmp>/Library/Application Support/Mona/state"
+          }
+        ],
+        "generated_at": "2026-11-12T18:21:21.957Z"
+      },
+      "stderr": ""
+    },
+    "gui_launch": {
+      "ok": true,
+      "open_status": 0,
+      "open_stderr": "",
+      "main_pid": 71150,
+      "renderer_pid": 71158,
+      "screenshot": "gui-launch.png",
+      "screenshot_error": null,
+      "home": "<tmp>",
+      "state_initialized": true,
+      "launched_and_exited": true,
+      "leftover_helpers": []
+    },
+    "installed_copy": {
+      "path": "/Applications/Mona.app",
+      "installed_by": "ditto (local milestone)",
+      "replaced": false
+    }
+  },
+  "install": {
+    "authorized_install_performed": false,
+    "reason": "installing a flat package requires administrator authorization; the local milestone verifies the payload, installer scripts, and an installed-copy launch instead",
+    "command": "sudo installer -pkg Mona-0.1.0-macOS-arm64-local.pkg -target /",
+    "rehearsal": {
+      "ok": true,
+      "idempotent_reinstall": true,
+      "receipt": {
+        "schema_version": 1,
+        "product": "Mona",
+        "version": "0.1.0",
+        "channel": "local",
+        "package": "Mona-0.1.0-macOS-arm64-local.pkg",
+        "manifest_sha256": "61592ef13b2fd0e5048fdc7aa4fdf8a326b7c143b7706d76afea2511621f2f47",
+        "installed_at": "2026-11-12T18:21:15Z",
+        "app_path": "/Applications/Mona.app",
+        "service_path": "/Library/Services/Mona.service",
+        "receipt_path": "/Library/Application Support/Mona/install-receipt.json"
+      }
+    },
+    "expand": {
+      "ok": true,
+      "files": 644,
+      "links": 14,
+      "mismatches": [],
+      "extras": [],
+      "link_mismatches": []
+    },
+    "package_smoke": {
+      "ok": true,
+      "status": 0,
+      "report": {
+        "schema_version": 1,
+        "ok": true,
+        "packaged": true,
+        "app_path": "/Applications/Mona.app/Contents/Resources/app",
+        "executable": "/Applications/Mona.app/Contents/MacOS/Mona",
+        "arch": "arm64",
+        "version": "0.1.0",
+        "build_channel": "local",
+        "install_path": "/Applications/Mona.app",
+        "installed_at_standard_location": true,
+        "service": {
+          "install_path": "/Library/Services/Mona.service",
+          "installed": true,
+          "enabled": null
+        },
+        "state_directory": "/private<tmp>/Library/Application Support/Mona/state",
+        "runtime_started": false,
+        "inference_calls": 0,
+        "components": [
+          {
+            "path": "engine/codewhale",
+            "sha256_ok": true
+          },
+          {
+            "path": "native/mona-supervisor",
+            "sha256_ok": true
+          },
+          {
+            "path": "native/mona-pty",
+            "sha256_ok": true
+          },
+          {
+            "path": "docs/codewhale-capabilities-macos.json",
+            "sha256_ok": true
+          },
+          {
+            "path": "notices/THIRD-PARTY-NOTICES.txt",
+            "sha256_ok": true
+          },
+          {
+            "path": "notices/LICENSE.electron.txt",
+            "sha256_ok": true
+          },
+          {
+            "path": "notices/LICENSE.codewhale.txt",
+            "sha256_ok": true
+          },
+          {
+            "path": "notices/LICENSE.react.txt",
+            "sha256_ok": true
+          },
+          {
+            "path": "notices/LICENSE.react-dom.txt",
+            "sha256_ok": true
+          },
+          {
+            "path": "notices/LICENSE.zod.txt",
+            "sha256_ok": true
+          },
+          {
+            "path": "notices/LICENSES.chromium.html",
+            "sha256_ok": true
+          }
+        ],
+        "checks": [
+          {
+            "name": "packaged",
+            "ok": true,
+            "detail": "running from an app bundle"
+          },
+          {
+            "name": "arm64 executable",
+            "ok": true,
+            "detail": "/Applications/Mona.app/Contents/MacOS/Mona: Mach-O 64-bit executable arm64"
+          },
+          {
+            "name": "bundled engine version",
+            "ok": true,
+            "detail": "codewhale 0.10.2 (ff466b2ed0bf) via bundled"
+          },
+          {
+            "name": "bundled engine location",
+            "ok": true,
+            "detail": "/Applications/Mona.app/Contents/Resources/engine/codewhale"
+          },
+          {
+            "name": "native supervisor",
+            "ok": true,
+            "detail": "/Applications/Mona.app/Contents/Resources/native/mona-supervisor (runs)"
+          },
+          {
+            "name": "native pty",
+            "ok": true,
+            "detail": "/Applications/Mona.app/Contents/Resources/native/mona-pty (spawned a shell)"
+          },
+          {
+            "name": "capability inventory",
+            "ok": true,
+            "detail": "/Applications/Mona.app/Contents/Resources/docs/codewhale-capabilities-macos.json"
+          },
+          {
+            "name": "component manifest",
+            "ok": true,
+            "detail": "/Applications/Mona.app/Contents/Resources/component-manifest.json"
+          },
+          {
+            "name": "component digests",
+            "ok": true,
+            "detail": "11/11 hashes match the manifest"
+          },
+          {
+            "name": "install location",
+            "ok": true,
+            "detail": "/Applications/Mona.app"
+          },
+          {
+            "name": "state directory",
+            "ok": true,
+            "detail": "/private<tmp>/Library/Application Support/Mona/state"
+          }
+        ],
+        "generated_at": "2026-11-12T18:21:21.957Z"
+      }
+    },
+    "gui_launch": {
+      "ok": true,
+      "open_status": 0,
+      "open_stderr": "",
+      "main_pid": 71150,
+      "renderer_pid": 71158,
+      "screenshot": "gui-launch.png",
+      "screenshot_error": null,
+      "home": "<tmp>",
+      "state_initialized": true,
+      "launched_and_exited": true,
+      "leftover_helpers": []
+    }
+  }
+}

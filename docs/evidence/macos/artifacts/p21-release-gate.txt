@@ -1,0 +1,8 @@
+
+> mona@0.1.0-p02 mac:package:release
+> node packaging/macos/build.mjs --mode release
+
+[p21] FAILED: release mode requires Developer ID Application and Developer ID Installer identities; P22 owns signed release qualification. Use --mode local for an ad-hoc development package.
+{
+  "identities_found": 0
+}

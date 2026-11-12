@@ -1,10 +1,11 @@
 import { spawn } from "node:child_process";
-import { mkdtempSync, realpathSync, writeFileSync } from "node:fs";
+import { chmodSync, mkdirSync, mkdtempSync, realpathSync, writeFileSync } from "node:fs";
 import { createServer, type Server } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import {
+  bundledEnginePath,
   findFreePort,
   startOwnedRuntime,
   verifyListenerOwnership,
@@ -213,4 +214,17 @@ describe("runtime startup states are actionable", () => {
     },
     20_000,
   );
+});
+
+describe("bundled engine resolution", () => {
+  it("finds the engine inside an app's resources only when it is executable", () => {
+    const resources = mkdtempSync(join(tmpdir(), "mona-resources-"));
+    mkdirSync(join(resources, "engine"));
+    const engine = join(resources, "engine/codewhale");
+    writeFileSync(engine, "#!/bin/sh\n", "utf8");
+    chmodSync(engine, 0o755);
+    expect(bundledEnginePath(resources)).toBe(engine);
+    expect(bundledEnginePath(join(resources, "missing"))).toBeNull();
+    expect(bundledEnginePath(undefined)).toBeNull();
+  });
 });

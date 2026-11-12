@@ -1,0 +1,2 @@
+06c06042a7da48e2edf24b78cf4d75f3d53eaf6c470fbe29bcee81572b2e9eb0  Mona-0.1.0-macOS-arm64-local.pkg
+ce4ff5df307c768860214453afd0f8da7f081b8a148072954320ff85e6295af7  Mona.app (content)

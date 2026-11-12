@@ -1,0 +1,72 @@
+#!/bin/sh
+# Mona postinstall. Runs as root from Apple Installer. It verifies the installed
+# bundles, registers the Finder Service with LaunchServices, and writes a
+# package receipt. It never launches Mona, executes project code, fetches
+# anything, or modifies TCC/privacy settings.
+set -eu
+
+version="@@VERSION@@"
+channel="@@CHANNEL@@"
+package_file="@@PACKAGE_FILE@@"
+manifest_sha256="@@MANIFEST_SHA256@@"
+
+ROOT=""
+if [ -n "${MONA_INSTALL_ROOT:-}" ]; then
+  case "$MONA_INSTALL_ROOT" in
+    /*) ROOT="$MONA_INSTALL_ROOT" ;;
+    *)
+      echo "Mona: invalid MONA_INSTALL_ROOT (must be absolute)" >&2
+      exit 1
+      ;;
+  esac
+  [ "$ROOT" = "/" ] && ROOT=""
+fi
+
+APP="$ROOT/Applications/Mona.app"
+SERVICE="$ROOT/Library/Services/Mona.service"
+RECEIPT_DIR="$ROOT/Library/Application Support/Mona"
+RECEIPT="$RECEIPT_DIR/install-receipt.json"
+
+identifier() {
+  /usr/bin/plutil -extract CFBundleIdentifier raw "$1/Contents/Info.plist" 2>/dev/null || true
+}
+
+if [ "$(identifier "$APP")" != "com.mona.workbench" ]; then
+  echo "Mona: the installed app is missing or has the wrong identifier." >&2
+  exit 1
+fi
+if [ "$(identifier "$SERVICE")" != "com.mona.workbench.service" ]; then
+  echo "Mona: the Finder Service is missing or has the wrong identifier." >&2
+  exit 1
+fi
+
+# Registration only for a real system install; a rehearsal root must not create
+# LaunchServices records pointing into a temporary directory.
+if [ -z "$ROOT" ]; then
+  lsregister="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister"
+  if [ -x "$lsregister" ]; then
+    "$lsregister" -f "$SERVICE" >/dev/null 2>&1 || true
+    "$lsregister" -f "$APP" >/dev/null 2>&1 || true
+  fi
+fi
+
+/bin/mkdir -p "$RECEIPT_DIR"
+installed_at="$(/bin/date -u +%Y-%m-%dT%H:%M:%SZ)"
+/bin/cat > "$RECEIPT" <<EOF
+{
+  "schema_version": 1,
+  "product": "Mona",
+  "version": "$version",
+  "channel": "$channel",
+  "package": "$package_file",
+  "manifest_sha256": "$manifest_sha256",
+  "installed_at": "$installed_at",
+  "app_path": "/Applications/Mona.app",
+  "service_path": "/Library/Services/Mona.service",
+  "receipt_path": "/Library/Application Support/Mona/install-receipt.json"
+}
+EOF
+/bin/chmod 0644 "$RECEIPT"
+
+echo "Mona $version installed. Open Mona from Applications; the first launch creates this user's own state."
+exit 0

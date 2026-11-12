@@ -28,7 +28,8 @@ const ROOT = resolve(new URL("..", import.meta.url).pathname);
 const HOME = process.env.HOME ?? tmpdir();
 const LSR =
   "/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister";
-const SERVICE_SOURCE = join(ROOT, "native/macos-services/build/Mona.service");
+const SERVICE_SOURCE =
+  process.env.MONA_SERVICE_SOURCE ?? join(ROOT, "native/macos-services/build/Mona.service");
 const SERVICE_SERVICE_RECEIPT = join(
   HOME,
   "Library/Application Support/Mona/services/last-handoff.json",
@@ -37,7 +38,9 @@ const SERVICE_TRACE = join(HOME, "Library/Application Support/Mona/services/serv
 const PROBE_RECEIPT = join(HOME, "Library/Application Support/Mona/services/probe-received.json");
 const INSTALLED = join(HOME, "Library/Services/Mona.service");
 const MENU_TITLE = "Start new DS project with Mona";
-const EVIDENCE = join(ROOT, "docs/evidence/macos/artifacts/p09-service-smoke.json");
+const EVIDENCE =
+  process.env.MONA_SERVICE_EVIDENCE ??
+  join(ROOT, "docs/evidence/macos/artifacts/p09-service-smoke.json");
 const KEEP = process.argv.includes("--keep-installed");
 
 const report = {

@@ -2,7 +2,13 @@ import { execFileSync } from "node:child_process";
 import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { GitError, GitService, buildGitEnvironment, validateGitPath } from "../src/main/work/git";
+import {
+  GitError,
+  GitService,
+  buildGitEnvironment,
+  resolveGit,
+  validateGitPath,
+} from "../src/main/work/git";
 import { tempDir } from "./helpers/state";
 
 function git(cwd: string, args: string[]): string {
@@ -233,5 +239,44 @@ describe("GitService diffs", () => {
     expect(staged.diff).toContain("+indexed");
     const unstaged = await service.diff(cwd, "README.md", { staged: false });
     expect(unstaged.diff).toContain("+working");
+  });
+});
+
+describe("packaged Git resolution", () => {
+  it("does not execute Apple's developer-tools stub on a clean Mac", () => {
+    const resolved = resolveGit({
+      packaged: true,
+      exists: (path) => path === "/usr/bin/git",
+    });
+    expect(resolved.path).toBeNull();
+    expect(resolved.reason).toContain("Command Line Tools");
+  });
+
+  it("uses a separately installed Git instead of Apple's stub", () => {
+    const resolved = resolveGit({
+      packaged: true,
+      exists: (path) => path === "/usr/bin/git" || path === "/opt/homebrew/bin/git",
+    });
+    expect(resolved.path).toBe("/opt/homebrew/bin/git");
+    expect(resolved.reason).toBeNull();
+  });
+
+  it("uses the system Git when the toolchain is actually present", () => {
+    const resolved = resolveGit({
+      packaged: true,
+      exists: (path) =>
+        path === "/usr/bin/git" || path === "/Library/Developer/CommandLineTools/usr/bin/git",
+    });
+    expect(resolved.path).toBe("/usr/bin/git");
+    expect(resolved.reason).toBeNull();
+  });
+
+  it("keeps development behavior and reports a missing explicit path", () => {
+    expect(resolveGit({ packaged: false, exists: (path) => path === "/usr/bin/git" }).path).toBe(
+      "/usr/bin/git",
+    );
+    const missing = resolveGit({ explicit: "/nonexistent/git" });
+    expect(missing.path).toBeNull();
+    expect(missing.reason).toContain("/nonexistent/git");
   });
 });

@@ -11,7 +11,7 @@ import {
 } from "node:fs";
 import { randomBytes } from "node:crypto";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { createMainWindow } from "./window";
 import { hardenSession } from "./security";
 import { installApplicationMenu, type ApplicationMenuHandle } from "./menu";
@@ -61,6 +61,8 @@ import { ProjectService, runtimeStatusView } from "./projects/service";
 import { OpenCoordinator } from "./open/coordinator";
 import { parseLaunchArguments } from "./open/folder-request";
 import { inspectServiceStatus, refreshServiceRegistration } from "./open/service-status";
+import { runPackageSmoke } from "./package-smoke";
+import { inspectInstallLocation } from "./install-location";
 import type { RuntimeStatus } from "./supervisor/runtime-supervisor";
 import type { ProjectId as StudioProjectId } from "../shared/contracts/ids";
 import type {
@@ -81,6 +83,12 @@ const IS_DESIGN_SHOTS = process.argv.includes("--design-shots");
 const IS_SHELL_SMOKE = process.argv.includes("--shell-smoke");
 const IS_STUDIO_SMOKE = process.argv.includes("--studio-smoke");
 const IS_OPEN_SMOKE = process.argv.includes("--open-smoke");
+const IS_PACKAGE_SMOKE = process.argv.includes("--package-smoke");
+const PACKAGE_SMOKE_OUT = (() => {
+  const inline = process.argv.find((argument) => argument.startsWith("--package-smoke-out="));
+  if (inline) return inline.slice("--package-smoke-out=".length);
+  return process.env.MONA_PACKAGE_SMOKE_OUT ?? null;
+})();
 
 let mainWindow: BrowserWindow | null = null;
 let lifecycle: DesktopLifecycle | null = null;
@@ -3738,6 +3746,25 @@ if (!gotLock) {
       },
       chooseFolder: chooseProjectFolder,
     });
+    if (IS_PACKAGE_SMOKE) {
+      if (!PACKAGE_SMOKE_OUT) {
+        process.stderr.write("--package-smoke requires --package-smoke-out=<file>\n");
+        app.exit(2);
+        return;
+      }
+      try {
+        const report = runPackageSmoke({
+          reportPath: PACKAGE_SMOKE_OUT,
+          stateDirectory: resolveAppPaths().state,
+        });
+        process.stdout.write(JSON.stringify(report, null, 2) + "\n");
+        app.exit(report.ok ? 0 : 1);
+      } catch (error) {
+        process.stderr.write(`package smoke failed: ${String(error)}\n`);
+        app.exit(1);
+      }
+      return;
+    }
     if (IS_LIFECYCLE_SMOKE) {
       // The smoke builds its own temporary supervisor; recover nothing from the
       // real user store so the evidence run cannot disturb product state.
@@ -3745,6 +3772,30 @@ if (!gotLock) {
       const readyOut = process.env.MONA_LIFECYCLE_SMOKE_READY;
       if (readyOut) writeFileSync(readyOut, new Date().toISOString() + "\n", "utf8");
       return;
+    }
+    // A packaged copy outside /Applications is not silently treated as a second
+    // install. If the installed copy exists, the user chooses which one runs.
+    const installLocation = inspectInstallLocation({
+      bundlePath: resolve(app.getAppPath(), "../../.."),
+      packaged: app.isPackaged,
+    });
+    if (installLocation.duplicate && !IS_SMOKE && !IS_SHELL_SMOKE && !IS_STUDIO_SMOKE) {
+      const choice = await dialog.showMessageBox({
+        type: "warning",
+        title: "Mona is installed in two places",
+        message: "This Mona copy is not the installed application.",
+        detail:
+          `Running: ${installLocation.bundlePath}\n` +
+          `Installed: ${installLocation.standardPath}\n\n` +
+          "Open the installed copy to keep projects, settings, and updates in one place.",
+        buttons: ["Continue with this copy", "Quit"],
+        defaultId: 1,
+        cancelId: 1,
+      });
+      if (choice.response === 1) {
+        app.quit();
+        return;
+      }
     }
     // Reconcile runtime ownership left by a previous run before any new work.
     await supervisor?.recover().catch(() => undefined);

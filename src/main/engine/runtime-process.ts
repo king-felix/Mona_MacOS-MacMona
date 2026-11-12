@@ -48,12 +48,13 @@ import { WireRuntimeInfo } from "./wire";
 
 const NATIVE_BINARY = "/opt/homebrew/lib/node_modules/codewhale/bin/downloads/codewhale";
 const WRAPPER_BINARY = "/opt/homebrew/bin/codewhale";
+const BUNDLED_RELATIVE = "engine/codewhale";
 
 export interface ResolvedBinary {
   path: string;
   realPath: string;
   sha256: string;
-  source: "env" | "installed_native";
+  source: "env" | "bundled" | "installed_native";
 }
 
 export interface OwnedRuntime {
@@ -70,14 +71,32 @@ export interface OwnedRuntime {
 const registry = new Map<number, OwnedRuntime>();
 
 /**
+ * The engine carried inside a packaged Mona. Only an installed bundle has a
+ * resources directory; a development checkout falls through to the pinned
+ * host installation, so `npm start` keeps working without packaging.
+ */
+export function bundledEnginePath(resourcesPath = process.resourcesPath): string | null {
+  if (!resourcesPath) return null;
+  const candidate = join(resourcesPath, BUNDLED_RELATIVE);
+  return isExecutable(candidate) ? candidate : null;
+}
+
+/**
  * Resolve the self-contained native binary. The npm wrapper is deliberately not
  * accepted for owned runtimes: it adds a Node process layer and moves the
  * listener into a grandchild, which weakens identity checks. The path is
  * resolved to its real location and hashed so the record names the exact bytes.
+ *
+ * Order: an explicit CODEWHALE_BIN adoption, then the engine packaged inside
+ * Mona, then the pinned host installation used by development builds. The
+ * bundle is preferred over the host so a recipient never runs a different
+ * engine merely because Homebrew happens to be present.
  */
 export function resolveEngineBinary(): ResolvedBinary {
   const fromEnv = process.env.CODEWHALE_BIN;
   if (fromEnv) return describeBinary(fromEnv, "env");
+  const bundled = bundledEnginePath();
+  if (bundled) return describeBinary(bundled, "bundled");
   if (isExecutable(NATIVE_BINARY)) return describeBinary(NATIVE_BINARY, "installed_native");
   if (existsSync(WRAPPER_BINARY)) {
     throw new RuntimeLifecycleError(
@@ -89,9 +108,15 @@ export function resolveEngineBinary(): ResolvedBinary {
   }
   throw new RuntimeLifecycleError(
     "MISSING_EXECUTABLE",
-    "no Codewhale binary found",
-    "install Codewhale or set CODEWHALE_BIN",
-    { expected_native: NATIVE_BINARY },
+    "no Codewhale engine found",
+    process.resourcesPath
+      ? "reinstall Mona; the engine packaged inside the app is missing"
+      : "install Codewhale or set CODEWHALE_BIN",
+    {
+      expected_native: process.resourcesPath
+        ? join(process.resourcesPath, BUNDLED_RELATIVE)
+        : NATIVE_BINARY,
+    },
   );
 }
 

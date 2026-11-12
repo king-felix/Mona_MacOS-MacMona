@@ -14,7 +14,7 @@
         "sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8"
       }
     ],
-    "indexed_utc": "2026-11-12T17:04:27.843Z"
+    "indexed_utc": "2026-11-12T18:17:25.242Z"
   },
   "prompts": [
     {
@@ -533,10 +533,23 @@
         "P09",
         "P21"
       ],
-      "status": "pending",
-      "acceptance": "pending",
-      "evidence": [],
-      "notes": ""
+      "status": "satisfied",
+      "acceptance": "accepted",
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P21-package.md",
+          "note": "packaged Finder Service installed at /Library/Services and 21/21 native checks"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p21-service-smoke.json",
+          "note": "21/21 discovery, exact-folder delivery, refusals and no-engine proof for the packaged Service"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p21-system-install.json",
+          "note": "LaunchServices registration after the real package install"
+        }
+      ],
+      "notes": "P09 built and proved the Service, Dock/folder drop, Cmd-O, single-instance dispatch, safe file URLs, and idempotent registration. P21 ships the same Service in the installer at /Library/Services, registers it through LaunchServices, and the packaged bundle passed 21/21 native checks. Interactive multi-selection alert/VoiceOver remain P24/P26 QA."
     },
     {
       "id": "MONA-005",
@@ -1521,10 +1534,31 @@
         "P23",
         "P27"
       ],
-      "status": "pending",
+      "status": "partial",
       "acceptance": "pending",
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P21-package.md",
+          "note": "P21 package result, payload, scans, install and service proof"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p21-package-manifest.json",
+          "note": "components, hashes, architecture/min-OS, dependency and secret scans, package digest"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p21-system-install.json",
+          "note": "real installer receipt, signatures, service registration, external-config check"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p21-package-smoke.json",
+          "note": "installed app acceptance sample: component digests, bundled engine, helpers, first-launch state"
+        },
+        {
+          "path": "docs/decisions/ADR-015-packaging-and-payload.md",
+          "note": "payload ownership, local/release split, installer scripts, Git guard, determinism limits"
+        }
+      ],
+      "notes": "P21 builds and installs the self-contained arm64 app and offline .pkg with the native Service, component/BOM manifest, notices, ownership receipt, non-relocatable idempotent scripts, and a real Installer receipt. The artifact is ad-hoc and visibly local; Developer ID signing, notarization/stapling, updates, and uninstall remain P22/P23/P27."
     },
     {
       "id": "MONA-028",
@@ -1645,9 +1679,29 @@
         {
           "path": "docs/evidence/macos/artifacts/host-inventory.txt",
           "note": "raw host output"
+        },
+        {
+          "path": "docs/evidence/macos/P21-package.md",
+          "note": "P21 package result, payload, scans, install and service proof"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p21-package-manifest.json",
+          "note": "components, hashes, architecture/min-OS, dependency and secret scans, package digest"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p21-system-install.json",
+          "note": "real installer receipt, signatures, service registration, external-config check"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p21-package-smoke.json",
+          "note": "installed app acceptance sample: component digests, bundled engine, helpers, first-launch state"
+        },
+        {
+          "path": "docs/decisions/ADR-015-packaging-and-payload.md",
+          "note": "payload ownership, local/release split, installer scripts, Git guard, determinism limits"
         }
       ],
-      "notes": "P00: Apple M3 native arm64 host verified (proc_translated=0, no Rosetta dependency), CLT SDK 14.4 / Swift 5.10 / clang 15, engine binary thin arm64. Minimum supported macOS matrix and Electron coupling are chosen at P02/P21."
+      "notes": "P00 measured the arm64 host and pinned engine. P21 chooses macOS 14.0 as the product floor (native helpers target arm64-apple-macos14.0; Electron 45.3.0 is 13.0, engine 0.10.2 is 11.0), verifies every shipped Mach-O is arm64, records Electron ABI 150, and installs/launches the artifact. The 14.0 floor and other OS versions remain P26’s tested matrix."
     },
     {
       "id": "MAC-002",
@@ -1747,10 +1801,31 @@
         "P21",
         "P26"
       ],
-      "status": "pending",
+      "status": "partial",
       "acceptance": "pending",
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P21-package.md",
+          "note": "P21 package result, payload, scans, install and service proof"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p21-package-manifest.json",
+          "note": "components, hashes, architecture/min-OS, dependency and secret scans, package digest"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p21-system-install.json",
+          "note": "real installer receipt, signatures, service registration, external-config check"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p21-package-smoke.json",
+          "note": "installed app acceptance sample: component digests, bundled engine, helpers, first-launch state"
+        },
+        {
+          "path": "docs/decisions/ADR-015-packaging-and-payload.md",
+          "note": "payload ownership, local/release split, installer scripts, Git guard, determinism limits"
+        }
+      ],
+      "notes": "P21 produces a real offline package (154.4 MiB) with a runtime component manifest, architecture/dependency/secret gates, non-relocatable app/service, ownership and install receipts, an installed-app acceptance sample, and a packaged-Service proof. Open for P26: Git on a clean recipient needs Command Line Tools or another Git (Mona refuses to execute Apple’s stub and reports the feature unavailable), and the declared 14.0 floor is untested on a 14.x host."
     },
     {
       "id": "MAC-005",
@@ -1849,7 +1924,7 @@
     "ok": true,
     "errors": [],
     "warnings": [],
-    "validated_utc": "2026-11-12T17:04:27.843Z",
+    "validated_utc": "2026-11-12T18:17:25.242Z",
     "prompt_count": 28,
     "requirement_count": 38
   }
