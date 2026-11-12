@@ -1,0 +1,24 @@
+# Adversarial probes against a disposable copy
+
+## 1. Specification hash drift is caught (acceptance: specs hashed)
+ok: False
+errors: ['state.spec_sha256 does not match the current specification file (run: monabuild requirements sync)', 'registry spec hash is stale; run `requirements sync`']
+
+## 2. Registry is regenerable after drift, preserving requirement status
+MONA-001 status preserved: partial
+
+## 3. Concurrent writer is refused by the single-writer lock
+{
+  "ok": false,
+  "error": "state is locked by pid 90791 (0s old): /private/tmp/mona-adv.x9FK/.mona/build-macos/state.json.lock",
+  "validation": null
+}
+exit=1
+
+## 4. Stale lock from a dead pid is reclaimed
+removed_stale_lock: True ok: True
+
+## 5. Fourth no-progress attempt requires a decision to reopen
+refused: True | exit by code EBLOCKED
+exit=0
+reopened: True blocked: False

@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-12T00:37:02.551Z",
+  "generated_utc": "2026-11-12T00:38:24.236Z",
   "git": {
     "available": true,
-    "commit": "bf552a9477280ad45a5a2c22bdbcbb571dc16aff",
+    "commit": "f02916cfa6a074a43b69ab44b9b5b300629b0023",
     "dirty": true
   },
-  "digest": "1551ffb4242c4d97fec661d6c1ebec1fa5520d2e43ce6b0ef64a3eba1873099d",
+  "digest": "50044b77ad80473e327714ee3300423bc57e32f64c84065e7c504b1d3fe09d52",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,8 +15,8 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "ebb3bda80f904507ca557e11dcc549cdd30f0d1dae183f503b91e1b122b7de8a",
-      "bytes": 11963
+      "sha256": "f6a6146b9d2812dd68c58dc128c75275e5fa287006f5d4b29d9cc4016caafc97",
+      "bytes": 12150
     },
     {
       "path": "AGENTS.md",
@@ -59,6 +59,11 @@
       "bytes": 1642
     },
     {
+      "path": "docs/evidence/macos/artifacts/p00-adversarial-probes.txt",
+      "sha256": "fe7aa8b100d2cac45b019dd3f13a73d426b6aaf8bd868fedf24cf439c477072f",
+      "bytes": 845
+    },
+    {
       "path": "docs/evidence/macos/artifacts/p00-recovery-simulation.txt",
       "sha256": "5af6d35d39234dd088285ce8cc3940dfc4f55e47533e614f794a276c1d8b5372",
       "bytes": 3089
@@ -70,8 +75,8 @@
     },
     {
       "path": "docs/evidence/macos/P00-bootstrap.md",
-      "sha256": "9ca786d32444cd04fce26ad31a14f863e0a3412d986aeb31734cf2f964e054ac",
-      "bytes": 6403
+      "sha256": "9c5bea8cf6c698d78257ac684146e474634280148bebb30528ba60436c23d758",
+      "bytes": 6811
     },
     {
       "path": "docs/requirements-macos.json",

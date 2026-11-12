@@ -73,6 +73,14 @@
 - **Actual engine/platform identity recorded or explicitly unavailable** — both
   recorded with digests and captured output. ✅
 
+## Additional adversarial probes
+
+`artifacts/p00-adversarial-probes.txt` runs five probes against a disposable
+copy: specification hash drift is detected; the registry regenerates while
+preserving requirement status; a concurrent writer is refused by the
+single-writer lock; a stale lock from a dead pid is reclaimed; and a fourth
+no-progress attempt is refused until `reopen` records a decision reference.
+
 ## Test evidence
 
 ```
