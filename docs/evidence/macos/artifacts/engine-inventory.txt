@@ -2,13 +2,13 @@ $ command -v codewhale
 /opt/homebrew/bin/codewhale
 
 $ ls -l /opt/homebrew/bin/codewhale
-lrwxr-xr-x  1 <user>  admin  46 Nov  2 20:48 /opt/homebrew/bin/codewhale -> ../lib/node_modules/codewhale/bin/codewhale.js
+lrwxr-xr-x  1 <user>  staff  46 Nov  2 20:48 /opt/homebrew/bin/codewhale -> ../lib/node_modules/codewhale/bin/codewhale.js
 
 $ codewhale --version
 codewhale 0.10.2 (ff466b2ed0bf)
 
 native binary:
--rwxr-xr-x  1 <user>  admin  90300464 Nov  2 21:07 /opt/homebrew/lib/node_modules/codewhale/bin/downloads/codewhale
+-rwxr-xr-x  1 <user>  staff  90300464 Nov  2 21:07 /opt/homebrew/lib/node_modules/codewhale/bin/downloads/codewhale
 /opt/homebrew/lib/node_modules/codewhale/bin/downloads/codewhale: Mach-O 64-bit executable arm64
 
 $ shasum -a 256 <native binary>

@@ -41,7 +41,8 @@
    JSON-Schema-subset validation, atomic replacement with backup, single-writer
    lock, revision-conflict refusal, interrupted-checkpoint recovery, attempt
    ledger with code-enforced three-attempt limit, hash index, secret scan.
-   27 tests, all passing.
+   36 tests, all passing
+   (`artifacts/p00-test-run.txt`).
 8. **Discovery report and capability inventory structure** —
    `docs/discovery-macos.md`, `docs/codewhale-capabilities-macos.json`
    (structure plus 43 observed commands and 5 transports, all explicitly
@@ -87,10 +88,14 @@ no-progress attempt is refused until `reopen` records a decision reference.
 
 ```
 $ node --test tools/monabuild/test/
-ℹ tests 35
-ℹ pass 35
+ℹ tests 36
+ℹ pass 36
 ℹ fail 0
 ```
+
+Captured verbatim in `artifacts/p00-test-run.txt`. The count grew during P00 as
+review findings turned into regression tests (schema, store, attempts,
+requirements, secrets, inventory); the artifact, not this prose, is the record.
 
 `inventory.test.mjs` additionally pins the capability inventory to the captured
 help artifact (same command count, 5 transports, nothing claimed supported), so
@@ -105,10 +110,11 @@ detection.
 
 ## Validation output
 
-```
-$ node tools/monabuild/cli.mjs validate
-"ok": true, "errors": []
-```
+Captured verbatim in `artifacts/p00-validation.txt`:
+`node tools/monabuild/cli.mjs validate` → `"ok": true, "errors": []`,
+`"warnings": []`, index clean; `requirements check` → 28 prompts, 38
+requirements, no errors. The earlier drift-detection failure case is in
+`artifacts/p00-adversarial-probes.txt`.
 
 ## Limitations recorded, not hidden
 

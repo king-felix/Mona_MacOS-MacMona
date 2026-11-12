@@ -1,0 +1,47 @@
+# Captured on 2026-11-12T00:44:11Z during P00
+
+$ node tools/monabuild/cli.mjs validate
+{
+  "ok": true,
+  "errors": [],
+  "warnings": [],
+  "state": {
+    "revision": 14,
+    "current_prompt": "P01",
+    "current_prompt_status": "pending",
+    "tasks": 28
+  },
+  "requirements": {
+    "prompts": 28,
+    "requirements": 38,
+    "dependency_order_head": [
+      "P00",
+      "P01",
+      "P02",
+      "P03",
+      "P04"
+    ]
+  },
+  "attempts": [],
+  "index": {
+    "digest": "74827604bc82e19afaa0ca71f61838f63842e34310fd62940e10e6074413fccc",
+    "clean": true
+  }
+}
+
+$ node tools/monabuild/cli.mjs requirements check
+{
+  "ok": true,
+  "source_validation": {
+    "ok": true,
+    "errors": [],
+    "warnings": [],
+    "validated_utc": "2026-11-12T00:44:11.363Z",
+    "prompt_count": 28,
+    "requirement_count": 38
+  },
+  "registry_validation": {
+    "ok": true,
+    "errors": []
+  }
+}

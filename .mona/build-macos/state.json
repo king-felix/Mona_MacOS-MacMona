@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 14,
+  "revision": 15,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -29,7 +29,7 @@
       "evidence": [
         {
           "path": "docs/evidence/macos/P00-bootstrap.md",
-          "sha256": "fe9819daf6e3302f0971b6bec10771220ed54651bbcc0dfb55558c303929f687"
+          "sha256": "63d87e13969cd1fb5d2a7d711e6fc00060aed9d4782609d54bb4d2ff88baadd4"
         },
         {
           "path": "docs/evidence/macos/artifacts/p00-recovery-simulation.txt",
@@ -41,7 +41,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/engine-inventory.txt",
-          "sha256": "c1783266eaa8696923bb5849aecf3b34f1313dc0ee2476bcd65dc2058e881789"
+          "sha256": "b4083b858ef9f5f5ff3711fb8f6e6d408440e145a9e3e8fcb97fc4ae9c5f914c"
         },
         {
           "path": "docs/evidence/macos/artifacts/signing-inventory.txt",
@@ -82,6 +82,14 @@
         {
           "path": ".mona/build-macos/DECISIONS.md",
           "sha256": "5aa5c77bd5e6f2597a1241da4ba5134384b3b493ebb754329a51d9d48dd6092e"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p00-test-run.txt",
+          "sha256": "db96ce614edce6df958076ab40944d970dbfb7c4ab155419ae96b0df564754c2"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p00-validation.txt",
+          "sha256": "7860f027394f02ecfb9f22ea963ddf88fe9ab5ff82165a653c67cc7a85e13e1c"
         }
       ],
       "blocker_ids": [],
@@ -420,7 +428,7 @@
   "next_eligible_prompts": [
     "P01"
   ],
-  "last_checkpoint_utc": "2026-11-12T00:42:30.174Z",
+  "last_checkpoint_utc": "2026-11-12T00:44:24.258Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

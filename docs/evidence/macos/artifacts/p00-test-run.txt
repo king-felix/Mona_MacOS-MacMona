@@ -1,0 +1,13 @@
+# Captured on 2026-11-12T00:44:10Z during P00
+
+$ node --test tools/monabuild/test/
+ℹ tests 36
+ℹ suites 0
+ℹ pass 36
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 286.726083
+
+exit code: 0
