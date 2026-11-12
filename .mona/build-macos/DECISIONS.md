@@ -1298,3 +1298,77 @@ The supervisor and PTY helper target `arm64-apple-macos14.0`; Electron's floor i
 13.0 and the engine's 11.0. Installer declares 14.0 and the script repeats it.
 The floor has not yet been executed on a 14.x host; P26 owns the version matrix.
 ADR-015 §5.
+
+## D-077 — Two trust tiers, and only one of them is publisher authentication
+
+A **release** candidate needs an Ed25519-signed manifest over its exact bytes, a
+Developer ID Installer signature from the configured team, a matching digest and
+length, a declared notarization, and a strictly increasing version. A **local**
+package the user chose records its digest and identity but is never publisher-
+authenticated, and can never replace a release install. A digest inside an
+unauthenticated manifest proves nothing: whoever can change the manifest can
+change the digest. ADR-016 §1.
+
+## D-078 — Verify, defer, record, snapshot, hand off — in that order
+
+The order is the guarantee. Active work (a running task with its turn, a live
+submission, an engine runtime binding, or a probe failure) defers the update with
+the exact items listed; nothing is stopped or interrupted to make updating
+convenient. The intent is written to `update_intents` before any privileged step,
+the state snapshot is taken under the maintenance barrier and re-verified, and
+only a confirmed Installer handoff reports `handed_off`. A failed handoff closes
+the intent as `failed` and leaves Mona running. ADR-016 §3.
+
+## D-079 — An older app refuses a newer schema; a restore is the only way back
+
+`user_version` above this build's schema stops the store from opening; there is
+no "try anyway". A DB rollback is an explicit restore of a snapshot whose schema
+is between 1 and this build's schema and which passes integrity — it is moved
+into place, the previous file is kept, and it is migrated forward through the
+same `migrateDatabase` path (with its own snapshot and journal). The startup
+dialog distinguishes newer schema, failed migration, and unreadable database, and
+offers only a snapshot this build can open. ADR-016 §4.
+
+## D-080 — Removal is bounded by the package's own manifest
+
+`uninstall-mona.sh` ships inside the payload and plans only paths that
+`owned-paths.json` names, verifying each bundle's identifier and refusing
+anything unrecognized or missing a manifest. It never walks another user's home,
+never uses a wildcard, and deletes user state only with
+`--remove-user-data --home <one user>`. Deleting the app and deleting a user's
+projects are two decisions. ADR-016 §5.
+
+## D-081 — A rehearsal may never touch the real filesystem
+
+The first P23 uninstall rehearsal set only `MONA_UNINSTALL_ROOT`, so `preinstall`
+resolved an empty `MONA_INSTALL_ROOT` to `/` and attempted to remove
+`/Applications/Mona.app`; root ownership stopped it and the installed bundle
+still verifies. The repair is mechanism, not discipline: both root hooks are
+always set together, and `assertRehearsalRoot` fails the build for any root
+outside the process's temporary directory (`/`, the temp root itself,
+`/Applications`, prefix lookalikes, empty). `lib/uninstall.mjs` additionally
+asserts the shipped script's bounds at build time. ADR-016 §5.
+
+## D-082 — The manifest's metadata is cross-checked, not trusted
+
+`Resources/update-metadata.json` gives a candidate's version, build, channel, and
+identifiers without a 150 MiB payload expansion (a metadata-only
+`pkgutil --expand`). It is compared against `PackageInfo` and `Distribution`, and
+it is never an authentication credential: the signature and digest are.
+ADR-016 §6.
+
+## D-083 — An update check is a local read with a literal zero
+
+`UpdateCheckView.inference` is `{requests: 0}` and the screen prints it. A check
+reads one bounded HTTPS document from an explicitly configured host (or nothing
+at all in manual mode); it downloads no package, starts no process, and makes no
+model call. The only privileged step is Apple Installer's own authorization.
+ADR-016 §2.
+
+## D-084 — A smoke that races the scheduler is a flaky gate, not a check
+
+P18's terminal smoke read the ring's eviction totals as soon as its marker
+appeared. On a loaded host the child was still writing, so `dropped` was 0 and
+two checks failed intermittently (observed twice, then three clean runs after the
+fix). It now waits for the ring to stop growing before asserting eviction. The
+assertion itself is unchanged.

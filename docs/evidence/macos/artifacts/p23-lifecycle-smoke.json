@@ -1,0 +1,389 @@
+{
+  "schema_version": 1,
+  "label": "P23 — update, migration, rollback, and uninstall",
+  "captured_at": "2026-11-12T19:51:53.094Z",
+  "host": {
+    "platform": "darwin",
+    "arch": "arm64",
+    "node": "v26.13.0",
+    "macos": "26.5.1"
+  },
+  "injected_seams": [
+    "the Apple Installer launch is replaced by a recorder (a real launch would open a GUI installer)",
+    "the candidate package for the source-feed case is a synthetic .pkg; digest, size, identity and signature are real values from the fixture"
+  ],
+  "ok": true,
+  "checks": {
+    "upgrade_candidate_available": {
+      "ok": true,
+      "detail": {
+        "decision": "available",
+        "code": null,
+        "reason": "Mona 0.2.0 (build 120) is available; the installed version is 0.1.0."
+      }
+    },
+    "upgrade_candidate_is_upgrade": {
+      "ok": true
+    },
+    "upgrade_check_makes_no_inference_call": {
+      "ok": true,
+      "detail": {
+        "requests": 0,
+        "note": "An update check is a local read; it makes no model call."
+      }
+    },
+    "upgrade_handoff_recorded": {
+      "ok": true,
+      "detail": {
+        "intentId": "upd_00000003",
+        "state": "handed_off",
+        "code": null,
+        "reason": "Apple Installer was opened for this package. Finish or cancel it there; Mona quits and migrates its own state on the next launch.",
+        "fromVersion": "0.1.0",
+        "toVersion": "0.2.0",
+        "packagePath": "~smoke/upgrade/Mona-0.2.0-macOS-arm64-local.pkg",
+        "packageSha256": "2f57f818910c0e3778182b530c2b9256c1c0f56a4a7ac285f23a0419b921350b",
+        "backup": {
+          "path": "~smoke/upgrade/backups/pre-update-0.2.0-2026-11-12T09-00-20-000Z.sqlite",
+          "sha256": "ae338d9aaed2550f0cd7bd547599c54dca2101b0301a6ca23dac57c58b2c3656",
+          "sizeBytes": 512000,
+          "schemaVersion": 8,
+          "integrity": "ok"
+        },
+        "intentRecordedAt": "2026-11-12T09:00:18.000Z",
+        "handedOffAt": "2026-11-12T09:00:23.000Z",
+        "installerLaunched": true,
+        "quitRequested": true
+      }
+    },
+    "upgrade_installer_opened_once": {
+      "ok": true
+    },
+    "upgrade_backup_verified": {
+      "ok": true,
+      "detail": {
+        "path": "~smoke/upgrade/backups/pre-update-0.2.0-2026-11-12T09-00-20-000Z.sqlite",
+        "sha256": "ae338d9aaed2550f0cd7bd547599c54dca2101b0301a6ca23dac57c58b2c3656",
+        "sizeBytes": 512000,
+        "schemaVersion": 8,
+        "integrity": "ok"
+      }
+    },
+    "upgrade_intent_precedes_handoff": {
+      "ok": true,
+      "detail": {
+        "id": "upd_00000003",
+        "state": "handed_off",
+        "fromVersion": "0.1.0",
+        "toVersion": "0.2.0",
+        "channel": "local",
+        "packagePath": "~smoke/upgrade/Mona-0.2.0-macOS-arm64-local.pkg",
+        "packageSha256": "2f57f818910c0e3778182b530c2b9256c1c0f56a4a7ac285f23a0419b921350b",
+        "source": "manual",
+        "backupPath": "~smoke/upgrade/backups/pre-update-0.2.0-2026-11-12T09-00-20-000Z.sqlite",
+        "backupSha256": "ae338d9aaed2550f0cd7bd547599c54dca2101b0301a6ca23dac57c58b2c3656",
+        "createdAt": "2026-11-12T09:00:18.000Z",
+        "updatedAt": "2026-11-12T09:00:23.000Z"
+      }
+    },
+    "upgrade_preserved_user_state": {
+      "ok": true
+    },
+    "deferral_reported": {
+      "ok": true,
+      "detail": {
+        "intentId": null,
+        "state": "deferred",
+        "code": null,
+        "reason": "1 active item: task in Busy (“Running work”). Finish or interrupt the active work first. Mona does not stop a run to make updating convenient.",
+        "fromVersion": "0.1.0",
+        "toVersion": "0.2.0",
+        "packagePath": "~smoke/deferral/Mona-0.2.0-macOS-arm64-local.pkg",
+        "packageSha256": "2f57f818910c0e3778182b530c2b9256c1c0f56a4a7ac285f23a0419b921350b",
+        "backup": null,
+        "intentRecordedAt": null,
+        "handedOffAt": null,
+        "installerLaunched": false,
+        "quitRequested": false
+      }
+    },
+    "deferral_names_the_task": {
+      "ok": true,
+      "detail": "1 active item: task in Busy (“Running work”). Finish or interrupt the active work first. Mona does not stop a run to make updating convenient."
+    },
+    "deferral_launched_nothing": {
+      "ok": true
+    },
+    "deferral_recorded_no_intent": {
+      "ok": true
+    },
+    "deferral_left_the_run_untouched": {
+      "ok": true,
+      "detail": {
+        "status": "running"
+      }
+    },
+    "wrong_team_refused": {
+      "ok": true
+    },
+    "tampered_digest_refused": {
+      "ok": true
+    },
+    "size_mismatch_refused": {
+      "ok": true
+    },
+    "unsigned_release_refused": {
+      "ok": true
+    },
+    "adhoc_release_refused": {
+      "ok": true
+    },
+    "downgrade_refused": {
+      "ok": true
+    },
+    "replay_refused": {
+      "ok": true
+    },
+    "incompatible_os_refused": {
+      "ok": true
+    },
+    "intel_package_refused": {
+      "ok": true
+    },
+    "foreign_product_refused": {
+      "ok": true
+    },
+    "unconfirmed_engine_change_refused": {
+      "ok": true
+    },
+    "confirmed_engine_change_allowed": {
+      "ok": true
+    },
+    "no_handoff_from_a_refusal": {
+      "ok": true
+    },
+    "manifest_signature_verified": {
+      "ok": true,
+      "detail": {
+        "key_fingerprint": "b828a771c8b59d911adf538ce5cdd7c8a61fd79aed79d06abf3cd01a718f5c66"
+      }
+    },
+    "tampered_manifest_refused": {
+      "ok": true,
+      "detail": {
+        "code": "manifest_signature_invalid"
+      }
+    },
+    "wrong_manifest_key_refused": {
+      "ok": true,
+      "detail": {
+        "code": "manifest_signature_invalid"
+      }
+    },
+    "malformed_signed_manifest_refused": {
+      "ok": true,
+      "detail": {
+        "code": "manifest_malformed"
+      }
+    },
+    "pre_update_snapshot_verified": {
+      "ok": true,
+      "detail": {
+        "path": "~smoke/migration/backups/pre-update-0.2.0-2026-11-12T09-01-12-000Z.sqlite",
+        "sha256": "91b67d80530acbb926ef4cf8164a881bdbda2c04b45d7dc1dae141329cb9207a",
+        "sizeBytes": 512000,
+        "schemaVersion": 8
+      }
+    },
+    "newer_schema_detected": {
+      "ok": true,
+      "detail": {
+        "state": "newer_schema",
+        "database": 10,
+        "build": 8
+      }
+    },
+    "newer_schema_refused_by_store": {
+      "ok": true,
+      "detail": {
+        "code": "UNSUPPORTED_SCHEMA"
+      }
+    },
+    "recovery_offers_only_a_matching_snapshot": {
+      "ok": true,
+      "detail": [
+        {
+          "file": "pre-update-0.2.0-2026-11-12T09-01-12-000Z.sqlite",
+          "schema": 8,
+          "restorable": true
+        }
+      ]
+    },
+    "matching_snapshot_restored": {
+      "ok": true
+    },
+    "restore_kept_the_replaced_database": {
+      "ok": true,
+      "detail": {
+        "replaced": "~smoke/migration/state/mona.sqlite.replaced-2026-11-12T19-51-53-303Z"
+      }
+    },
+    "restored_state_opens_with_the_original_rows": {
+      "ok": true,
+      "detail": {
+        "projects": [
+          "Survives"
+        ]
+      }
+    },
+    "newer_snapshot_not_restorable": {
+      "ok": true,
+      "detail": {
+        "path": "~smoke/schema-guard/backups/pre-update-9.9.9-2026-11-12T00-00-00-000Z.sqlite",
+        "fileName": "pre-update-9.9.9-2026-11-12T00-00-00-000Z.sqlite",
+        "schemaVersion": 13,
+        "createdAt": "2026-11-12T00:00:00.000Z",
+        "sizeBytes": 512000,
+        "sha256": "561b7db35c4c09b195370b3a3c2770f13d914e0c94b62e6ac23f9b32d878a39a",
+        "integrity": "ok",
+        "appliesToThisBuild": false
+      }
+    },
+    "newer_snapshot_restore_refused": {
+      "ok": true,
+      "detail": {
+        "code": "UNSUPPORTED_SCHEMA"
+      }
+    },
+    "reinstall_recognized": {
+      "ok": true,
+      "detail": {
+        "version": "0.1.0",
+        "build": 81,
+        "channel": "local",
+        "packageName": "Mona-0.1.0-macOS-arm64-local.pkg",
+        "packageSha256": "e9d57f507ecc60562e4edca7231fc8cda32d34a2bc1871a132a536d36ee915c5",
+        "packageSize": 35,
+        "minimumMacOS": "14.0",
+        "architectures": [
+          "arm64"
+        ],
+        "engineVersion": "0.10.2",
+        "teamId": null,
+        "notarized": false,
+        "releasedAt": "2026-11-12T19:51:53.355Z",
+        "installKind": "reinstall"
+      }
+    },
+    "reinstall_handoff_recorded": {
+      "ok": true
+    },
+    "reinstall_preserved_tasks": {
+      "ok": true
+    },
+    "uninstall_dry_run_changes_nothing": {
+      "ok": true,
+      "detail": {
+        "status": 0,
+        "stdout": [
+          "mona-uninstall: installed Mona version: 0.1.0",
+          "mona-uninstall: the following package-owned paths will be removed:",
+          "mona-uninstall:   ~smoke/uninstall-root/Applications/Mona.app",
+          "mona-uninstall:   ~smoke/uninstall-root/Library/Services/Mona.service",
+          "mona-uninstall:   ~smoke/uninstall-root/Library/Application Support/Mona/install-receipt.json"
+        ]
+      }
+    },
+    "uninstall_dry_run_lists_only_owned_paths": {
+      "ok": true
+    },
+    "uninstall_view_separates_state_from_payload": {
+      "ok": true,
+      "detail": {
+        "entries": [
+          "/Applications/Mona.app",
+          "/Library/Services/Mona.service",
+          "/Library/Application Support/Mona/install-receipt.json",
+          "/Library/Application Support/Mona/owned-paths.json",
+          "/Library/Application Support/Mona/uninstall-mona.sh"
+        ]
+      }
+    },
+    "uninstall_removed_owned_paths": {
+      "ok": true,
+      "detail": {
+        "status": 0,
+        "stderr": ""
+      }
+    },
+    "uninstall_preserved_unrelated_and_user_data": {
+      "ok": true
+    },
+    "uninstall_refuses_a_foreign_bundle": {
+      "ok": true,
+      "detail": {
+        "status": 1,
+        "stderr": "mona-uninstall: ~smoke/foreign-root/Applications/Mona.app exists but is not Mona (com.mona.workbench); refusing to remove it"
+      }
+    },
+    "uninstall_refuses_without_an_ownership_manifest": {
+      "ok": true,
+      "detail": {
+        "status": 1,
+        "stderr": "mona-uninstall: no ownership manifest at ~smoke/bare-root/Library/Application Support/Mona/owned-paths.json. This copy was not installed"
+      }
+    },
+    "manual_mode_queries_nothing": {
+      "ok": true,
+      "detail": {
+        "decision": "manual",
+        "code": "no_source"
+      }
+    },
+    "reading_writes_no_intent": {
+      "ok": true
+    },
+    "reading_launches_nothing": {
+      "ok": true
+    },
+    "real_build_uninstall_rehearsal_passed": {
+      "ok": true,
+      "detail": {
+        "dry_run_exit": 0,
+        "dry_run_changed_nothing": true,
+        "dry_run_lists_owned": true,
+        "missing_manifest_refused": true,
+        "foreign_bundle_refused": true,
+        "removal_exit": 0,
+        "removed_owned_paths": true,
+        "unrelated_content_preserved": true
+      }
+    },
+    "shipped_uninstall_script_parses": {
+      "ok": true
+    },
+    "unsigned_fixture_reads_as_unsigned": {
+      "ok": true
+    }
+  },
+  "observations": {
+    "package_uninstall_rehearsal": {
+      "captured_at": "2026-11-12T19:40:00.369Z",
+      "check": {
+        "dry_run_exit": 0,
+        "dry_run_changed_nothing": true,
+        "dry_run_lists_owned": true,
+        "missing_manifest_refused": true,
+        "foreign_bundle_refused": true,
+        "removal_exit": 0,
+        "removed_owned_paths": true,
+        "unrelated_content_preserved": true
+      }
+    },
+    "checks_total": 55,
+    "checks_failed": [],
+    "checks_skipped": []
+  },
+  "error": null,
+  "first_failure": null
+}

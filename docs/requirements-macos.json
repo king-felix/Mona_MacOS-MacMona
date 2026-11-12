@@ -14,7 +14,7 @@
         "sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8"
       }
     ],
-    "indexed_utc": "2026-11-12T18:17:25.242Z"
+    "indexed_utc": "2026-11-12T19:53:01.647Z"
   },
   "prompts": [
     {
@@ -1478,9 +1478,17 @@
         {
           "path": "docs/evidence/macos/artifacts/p20-failure-smoke.json",
           "note": "interrupted restore, archive escape, over-budget archive"
+        },
+        {
+          "path": "docs/evidence/macos/P23-lifecycle.md",
+          "note": "P23 contribution: recoverable migration, snapshot restore, and rollback distinction"
+        },
+        {
+          "path": "test/update-recovery.test.ts",
+          "note": "newer schema refused; matching snapshot restored and migrated forward"
         }
       ],
-      "notes": "P19 completes the P19 scope of MONA-025: settings backup/restore under the exclusive maintenance barrier with a snapshot, a journal, and read-back; a portable project handoff in a fail-closed store-only archive (sha256 manifest, refused traversal and tamper, in-memory import that starts no work); a redacted diagnostics bundle with an explicit preview and digest; and offline browsing of the same records. P20 owns failure injection and P23 the final matrix, so the wider requirement stays open there. Carried-forward item 27 (plan export status) is closed in P19. P20 adds the failure evidence for the same surfaces: an interrupted restore leaves prior state and a journal, a symlinked extraction parent cannot redirect a write, and an over-budget archive yields no entries."
+      "notes": "P19 completes the P19 scope of MONA-025: settings backup/restore under the exclusive maintenance barrier with a snapshot, a journal, and read-back; a portable project handoff in a fail-closed store-only archive (sha256 manifest, refused traversal and tamper, in-memory import that starts no work); a redacted diagnostics bundle with an explicit preview and digest; and offline browsing of the same records. P20 owns failure injection and P23 the final matrix, so the wider requirement stays open there. Carried-forward item 27 (plan export status) is closed in P19. P20 adds the failure evidence for the same surfaces: an interrupted restore leaves prior state and a journal, a symlinked extraction parent cannot redirect a write, and an over-budget archive yields no entries. P23 closes the migration part of MONA-025: a failed migration is discoverable from its journal, a newer schema is refused rather than opened, and a restore is offered only for a snapshot this build can verify — after which the normal migration path runs with its own snapshot and journal."
     },
     {
       "id": "MONA-026",
@@ -1556,9 +1564,21 @@
         {
           "path": "docs/decisions/ADR-015-packaging-and-payload.md",
           "note": "payload ownership, local/release split, installer scripts, Git guard, determinism limits"
+        },
+        {
+          "path": "docs/evidence/macos/P23-lifecycle.md",
+          "note": "P23 contribution: update compatibility and clean uninstall"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p23-uninstall-rehearsal.json",
+          "note": "bounded removal utility rehearsed by the package build"
+        },
+        {
+          "path": "packaging/macos/scripts/uninstall-mona.sh",
+          "note": "the shipped removal utility"
         }
       ],
-      "notes": "P21 builds and installs the self-contained arm64 app and offline .pkg with the native Service, component/BOM manifest, notices, ownership receipt, non-relocatable idempotent scripts, and a real Installer receipt. The artifact is ad-hoc and visibly local; Developer ID signing, notarization/stapling, updates, and uninstall remain P22/P23/P27."
+      "notes": "P21 builds and installs the self-contained arm64 app and offline .pkg with the native Service, component/BOM manifest, notices, ownership receipt, non-relocatable idempotent scripts, and a real Installer receipt. The artifact is ad-hoc and visibly local; Developer ID signing, notarization/stapling, updates, and uninstall remain P22/P23/P27. P23 adds the update-compatibility and clean-uninstall halves: a verified, deferred, installer-mediated update; a bounded ownership-verified removal utility that preserves projects, user state, credentials, and any external Codewhale installation. MONA-027 stays partial for P22 (signed/notarized/stapled artifact) and P27 (final acceptance)."
     },
     {
       "id": "MONA-028",
@@ -1848,10 +1868,55 @@
         "P23",
         "P26"
       ],
-      "status": "pending",
+      "status": "satisfied",
       "acceptance": "pending",
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P23-lifecycle.md",
+          "note": "P23 update/migration/rollback/uninstall result and acceptance evidence"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p23-lifecycle-smoke.json",
+          "note": "55 checks: upgrade, reinstall, deferral, 11 refusal codes, signed manifest, newer-schema refusal, snapshot restore, uninstall"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p23-uninstall-rehearsal.json",
+          "note": "package gate: dry run, refusal cases, real removal, unrelated content preserved"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p23-ci.txt",
+          "note": "21-step CI including smoke:p23"
+        },
+        {
+          "path": "docs/decisions/ADR-016-update-and-lifecycle.md",
+          "note": "trust tiers, verify-defer-record-snapshot-handoff order, bounded removal, rehearsal guard"
+        },
+        {
+          "path": "test/update-trust.test.ts",
+          "note": "22 tests: policy refusals, signed envelope, secure URLs"
+        },
+        {
+          "path": "test/update-coordinator.test.ts",
+          "note": "19 tests: intent ordering, deferral, digest change, handoff failure, replay, reconciliation"
+        },
+        {
+          "path": "test/update-recovery.test.ts",
+          "note": "7 tests: newer schema refused, matching-snapshot restore, failed journal"
+        },
+        {
+          "path": "test/update-uninstall.test.ts",
+          "note": "6 tests: manifest-owned paths, identity refusal, state separation"
+        },
+        {
+          "path": "test/update-version.test.ts",
+          "note": "6 tests: numeric/pre-release ordering, build counters"
+        },
+        {
+          "path": "test/update-screen.test.tsx",
+          "note": "7 tests: real checks, refusal code, deferral list, local confirmation, restore offer"
+        }
+      ],
+      "notes": "P23 implements the whole MAC-006 surface: an installer-mediated update that verifies an authenticated manifest (Ed25519 over exact bytes), the Developer ID team, the package signature, digest and length, architecture, minimum macOS, version order, and replay; defers while any task, submission, or runtime is active (a probe failure counts as active); records the intent before any privileged step; takes a verified state snapshot under the maintenance barrier; and hands the package to Apple Installer, quitting only after a confirmed handoff. The bundled engine is never changed independently: a package with a different engine requires an explicit, digest-bound acknowledgement. An older app refuses a newer schema and offers only a verified snapshot it can open, which is then migrated forward. P26 owns the final release matrix; P22 owns the signed artifact for the release trust tier."
     },
     {
       "id": "MAC-007",
@@ -1924,7 +1989,7 @@
     "ok": true,
     "errors": [],
     "warnings": [],
-    "validated_utc": "2026-11-12T18:17:25.242Z",
+    "validated_utc": "2026-11-12T19:53:01.647Z",
     "prompt_count": 28,
     "requirement_count": 38
   }

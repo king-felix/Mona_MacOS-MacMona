@@ -40,6 +40,16 @@ import type {
   ServiceStatus,
 } from "../shared/contracts/open";
 import type {
+  RecoveryRestoreReceipt,
+  RecoveryView,
+  UninstallView,
+  UpdateCheckView,
+  UpdateHandoffReceipt,
+  UpdateIntentRecord,
+  UpdateSourceConfig,
+  UpdateStatusView,
+} from "../shared/contracts/update";
+import type {
   StudioActionResult,
   StudioMode,
   StudioPush,
@@ -627,6 +637,31 @@ const bridge: MonaBridge = {
       "diagnostics:export-file",
       projectId === undefined || projectId === null ? {} : { projectId },
     ),
+
+  // P23. An update check reads an explicitly configured source; nothing here
+  // invents a URL, and the only privileged step is Apple Installer's own.
+  updateStatus: (): Promise<IpcResult<UpdateStatusView>> => ipcRenderer.invoke("update:status", {}),
+  configureUpdateSource: (
+    input,
+  ): Promise<IpcResult<{ config: UpdateSourceConfig; status: UpdateStatusView }>> =>
+    ipcRenderer.invoke("update:configure", input),
+  checkForUpdate: (refresh?: boolean): Promise<IpcResult<UpdateCheckView>> =>
+    ipcRenderer.invoke("update:check", refresh === undefined ? {} : { refresh }),
+  chooseUpdatePackage: (): Promise<IpcResult<{ chosen: boolean; view: UpdateCheckView | null }>> =>
+    ipcRenderer.invoke("update:choose-package", {}),
+  inspectLocalUpdate: (path?: string): Promise<IpcResult<UpdateCheckView>> =>
+    ipcRenderer.invoke("update:inspect-local", path === undefined ? {} : { path }),
+  installUpdate: (input): Promise<IpcResult<UpdateHandoffReceipt>> =>
+    ipcRenderer.invoke("update:install", input),
+  confirmEngineChange: (packageSha256: string): Promise<IpcResult<{ confirmed: boolean }>> =>
+    ipcRenderer.invoke("update:confirm-engine-change", { packageSha256 }),
+  cancelUpdateIntent: (intentId: string): Promise<IpcResult<UpdateIntentRecord>> =>
+    ipcRenderer.invoke("update:cancel-intent", { intentId }),
+  uninstallGuide: (): Promise<IpcResult<UninstallView>> =>
+    ipcRenderer.invoke("update:uninstall", {}),
+  stateRecovery: (): Promise<IpcResult<RecoveryView>> => ipcRenderer.invoke("state:recovery", {}),
+  restoreRecoverySnapshot: (input): Promise<IpcResult<RecoveryRestoreReceipt>> =>
+    ipcRenderer.invoke("state:recovery-restore", input),
 
   onStudioChanged: (callback: (push: StudioPush) => void): (() => void) => {
     const listener = (_event: unknown, payload: unknown) => {

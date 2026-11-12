@@ -63,6 +63,9 @@ import { parseLaunchArguments } from "./open/folder-request";
 import { inspectServiceStatus, refreshServiceRegistration } from "./open/service-status";
 import { runPackageSmoke } from "./package-smoke";
 import { inspectInstallLocation } from "./install-location";
+import { UpdateCoordinator, readBuildInfo } from "./update/coordinator";
+import { inspectRecovery, restoreSnapshotForBuild, type RecoveryPaths } from "./state/recovery";
+import { CURRENT_SCHEMA_VERSION } from "./state/schema";
 import type { RuntimeStatus } from "./supervisor/runtime-supervisor";
 import type { ProjectId as StudioProjectId } from "../shared/contracts/ids";
 import type {
@@ -114,6 +117,7 @@ let capabilityExplorer: CapabilityExplorer | null = null;
 let projectMemory: ProjectMemory | null = null;
 let promptShelf: PromptShelf | null = null;
 let projectHandoff: ProjectHandoff | null = null;
+let updateCoordinator: UpdateCoordinator | null = null;
 let polishMenu: ApplicationMenuHandle | null = null;
 let keepAwake: KeepAwake | null = null;
 let activeProjectId: StudioProjectId | null = null;
@@ -343,6 +347,98 @@ async function interruptActiveWork(): Promise<void> {
     // The receipt UI reports the real outcome; the menu action stays honest.
   }
   await polishService?.refresh(projectId).catch(() => undefined);
+}
+
+/** Recovery operates on paths, not on an open store, so it works when open fails. */
+function recoveryPaths(): RecoveryPaths {
+  const paths = resolveAppPaths();
+  return { database: paths.database, backupsDir: paths.backups, supportDir: paths.support };
+}
+
+let cachedOsRelease: string | null = null;
+
+/** The marketing macOS version, not the Darwin kernel release. */
+function osRelease(): string {
+  if (cachedOsRelease !== null) return cachedOsRelease;
+  try {
+    cachedOsRelease = execFileSync("/usr/bin/sw_vers", ["-productVersion"], {
+      encoding: "utf8",
+      timeout: 5_000,
+    }).trim();
+  } catch {
+    cachedOsRelease = "";
+  }
+  return cachedOsRelease;
+}
+
+/**
+ * State that could not be opened has three different causes and needs three
+ * different answers. This dialog never offers a "try anyway": an older build
+ * cannot open a newer schema, and saying otherwise would corrupt real work.
+ */
+async function reportStartupFailure(message: string): Promise<void> {
+  const recovery = inspectRecovery(recoveryPaths());
+  const matching = recovery.snapshots.filter((snapshot) => snapshot.appliesToThisBuild);
+  const heading =
+    recovery.state === "newer_schema"
+      ? "This Mac's data was written by a newer Mona"
+      : recovery.state === "migration_failed"
+        ? "Mona could not migrate its project state"
+        : "Mona cannot open its project state";
+
+  const body = [
+    message,
+    "",
+    recovery.problem?.message ?? "",
+    "",
+    `Current database schema: ${recovery.databaseSchemaVersion ?? "unreadable"}. This build: v${recovery.buildSchemaVersion}.`,
+    recovery.journal
+      ? `Migration journal: ${recovery.journal.state} (v${recovery.journal.fromVersion} to v${recovery.journal.toVersion}).`
+      : "No migration journal was written.",
+    `Support path: ${recovery.support.backupsPath}`,
+  ]
+    .filter((line) => line !== "")
+    .join("\n");
+
+  if (matching.length === 0) {
+    dialog.showErrorBox(
+      heading,
+      `${body}\n\nNo snapshot this build can verify is available. ` +
+        "Reinstall the build that wrote this data; the database and any journal were kept.",
+    );
+    return;
+  }
+
+  const newest = matching[0];
+  const choice = dialog.showMessageBoxSync({
+    type: "warning",
+    title: heading,
+    message: heading,
+    detail:
+      `${body}\n\nA verified v${recovery.buildSchemaVersion} snapshot from ` +
+      `${newest?.createdAt ?? "an earlier session"} can be restored. ` +
+      "Everything recorded after that snapshot is discarded, and the current file is kept beside it.",
+    buttons: ["Restore verified snapshot…", "Quit"],
+    defaultId: 1,
+    cancelId: 1,
+  });
+  if (choice !== 0 || !newest) return;
+  try {
+    const receipt = await restoreSnapshotForBuild(recoveryPaths(), {
+      snapshotPath: newest.path,
+      expectedSchemaVersion: newest.schemaVersion,
+    });
+    process.stderr.write(
+      `Mona restored ${receipt.snapshotPath}; the previous database is at ${receipt.replacedPath ?? "(none)"}\n`,
+    );
+    app.relaunch();
+  } catch (error) {
+    dialog.showErrorBox(
+      "Mona could not restore that snapshot",
+      `${error instanceof Error ? error.message : String(error)}\n` +
+        "Nothing was replaced. The evidence above is still in place.",
+    );
+  }
 }
 
 async function requestQuit(interrupt: boolean): Promise<{ requested: boolean; note: string }> {
@@ -3133,15 +3229,60 @@ if (!gotLock) {
           isTurnActive: async (projectId) =>
             (await workStudio?.snapshot(projectId).catch(() => null))?.activeTurnId != null,
         });
+        // P23: the installer-mediated update surface. It reads the installed
+        // component manifest for its own identity, the store for active work and
+        // applied packages, and the packaged `pkgutil` for a candidate. It never
+        // queries a URL that no one configured.
+        updateCoordinator = new UpdateCoordinator({
+          store: productState,
+          paths: { cache: appPaths.cache, support: appPaths.support },
+          current: () =>
+            readBuildInfo({
+              resourcesPath: app.isPackaged ? process.resourcesPath : null,
+              appVersion: app.getVersion(),
+              packaged: app.isPackaged,
+              schemaVersion: CURRENT_SCHEMA_VERSION,
+            }),
+          hostOs: () => osRelease(),
+          hostArch: () => process.arch,
+          activity: async () => {
+            // The store is the primary probe: a submission is persisted before
+            // it is sent, a running task carries its active turn, and a runtime
+            // binding records a live engine. The supervisor is a second,
+            // independent check on the process Mona actually owns.
+            const items = [...((await productState?.activeWork()) ?? [])];
+            if (supervisor?.status().state === "running") {
+              items.push({
+                projectId: "engine",
+                projectName: "Codewhale runtime",
+                kind: "runtime",
+                taskId: null,
+                taskTitle: null,
+                detail: "Mona's owned engine runtime is running",
+              });
+            }
+            return items;
+          },
+          shouldQuit: () => !IS_SMOKE && !IS_LIFECYCLE_SMOKE && !IS_SHELL_SMOKE,
+          // A successful handoff is the one point where quitting is correct:
+          // every active item was checked first, so nothing is interrupted.
+          afterHandoff: () => {
+            // Give the screen a moment to show the receipt, then take the
+            // normal shutdown path so the bundle is free for Installer.
+            setTimeout(() => void requestQuit(true), 1_200);
+          },
+        });
+        // A delivered handoff only counts once this launch sees the result: the
+        // new version proves the migration ran, the old one proves Installer was
+        // cancelled. Neither is inferred from a timestamp.
+        await updateCoordinator.reconcileOnLaunch().catch(() => undefined);
       }
     } catch (error) {
       productStateError = error instanceof Error ? error.message : String(error);
       process.stderr.write(`Mona state unavailable: ${productStateError}\n`);
-      dialog.showErrorBox(
-        "Mona cannot open its project state",
-        `${productStateError}\n\nMona will not run without its verified state store. ` +
-          "The failed database and migration journal were preserved for diagnosis.",
-      );
+      if (!IS_SMOKE && !IS_LIFECYCLE_SMOKE) {
+        await reportStartupFailure(productStateError);
+      }
       app.quit();
       return;
     }
@@ -3745,6 +3886,26 @@ if (!gotLock) {
         return { opened: true };
       },
       chooseFolder: chooseProjectFolder,
+      update: updateCoordinator,
+      recovery: () => inspectRecovery(recoveryPaths()),
+      restoreRecoverySnapshot: (input) => restoreSnapshotForBuild(recoveryPaths(), input),
+      choosePackage: async () => {
+        const chosen = mainWindow
+          ? await dialog.showOpenDialog(mainWindow, {
+              title: "Choose a Mona package to verify",
+              defaultPath: app.getPath("downloads"),
+              properties: ["openFile"],
+              filters: [{ name: "Mona installer", extensions: ["pkg"] }],
+            })
+          : { canceled: true, filePaths: [] };
+        return chosen.canceled ? null : (chosen.filePaths[0] ?? null);
+      },
+      updateFacts: () => ({
+        home: app.getPath("home"),
+        cache: resolveAppPaths().cache,
+        support: resolveAppPaths().support,
+        launchQuit: false,
+      }),
     });
     if (IS_PACKAGE_SMOKE) {
       if (!PACKAGE_SMOKE_OUT) {

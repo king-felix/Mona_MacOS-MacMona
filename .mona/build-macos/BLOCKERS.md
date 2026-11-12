@@ -12,6 +12,29 @@ clean recipient, below); it is not attempt-counted because no attempt failed.
 
 ## External prerequisites (not blocked work, not attempt-counted)
 
+### EXT-INSTALL — Administrator authorization to install the P23 package
+
+- **Needed for:** completing `npm run mac:package:local`'s last gate
+  (`installed_copy`) and for the P23 evidence to include a real install of the
+  package rebuilt at this prompt.
+- **Measured 2026-11-12 (P23):** `sudo -n true` refuses; there is no
+  non-interactive administrator authorization in this session. The build reaches
+  the install gate and stops with *"the installed copy at /Applications/Mona.app
+  is not this build"*, by design — the gate compares the installed copy to the
+  build rather than replacing it silently.
+- **What did pass:** every gate before it, including the new
+  `uninstall_rehearsal` (dry run, missing-manifest refusal, foreign-bundle
+  refusal, real removal, unrelated content preserved —
+  `out/uninstall-rehearsal.json`, copied to
+  `docs/evidence/macos/artifacts/p23-uninstall-rehearsal.json`).
+- **Help needed from Victor:** run, in a session with administrator
+  authorization:
+  `sudo installer -pkg packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg -target /`
+  then `npm run mac:package:local` again so the `installed_copy` and GUI gates
+  run against the new bytes.
+- **Rule:** this is not a reason to weaken the gate or to copy the app into
+  `/Applications` by hand.
+
 ### EXT-SIGNING — Apple Developer ID credentials for P22
 
 - **Needed for:** MAC-005 (Developer ID signatures, notarization, stapling),

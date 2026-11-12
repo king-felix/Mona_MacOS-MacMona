@@ -37,6 +37,7 @@ import {
 import { FinderIntegration } from "./FinderIntegration";
 import { RouteSettings } from "./RouteSettings";
 import { ExtensionsSettings } from "./ExtensionsSettings";
+import { UpdateSettings } from "./UpdateSettings";
 import type { Density, ThemeName } from "../design/tokens";
 
 export function SettingsScreen({
@@ -120,6 +121,7 @@ export function SettingsScreen({
           { id: "runtime", label: "Runtime", icon: <TerminalIcon size={15} /> },
           { id: "finder", label: "Finder", icon: <FolderIcon size={15} /> },
           { id: "privacy", label: "Privacy", icon: <ShieldIcon size={15} /> },
+          { id: "updates", label: "Updates", icon: <RefreshIcon size={15} /> },
           { id: "recovery", label: "Recovery", icon: <ArchiveIcon size={15} /> },
         ]}
       />
@@ -563,6 +565,10 @@ export function SettingsScreen({
           </Card>
         </TabPanel>
 
+        <TabPanel id="updates" active={tab === "updates"}>
+          <UpdateSettings />
+        </TabPanel>
+
         <TabPanel id="recovery" active={tab === "recovery"}>
           <Card title="Recovery" eyebrow="Transactional state">
             <dl className="detail-list">
@@ -580,7 +586,10 @@ export function SettingsScreen({
               </div>
               <div className="detail-row">
                 <dt>Restore</dt>
-                <dd>Snapshot restore UI and diagnostics bundle arrive in P19</dd>
+                <dd>
+                  Verified snapshots and the matching-schema restore live on the Updates tab;
+                  diagnostics export lives on Data.
+                </dd>
               </div>
             </dl>
             <p className="hint-line">

@@ -10,6 +10,9 @@ export const SERVICE_PATH = "Library/Services/Mona.service";
 export const RECEIPT_DIR = "Library/Application Support/Mona";
 export const RECEIPT_PATH = `${RECEIPT_DIR}/install-receipt.json`;
 export const OWNED_PATHS_PATH = `${RECEIPT_DIR}/owned-paths.json`;
+/** The bounded, ownership-verified removal utility (P23). */
+export const UNINSTALL_PATH = `${RECEIPT_DIR}/uninstall-mona.sh`;
+export const UNINSTALL_SCRIPT = "uninstall-mona.sh";
 
 export function packageFileName({ version, channel }) {
   const suffix = channel === "local" ? "-local" : "";
@@ -103,6 +106,7 @@ export function renderOwnedPaths({ version, channel, packageFile, components }) 
           { path: `/${SERVICE_PATH}`, kind: "service-bundle" },
           { path: `/${RECEIPT_PATH}`, kind: "install-receipt" },
           { path: `/${OWNED_PATHS_PATH}`, kind: "ownership-manifest" },
+          { path: `/${UNINSTALL_PATH}`, kind: "uninstall-utility" },
         ],
         components: components.map((component) => ({
           path: component.path,

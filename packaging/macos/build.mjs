@@ -36,12 +36,16 @@ import {
   SERVICE_BUNDLE_ID,
   SERVICE_PATH,
   OWNED_PATHS_PATH,
+  UNINSTALL_PATH,
+  UNINSTALL_SCRIPT,
   packageFileName,
   renderComponentPlist,
   renderDistribution,
   renderOwnedPaths,
 } from "./lib/distribution.mjs";
 import { readMachO } from "./lib/macho.mjs";
+import { reviewUninstallScript } from "./lib/uninstall.mjs";
+import { assertRehearsalRoot as guardRehearsalRoot } from "./lib/rehearsal.mjs";
 import {
   DEFAULT_SECRET_PATTERNS,
   buildHostPatterns,
@@ -818,11 +822,34 @@ Codewhale installations are never touched.</p>
 <p>${channel === "local" ? "This build is ad-hoc signed and intended for local development. It is not a shareable, signed release." : "This build is signed for release."}</p>
 </body></html>`;
   writeFileSync(join(resourcesDir, "readme.html"), html, "utf8");
+  // P23 reads this from the expanded (metadata-only) package before the bytes
+  // are trusted, so a candidate's identity is available without extracting a
+  // 154 MiB payload. It is package metadata, not an authentication credential.
+  writeFileSync(
+    join(resourcesDir, "update-metadata.json"),
+    JSON.stringify(
+      {
+        schema_version: 1,
+        product: "Mona",
+        version,
+        build,
+        channel,
+        bundle_id: APP_BUNDLE_ID,
+        service_bundle_id: SERVICE_BUNDLE_ID,
+        package_id: PACKAGE_ID,
+        minimum_macos: MINIMUM_MACOS,
+        architectures: ["arm64"],
+      },
+      null,
+      2,
+    ) + "\n",
+    "utf8",
+  );
 }
 
 function rehearseInstall(payloadDir, scriptsDir) {
   const rehearsal = mkdtempSync(join(tmpdir(), "mona-p21-install-"));
-  const root = join(rehearsal, "root");
+  const root = guardRehearsalRoot(join(rehearsal, "root"), tmpdir());
   mkdirSync(join(root, "Applications"), { recursive: true });
   mkdirSync(join(root, "Library/Application Support"), { recursive: true });
   // Unrelated content must survive; the scripts may only touch owned paths.
@@ -865,6 +892,139 @@ function rehearseInstall(payloadDir, scriptsDir) {
     app_present: appPresent,
     service_present: servicePresent,
     idempotent_reinstall: true,
+  };
+}
+
+/**
+ * Rehearse the real removal utility against a temporary root. The script's
+ * `MONA_UNINSTALL_ROOT` hook is the same one the installers use; without it this
+ * would have to run as root against this Mac, which a build must never do.
+ *
+ * The root is installed the way Installer does it — payload, then preinstall and
+ * postinstall — so the receipt and ownership manifest the utility depends on are
+ * the ones the package actually produces.
+ */
+function rehearseUninstall(payloadDir, scriptsDir) {
+  const rehearsal = mkdtempSync(join(tmpdir(), "mona-p23-uninstall-"));
+  const root = guardRehearsalRoot(join(rehearsal, "root"), tmpdir());
+  const script = join(payloadDir, UNINSTALL_PATH);
+  const env = { ...process.env, MONA_INSTALL_ROOT: root, MONA_UNINSTALL_ROOT: root };
+  const runScript = (args, extraEnv = {}) =>
+    run(script, args, { env: { ...env, ...extraEnv }, allowFailure: true });
+
+  // Unrelated content must survive the uninstall.
+  mkdirSync(join(root, "Applications"), { recursive: true });
+  mkdirSync(join(root, "Library/Application Support"), { recursive: true });
+  mkdirSync(join(root, "Applications/Other.app/Contents"), { recursive: true });
+  writeFileSync(
+    join(root, "Applications/Other.app/Contents/Info.plist"),
+    "<plist><dict><key>CFBundleIdentifier</key><string>com.example.other</string></dict></plist>",
+    "utf8",
+  );
+  writeFileSync(join(root, "Library/Application Support/keep-me.json"), "user config", "utf8");
+
+  const installPayload = () => {
+    run(TOOLS.ditto, [join(payloadDir, "Applications"), join(root, "Applications")]);
+    run(TOOLS.ditto, [join(payloadDir, "Library"), join(root, "Library")]);
+  };
+  installPayload();
+  run(join(scriptsDir, "preinstall"), [], { env });
+  installPayload();
+  run(join(scriptsDir, "postinstall"), [], { env });
+
+  const ownedPaths = [
+    join(root, APP_PATH),
+    join(root, SERVICE_PATH),
+    join(root, RECEIPT_PATH),
+    join(root, OWNED_PATHS_PATH),
+    join(root, UNINSTALL_PATH),
+  ];
+  const installed = ownedPaths.filter((path) => existsSync(path));
+
+  // 1. A dry run lists owned paths and changes nothing.
+  const dry = runScript(["--dry-run"]);
+  const dryKeptEverything =
+    installed.length === ownedPaths.length && installed.every((path) => existsSync(path));
+  const dryListedOwned =
+    dry.stdout.includes(join(root, APP_PATH)) &&
+    dry.stdout.includes(join(root, SERVICE_PATH)) &&
+    !dry.stdout.includes("keep-me.json");
+
+  // 2. A refused case: no ownership manifest is never a guess.
+  const bareRoot = guardRehearsalRoot(join(rehearsal, "bare"), tmpdir());
+  mkdirSync(join(bareRoot, "Applications"), { recursive: true });
+  const bare = run(script, ["--yes"], {
+    env: { ...process.env, MONA_UNINSTALL_ROOT: bareRoot },
+    allowFailure: true,
+  });
+  const bareRefused = bare.status !== 0 && /ownership manifest/i.test(bare.stderr);
+
+  // 3. A wrong-identifier app is refused rather than deleted.
+  const foreignRoot = guardRehearsalRoot(join(rehearsal, "foreign"), tmpdir());
+  mkdirSync(join(foreignRoot, "Applications/Mona.app/Contents"), { recursive: true });
+  writeFileSync(
+    join(foreignRoot, "Applications/Mona.app/Contents/Info.plist"),
+    "<plist><dict><key>CFBundleIdentifier</key><string>com.example.other</string></dict></plist>",
+    "utf8",
+  );
+  mkdirSync(join(foreignRoot, "Library/Application Support/Mona"), { recursive: true });
+  writeFileSync(
+    join(foreignRoot, "Library/Application Support/Mona/owned-paths.json"),
+    JSON.stringify({
+      product: "Mona",
+      owned: [{ path: "/Applications/Mona.app", kind: "app-bundle" }],
+    }),
+    "utf8",
+  );
+  writeFileSync(
+    join(foreignRoot, "Library/Application Support/Mona/install-receipt.json"),
+    JSON.stringify({ product: "Mona", version: "0.0.0" }),
+    "utf8",
+  );
+  const foreign = run(script, ["--yes"], {
+    env: { ...process.env, MONA_UNINSTALL_ROOT: foreignRoot },
+    allowFailure: true,
+  });
+  const foreignRefused =
+    foreign.status !== 0 &&
+    existsSync(join(foreignRoot, "Applications/Mona.app/Contents/Info.plist"));
+
+  // 4. The real removal.
+  const removal = runScript(["--yes"]);
+  const removed = [
+    join(root, APP_PATH),
+    join(root, SERVICE_PATH),
+    join(root, RECEIPT_PATH),
+    join(root, OWNED_PATHS_PATH),
+    join(root, UNINSTALL_PATH),
+  ].every((path) => !existsSync(path));
+  const unrelatedPreserved =
+    existsSync(join(root, "Applications/Other.app/Contents/Info.plist")) &&
+    existsSync(join(root, "Library/Application Support/keep-me.json"));
+
+  const ok =
+    dry.status === 0 &&
+    dryKeptEverything &&
+    dryListedOwned &&
+    bareRefused &&
+    foreignRefused &&
+    removal.status === 0 &&
+    removed &&
+    unrelatedPreserved;
+  return {
+    ok,
+    check: {
+      dry_run_exit: dry.status,
+      dry_run_changed_nothing: dryKeptEverything,
+      dry_run_lists_owned: dryListedOwned,
+      missing_manifest_refused: bareRefused,
+      foreign_bundle_refused: foreignRefused,
+      removal_exit: removal.status,
+      removed_owned_paths: removed,
+      unrelated_content_preserved: unrelatedPreserved,
+    },
+    dry_run_stdout: dry.stdout.trim().split("\n").slice(0, 12),
+    removal_stdout: removal.stdout.trim().split("\n").slice(0, 12),
   };
 }
 
@@ -1351,6 +1511,17 @@ async function main() {
   mkdirSync(dirname(join(payloadDir, OWNED_PATHS_PATH)), { recursive: true });
   writeFileSync(join(payloadDir, OWNED_PATHS_PATH), ownedPaths, "utf8");
   chmodSync(join(payloadDir, OWNED_PATHS_PATH), 0o644);
+  // P23's removal utility ships with the payload it removes. It is a plain
+  // POSIX sh script, never a compiled helper, so its bounds are auditable.
+  const uninstallSource = join(PACKAGING, "scripts", UNINSTALL_SCRIPT);
+  if (!existsSync(uninstallSource)) fail(`missing ${UNINSTALL_SCRIPT}`);
+  const uninstallText = readFileSync(uninstallSource, "utf8");
+  const uninstallProblems = reviewUninstallScript(uninstallText);
+  if (uninstallProblems.length > 0) {
+    fail("the uninstall utility breaks its own bounds", uninstallProblems);
+  }
+  copyFileSync(uninstallSource, join(payloadDir, UNINSTALL_PATH));
+  chmodSync(join(payloadDir, UNINSTALL_PATH), 0o755);
 
   const scriptsDir = join(stageDir, "scripts");
   const packageFile = join(outDir, packageFileName({ version, channel }));
@@ -1435,6 +1606,27 @@ async function main() {
   if (!expand.ok) fail("the expanded package does not match the staged payload", expand);
   const rehearsal = rehearseInstall(payloadDir, scriptsDir);
   if (!rehearsal.ok) fail("installer rehearsal failed", rehearsal);
+  // P23: the removal utility must honour the same ownership boundary the
+  // install scripts do, proven by running the script the payload ships.
+  const uninstallRehearsal = rehearseUninstall(payloadDir, scriptsDir);
+  // Written as it happens, so a build that stops at a later gate (for example an
+  // install that needs administrator authorization) still leaves this evidence.
+  mkdirSync(outDir, { recursive: true });
+  writeFileSync(
+    join(outDir, "uninstall-rehearsal.json"),
+    JSON.stringify(
+      {
+        schema_version: 1,
+        tool: "mac:package",
+        captured_at: new Date().toISOString(),
+        ...uninstallRehearsal,
+      },
+      null,
+      2,
+    ) + "\n",
+    "utf8",
+  );
+  if (!uninstallRehearsal.ok) fail("uninstall rehearsal failed", uninstallRehearsal);
   // Rehearse the service's own descriptor from the payload.
   const installed = copyToApplications(join(payloadDir, APP_PATH));
   const smoke = runPackageSmoke(installed.path);
@@ -1486,6 +1678,12 @@ async function main() {
       idempotent_reinstall: rehearsal.idempotent_reinstall,
       receipt: rehearsal.receipt,
     },
+    uninstall_rehearsal: {
+      ok: uninstallRehearsal.ok,
+      check: uninstallRehearsal.check,
+      dry_run_stdout: uninstallRehearsal.dry_run_stdout,
+      removal_stdout: uninstallRehearsal.removal_stdout,
+    },
     package_smoke: { ok: smoke.ok, report: smoke.report, stderr: smoke.stderr },
     gui_launch: gui,
     installed_copy: {
@@ -1523,6 +1721,7 @@ async function main() {
           secrets: checks.secrets.ok,
           expand: expand.ok,
           rehearsal: rehearsal.ok,
+          uninstall_rehearsal: uninstallRehearsal.ok,
           package_smoke: smoke.ok,
           gui_launch: gui.ok,
         },

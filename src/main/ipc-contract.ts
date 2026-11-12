@@ -39,6 +39,13 @@ import {
   TerminalTargetSchema,
   TerminalWriteSchema,
 } from "../shared/contracts/terminal";
+import {
+  RecoveryRestoreRequestSchema,
+  UpdateCheckRequestSchema,
+  UpdateChoosePackageRequestSchema,
+  UpdateConfigureRequestSchema,
+  UpdateInstallRequestSchema,
+} from "../shared/contracts/update";
 
 /**
  * Narrow IPC contract. Every invoke is a strict object: unknown fields are
@@ -525,6 +532,23 @@ export const IpcRequests = {
   "settings:restore": SettingsRestoreRequestSchema,
   "diagnostics:preview": DiagnosticsPreviewRequestSchema,
   "diagnostics:export-file": DiagnosticsPreviewRequestSchema,
+
+  // P23: updates, migration recovery, and uninstall guidance. A check is a
+  // local read of a configured source; nothing here starts a process by itself
+  // except the explicit, verified handoff to Apple Installer.
+  "update:status": z.strictObject({}),
+  "update:configure": UpdateConfigureRequestSchema,
+  "update:check": UpdateCheckRequestSchema,
+  "update:choose-package": UpdateChoosePackageRequestSchema,
+  "update:inspect-local": UpdateChoosePackageRequestSchema,
+  "update:install": UpdateInstallRequestSchema,
+  "update:confirm-engine-change": z.strictObject({
+    packageSha256: z.string().regex(/^[0-9a-f]{64}$/),
+  }),
+  "update:cancel-intent": z.strictObject({ intentId: z.string().min(1).max(120) }),
+  "update:uninstall": z.strictObject({}),
+  "state:recovery": z.strictObject({}),
+  "state:recovery-restore": RecoveryRestoreRequestSchema,
 } as const;
 
 export type IpcChannel = keyof typeof IpcRequests;

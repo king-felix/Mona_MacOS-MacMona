@@ -104,6 +104,16 @@ import type {
   McpToolView,
 } from "./extensions";
 import type {
+  RecoveryRestoreReceipt,
+  RecoveryView,
+  UninstallView,
+  UpdateCheckView,
+  UpdateHandoffReceipt,
+  UpdateIntentRecord,
+  UpdateSourceConfig,
+  UpdateStatusView,
+} from "./update";
+import type {
   FleetEvidenceView,
   FleetLaunchResult,
   FleetRunView,
@@ -644,6 +654,38 @@ export interface MonaBridge {
   exportDiagnosticsBundle(
     projectId?: ProjectId | null,
   ): Promise<IpcResult<DiagnosticsExportResult>>;
+
+  // P23: installer-mediated updates, migration recovery, and uninstall
+  // guidance. A check is a local read of an explicitly configured source; the
+  // only privileged step is the handoff to Apple Installer, which the user
+  // authorizes there. None of these makes a model call.
+  updateStatus(): Promise<IpcResult<UpdateStatusView>>;
+  configureUpdateSource(input: {
+    mode: "manual" | "configured";
+    baseUrl: string | null;
+    manifestPath: string | null;
+    teamId: string | null;
+    manifestKey: string | null;
+    allowLocalPackages: boolean;
+  }): Promise<IpcResult<{ config: UpdateSourceConfig; status: UpdateStatusView }>>;
+  checkForUpdate(refresh?: boolean): Promise<IpcResult<UpdateCheckView>>;
+  chooseUpdatePackage(): Promise<IpcResult<{ chosen: boolean; view: UpdateCheckView | null }>>;
+  inspectLocalUpdate(path?: string): Promise<IpcResult<UpdateCheckView>>;
+  installUpdate(input: {
+    packagePath: string;
+    expectedSha256: string;
+    confirmedLocalBuild?: boolean;
+    confirmedEngineChange?: boolean;
+  }): Promise<IpcResult<UpdateHandoffReceipt>>;
+  confirmEngineChange(packageSha256: string): Promise<IpcResult<{ confirmed: boolean }>>;
+  cancelUpdateIntent(intentId: string): Promise<IpcResult<UpdateIntentRecord>>;
+  uninstallGuide(): Promise<IpcResult<UninstallView>>;
+  stateRecovery(): Promise<IpcResult<RecoveryView>>;
+  restoreRecoverySnapshot(input: {
+    snapshotPath: string;
+    expectedSchemaVersion: number;
+    confirmation: "restore-matching-snapshot";
+  }): Promise<IpcResult<RecoveryRestoreReceipt>>;
 }
 
 export interface AppInfo {

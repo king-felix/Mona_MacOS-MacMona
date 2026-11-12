@@ -17,3 +17,4 @@ export * from "./extensions";
 export * from "./terminal";
 export * from "./capability";
 export * from "./memory";
+export * from "./update";

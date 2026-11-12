@@ -66,6 +66,32 @@ async function waitForOutput(sessionId, cursor, needle, timeoutMs = 8_000) {
   return manager.output(sessionId, cursor, 262_144);
 }
 
+/**
+ * Wait until the ring stops growing.
+ *
+ * A marker reaching the buffer does not mean the child finished writing: the
+ * ring is capped, so `dropped` only becomes non-zero once more than a ring's
+ * worth of output has arrived. Reading totals immediately after the marker made
+ * this check race the shell (observed: total 245866, dropped 0). Waiting for a
+ * quiet window makes the assertion test the ring rather than the scheduler.
+ */
+async function waitForQuiet(sessionId, settleMs = 250, deadlineMs = 15_000) {
+  const deadline = Date.now() + deadlineMs;
+  let last = -1;
+  let quietSince = Date.now();
+  while (Date.now() < deadline) {
+    const totals = manager.output(sessionId, 0, 1);
+    if (totals.total !== last) {
+      last = totals.total;
+      quietSince = Date.now();
+    } else if (Date.now() - quietSince >= settleMs) {
+      return totals;
+    }
+    await sleep(40);
+  }
+  return manager.output(sessionId, 0, 1);
+}
+
 function rawReport() {
   console.log(
     JSON.stringify(
@@ -167,7 +193,9 @@ try {
   );
   const ringRead = await waitForOutput(sessionId, cursor, "RING-DONE", 15_000);
   cursor = ringRead.nextCursor;
-  const all = manager.output(sessionId, 0, 1);
+  // The child may still be writing when the marker appears; wait for the ring
+  // to stop growing before reading its eviction totals.
+  const all = await waitForQuiet(sessionId);
   facts.ring = { total: all.total, dropped: all.dropped, truncated: all.truncated };
   checks.ring_evicts_exactly = all.dropped > 0 && all.truncated === true && all.total > all.dropped;
   const latest = manager.output(sessionId, Math.max(0, all.total - 4_096), 4_096);

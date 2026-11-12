@@ -33,6 +33,9 @@ import type {
   ServiceStatus,
 } from "../shared/contracts/open";
 import type { SettingsDiagnosticsView } from "../shared/contracts/settings";
+import type { RecoveryRestoreReceipt, RecoveryView } from "../shared/contracts/update";
+import type { UpdateCoordinator } from "./update/coordinator";
+import { uninstallView } from "./update/uninstall";
 
 export interface IpcDependencies {
   projects: ProjectService;
@@ -51,6 +54,22 @@ export interface IpcDependencies {
   memory: ProjectMemory | null;
   shelf: PromptShelf | null;
   handoff: ProjectHandoff | null;
+  update: UpdateCoordinator | null;
+  /** Read-only recovery facts, plus one explicit verified-snapshot restore. */
+  recovery: () => RecoveryView;
+  restoreRecoverySnapshot: (input: {
+    snapshotPath: string;
+    expectedSchemaVersion: number;
+  }) => Promise<RecoveryRestoreReceipt>;
+  /** Choose one `.pkg` through the native open dialog; the path never escapes. */
+  choosePackage: () => Promise<string | null>;
+  /** Where package inspection and downloads happen, and the installed facts. */
+  updateFacts: () => {
+    home: string;
+    cache: string;
+    support: string;
+    launchQuit: boolean;
+  };
   /** Native dialogs and file writes for the memory surface, owned by the entry point. */
   memoryFiles: MemoryFileDialogs;
   /** Save an already-redacted diagnostics report through the native dialog. */
@@ -1162,5 +1181,96 @@ export function registerIpc(rendererRoot: string, dependencies: IpcDependencies)
 
   handle("polish:quit", (input) =>
     envelope(() => dependencies.quit((input as { interrupt: boolean }).interrupt)),
+  );
+
+  // P23: updates, recovery, uninstall. Reading state is local; the only action
+  // that changes the machine is the verified handoff, and Installer owns the
+  // privileged half of it.
+  const requireUpdate = (): UpdateCoordinator => {
+    if (!dependencies.update) {
+      throw new StateError("CONFLICT", "the update surface is not available in this build");
+    }
+    return dependencies.update;
+  };
+
+  handle("update:status", () => envelope(() => requireUpdate().status()));
+
+  handle("update:configure", (input) =>
+    envelope(async () => {
+      const config = await requireUpdate().configure(input);
+      return { config, status: await requireUpdate().status() };
+    }),
+  );
+
+  handle("update:check", (input) =>
+    envelope(() =>
+      requireUpdate().check({ refresh: (input as { refresh?: boolean }).refresh === true }),
+    ),
+  );
+
+  handle("update:choose-package", () =>
+    envelope(async () => {
+      const path = await dependencies.choosePackage();
+      if (path === null) return { chosen: false, view: null };
+      return { chosen: true, view: await requireUpdate().inspectLocal(path) };
+    }),
+  );
+
+  handle("update:inspect-local", (input) =>
+    envelope(async () => {
+      const supplied = (input as { path?: string }).path;
+      const path = supplied ?? (await dependencies.choosePackage());
+      if (path === null) throw new StateError("NOT_FOUND", "no package was chosen");
+      return requireUpdate().inspectLocal(path);
+    }),
+  );
+
+  handle("update:install", (input) =>
+    envelope(() =>
+      requireUpdate().install(
+        input as {
+          packagePath: string;
+          expectedSha256: string;
+          confirmedLocalBuild?: boolean;
+          confirmedEngineChange?: boolean;
+        },
+      ),
+    ),
+  );
+
+  handle("update:confirm-engine-change", (input) =>
+    envelope(() => {
+      requireUpdate().confirmEngineChange((input as { packageSha256: string }).packageSha256);
+      return { confirmed: true };
+    }),
+  );
+
+  handle("update:cancel-intent", (input) =>
+    envelope(() => requireUpdate().cancelIntent((input as { intentId: string }).intentId)),
+  );
+
+  handle("update:uninstall", () =>
+    envelope(() => {
+      const facts = dependencies.updateFacts();
+      return uninstallView({ home: facts.home });
+    }),
+  );
+
+  handle("state:recovery", () => envelope(() => dependencies.recovery()));
+
+  handle("state:recovery-restore", (input) =>
+    envelope(() => {
+      const request = input as {
+        snapshotPath: string;
+        expectedSchemaVersion: number;
+        confirmation: "restore-matching-snapshot";
+      };
+      // The schema in the request is the one the user was shown; the recovery
+      // contract refuses a snapshot this build cannot open.
+      return dependencies.restoreRecoverySnapshot({
+        snapshotPath: request.snapshotPath,
+        expectedSchemaVersion: request.expectedSchemaVersion,
+      });
+    }),
   );
 }

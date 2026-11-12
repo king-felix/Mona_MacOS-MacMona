@@ -45,6 +45,7 @@
     "smoke:capability": "npm run build:main && node scripts/capability-smoke.mjs",
     "smoke:memory": "npm run build:main && node scripts/memory-smoke.mjs",
     "smoke:failure": "npm run build:main && node scripts/p20-failure-smoke.mjs",
+    "smoke:p23": "npm run build:main && node scripts/p23-lifecycle-smoke.mjs",
     "mac:doctor": "node packaging/macos/doctor.mjs",
     "mac:package:local": "node packaging/macos/build.mjs --mode local",
     "mac:package:release": "node packaging/macos/build.mjs --mode release",

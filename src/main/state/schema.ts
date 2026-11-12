@@ -658,6 +658,31 @@ CREATE INDEX orchestration_events_project
   ON orchestration_events (project_id, created_at);
 `;
 
+// v8 records an installer-mediated update intent before any privileged action.
+// A row is the durable statement of what was about to be installed, what state
+// backup verified it, and how far it got. It is deliberately not a competing
+// package database: Installer owns installation, and this table is evidence.
+const V8 = `
+CREATE TABLE update_intents (
+  id              TEXT PRIMARY KEY,
+  state           TEXT NOT NULL
+                  CHECK (state IN ('recorded', 'handed_off', 'cancelled', 'failed', 'observed_migrated')),
+  from_version    TEXT NOT NULL,
+  to_version      TEXT NOT NULL,
+  channel         TEXT NOT NULL CHECK (channel IN ('release', 'local')),
+  package_path    TEXT NOT NULL,
+  package_sha256  TEXT NOT NULL CHECK (length(package_sha256) = 64),
+  source          TEXT NOT NULL CHECK (source IN ('manual', 'configured')),
+  backup_path     TEXT,
+  backup_sha256   TEXT,
+  detail_json     TEXT NOT NULL DEFAULT '{}',
+  created_at      TEXT NOT NULL,
+  updated_at      TEXT NOT NULL
+);
+CREATE INDEX update_intents_created ON update_intents (created_at DESC);
+CREATE INDEX update_intents_state ON update_intents (state, updated_at DESC);
+`;
+
 export const MIGRATIONS: readonly Migration[] = [
   { version: 1, name: "core-project-state", sql: V1 },
   { version: 2, name: "project-identity-fields", sql: V2 },
@@ -666,6 +691,7 @@ export const MIGRATIONS: readonly Migration[] = [
   { version: 5, name: "cost-ledger-rates-and-budgets", sql: V5 },
   { version: 6, name: "change-receipts-git-and-restore", sql: V6 },
   { version: 7, name: "orchestration-observations-and-receipts", sql: V7 },
+  { version: 8, name: "installer-update-intents", sql: V8 },
 ];
 
 export const CURRENT_SCHEMA_VERSION = MIGRATIONS[MIGRATIONS.length - 1]?.version ?? 0;
@@ -707,6 +733,7 @@ export const REQUIRED_TABLES: readonly string[] = [
   "tasks",
   "threads",
   "turns",
+  "update_intents",
   "usage_records",
 ];
 
@@ -724,10 +751,12 @@ const V7_TABLES: readonly string[] = [
   "orchestration_events",
   "orchestration_runs",
 ];
+const V8_TABLES: readonly string[] = ["update_intents"];
 
 /** Tables a database at `version` must have. Older targets predate v3–v7. */
 export function requiredTablesFor(version: number): readonly string[] {
   let tables: readonly string[] = REQUIRED_TABLES;
+  if (version < 8) tables = tables.filter((t) => !V8_TABLES.includes(t));
   if (version < 7) tables = tables.filter((t) => !V7_TABLES.includes(t));
   if (version < 6) tables = tables.filter((t) => !V6_TABLES.includes(t));
   if (version < 5) tables = tables.filter((t) => !V5_TABLES.includes(t));

@@ -46,6 +46,78 @@ beforeAll(() => {
       detail: [],
       checkedAt: "2026-11-12T00:00:00.000Z",
     }),
+    // P23: the Updates tab reads these on mount. This fixture models the real
+    // bridge shape; a value of `null` here would make the tab claim "unavailable"
+    // and hide the controls the test is not exercising.
+    updateStatus: async () => ({
+      ok: true,
+      value: {
+        current: {
+          version: "0.1.0",
+          build: 81,
+          channel: "local",
+          schemaVersion: 8,
+          engineVersion: "0.10.2",
+        },
+        config: {
+          schemaVersion: 1,
+          mode: "manual",
+          baseUrl: null,
+          manifestPath: null,
+          teamId: null,
+          manifestKey: null,
+          allowLocalPackages: true,
+        },
+        configProblem: null,
+        source: {
+          baseUrl: null,
+          host: null,
+          manifestAuthenticated: false,
+          keyFingerprint: null,
+        },
+        lastCheck: null,
+        lastIntent: null,
+        history: [],
+        deferral: {
+          deferred: false,
+          items: [],
+          reason: "No task, turn, or runtime is active.",
+          action: "An update can be verified and handed to Installer now.",
+        },
+        note: "Manual package updates.",
+      },
+    }),
+    uninstallGuide: async () => ({
+      ok: true,
+      value: {
+        applied: false,
+        installedReceipt: null,
+        ownershipManifestPresent: false,
+        entries: [],
+        userDataScopes: [],
+        preserves: [],
+        utility: {
+          path: null,
+          signed: false,
+          commands: { dryRun: "", removeService: "", removeUserData: "" },
+        },
+        note: "This copy was not installed by the package.",
+      },
+    }),
+    stateRecovery: async () => ({
+      ok: true,
+      value: {
+        buildSchemaVersion: 8,
+        databaseSchemaVersion: 8,
+        state: "ok",
+        problem: null,
+        snapshots: [],
+        journal: null,
+        support: { supportPath: "/tmp", backupsPath: "/tmp", reportPath: null, instruction: "" },
+        canRestoreSnapshot: false,
+        note: "A restore replaces the whole database with the snapshot.",
+      },
+    }),
   };
 });
 

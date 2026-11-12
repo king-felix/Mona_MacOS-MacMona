@@ -1,4 +1,5 @@
 import { Buffer } from "node:buffer";
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { readMachO } from "../packaging/macos/lib/macho.mjs";
 import {
@@ -7,6 +8,8 @@ import {
   renderDistribution,
   renderOwnedPaths,
 } from "../packaging/macos/lib/distribution.mjs";
+import { reviewUninstallScript } from "../packaging/macos/lib/uninstall.mjs";
+import { assertRehearsalRoot } from "../packaging/macos/lib/rehearsal.mjs";
 import { buildHostPatterns, scanNames, scanText } from "../packaging/macos/lib/secrets.mjs";
 
 function thinArm64(minOs = 0x000e0000): Buffer {
@@ -132,7 +135,62 @@ describe("installer metadata", () => {
       "/Library/Services/Mona.service",
       "/Library/Application Support/Mona/install-receipt.json",
       "/Library/Application Support/Mona/owned-paths.json",
+      // P23 ships the bounded removal utility with the payload it removes.
+      "/Library/Application Support/Mona/uninstall-mona.sh",
     ]);
+    expect(owned.owned.map((entry: { kind: string }) => entry.kind)).toContain("uninstall-utility");
     expect(owned.preserves.join(" ")).toContain("Application Support/Mona");
+  });
+});
+
+describe("uninstall utility bounds", () => {
+  const shipped = readFileSync(
+    new URL("../packaging/macos/scripts/uninstall-mona.sh", import.meta.url),
+    "utf8",
+  );
+
+  it("ships a POSIX script that passes its own bounds review", () => {
+    expect(reviewUninstallScript(shipped)).toEqual([]);
+    expect(shipped.startsWith("#!/bin/sh")).toBe(true);
+    expect(shipped).toContain("com.mona.workbench");
+    expect(shipped).toContain("com.mona.workbench.service");
+    expect(shipped).toContain("--remove-user-data");
+    // The utility must consult the ownership manifest, not a hardcoded list.
+    expect(shipped).toContain("owned-paths.json");
+  });
+
+  it("refuses a script that would delete a root, a wildcard, or every user", () => {
+    const hostile = [
+      "#!/bin/sh\nset -eu\n/bin/rm -rf /\n",
+      "#!/bin/sh\nset -eu\n/bin/rm -rf /Users/*\n",
+      '#!/bin/sh\nset -eu\n/bin/rm -rf "/Applications/"*\n',
+      "#!/bin/sh\nset -eu\n/bin/rm -rf $HOME\n",
+      '#!/bin/sh\nset -eu\ncase "$1" in\n  --all-users) /bin/rm -rf /Users ;;\nesac\n',
+      "#!/bin/sh\nset -eu\n/bin/rm -rf /Users/*/Library\n",
+    ];
+    for (const text of hostile) {
+      expect(reviewUninstallScript(text).length).toBeGreaterThan(0);
+    }
+    expect(reviewUninstallScript("#!/bin/bash\nexit 0\n").length).toBeGreaterThan(0);
+    expect(reviewUninstallScript("#!/bin/sh\nset -e\nexit 0\n").length).toBeGreaterThan(0);
+  });
+});
+
+describe("rehearsal root guard", () => {
+  it("accepts a fresh directory inside the temporary tree", () => {
+    expect(assertRehearsalRoot("/tmp/mona-rehearsal/root", "/tmp")).toBe(
+      "/tmp/mona-rehearsal/root",
+    );
+  });
+
+  it("refuses the real filesystem roots", () => {
+    // This is the guard that stops a build step from deleting /Applications.
+    expect(() => assertRehearsalRoot("/", "/tmp")).toThrow(/never the real filesystem/);
+    expect(() => assertRehearsalRoot("/tmp", "/tmp")).toThrow(/never the real filesystem/);
+    expect(() => assertRehearsalRoot("/Applications", "/tmp")).toThrow(/never the real filesystem/);
+    expect(() => assertRehearsalRoot("/tmp-evil/root", "/tmp")).toThrow(
+      /never the real filesystem/,
+    );
+    expect(() => assertRehearsalRoot("", "/tmp")).toThrow(/never the real filesystem/);
   });
 });

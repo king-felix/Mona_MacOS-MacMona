@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "label": "P16 — provider, model, and configuration workbench",
-  "captured_at": "2026-11-12T17:16:50.867Z",
+  "captured_at": "2026-11-12T19:50:16.766Z",
   "ok": true,
   "isolated_home": true,
   "checks": {
@@ -93,7 +93,7 @@
         "updatedAt": null,
         "validation": {
           "ok": true,
-          "checkedAt": "2026-11-12T17:16:51.410Z",
+          "checkedAt": "2026-11-12T19:50:17.324Z",
           "reason": null,
           "catalog": "live"
         }
@@ -108,7 +108,7 @@
         "approvalMode": "suggest",
         "sandboxMode": "workspace-write",
         "allowShell": false,
-        "readAt": "2026-11-12T17:16:51.408Z",
+        "readAt": "2026-11-12T19:50:17.322Z",
         "source": "live",
         "error": null
       },
@@ -123,7 +123,7 @@
         "sha256": "da0229610647f1cc2dd14c4227b333a92ea276a49f5d4d79160fa19e515e590d",
         "version": "0.10.2",
         "commit": "ff466b2ed0bfb4ae5267d4d8d0ecb562cf46956e",
-        "note": "Mona uses the installed native arm64 engine resolved at a fixed path. Platform binaries are selected by packaging, never by PATH."
+        "note": "This development build runs the pinned host installation of Codewhale. Packaged Mona carries its own engine instead."
       }
     },
     "saved_default": {
@@ -168,7 +168,7 @@
       },
       "persisted": true,
       "requiresReload": false,
-      "backupPath": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p16-smoke-DXaY0C/product/engine-config/engine-config-2026-11-12T17-16-51-530Z-1aa6faca56c6-config.toml",
+      "backupPath": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p16-smoke-WXXJba/product/engine-config/engine-config-2026-11-12T19-50-17-437Z-1aa6faca56c6-config.toml",
       "backupSha256": "1aa6faca56c6883518f81131e1cc089ddc00280410f42a522002121b87d784b4",
       "revisionBefore": "1aa6faca56c6883518f81131e1cc089ddc00280410f42a522002121b87d784b4",
       "revisionAfter": "ac4abaf346adc49b38223718dd7ef4ba1a7ef1bbb02cd43bce0ef65f233a1f74",
@@ -201,7 +201,7 @@
   },
   "backups": [
     {
-      "file": "engine-config-2026-11-12T17-16-51-530Z-1aa6faca56c6-config.toml",
+      "file": "engine-config-2026-11-12T19-50-17-437Z-1aa6faca56c6-config.toml",
       "sha256": "1aa6faca56c6883518f81131e1cc089ddc00280410f42a522002121b87d784b4",
       "revision": "1aa6faca56c6883518f81131e1cc089ddc00280410f42a522002121b87d784b4"
     }

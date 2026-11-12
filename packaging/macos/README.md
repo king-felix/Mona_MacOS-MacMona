@@ -1,7 +1,8 @@
 # packaging/macos
 
 The local Apple Silicon app and installer pipeline, landed at P21. Signed and
-notarized release qualification is P22.
+notarized release qualification is P22; update, migration, rollback, and
+uninstall lifetime are P23 (see `docs/decisions/ADR-016-update-and-lifecycle.md`).
 
 ## Commands
 
@@ -24,6 +25,14 @@ The build always rebuilds the main/renderer bundles and the three native helpers
 unless `--skip-build` is given, so a package cannot silently ship an older
 `dist/` than its source.
 
+The build also rehearses the removal utility it ships and writes
+`out/uninstall-rehearsal.json` as it goes: a dry run that changes nothing, a
+missing-manifest refusal, a wrong-identifier refusal, then a real removal that
+preserves unrelated applications and user config. Every installer rehearsal is
+guarded by `lib/rehearsal.mjs`, which refuses any root outside the process's
+temporary directory — a build step must never resolve an empty
+`MONA_INSTALL_ROOT` to the real `/`.
+
 ## Payload
 
 - `Applications/Mona.app`
@@ -36,7 +45,14 @@ unless `--skip-build` is given, so a package cannot silently ship an older
     React DOM, zod notices.
   - `Contents/Resources/component-manifest.json` — the payload's own hashes.
 - `Library/Services/Mona.service` — the Finder Service.
-- `Library/Application Support/Mona/owned-paths.json` — the P23 ownership list.
+- `Library/Application Support/Mona/owned-paths.json` — the ownership list the
+  removal utility reads; the only source of package-owned paths.
+- `Library/Application Support/Mona/uninstall-mona.sh` — the bounded removal
+  utility (P23). It verifies each bundle's identifier, refuses an unrecognized
+  path or a missing manifest, and preserves every user's state by default.
+- `Resources/update-metadata.json` — the installer's own version/build/channel
+  identity, read from a metadata-only `pkgutil --expand` when Mona verifies a
+  candidate package.
 
 No ASAR archive, no native `.node` modules, no developer config, keys, state,
 sessions, source projects, or build-machine paths.
@@ -63,6 +79,16 @@ Local mode is ad-hoc signed and named/labelled “Local development build”. It
 not a shareable release. Release mode refuses to run without Developer ID
 Application and Installer identities, and P22 adds notarization, stapling, and
 release verification.
+
+## Updating an installed copy (P23)
+
+Mona never installs itself. With no distribution source configured it shows
+**Manual package updates** and verifies a package you choose; with an explicitly
+configured HTTPS source it reads an Ed25519-signed manifest, then verifies the
+downloaded bytes. Either way the order is: verify → defer while any run is
+active → record the intent → take a verified state snapshot → open Apple
+Installer. Settings → Updates shows every recorded fact, including the exact
+refusal code and the active items that deferred an update.
 
 ## Verification
 

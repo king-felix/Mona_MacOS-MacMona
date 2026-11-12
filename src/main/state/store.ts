@@ -1,5 +1,5 @@
 import { createHash, randomBytes } from "node:crypto";
-import { copyFileSync, existsSync, renameSync } from "node:fs";
+import { copyFileSync, existsSync, readFileSync, renameSync, statSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
 import type { DatabaseSync } from "node:sqlite";
 import {
@@ -21,6 +21,7 @@ import {
   type TaskState,
   type TaskStatus,
   type TokenSemantics,
+  type UpdateIntentRecord,
 } from "../../shared/contracts";
 import {
   ArtifactFileStore,
@@ -937,6 +938,22 @@ function validateName(name: string, label: string): string {
 
 function escapeLike(value: string): string {
   return value.replace(/[\\%_]/g, (match) => `\\${match}`);
+}
+
+/**
+ * An intent moves forward only. A terminal state may be re-read but never
+ * replaced by a different terminal state, so a cancellation cannot later
+ * masquerade as a successful migration.
+ */
+function updateStateTransitionAllowed(
+  from: UpdateIntentRecord["state"],
+  to: UpdateIntentRecord["state"],
+): boolean {
+  if (from === to) return false;
+  if (from === "handed_off")
+    return to === "observed_migrated" || to === "cancelled" || to === "failed";
+  if (from === "recorded") return to === "handed_off" || to === "cancelled" || to === "failed";
+  return false;
 }
 
 /**
@@ -5789,6 +5806,291 @@ export class StateStore {
         );
       }
     });
+  }
+
+  /**
+   * Everything that would lose work if the app were replaced right now. This is
+   * read only; deferring an update never stops, pauses, or interrupts a run.
+   */
+  async activeWork(): Promise<
+    Array<{
+      projectId: string;
+      projectName: string;
+      kind: "turn" | "task" | "runtime" | "submission";
+      taskId: string | null;
+      taskTitle: string | null;
+      detail: string;
+    }>
+  > {
+    return this.read((db) => {
+      const items: Array<{
+        projectId: string;
+        projectName: string;
+        kind: "turn" | "task" | "runtime" | "submission";
+        taskId: string | null;
+        taskTitle: string | null;
+        detail: string;
+      }> = [];
+
+      const tasks = db
+        .prepare(
+          "SELECT t.id, t.title, t.status, t.active_turn_id, p.id AS project_id, p.name " +
+            "FROM tasks t JOIN projects p ON p.id = t.project_id " +
+            "WHERE t.status = 'running' ORDER BY t.updated_at DESC",
+        )
+        .all() as DbRow[];
+      for (const row of tasks) {
+        const turn = asNullableString(row.active_turn_id);
+        items.push({
+          projectId: asString(row.project_id),
+          projectName: asString(row.name),
+          kind: turn === null ? "task" : "turn",
+          taskId: asString(row.id),
+          taskTitle: asString(row.title),
+          detail: turn === null ? "task is running" : `turn ${turn} is active`,
+        });
+      }
+
+      const submissions = db
+        .prepare(
+          "SELECT s.operation_key, s.status, p.id AS project_id, p.name " +
+            "FROM submissions s JOIN projects p ON p.id = s.project_id " +
+            "WHERE s.status IN ('queued', 'sending', 'accepted', 'running', 'outcome_unknown') " +
+            "ORDER BY s.submitted_at DESC",
+        )
+        .all() as DbRow[];
+      for (const row of submissions) {
+        items.push({
+          projectId: asString(row.project_id),
+          projectName: asString(row.name),
+          kind: "submission",
+          taskId: null,
+          taskTitle: null,
+          detail: `submission ${asString(row.operation_key)} is ${asString(row.status)}`,
+        });
+      }
+
+      const bindings = db
+        .prepare(
+          "SELECT b.project_id, b.state, b.workspace, p.name " +
+            "FROM runtime_bindings b JOIN projects p ON p.id = b.project_id " +
+            "WHERE b.state IN ('starting', 'running', 'stopping')",
+        )
+        .all() as DbRow[];
+      for (const row of bindings) {
+        items.push({
+          projectId: asString(row.project_id),
+          projectName: asString(row.name),
+          kind: "runtime",
+          taskId: null,
+          taskTitle: null,
+          detail: `engine runtime is ${asString(row.state)} in ${asString(row.workspace)}`,
+        });
+      }
+
+      return items;
+    });
+  }
+
+  // ---------------------------------------------------------- update intents
+
+  /**
+   * Record an installer-mediated update intent before anything privileged
+   * happens. The row is the durable statement of what was about to be
+   * installed; `backupPath`/`backupSha256` name the state snapshot that was
+   * verified first, so a failed update has a recovery path without guessing.
+   */
+  async recordUpdateIntent(input: {
+    fromVersion: string;
+    toVersion: string;
+    channel: "release" | "local";
+    packagePath: string;
+    packageSha256: string;
+    source: "manual" | "configured";
+    backupPath?: string | null;
+    backupSha256?: string | null;
+    detail?: unknown;
+  }): Promise<UpdateIntentRecord> {
+    if (!/^[0-9a-f]{64}$/.test(input.packageSha256)) {
+      throw new StateError("INVALID_INPUT", "package digest must be a sha256 hex string");
+    }
+    return this.write((db, now) => {
+      const id = this.id("upd");
+      db.prepare(
+        "INSERT INTO update_intents (id, state, from_version, to_version, channel, package_path, " +
+          "package_sha256, source, backup_path, backup_sha256, detail_json, created_at, updated_at) " +
+          "VALUES (?, 'recorded', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      ).run(
+        id,
+        input.fromVersion,
+        input.toVersion,
+        input.channel,
+        input.packagePath,
+        input.packageSha256,
+        input.source,
+        input.backupPath ?? null,
+        input.backupSha256 ?? null,
+        JSON.stringify(input.detail ?? {}),
+        now,
+        now,
+      );
+      return this.updateIntentFromRow(
+        db.prepare("SELECT * FROM update_intents WHERE id = ?").get(id) as DbRow,
+      );
+    });
+  }
+
+  /** Attach the verified state snapshot to an intent that is still `recorded`. */
+  async attachUpdateBackup(
+    id: string,
+    backupPath: string,
+    backupSha256: string,
+  ): Promise<UpdateIntentRecord> {
+    return this.write((db, now) => {
+      const row = db.prepare("SELECT state FROM update_intents WHERE id = ?").get(id) as
+        { state: string } | undefined;
+      if (!row) throw new StateError("NOT_FOUND", "update intent does not exist", { id });
+      if (row.state !== "recorded") {
+        throw new StateError("CONFLICT", "a backup can only be attached to a recorded intent", {
+          id,
+          state: row.state,
+        });
+      }
+      db.prepare(
+        "UPDATE update_intents SET backup_path = ?, backup_sha256 = ?, updated_at = ? WHERE id = ?",
+      ).run(backupPath, backupSha256, now, id);
+      return this.updateIntentFromRow(
+        db.prepare("SELECT * FROM update_intents WHERE id = ?").get(id) as DbRow,
+      );
+    });
+  }
+
+  /** Advance an intent's state. Only forward transitions are accepted. */
+  async settleUpdateIntent(
+    id: string,
+    state: UpdateIntentRecord["state"],
+    extra: { backupPath?: string | null; backupSha256?: string | null; detail?: unknown } = {},
+  ): Promise<UpdateIntentRecord> {
+    return this.write((db, now) => {
+      const row = db.prepare("SELECT state FROM update_intents WHERE id = ?").get(id) as
+        { state: string } | undefined;
+      if (!row) throw new StateError("NOT_FOUND", "update intent does not exist", { id });
+      const current = row.state as UpdateIntentRecord["state"];
+      if (!updateStateTransitionAllowed(current, state)) {
+        throw new StateError("CONFLICT", `update intent cannot move from ${current} to ${state}`, {
+          id,
+          from: current,
+          to: state,
+        });
+      }
+      const detailJson = extra.detail === undefined ? undefined : JSON.stringify(extra.detail);
+      db.prepare(
+        "UPDATE update_intents SET state = ?, updated_at = ?, " +
+          "backup_path = COALESCE(?, backup_path), backup_sha256 = COALESCE(?, backup_sha256), " +
+          "detail_json = COALESCE(?, detail_json) WHERE id = ?",
+      ).run(
+        state,
+        now,
+        extra.backupPath ?? null,
+        extra.backupSha256 ?? null,
+        detailJson ?? null,
+        id,
+      );
+      return this.updateIntentFromRow(
+        db.prepare("SELECT * FROM update_intents WHERE id = ?").get(id) as DbRow,
+      );
+    });
+  }
+
+  async latestUpdateIntent(): Promise<UpdateIntentRecord | null> {
+    return this.read((db) => {
+      const row = db
+        .prepare("SELECT * FROM update_intents ORDER BY created_at DESC, rowid DESC LIMIT 1")
+        .get() as DbRow | undefined;
+      return row ? this.updateIntentFromRow(row) : null;
+    });
+  }
+
+  async listUpdateIntents(limit = 10): Promise<UpdateIntentRecord[]> {
+    const bounded = Math.min(Math.max(Math.trunc(limit), 1), 50);
+    return this.read((db) => {
+      const rows = db
+        .prepare("SELECT * FROM update_intents ORDER BY created_at DESC, rowid DESC LIMIT ?")
+        .all(bounded) as DbRow[];
+      return rows.map((row) => this.updateIntentFromRow(row));
+    });
+  }
+
+  /**
+   * Packages this Mac has already applied or handed to Installer. Replay
+   * protection reads this; a cancelled intent never counts, because its
+   * package was not installed.
+   */
+  async appliedUpdatePackages(): Promise<Array<{ sha256: string; version: string; at: string }>> {
+    return this.read((db) => {
+      const rows = db
+        .prepare(
+          "SELECT package_sha256, to_version, created_at FROM update_intents " +
+            "WHERE state IN ('handed_off', 'observed_migrated') ORDER BY created_at DESC",
+        )
+        .all() as DbRow[];
+      const seen = new Set<string>();
+      const applied: Array<{ sha256: string; version: string; at: string }> = [];
+      for (const row of rows) {
+        const sha256 = asString(row.package_sha256);
+        if (seen.has(sha256)) continue;
+        seen.add(sha256);
+        applied.push({ sha256, version: asString(row.to_version), at: asString(row.created_at) });
+      }
+      return applied;
+    });
+  }
+
+  /**
+   * A verified snapshot for a pending update. It runs under the maintenance
+   * barrier, so no writer can slip a change into the middle of the copy, and
+   * the copy is reopened read-only and integrity-checked before it is named.
+   */
+  async backupForUpdate(
+    label: string,
+  ): Promise<{ path: string; sha256: string; sizeBytes: number; schemaVersion: number }> {
+    const safeLabel = label.replace(/[^A-Za-z0-9._-]+/g, "-").slice(0, 40) || "update";
+    return this.barrier.runMaintenance(async () => {
+      this.assertOpen();
+      const stamp = this.now().replace(/[:.]/g, "-");
+      const path = join(this.options.backupDir, `pre-update-${safeLabel}-${stamp}.sqlite`);
+      await backupDatabase(this.db, path);
+      const snapshot = openDatabase({ path, readonly: true });
+      const schemaVersion = (() => {
+        const row = snapshot.prepare("PRAGMA user_version").get() as
+          { user_version?: number } | undefined;
+        return Number(row?.user_version ?? 0);
+      })();
+      try {
+        assertIntegrity(snapshot, "pre-update snapshot");
+      } finally {
+        snapshot.close();
+      }
+      const sha256 = createHash("sha256").update(readFileSync(path)).digest("hex");
+      return { path, sha256, sizeBytes: statSync(path).size, schemaVersion };
+    });
+  }
+
+  private updateIntentFromRow(row: DbRow): UpdateIntentRecord {
+    return {
+      id: asString(row.id),
+      state: asString(row.state) as UpdateIntentRecord["state"],
+      fromVersion: asString(row.from_version),
+      toVersion: asString(row.to_version),
+      channel: asString(row.channel) as UpdateIntentRecord["channel"],
+      packagePath: asString(row.package_path),
+      packageSha256: asString(row.package_sha256),
+      source: asString(row.source) as UpdateIntentRecord["source"],
+      backupPath: asNullableString(row.backup_path),
+      backupSha256: asNullableString(row.backup_sha256),
+      createdAt: asString(row.created_at),
+      updatedAt: asString(row.updated_at),
+    };
   }
 
   // -------------------------------------------------------------- lifecycle

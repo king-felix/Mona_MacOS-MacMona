@@ -105,6 +105,7 @@ const SETTINGS_TABS = [
   { id: "runtime", label: "Runtime" },
   { id: "finder", label: "Finder" },
   { id: "privacy", label: "Privacy" },
+  { id: "updates", label: "Updates" },
   { id: "recovery", label: "Recovery" },
 ];
 
