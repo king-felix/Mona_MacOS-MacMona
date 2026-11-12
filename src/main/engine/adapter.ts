@@ -15,7 +15,7 @@ import { AdapterError, UnsupportedCapabilityError } from "./errors";
 import { EventProjector } from "./projector";
 import { SseParser } from "./sse";
 import type { SubmissionStore } from "./submission-store";
-import { startOwnedRuntime, stopOwnedRuntime, type OwnedProcess } from "./runtime-process";
+import { startOwnedRuntime, stopOwnedRuntime, type OwnedRuntime } from "./runtime-process";
 import type {
   CapabilityInvocation,
   CapabilityResult,
@@ -36,7 +36,7 @@ import type {
   UsageReport,
   SubmitTurnInput,
 } from "./types";
-import type { RuntimeTransport, TransportResponse } from "./transport";
+import { HttpRuntimeTransport, type RuntimeTransport, type TransportResponse } from "./transport";
 import { WireInterrupt, WireRuntimeInfo, WireThread, WireTurn, WireUsageResponse } from "./wire";
 
 export interface AdapterOptions {
@@ -104,7 +104,7 @@ export class CodewhaleAdapter implements EngineAdapter {
   private readonly now: () => Date;
   private info: WireRuntimeInfo | null = null;
   private capabilities: EngineCapabilities | null = null;
-  private owned: OwnedProcess | null = null;
+  private owned: OwnedRuntime | null = null;
   private readonly projectors = new Map<string, EventProjector>();
 
   constructor(options: AdapterOptions) {
@@ -145,10 +145,13 @@ export class CodewhaleAdapter implements EngineAdapter {
     if (this.owned)
       throw new AdapterError("RUNTIME_UNAVAILABLE", "an owned runtime is already active");
     this.owned = await startOwnedRuntime(input);
-    this.transport = this.owned.transport;
+    this.transport = new HttpRuntimeTransport({
+      baseUrl: this.owned.runtime.baseUrl,
+      token: this.owned.token,
+    });
     this.info = null;
     this.capabilities = null;
-    return this.owned.handle;
+    return this.owned.runtime;
   }
 
   async shutdownOwnedRuntime(handle: RuntimeHandle): Promise<{ stopped: boolean }> {
@@ -156,7 +159,7 @@ export class CodewhaleAdapter implements EngineAdapter {
     this.owned = null;
     this.info = null;
     this.capabilities = null;
-    return result;
+    return { stopped: result.state === "stopped" };
   }
 
   // ------------------------------------------------------------------- threads

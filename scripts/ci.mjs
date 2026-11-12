@@ -21,7 +21,7 @@ function run(name, command, args) {
   return ok;
 }
 
-for (const script of ["format:check", "lint", "typecheck", "test", "build"]) {
+for (const script of ["format:check", "lint", "typecheck", "build:supervisor", "test", "build"]) {
   if (!run(script, "npm", ["run", script])) break;
 }
 

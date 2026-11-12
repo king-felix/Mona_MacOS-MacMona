@@ -12,8 +12,11 @@ const require = createRequire(import.meta.url);
 const ROOT = resolve(new URL("..", import.meta.url).pathname);
 const { CodewhaleAdapter } = require(join(ROOT, "dist/main/main/engine/adapter.js"));
 const { MemorySubmissionStore } = require(join(ROOT, "dist/main/main/engine/submission-store.js"));
+const { OwnershipStore } = require(join(ROOT, "dist/main/main/supervisor/records.js"));
+const { listeningPids } = require(join(ROOT, "dist/main/main/supervisor/identity.js"));
 
 const workspace = await mkdtemp(join(tmpdir(), "mona-engine-smoke-"));
+const stateDir = await mkdtemp(join(tmpdir(), "mona-engine-state-"));
 await mkdir(join(workspace, "src"), { recursive: true });
 const stamp = Date.now();
 const threadKey = `cwc-smoke-thread-${stamp}`;
@@ -33,9 +36,32 @@ const result = {
 };
 
 const adapter = new CodewhaleAdapter({ store: new MemorySubmissionStore() });
+const ownership = new OwnershipStore(join(stateDir, "runtime-ownership.json"));
 let handle = null;
 try {
-  handle = await adapter.startOwnedRuntime({ workspace });
+  handle = await adapter.startOwnedRuntime({
+    workspace,
+    stateDir,
+    logDir: join(stateDir, "logs"),
+    startupTimeoutMs: 30_000,
+  });
+  const liveRecords = ownership.live();
+  result.supervision = {
+    supervisor_pid: handle.pid,
+    child_pid: handle.childPid,
+    child_started_at: handle.childStartedAt,
+    pgid: handle.pgid,
+    listener_pid: handle.listenerPid,
+    ownership_id: handle.ownershipId,
+    executable_sha256: handle.executableSha256,
+    records: liveRecords.map((record) => ({
+      id: record.id,
+      state: record.state,
+      port: record.port,
+      executable: record.executable,
+      has_token: Object.hasOwn(record, "token"),
+    })),
+  };
   const caps = await adapter.discover();
   result.engine = caps.identity;
 
@@ -141,6 +167,9 @@ try {
     operation_lookup_same_turn: lookup.turnId === receipt.turnId && lookup.evidence === "lookup",
     usage_reported: usage.totals.turns >= 1,
     interrupt_route_reachable: interrupt !== null,
+    supervised_runtime: handle.pid > 0 && handle.childPid > 0 && handle.pgid === handle.childPid,
+    ownership_record_running: liveRecords.length === 1 && liveRecords[0].state === "running",
+    record_has_no_token: liveRecords.every((record) => !Object.hasOwn(record, "token")),
   };
   result.events = events;
   result.diagnostic_reasons = diagnosticReasons;
@@ -151,8 +180,42 @@ try {
 } catch (error) {
   result.error = { message: error.message, code: error.code ?? null, stack: error.stack };
 } finally {
-  if (handle) await adapter.shutdownOwnedRuntime(handle);
+  if (handle) {
+    const shutdown = await adapter.shutdownOwnedRuntime(handle);
+    const port = handle.port;
+    let supervisorGone = false;
+    for (let attempt = 0; attempt < 40 && !supervisorGone; attempt += 1) {
+      try {
+        process.kill(handle.pid, 0);
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      } catch {
+        supervisorGone = true;
+      }
+    }
+    const childGone = (() => {
+      try {
+        process.kill(handle.childPid, 0);
+        return false;
+      } catch {
+        return true;
+      }
+    })();
+    const record = ownership.get(handle.ownershipId);
+    result.shutdown = {
+      stopped: shutdown.stopped,
+      supervisor_gone: supervisorGone,
+      child_gone: childGone,
+      listeners_after_stop: listeningPids(port),
+      record_state: record?.state ?? null,
+    };
+    result.checks.supervisor_stopped = shutdown.stopped === true;
+    result.checks.supervisor_process_gone = supervisorGone;
+    result.checks.no_listener_after_stop = listeningPids(port).length === 0;
+    result.checks.ownership_record_stopped = record?.state === "stopped";
+    result.ok = result.ok && Object.values(result.checks).every(Boolean);
+  }
   await rm(workspace, { recursive: true, force: true });
+  await rm(stateDir, { recursive: true, force: true });
 }
 
 console.log(JSON.stringify(result, null, 2));

@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "ok": true,
+  "engine": {
+    "version": "0.10.2",
+    "commit": "ff466b2ed0bfb4ae5267d4d8d0ecb562cf46956e"
+  },
+  "thread_id": "thr_9d7d1dcdc7f04414b840d4faae5f4b10",
+  "turn_id": "turn_cad625329209433d859716821048f19f",
+  "turn_status": "completed",
+  "effective": {
+    "provider": "deepseek",
+    "model": "deepseek-flash",
+    "permission_posture": "full_access"
+  },
+  "usage": {
+    "totals": {
+      "inputTokens": 15786,
+      "outputTokens": 15,
+      "cachedTokens": 5760,
+      "reasoningTokens": 0,
+      "costUsd": 0.00478836,
+      "costComplete": true,
+      "turns": 5
+    }
+  },
+  "projection": {
+    "threadId": "thr_9d7d1dcdc7f04414b840d4faae5f4b10",
+    "lastSeq": 1010,
+    "status": "completed",
+    "messages": [
+      {
+        "itemId": "item_2ba14f84da804d58a61682f1e7071e35",
+        "kind": "user_message",
+        "text": "Reply with exactly: pong",
+        "status": "completed"
+      },
+      {
+        "itemId": "item_30131db4026443fc97421d50eb0dd897",
+        "kind": "agent_message",
+        "text": "pong",
+        "status": "completed"
+      }
+    ],
+    "tools": [],
+    "unknownEventKinds": [
+      "model.tools.snapshot",
+      "turn.lifecycle",
+      "turn.provider_request",
+      "turn.usage",
+      "turn.workspace_snapshot"
+    ],
+    "permissionPosture": "full_access"
+  },
+  "checks": {
+    "discovered": true,
+    "thread_created": true,
+    "turn_completed": true,
+    "effective_route_verified": true,
+    "projection_completed": true,
+    "projection_permission_full_access": true,
+    "no_stream_diagnostics": true,
+    "operation_lookup_same_turn": true,
+    "usage_reported": true,
+    "interrupt_route_reachable": true,
+    "supervised_runtime": true,
+    "ownership_record_running": true,
+    "record_has_no_token": true,
+    "supervisor_stopped": true,
+    "supervisor_process_gone": true,
+    "no_listener_after_stop": true,
+    "ownership_record_stopped": true
+  },
+  "error": null,
+  "supervision": {
+    "supervisor_pid": 56626,
+    "child_pid": 56627,
+    "child_started_at": "Wed Nov 11 18:48:37 2026",
+    "pgid": 56627,
+    "listener_pid": 56627,
+    "ownership_id": "rt_94cc79d8274a",
+    "executable_sha256": "da0229610647f1cc2dd14c4227b333a92ea276a49f5d4d79160fa19e515e590d",
+    "records": [
+      {
+        "id": "rt_94cc79d8274a",
+        "state": "running",
+        "port": 63786,
+        "executable": "/opt/homebrew/lib/node_modules/codewhale/bin/downloads/codewhale",
+        "has_token": false
+      }
+    ]
+  },
+  "events": 15,
+  "diagnostic_reasons": [],
+  "stream_items": [
+    "progress:replaying",
+    "event:thread.started",
+    "event:turn.started",
+    "event:item.started",
+    "event:item.completed",
+    "progress:live",
+    "event:turn.lifecycle",
+    "event:turn.workspace_snapshot",
+    "event:model.tools.snapshot",
+    "event:item.started",
+    "event:item.delta",
+    "event:turn.provider_request",
+    "event:turn.usage",
+    "event:item.completed",
+    "event:model.tools.snapshot",
+    "event:turn.workspace_snapshot",
+    "event:turn.completed",
+    "end:aborted"
+  ],
+  "lookup": {
+    "status": "completed",
+    "evidence": "lookup"
+  },
+  "interrupt": {
+    "confirmed": false,
+    "note": "runtime reports no active turn to interrupt (409)"
+  },
+  "shutdown": {
+    "stopped": true,
+    "supervisor_gone": true,
+    "child_gone": true,
+    "listeners_after_stop": [],
+    "record_state": "stopped"
+  }
+}

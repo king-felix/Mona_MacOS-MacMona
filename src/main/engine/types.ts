@@ -13,15 +13,35 @@ export interface RuntimeStartInput {
   workspace: string;
   port?: number;
   env?: Record<string, string>;
+  /** Durable ownership-record directory; defaults to the per-user Mona state dir. */
+  stateDir?: string;
+  /** Runtime log directory; defaults to `<stateDir>/logs`. */
+  logDir?: string;
+  /** Explicit native supervisor path (tests and packaging). */
+  supervisorPath?: string;
+  graceMs?: number;
+  startupTimeoutMs?: number;
+  store?: import("../supervisor/records").OwnershipStore;
 }
 
 export interface RuntimeHandle {
+  /** Supervisor pid: the process Mona owns and can ask to stop the tree. */
   pid: number;
+  supervisorPid: number;
+  /** Runtime child pid, verified as the supervisor's own child. */
+  childPid: number;
+  childStartedAt: string;
+  pgid: number;
   listenerPid: number;
   port: number;
   baseUrl: string;
+  controlSocket: string;
   executable: string;
+  executableSha256: string;
   startedAt: string;
+  engine: { version: string; commit: string } | null;
+  ownershipId: string;
+  compatibility?: import("./compat").CompatibilityReport;
 }
 
 export interface ThreadRequest {

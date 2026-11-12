@@ -1,45 +1,120 @@
-import { spawn, spawnSync, type ChildProcess } from "node:child_process";
-import { randomBytes } from "node:crypto";
-import { accessSync, constants, existsSync } from "node:fs";
+import { createHash, randomBytes } from "node:crypto";
+import {
+  accessSync,
+  closeSync,
+  constants,
+  existsSync,
+  mkdirSync,
+  openSync,
+  readFileSync,
+  readSync,
+  realpathSync,
+  statSync,
+} from "node:fs";
+import { homedir } from "node:os";
+import { join, resolve } from "node:path";
 import { createServer } from "node:net";
+import { RuntimeLifecycleError } from "../supervisor/errors";
+import {
+  descendantsOf,
+  listeningPids,
+  probePort,
+  readExecutablePath,
+  readProcessEntry,
+  readProcessTable,
+} from "../supervisor/identity";
+import {
+  controlRequest,
+  resolveSupervisorBinary,
+  startSupervisor,
+  stopByVerifiedIdentity,
+  stopSupervisor,
+  type SupervisorHandle,
+  type SupervisorStopReceipt,
+} from "../supervisor/native";
+import {
+  executableDigest,
+  controlSocketPath,
+  newRecordId,
+  OwnershipStore,
+  type OwnershipRecord,
+  type RuntimeIdentity,
+} from "../supervisor/records";
+import { evaluateCompatibility } from "./compat";
 import { AdapterError } from "./errors";
-import { HttpRuntimeTransport, type RuntimeTransport } from "./transport";
 import type { RuntimeHandle, RuntimeStartInput } from "./types";
+import { WireRuntimeInfo } from "./wire";
 
 const NATIVE_BINARY = "/opt/homebrew/lib/node_modules/codewhale/bin/downloads/codewhale";
 const WRAPPER_BINARY = "/opt/homebrew/bin/codewhale";
 
 export interface ResolvedBinary {
   path: string;
+  realPath: string;
+  sha256: string;
   source: "env" | "installed_native";
 }
 
+export interface OwnedRuntime {
+  supervisor: SupervisorHandle;
+  runtime: RuntimeHandle;
+  token: string;
+  engine: RuntimeIdentity;
+  listenerPid: number;
+  record: OwnershipRecord;
+  store: OwnershipStore;
+  log: () => string;
+}
+
+const registry = new Map<number, OwnedRuntime>();
+
 /**
  * Resolve the self-contained native binary. The npm wrapper is deliberately not
- * accepted here: it adds a Node process layer and moves the listener into a
- * grandchild, which complicates ownership. Packaging (P21) bundles the native
- * binary; P03 fails closed rather than guessing.
+ * accepted for owned runtimes: it adds a Node process layer and moves the
+ * listener into a grandchild, which weakens identity checks. The path is
+ * resolved to its real location and hashed so the record names the exact bytes.
  */
 export function resolveEngineBinary(): ResolvedBinary {
   const fromEnv = process.env.CODEWHALE_BIN;
-  if (fromEnv) {
-    if (!isExecutable(fromEnv)) {
-      throw new AdapterError("RUNTIME_UNAVAILABLE", `CODEWHALE_BIN is not executable: ${fromEnv}`);
-    }
-    return { path: fromEnv, source: "env" };
-  }
-  if (isExecutable(NATIVE_BINARY)) {
-    return { path: NATIVE_BINARY, source: "installed_native" };
-  }
+  if (fromEnv) return describeBinary(fromEnv, "env");
+  if (isExecutable(NATIVE_BINARY)) return describeBinary(NATIVE_BINARY, "installed_native");
   if (existsSync(WRAPPER_BINARY)) {
-    throw new AdapterError(
-      "RUNTIME_UNAVAILABLE",
+    throw new RuntimeLifecycleError(
+      "MISSING_EXECUTABLE",
       "only the npm wrapper was found; the native Codewhale binary is required for owned runtime control",
-      false,
+      "install the native Codewhale build or set CODEWHALE_BIN to the native executable",
       { wrapper: WRAPPER_BINARY, expected_native: NATIVE_BINARY },
     );
   }
-  throw new AdapterError("RUNTIME_UNAVAILABLE", "no Codewhale binary found");
+  throw new RuntimeLifecycleError(
+    "MISSING_EXECUTABLE",
+    "no Codewhale binary found",
+    "install Codewhale or set CODEWHALE_BIN",
+    { expected_native: NATIVE_BINARY },
+  );
+}
+
+function describeBinary(path: string, source: ResolvedBinary["source"]): ResolvedBinary {
+  if (!existsSync(path)) {
+    throw new RuntimeLifecycleError(
+      "MISSING_EXECUTABLE",
+      `Codewhale binary does not exist: ${path}`,
+      "install the pinned Codewhale engine or set CODEWHALE_BIN",
+      { executable: path },
+    );
+  }
+  try {
+    accessSync(path, constants.X_OK);
+  } catch {
+    throw new RuntimeLifecycleError(
+      "NOT_EXECUTABLE",
+      `Codewhale binary is not executable: ${path}`,
+      "fix the file permissions or point CODEWHALE_BIN at an executable",
+      { executable: path },
+    );
+  }
+  const realPath = realpathSync(path);
+  return { path, realPath, sha256: executableDigest(realPath), source };
 }
 
 function isExecutable(path: string): boolean {
@@ -52,191 +127,500 @@ function isExecutable(path: string): boolean {
 }
 
 export function findFreePort(host = "127.0.0.1"): Promise<number> {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolvePort, reject) => {
     const server = createServer();
     server.unref();
     server.on("error", reject);
     server.listen(0, host, () => {
       const address = server.address();
       server.close(() => {
-        if (address && typeof address === "object") resolve(address.port);
+        if (address && typeof address === "object") resolvePort(address.port);
         else reject(new Error("no port assigned"));
       });
     });
   });
 }
 
-export interface OwnedProcess {
-  child: ChildProcess;
-  handle: RuntimeHandle;
-  transport: RuntimeTransport;
-  log: () => string;
+async function allocatePort(): Promise<number> {
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    const port = await findFreePort();
+    const availability = await probePort(port);
+    if (availability.free) return port;
+  }
+  throw new RuntimeLifecycleError(
+    "PORT_IN_USE",
+    "could not reserve a loopback port",
+    "close other local services or retry",
+  );
 }
 
-export async function startOwnedRuntime(input: RuntimeStartInput): Promise<OwnedProcess> {
-  const binary = resolveEngineBinary();
-  const port = input.port ?? (await findFreePort());
-  const token = randomBytes(24).toString("hex");
-  const startedAt = new Date().toISOString();
-  const child = spawn(
-    binary.path,
-    ["app-server", "--http", "--host", "127.0.0.1", "--port", String(port)],
+async function assertPortAvailable(port: number): Promise<void> {
+  const availability = await probePort(port);
+  if (availability.free) return;
+  if (availability.reason === "permission_denied") {
+    throw new RuntimeLifecycleError(
+      "PERMISSION_DENIED",
+      `permission denied binding 127.0.0.1:${port}`,
+      "choose a port above 1024 or run from an account that may bind it",
+      { port },
+    );
+  }
+  throw new RuntimeLifecycleError(
+    "PORT_IN_USE",
+    `127.0.0.1:${port} is already in use`,
+    "stop the process using the port or let Mona choose a free one",
     {
-      cwd: input.workspace,
-      env: { ...process.env, ...input.env, CODEWHALE_RUNTIME_TOKEN: token },
-      stdio: ["ignore", "pipe", "pipe"],
-      detached: true,
+      port,
+      listeners: availability.listeners,
+      ownership_note: "an HTTP 200 on this port does not make it Mona's runtime",
     },
   );
-  let stderr = "";
-  const capture = (chunk: Buffer) => {
-    stderr += chunk.toString();
-    if (stderr.length > 16_384) stderr = stderr.slice(-16_384);
-  };
-  child.stderr?.on("data", capture);
+}
 
+function canonicalWorkspace(workspace: string): string {
+  let stats;
+  try {
+    stats = statSync(workspace);
+  } catch {
+    throw new RuntimeLifecycleError(
+      "WORKSPACE_UNAVAILABLE",
+      `workspace does not exist: ${workspace}`,
+      "choose an existing folder",
+      { workspace },
+    );
+  }
+  if (!stats.isDirectory()) {
+    throw new RuntimeLifecycleError(
+      "WORKSPACE_UNAVAILABLE",
+      `workspace is not a folder: ${workspace}`,
+      "choose a folder, not a file",
+      { workspace },
+    );
+  }
+  return realpathSync(workspace);
+}
+
+export function defaultStateDir(): string {
+  return join(homedir(), "Library", "Application Support", "Mona", "state");
+}
+
+function tail(path: string, bytes = 4_000): string {
+  if (!existsSync(path)) return "";
+  try {
+    const fd = openSync(path, "r");
+    try {
+      const size = statSync(path).size;
+      const length = Math.min(size, bytes);
+      const buffer = Buffer.alloc(length);
+      readSync(fd, buffer, 0, length, Math.max(0, size - length));
+      return buffer.toString("utf8");
+    } finally {
+      closeSync(fd);
+    }
+  } catch {
+    return "";
+  }
+}
+
+export async function startOwnedRuntime(input: RuntimeStartInput): Promise<OwnedRuntime> {
+  const canonical = canonicalWorkspace(input.workspace);
+  const binary = resolveEngineBinary();
+  const supervisorBinary = resolveSupervisorBinary(input.supervisorPath);
+  const stateDir = input.stateDir ?? defaultStateDir();
+  const store = input.store ?? new OwnershipStore(join(stateDir, "runtime-ownership.json"));
+  const port = input.port ?? (await allocatePort());
+  if (input.port !== undefined) await assertPortAvailable(port);
+
+  const id = newRecordId();
+  const controlSocket = controlSocketPath(stateDir, id);
+  const logDir = input.logDir ?? join(stateDir, "logs");
+  mkdirSync(logDir, { recursive: true, mode: 0o700 });
+  const logPath = join(logDir, `${id}.log`);
+  const startedAt = new Date().toISOString();
+  const token = randomBytes(24).toString("hex");
   const baseUrl = `http://127.0.0.1:${port}`;
-  const deadline = Date.now() + 20_000;
+
+  let record: OwnershipRecord = {
+    id,
+    workspace: input.workspace,
+    canonicalWorkspace: canonical,
+    executable: binary.realPath,
+    executableSha256: binary.sha256,
+    supervisorPid: -1,
+    supervisorStartedAt: "",
+    childPid: -1,
+    childStartedAt: "",
+    pgid: -1,
+    port,
+    baseUrl,
+    controlSocket,
+    startedAt,
+    updatedAt: startedAt,
+    state: "starting",
+    engine: null,
+    startupReceipt: null,
+    stopReceipt: null,
+  };
+  store.put(record);
+
+  let supervisor: SupervisorHandle | null = null;
+  try {
+    supervisor = await startSupervisor({
+      binary: supervisorBinary,
+      workspace: canonical,
+      executable: binary.realPath,
+      args: ["app-server", "--http", "--host", "127.0.0.1", "--port", String(port)],
+      controlSocket,
+      token,
+      logPath,
+      graceMs: input.graceMs ?? 8_000,
+      label: "codewhale-runtime",
+      env: input.env,
+      timeoutMs: 10_000,
+    });
+
+    const supervisorStartedAt = readProcessEntry(supervisor.pid)?.startedAt;
+    if (!supervisorStartedAt) {
+      throw new RuntimeLifecycleError(
+        "SUPERVISOR_UNAVAILABLE",
+        "the supervisor exited before its identity could be recorded",
+        "run `npm run build:supervisor` and check the runtime log",
+      );
+    }
+    verifyChildIdentity(supervisor, binary.realPath);
+
+    record = store.put({
+      ...record,
+      supervisorPid: supervisor.pid,
+      supervisorStartedAt,
+      childPid: supervisor.childPid,
+      childStartedAt: supervisor.childStartedAt,
+      pgid: supervisor.pgid,
+      startupReceipt: { ...supervisor.startedReceipt },
+      updatedAt: new Date().toISOString(),
+    });
+
+    const info = await awaitRuntimeReady({
+      baseUrl,
+      port,
+      token,
+      supervisor,
+      timeoutMs: input.startupTimeoutMs ?? 25_000,
+      logPath,
+    });
+    const compatibility = evaluateCompatibility(info);
+    const engine: RuntimeIdentity = {
+      version: info.codewhale_version,
+      commit: info.codewhale_commit,
+    };
+    const listenerPid = verifyListenerOwnership(port, supervisor.childPid, binary.realPath);
+
+    record = store.put({
+      ...record,
+      state: "running",
+      engine,
+      updatedAt: new Date().toISOString(),
+    });
+
+    const runtime: RuntimeHandle = {
+      pid: supervisor.pid,
+      supervisorPid: supervisor.pid,
+      childPid: supervisor.childPid,
+      childStartedAt: supervisor.childStartedAt,
+      pgid: supervisor.pgid,
+      port,
+      baseUrl,
+      controlSocket,
+      executable: binary.realPath,
+      executableSha256: binary.sha256,
+      startedAt,
+      engine,
+      ownershipId: record.id,
+      listenerPid,
+      compatibility,
+    };
+    const owned: OwnedRuntime = {
+      supervisor,
+      runtime,
+      token,
+      engine,
+      listenerPid,
+      record,
+      store,
+      log: () => tail(logPath),
+    };
+    registry.set(runtime.childPid, owned);
+    return owned;
+  } catch (error) {
+    if (supervisor) {
+      await stopSupervisor(supervisor, { graceMs: 2_000 }).catch(() => undefined);
+    }
+    const failure =
+      error instanceof AdapterError
+        ? { code: error.code, message: error.message, details: error.details ?? null }
+        : { code: "STARTUP_FAILED", message: String(error), details: null };
+    store.put({
+      ...record,
+      state: "failed",
+      updatedAt: new Date().toISOString(),
+      stopReceipt: { via: "startup_failure", error: failure },
+    });
+    throw error;
+  }
+}
+
+function verifyChildIdentity(supervisor: SupervisorHandle, expectedExecutable: string): void {
+  const entry = readProcessEntry(supervisor.childPid);
+  if (!entry) {
+    throw new RuntimeLifecycleError(
+      "STARTUP_FAILED",
+      "the supervised runtime exited before ownership was verified",
+      "inspect the runtime log; the engine may have rejected its arguments",
+      { child_pid: supervisor.childPid, stderr: supervisor.stderrText().slice(-2000) },
+    );
+  }
+  if (entry.ppid !== supervisor.pid) {
+    throw new RuntimeLifecycleError(
+      "OWNERSHIP_MISMATCH",
+      `pid ${supervisor.childPid} is not a child of the supervisor`,
+      "stop the runtime and inspect the process tree",
+      {
+        child_pid: supervisor.childPid,
+        expected_parent: supervisor.pid,
+        observed_parent: entry.ppid,
+      },
+    );
+  }
+  if (entry.startedAt !== supervisor.childStartedAt) {
+    throw new RuntimeLifecycleError(
+      "OWNERSHIP_MISMATCH",
+      "the reported child start time does not match the live process",
+      "stop the runtime and inspect the process tree; a pid may have been reused",
+      {
+        child_pid: supervisor.childPid,
+        expected: supervisor.childStartedAt,
+        observed: entry.startedAt,
+      },
+    );
+  }
+  const actual = readExecutablePath(supervisor.childPid);
+  if (actual && resolve(actual) !== resolve(expectedExecutable)) {
+    throw new RuntimeLifecycleError(
+      "OWNERSHIP_MISMATCH",
+      `supervised pid runs ${actual}, not ${expectedExecutable}`,
+      "stop the runtime and verify the engine binary",
+      { child_pid: supervisor.childPid, expected: expectedExecutable, observed: actual },
+    );
+  }
+}
+
+interface ReadyInput {
+  baseUrl: string;
+  port: number;
+  token: string;
+  supervisor: SupervisorHandle;
+  timeoutMs: number;
+  logPath: string;
+}
+
+async function awaitRuntimeReady(input: ReadyInput): Promise<WireRuntimeInfo> {
+  const deadline = Date.now() + input.timeoutMs;
+  let lastError: unknown = null;
   while (Date.now() < deadline) {
-    if (child.exitCode !== null) {
-      throw new AdapterError(
-        "RUNTIME_UNAVAILABLE",
-        `runtime exited with ${child.exitCode}`,
-        false,
+    if (input.supervisor.exitCode() !== null) {
+      throw new RuntimeLifecycleError(
+        "STARTUP_FAILED",
+        `runtime exited during startup (code ${input.supervisor.exitCode()})`,
+        "inspect the runtime log for the engine's error",
         {
-          stderr: stderr.slice(-2000),
+          stderr: input.supervisor.stderrText().slice(-2000),
+          log: tail(input.logPath),
+          events: input.supervisor.events.slice(-5),
         },
       );
     }
     try {
-      const health = await fetch(`${baseUrl}/health`, { signal: AbortSignal.timeout(1000) });
+      const health = await fetch(`${input.baseUrl}/health`, {
+        signal: AbortSignal.timeout(1_500),
+      });
       if (health.ok) {
-        const infoResponse = await fetch(`${baseUrl}/v1/runtime/info`, {
-          headers: { Authorization: `Bearer ${token}` },
-          signal: AbortSignal.timeout(2000),
+        const response = await fetch(`${input.baseUrl}/v1/runtime/info`, {
+          headers: { Authorization: `Bearer ${input.token}` },
+          signal: AbortSignal.timeout(2_000),
         });
-        const info = (await infoResponse.json()) as { port?: number };
-        if (Number(info.port) !== port) {
-          throw new AdapterError("RUNTIME_UNAVAILABLE", "runtime reported a different port");
-        }
-        const listeners = listeningPids(port);
-        const tree = processTree(child.pid ?? -1);
-        const listenerPid = listeners.find((pid) => tree.has(pid));
-        if (!listenerPid) {
-          throw new AdapterError(
-            "RUNTIME_UNAVAILABLE",
-            "listener is not owned by the spawned process",
-            false,
-            {
-              listeners,
-              tree: [...tree],
-            },
+        if (response.status === 401 || response.status === 403) {
+          throw new RuntimeLifecycleError(
+            "STARTUP_FAILED",
+            "the runtime rejected the private bearer token",
+            "restart the runtime; another process may already own this user store",
+            { status: response.status },
           );
         }
-        const handle: RuntimeHandle = {
-          pid: child.pid ?? -1,
-          listenerPid,
-          port,
-          baseUrl,
-          executable: binary.path,
-          startedAt,
-        };
-        rememberOwnedChild(handle.pid, child);
-        return {
-          child,
-          handle,
-          transport: new HttpRuntimeTransport({ baseUrl, token }),
-          log: () => stderr,
-        };
+        if (response.status === 200) {
+          const parsed = WireRuntimeInfo.safeParse(await response.json());
+          if (!parsed.success) {
+            throw new RuntimeLifecycleError(
+              "OWNERSHIP_MISMATCH",
+              "the process on the chosen port does not speak the pinned Runtime API",
+              "stop the process using that port; an HTTP response alone is not ownership",
+              { issues: parsed.error.issues.slice(0, 4) },
+            );
+          }
+          const info = parsed.data;
+          if (Number(info.port) !== input.port) {
+            throw new RuntimeLifecycleError(
+              "OWNERSHIP_MISMATCH",
+              `runtime reported port ${info.port}, expected ${input.port}`,
+              "stop the runtime and retry",
+              { expected: input.port, observed: info.port },
+            );
+          }
+          if (
+            info.bind_host !== "127.0.0.1" &&
+            info.bind_host !== "::1" &&
+            info.bind_host !== "localhost"
+          ) {
+            throw new RuntimeLifecycleError(
+              "OWNERSHIP_MISMATCH",
+              `runtime bound ${info.bind_host}, which is not loopback`,
+              "stop the runtime; Mona never accepts a non-loopback runtime",
+              { bind_host: info.bind_host },
+            );
+          }
+          return info;
+        }
+        lastError = new Error(`runtime info returned ${response.status}`);
       }
     } catch (error) {
-      if (error instanceof AdapterError) throw error;
+      if (error instanceof RuntimeLifecycleError) throw error;
+      lastError = error;
     }
-    await sleep(120);
+    await sleep(150);
   }
-  killTree(child, "SIGTERM");
-  throw new AdapterError("RUNTIME_UNAVAILABLE", "runtime start timed out", false, {
-    stderr: stderr.slice(-2000),
-  });
+  throw new RuntimeLifecycleError(
+    "STARTUP_TIMEOUT",
+    `runtime did not become ready within ${input.timeoutMs}ms`,
+    "inspect the runtime log and retry; a slow first start can happen on a cold cache",
+    {
+      last_error: String(lastError),
+      log: tail(input.logPath),
+      stderr: input.supervisor.stderrText().slice(-2000),
+    },
+  );
+}
+
+export function verifyListenerOwnership(
+  port: number,
+  childPid: number,
+  expectedExecutable: string,
+): number {
+  const listeners = listeningPids(port);
+  if (listeners.length === 0) {
+    throw new RuntimeLifecycleError(
+      "OWNERSHIP_MISMATCH",
+      `nothing is listening on 127.0.0.1:${port} after a successful health probe`,
+      "stop the runtime and retry; the port may be shared",
+      { port },
+    );
+  }
+  const tree = descendantsOf(childPid, readProcessTable());
+  tree.add(childPid);
+  const strangers = listeners.filter((pid) => !tree.has(pid));
+  if (strangers.length > 0) {
+    throw new RuntimeLifecycleError(
+      "OWNERSHIP_MISMATCH",
+      `port ${port} is served by pid(s) outside the supervised tree`,
+      "stop the runtime; the port is occupied by a process Mona did not start",
+      { port, listeners, strangers, child_pid: childPid },
+    );
+  }
+  const listener = listeners[0] as number;
+  const actual = readExecutablePath(listener);
+  if (actual && resolve(actual) !== resolve(expectedExecutable)) {
+    throw new RuntimeLifecycleError(
+      "OWNERSHIP_MISMATCH",
+      `listener pid ${listener} runs ${actual}, not the owned engine binary`,
+      "stop the runtime and verify the engine binary",
+      { listener, expected: expectedExecutable, observed: actual },
+    );
+  }
+  return listener;
 }
 
 export async function stopOwnedRuntime(
   handle: RuntimeHandle,
-  timeoutMs = 8000,
-): Promise<{ stopped: boolean }> {
-  const child = ownedChildren.get(handle.pid);
-  if (!child || child.exitCode !== null) return { stopped: true };
-  const exited = new Promise<void>((resolve) => child.once("exit", () => resolve()));
-  killTree(child, "SIGTERM");
-  const timedOut = await Promise.race([
-    exited.then(() => false),
-    sleep(timeoutMs).then(() => true),
-  ]);
-  if (timedOut) {
-    killTree(child, "SIGKILL");
-    await exited;
+  options: { graceMs?: number; force?: boolean } = {},
+): Promise<SupervisorStopReceipt> {
+  const owned = registry.get(handle.childPid);
+  if (owned) {
+    const receipt = await stopSupervisor(owned.supervisor, options);
+    owned.store.put({
+      ...owned.record,
+      state: receipt.state === "stopped" ? "stopped" : "failed",
+      updatedAt: new Date().toISOString(),
+      stopReceipt: { ...receipt } as unknown as Record<string, unknown>,
+    });
+    if (receipt.state === "stopped") registry.delete(handle.childPid);
+    return receipt;
   }
-  ownedChildren.delete(handle.pid);
-  return { stopped: true };
+  return stopByVerifiedIdentity(
+    {
+      childPid: handle.childPid,
+      childStartedAt: handle.childStartedAt,
+      pgid: handle.pgid,
+    },
+    { ...options, note: "no in-memory supervisor handle; verified identity fallback" },
+  );
 }
 
-const ownedChildren = new Map<number, ChildProcess>();
-
-export function rememberOwnedChild(pid: number, child: ChildProcess): void {
-  ownedChildren.set(pid, child);
-}
-
-export function processTree(root: number): Set<number> {
-  const result = spawnSync("ps", ["-axo", "pid=,ppid="], { encoding: "utf8" });
-  const children = new Map<number, number[]>();
-  for (const line of (result.stdout ?? "").trim().split("\n")) {
-    const [pid, ppid] = line.trim().split(/\s+/).map(Number);
-    if (!pid || !ppid) continue;
-    const list = children.get(ppid) ?? [];
-    list.push(pid);
-    children.set(ppid, list);
-  }
-  const seen = new Set<number>([root]);
-  const queue = [root];
-  while (queue.length > 0) {
-    const current = queue.shift() as number;
-    for (const next of children.get(current) ?? []) {
-      if (!seen.has(next)) {
-        seen.add(next);
-        queue.push(next);
-      }
-    }
-  }
-  return seen;
-}
-
-export function listeningPids(port: number): number[] {
-  const result = spawnSync("lsof", ["-nP", `-iTCP:${port}`, "-sTCP:LISTEN", "-Fp"], {
-    encoding: "utf8",
-  });
-  return [
-    ...new Set(
-      (result.stdout ?? "")
-        .split("\n")
-        .filter((line) => line.startsWith("p"))
-        .map((line) => Number(line.slice(1)))
-        .filter((pid) => Number.isInteger(pid) && pid > 0),
-    ),
-  ];
-}
-
-function killTree(child: ChildProcess, signal: NodeJS.Signals): void {
+/** Stop a runtime known only from its durable record (app restart, recovery). */
+export async function stopRecordedRuntime(
+  record: OwnershipRecord,
+  options: { graceMs?: number; force?: boolean } = {},
+): Promise<SupervisorStopReceipt> {
   try {
-    if (child.pid) process.kill(-child.pid, signal);
-  } catch {
-    try {
-      child.kill(signal);
-    } catch {
-      // already gone
+    const status = await controlRequest(record.controlSocket, { op: "status" }, 1_500);
+    if (status.ok === true && status.child_pid === record.childPid) {
+      const response = await controlRequest(
+        record.controlSocket,
+        {
+          op: options.force ? "force-stop" : "stop",
+          graceMs: options.graceMs ?? 5_000,
+          force: options.force === true,
+        },
+        (options.graceMs ?? 5_000) + 3_000,
+      );
+      return {
+        ok: response.ok === true,
+        state: String(response.state ?? "unknown"),
+        graceful: options.force !== true,
+        escalated: response.escalated === true,
+        survivors: Array.isArray(response.survivors) ? (response.survivors as number[]) : [],
+        exit: response.exit as SupervisorStopReceipt["exit"],
+        via: "control_socket",
+      };
     }
+  } catch {
+    // Supervisor is gone; fall through to the verified-identity path.
   }
+  return stopByVerifiedIdentity(
+    {
+      childPid: record.childPid,
+      childStartedAt: record.childStartedAt,
+      pgid: record.pgid,
+    },
+    { ...options, note: "supervisor unreachable; verified identity fallback" },
+  );
+}
+
+export function ownedRuntimeFor(childPid: number): OwnedRuntime | undefined {
+  return registry.get(childPid);
+}
+
+export function engineBinaryDigest(path: string): string {
+  return createHash("sha256").update(readFileSync(path)).digest("hex");
 }
 
 function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise((resolveSleep) => setTimeout(resolveSleep, ms));
 }

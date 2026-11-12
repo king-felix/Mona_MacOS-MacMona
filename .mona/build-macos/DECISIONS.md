@@ -171,3 +171,34 @@ and deviations discovered while building.
 - **Consequence:** P04 builds supervision on `runtime-process.ts`; P05 replaces
   the submission store without changing the persist-before-send contract. A new
   engine version is an explicit re-qualification, not an adapter setting.
+
+## D-013 — Owned runtime supervision and desktop lifecycle
+
+- **Date:** 2026-11-11 (P04)
+- **Decision:** Each owned runtime is led by a native arm64 Swift supervisor
+  (`native/macos-supervisor`) spawned with the engine as its child. The
+  supervisor receives an owner-liveness pipe on fd 3 (token line, then EOF),
+  places the child in its own process group, samples descendants as
+  `(pid, start time)`, and stops the verified tree with TERM → bounded grace →
+  KILL only verified survivors. A mode-0600 control socket returns status and
+  stop receipts. Ownership records are atomic, 0600, and never contain the
+  bearer token. One owned runtime per user store; a second workspace gets
+  `ALREADY_OWNED`. Stale records are reconciled only through verified identity;
+  a reused pid or foreign executable is never signalled. The desktop is a
+  single instance; close-window keeps work, renderer crash does not touch the
+  runtime, sleep becomes `reconnecting`, resume probes health, and crashes
+  restart the process only with a bounded backoff. Quit interrupts then stops
+  the owned tree; pause-after-task, interrupt-now, cancel-queued, and
+  quit-and-stop remain distinct transitions. Full rationale:
+  `docs/decisions/ADR-003-runtime-supervisor.md`.
+- **Why:** P01 proved the listener can be a grandchild and that parallel runtime
+  ownership is unsupported. P03's single-pid stop could not prove descendant
+  cleanup, could not distinguish a reused pid from an owned one, and had no
+  owner-death channel. P04 needs a stop receipt that is earned, not inferred,
+  and must never kill by name or kill a stranger occupying a port.
+- **Consequence:** Packaging (P21) must ship the compiled supervisor beside app
+  resources; release signing is P22. P05 replaces the JSON ownership record with
+  the transactional store without changing identity or token rules. P07 reads
+  `RuntimeSupervisor.status()` for real UI state. A physical lid-close sleep was
+  not performed; suspend/resume is qualified with Electron power events and
+  unit tests, and the limitation is recorded in the P04 evidence.
