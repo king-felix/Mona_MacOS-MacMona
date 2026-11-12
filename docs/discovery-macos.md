@@ -77,6 +77,11 @@ value was read, printed, or stored.
   `deepseek-flash`, provider `deepseek`, `used_fallback: false`, context limit
   1,000,000 / output limit 384,000, with streaming, native tool calls, prompt
   caching, and reasoning reported as supported.
+- **Endpoint:** the config sets no `base_url`, so the route catalog default
+  applies: `https://api.deepseek.com/beta`, wire protocol `model-aware`, key
+  variable `DEEPSEEK_API_KEY` (`artifacts/codewhale-route-catalog.json`). This is
+  the catalog default, not an observed request; P01 must confirm the effective
+  endpoint from redacted runtime evidence rather than assuming it.
 - **P01 live-test prerequisite:** a real tool-enabled task must be run to prove
   G0. Credentials are present and reported clean, so the live test is eligible;
   it was deliberately not run during P00 (no inference in bootstrap, and P01
