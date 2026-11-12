@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "revision": 36,
+  "revision": 37,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
   "spec_sha256": "d1c02941151c71912bc3e9c8b2509612298d54e05e0bf16fe933b9bd93e3e028",
   "prompt_file_sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8",
-  "current_prompt": "P03",
+  "current_prompt": "P04",
   "current_prompt_status": "pending",
-  "last_verified_commit": "728e2b7",
+  "last_verified_commit": "9a0628e",
   "tasks": {
     "P00": {
       "status": "completed",
@@ -417,7 +417,7 @@
       "updated_utc": "2026-11-12T01:25:00.000Z"
     },
     "P03": {
-      "status": "pending",
+      "status": "completed",
       "requirements": [
         "MONA-001",
         "MONA-002",
@@ -425,7 +425,16 @@
         "MONA-008",
         "MONA-016"
       ],
-      "completed_steps": [],
+      "completed_steps": [
+        "Implemented the EngineAdapter: discover, owned runtime, create/open thread, submit, reconcile, subscribe, interrupt, history, usage, effective profile, capability invocation, shutdown",
+        "Enforced exact pinned version/commit and required capabilities; typed unsupported reasons for optional operations",
+        "Persisted submission intent before POST; lost responses become outcome_unknown and reconcile only through the read-only operation lookup, never a blind retry",
+        "Implemented bounded SSE parsing with streaming UTF-8 decode, per-thread seq dedupe, deterministic replay projection, durable/progress/diagnostic/terminal separation, and unknown-event preservation",
+        "Rejected wrong-thread turn responses, history, interrupt receipts, and stream events without mutating another thread",
+        "Verified effective provider/model/permission posture from the turn, with strict fail-closed profile checks",
+        "Added 70 passing tests including recorded fixtures, response-loss, reconnect equality, malformed/schema-drift frames, and UTF-8 boundaries; local CI green",
+        "Passed the real pinned-runtime smoke: 10/10 checks, completed turn, strict effective route, same-turn operation lookup, clean shutdown"
+      ],
       "remaining_steps": [],
       "evidence": [
         {
@@ -545,7 +554,16 @@
           "sha256": "66611cfbca8ef6deaaead9c5e77e3ec31e9c88a3894ed78ab25f64d56946726e"
         }
       ],
-      "blocker_ids": []
+      "blocker_ids": [],
+      "notes": [
+        "P03-01: approvals, clarifications, steer, artifacts, workspace search/restore, terminal, and fleet are not adapter operations yet.",
+        "P03-02: process supervision is minimal by design; P04 owns liveness, descendants, crash restart, and quit/stop semantics.",
+        "P03-03: P05 replaces the JSON submission store without changing persist-before-send ordering.",
+        "Interrupt on a completed turn returns 409; the adapter reports 'no active turn' rather than a confirmed stop. Active-turn interrupt was proven in P01 and is covered by the fixture test.",
+        "Usage reports costComplete=false whenever unpriced turns are in range; that is preserved, not coerced to zero."
+      ],
+      "started_utc": "2026-11-12T01:25:00.000Z",
+      "updated_utc": "2026-11-12T01:32:00.000Z"
     },
     "P04": {
       "status": "pending",
@@ -836,9 +854,9 @@
     }
   },
   "next_eligible_prompts": [
-    "P03"
+    "P04"
   ],
-  "last_checkpoint_utc": "2026-11-12T01:24:56.160Z",
+  "last_checkpoint_utc": "2026-11-12T01:25:10.187Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",
