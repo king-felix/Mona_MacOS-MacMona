@@ -315,6 +315,52 @@ describe("update coordinator", () => {
     expect(migrated?.state).toBe("observed_migrated");
   });
 
+  it("records a same-version handoff as cancelled, not as a proven migration", async () => {
+    // A reinstall leaves the version unchanged, so this launch cannot prove the
+    // package was installed; claiming otherwise would also block a retry as a
+    // replay of bytes that may never have landed.
+    const h = track(await harness({ version: "0.2.0", build: 120 }));
+    const record = await h.store.store.recordUpdateIntent({
+      fromVersion: "0.2.0",
+      toVersion: "0.2.0",
+      channel: "local",
+      packagePath: "/tmp/Mona-0.2.0.pkg",
+      packageSha256: DIGEST,
+      source: "manual",
+    });
+    await h.store.store.settleUpdateIntent(record.id, "handed_off");
+    const settled = await h.coordinator.reconcileOnLaunch();
+    expect(settled?.state).toBe("cancelled");
+    expect(await h.store.store.appliedUpdatePackages()).toEqual([]);
+  });
+
+  it("refuses an engine change that this package's digest did not acknowledge", async () => {
+    const bumped = facts({ engine: { version: "0.11.0", commit: "deadbeef" } });
+    const h = track(await harness({ inspect: () => bumped }));
+    const path = join(h.store.dir, "Mona-0.2.0-macOS-arm64.pkg");
+    const view = await h.coordinator.inspectLocal(path);
+    expect(view.decision).toBe("refused");
+    expect(view.code).toBe("engine_change_unconfirmed");
+    expect(view.engineChange).toEqual({ from: "0.10.2", to: "0.11.0" });
+
+    const refused = await h.coordinator.install({
+      expectedSha256: DIGEST,
+      confirmedLocalBuild: true,
+    });
+    expect(refused.state).toBe("refused");
+    expect(refused.code).toBe("engine_change_unconfirmed");
+    expect(h.launched).toHaveLength(0);
+
+    // A digest-bound acknowledgement unlocks exactly these bytes.
+    h.coordinator.confirmEngineChange(DIGEST);
+    const allowed = await h.coordinator.install({
+      expectedSha256: DIGEST,
+      confirmedLocalBuild: true,
+    });
+    expect(allowed.state).toBe("handed_off");
+    expect(h.launched).toHaveLength(1);
+  });
+
   it("refuses a missing package file rather than guessing", async () => {
     const h = track(await harness());
     const missing = await h.coordinator.inspectLocal(join(h.store.dir, "absent.pkg"));

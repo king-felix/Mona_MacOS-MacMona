@@ -522,9 +522,11 @@ export const UpdateChoosePackageRequestSchema = z.strictObject({
 });
 
 export const UpdateInstallRequestSchema = z.strictObject({
-  packagePath: z.string().min(1).max(4096).startsWith("/"),
+  /** Optional for a configured source: the coordinator downloads and verifies. */
+  packagePath: z.string().min(1).max(4096).startsWith("/").optional(),
   /** The digest the user saw; a different file is refused rather than swapped. */
   expectedSha256: z.string().regex(/^[0-9a-f]{64}$/),
+  /** A local development build must be acknowledged explicitly. */
   confirmedLocalBuild: z.boolean().optional(),
 });
 

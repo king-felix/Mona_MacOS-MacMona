@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-12T19:55:11.894Z",
+  "generated_utc": "2026-11-12T20:00:18.660Z",
   "git": {
     "available": true,
-    "commit": "f755d8afa42ce70556940e2f8bc01a3635cad758",
+    "commit": "240b3df858d594cf70c1233fe81a665a5117412f",
     "dirty": true
   },
-  "digest": "a6c35ef35a143fa71a37895765a1509a4f2e3ce1652269c89a4565a4fe5712f7",
+  "digest": "66c73e9d65ec9c3e873d6894d2390ab4336d737960d4b3b693c316df877e1286",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,7 +15,7 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "f47fd712c20f14f4a2246c0ba858901eb786c49f84280f4b6960e286d09beaea",
+      "sha256": "6c5e52f2489c8c3c8fc72ec36738fc564e7348c12c184b726af9f6bb54a4b156",
       "bytes": 138442
     },
     {
@@ -305,18 +305,18 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p07-shell-board.png",
-      "sha256": "9ac9787ea0b49c5e185bb63ae788c35ba3608e355395513698a01db101323921",
-      "bytes": 341317
+      "sha256": "58119509394898e75b464aa16b14348400a8f0464af0cf0022b213a69092acc2",
+      "bytes": 341898
     },
     {
       "path": "docs/evidence/macos/artifacts/p07-shell-home.png",
-      "sha256": "adb432d00061c1ef8c7028e6104d255aa78949c58b1fc9bcfd9afe4ead5f2c37",
-      "bytes": 442095
+      "sha256": "a5996caae06e261fe96eb05c4b64afc6aa9ade5caa065b293422b32787c13d65",
+      "bytes": 444494
     },
     {
       "path": "docs/evidence/macos/artifacts/p07-shell-settings.png",
-      "sha256": "96e63705b9932f2248fd051bb1181ba0f938426df930f09b25df18ce0f801022",
-      "bytes": 319189
+      "sha256": "b0a0430434620c8b6f3ab501a911d3b79af58e659fb8509b2280eb37ce754a01",
+      "bytes": 319236
     },
     {
       "path": "docs/evidence/macos/artifacts/p07-shell-smoke.json",
@@ -325,8 +325,8 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p07-shell-studio.png",
-      "sha256": "8bb6158747477cae8ba4fd45da0ddb8d3cd4dd1da5f364bb2895bced2dfaed45",
-      "bytes": 350378
+      "sha256": "53f1ba06a5d20186a084c4cfb2012420ca0b597b7f3d1746a8b7102a0b293ea3",
+      "bytes": 350880
     },
     {
       "path": "docs/evidence/macos/artifacts/p07-tests.txt",
@@ -430,13 +430,13 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p11-shell-attempts.png",
-      "sha256": "ca272ca88d3d6f8e13672f14b702ff83cfffb091aaf2292e7534c5859d7ee628",
-      "bytes": 405616
+      "sha256": "b96d4e80fc73760762d32ee89400d001f579292ee98ef9f9312c3b256b8ae2b1",
+      "bytes": 406191
     },
     {
       "path": "docs/evidence/macos/artifacts/p11-shell-board.png",
-      "sha256": "9ac9787ea0b49c5e185bb63ae788c35ba3608e355395513698a01db101323921",
-      "bytes": 341317
+      "sha256": "58119509394898e75b464aa16b14348400a8f0464af0cf0022b213a69092acc2",
+      "bytes": 341898
     },
     {
       "path": "docs/evidence/macos/artifacts/p11-shell-smoke.json",
@@ -470,8 +470,8 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p12-shell-cost-detail.png",
-      "sha256": "6075e9eeffcace2c3a0bc497893b3928a720ca7f733bb067f84870301e91f46b",
-      "bytes": 254093
+      "sha256": "1e00bbc38faf42811c9b8168c06f28f7112180e267e4bf1acc090f0381269786",
+      "bytes": 254484
     },
     {
       "path": "docs/evidence/macos/artifacts/p12-shell-cost.json",
@@ -480,8 +480,8 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p12-shell-cost.png",
-      "sha256": "24b5beb4811021d90859e461426d5cb29420c8bff2b8b8adce596444fc92386e",
-      "bytes": 341036
+      "sha256": "3c7511089283f8c104ff479a5bb33767964ea519116e8958da80c1fd74c5b265",
+      "bytes": 341049
     },
     {
       "path": "docs/evidence/macos/artifacts/p12-tests.txt",
@@ -510,8 +510,8 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p13-shell-changes-file.png",
-      "sha256": "6f6e605c1ff78e65729726dafc958e3eca876446f8d05066b92b0232011c1832",
-      "bytes": 307689
+      "sha256": "d2d2c36f5b9e919c8eb497a9b3cdf7bcca2e57253deed4d144137f82773d3f71",
+      "bytes": 307715
     },
     {
       "path": "docs/evidence/macos/artifacts/p13-shell-changes.json",
@@ -520,8 +520,8 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p13-shell-changes.png",
-      "sha256": "8c8eb6d9d2b7877e1de1ebac1e9d451f592398b011b8616cb9e6f841df38faca",
-      "bytes": 298359
+      "sha256": "887ee4a583b5035a25a3db89d72a27c00ac4300b3ebf1adca36217808a86279b",
+      "bytes": 298398
     },
     {
       "path": "docs/evidence/macos/artifacts/p13-tests.txt",
@@ -535,8 +535,8 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p14-home-daybreak.png",
-      "sha256": "adb432d00061c1ef8c7028e6104d255aa78949c58b1fc9bcfd9afe4ead5f2c37",
-      "bytes": 442095
+      "sha256": "a5996caae06e261fe96eb05c4b64afc6aa9ade5caa065b293422b32787c13d65",
+      "bytes": 444494
     },
     {
       "path": "docs/evidence/macos/artifacts/p14-lifecycle-smoke.json",
@@ -550,18 +550,18 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p14-settings-attention-native.png",
-      "sha256": "5e4a709a0885a2ee8642b38d9ac7f04e3cad76cc8a1e4148c1d960caacd63ba9",
-      "bytes": 260338
+      "sha256": "ce5d38d79b3f79223957b45f7bd1909d9336ff9d0e4dc8e2837730dddfb25306",
+      "bytes": 260353
     },
     {
       "path": "docs/evidence/macos/artifacts/p14-settings-attention.png",
-      "sha256": "f058226b362d2a5fe334205d5ab256df5a80ecea4199a06d1a82b40e00da9dc4",
-      "bytes": 290530
+      "sha256": "7c166480211f7d54cfb642456d67d23370d5c2f44a2d4b17419fbaacd72691af",
+      "bytes": 290576
     },
     {
       "path": "docs/evidence/macos/artifacts/p14-settings-receipts.png",
-      "sha256": "8931e048aba17d2c3d71fe4b5cfa78e696863a8d7d2aa886ad37b4aed508cbf1",
-      "bytes": 274403
+      "sha256": "7b2cd982e4f07a1ef1475867c9ba43129db1926d33eb0ac4c108af6cd893e05f",
+      "bytes": 273785
     },
     {
       "path": "docs/evidence/macos/artifacts/p14-shell-smoke.json",
@@ -570,8 +570,8 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p14-studio-focus-afterglow.png",
-      "sha256": "7e28e916860b1ec898ff3d5c37a0026e5604f211166cb183b841ca308337888f",
-      "bytes": 290554
+      "sha256": "7d073f6c42a8b3bed75d5a28e2bbf2cca461e74846893f04d0dec0d1186bcd56",
+      "bytes": 292182
     },
     {
       "path": "docs/evidence/macos/artifacts/p14-tests.txt",
@@ -585,18 +585,18 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p15-agents-afterglow.png",
-      "sha256": "9018d74ef6414c19a51d4bbbbdec5c4f80ff2894f9d8da4b2ffd3c317460cefc",
-      "bytes": 337009
+      "sha256": "482bf4794cea7e9af7dbd0967632faf1357ff0468f355d4da739b40416a76d61",
+      "bytes": 337013
     },
     {
       "path": "docs/evidence/macos/artifacts/p15-agents-daybreak.png",
-      "sha256": "3eb35ba0f17d17e9b20503ba1f7d331cfcb93963a1c4749b0bada28a340b2fb7",
-      "bytes": 341487
+      "sha256": "27c51aef07ce890db5ee17c672e7725de744707225321c7f0096ed1326178f4f",
+      "bytes": 341563
     },
     {
       "path": "docs/evidence/macos/artifacts/p15-agents-inspector.png",
-      "sha256": "509f48f00e3b3b35638e395157cbc13b1dc953c813506414035752c20d40ec55",
-      "bytes": 370639
+      "sha256": "1b814103f523cbed4037e7942c3595ee7cfcb819b577915c16b7531ef23d7f7c",
+      "bytes": 370079
     },
     {
       "path": "docs/evidence/macos/artifacts/p15-agents-live.json",
@@ -640,42 +640,42 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p16-settings-route.png",
-      "sha256": "e9733790dce1266df9f9c1419ce6b1c87f29b8630e2497de3c3678d92b57eede",
-      "bytes": 315298
+      "sha256": "adcc04b3692ccc850e89829efd054288995b4bb0cc3ffa426a1c38d76d133116",
+      "bytes": 315333
     },
     {
       "path": "docs/evidence/macos/artifacts/p16-settings-smoke.json",
-      "sha256": "2b6568a91885c843632c583969de45093010d6892fdf44cc01b69933ac112d1b",
+      "sha256": "bb4a583eb48eee1328b9407d862ad54843af62cd58120b6a2d223c19a783bd5d",
       "bytes": 6634
     },
     {
       "path": "docs/evidence/macos/artifacts/p17-extensions-smoke.json",
-      "sha256": "d051f693b549f7f12a65da9dc3651950bcec7401bd0216568e721f4447aec6aa",
+      "sha256": "f66100d5c5df3b19b420d550c3355e59cfbf96a449f55eec408355d82265fcd7",
       "bytes": 13024
     },
     {
       "path": "docs/evidence/macos/artifacts/p17-settings-extensions.png",
-      "sha256": "c1219fe28b4248b84fb9a0eecff28a9c285212790032e688b83c5db50fbce56b",
-      "bytes": 319911
+      "sha256": "0297274503676163469910b5a51551db5da539ff7bdbd4f847231f7cfe48d9a2",
+      "bytes": 319936
     },
     {
       "path": "docs/evidence/macos/artifacts/p18-capabilities.png",
-      "sha256": "ff80e36d4dd5f8d0a0cde008f2557042e6c9634906c25046f4181a164511c203",
-      "bytes": 392775
+      "sha256": "29c9410f3ba419eb08797eee163c2be44bf7a55381b2805e5492fe7a5dbe98ef",
+      "bytes": 392808
     },
     {
       "path": "docs/evidence/macos/artifacts/p18-capability-coverage.json",
-      "sha256": "fc6e864dccbc4475ecb510f2a23e5c4455863924284cb28601b76e845ce082fb",
+      "sha256": "5f1880e4922b5f7e785a7d8836b1c61cd03ee43a3470342da0e86117f83e3d95",
       "bytes": 93733
     },
     {
       "path": "docs/evidence/macos/artifacts/p18-capability-coverage.md",
-      "sha256": "794893bf0bd556a74bd629d14bc83c8957a7a5ea2299b1ecd3eb22862c17cb16",
+      "sha256": "5fe707d24ddcf94cf5752d603ddf44c6294c91bfbb81fb20931c0991affc7feb",
       "bytes": 12046
     },
     {
       "path": "docs/evidence/macos/artifacts/p18-capability-smoke.json",
-      "sha256": "1ba2f1a4c631f99d56dad8211d8244ab2d622a93c9714d5593a8d5c6d7a0c976",
+      "sha256": "f5ad9aa91c811333329f94ec4e3d77f13eb91c02a59b8030de4fc2c7ad9ad9cd",
       "bytes": 17432
     },
     {
@@ -690,13 +690,13 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p18-terminal-smoke.json",
-      "sha256": "8982dcedcfe45e5f151120aefac967e8e26e812945bae237413648ece1586a78",
+      "sha256": "eba377402bf5451efc61a82e9df8b0a9cc30e9cd1a77ad6e6b775ded7926f041",
       "bytes": 3905
     },
     {
       "path": "docs/evidence/macos/artifacts/p18-terminal.png",
-      "sha256": "db926b828f11cd46b6b7d9e8a41e5569833d412d139fe0cb2e4efac020830f63",
-      "bytes": 276274
+      "sha256": "7cb7a972fb62e4423e94641e318ff83c901a356717d6ba1cd86cc5a62931d0ba",
+      "bytes": 275950
     },
     {
       "path": "docs/evidence/macos/artifacts/p18-tests.txt",
@@ -710,17 +710,17 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p19-memory-handoff.png",
-      "sha256": "877043b8105e98275028e47631d40bd80d1418fc4d7b88b0796b4023eec1ecd6",
-      "bytes": 267000
+      "sha256": "09550d8a33a573a7803cf68c9ac8da7a91f8900cff69b67197a744227fac99eb",
+      "bytes": 267043
     },
     {
       "path": "docs/evidence/macos/artifacts/p19-memory-search.png",
-      "sha256": "eb712611d9ba5d894f1468e8976f9a9ae3a3c2c907173ae2e29ed4b8c377f3d2",
-      "bytes": 331332
+      "sha256": "582f1a13fadd1ecb3d7b99446692b5d1283d593412266cf3e8a7b0c0d93bfb4a",
+      "bytes": 331054
     },
     {
       "path": "docs/evidence/macos/artifacts/p19-memory-smoke.json",
-      "sha256": "7fc88557676c7a1d399146d09beb2db63bac18a5dc02b7706737f66f315760d1",
+      "sha256": "546b81dae6c8c61ac267c03dd47ea568f604c02fcb0a1c51152127bd98984935",
       "bytes": 19477
     },
     {
@@ -730,7 +730,7 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p20-failure-smoke.json",
-      "sha256": "26e92494fe78060bf465bdac4bea09ad85616c004fbe6febc8debd44fa7c27a5",
+      "sha256": "3189c3b62602496657e87ca29280e36cb51542bfa932624427ffbf1a6c314db4",
       "bytes": 2515
     },
     {
@@ -790,12 +790,12 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p23-ci.txt",
-      "sha256": "ac0eebd4a2c81d465f8ba062016b9b6ecad91e67cc5dfa3de1e5ceecff47bb09",
-      "bytes": 73697
+      "sha256": "51932a6b4451a88747af124e358101636f935163f595eb79ae874996c7843acf",
+      "bytes": 74102
     },
     {
       "path": "docs/evidence/macos/artifacts/p23-lifecycle-smoke.json",
-      "sha256": "e28c19fe6dff0fe1c3a106e5750649ee1afb98303edbaa1fb923f99a156c43ee",
+      "sha256": "f3e2d72352ff14ae2e0520d96366dacfe93dd91cb337593548ca66e8fda1aa0d",
       "bytes": 11488
     },
     {
@@ -935,8 +935,8 @@
     },
     {
       "path": "docs/evidence/macos/P23-lifecycle.md",
-      "sha256": "b041c98e10b9c33878a89b032371ab29e258993c4a7f61d9377be465afe90a5f",
-      "bytes": 11358
+      "sha256": "f091969e07a029b279b325f451c0814d7553a922fb5a6b3dca0564f2cdb8891c",
+      "bytes": 12817
     },
     {
       "path": "docs/requirements-macos.json",

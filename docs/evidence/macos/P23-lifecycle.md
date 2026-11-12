@@ -147,13 +147,38 @@ directory (`test/package-macos.test.ts` covers `/`, the temp root itself,
 `/Applications`, a `tmp-` prefix lookalike, and empty). The utility's own bounds
 are additionally asserted at build time by `reviewUninstallScript`.
 
+## Review pass
+
+An independent review of this change set was asked to refute each guarantee
+above. It found no way to install an unverified package, but it did find two
+places where a claim was wider than the evidence. Both are fixed:
+
+1. **A same-version reinstall could not be proven, yet was reported as proof.**
+   `reconcileOnLaunch` treated "running version ≥ intent target" as
+   `observed_migrated`. For a reinstall the target *is* the running version, so a
+   cancelled Installer run would have been recorded as a completed migration —
+   and the package would then be refused as `replayed`, stranding the user.
+   Reconciliation now requires the running version to be **strictly greater than
+   the intent's from-version**; anything else is recorded `cancelled` with the
+   observed and target versions in the intent detail.
+   (`test/update-coordinator.test.ts` → *records a same-version handoff as
+   cancelled, not as a proven migration*.)
+2. **An engine acknowledgement could come from a boolean flag.**
+   `install()` accepted `confirmedEngineChange` from the request in addition to
+   the digest-bound acknowledgement. A stale flag could therefore disclose
+   nothing and still authorize a different package. Only
+   `confirmEngineChange(packageSha256)` counts now, so the acknowledgement is
+   bound to the exact bytes being handed over.
+   (`test/update-coordinator.test.ts` → *refuses an engine change that this
+   package's digest did not acknowledge*.)
+
 ## Verification
 
-- **737 tests in 75 files** (P21: 666 in 69) — +71 tests across
+- **739 tests in 75 files** (P21: 666 in 69) — +73 tests across
   `update-version`, `update-trust`, `update-coordinator`, `update-recovery`,
   `update-uninstall`, `update-screen`, and `package-macos`.
 - **`npm run ci` 21/21 steps** including the new `smoke:p23`; renderer secret
-  scan clean (764,403 bytes, 3 files, 0 hits).
+  scan clean (0 hits).
 - **`smoke:p23` 55/55 checks, 0 skipped.**
 - **`npm run smoke:shell` 120/120** with the real Electron shell; the Settings
   rail now carries a tenth tab and all 36 hash-pinned captures were re-recorded

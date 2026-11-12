@@ -672,10 +672,9 @@ export interface MonaBridge {
   chooseUpdatePackage(): Promise<IpcResult<{ chosen: boolean; view: UpdateCheckView | null }>>;
   inspectLocalUpdate(path?: string): Promise<IpcResult<UpdateCheckView>>;
   installUpdate(input: {
-    packagePath: string;
+    packagePath?: string;
     expectedSha256: string;
     confirmedLocalBuild?: boolean;
-    confirmedEngineChange?: boolean;
   }): Promise<IpcResult<UpdateHandoffReceipt>>;
   confirmEngineChange(packageSha256: string): Promise<IpcResult<{ confirmed: boolean }>>;
   cancelUpdateIntent(intentId: string): Promise<IpcResult<UpdateIntentRecord>>;

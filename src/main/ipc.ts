@@ -1232,7 +1232,6 @@ export function registerIpc(rendererRoot: string, dependencies: IpcDependencies)
           packagePath: string;
           expectedSha256: string;
           confirmedLocalBuild?: boolean;
-          confirmedEngineChange?: boolean;
         },
       ),
     ),

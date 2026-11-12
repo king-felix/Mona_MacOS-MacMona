@@ -217,10 +217,9 @@ export function UpdateSettings(): JSX.Element {
         await window.mona.confirmEngineChange(check.candidate.packageSha256);
       }
       const result = await window.mona.installUpdate({
-        packagePath: check.packagePath ?? "",
+        packagePath: check.packagePath ?? undefined,
         expectedSha256: check.candidate.packageSha256,
         confirmedLocalBuild: confirmLocal,
-        confirmedEngineChange: confirmEngine,
       });
       if (!result.ok) {
         setNotice({ tone: "danger", text: result.error.message });

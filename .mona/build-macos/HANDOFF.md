@@ -59,7 +59,12 @@ order is the guarantee.
   deferral items, intent history, verified snapshots with a matching-schema
   restore, and the uninstall guide. Eleven IPC channels, strict schemas, no
   generic filesystem or exec reach.
-- **Verification.** 737 tests in 75 files; `npm run ci` **21/21** including the
+- **Review pass.** Two claims were wider than the evidence, both fixed: a
+  same-version reinstall could not prove a migration but was recorded as
+  `observed_migrated` (which would also block the retry as a replay), and an
+  engine-change acknowledgement could come from a boolean instead of the
+  digest-bound confirmation.
+- **Verification.** 739 tests in 75 files; `npm run ci` **21/21** including the
   new `smoke:p23` (55 checks, 0 skipped); shell smoke **120/120** with the tenth
   Settings tab (36 hash-pinned captures re-recorded, no assertion removed);
   `npm run mac:package:local`'s new uninstall gate green. Also fixed a genuine
@@ -67,7 +72,7 @@ order is the guarantee.
   writing.
 - **Evidence.** `docs/evidence/macos/P23-lifecycle.md`,
   `artifacts/p23-{lifecycle-smoke,uninstall-rehearsal}.json`,
-  `artifacts/p23-ci.txt`, `docs/decisions/ADR-016`, D-077…D-084.
+  `artifacts/p23-ci.txt`, `docs/decisions/ADR-016`, D-077…D-086.
 - **Open.** The rebuilt package is not installed (EXT-INSTALL in `BLOCKERS.md`:
   `sudo installer` needs authorization this session cannot supply, so
   `mac:package:local` stops at its documented install gate). The release trust
@@ -778,7 +783,7 @@ currently covered by the rehearsal and the unit/smoke suite instead.
 
 - `.mona/build-macos/state.json` — prompt status (P23 completed, 23 of 28).
 - `.mona/build-macos/attempts.jsonl` — empty; nothing failed three times.
-- `.mona/build-macos/DECISIONS.md` — D-001…D-084.
+- `.mona/build-macos/DECISIONS.md` — D-001…D-086.
 - `.mona/build-macos/BLOCKERS.md` — external prerequisites only.
 - `docs/requirements-macos.json` — MONA-016, MONA-017/018/021/022/023/024/025/026/
   029 satisfied; **MAC-006 is satisfied at P23** (P26 owns the final release
@@ -826,3 +831,10 @@ currently covered by the rehearsal and the unit/smoke suite instead.
   scripts.
 - `AGENTS.md` — operating contract and commands (rule 3 is the stable
   three-attempt instruction).
+
+119. **The 36 hash-pinned captures were re-recorded twice at P23** — once after
+     the tenth Settings tab, once after the review-fix build. Both are legitimate
+     rewrites of a changed UI, and the hashes match the committed bytes. The
+     precedent (items 33/51/63/83/95/112) stands: re-run
+     `npm run smoke:shell` only when the shell actually changed, then re-record
+     the captures with `monabuild evidence` before the checkpoint.

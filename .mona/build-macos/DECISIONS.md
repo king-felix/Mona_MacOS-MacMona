@@ -1372,3 +1372,19 @@ appeared. On a loaded host the child was still writing, so `dropped` was 0 and
 two checks failed intermittently (observed twice, then three clean runs after the
 fix). It now waits for the ring to stop growing before asserting eviction. The
 assertion itself is unchanged.
+
+## D-085 — Reconciliation reports what it observed, not what it expected
+
+`reconcileOnLaunch` closes a `handed_off` intent. Only a running version strictly
+greater than the intent's `from_version` proves the update happened; a same-version
+reinstall leaves the version unchanged, so a cancelled run would be
+indistinguishable from a completed one. Reporting `observed_migrated` there would
+also make the package a replay and strand the user. Anything else is recorded
+`cancelled` with the observed and target versions kept. ADR-016 §3.
+
+## D-086 — An engine acknowledgement is bound to a digest
+
+`install()` accepts only the digest-bound `confirmEngineChange(sha256)`
+acknowledgement; a boolean in the request is not evidence that the user saw *this*
+package's engine change. Both review findings are recorded in
+`docs/evidence/macos/P23-lifecycle.md`. ADR-016 §1, §3.

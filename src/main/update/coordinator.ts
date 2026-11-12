@@ -575,8 +575,9 @@ export class UpdateCoordinator {
         hostArch: this.hostArch(),
         applied,
         localSelection: manifest.channel === "local",
-        engineChangeConfirmed:
-          request.confirmedEngineChange === true || this.engineConfirmed(facts.sha256),
+        // Only a digest-bound acknowledgement counts. A boolean flag from the
+        // caller could be stale, or could belong to a different package.
+        engineChangeConfirmed: this.engineConfirmed(facts.sha256),
       });
       if (trust.decision !== "available" || trust.candidate === null) {
         return makeRefused(trust.code ?? "manifest_malformed", trust.reason, {
@@ -703,17 +704,33 @@ export class UpdateCoordinator {
   // ------------------------------------------------------------ reconciliation
 
   /**
-   * After a launch, read the previous intake. A newer running version proves
-   * the migration happened; an unchanged version means Installer was cancelled,
-   * and the intent is closed as cancelled so the package can be chosen again.
+   * After a launch, read the previous intake.
+   *
+   * Only a *newer* running version proves the update happened. An unchanged
+   * version means either that Installer was cancelled or that a same-version
+   * reinstall completed, and Mona cannot tell those apart — so it records
+   * `cancelled` rather than claiming a migration it did not observe. That also
+   * keeps the package re-pickable: a replay refusal for bytes that may never
+   * have been installed would strand the user.
    */
   async reconcileOnLaunch(): Promise<UpdateIntentRecord | null> {
     const latest = await this.store.latestUpdateIntent();
     if (!latest || latest.state !== "handed_off") return latest;
     const current = this.currentBuild();
+    const ranForward = compareVersions(current.version, latest.fromVersion) > 0;
     const settled = await this.store.settleUpdateIntent(
       latest.id,
-      compareVersions(current.version, latest.toVersion) >= 0 ? "observed_migrated" : "cancelled",
+      ranForward ? "observed_migrated" : "cancelled",
+      ranForward
+        ? undefined
+        : {
+            detail: {
+              reason:
+                "the running version did not advance, so this launch cannot prove the package was installed",
+              running_version: current.version,
+              target_version: latest.toVersion,
+            },
+          },
     );
     return settled;
   }
