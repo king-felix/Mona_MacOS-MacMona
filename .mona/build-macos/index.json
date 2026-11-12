@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-12T00:45:11.014Z",
+  "generated_utc": "2026-11-12T00:46:02.938Z",
   "git": {
     "available": true,
-    "commit": "fdd1e29c50b582e1a89d759d4d0d65b57d3dc9d9",
+    "commit": "bf1aede46365cd0843a3810c2ff8e024556ae7ae",
     "dirty": true
   },
-  "digest": "ce9d01dfe55b4e9b2c30921384aa35e63d3d1068e4588e905a29f087d8fc4a3f",
+  "digest": "a6eeb00c1e17159612efa5f07393e35edd63d4ee47d18b67e50b65fce0661117",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,8 +15,8 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "11d006bbf5ffcc23f119c0dfec554eb3705106a24823386cbafd71ea1e00ad2f",
-      "bytes": 13857
+      "sha256": "44e8b410768fa03d534182a154eb877f67668abf4937aade87704221f72c7476",
+      "bytes": 14134
     },
     {
       "path": "AGENTS.md",
@@ -64,6 +64,11 @@
       "bytes": 845
     },
     {
+      "path": "docs/evidence/macos/artifacts/p00-cleanroom-verification.txt",
+      "sha256": "ebdd5f569f223599dbeec9dd4167ebeae360ae2b685cde752e0582eb67c7ac1f",
+      "bytes": 1587
+    },
+    {
       "path": "docs/evidence/macos/artifacts/p00-recovery-simulation.txt",
       "sha256": "5af6d35d39234dd088285ce8cc3940dfc4f55e47533e614f794a276c1d8b5372",
       "bytes": 3089
@@ -100,18 +105,18 @@
     },
     {
       "path": "docs/evidence/macos/P00-bootstrap.md",
-      "sha256": "d3f01f22db3439fc804ba70809e469c07889b9af900bf4dfb73d07c5c732ae97",
-      "bytes": 8160
+      "sha256": "6e9b2652e80445f03d2cafdf98201441480d943cf17bbf0a23d1a6a19809659e",
+      "bytes": 8923
     },
     {
       "path": "docs/requirements-macos.json",
-      "sha256": "23f5712d5366c49138bb7c98a9bf3ad5262d2ca6736c9ceeded4561a30399df2",
-      "bytes": 24504
+      "sha256": "f580c60d59303e88f1707b2e339626f3231adbf6aef468dc4e33718b0b653192",
+      "bytes": 25044
     },
     {
       "path": "docs/requirements-macos.json",
-      "sha256": "23f5712d5366c49138bb7c98a9bf3ad5262d2ca6736c9ceeded4561a30399df2",
-      "bytes": 24504
+      "sha256": "f580c60d59303e88f1707b2e339626f3231adbf6aef468dc4e33718b0b653192",
+      "bytes": 25044
     },
     {
       "path": "Mona_macOS_Project.md",

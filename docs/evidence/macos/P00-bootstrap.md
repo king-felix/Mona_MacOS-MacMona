@@ -79,6 +79,19 @@
 - **Actual engine/platform identity recorded or explicitly unavailable** — both
   recorded with digests and captured output. ✅
 
+## Clean-room verification of the committed tree
+
+`artifacts/p00-cleanroom-verification.txt` was captured from a fresh `git clone`
+of the committed tree (no working-tree leftovers, no local `.bak`), and shows:
+37/37 tests pass; `validate` reports `ok: true` with no errors, no warnings, and
+a clean index; the registry has 28 prompts, 30 MONA + 8 MAC requirements, order
+P00 → P27, zero validation errors, zero unassigned requirements; the ledger
+reads revision 16 with P00 completed and P01 next; truncating the committed
+state and running `recover` restored it from the committed blob while preserving
+the damaged copy; the fourth no-progress attempt exits 3; only
+`.mona/build-macos` exists; and the secret/machine-path scan is clean over 48
+tracked files.
+
 ## Additional adversarial probes
 
 `artifacts/p00-adversarial-probes.txt` runs five probes against a disposable

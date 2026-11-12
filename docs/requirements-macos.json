@@ -451,10 +451,14 @@
       "evidence": [
         {
           "path": "docs/evidence/macos/P00-bootstrap.md",
-          "note": "P00 contribution; requirement not yet accepted."
+          "note": "P00 contribution"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/engine-inventory.txt",
+          "note": "engine identity and route evidence"
         }
       ],
-      "notes": "P00 recorded installed Codewhale 0.10.2 identity, wrapper/native paths, arm64 binary digest, help surface, and redacted provider route. Live capability qualification and real execution remain P01."
+      "notes": "P00: installed engine identity, paths, arm64 digest, help surface, pinned source tag, and redacted provider/model/endpoint recorded. Live capability qualification is P01; requirement stays partial until then."
     },
     {
       "id": "MONA-002",
@@ -577,11 +581,11 @@
       "acceptance": "pending",
       "evidence": [
         {
-          "path": "docs/evidence/macos/artifacts/p00-recovery-simulation.txt",
-          "note": "P00 contribution; requirement not yet accepted."
+          "path": "docs/evidence/macos/artifacts/p00-cleanroom-verification.txt",
+          "note": "ledger, recovery, and attempt enforcement verified from a fresh clone"
         }
       ],
-      "notes": "Durable build ledger implemented: atomic revision-checked state, attempt ledger with enforced three-attempt limit, generated requirement traceability, decisions, blockers, and handoff. Product-level project state is P05."
+      "notes": "P00: durable build ledger with atomic revision-checked state, append-only attempt ledger with code-enforced three-attempt limit, generated requirement traceability with hashes, decisions, blockers, handoff, and recovery from backup or committed blob. Product project state is P05."
     },
     {
       "id": "MONA-011",
@@ -857,10 +861,14 @@
       "evidence": [
         {
           "path": "docs/discovery-macos.md",
-          "note": "P00 contribution; requirement not yet accepted."
+          "note": "measured host and toolchain"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/host-inventory.txt",
+          "note": "raw host output"
         }
       ],
-      "notes": "Native arm64 host and toolchain verified (Apple M3, proc_translated=0, CLT SDK 14.4, no Rosetta dependency). Minimum supported macOS matrix and Electron/engine coupling are chosen at P02/P21."
+      "notes": "P00: Apple M3 native arm64 host verified (proc_translated=0, no Rosetta dependency), CLT SDK 14.4 / Swift 5.10 / clang 15, engine binary thin arm64. Minimum supported macOS matrix and Electron coupling are chosen at P02/P21."
     },
     {
       "id": "MAC-002",
@@ -956,10 +964,14 @@
       "evidence": [
         {
           "path": "docs/requirements-macos.json",
-          "note": "P00 contribution; requirement not yet accepted."
+          "note": "registry with hashes"
+        },
+        {
+          "path": "docs/evidence/macos/P00-bootstrap.md",
+          "note": "provenance and separation evidence"
         }
       ],
-      "notes": "Separate .mona/build-macos ledger, generated requirement registry, and pinned engine provenance established. Windows coordination, release BOM, and reproducible release commands remain P25."
+      "notes": "P00: separate .mona/build-macos ledger, generated requirement registry, pinned engine provenance (tag v0.10.2 = commit ff466b2ed0bf), and a local-only Git history with no invented remote. Windows coordination, release BOM, and reproducible release commands remain P25."
     }
   ],
   "dependency_order": [

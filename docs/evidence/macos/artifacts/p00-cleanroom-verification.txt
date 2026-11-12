@@ -1,0 +1,73 @@
+# Clean-room acceptance verification of the committed tree
+# Fresh 'git clone'; no working-tree leftovers, no local .bak files.
+# Captured 2026-11-12T00:45:30Z from commit bf1aede
+
+## A. Test suite
+$ node --test tools/monabuild/test/
+ℹ tests 37
+ℹ pass 37
+ℹ fail 0
+ℹ cancelled 0
+
+## B. Whole-ledger validation
+$ node tools/monabuild/cli.mjs validate
+{
+  "ok": true,
+  "errors": [],
+  "warnings": [],
+  "index_clean": true
+}
+
+## C. Requirement registry
+prompts: 28
+MONA requirements: 30
+MAC requirements: 8
+dependency order: P00 -> P27
+validation errors (cycles/unknown IDs): 0
+requirements with no prompt: 0
+P27 carries final acceptance: true
+
+## D. Ledger state
+revision: 16
+current: P01 pending
+next eligible: P01
+P00: completed | evidence entries: 16
+
+## E. Interrupted checkpoint on a fresh clone (no local .bak)
+# truncate the committed state, then recover
+$ node tools/monabuild/cli.mjs recover
+{
+  "ok": true,
+  "restored_from_git": true,
+  "removed_temp_files": []
+}
+damaged copy preserved: True
+$ node tools/monabuild/cli.mjs validate
+ok: True | restored revision: 16
+
+## F. Three-attempt enforcement
+$ three no-progress attempts, then a fourth
+fourth attempt exit code: 3  (3 = refused)
+[
+  {
+    "problem_id": "CLEANROOM-CHECK",
+    "total_attempts": 3,
+    "consecutive_no_progress": 3,
+    "blocked": true,
+    "resolved": false,
+    "last_observed": "same",
+    "last_reopen": null,
+    "requirement": "MONA-001"
+  }
+]
+
+## G. Ledger separation
+$ ls -d .mona/*
+.mona/build-macos
+
+## H. Secret and machine-path scan
+{
+  "ok": true,
+  "scanned": 48,
+  "findings": []
+}

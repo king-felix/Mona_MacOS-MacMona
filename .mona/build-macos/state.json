@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 16,
+  "revision": 19,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -29,7 +29,7 @@
       "evidence": [
         {
           "path": "docs/evidence/macos/P00-bootstrap.md",
-          "sha256": "d3f01f22db3439fc804ba70809e469c07889b9af900bf4dfb73d07c5c732ae97"
+          "sha256": "6e9b2652e80445f03d2cafdf98201441480d943cf17bbf0a23d1a6a19809659e"
         },
         {
           "path": "docs/evidence/macos/artifacts/p00-recovery-simulation.txt",
@@ -53,7 +53,7 @@
         },
         {
           "path": "docs/requirements-macos.json",
-          "sha256": "23f5712d5366c49138bb7c98a9bf3ad5262d2ca6736c9ceeded4561a30399df2"
+          "sha256": "f580c60d59303e88f1707b2e339626f3231adbf6aef468dc4e33718b0b653192"
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
@@ -90,13 +90,17 @@
         {
           "path": "docs/evidence/macos/artifacts/p00-validation.txt",
           "sha256": "7860f027394f02ecfb9f22ea963ddf88fe9ab5ff82165a653c67cc7a85e13e1c"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p00-cleanroom-verification.txt",
+          "sha256": "ebdd5f569f223599dbeec9dd4167ebeae360ae2b685cde752e0582eb67c7ac1f"
         }
       ],
       "blocker_ids": [],
       "started_utc": "2026-11-12T00:33:09.865Z",
-      "updated_utc": "2026-11-12T00:40:00.000Z",
+      "updated_utc": "2026-11-12T00:47:00.000Z",
       "notes": [
-        "Independent review surfaced two documentation defects (command count, handoff revision wording) and one tracked backup artifact; all three are fixed and covered by tests."
+        "Independent review pass 1 found documentation defects (command count, stale tracked backup, redundant test-count prose); pass 2 found a test-count contradiction. All fixed and re-verified from a fresh clone. No blocked problems; zero attempt records because nothing failed three times."
       ]
     },
     "P01": {
@@ -428,7 +432,7 @@
   "next_eligible_prompts": [
     "P01"
   ],
-  "last_checkpoint_utc": "2026-11-12T00:45:07.719Z",
+  "last_checkpoint_utc": "2026-11-12T00:46:02.862Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",
@@ -503,6 +507,6 @@
     "captured_utc": "2026-11-12T00:33:09.865Z"
   },
   "notes": [
-    "P00 completed: native Mac bootstrap, engine identity, requirement registry, durable ledger, and recovery evidence. No inference performed."
+    "P00 accepted: clean-room verification captured in docs/evidence/macos/artifacts/p00-cleanroom-verification.txt"
   ]
 }
