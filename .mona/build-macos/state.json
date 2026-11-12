@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 293,
+  "revision": 294,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -8,7 +8,7 @@
   "prompt_file_sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8",
   "current_prompt": "P15",
   "current_prompt_status": "completed",
-  "last_verified_commit": "17200f6",
+  "last_verified_commit": "2e7d851",
   "tasks": {
     "P00": {
       "status": "completed",
@@ -1919,7 +1919,7 @@
   "next_eligible_prompts": [
     "P14"
   ],
-  "last_checkpoint_utc": "2026-11-12T08:29:37.414Z",
+  "last_checkpoint_utc": "2026-11-12T08:29:47.139Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",
