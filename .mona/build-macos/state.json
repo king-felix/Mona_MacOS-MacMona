@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 449,
+  "revision": 450,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -2232,11 +2232,11 @@
       "evidence": [
         {
           "path": "docs/evidence/macos/P20-failure-matrix.md",
-          "sha256": "2937deb4d4be5e26ab2e538fc0681a68090a7252339ae9b18ab3cc269bfa4a8c"
+          "sha256": "aacf03e34ffb4ba1c4768679b30ce2404c359850ee99cdbb34c4e19643b713d0"
         },
         {
           "path": "docs/evidence/macos/artifacts/p20-failure-smoke.json",
-          "sha256": "b1b05f14904180186669f8134d2074fc260ce06e92ddc2aaf730018053762fc2"
+          "sha256": "3f8afd6f525d09642b20e344effcb28a0dcf766422cbbb9492359058fa45f009"
         },
         {
           "path": "docs/evidence/macos/artifacts/p20-lifecycle-crash.json",
@@ -2244,11 +2244,11 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p20-ci.txt",
-          "sha256": "1220225c6d3839bc9c7df2908d3f00aea6ecf5ca91bc973e59b7d47f581cda0c"
+          "sha256": "a4104e16f7dabd1e6392aea0b85d014f72b931a78af802666b709d86cb46e1a7"
         },
         {
           "path": "docs/decisions/ADR-014-hardening-and-failure-boundaries.md",
-          "sha256": "1d332b678d386d2127cf57a7eabdc6a793879a6268729bfbc0a47709148f42ab"
+          "sha256": "7abb4b7c275cc29d1c8d0d1e633c50b8070efaeca17199d1c71b28a848ef0007"
         },
         {
           "path": "scripts/p20-failure-smoke.mjs",
@@ -2354,7 +2354,7 @@
   "next_eligible_prompts": [
     "P14"
   ],
-  "last_checkpoint_utc": "2026-11-12T17:18:17.538Z",
+  "last_checkpoint_utc": "2026-11-12T17:18:24.319Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

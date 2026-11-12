@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-12T17:18:17.574Z",
+  "generated_utc": "2026-11-12T17:18:24.408Z",
   "git": {
     "available": true,
-    "commit": "2e09bd078affd2b0dfc0b00ab7cfda3103ada9a0",
+    "commit": "d9d4eaf4fdd6b92a6e54575d47417857ffc5f99f",
     "dirty": true
   },
-  "digest": "f620a3785b463c198909dd112dbd1df1757d24393e59d10a7274ba19a0f8c976",
+  "digest": "d8e1781aa937eb8818db2e75a65ce2911a45e9aa02e7c836fa4a8a0e943e53c9",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,7 +15,7 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "53bf1692431dee83da127a2f0a8591e482bc452a3f56e0491419a2d4ff9993cb",
+      "sha256": "6015674022f15c33b1cc6620fdf01b2cb51e0c34d6c0e825faba9ffa74eae4f3",
       "bytes": 126145
     },
     {
