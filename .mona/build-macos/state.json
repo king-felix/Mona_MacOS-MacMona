@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 626,
+  "revision": 627,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -2472,7 +2472,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p23-ci.txt",
-          "sha256": "6adb364fcf538a43d73f589db8b1674991e3579ca68a8e689db6cebdd4508072"
+          "sha256": "cf03d7a20f4cfe83f99027414497c545460910d19a7c4a4c0dd022a5ed999861"
         },
         {
           "path": "docs/decisions/ADR-016-update-and-lifecycle.md",
@@ -2540,7 +2540,7 @@
   "next_eligible_prompts": [
     "P14"
   ],
-  "last_checkpoint_utc": "2026-11-12T22:15:47.669Z",
+  "last_checkpoint_utc": "2026-11-12T22:15:58.369Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",
