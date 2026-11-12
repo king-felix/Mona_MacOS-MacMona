@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { scanText } from "../lib/secrets.mjs";
+import { scanMachinePaths, scanText } from "../lib/secrets.mjs";
 
 // Fixture values are assembled at runtime so that this test file itself does not
 // contain a literal that the scanner would report.
@@ -34,4 +34,11 @@ test("reports the line number but never the matched value", () => {
   assert.equal(findings[0].line, 2);
   assert.equal(Object.hasOwn(findings[0], "value"), false);
   assert.equal(JSON.stringify(findings).includes(fakeSecret), false);
+});
+
+test("reports this machine's home path but not documentation examples", () => {
+  const home = "/Users/realuser";
+  assert.equal(scanMachinePaths(`open ${home}/DS_Projects/Mona`, "f", { home }).length, 1);
+  assert.equal(scanMachinePaths("open /Users/you/DS_Projects/Mona", "f", { home }).length, 0);
+  assert.equal(scanMachinePaths(`path: ${home}`, "f", { home }).length, 1);
 });

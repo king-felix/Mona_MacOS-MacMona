@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-12T00:40:49.530Z",
+  "generated_utc": "2026-11-12T00:42:30.250Z",
   "git": {
     "available": true,
-    "commit": "988e5d0f8a768dbf95629e2164cb25e0a2175b7e",
+    "commit": "7db195dc3659984b61311ff6e5e57074f505a80b",
     "dirty": true
   },
-  "digest": "7dd78ad8872bead09857d0a4cc5ad9b436c86657f1d533424db67856019e5cbf",
+  "digest": "74827604bc82e19afaa0ca71f61838f63842e34310fd62940e10e6074413fccc",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,8 +15,8 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "548f3cc2eb9273efcafecd7721d876f604e7c76d1c8423303ec3b95bf69185f4",
-      "bytes": 13136
+      "sha256": "2274b4c5cd14203a3d08cb280bdc879a1d83bb2a1aacdc3b81dc9307ed836c6c",
+      "bytes": 13503
     },
     {
       "path": "AGENTS.md",
@@ -90,8 +90,8 @@
     },
     {
       "path": "docs/evidence/macos/P00-bootstrap.md",
-      "sha256": "9c5bea8cf6c698d78257ac684146e474634280148bebb30528ba60436c23d758",
-      "bytes": 6811
+      "sha256": "fe9819daf6e3302f0971b6bec10771220ed54651bbcc0dfb55558c303929f687",
+      "bytes": 7260
     },
     {
       "path": "docs/requirements-macos.json",

@@ -69,7 +69,8 @@ value was read, printed, or stored.
   control transports, `serve`, `web` (loopback browser client with one-time
   bootstrap capability). `--http` is the primary candidate for the Mona adapter;
   its actual operation coverage must be qualified at P01, not assumed.
-- **Observed CLI surface:** 33 top-level commands including `run`, `exec`,
+- **Observed CLI surface:** 43 command-table entries (42 commands plus `help`)
+  including `run`, `exec`,
   `sessions`, `resume`, `fork`, `receipts`, `thread`, `fleet`, `workflow`,
   `lane`, `mcp`, `features`, `providers`, `config`, `model`, `sandbox`,
   `app-server`, `serve`, `web`, `metrics`, `update`. Feature flags observed:

@@ -4,6 +4,21 @@ Durable decisions with rationale. Newest first. Product decisions from the
 specification are not repeated here; this file records implementation choices
 and deviations discovered while building.
 
+## D-009 — The local repository history is not yet shareable
+
+- **Date:** 2026-11-11 (P00)
+- **Observation:** During P00 the hash index briefly recorded the absolute
+  workspace path, and the committed tree of one intermediate commit
+  (`bf552a9`) therefore contains a home-directory path. The current tree is
+  clean: the path was removed from the generator, from all captured artifacts,
+  and from `index.json`; a scanner check now fails on this machine's home
+  directory appearing in any tracked file.
+- **Decision:** Do not rewrite history for a local-only repository with no
+  remote. Record the fact instead.
+- **Consequence:** Publishing or sharing this repository requires either a
+  history rewrite or a fresh export. Nothing here is a credential, and no remote
+  has received these objects.
+
 ## D-008 — Local Git repository only, no remote
 
 - **Date:** 2026-11-11 (P00)

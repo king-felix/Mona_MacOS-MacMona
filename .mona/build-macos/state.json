@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 12,
+  "revision": 14,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -29,7 +29,7 @@
       "evidence": [
         {
           "path": "docs/evidence/macos/P00-bootstrap.md",
-          "sha256": "9c5bea8cf6c698d78257ac684146e474634280148bebb30528ba60436c23d758"
+          "sha256": "fe9819daf6e3302f0971b6bec10771220ed54651bbcc0dfb55558c303929f687"
         },
         {
           "path": "docs/evidence/macos/artifacts/p00-recovery-simulation.txt",
@@ -49,7 +49,7 @@
         },
         {
           "path": "docs/discovery-macos.md",
-          "sha256": "943c81ae77724032b098e637c40d09c477855117daf9321e3090c3f24a498678"
+          "sha256": "f28bacfcdb898fc2d144b162ae2e45b79c73f5e5ada1664ece6f41afeaed59bd"
         },
         {
           "path": "docs/requirements-macos.json",
@@ -78,11 +78,18 @@
         {
           "path": "docs/evidence/macos/artifacts/upstream-PROVIDERS.md",
           "sha256": "fd375b08942cfdc336986c1a7a0872df8a486c3feeea58b6d892f3d7a611c212"
+        },
+        {
+          "path": ".mona/build-macos/DECISIONS.md",
+          "sha256": "5aa5c77bd5e6f2597a1241da4ba5134384b3b493ebb754329a51d9d48dd6092e"
         }
       ],
       "blocker_ids": [],
       "started_utc": "2026-11-12T00:33:09.865Z",
-      "updated_utc": "2026-11-12T00:40:00.000Z"
+      "updated_utc": "2026-11-12T00:40:00.000Z",
+      "notes": [
+        "Independent review surfaced two documentation defects (command count, handoff revision wording) and one tracked backup artifact; all three are fixed and covered by tests."
+      ]
     },
     "P01": {
       "status": "pending",
@@ -413,7 +420,7 @@
   "next_eligible_prompts": [
     "P01"
   ],
-  "last_checkpoint_utc": "2026-11-12T00:39:45.720Z",
+  "last_checkpoint_utc": "2026-11-12T00:42:30.174Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

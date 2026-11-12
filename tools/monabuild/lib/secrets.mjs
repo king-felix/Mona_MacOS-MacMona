@@ -3,6 +3,7 @@
 
 import { readFileSync, statSync } from "node:fs";
 import { execFileSync } from "node:child_process";
+import { homedir } from "node:os";
 import { join } from "node:path";
 
 const PATTERNS = [
@@ -54,6 +55,21 @@ export function isProbablyBinary(buffer) {
   return sample.includes(0);
 }
 
+// An absolute path into *this* machine's home directory makes shareable state
+// machine-specific and leaks the account name. Upstream documentation captured
+// verbatim legitimately shows example homes such as /Users/you, so only the real
+// home directory is reported.
+export function scanMachinePaths(text, file = "<text>", { home = homedir() } = {}) {
+  const findings = [];
+  if (!home || home === "/" || !/^(\/Users|\/home)\/[^/]+$/.test(home)) return findings;
+  text.split("\n").forEach((line, index) => {
+    if (line.includes(`${home}/`) || line.trimEnd().endsWith(home)) {
+      findings.push({ file, line: index + 1, pattern: "machine-home-path" });
+    }
+  });
+  return findings;
+}
+
 export function scanFiles(root, files) {
   const findings = [];
   for (const file of files) {
@@ -67,7 +83,9 @@ export function scanFiles(root, files) {
     if (!stats.isFile() || stats.size > 5_000_000) continue;
     const buffer = readFileSync(absolute);
     if (isProbablyBinary(buffer)) continue;
-    findings.push(...scanText(buffer.toString("utf8"), file));
+    const text = buffer.toString("utf8");
+    findings.push(...scanText(text, file));
+    findings.push(...scanMachinePaths(text, file));
   }
   return findings;
 }

@@ -68,8 +68,10 @@
   revision from `state.json.bak`, preserved the damaged copy, discarded the
   never-committed temp file, and `validate` then passed. ✅
 - **No secret committed** — `monabuild secrets` scans every tracked file for
-  key/token/password patterns; the redacted config dump is the only provider
-  configuration stored. ✅
+  key/token/password patterns and for this machine's absolute home path; the
+  redacted config dump is the only provider configuration stored. It also treats
+  self-evident documentation placeholders (`YOUR_..._API_KEY`) as documentation,
+  with positive and negative tests, and never prints a matched value. ✅
 - **Actual engine/platform identity recorded or explicitly unavailable** — both
   recorded with digests and captured output. ✅
 
@@ -85,10 +87,14 @@ no-progress attempt is refused until `reopen` records a decision reference.
 
 ```
 $ node --test tools/monabuild/test/
-ℹ tests 27
-ℹ pass 27
+ℹ tests 35
+ℹ pass 35
 ℹ fail 0
 ```
+
+`inventory.test.mjs` additionally pins the capability inventory to the captured
+help artifact (same command count, 5 transports, nothing claimed supported), so
+the discovery report cannot drift from its own evidence without a failing test.
 
 Coverage of high-risk boundaries: schema rejection of unknown/missing fields,
 revision conflicts, invalid patches, atomic replacement, stale-lock and temp-file
