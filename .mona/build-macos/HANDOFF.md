@@ -1,6 +1,7 @@
 # Handoff — Mona macOS build
 
-**Last checkpoint:** 2026-11-11 (P09) · verified commit pending the P09 commit
+**Last checkpoint:** 2026-11-11 (P09) · verified commit `6e99507` (state
+checkpoint `0660bbb`, revision 103)
 **Current prompt:** P09 completed. Next eligible: **P10** — not started, not
 authorized in this session.
 
@@ -40,8 +41,10 @@ without starting the engine or submitting anything.
   after a handoff, and **Settings → Finder** with measured registration state,
   the last handoff, and guided recovery (plus refresh and open-settings actions).
 - **Verification** — 274 tests in 33 files; native Service smoke **21/21**;
-  application handoff smoke **16/16**; Electron security smoke **20/20**; shell
-  smoke **32/32**; local CI green (now also builds the Service).
+  application handoff smoke **17/17** with the app's own report **17/17**;
+  Electron security smoke **20/20**; shell smoke **32/32**; local CI green (now
+  also builds the Service). Evidence:
+  `docs/evidence/macos/P09-finder.md`, `artifacts/p09-*`.
 
 ## Next exact action (P10)
 
@@ -98,6 +101,13 @@ Read spec §8 (8.1–8.5), §10.3, §17, and MONA-009/010/024; the P05 task tabl
 21. **The Electron security smoke was stale after P08** (bridge key list lacked
     the studio methods, so `bridge_is_narrow` failed). Fixed in P09; it now lists
     the full narrow bridge.
+22. **Command-1…5 was disabled while a text field had focus** (`!typing` on the
+    Meta-number branch) — exactly the state a Finder handoff creates. Fixed in
+    P09; the handoff smoke now switches screens with the composer focused.
+23. **Evidence generation now redacts the build machine's home directory**
+    (`~`), because the P09 artifacts recorded absolute paths. Earlier prompts'
+    artifacts (P01) still contain one; that predates the rule and is recorded,
+    not silently rewritten.
 
 ## Key files
 
