@@ -220,14 +220,16 @@ export function inspectRecovery(paths: RecoveryPaths): RecoveryView {
 }
 
 /**
- * Restore one verified snapshot. The caller must name the schema version it was
- * told the snapshot holds; a mismatch is a refusal, so a stale screen cannot
- * restore a snapshot it never inspected.
+ * Verify that a snapshot may be restored, without touching anything.
+ *
+ * Every restore path calls this first, so the expensive and destructive part
+ * never runs against a snapshot that was not listed, was not the one the user
+ * saw, is newer than this build, or failed its integrity check.
  */
-export async function restoreSnapshotForBuild(
+export function selectSnapshotForRestore(
   paths: RecoveryPaths,
   request: { snapshotPath: string; expectedSchemaVersion: number },
-): Promise<RecoveryRestoreReceipt> {
+): RecoverySnapshot {
   const snapshots = listSnapshots(paths.backupsDir, { limit: 500 });
   const target = snapshots.find((snapshot) => snapshot.path === request.snapshotPath);
   if (!target) {
@@ -253,82 +255,142 @@ export async function restoreSnapshotForBuild(
       snapshot_path: target.path,
     });
   }
+  return target;
+}
+
+/**
+ * Restore a verified snapshot **when no store is open** — the startup recovery
+ * path, where the application could not open its database at all.
+ *
+ * When a store *is* open, its `restoreFrom` is the only correct writer: it holds
+ * the maintenance barrier, closes its connection before the swap, re-opens
+ * afterwards, and rolls back on failure. Swapping the file under a live handle
+ * would leave that handle writing into the renamed inode, so this function
+ * refuses to run in that case rather than producing silent data loss.
+ *
+ * The swap itself is failure-safe: the current database is moved aside first,
+ * and any failure after that point puts it back before the error is raised.
+ */
+export async function restoreSnapshotWithoutStore(
+  paths: RecoveryPaths,
+  request: { snapshotPath: string; expectedSchemaVersion: number },
+  options: { storeOpen?: boolean } = {},
+): Promise<RecoveryRestoreReceipt> {
+  if (options.storeOpen === true) {
+    throw new StateError(
+      "CONFLICT",
+      "a state store is open; the store must perform the restore under its maintenance barrier",
+      { snapshot_path: request.snapshotPath },
+    );
+  }
+  const target = selectSnapshotForRestore(paths, request);
 
   const stamp = new Date().toISOString().replace(/[:.]/g, "-");
-  let replacedPath: string | null = null;
+  const replacedPath = `${paths.database}.replaced-${stamp}`;
+  let moved = false;
   if (existsSync(paths.database)) {
-    replacedPath = `${paths.database}.replaced-${stamp}`;
     renameSync(paths.database, replacedPath);
     for (const suffix of ["-wal", "-shm"]) {
       const sidecar = `${paths.database}${suffix}`;
       if (existsSync(sidecar)) renameSync(sidecar, `${replacedPath}${suffix}`);
     }
+    moved = true;
   }
-  copyFileSync(target.path, paths.database);
-  chmodSync(paths.database, 0o600);
 
-  const restored = openDatabase({ path: paths.database, readonly: true });
-  let restoredVersion: number;
   try {
-    restoredVersion = readUserVersion(restored);
-    if (restoredVersion !== target.schemaVersion) {
-      throw new StateError(
-        "MIGRATION_FAILED",
-        "the restored database has the wrong schema version",
-        {
-          version: restoredVersion,
-          expected: target.schemaVersion,
-        },
-      );
+    copyFileSync(target.path, paths.database);
+    chmodSync(paths.database, 0o600);
+
+    const restored = openDatabase({ path: paths.database, readonly: true });
+    let restoredVersion: number;
+    try {
+      restoredVersion = readUserVersion(restored);
+      if (restoredVersion !== target.schemaVersion) {
+        throw new StateError(
+          "MIGRATION_FAILED",
+          "the restored database has the wrong schema version",
+          { version: restoredVersion, expected: target.schemaVersion },
+        );
+      }
+      assertIntegrity(restored, "restored snapshot");
+    } finally {
+      restored.close();
     }
-    assertIntegrity(restored, "restored snapshot");
-  } finally {
-    restored.close();
-  }
 
-  // An older snapshot is migrated forward with the normal path, which takes its
-  // own pre-migration snapshot and journal. One deterministic outcome, and the
-  // evidence for the second migration is kept too.
-  const migratedFrom = restoredVersion;
-  if (restoredVersion < CURRENT_SCHEMA_VERSION) {
-    // The same migration implementation the launch path uses: it takes its own
-    // pre-migration snapshot and writes its own journal, and a failure there
-    // restores the snapshot it just took rather than leaving a half-migrated DB.
-    const outcome = await migrateDatabase({
-      dbPath: paths.database,
-      backupDir: join(paths.backupsDir),
-    });
-    outcome.db.close();
-  }
+    // An older snapshot is migrated forward with the normal path, which takes
+    // its own pre-migration snapshot and journal, and restores that snapshot if
+    // the migration fails.
+    const migratedFrom = restoredVersion;
+    if (restoredVersion < CURRENT_SCHEMA_VERSION) {
+      const outcome = await migrateDatabase({
+        dbPath: paths.database,
+        backupDir: join(paths.backupsDir),
+      });
+      outcome.db.close();
+    }
 
-  const final = openDatabase({ path: paths.database, readonly: true });
+    const final = openDatabase({ path: paths.database, readonly: true });
+    try {
+      const version = readUserVersion(final);
+      if (version !== CURRENT_SCHEMA_VERSION) {
+        throw new StateError(
+          "MIGRATION_FAILED",
+          "the restored database did not reach this build's schema",
+          { version, expected: CURRENT_SCHEMA_VERSION },
+        );
+      }
+      assertIntegrity(final, "restored and migrated database");
+    } finally {
+      final.close();
+    }
+
+    return {
+      restored: true,
+      fromVersion: migratedFrom,
+      toVersion: CURRENT_SCHEMA_VERSION,
+      snapshotPath: target.path,
+      replacedPath: moved ? replacedPath : null,
+      integrity: "ok",
+      note:
+        migratedFrom < CURRENT_SCHEMA_VERSION
+          ? `The snapshot was at v${migratedFrom} and was migrated to v${CURRENT_SCHEMA_VERSION}. The previous database was moved aside, not deleted.`
+          : "The previous database was moved aside, not deleted. Launch Mona again to open the restored snapshot.",
+    };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    const rollback = moved ? rollbackTo(replacedPath, paths.database, stamp) : null;
+    throw new StateError(
+      "MAINTENANCE_FAILED",
+      rollback === "ok"
+        ? "the snapshot could not be restored; the previous database was put back"
+        : "the snapshot could not be restored and the previous database could not be put back",
+      {
+        snapshot_path: target.path,
+        replaced_path: moved ? replacedPath : null,
+        rollback,
+        cause: message,
+      },
+    );
+  }
+}
+
+/** Put the pre-restore database back. Returns an honest outcome, never a guess. */
+function rollbackTo(replacedPath: string, database: string, stamp: string): "ok" | "failed" {
   try {
-    const version = readUserVersion(final);
-    if (version !== CURRENT_SCHEMA_VERSION) {
-      throw new StateError(
-        "MIGRATION_FAILED",
-        "the restored database did not reach this build's schema",
-        {
-          version,
-          expected: CURRENT_SCHEMA_VERSION,
-        },
-      );
+    for (const suffix of ["", "-wal", "-shm"]) {
+      const target = `${database}${suffix}`;
+      if (existsSync(target)) renameSync(target, `${target}.failed-restore-${stamp}${suffix}`);
     }
-    assertIntegrity(final, "restored and migrated database");
-  } finally {
-    final.close();
+    copyFileSync(replacedPath, database);
+    chmodSync(database, 0o600);
+    const restored = openDatabase({ path: database, readonly: true });
+    try {
+      assertIntegrity(restored, "restored pre-restore database");
+    } finally {
+      restored.close();
+    }
+    return "ok";
+  } catch {
+    return "failed";
   }
-
-  return {
-    restored: true,
-    fromVersion: migratedFrom,
-    toVersion: CURRENT_SCHEMA_VERSION,
-    snapshotPath: target.path,
-    replacedPath,
-    integrity: "ok",
-    note:
-      migratedFrom < CURRENT_SCHEMA_VERSION
-        ? `The snapshot was at v${migratedFrom} and was migrated to v${CURRENT_SCHEMA_VERSION}. The previous database was moved aside, not deleted.`
-        : "The previous database was moved aside, not deleted. Launch Mona again to open the restored snapshot.",
-  };
 }

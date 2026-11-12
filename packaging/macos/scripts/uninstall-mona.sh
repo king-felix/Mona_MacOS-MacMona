@@ -106,16 +106,25 @@ bundle_id() {
 if [ "$REMOVE_USER_DATA" -eq 1 ]; then
   [ -n "$HOME_TO_CLEAN" ] || die "--remove-user-data requires --home <one user's home>"
   case "$HOME_TO_CLEAN" in
-    /Users/* | /private/var/*) ;;
-    *) die "--home must be an absolute user home under /Users" ;;
-  esac
-  case "$HOME_TO_CLEAN" in
     *".."*) die "--home may not contain .." ;;
   esac
+  if [ -n "$ROOT" ]; then
+    # Rehearsal mode: the destructive branch is confined to the same temporary
+    # root as the payload rehearsal, so `MONA_UNINSTALL_ROOT` bounds it too.
+    case "$HOME_TO_CLEAN" in
+      "$ROOT"/*) ;;
+      *) die "--home must be inside MONA_UNINSTALL_ROOT during a rehearsal" ;;
+    esac
+  else
+    case "$HOME_TO_CLEAN" in
+      /Users/* | /private/var/*) ;;
+      *) die "--home must be an absolute user home under /Users" ;;
+    esac
+    # Never act on an account that is not a real user home by accident.
+    [ "$(basename "$HOME_TO_CLEAN")" != "Shared" ] ||
+      die "refusing to treat /Users/Shared as a user home"
+  fi
   [ -d "$HOME_TO_CLEAN" ] || die "$HOME_TO_CLEAN is not a directory"
-  # Never act on the account running the script by accident: an explicit home
-  # that is not a real user account is refused rather than guessed.
-  [ "$(basename "$HOME_TO_CLEAN")" != "Shared" ] || die "refusing to treat /Users/Shared as a user home"
 
   targets="
 $HOME_TO_CLEAN/Library/Application Support/Mona
@@ -157,6 +166,15 @@ fi
 
 [ -f "$OWNED_MANIFEST" ] || die "no ownership manifest at $OWNED_MANIFEST. This copy was not installed by the package; remove it the way you installed it."
 [ -f "$RECEIPT" ] || die "no install receipt at $RECEIPT. Refusing to guess which files Mona owns."
+
+# The removal plan below is a fixed allowlist of the paths this package installs,
+# each verified by identity. The manifest is a precondition, not an instruction:
+# a manifest that names anything else cannot widen the plan, which is why this
+# script never deletes a path it did not already know. (Reported by review: the
+# ADR described the manifest as the source of the plan, which it never was.)
+if ! /usr/bin/grep -q "Applications/Mona.app" "$OWNED_MANIFEST" 2>/dev/null; then
+  die "the ownership manifest does not describe this product."
+fi
 
 version="$(/usr/bin/plutil -extract version raw "$RECEIPT" 2>/dev/null || echo unknown)"
 say "installed Mona version: $version"

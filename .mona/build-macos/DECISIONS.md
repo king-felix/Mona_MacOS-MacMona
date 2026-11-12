@@ -1388,3 +1388,39 @@ also make the package a replay and strand the user. Anything else is recorded
 acknowledgement; a boolean in the request is not evidence that the user saw *this*
 package's engine change. Both review findings are recorded in
 `docs/evidence/macos/P23-lifecycle.md`. ADR-016 §1, §3.
+
+## D-087 — A live store is the only correct writer for its own file
+
+Restoring a snapshot from Settings used to swap `mona.sqlite` under the open
+`StateStore`. Its connection then pointed at the renamed inode, so the screen
+showed the restored state while the running app kept writing into
+`mona.sqlite.replaced-*` — and the next launch silently discarded that work. The
+restore now routes through `StateStore.restoreFrom` when a store is open (barrier,
+close, swap, re-open, rollback) and the file-swap path refuses if told a store is
+open. Verification happens before any mutation in both paths. ADR-016 §4.
+
+## D-088 — A failed restore puts the previous database back
+
+The swap is failure-safe: the current database is moved aside first, and any
+failure after that point restores it, re-verifies its integrity, and reports the
+real outcome. The startup dialog no longer claims "Nothing was replaced" when the
+rollback itself failed. ADR-016 §4.
+
+## D-089 — Uncertain facts fail closed
+
+A version Mona cannot order, a package that declares no identifier, bundle id, or
+architecture, and an oversized package are all refusals — not "unknown, so fine".
+`manifestFromPackage` no longer substitutes Mona's identities for ones the package
+failed to declare, and `compareVersions` being total for sorting is never used as
+an ordering guarantee. ADR-016 §1.
+
+## D-090 — The uninstall plan is a fixed allowlist, and the docs say so
+
+The shipped utility deletes four known paths after verifying identity; the
+ownership manifest is a required precondition, not an instruction, so a hostile
+manifest naming `/Applications` cannot widen the plan (proven by the smoke). ADR-
+016 previously described the manifest as the source of the plan; that was wrong
+and is corrected rather than "fixed" in the script, because the allowlist is the
+stronger guarantee. In a rehearsal the `--remove-user-data` home must also be
+inside `MONA_UNINSTALL_ROOT`, so the destructive branch is bounded by the same
+guard as the payload. ADR-016 §5.

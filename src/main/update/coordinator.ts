@@ -574,7 +574,10 @@ export class UpdateCoordinator {
         hostOs: this.hostOs(),
         hostArch: this.hostArch(),
         applied,
-        localSelection: manifest.channel === "local",
+        // A local package only ever comes from a file the user chose. A
+        // configured-source manifest that declares `channel: "local"` is
+        // refused here for the same reason `check()` refuses it.
+        localSelection: config.mode === "manual",
         // Only a digest-bound acknowledgement counts. A boolean flag from the
         // caller could be stale, or could belong to a different package.
         engineChangeConfirmed: this.engineConfirmed(facts.sha256),
@@ -664,7 +667,20 @@ export class UpdateCoordinator {
         );
       }
 
-      const settled = await this.store.settleUpdateIntent(activeIntent.id, "handed_off");
+      // Installer is already open. Recording the state is bookkeeping, so a
+      // ledger failure must not be reported as "Installer did not open" nor be
+      // allowed to settle the intent as failed — the update is genuinely under
+      // way, and `reconcileOnLaunch` will read the result on the next launch.
+      let settled = activeIntent;
+      let settleNote: string | null = null;
+      try {
+        settled = await this.store.settleUpdateIntent(activeIntent.id, "handed_off");
+      } catch (error) {
+        settleNote =
+          "The handoff receipt could not be advanced to handed_off; Apple Installer is open and the intent will be reconciled on the next launch. " +
+          (error instanceof Error ? error.message : String(error));
+      }
+      intent = null;
       this.pendingEngineChange = null;
       const quitting = this.afterHandoff !== undefined && this.shouldQuit();
       if (quitting) this.afterHandoff?.();
@@ -673,6 +689,7 @@ export class UpdateCoordinator {
         state: "handed_off",
         code: null,
         reason:
+          settleNote ??
           "Apple Installer was opened for this package. Finish or cancel it there; Mona quits and migrates its own state on the next launch.",
         fromVersion: current.version,
         toVersion: manifest.version,
@@ -715,7 +732,20 @@ export class UpdateCoordinator {
    */
   async reconcileOnLaunch(): Promise<UpdateIntentRecord | null> {
     const latest = await this.store.latestUpdateIntent();
-    if (!latest || latest.state !== "handed_off") return latest;
+    if (!latest) return null;
+    if (latest.state === "recorded") {
+      // Recorded but never handed off: the process stopped between writing the
+      // intent and opening Installer, so nothing was installed. Close it as
+      // cancelled rather than leaving a permanent `recorded` row that the
+      // update screen would offer a pointless "cancel" for.
+      return this.store.settleUpdateIntent(latest.id, "cancelled", {
+        detail: {
+          reason:
+            "Mona stopped before handing this package to Apple Installer, so it was not installed",
+        },
+      });
+    }
+    if (latest.state !== "handed_off") return latest;
     const current = this.currentBuild();
     const ranForward = compareVersions(current.version, latest.fromVersion) > 0;
     const settled = await this.store.settleUpdateIntent(

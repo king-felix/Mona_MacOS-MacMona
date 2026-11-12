@@ -323,6 +323,48 @@ describe("update trust policy", () => {
     expect(decision.candidate?.channel).toBe("local");
   });
 
+  it("refuses a version it cannot order, instead of comparing it as equal", () => {
+    // `compareVersions` is total for sorting, so an unparseable version used to
+    // compare equal and slip past the downgrade guard.
+    for (const version of ["banana", "1.2.3.4", "v0.2.0", ""]) {
+      const decision = evaluate({
+        manifest: manifest({ version }),
+        packageFacts: facts({ package: { ...facts().package, version } }),
+      });
+      expect(decision.decision).toBe("refused");
+      expect(decision.code).toBe("manifest_malformed");
+    }
+    // A usable version still compares normally.
+    expect(evaluate({ manifest: manifest({ version: "0.2.0-rc.1" }) }).decision).toBe("available");
+  });
+
+  it("refuses a package that declares no identity or architecture", () => {
+    // Absent facts must fail closed: "unknown" is not "this product, arm64".
+    expect(
+      evaluate({
+        packageFacts: facts({ package: { ...facts().package, identifier: null } }),
+      }).code,
+    ).toBe("package_identity_mismatch");
+    expect(evaluate({ packageFacts: facts({ appBundleId: null }) }).code).toBe(
+      "package_identity_mismatch",
+    );
+    expect(evaluate({ packageFacts: facts({ serviceBundleId: null }) }).code).toBe(
+      "package_identity_mismatch",
+    );
+    expect(evaluate({ packageFacts: facts({ architectures: [] }) }).code).toBe(
+      "architecture_mismatch",
+    );
+  });
+
+  it("refuses a local package declared by a source feed", () => {
+    // A local package only ever comes from a chosen file. `localSelection` is
+    // the manual path; a configured source is never one.
+    const local = manifest({ channel: "local", teamId: null });
+    const decision = evaluate({ manifest: local, localSelection: false });
+    expect(decision.decision).toBe("refused");
+    expect(decision.code).toBe("local_package_not_allowed");
+  });
+
   it("checks the announce stage without the package bytes", () => {
     const decision = evaluate({ stage: "announce", packageFacts: null });
     expect(decision.decision).toBe("available");

@@ -1,6 +1,16 @@
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync } from "node:fs";
+import {
+  closeSync,
+  existsSync,
+  mkdtempSync,
+  openSync,
+  readdirSync,
+  readFileSync,
+  readSync,
+  rmSync,
+  statSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
@@ -19,7 +29,8 @@ import {
   type UpdateRejectionCode,
   type UpdateSourceConfig,
 } from "../../shared/contracts/update";
-import { compareOsVersions, compareVersions } from "./version";
+import { UpdateError } from "./errors";
+import { compareOsVersions, compareVersions, parseVersion } from "./version";
 
 /**
  * The update trust policy, as a pure function over observed facts.
@@ -223,24 +234,33 @@ export function evaluateUpdate(input: TrustInput): TrustDecision {
         summary,
       );
     }
-    if (facts.package.identifier !== null && facts.package.identifier !== EXPECTED_PACKAGE_ID) {
+    // A package that declares no identity cannot prove it is this product. The
+    // earlier version of these checks accepted `null` as "unknown, so fine",
+    // which is a fail-open: an unidentified package would install.
+    if (facts.package.identifier !== EXPECTED_PACKAGE_ID) {
       return refuse(
         "package_identity_mismatch",
-        `The package identifier is ${facts.package.identifier}, not ${EXPECTED_PACKAGE_ID}.`,
+        facts.package.identifier === null
+          ? `The package declares no package identifier; this build requires ${EXPECTED_PACKAGE_ID}.`
+          : `The package identifier is ${facts.package.identifier}, not ${EXPECTED_PACKAGE_ID}.`,
         summary,
       );
     }
-    if (facts.appBundleId !== null && facts.appBundleId !== EXPECTED_BUNDLE_ID) {
+    if (facts.appBundleId !== EXPECTED_BUNDLE_ID) {
       return refuse(
         "package_identity_mismatch",
-        "The package does not install this product's application bundle.",
+        facts.appBundleId === null
+          ? "The package does not declare the application bundle it installs."
+          : "The package does not install this product's application bundle.",
         summary,
       );
     }
-    if (facts.serviceBundleId !== null && facts.serviceBundleId !== EXPECTED_SERVICE_BUNDLE_ID) {
+    if (facts.serviceBundleId !== EXPECTED_SERVICE_BUNDLE_ID) {
       return refuse(
         "package_identity_mismatch",
-        "The package does not install this product's Finder Service.",
+        facts.serviceBundleId === null
+          ? "The package does not declare the Finder Service it installs."
+          : "The package does not install this product's Finder Service.",
         summary,
       );
     }
@@ -304,7 +324,14 @@ export function evaluateUpdate(input: TrustInput): TrustDecision {
       summary,
     );
   }
-  if (facts !== null && facts.architectures.length > 0 && !facts.architectures.includes("arm64")) {
+  if (facts !== null && facts.architectures.length === 0) {
+    return refuse(
+      "architecture_mismatch",
+      "The package does not declare the architectures it contains, so its arm64 payload is unproven.",
+      summary,
+    );
+  }
+  if (facts !== null && !facts.architectures.includes("arm64")) {
     return refuse("architecture_mismatch", "The package payload is not an arm64 build.", summary);
   }
   if (!input.hostOs) {
@@ -319,7 +346,22 @@ export function evaluateUpdate(input: TrustInput): TrustDecision {
   }
 
   // 5. Version order. Never a downgrade, and never a version this build cannot
-  // order at all.
+  // order at all: `compareVersions` is total for sorting, so an unparseable
+  // version compares equal and would otherwise slip past the downgrade guard.
+  if (parseVersion(manifest.version) === null) {
+    return refuse(
+      "manifest_malformed",
+      `The package declares version "${manifest.version}", which is not a dotted version Mona can order.`,
+      summary,
+    );
+  }
+  if (parseVersion(current.version) === null) {
+    return refuse(
+      "manifest_malformed",
+      `The installed version "${current.version}" cannot be ordered against a candidate, so no update is offered.`,
+      summary,
+    );
+  }
   if (compareVersions(manifest.version, current.version) < 0) {
     return refuse(
       "downgrade",
@@ -420,9 +462,23 @@ const defaultRunner: CommandRunner = (command, args) => {
   }
 };
 
+/**
+ * Hash a file without holding it in memory. A `.pkg` can be gigabytes, and the
+ * updater must never buffer one whole just to learn its digest.
+ */
 export function sha256File(path: string): string {
   const hash = createHash("sha256");
-  hash.update(readFileSync(path));
+  const descriptor = openSync(path, "r");
+  try {
+    const buffer = Buffer.allocUnsafe(1024 * 1024);
+    for (;;) {
+      const read = readSync(descriptor, buffer, 0, buffer.length, null);
+      if (read <= 0) break;
+      hash.update(buffer.subarray(0, read));
+    }
+  } finally {
+    closeSync(descriptor);
+  }
   return hash.digest("hex");
 }
 
@@ -488,6 +544,15 @@ export function inspectPackage(path: string, runner: CommandRunner = defaultRunn
   if (!info.isFile()) throw new Error("the package path is not a regular file");
   if (!path.endsWith(".pkg")) throw new Error("the package path does not end in .pkg");
   if (info.size === 0) throw new Error("the package is empty");
+  // The size cap is a refusal, not a truncation. Checked before hashing and
+  // before `pkgutil --expand`, so an enormous or hostile file costs nothing.
+  if (info.size > MAX_PACKAGE_BYTES) {
+    throw new UpdateError(
+      "package_too_large",
+      `the package is ${info.size} bytes, above the ${MAX_PACKAGE_BYTES}-byte limit`,
+      { size: info.size, limit: MAX_PACKAGE_BYTES },
+    );
+  }
 
   const signatureRun = runner("/usr/sbin/pkgutil", ["--check-signature", path]);
   const signature = parsePackageSignature(`${signatureRun.stdout}\n${signatureRun.stderr}`);
@@ -599,12 +664,14 @@ export function manifestFromPackage(
     channel: options.channel,
     version: options.version,
     build: options.build,
-    bundleId: facts.appBundleId ?? EXPECTED_BUNDLE_ID,
-    serviceBundleId: facts.serviceBundleId ?? EXPECTED_SERVICE_BUNDLE_ID,
-    packageId: facts.package.identifier ?? EXPECTED_PACKAGE_ID,
+    // Never substitute an expected identity for one the package did not
+    // declare: an empty value is refused by the policy, which is the point.
+    bundleId: facts.appBundleId ?? "",
+    serviceBundleId: facts.serviceBundleId ?? "",
+    packageId: facts.package.identifier ?? "",
     teamId: facts.signature.teamId,
     minimumMacOS: facts.package.minimumMacOS ?? "14.0",
-    architectures: facts.architectures.length > 0 ? facts.architectures : ["arm64"],
+    architectures: [...facts.architectures],
     engine: facts.engine ?? { version: "unknown", commit: "unknown" },
     package: {
       url: facts.path,

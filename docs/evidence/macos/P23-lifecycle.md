@@ -122,11 +122,16 @@ The shipped utility is rehearsed two independent ways:
 - **The package gate** (`npm run mac:package:local`) installs the payload with the
   real `preinstall`/`postinstall`, runs the utility's dry run (exit 0, lists the
   owned paths, changes nothing), checks a missing ownership manifest is refused,
-  checks a wrong-identifier bundle is refused, then removes the payload and
+  checks a wrong-identifier bundle is refused, rehearses the destructive branch
+  (`--remove-user-data` deletes the named home's state, keeps its projects, and
+  refuses a home outside the rehearsal root), then removes the payload and
   confirms unrelated applications and user config survive. Result:
-  `p23-uninstall-rehearsal.json`, all eight sub-checks true.
+  `p23-uninstall-rehearsal.json`, all eleven sub-checks true.
 - **The smoke** runs the same shipped script against its own synthetic root and
-  additionally proves the user's state directory and a `keep-me.json` survive.
+  additionally proves the user's state directory and a `keep-me.json` survive,
+  that `--remove-user-data` removes exactly the named user's state and keeps
+  their projects, and that a hostile `owned-paths.json` naming `/Applications`
+  and someone else's directory cannot widen the plan.
 
 `test/update-uninstall.test.ts` (6 tests) pins the view: only manifest-owned
 paths, per-bundle identity verification, corrupt-manifest refusal, and the
@@ -163,7 +168,26 @@ places where a claim was wider than the evidence. Both are fixed:
    observed and target versions in the intent detail.
    (`test/update-coordinator.test.ts` → *records a same-version handoff as
    cancelled, not as a proven migration*.)
-2. **An engine acknowledgement could come from a boolean flag.**
+2. **Restoring from Settings swapped the database under the live store.** The
+   IPC handler called the file-swap restore directly. `StateStore` was open, so
+   its connection pointed at the renamed inode: the screen showed the restored
+   state, the running app kept writing into `mona.sqlite.replaced-*`, and the
+   next launch silently discarded that work. The restore is now routed through
+   `StateStore.restoreFrom` when a store is open (maintenance barrier, close,
+   swap, re-open, rollback on failure), and the file-swap path refuses outright
+   if told a store is open.
+   (`test/update-recovery.test.ts` → *refuses to swap the file under an open
+   store*, *verifies before mutating*.)
+3. **A failed restore had no rollback and the dialog claimed nothing changed.**
+   The swap happened before verification, so a snapshot that passed listing but
+   failed migration left the live database replaced with the user's data
+   stranded in an unlisted `.replaced-*` file. The swap is now failure-safe: any
+   failure after the move puts the previous database back, verifies it, and
+   reports the real outcome instead of "Nothing was replaced".
+   (`test/update-recovery.test.ts` → *puts the previous database back when the
+   snapshot cannot be restored*, which forces a genuine migration failure with a
+   future `schema_migrations` row and confirms the original project still opens.)
+4. **An engine acknowledgement could come from a boolean flag.**
    `install()` accepted `confirmedEngineChange` from the request in addition to
    the digest-bound acknowledgement. A stale flag could therefore disclose
    nothing and still authorize a different package. Only
@@ -171,15 +195,43 @@ places where a claim was wider than the evidence. Both are fixed:
    bound to the exact bytes being handed over.
    (`test/update-coordinator.test.ts` → *refuses an engine change that this
    package's digest did not acknowledge*.)
+5. **A version Mona could not parse compared equal, so the downgrade guard was
+   a no-op** (`banana`, `1.2.3.4`, `v0.2.0`). Ordering is now refused with
+   `manifest_malformed` when either side of the comparison does not parse.
+6. **Absent package facts failed open.** A package declaring no identifier, no
+   bundle ids, or no architectures was accepted as "this product, arm64" — and
+   `manifestFromPackage` filled the blanks with Mona's own identities. The
+   package stage now requires a positive declaration, and the derived manifest
+   no longer substitutes values it did not observe.
+7. **A local package declared by a source feed could pass at install time.**
+   `install()` re-derived `localSelection` from the manifest's own channel
+   instead of from how the package arrived; it now comes only from manual mode.
+8. **A post-handoff ledger failure was reported as "Installer did not open"**
+   and settled the intent as `failed` while Installer was running. It is now
+   bookkeeping only: the receipt still reports the handoff, and the next launch
+   reconciles. A `recorded` intent left by a crash is closed as `cancelled` on
+   launch instead of sitting stuck.
+9. **The package size cap was documented as pre-hash but only applied to
+   downloads**, and the hash read the whole file into memory. `inspectPackage`
+   now refuses above the cap before hashing or expanding, and the hash streams.
+10. **The uninstall utility's documented guarantee was wrong.** ADR-016 said the
+    plan came from `owned-paths.json`; the script actually used a fixed allowlist
+    (the stronger guarantee) with the manifest as a precondition. The ADR, the
+    script's comment, and the tests now say what the code does, and a hostile
+    manifest naming `/Applications` is proven unable to widen the plan.
+11. **`--remove-user-data` was outside the rehearsal bound.** In a rehearsal the
+    named home must now be inside `MONA_UNINSTALL_ROOT`; the package gate and the
+    smoke both rehearse the destructive branch and both prove an outside home is
+    refused.
 
 ## Verification
 
-- **739 tests in 75 files** (P21: 666 in 69) — +73 tests across
+- **748 tests in 75 files** (P21: 666 in 69) — +82 tests across
   `update-version`, `update-trust`, `update-coordinator`, `update-recovery`,
   `update-uninstall`, `update-screen`, and `package-macos`.
 - **`npm run ci` 21/21 steps** including the new `smoke:p23`; renderer secret
   scan clean (0 hits).
-- **`smoke:p23` 55/55 checks, 0 skipped.**
+- **`smoke:p23` 58/58 checks, 0 skipped.**
 - **`npm run smoke:shell` 120/120** with the real Electron shell; the Settings
   rail now carries a tenth tab and all 36 hash-pinned captures were re-recorded
   with no assertion removed.

@@ -361,6 +361,73 @@ describe("update coordinator", () => {
     expect(h.launched).toHaveLength(1);
   });
 
+  it("still reports a handoff when the ledger cannot record it afterwards", async () => {
+    // Installer is already open. A ledger failure is bookkeeping, not evidence
+    // that the handoff failed, and it must not settle the intent as failed.
+    const store = await openTestStore();
+    open.push(store.store);
+    const launched: string[] = [];
+    const wrapped = Object.create(store.store) as StateStore;
+    (wrapped as unknown as { settleUpdateIntent: () => Promise<never> }).settleUpdateIntent =
+      async () => {
+        throw new Error("ledger is read-only");
+      };
+    const fixtureDir = join(store.dir, "pkg");
+    mkdirSync(fixtureDir, { recursive: true });
+    const path = join(fixtureDir, "Mona-0.2.0-macOS-arm64.pkg");
+    writeFileSync(path, "package-bytes", "utf8");
+    const coordinator = new UpdateCoordinator({
+      store: wrapped,
+      paths: { cache: join(store.dir, "cache"), support: store.dir },
+      current: () => ({
+        version: "0.1.0",
+        build: 81,
+        channel: "local",
+        schemaVersion: 8,
+        engineVersion: "0.10.2",
+        engineCommit: "ff466b2e",
+      }),
+      hostOs: () => "14.5",
+      hostArch: () => "arm64",
+      inspect: () => facts(),
+      launchInstaller: async (packagePath) => {
+        launched.push(packagePath);
+      },
+      activity: async () => [],
+      shouldQuit: () => false,
+    });
+
+    const view = await coordinator.inspectLocal(path);
+    expect(view.decision).toBe("available");
+    const receipt = await coordinator.install({
+      expectedSha256: DIGEST,
+      confirmedLocalBuild: true,
+    });
+    expect(receipt.state).toBe("handed_off");
+    expect(receipt.installerLaunched).toBe(true);
+    expect(launched).toHaveLength(1);
+    expect(receipt.reason).toContain("Apple Installer is open");
+  });
+
+  it("closes an intent that was recorded but never handed off", async () => {
+    // A crash between recording and the handoff leaves `recorded`; nothing was
+    // installed, so the next launch must close it rather than leave it stuck.
+    const h = track(await harness());
+    const record = await h.store.store.recordUpdateIntent({
+      fromVersion: "0.1.0",
+      toVersion: "0.2.0",
+      channel: "local",
+      packagePath: "/tmp/Mona-0.2.0.pkg",
+      packageSha256: DIGEST,
+      source: "manual",
+    });
+    expect(record.state).toBe("recorded");
+    const reconciled = await h.coordinator.reconcileOnLaunch();
+    expect(reconciled?.state).toBe("cancelled");
+    const again = await h.coordinator.reconcileOnLaunch();
+    expect(again?.state).toBe("cancelled");
+  });
+
   it("refuses a missing package file rather than guessing", async () => {
     const h = track(await harness());
     const missing = await h.coordinator.inspectLocal(join(h.store.dir, "absent.pkg"));

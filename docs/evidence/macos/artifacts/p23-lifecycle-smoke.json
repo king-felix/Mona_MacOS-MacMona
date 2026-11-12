@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "label": "P23 — update, migration, rollback, and uninstall",
-  "captured_at": "2026-11-12T19:58:28.108Z",
+  "captured_at": "2026-11-12T20:08:11.539Z",
   "host": {
     "platform": "darwin",
     "arch": "arm64",
@@ -45,7 +45,7 @@
         "packageSha256": "2f57f818910c0e3778182b530c2b9256c1c0f56a4a7ac285f23a0419b921350b",
         "backup": {
           "path": "~smoke/upgrade/backups/pre-update-0.2.0-2026-11-12T09-00-20-000Z.sqlite",
-          "sha256": "529baa3b88359bbdec70bd87e7f4d67b715bd74cce9acaf2e1fc93a43e973e29",
+          "sha256": "886785e2686c6161c6233dd50ac80abe514528d69583277fdbf6a281235f7e6a",
           "sizeBytes": 512000,
           "schemaVersion": 8,
           "integrity": "ok"
@@ -63,7 +63,7 @@
       "ok": true,
       "detail": {
         "path": "~smoke/upgrade/backups/pre-update-0.2.0-2026-11-12T09-00-20-000Z.sqlite",
-        "sha256": "529baa3b88359bbdec70bd87e7f4d67b715bd74cce9acaf2e1fc93a43e973e29",
+        "sha256": "886785e2686c6161c6233dd50ac80abe514528d69583277fdbf6a281235f7e6a",
         "sizeBytes": 512000,
         "schemaVersion": 8,
         "integrity": "ok"
@@ -81,7 +81,7 @@
         "packageSha256": "2f57f818910c0e3778182b530c2b9256c1c0f56a4a7ac285f23a0419b921350b",
         "source": "manual",
         "backupPath": "~smoke/upgrade/backups/pre-update-0.2.0-2026-11-12T09-00-20-000Z.sqlite",
-        "backupSha256": "529baa3b88359bbdec70bd87e7f4d67b715bd74cce9acaf2e1fc93a43e973e29",
+        "backupSha256": "886785e2686c6161c6233dd50ac80abe514528d69583277fdbf6a281235f7e6a",
         "createdAt": "2026-11-12T09:00:18.000Z",
         "updatedAt": "2026-11-12T09:00:23.000Z"
       }
@@ -165,7 +165,7 @@
     "manifest_signature_verified": {
       "ok": true,
       "detail": {
-        "key_fingerprint": "d79e0b3f3724134fa925de4d6a22119ec042c1fb97fe581cdb7413ca68813451"
+        "key_fingerprint": "c5696fbf0768370019a458e468fa7f311eb4fae1d91c1418d8578d8f93fd5069"
       }
     },
     "tampered_manifest_refused": {
@@ -190,7 +190,7 @@
       "ok": true,
       "detail": {
         "path": "~smoke/migration/backups/pre-update-0.2.0-2026-11-12T09-01-12-000Z.sqlite",
-        "sha256": "ae19185ed130fe036b934d0b74906935d115fdbeb418aefa53ec7b746dea6331",
+        "sha256": "b2c4ef057845331f9f274162e4eab2141724306e3468444092c598f0ace1629d",
         "sizeBytes": 512000,
         "schemaVersion": 8
       }
@@ -225,7 +225,7 @@
     "restore_kept_the_replaced_database": {
       "ok": true,
       "detail": {
-        "replaced": "~smoke/migration/state/mona.sqlite.replaced-2026-11-12T19-58-28-340Z"
+        "replaced": "~smoke/migration/state/mona.sqlite.replaced-2026-11-12T20-08-11-756Z"
       }
     },
     "restored_state_opens_with_the_original_rows": {
@@ -244,7 +244,7 @@
         "schemaVersion": 13,
         "createdAt": "2026-11-12T00:00:00.000Z",
         "sizeBytes": 512000,
-        "sha256": "393aab2ffa5f6642053e7845d3a05379c7ed66d7d25fbe3a1575cb426f0e8f46",
+        "sha256": "75807a20d465f7f79d45c7283d7a7ac42e4b6dd46dcdfec03845e5ebc39870cc",
         "integrity": "ok",
         "appliesToThisBuild": false
       }
@@ -271,7 +271,7 @@
         "engineVersion": "0.10.2",
         "teamId": null,
         "notarized": false,
-        "releasedAt": "2026-11-12T19:58:28.403Z",
+        "releasedAt": "2026-11-12T20:08:11.813Z",
         "installKind": "reinstall"
       }
     },
@@ -296,6 +296,29 @@
     },
     "uninstall_dry_run_lists_only_owned_paths": {
       "ok": true
+    },
+    "uninstall_removes_only_the_named_users_state": {
+      "ok": true,
+      "detail": {
+        "status": 0,
+        "stderr": ""
+      }
+    },
+    "uninstall_refuses_user_data_outside_the_rehearsal_root": {
+      "ok": true,
+      "detail": {
+        "status": 1,
+        "stderr": "mona-uninstall: --home must be inside MONA_UNINSTALL_ROOT during a rehearsal"
+      }
+    },
+    "uninstall_manifest_cannot_widen_the_plan": {
+      "ok": true,
+      "detail": {
+        "status": 1,
+        "stdout": [
+          ""
+        ]
+      }
     },
     "uninstall_view_separates_state_from_payload": {
       "ok": true,
@@ -354,6 +377,9 @@
         "dry_run_lists_owned": true,
         "missing_manifest_refused": true,
         "foreign_bundle_refused": true,
+        "user_data_removed_for_the_named_home": true,
+        "projects_preserved_by_user_data_removal": true,
+        "home_outside_rehearsal_root_refused": true,
         "removal_exit": 0,
         "removed_owned_paths": true,
         "unrelated_content_preserved": true
@@ -368,19 +394,22 @@
   },
   "observations": {
     "package_uninstall_rehearsal": {
-      "captured_at": "2026-11-12T19:40:00.369Z",
+      "captured_at": "2026-11-12T20:05:57.960Z",
       "check": {
         "dry_run_exit": 0,
         "dry_run_changed_nothing": true,
         "dry_run_lists_owned": true,
         "missing_manifest_refused": true,
         "foreign_bundle_refused": true,
+        "user_data_removed_for_the_named_home": true,
+        "projects_preserved_by_user_data_removal": true,
+        "home_outside_rehearsal_root_refused": true,
         "removal_exit": 0,
         "removed_owned_paths": true,
         "unrelated_content_preserved": true
       }
     },
-    "checks_total": 55,
+    "checks_total": 58,
     "checks_failed": [],
     "checks_skipped": []
   },

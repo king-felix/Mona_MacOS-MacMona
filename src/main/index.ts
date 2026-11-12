@@ -64,7 +64,12 @@ import { inspectServiceStatus, refreshServiceRegistration } from "./open/service
 import { runPackageSmoke } from "./package-smoke";
 import { inspectInstallLocation } from "./install-location";
 import { UpdateCoordinator, readBuildInfo } from "./update/coordinator";
-import { inspectRecovery, restoreSnapshotForBuild, type RecoveryPaths } from "./state/recovery";
+import {
+  inspectRecovery,
+  restoreSnapshotWithoutStore,
+  selectSnapshotForRestore,
+  type RecoveryPaths,
+} from "./state/recovery";
 import { CURRENT_SCHEMA_VERSION } from "./state/schema";
 import type { RuntimeStatus } from "./supervisor/runtime-supervisor";
 import type { ProjectId as StudioProjectId } from "../shared/contracts/ids";
@@ -424,7 +429,7 @@ async function reportStartupFailure(message: string): Promise<void> {
   });
   if (choice !== 0 || !newest) return;
   try {
-    const receipt = await restoreSnapshotForBuild(recoveryPaths(), {
+    const receipt = await restoreSnapshotWithoutStore(recoveryPaths(), {
       snapshotPath: newest.path,
       expectedSchemaVersion: newest.schemaVersion,
     });
@@ -433,10 +438,16 @@ async function reportStartupFailure(message: string): Promise<void> {
     );
     app.relaunch();
   } catch (error) {
+    // The restore is failure-safe: a failed swap puts the previous database
+    // back. Report what the receipt actually says rather than promising it.
+    const details = (error as { details?: Record<string, unknown> }).details ?? {};
+    const rollback = details.rollback;
     dialog.showErrorBox(
       "Mona could not restore that snapshot",
       `${error instanceof Error ? error.message : String(error)}\n` +
-        "Nothing was replaced. The evidence above is still in place.",
+        (rollback === "ok" || rollback === null
+          ? "The previous database is in place."
+          : "The previous database could not be put back automatically. It is preserved beside the database file; see the support path recorded above."),
     );
   }
 }
@@ -3888,7 +3899,29 @@ if (!gotLock) {
       chooseFolder: chooseProjectFolder,
       update: updateCoordinator,
       recovery: () => inspectRecovery(recoveryPaths()),
-      restoreRecoverySnapshot: (input) => restoreSnapshotForBuild(recoveryPaths(), input),
+      restoreRecoverySnapshot: async (input) => {
+        const paths = recoveryPaths();
+        // Verify first, in every path: the snapshot must be listed, must be the
+        // one the user was shown, and must be one this build can open.
+        const snapshot = selectSnapshotForRestore(paths, input);
+        if (productState) {
+          // A live store holds the only correct handle. `restoreFrom` takes the
+          // maintenance barrier, closes before the swap, re-opens afterwards,
+          // and rolls back on failure — swapping the file under it would leave
+          // the store writing into the renamed inode and silently discard work.
+          const outcome = await productState.restoreFrom(snapshot.path);
+          return {
+            restored: true,
+            fromVersion: snapshot.schemaVersion,
+            toVersion: CURRENT_SCHEMA_VERSION,
+            snapshotPath: snapshot.path,
+            replacedPath: outcome.preRestore,
+            integrity: "ok" as const,
+            note: "The previous database was moved aside, not deleted, and this build reopened the restored state under its maintenance barrier.",
+          };
+        }
+        return restoreSnapshotWithoutStore(paths, input);
+      },
       choosePackage: async () => {
         const chosen = mainWindow
           ? await dialog.showOpenDialog(mainWindow, {

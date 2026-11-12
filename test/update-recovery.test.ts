@@ -1,4 +1,4 @@
-import { copyFileSync, existsSync, mkdirSync, readdirSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { describe, expect, it } from "vitest";
@@ -6,10 +6,12 @@ import { StateStore } from "../src/main/state/store";
 import {
   inspectRecovery,
   listSnapshots,
-  restoreSnapshotForBuild,
+  restoreSnapshotWithoutStore,
+  selectSnapshotForRestore,
   type RecoveryPaths,
 } from "../src/main/state/recovery";
 import { CURRENT_SCHEMA_VERSION, MIGRATIONS } from "../src/main/state/schema";
+import { StateError } from "../src/main/state/errors";
 import { migrateDatabase } from "../src/main/state/migrations";
 import { openTestStore, tempDir } from "./helpers/state";
 
@@ -89,7 +91,7 @@ describe("state recovery", () => {
     const recovery = inspectRecovery(paths(dir));
     expect(recovery.canRestoreSnapshot).toBe(true);
 
-    const receipt = await restoreSnapshotForBuild(paths(dir), {
+    const receipt = await restoreSnapshotWithoutStore(paths(dir), {
       snapshotPath: listed[0]?.path ?? "",
       expectedSchemaVersion: CURRENT_SCHEMA_VERSION,
     });
@@ -115,7 +117,7 @@ describe("state recovery", () => {
     const snapshot = await store.store.backupForUpdate("0.2.0");
     await store.store.close();
     await expect(
-      restoreSnapshotForBuild(paths(dir), {
+      restoreSnapshotWithoutStore(paths(dir), {
         snapshotPath: snapshot.path,
         expectedSchemaVersion: CURRENT_SCHEMA_VERSION + 1,
       }),
@@ -130,7 +132,7 @@ describe("state recovery", () => {
     mkdirSync(dir, { recursive: true });
     copyFileSync(join(dir, "state", "mona.sqlite"), outsider);
     await expect(
-      restoreSnapshotForBuild(paths(dir), {
+      restoreSnapshotWithoutStore(paths(dir), {
         snapshotPath: outsider,
         expectedSchemaVersion: CURRENT_SCHEMA_VERSION,
       }),
@@ -191,5 +193,111 @@ describe("state recovery", () => {
     expect(view.problem?.code).toBe("CORRUPT_DATABASE");
     expect(view.canRestoreSnapshot).toBe(false);
     expect(view.note).toContain("moved aside");
+  });
+
+  it("refuses to swap the file under an open store", async () => {
+    const store = await openTestStore();
+    const dir = store.dir;
+    const snapshot = await store.store.backupForUpdate("0.2.0");
+    // A live store holds the only correct handle; restoreFrom is the only
+    // writer that can swap the file safely. The startup path must refuse.
+    await expect(
+      restoreSnapshotWithoutStore(
+        paths(dir),
+        { snapshotPath: snapshot.path, expectedSchemaVersion: CURRENT_SCHEMA_VERSION },
+        { storeOpen: true },
+      ),
+    ).rejects.toMatchObject({ code: "CONFLICT" });
+    expect(await store.store.listProjects({})).toEqual([]);
+    // The store is still healthy and writable.
+    await store.store.putSettings("app:theme", { name: "daybreak" });
+    expect((await store.store.getSettings("app:theme"))?.value).toEqual({ name: "daybreak" });
+    await store.store.close();
+  });
+
+  it("puts the previous database back when the snapshot cannot be restored", async () => {
+    const store = await openTestStore();
+    const dir = store.dir;
+    const workspace = join(dir, "ws");
+    mkdirSync(workspace, { recursive: true });
+    const project = await store.store.createProject({ name: "Original work", rootPath: workspace });
+    await store.store.close();
+
+    // A snapshot this build "can open" by version and integrity, but whose
+    // migration must fail: it records a schema version this build never wrote.
+    const poisoned = join(dir, "backups", "pre-update-poisoned-2026-11-12T00-00-00-000Z.sqlite");
+    await migrateDatabase({
+      dbPath: poisoned,
+      backupDir: join(dir, "poison-backups"),
+      migrations: MIGRATIONS.slice(0, CURRENT_SCHEMA_VERSION - 1),
+    });
+    const db = new DatabaseSync(poisoned);
+    db.prepare(
+      "INSERT INTO schema_migrations (version, name, checksum, applied_at) VALUES (?, ?, ?, ?)",
+    ).run(99, "from-the-future", "0".repeat(64), "2026-11-12T00:00:00.000Z");
+    db.close();
+
+    const before = listSnapshots(join(dir, "backups")).find((entry) => entry.path === poisoned);
+    expect(before?.appliesToThisBuild).toBe(true);
+
+    const error = await restoreSnapshotWithoutStore(paths(dir), {
+      snapshotPath: poisoned,
+      expectedSchemaVersion: before?.schemaVersion ?? 0,
+    }).catch((failure: unknown) => failure);
+    expect(error).toBeInstanceOf(StateError);
+    expect((error as { code: string }).code).toBe("MAINTENANCE_FAILED");
+    expect((error as { details: Record<string, unknown> }).details.rollback).toBe("ok");
+    expect((error as { message: string }).message).toContain("put back");
+
+    // The original data is intact and readable, not stranded in a `.replaced-*`.
+    const reopened = await StateStore.open({
+      dbPath: join(dir, "state", "mona.sqlite"),
+      backupDir: join(dir, "backups"),
+      artifactRoot: join(dir, "artifacts"),
+    });
+    const projects = await reopened.listProjects({});
+    expect(projects.map((entry) => entry.name)).toEqual(["Original work"]);
+    expect(projects[0]?.id).toBe(project.id);
+    await reopened.close();
+  });
+
+  it("verifies before mutating: a newer snapshot leaves the database byte-identical", async () => {
+    const store = await openTestStore();
+    const dir = store.dir;
+    await store.store.backupForUpdate("0.2.0");
+    await store.store.close();
+
+    const futurePath = join(dir, "backups", "pre-update-future-2026-11-12T00-00-00-000Z.sqlite");
+    copyFileSync(join(dir, "state", "mona.sqlite"), futurePath);
+    const future = new DatabaseSync(futurePath);
+    future.exec(`PRAGMA user_version = ${CURRENT_SCHEMA_VERSION + 4}`);
+    future.close();
+
+    const database = join(dir, "state", "mona.sqlite");
+    const before = readFileSync(database);
+    await expect(
+      restoreSnapshotWithoutStore(paths(dir), {
+        snapshotPath: futurePath,
+        expectedSchemaVersion: CURRENT_SCHEMA_VERSION + 4,
+      }),
+    ).rejects.toMatchObject({ code: "UNSUPPORTED_SCHEMA" });
+    // Nothing was moved aside, nothing was replaced.
+    expect(readFileSync(database).equals(before)).toBe(true);
+    expect(readdirSync(join(dir, "state")).filter((name) => name.includes("replaced"))).toEqual([]);
+  });
+
+  it("selects a snapshot without touching the filesystem", async () => {
+    const store = await openTestStore();
+    const dir = store.dir;
+    const snapshot = await store.store.backupForUpdate("0.2.0");
+    await store.store.close();
+    const database = join(dir, "state", "mona.sqlite");
+    const before = readFileSync(database);
+    const selected = selectSnapshotForRestore(paths(dir), {
+      snapshotPath: snapshot.path,
+      expectedSchemaVersion: CURRENT_SCHEMA_VERSION,
+    });
+    expect(selected.path).toBe(snapshot.path);
+    expect(readFileSync(database).equals(before)).toBe(true);
   });
 });

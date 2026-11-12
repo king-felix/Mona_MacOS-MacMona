@@ -29,5 +29,12 @@ export function reviewUninstallScript(text) {
     if (!text.includes(required)) problems.push(`it does not mention ${required}`);
   }
   if (!/refus/i.test(text)) problems.push("it never refuses an unrecognized path");
+  // The destructive branch is the one that can lose a person's work, so it must
+  // be bounded by the same rehearsal root as the payload branch.
+  const userData = text.slice(text.indexOf("REMOVE_USER_DATA"));
+  if (!/MONA_UNINSTALL_ROOT/.test(text)) problems.push("it has no rehearsal root hook");
+  if (userData.length === 0 || !/ROOT/.test(userData)) {
+    problems.push("its --remove-user-data branch ignores MONA_UNINSTALL_ROOT");
+  }
   return problems;
 }

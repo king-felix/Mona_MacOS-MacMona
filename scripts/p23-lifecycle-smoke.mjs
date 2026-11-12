@@ -30,7 +30,7 @@ const require = createRequire(import.meta.url);
 const ROOT = resolve(new URL("..", import.meta.url).pathname);
 const { StateStore } = require(join(ROOT, "dist/main/main/state/store.js"));
 const { CURRENT_SCHEMA_VERSION } = require(join(ROOT, "dist/main/main/state/schema.js"));
-const { inspectRecovery, listSnapshots, restoreSnapshotForBuild } = require(
+const { inspectRecovery, listSnapshots, restoreSnapshotWithoutStore } = require(
   join(ROOT, "dist/main/main/state/recovery.js"),
 );
 const { UpdateCoordinator } = require(join(ROOT, "dist/main/main/update/coordinator.js"));
@@ -592,7 +592,7 @@ try {
       })),
     );
 
-    const receipt = await restoreSnapshotForBuild(paths, {
+    const receipt = await restoreSnapshotWithoutStore(paths, {
       snapshotPath: snapshot.path,
       expectedSchemaVersion: snapshot.schemaVersion,
     });
@@ -634,7 +634,7 @@ try {
     check("newer_snapshot_not_restorable", newer?.appliesToThisBuild === false, newer);
     let code = null;
     try {
-      await restoreSnapshotForBuild(
+      await restoreSnapshotWithoutStore(
         {
           database: join(dir, "state", "mona.sqlite"),
           backupsDir: join(dir, "backups"),
@@ -778,6 +778,71 @@ try {
       "uninstall_dry_run_lists_only_owned_paths",
       dry.stdout.includes(join(root, "Applications/Mona.app")) &&
         !dry.stdout.includes("keep-me.json"),
+    );
+
+    // The destructive branch, rehearsed inside the same root.
+    const rehearsalHome = join(root, "home");
+    mkdirSync(join(rehearsalHome, "Library/Application Support/Mona"), { recursive: true });
+    writeFileSync(join(rehearsalHome, "Library/Application Support/Mona/mona.sqlite"), "state");
+    mkdirSync(join(rehearsalHome, "projects"), { recursive: true });
+    writeFileSync(join(rehearsalHome, "projects/kept.txt"), "source");
+    const userData = spawnSync(
+      "/bin/sh",
+      [scriptCopy, "--remove-user-data", "--home", rehearsalHome, "--yes"],
+      { encoding: "utf8", env },
+    );
+    check(
+      "uninstall_removes_only_the_named_users_state",
+      userData.status === 0 &&
+        !existsSync(join(rehearsalHome, "Library/Application Support/Mona")) &&
+        existsSync(join(rehearsalHome, "projects/kept.txt")),
+      { status: userData.status, stderr: userData.stderr.trim().slice(0, 300) },
+    );
+
+    // A home outside the rehearsal root is refused, so the bound is real.
+    const outsideHome = join(base, "outside-home");
+    mkdirSync(join(outsideHome, "Library/Application Support/Mona"), { recursive: true });
+    const outside = spawnSync(
+      "/bin/sh",
+      [scriptCopy, "--remove-user-data", "--home", outsideHome, "--yes"],
+      { encoding: "utf8", env },
+    );
+    check(
+      "uninstall_refuses_user_data_outside_the_rehearsal_root",
+      outside.status !== 0 && existsSync(join(outsideHome, "Library/Application Support/Mona")),
+      { status: outside.status, stderr: outside.stderr.trim().slice(0, 200) },
+    );
+
+    // A hostile ownership manifest cannot widen the removal plan.
+    const hostileRoot = join(base, "hostile-root");
+    mkdirSync(join(hostileRoot, "Applications"), { recursive: true });
+    mkdirSync(join(hostileRoot, "Library/Application Support/Mona"), { recursive: true });
+    mkdirSync(join(hostileRoot, "Library/Application Support/Someone Else"), { recursive: true });
+    writeFileSync(join(hostileRoot, "Library/Application Support/Someone Else/keep"), "keep");
+    writeFileSync(
+      join(hostileRoot, "Library/Application Support/Mona/owned-paths.json"),
+      JSON.stringify({
+        product: "Mona",
+        owned: [
+          { path: "/Library/Application Support/Someone Else", kind: "app-bundle" },
+          { path: "/Applications", kind: "app-bundle" },
+        ],
+      }),
+    );
+    writeFileSync(
+      join(hostileRoot, "Library/Application Support/Mona/install-receipt.json"),
+      JSON.stringify({ product: "Mona", version: "0.0.0" }),
+    );
+    const hostile = spawnSync("/bin/sh", [scriptCopy, "--yes"], {
+      encoding: "utf8",
+      env: { ...process.env, MONA_UNINSTALL_ROOT: hostileRoot },
+    });
+    check(
+      "uninstall_manifest_cannot_widen_the_plan",
+      existsSync(join(hostileRoot, "Library/Application Support/Someone Else/keep")) &&
+        existsSync(join(hostileRoot, "Applications")) &&
+        (hostile.status === 0 ? hostile.stdout.includes("nothing") : true),
+      { status: hostile.status, stdout: hostile.stdout.trim().split("\n").slice(0, 6) },
     );
 
     const view = uninstallView({ home, root });

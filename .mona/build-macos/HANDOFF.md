@@ -59,20 +59,28 @@ order is the guarantee.
   deferral items, intent history, verified snapshots with a matching-schema
   restore, and the uninstall guide. Eleven IPC channels, strict schemas, no
   generic filesystem or exec reach.
-- **Review pass.** Two claims were wider than the evidence, both fixed: a
-  same-version reinstall could not prove a migration but was recorded as
-  `observed_migrated` (which would also block the retry as a replay), and an
-  engine-change acknowledgement could come from a boolean instead of the
-  digest-bound confirmation.
-- **Verification.** 739 tests in 75 files; `npm run ci` **21/21** including the
-  new `smoke:p23` (55 checks, 0 skipped); shell smoke **120/120** with the tenth
+- **Two review passes, nine real defects fixed.** The first: a same-version
+  reinstall recorded as `observed_migrated` (which would also block the retry as
+  a replay), and engine consent accepted from a boolean instead of the
+  digest-bound confirmation. The second, on the recovery surface: restoring from
+  Settings swapped the database under the live store (post-restore work silently
+  discarded on the next launch), and a failed restore had no rollback while the
+  dialog claimed nothing was replaced. Also: unparseable versions compared equal
+  (downgrade guard a no-op), absent package identities/architectures failed open,
+  a source-declared local package could pass at install time, a post-handoff
+  ledger failure reported "Installer did not open", the package size cap was not
+  applied before hashing, and the uninstall guarantee was documented wrong
+  (`owned-paths.json` is a precondition, not the plan source).
+- **Verification.** 748 tests in 75 files; `npm run ci` **21/21** including the
+  new `smoke:p23` (58 checks, 0 skipped); shell smoke **120/120** with the tenth
   Settings tab (36 hash-pinned captures re-recorded, no assertion removed);
-  `npm run mac:package:local`'s new uninstall gate green. Also fixed a genuine
-  P18 race: the terminal smoke read ring eviction while the child was still
-  writing.
+  `npm run mac:package:local`'s uninstall gate green on all eleven sub-checks,
+  including the destructive `--remove-user-data` branch and a refused home outside
+  the rehearsal root. Also fixed a genuine P18 race: the terminal smoke read ring
+  eviction while the child was still writing.
 - **Evidence.** `docs/evidence/macos/P23-lifecycle.md`,
   `artifacts/p23-{lifecycle-smoke,uninstall-rehearsal}.json`,
-  `artifacts/p23-ci.txt`, `docs/decisions/ADR-016`, D-077…D-086.
+  `artifacts/p23-ci.txt`, `docs/decisions/ADR-016`, D-077…D-090.
 - **Open.** The rebuilt package is not installed (EXT-INSTALL in `BLOCKERS.md`:
   `sudo installer` needs authorization this session cannot supply, so
   `mac:package:local` stops at its documented install gate). The release trust
@@ -783,7 +791,7 @@ currently covered by the rehearsal and the unit/smoke suite instead.
 
 - `.mona/build-macos/state.json` — prompt status (P23 completed, 23 of 28).
 - `.mona/build-macos/attempts.jsonl` — empty; nothing failed three times.
-- `.mona/build-macos/DECISIONS.md` — D-001…D-086.
+- `.mona/build-macos/DECISIONS.md` — D-001…D-090.
 - `.mona/build-macos/BLOCKERS.md` — external prerequisites only.
 - `docs/requirements-macos.json` — MONA-016, MONA-017/018/021/022/023/024/025/026/
   029 satisfied; **MAC-006 is satisfied at P23** (P26 owns the final release

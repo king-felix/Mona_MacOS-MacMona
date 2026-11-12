@@ -92,14 +92,18 @@ P23 makes them discoverable and restorable, and names the support path.
 ### 5. Removal is bounded by the package's own manifest
 
 `/Library/Application Support/Mona/uninstall-mona.sh` ships inside the payload.
-It reads `owned-paths.json` — the only source of package-owned paths — and:
+Its plan is a **fixed allowlist** of the four paths this package installs, each
+verified by identity; the ownership manifest is a required precondition, never an
+instruction, so a hostile or stale manifest cannot widen what is deleted:
 
-- plans only paths that manifest names, and verifies each bundle's
-  `CFBundleIdentifier` before removing it;
+- plans only those four paths, and verifies each bundle's `CFBundleIdentifier`
+  before removing it;
 - refuses an unrecognized path instead of deleting it; refuses entirely when the
   ownership manifest or receipt is missing;
 - keeps every user's state, projects, credentials, and external Codewhale
-  installation unless `--remove-user-data --home <one user>` is given;
+  installation unless `--remove-user-data --home <one user>` is given, and in a
+  rehearsal that one home must also be inside `MONA_UNINSTALL_ROOT`, so the same
+  bound covers the destructive branch;
 - has no `--all-users`, no wildcard, no home walk, and no `rm -rf` of an
   unresolved variable.
 

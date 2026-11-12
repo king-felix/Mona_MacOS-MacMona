@@ -989,7 +989,28 @@ function rehearseUninstall(payloadDir, scriptsDir) {
     foreign.status !== 0 &&
     existsSync(join(foreignRoot, "Applications/Mona.app/Contents/Info.plist"));
 
-  // 4. The real removal.
+  // 4. The destructive branch: user data is deleted only for the one home
+  // named, only inside the rehearsal root, and never the payload's neighbours.
+  const rehearsalHome = guardRehearsalRoot(join(root, "home"), tmpdir());
+  mkdirSync(join(rehearsalHome, "Library/Application Support/Mona"), { recursive: true });
+  writeFileSync(
+    join(rehearsalHome, "Library/Application Support/Mona/mona.sqlite"),
+    "state",
+    "utf8",
+  );
+  mkdirSync(join(rehearsalHome, "projects"), { recursive: true });
+  writeFileSync(join(rehearsalHome, "projects/kept.txt"), "source", "utf8");
+  const userData = runScript(["--remove-user-data", "--home", rehearsalHome, "--yes"]);
+  const userDataRemoved = !existsSync(join(rehearsalHome, "Library/Application Support/Mona"));
+  const projectsKept = existsSync(join(rehearsalHome, "projects/kept.txt"));
+  // A home outside the rehearsal root is refused, so the bound is real.
+  const outsideHome = mkdtempSync(join(tmpdir(), "mona-p23-other-home-"));
+  mkdirSync(join(outsideHome, "Library/Application Support/Mona"), { recursive: true });
+  const outside = runScript(["--remove-user-data", "--home", outsideHome, "--yes"]);
+  const outsideRefused =
+    outside.status !== 0 && existsSync(join(outsideHome, "Library/Application Support/Mona"));
+
+  // 5. The real removal of the package payload.
   const removal = runScript(["--yes"]);
   const removed = [
     join(root, APP_PATH),
@@ -1008,6 +1029,10 @@ function rehearseUninstall(payloadDir, scriptsDir) {
     dryListedOwned &&
     bareRefused &&
     foreignRefused &&
+    userData.status === 0 &&
+    userDataRemoved &&
+    projectsKept &&
+    outsideRefused &&
     removal.status === 0 &&
     removed &&
     unrelatedPreserved;
@@ -1019,6 +1044,9 @@ function rehearseUninstall(payloadDir, scriptsDir) {
       dry_run_lists_owned: dryListedOwned,
       missing_manifest_refused: bareRefused,
       foreign_bundle_refused: foreignRefused,
+      user_data_removed_for_the_named_home: userDataRemoved,
+      projects_preserved_by_user_data_removal: projectsKept,
+      home_outside_rehearsal_root_refused: outsideRefused,
       removal_exit: removal.status,
       removed_owned_paths: removed,
       unrelated_content_preserved: unrelatedPreserved,
