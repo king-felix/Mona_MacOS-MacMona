@@ -13,6 +13,8 @@ import type { PolishService } from "./work/polish";
 import type { AgentObservatory } from "./work/agents";
 import type { RouteWorkbench } from "./work/settings";
 import type { ExtensionWorkbench } from "./work/extensions";
+import type { CapabilityExplorer } from "./work/capability";
+import type { TerminalManager } from "./terminal/session";
 import type { ProjectId } from "../shared/contracts/ids";
 import type { ImportPlanResult } from "../shared/contracts/board";
 import type { IpcResult, RuntimeStatusView, StateFacts } from "../shared/contracts/project-bridge";
@@ -50,6 +52,8 @@ export interface IpcDependencies {
   agents: AgentObservatory | null;
   settings: RouteWorkbench | null;
   extensions: ExtensionWorkbench | null;
+  terminal: TerminalManager | null;
+  capabilities: CapabilityExplorer | null;
   /** Save an already-redacted diagnostics report through the native dialog. */
   exportDiagnostics: (
     report: SettingsDiagnosticsView,
@@ -906,6 +910,70 @@ export function registerIpc(rendererRoot: string, dependencies: IpcDependencies)
     };
     return envelope(() => requireAgents().launchFleet(value.projectId, value as never));
   });
+
+  // P18: integrated terminal. Bytes only; a session cannot reach the engine,
+  // the board, or the workspace through this layer.
+  const requireTerminal = (): TerminalManager => {
+    const terminal = dependencies.terminal;
+    if (!terminal) {
+      throw Object.assign(
+        new Error(
+          "the terminal is unavailable on this host (the native mona-pty helper is missing)",
+        ),
+        { code: "TERMINAL_UNAVAILABLE" },
+      );
+    }
+    return terminal;
+  };
+
+  handle("terminal:snapshot", () => envelope(() => requireTerminal().snapshot()));
+  handle("terminal:create", (input) => {
+    const value = input as { projectId?: never | null; cols?: number; rows?: number };
+    return envelope(() => requireTerminal().create(value));
+  });
+  handle("terminal:write", (input) => {
+    const value = input as { sessionId: string; data: string; encoding?: "text" | "base64" };
+    return envelope(() => ({
+      written: requireTerminal().write(value.sessionId, value.data, value.encoding ?? "text"),
+    }));
+  });
+  handle("terminal:resize", (input) => {
+    const value = input as { sessionId: string; cols: number; rows: number };
+    return envelope(() => requireTerminal().resize(value.sessionId, value.cols, value.rows));
+  });
+  handle("terminal:close", (input) => {
+    const value = input as { sessionId: string };
+    return envelope(() => requireTerminal().close(value.sessionId));
+  });
+  handle("terminal:output", (input) => {
+    const value = input as { sessionId: string; cursor?: number; maxBytes?: number };
+    return envelope(() =>
+      requireTerminal().output(value.sessionId, value.cursor ?? 0, value.maxBytes),
+    );
+  });
+  handle("terminal:search", (input) => {
+    const value = input as { sessionId: string; query: string };
+    return envelope(() => requireTerminal().search(value.sessionId, value.query));
+  });
+  handle("terminal:log", (input) => {
+    const value = input as { projectId: never; maxBytes?: number };
+    return envelope(() => requireTerminal().log(value));
+  });
+
+  const requireCapabilities = (): CapabilityExplorer => {
+    const explorer = dependencies.capabilities;
+    if (!explorer) {
+      throw Object.assign(
+        new Error("the capability explorer is unavailable because project state did not open"),
+        { code: "RUNTIME_UNAVAILABLE" },
+      );
+    }
+    return explorer;
+  };
+
+  handle("capability:snapshot", () => envelope(() => requireCapabilities().snapshot()));
+  handle("capability:refresh", () => envelope(() => requireCapabilities().refresh()));
+  handle("capability:report", () => envelope(() => requireCapabilities().report()));
 
   handle("polish:quit", (input) =>
     envelope(() => dependencies.quit((input as { interrupt: boolean }).interrupt)),

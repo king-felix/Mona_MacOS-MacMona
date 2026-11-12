@@ -1,7 +1,7 @@
 # Handoff — Mona macOS build
 
-**Last checkpoint:** 2026-11-12 (P17) · revision 330 · `monabuild validate` clean
-**Current prompt:** P17 completed. Next eligible after P17: **P18** — not
+**Last checkpoint:** 2026-11-12 (P18) · revision 366 · `monabuild validate` clean
+**Current prompt:** P18 completed. Next eligible after P18: **P19** — not
 started, not authorized in this session.
 
 ## Where the build stands
@@ -12,7 +12,53 @@ per-user state, a measured design system, a real multi-project catalog and
 desktop shell, a live work studio, Finder integration, a prompt work board and
 durable continuation, an enforced attempt ledger, a durable cost ledger,
 trustworthy change receipts, Git review, and native restore. P14 adds the
-daily-use polish, and P15 makes native agent work visible and controllable.
+daily-use polish, P15 makes native agent work visible and controllable, P16/P17
+complete configuration and extensions, and P18 adds the integrated terminal,
+the command palette, and an auditable capability explorer.
+
+### P18 — Integrated terminal, command palette, capability explorer
+
+- **`docs/decisions/ADR-012`** + **D-049…D-052** — the terminal is owned by a
+  native helper, the shell gets an allowlisted environment with no startup
+  files, output is inert and bounded, and coverage is computed from rows.
+- **`native/macos-pty/`** — `main.swift` + `spawn.c` + README. A standalone
+  arm64 Swift PTY host: fd 0/1 raw pty bytes, fd 3 JSON control (resize, kill,
+  terminate), fd 4 JSON events. The child calls `setsid()`, takes the pty as its
+  controlling terminal, closes inherited descriptors, and dies with its owner
+  channel. Built by `npm run build:pty`; no Node addon, no Electron ABI.
+- **`src/main/terminal/`** — `buffer.ts` (byte-exact replay ring with exact
+  `dropped` accounting), `pty.ts` (protocol, binary resolution,
+  `buildShellEnvironment` allowlist), `session.ts` (`TerminalManager`: max 3
+  sessions, workspace cwd, write/resize/close, replay, search, a 64 MiB budget
+  that ends the session with a reason, redacted read-only log tail).
+- **`src/renderer/shell/ansi.ts`** — non-executing transcript parser: CR/CRLF,
+  backspace, tab, SGR tones; every other CSI/OSC sequence stripped and counted;
+  OSC 8 links become inert text.
+- **`src/renderer/shell/TerminalPanel.tsx`** — Shell and Engine-log modes,
+  session tabs, real status/exit/cwd/bytes, replay on reconnect, search,
+  copy, view-only clear, cols×rows resize, Ctrl-C/Ctrl-D, and the exact
+  environment and limits printed under the pane.
+- **`src/renderer/shell/palette.ts`** + **Shell.tsx** — local ranking over 8
+  screens, actions, projects, prompt favorites, board task prompts, 9 settings
+  tabs, and every capability row with an entry point. A capability row shows
+  its classification and cost class first; a terminal route only prefills.
+  Command-J toggles the terminal, Command-8 opens Capabilities.
+- **`src/main/work/capability.ts`** + **`src/renderer/shell/Capabilities.tsx`** —
+  inventory validation, computed coverage, read-only drift probe
+  (`--version`/`--help`/`features list`), additions/removals, cached projection
+  (validated before reuse), and a screen with summary, drift, feature flags,
+  filters, and a row detail carrying route, cost, test, and gap.
+- **`tools/p18-coverage/reconcile.mjs`** — reconciles all 75 rows with an entry
+  point (kind/target/label/tested), status, invocation, help source, test, and
+  gap. `--check` runs in the capability smoke. **`entryTargetIsKnown`** refuses
+  a target this build does not render.
+- **Verification** — 566 tests in 59 files; `smoke:terminal` 31/31 on the real
+  helper (controlling terminal, allowlisted env, startup files not sourced,
+  `codewhale --version` reachable, resize observed by the child, ring eviction,
+  exit code 5, verified close, redacted log, native arm64, no pty dependency);
+  `smoke:capability` 17/17 (reconcile in sync, drift clean, 43/43 CLI help
+  probes, gaps named, parity not claimed); Electron shell smoke 112/112 with
+  `p18-capabilities.png` and `p18-terminal.png`; local CI green.
 
 ### P17 — Tools and extensions
 
@@ -143,25 +189,23 @@ daily-use polish, and P15 makes native agent work visible and controllable.
   notification-focus message; lifecycle **22/22**; local CI green including the
   new `smoke:polish`. Evidence: `docs/evidence/macos/P14-polish.md`.
 
-## Next exact action (P18)
+## Next exact action (P19)
 
-Read spec §7.1, §11 terminal/palette, §13, the P18 prompt body, the P15
-capability inventory, and the P16/P17 adapter surfaces. Then:
+Read spec §8, §10.1, §12, §13, the P19 prompt body, the P05 data authority, and
+the P13/P18 search and terminal surfaces. Then:
 
-1. Implement the integrated arm64 PTY terminal with controlled environment,
-   resize/copy/search, output limits, process ownership, reconnect/exit, and
-   inert links/escape sequences. Keep terminal data away from application
-   authority and never source user shell startup files for credentials.
-2. Finish the command palette over projects, prompts, actions, settings, and
-   engine capabilities, ranking locally.
-3. Build the capability explorer from `docs/codewhale-capabilities-macos.json`,
-   P01 discovery, and the live P16/P17 route inventory. Every row needs a
-   working entry point or an explicit unavailable/gap state with the verified
-   advanced or terminal route.
-4. Reconcile additions/removals/version changes against P01; do not offer
-   untested mutating operations.
-5. Evidence: terminal tests (resize, reconnect, exit, malicious link),
-   capability coverage report, `docs/evidence/macos/P18-parity.md`.
+1. Local text search over explicitly indexed project metadata, decisions, task
+   evidence, and permitted history projections — deterministic, no embeddings,
+   no repository copy.
+2. Prompt shelf with variables, acceptance criteria, preview, versioning, and
+   inert import.
+3. Explicit context-selection preview and a concise resume packet; never claim
+   the exact provider request.
+4. Project handoff export/import, settings backup/restore, redacted diagnostic
+   bundle preview, artifact digests, safe archive paths, requalified machine
+   bindings.
+5. Evidence: portable-bundle tests, redaction fixtures,
+   `docs/evidence/macos/P19-memory.md`.
 
 ## Nonblocking issues carried forward
 
@@ -338,24 +382,61 @@ capability inventory, and the P16/P17 adapter surfaces. Then:
     memory and do not survive a restart; durable writes use the engine's own
     store and are refused when the engine does not own the route.
 
+77. **Mona's terminal is a native PTY, not the engine's shell.** `GET
+    /v1/terminal/{name}` attaches only (404 for an unknown name), so Mona owns
+    its own pane. MONA-CAP-061 stays open with that reason; an attach view for
+    engine-owned shells is future work.
+78. **The terminal transcript is not a VT100 emulator.** Full-screen programs
+    are unsupported and escape sequences are stripped rather than interpreted;
+    the pane says so. This is a deliberate security boundary (ADR-012).
+79. **Personal shell aliases do not load** (`/bin/zsh -f`). Credentials are
+    never read from startup files; the trade-off is printed in the pane.
+80. **28 capability rows stay open** — write/destructive/costly operations that
+    were not executed in P18, or ones needing input Mona will not invent. Each
+    row names its exact route and why; a `verified` terminal row must be run by
+    `smoke:capability`, which is why `scorecard` and `session-diagnostics` are
+    open rather than green.
+81. **Workflows and lanes remain blocked gaps** (`MONA-CAP-018/019`): no `/v1`
+    route on 0.10.2, and a terminal button would not fulfil MONA-019.
+82. **Coverage describes this build.** A version/commit change shows as drift
+    and requires re-qualification; the probe is read-only and never upgrades.
+83. **The 36 older shell screenshots were rewritten again** by the P18 shell
+    smoke because the rail gained an eighth item. They are current, not stale;
+    their hashes were re-recorded at this checkpoint with no assertion removed.
+84. **`monabuild secrets` reports two pre-existing false positives** (present at
+    HEAD before P18): the captured `p16-p17-ci.txt` contains the build machine's
+    home path in pasted output, and `test/settings-workbench.test.ts` contains a
+    literal `sk-…` sample used to prove redaction. P18's own files scan clean.
+    Rewriting the P16/P17 artifact would change hashed evidence, so it is
+    recorded rather than silently edited.
+85. **A terminal session ends at quit.** `before-quit` closes every session; a
+    desktop crash closes the owner channel, which terminates the shell group.
+    No shell is left behind in either path (verified by `ps -p`).
+
 ## Key files
 
-- `.mona/build-macos/state.json` — prompt status (revision 294).
+- `.mona/build-macos/state.json` — prompt status (revision 366).
 - `.mona/build-macos/attempts.jsonl` — empty; nothing failed three times.
-- `.mona/build-macos/DECISIONS.md` — D-001…D-040.
+- `.mona/build-macos/DECISIONS.md` — D-001…D-053.
 - `.mona/build-macos/BLOCKERS.md` — external prerequisites only.
-- `docs/requirements-macos.json` — MONA-017/018/029 satisfied with P14/P15
-  evidence; MONA-019 is `partial` (workflows and lanes have no `/v1` route);
-  MONA-006/MAC-002 carry contributions without claiming completion.
-- `docs/decisions/ADR-001…010`; ADR-009 is polish, ADR-010 orchestration
-  ownership.
-- `src/main/work/` — `agents.ts`, `attention.ts`, `board.ts`, `changes.ts`,
-  `control.ts`, `costs.ts`, `cost-math.ts`, `digest.ts`, `extensions.ts`,
-  `fingerprint.ts`, `git.ts`, `notifications.ts`, `polish.ts`, `preferences.ts`,
-  `profile.ts`, `settings.ts`, `studio.ts`.
+- `docs/requirements-macos.json` — MONA-017/018/021/022/023/029 satisfied with
+  P14/P15/P17/P18 evidence; MONA-019 keeps the workflow/lane gaps and MONA-030 is
+  `partial` (P26 owns the final matrix); MONA-006/MAC-002 carry contributions
+  without claiming completion.
+- `docs/decisions/ADR-001…012`; ADR-009 is polish, ADR-010 orchestration
+  ownership, ADR-011 configuration and extensions, ADR-012 the terminal and
+  capability coverage.
+- `src/main/work/` — `agents.ts`, `attention.ts`, `board.ts`, `capability.ts`,
+  `changes.ts`, `control.ts`, `costs.ts`, `cost-math.ts`, `digest.ts`,
+  `extensions.ts`, `fingerprint.ts`, `git.ts`, `notifications.ts`, `polish.ts`,
+  `preferences.ts`, `profile.ts`, `settings.ts`, `studio.ts`.
+- `src/main/terminal/` — `buffer.ts`, `pty.ts`, `session.ts`;
+  `native/macos-pty/` holds the Swift helper.
 - `src/renderer/shell/` — Shell, Home, Studio, Board, Changes, Cost, Agents,
-  Settings, drop, FinderIntegration, timeline, visual.
-- `scripts/` — `settings-smoke.mjs`, `extensions-smoke.mjs`,
+  Capabilities, TerminalPanel, Settings, ansi, palette, drop,
+  FinderIntegration, timeline, visual.
+- `scripts/` — `terminal-smoke.mjs`, `capability-smoke.mjs`, `build-pty.mjs`,
+  `settings-smoke.mjs`, `extensions-smoke.mjs`,
   `agents-smoke.mjs`, `polish-smoke.mjs`, `board-smoke.mjs`,
   `changes-smoke.mjs`, `cost-smoke.mjs`, `ci.mjs`, `smoke.mjs`,
   `shell-smoke.mjs`, `studio-smoke.mjs`, `engine-smoke.mjs`,

@@ -14,3 +14,5 @@ export * from "./polish";
 export * from "./agents";
 export * from "./settings";
 export * from "./extensions";
+export * from "./terminal";
+export * from "./capability";

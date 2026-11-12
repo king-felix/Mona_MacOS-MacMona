@@ -907,3 +907,110 @@ and deviations discovered while building.
   config backup still contains the engine document by design (mode `0600`,
   never rendered or exported); that is stated in the P16 evidence rather than
   hidden behind a blanket "no copy" claim.
+
+## D-049 — The terminal is a native helper, not an engine attach and not an addon
+
+- **Date:** 2026-11-12 (P18)
+- **Decision:** Mona's integrated terminal is owned by `native/macos-pty`, a
+  standalone arm64 Swift executable (with a C fork/exec shim) that hosts a pty,
+  the shell session, resize, and a verified exit receipt over fd 0/1 raw bytes,
+  fd 3 JSON control, and fd 4 JSON events. Sessions live in the main process;
+  the renderer reconnects to the same shell by reading the replay ring.
+- **Why:** On 0.10.2 the engine's `/v1/terminal/{name}` family only *attaches*
+  to a shell the engine already owns (an unknown name is `404`), and
+  `/v1/threads/{id}/jobs` has no resize route. P18's acceptance requires resize
+  that the child observes. A Node addon would also have to match Electron's ABI
+  and be compiled per recipient Mac; a helper has no ABI coupling at all.
+- **Consequence:** `MONA-CAP-061` stays open (engine terminal attach is not
+  built). Packaging (P21) ships and P22 signs the helper. A closed owner channel
+  terminates the whole process group, so a desktop crash leaves no orphan shell.
+
+## D-050 — The shell gets an allowlisted environment and no startup files
+
+- **Date:** 2026-11-12 (P18)
+- **Decision:** The helper receives exactly the entries `buildShellEnvironment`
+  builds from `PATH`, `HOME`, `USER`, `LOGNAME`, `SHELL`, `TERM`, `COLORTERM`,
+  `LANG`, `TMPDIR`. Mona's own environment is never passed through; a
+  secret-shaped variable is reported as withheld. The shell is `/bin/zsh -f`, so
+  `/etc/zshrc` and `~/.zshrc` do not run.
+- **Why:** "Never source user shell startup files just to find provider
+  credentials" is a spec rule, and an inherited environment is how a runtime
+  token or provider key would leak into a child process. An allowlist is
+  stronger than a denylist: a future variable is excluded by default.
+- **Consequence:** Personal aliases and prompt themes do not load inside Mona's
+  pane; the pane prints the exact environment, and a throwaway `HOME` with a
+  marker `.zshrc` proves the file never ran.
+
+## D-051 — Terminal output is inert, bounded, and honestly not an emulator
+
+- **Date:** 2026-11-12 (P18)
+- **Decision:** The renderer receives text spans from `ansi.ts`, which strips and
+  counts every CSI/OSC sequence, keeps only SGR emphasis, and never produces a
+  link or a call. OSC 8 hyperlinks are plain text. Output is bounded by a
+  byte-exact replay ring (`dropped` = the first retained byte's offset) plus a
+  64 MiB per-session budget that ends the session with a stated reason. A
+  non-zero exit is `exited` with its code; `failed` is reserved for a helper or
+  spawn failure.
+- **Why:** Terminal escape sequences are an untrusted input surface: OSC 52 can
+  write the clipboard, OSC 8 can disguise a target, and cursor sequences can
+  misrepresent content. A line-oriented transcript also has to admit what it
+  cannot do rather than render a corrupted `vim`.
+- **Consequence:** Full-screen programs are unsupported and the pane says so.
+  Search runs over the retained buffer, not the visible lines, and a truncated
+  replay is reported with the dropped byte count.
+
+## D-052 — Coverage is computed from rows, and an entry point must exist
+
+- **Date:** 2026-11-12 (P18)
+- **Decision:** `tools/p18-coverage/reconcile.mjs` reconciles every inventory row
+  with an entry point, status, invocation, help source, test, and gap; the app
+  and the smoke compute coverage **from the rows** and never trust the file's
+  summary. `entryTargetIsKnown` refuses a target this build does not render, and
+  a unit test fails on a dead target. The installed engine is compared against
+  the recorded version/commit/command set by a read-only help probe.
+- **Why:** "All functionality" is only auditable if a hidden or awkward feature
+  still counts. A hand-written summary can drift; a computed one cannot. A
+  terminal button is not blanket support, so a `blocked_gap` row names the route
+  it cannot reach instead of offering a dead control.
+- **Consequence:** 43 rows verified, 28 open (write/destructive/costly, or
+  needing input Mona will not invent; each names its route), 2 blocked gaps
+  (workflows, lanes — no `/v1` route on 0.10.2), 2 unavailable. A `verified`
+  terminal row must be executed by the capability smoke, and the reconciler
+  refuses a row that contradicts its own test note. Full parity is explicitly not claimed. An engine change shows
+  as drift and requires re-qualification, never a silent upgrade.
+
+## D-053 — P18 review fixes: honest rows, guarded bridge calls, no duplicate replay
+
+- **Date:** 2026-11-12 (P18, review follow-up)
+- **Decision:** Two independent read-only reviews of the P18 change found six
+  defects; each was fixed with a regression test.
+  1. `session-diagnostics` and `scorecard` were `verified` on a `--help` probe
+     while their own notes said "not exercised". Both are now `unqualified`
+     with the observed behaviour recorded, and `smoke:capability` executes the
+     exact route of every `verified` terminal row. The reconciler now refuses a
+     `verified` row that is untested, that contradicts its own test note, or
+     that is an unexecuted terminal row.
+  2. A size outside the IPC schema made `ipcRenderer.invoke` reject outside
+     `envelope`, stranding the pane busy with no message. Sizes are clamped
+     before the call and each bridge call is guarded with `busy` cleared in
+     `finally`.
+  3. Bytes entered the replay buffer immediately but reached the renderer
+     through a 33 ms batch, so a reconnect could draw them twice. `output()`
+     flushes pending bytes before reading, making "`seq <= read.seq` ⇒ already
+     in `data`" true.
+  4. A replay continuation from a session the user had switched away from could
+     write into the newly selected transcript; it is now discarded by session
+     identity.
+  5. A non-active session's event left its tab status stale; the snapshot is
+     refreshed for a non-visible session or a state/exit event, but not for the
+     visible session's 33 ms output batches.
+  6. A successful close kept a previous refusal banner; close clears messages.
+- **Why:** Finding 1 is the failure mode the whole prompt exists to prevent — a
+  green badge over an operation nobody ran. Findings 2–6 are the same class at a
+  smaller scale: a control that silently sticks, a transcript that shows the
+  same line twice, a status that freezes at the last snapshot.
+- **Consequence:** A `verified` terminal row is now provably executed (three
+  rows: `help`, `metrics`, `completion zsh`); coverage reports 43 verified,
+  28 open, 2 blocked gaps, 2 unavailable, 51 exercised entry points. Findings
+  2–4 have named tests: a thrown create, the replay/live race, and an initial
+  snapshot refusal that must render as an error rather than an empty pane.

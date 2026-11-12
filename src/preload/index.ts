@@ -85,6 +85,16 @@ import type {
   ProjectIdentityInput,
   PromptFavorite,
 } from "../shared/contracts/polish";
+import type {
+  TerminalCreateResult,
+  TerminalEvent,
+  TerminalLogView,
+  TerminalOutputView,
+  TerminalSearchView,
+  TerminalSessionView,
+  TerminalSnapshot,
+} from "../shared/contracts/terminal";
+import type { CapabilitySnapshot } from "../shared/contracts/capability";
 
 /**
  * The only bridge the renderer gets. No raw ipcRenderer, no Node, no shell.
@@ -471,6 +481,53 @@ const bridge: MonaBridge = {
     source: string,
   ): Promise<IpcResult<ExtensionActionReceipt>> =>
     ipcRenderer.invoke("extensions:install", { projectId, kind, source }),
+
+  terminalSnapshot: (): Promise<IpcResult<TerminalSnapshot>> =>
+    ipcRenderer.invoke("terminal:snapshot", {}),
+  terminalCreate: (input: {
+    projectId?: ProjectId | null;
+    cols?: number;
+    rows?: number;
+  }): Promise<IpcResult<TerminalCreateResult>> => ipcRenderer.invoke("terminal:create", input),
+  terminalWrite: (input: {
+    sessionId: string;
+    data: string;
+    encoding?: "text" | "base64";
+  }): Promise<IpcResult<{ written: number }>> => ipcRenderer.invoke("terminal:write", input),
+  terminalResize: (input: {
+    sessionId: string;
+    cols: number;
+    rows: number;
+  }): Promise<IpcResult<TerminalSessionView>> => ipcRenderer.invoke("terminal:resize", input),
+  terminalClose: (sessionId: string): Promise<IpcResult<TerminalSessionView>> =>
+    ipcRenderer.invoke("terminal:close", { sessionId }),
+  terminalOutput: (input: {
+    sessionId: string;
+    cursor?: number;
+    maxBytes?: number;
+  }): Promise<IpcResult<TerminalOutputView>> => ipcRenderer.invoke("terminal:output", input),
+  terminalSearch: (input: {
+    sessionId: string;
+    query: string;
+  }): Promise<IpcResult<TerminalSearchView>> => ipcRenderer.invoke("terminal:search", input),
+  terminalLog: (projectId: ProjectId): Promise<IpcResult<TerminalLogView>> =>
+    ipcRenderer.invoke("terminal:log", { projectId }),
+  onTerminalEvent: (callback: (event: TerminalEvent) => void): (() => void) => {
+    const listener = (_event: unknown, payload: unknown) => {
+      if (!payload || typeof payload !== "object") return;
+      const value = payload as Partial<TerminalEvent>;
+      if (typeof value.sessionId !== "string" || typeof value.kind !== "string") return;
+      callback(value as TerminalEvent);
+    };
+    ipcRenderer.on("terminal:event", listener);
+    return () => ipcRenderer.removeListener("terminal:event", listener);
+  },
+  capabilitySnapshot: (): Promise<IpcResult<CapabilitySnapshot>> =>
+    ipcRenderer.invoke("capability:snapshot", {}),
+  refreshCapabilities: (): Promise<IpcResult<CapabilitySnapshot>> =>
+    ipcRenderer.invoke("capability:refresh", {}),
+  capabilityReport: (): Promise<IpcResult<{ json: string; markdown: string; filename: string }>> =>
+    ipcRenderer.invoke("capability:report", {}),
 
   onStudioChanged: (callback: (push: StudioPush) => void): (() => void) => {
     const listener = (_event: unknown, payload: unknown) => {

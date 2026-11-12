@@ -26,6 +26,7 @@ for (const script of [
   "lint",
   "typecheck",
   "build:supervisor",
+  "build:pty",
   "build:service",
   "test",
   "build",
@@ -36,6 +37,8 @@ for (const script of [
   "smoke:agents",
   "smoke:settings",
   "smoke:extensions",
+  "smoke:terminal",
+  "smoke:capability",
 ]) {
   if (!run(script, "npm", ["run", script])) break;
 }

@@ -1,4 +1,4 @@
-import { useState, type JSX } from "react";
+import { useEffect, useState, type JSX } from "react";
 import type { AppInfo, AppPathInfo, ToolDiscovery } from "../../shared/contracts/bridge";
 import type {
   ProjectDetail,
@@ -55,6 +55,7 @@ export function SettingsScreen({
   onTestNotification,
   onQuit,
   onOpenStudio,
+  openTab,
 }: {
   app: AppInfo | null;
   paths: AppPathInfo | null;
@@ -71,8 +72,13 @@ export function SettingsScreen({
   onTestNotification: () => void;
   onQuit: () => void;
   onOpenStudio: () => void;
+  /** Command palette or capability explorer requests a specific tab. */
+  openTab?: string;
 }): JSX.Element {
-  const [tab, setTab] = useState("appearance");
+  const [tab, setTab] = useState(openTab ?? "appearance");
+  useEffect(() => {
+    if (openTab) setTab(openTab);
+  }, [openTab]);
   const problems = facts?.permissionProblems ?? [];
   const preferences: PolishPreferences | null = polish?.preferences ?? null;
   const patchNotifications = (

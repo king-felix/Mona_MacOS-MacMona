@@ -1,0 +1,114 @@
+{
+  "ok": true,
+  "steps": [
+    {
+      "name": "format:check",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 2425
+    },
+    {
+      "name": "lint",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 2041
+    },
+    {
+      "name": "typecheck",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 3025
+    },
+    {
+      "name": "build:supervisor",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 2424
+    },
+    {
+      "name": "build:pty",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 1194
+    },
+    {
+      "name": "build:service",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 1950
+    },
+    {
+      "name": "test",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 7876
+    },
+    {
+      "name": "build",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 2363
+    },
+    {
+      "name": "smoke:board",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 2402
+    },
+    {
+      "name": "smoke:cost",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 1947
+    },
+    {
+      "name": "smoke:changes",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 2415
+    },
+    {
+      "name": "smoke:polish",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 2081
+    },
+    {
+      "name": "smoke:agents",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 4250
+    },
+    {
+      "name": "smoke:settings",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 2782
+    },
+    {
+      "name": "smoke:extensions",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 2708
+    },
+    {
+      "name": "smoke:terminal",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 10741
+    },
+    {
+      "name": "smoke:capability",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 5477
+    }
+  ],
+  "renderer_scan": {
+    "ok": true,
+    "files": 3,
+    "patterns": [],
+    "bytes": 696237
+  },
+  "dist_bytes": 696237
+}

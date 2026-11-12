@@ -1,0 +1,647 @@
+{
+  "schema_version": 1,
+  "label": "P18 capability coverage — pinned 0.10.2",
+  "captured_at": "2026-11-12T15:49:04.283Z",
+  "ok": true,
+  "checks": {
+    "reconcile_in_sync": true,
+    "inventory_valid": true,
+    "coverage_math": true,
+    "every_row_has_route": true,
+    "entry_targets_exist_in_this_build": true,
+    "parity_not_claimed": true,
+    "drift_checked": true,
+    "drift_version_matches": true,
+    "drift_commit_matches": true,
+    "drift_no_additions": true,
+    "drift_no_removals": true,
+    "cli_help_all_answer": true,
+    "cli_rows_covered": true,
+    "verified_terminal_rows_executed": true,
+    "features_read": true,
+    "report_names_gaps": true,
+    "report_states_no_parity": true
+  },
+  "facts": {
+    "coverage": {
+      "rowsTotal": 75,
+      "verified": 43,
+      "unqualified": 28,
+      "unavailable": 2,
+      "blockedGaps": 2,
+      "withEntryPoint": 72,
+      "testedEntryPoint": 51,
+      "byEntryKind": {
+        "terminal": 26,
+        "settings_tab": 17,
+        "screen": 29,
+        "none": 3
+      },
+      "terminalOnly": 26,
+      "nativeControls": 45,
+      "advancedActions": 15,
+      "complete": false,
+      "gaps": [
+        {
+          "id": "MONA-CAP-001",
+          "name": "run",
+          "status": "unqualified",
+          "reason": "The TUI runs in the integrated terminal; Mona's own turns use /v1. Opening the TUI is a deliberate user command, not an automatic fallback."
+        },
+        {
+          "id": "MONA-CAP-003",
+          "name": "session-diagnostics",
+          "status": "unqualified",
+          "reason": "Route is `codewhale sessions` then `codewhale session-diagnostics <jsonl>`. Neither Mona nor its smoke runs it, so no success is claimed."
+        },
+        {
+          "id": "MONA-CAP-004",
+          "name": "scorecard",
+          "status": "unqualified",
+          "reason": "Needs a metrics file to score. No native scorecard panel, and no sample input is invented; the cost lens shows recorded usage, not this quality score."
+        },
+        {
+          "id": "MONA-CAP-006",
+          "name": "speech",
+          "status": "unqualified",
+          "reason": "Paid TTS is outside 1.0 scope. The command is reachable in the terminal; Mona never calls it and never claims a configured route."
+        },
+        {
+          "id": "MONA-CAP-010",
+          "name": "rc",
+          "status": "unqualified",
+          "reason": "Upstream browser handoff; Mona does not depend on it. Reachable only as an explicit terminal command."
+        },
+        {
+          "id": "MONA-CAP-011",
+          "name": "fork",
+          "status": "unqualified",
+          "reason": "Thread forking has no native control. The terminal entry runs the CLI command, and a fork creates a new thread without workspace rollback."
+        },
+        {
+          "id": "MONA-CAP-012",
+          "name": "init",
+          "status": "unqualified",
+          "reason": "Writes a workspace file. The capability row prefills the exact command and never runs it automatically."
+        },
+        {
+          "id": "MONA-CAP-014",
+          "name": "setup",
+          "status": "unqualified",
+          "reason": "Writes configuration. Mona adds MCP servers through the engine's own route instead; `setup` is terminal-only."
+        },
+        {
+          "id": "MONA-CAP-015",
+          "name": "remote-setup",
+          "status": "unavailable",
+          "reason": "Cloud hosting is outside 1.0 scope. No remote is invented and no bundle is generated automatically."
+        },
+        {
+          "id": "MONA-CAP-018",
+          "name": "workflow",
+          "status": "blocked_gap",
+          "reason": "Checked-in JS workflows run through a Lane Runtime with no HTTP route, so Mona cannot launch or inspect them. A terminal entry would not fulfill MONA-019; full parity stays blocked until the engine exposes a route or Victor narrows scope."
+        },
+        {
+          "id": "MONA-CAP-019",
+          "name": "lane",
+          "status": "blocked_gap",
+          "reason": "Lane management is terminal-only on this build. Mona shows no lane control and does not simulate one."
+        },
+        {
+          "id": "MONA-CAP-020",
+          "name": "review",
+          "status": "unqualified",
+          "reason": "The billable model review is terminal-only; Mona's source review reads recorded turn artifacts and Git state instead, so no hidden model call happens."
+        },
+        {
+          "id": "MONA-CAP-021",
+          "name": "apply",
+          "status": "unqualified",
+          "reason": "Destructive and terminal-only. Mona's restore path is the engine's checked one-file file-revert (P13); no patch apply control is offered."
+        },
+        {
+          "id": "MONA-CAP-022",
+          "name": "eval",
+          "status": "unqualified",
+          "reason": "Terminal-only. Cost depends on the suite, so the row states that before invocation."
+        },
+        {
+          "id": "MONA-CAP-025",
+          "name": "integrations",
+          "status": "unqualified",
+          "reason": "Third-party harness integration is terminal-only; Mona makes no claim about a configured harness."
+        },
+        {
+          "id": "MONA-CAP-027",
+          "name": "web",
+          "status": "unqualified",
+          "reason": "The upstream browser client overlaps Mona. Reachable only as an explicit terminal command; Mona never opens it automatically."
+        },
+        {
+          "id": "MONA-CAP-028",
+          "name": "login",
+          "status": "unqualified",
+          "reason": "Credentials never cross the renderer. Provider keys use the dedicated P16 route; account login is terminal-only and user-initiated."
+        },
+        {
+          "id": "MONA-CAP-029",
+          "name": "logout",
+          "status": "unqualified",
+          "reason": "Destructive and terminal-only, with the engine's own confirmation. Mona does not offer a one-click credential wipe."
+        },
+        {
+          "id": "MONA-CAP-030",
+          "name": "auth",
+          "status": "unqualified",
+          "reason": "Provider keys are set through the engine's own route (P16); other auth modes are terminal-only."
+        },
+        {
+          "id": "MONA-CAP-031",
+          "name": "account",
+          "status": "unqualified",
+          "reason": "Local key routes remain primary; account status is terminal-only."
+        },
+        {
+          "id": "MONA-CAP-032",
+          "name": "dispatch",
+          "status": "unavailable",
+          "reason": "Cloud computers are unavailable. No control is shown and no remote is invented."
+        },
+        {
+          "id": "MONA-CAP-033",
+          "name": "mcp-server",
+          "status": "unqualified",
+          "reason": "Terminal-only. Mona is an MCP host, not a server; the row states the reverse direction."
+        },
+        {
+          "id": "MONA-CAP-036",
+          "name": "thread",
+          "status": "unqualified",
+          "reason": "Resume and fork flows are terminal-only beyond the studio's recorded resume."
+        },
+        {
+          "id": "MONA-CAP-037",
+          "name": "sandbox",
+          "status": "unqualified",
+          "reason": "The effective permission posture is shown from the turn receipt (P08), not recomputed here; `sandbox` is terminal-only."
+        },
+        {
+          "id": "MONA-CAP-041",
+          "name": "update",
+          "status": "unqualified",
+          "reason": "Mona never silently upgrades the engine. An engine change is an explicit, separately tested compatibility decision and stays terminal-only here."
+        },
+        {
+          "id": "MONA-CAP-052",
+          "name": "Approvals bridge",
+          "status": "unqualified",
+          "reason": "Mona shows the wait and never auto-approves inside a thread. Answering an approval has no IPC path yet."
+        },
+        {
+          "id": "MONA-CAP-055",
+          "name": "Tool: apply_patch",
+          "status": "unqualified",
+          "reason": "apply_patch is displayed as a tool-attributed change when the agent uses it. Mona offers no direct patch control."
+        },
+        {
+          "id": "MONA-CAP-056",
+          "name": "Web search",
+          "status": "unqualified",
+          "reason": "Web search is provider-native and may add provider charges. Mona makes no claim that a route has it enabled."
+        },
+        {
+          "id": "MONA-CAP-061",
+          "name": "Terminal stream/input",
+          "status": "unqualified",
+          "reason": "Engine terminal sessions can only be attached, never created (404 otherwise), so a client cannot open its own shell through them. Mona owns its PTY instead; an attach view for engine-owned shells is not built."
+        },
+        {
+          "id": "MONA-CAP-062",
+          "name": "Workspace files, search, artifacts",
+          "status": "unqualified",
+          "reason": "Project text search is P19. Mona never copies repository contents into its database to fake it."
+        },
+        {
+          "id": "MONA-CAP-063",
+          "name": "Workspace snapshots/restore",
+          "status": "unqualified",
+          "reason": "Whole-workspace restore (POST /v1/snapshots/{id}/restore) and forking patch-undo are not surfaced. A workspace-wide overwrite stays a separate, explicitly authorized action."
+        },
+        {
+          "id": "MONA-CAP-071",
+          "name": "Engine update path",
+          "status": "unqualified",
+          "reason": "Mona never upgrades the engine silently. The pinned 0.10.2 build is a tested compatibility decision; an upgrade needs a new qualification pass."
+        }
+      ],
+      "summary": "75 discovered rows: 43 verified, 28 open, 2 blocked gaps, 2 unavailable. 51 entry points exercised. Full parity is not claimed while any row is open or blocked."
+    },
+    "dead_targets": [],
+    "drift": {
+      "checked": true,
+      "checkedAt": "2026-11-12T15:49:00.973Z",
+      "error": null,
+      "engineVersion": "0.10.2",
+      "engineCommit": "ff466b2ed0bf",
+      "inventoryVersion": "0.10.2",
+      "inventoryCommit": "ff466b2ed0bfb4ae5267d4d8d0ecb562cf46956e",
+      "versionMatch": true,
+      "commitMatch": true,
+      "additions": [],
+      "removals": [],
+      "note": "The installed engine matches the recorded surface."
+    },
+    "engine_binary": "/opt/homebrew/bin/codewhale",
+    "cli_help": [
+      {
+        "name": "run",
+        "exit": 0,
+        "ok": true,
+        "bytes": 346
+      },
+      {
+        "name": "doctor",
+        "exit": 0,
+        "ok": true,
+        "bytes": 1393
+      },
+      {
+        "name": "session-diagnostics",
+        "exit": 0,
+        "ok": true,
+        "bytes": 441
+      },
+      {
+        "name": "scorecard",
+        "exit": 0,
+        "ok": true,
+        "bytes": 366
+      },
+      {
+        "name": "models",
+        "exit": 0,
+        "ok": true,
+        "bytes": 615
+      },
+      {
+        "name": "speech",
+        "exit": 0,
+        "ok": true,
+        "bytes": 356
+      },
+      {
+        "name": "sessions",
+        "exit": 0,
+        "ok": true,
+        "bytes": 328
+      },
+      {
+        "name": "receipts",
+        "exit": 0,
+        "ok": true,
+        "bytes": 660
+      },
+      {
+        "name": "resume",
+        "exit": 0,
+        "ok": true,
+        "bytes": 329
+      },
+      {
+        "name": "rc",
+        "exit": 0,
+        "ok": true,
+        "bytes": 369
+      },
+      {
+        "name": "fork",
+        "exit": 0,
+        "ok": true,
+        "bytes": 325
+      },
+      {
+        "name": "init",
+        "exit": 0,
+        "ok": true,
+        "bytes": 356
+      },
+      {
+        "name": "install",
+        "exit": 0,
+        "ok": true,
+        "bytes": 363
+      },
+      {
+        "name": "setup",
+        "exit": 0,
+        "ok": true,
+        "bytes": 352
+      },
+      {
+        "name": "remote-setup",
+        "exit": 0,
+        "ok": true,
+        "bytes": 937
+      },
+      {
+        "name": "exec",
+        "exit": 0,
+        "ok": true,
+        "bytes": 2626
+      },
+      {
+        "name": "fleet",
+        "exit": 0,
+        "ok": true,
+        "bytes": 637
+      },
+      {
+        "name": "workflow",
+        "exit": 0,
+        "ok": true,
+        "bytes": 835
+      },
+      {
+        "name": "lane",
+        "exit": 0,
+        "ok": true,
+        "bytes": 1822
+      },
+      {
+        "name": "review",
+        "exit": 0,
+        "ok": true,
+        "bytes": 358
+      },
+      {
+        "name": "apply",
+        "exit": 0,
+        "ok": true,
+        "bytes": 353
+      },
+      {
+        "name": "eval",
+        "exit": 0,
+        "ok": true,
+        "bytes": 339
+      },
+      {
+        "name": "mcp",
+        "exit": 0,
+        "ok": true,
+        "bytes": 1043
+      },
+      {
+        "name": "features",
+        "exit": 0,
+        "ok": true,
+        "bytes": 376
+      },
+      {
+        "name": "integrations",
+        "exit": 0,
+        "ok": true,
+        "bytes": 393
+      },
+      {
+        "name": "serve",
+        "exit": 0,
+        "ok": true,
+        "bytes": 1484
+      },
+      {
+        "name": "web",
+        "exit": 0,
+        "ok": true,
+        "bytes": 603
+      },
+      {
+        "name": "login",
+        "exit": 0,
+        "ok": true,
+        "bytes": 723
+      },
+      {
+        "name": "logout",
+        "exit": 0,
+        "ok": true,
+        "bytes": 451
+      },
+      {
+        "name": "auth",
+        "exit": 0,
+        "ok": true,
+        "bytes": 2055
+      },
+      {
+        "name": "account",
+        "exit": 0,
+        "ok": true,
+        "bytes": 1459
+      },
+      {
+        "name": "dispatch",
+        "exit": 0,
+        "ok": true,
+        "bytes": 1467
+      },
+      {
+        "name": "mcp-server",
+        "exit": 0,
+        "ok": true,
+        "bytes": 259
+      },
+      {
+        "name": "config",
+        "exit": 0,
+        "ok": true,
+        "bytes": 1203
+      },
+      {
+        "name": "model",
+        "exit": 0,
+        "ok": true,
+        "bytes": 490
+      },
+      {
+        "name": "thread",
+        "exit": 0,
+        "ok": true,
+        "bytes": 720
+      },
+      {
+        "name": "sandbox",
+        "exit": 0,
+        "ok": true,
+        "bytes": 366
+      },
+      {
+        "name": "app-server",
+        "exit": 0,
+        "ok": true,
+        "bytes": 3041
+      },
+      {
+        "name": "completion",
+        "exit": 0,
+        "ok": true,
+        "bytes": 1493
+      },
+      {
+        "name": "metrics",
+        "exit": 0,
+        "ok": true,
+        "bytes": 436
+      },
+      {
+        "name": "update",
+        "exit": 0,
+        "ok": true,
+        "bytes": 1053
+      },
+      {
+        "name": "providers",
+        "exit": 0,
+        "ok": true,
+        "bytes": 432
+      },
+      {
+        "name": "help",
+        "exit": 0,
+        "ok": true,
+        "bytes": 6534
+      }
+    ],
+    "executed_terminal_rows": [
+      {
+        "id": "MONA-CAP-039",
+        "name": "completion",
+        "argv": [
+          "completion",
+          "zsh"
+        ],
+        "exit": 0,
+        "bytes": 309792,
+        "ok": true
+      },
+      {
+        "id": "MONA-CAP-040",
+        "name": "metrics",
+        "argv": [
+          "metrics"
+        ],
+        "exit": 0,
+        "bytes": 1380,
+        "ok": true
+      },
+      {
+        "id": "MONA-CAP-043",
+        "name": "help",
+        "argv": [
+          "help"
+        ],
+        "exit": 0,
+        "bytes": 6534,
+        "ok": true
+      }
+    ],
+    "features": [
+      {
+        "name": "shell_tool",
+        "stage": "stable",
+        "enabled": true
+      },
+      {
+        "name": "subagents",
+        "stage": "stable",
+        "enabled": true
+      },
+      {
+        "name": "web_search",
+        "stage": "stable",
+        "enabled": true
+      },
+      {
+        "name": "apply_patch",
+        "stage": "stable",
+        "enabled": true
+      },
+      {
+        "name": "mcp",
+        "stage": "stable",
+        "enabled": true
+      },
+      {
+        "name": "exec_policy",
+        "stage": "stable",
+        "enabled": true
+      },
+      {
+        "name": "vision_model",
+        "stage": "beta",
+        "enabled": false
+      },
+      {
+        "name": "verify_tool",
+        "stage": "stable",
+        "enabled": true
+      },
+      {
+        "name": "code_mode",
+        "stage": "experimental",
+        "enabled": true
+      },
+      {
+        "name": "finance_host",
+        "stage": "experimental",
+        "enabled": false
+      },
+      {
+        "name": "data_host",
+        "stage": "experimental",
+        "enabled": false
+      },
+      {
+        "name": "speech_host",
+        "stage": "experimental",
+        "enabled": false
+      },
+      {
+        "name": "pdf_host",
+        "stage": "experimental",
+        "enabled": false
+      },
+      {
+        "name": "ocr_host",
+        "stage": "experimental",
+        "enabled": false
+      },
+      {
+        "name": "github_host",
+        "stage": "experimental",
+        "enabled": false
+      },
+      {
+        "name": "web_search_host",
+        "stage": "experimental",
+        "enabled": false
+      },
+      {
+        "name": "web_extract_host",
+        "stage": "experimental",
+        "enabled": false
+      },
+      {
+        "name": "review_host",
+        "stage": "experimental",
+        "enabled": false
+      },
+      {
+        "name": "extension_host",
+        "stage": "experimental",
+        "enabled": false
+      }
+    ]
+  }
+}

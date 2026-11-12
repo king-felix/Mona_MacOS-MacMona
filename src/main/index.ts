@@ -44,6 +44,8 @@ import { PolishService } from "./work/polish";
 import { AgentObservatory } from "./work/agents";
 import { RouteWorkbench } from "./work/settings";
 import { ExtensionWorkbench } from "./work/extensions";
+import { CapabilityExplorer } from "./work/capability";
+import { TerminalManager } from "./terminal/session";
 import { PolishPreferencesStore } from "./work/preferences";
 import { PolishNotifier, type NotificationSources } from "./work/notifications";
 import { AttentionController, KeepAwake } from "./work/attention";
@@ -95,6 +97,8 @@ let polishService: PolishService | null = null;
 let agentObservatory: AgentObservatory | null = null;
 let routeWorkbench: RouteWorkbench | null = null;
 let extensionWorkbench: ExtensionWorkbench | null = null;
+let terminalManager: TerminalManager | null = null;
+let capabilityExplorer: CapabilityExplorer | null = null;
 let polishMenu: ApplicationMenuHandle | null = null;
 let keepAwake: KeepAwake | null = null;
 let activeProjectId: StudioProjectId | null = null;
@@ -1009,6 +1013,236 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
   const extensionsShot = await window.webContents.capturePage();
   writeFileSync(join(outDir, "p17-settings-extensions.png"), extensionsShot.toPNG());
 
+  // P18: the palette ranks projects, prompts, settings, and engine capabilities
+  // locally, and a capability row opens its real entry point.
+  window.webContents.sendInputEvent({ type: "keyDown", keyCode: "k", modifiers: ["meta"] });
+  window.webContents.sendInputEvent({ type: "keyUp", keyCode: "k", modifiers: ["meta"] });
+  const capabilityPaletteReady = await waitFor(
+    "document.querySelector('.palette__count') !== null",
+  );
+  await new Promise((resolve) => setTimeout(resolve, 350));
+  const typePaletteQuery = async (value: string) => {
+    await window.webContents.executeJavaScript(`(() => {
+      const input = document.querySelector('#shell-palette-filter');
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+      if (!(input instanceof HTMLInputElement) || !setter) return false;
+      setter.call(input, ${JSON.stringify(value)});
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      return true;
+    })()`);
+    await new Promise((resolve) => setTimeout(resolve, 150));
+  };
+  const paletteSnapshot = (): Promise<Record<string, unknown>> =>
+    window.webContents.executeJavaScript(`(() => {
+      const dialog = document.querySelector('[role="dialog"]');
+      return {
+        text: dialog?.textContent ?? '',
+        badges: dialog?.querySelectorAll('.palette__detail .badge').length ?? 0,
+        count: dialog?.querySelector('.palette__count')?.textContent ?? null,
+        rows: dialog?.querySelectorAll('.palette__item').length ?? 0,
+      };
+    })()`);
+  await typePaletteQuery("settings");
+  const paletteSettings = await paletteSnapshot();
+  await typePaletteQuery("doctor");
+  const paletteDoctor = await paletteSnapshot();
+  await typePaletteQuery("workflow");
+  const paletteWorkflow = await paletteSnapshot();
+  const paletteCapabilities = {
+    open: capabilityPaletteReady,
+    ranked_locally: String(paletteSettings.count ?? "").includes("ranked locally"),
+    has_settings: String(paletteSettings.text).includes("Settings: Providers & route"),
+    has_prompt:
+      String(paletteSettings.text).includes("Insert prompt") ||
+      String(paletteSettings.text).includes("Task:"),
+    has_capability:
+      String(paletteDoctor.text).includes("diagnostics") ||
+      String(paletteDoctor.text).includes("doctor"),
+    detail_badges: Number(paletteDoctor.badges) + Number(paletteWorkflow.badges),
+    counts: {
+      settings: paletteSettings.count,
+      doctor: paletteDoctor.count,
+      workflow: paletteWorkflow.count,
+    },
+  };
+  window.webContents.sendInputEvent({ type: "keyDown", keyCode: "Escape" });
+  window.webContents.sendInputEvent({ type: "keyUp", keyCode: "Escape" });
+  await waitFor("document.querySelector('[role=\"dialog\"]') === null");
+
+  // The capability explorer is a real screen, not a static table.
+  window.webContents.sendInputEvent({ type: "keyDown", keyCode: "8", modifiers: ["meta"] });
+  window.webContents.sendInputEvent({ type: "keyUp", keyCode: "8", modifiers: ["meta"] });
+  const capabilitiesReady = await waitFor(
+    "document.documentElement.dataset.screen === 'capabilities' && document.querySelectorAll('.capability-row').length > 10",
+  );
+  await new Promise((resolve) => setTimeout(resolve, 400));
+  const capabilities = await window.webContents.executeJavaScript(`(() => {
+    const text = document.body.textContent ?? '';
+    return {
+      screen: document.documentElement.dataset.screen,
+      rows: document.querySelectorAll('.capability-row').length,
+      verdict: document.querySelector('[data-testid="capability-verdict"]')?.textContent ?? '',
+      drift_matches: text.includes('matches the inventory'),
+      drift_stated:
+        text.includes('matches the inventory') ||
+        text.includes('differs — re-qualification required') ||
+        text.includes('unchecked'),
+      features: document.querySelectorAll('[data-testid="feature-flags"] li').length,
+      counts: document.querySelector('[data-testid="capability-count"]')?.textContent ?? '',
+      horizontal_overflow:
+        document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+    };
+  })()`);
+  // A blocked gap names its route instead of offering a dead control.
+  await window.webContents.executeJavaScript(`(() => {
+    const row = Array.from(document.querySelectorAll('.capability-row')).find((node) =>
+      node.textContent?.includes('workflow'),
+    );
+    if (row instanceof HTMLElement) row.click();
+    return Boolean(row);
+  })()`);
+  const gapDetailReady = await waitFor(
+    "document.querySelector('[data-testid=\"capability-detail\"]')?.textContent.includes('No in-app route') === true",
+  );
+  const gapDetail = await window.webContents.executeJavaScript(`(() => ({
+    text: document.querySelector('[data-testid="capability-detail"]')?.textContent ?? '',
+    no_open_button: !Array.from(document.querySelectorAll('[data-testid="capability-detail"] button')).some(
+      (node) => node.textContent?.includes('Open'),
+    ),
+  }))()`);
+  const capabilitiesShot = await window.webContents.capturePage();
+  writeFileSync(join(outDir, "p18-capabilities.png"), capabilitiesShot.toPNG());
+
+  // A terminal row prefills the exact command in the integrated terminal.
+  await window.webContents.executeJavaScript(`(() => {
+    const row = Array.from(document.querySelectorAll('.capability-row')).find((node) =>
+      node.textContent?.includes('doctor'),
+    );
+    if (row instanceof HTMLElement) row.click();
+    return Boolean(row);
+  })()`);
+  await waitFor(
+    "document.querySelector('[data-testid=\"capability-detail\"]')?.textContent.includes('codewhale doctor') === true",
+  );
+  await window.webContents.executeJavaScript(`(() => {
+    const action = Array.from(document.querySelectorAll('[data-testid="capability-detail"] button')).find(
+      (node) => node.textContent?.includes('Open Settings'),
+    );
+    if (action instanceof HTMLElement) action.click();
+    return Boolean(action);
+  })()`);
+  const capabilityNavigates = await waitFor(
+    "document.documentElement.dataset.screen === 'settings' && document.body.textContent.includes('Connection diagnostics')",
+  );
+
+  // The integrated terminal: a real native pty, a real shell, a real resize.
+  window.webContents.sendInputEvent({ type: "keyDown", keyCode: "j", modifiers: ["meta"] });
+  window.webContents.sendInputEvent({ type: "keyUp", keyCode: "j", modifiers: ["meta"] });
+  const terminalPanelReady = await waitFor(
+    "document.querySelector('[data-testid=\"terminal-panel\"]') !== null",
+  );
+  // Open the terminal from the palette's capability row, then start a shell.
+  await window.webContents.executeJavaScript(`(() => {
+    const create = Array.from(document.querySelectorAll('[data-testid="terminal-panel"] button')).find(
+      (node) => node.textContent?.includes('New shell'),
+    );
+    if (create instanceof HTMLElement) create.click();
+    return Boolean(create);
+  })()`);
+  const terminalSessionReady = await waitFor("document.querySelector('.terminal__tab') !== null");
+  await new Promise((resolve) => setTimeout(resolve, 350));
+  window.webContents.executeJavaScript(
+    "document.querySelector('[data-testid=\"terminal-input\"]')?.focus()",
+  );
+  await new Promise((resolve) => setTimeout(resolve, 120));
+  window.webContents.insertText("echo p18-terminal-ready\n");
+  window.webContents.sendInputEvent({ type: "keyDown", keyCode: "Return" });
+  window.webContents.sendInputEvent({ type: "keyUp", keyCode: "Return" });
+  const terminalOutputReady = await waitFor(
+    "document.querySelector('[data-testid=\"terminal-transcript\"]')?.textContent.includes('p18-terminal-ready') === true",
+    10_000,
+  );
+  // A malicious OSC 8 hyperlink must stay inert text.
+  await window.webContents.executeJavaScript(`(() => {
+    const input = document.querySelector('[data-testid="terminal-input"]');
+    if (input instanceof HTMLInputElement) input.focus();
+    return true;
+  })()`);
+  window.webContents.insertText(
+    "printf '\\033]8;;file:///etc/passwd\\007clickme\\033]8;;\\007\\n'\n",
+  );
+  window.webContents.sendInputEvent({ type: "keyDown", keyCode: "Return" });
+  window.webContents.sendInputEvent({ type: "keyUp", keyCode: "Return" });
+  const inertLinkReady = await waitFor(
+    "document.querySelector('[data-testid=\"terminal-transcript\"]')?.textContent.includes('clickme') === true",
+    10_000,
+  );
+  const terminalInert = await window.webContents.executeJavaScript(`(() => {
+    const view = document.querySelector('[data-testid="terminal-transcript"]');
+    const text = view?.textContent ?? '';
+    return {
+      clickme: text.includes('clickme'),
+      no_href: view?.querySelector('a') === null,
+      no_url: !text.includes('file:///etc/passwd'),
+      no_escape: !text.includes('\u001b'),
+    };
+  })()`);
+  // Resize reaches the child: ask the shell for its window size.
+  await window.webContents.executeJavaScript(`(() => {
+    const inputs = Array.from(document.querySelectorAll('.terminal__size input'));
+    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+    if (inputs[0] && setter) {
+      setter.call(inputs[0], '120');
+      inputs[0].dispatchEvent(new Event('input', { bubbles: true }));
+    }
+    if (inputs[1] && setter) {
+      setter.call(inputs[1], '40');
+      inputs[1].dispatchEvent(new Event('input', { bubbles: true }));
+    }
+    const resize = Array.from(document.querySelectorAll('[data-testid="terminal-panel"] button')).find(
+      (node) => node.textContent?.trim() === 'Resize',
+    );
+    if (resize instanceof HTMLElement) resize.click();
+    return Boolean(resize);
+  })()`);
+  await new Promise((resolve) => setTimeout(resolve, 350));
+  await window.webContents.executeJavaScript(
+    "document.querySelector('[data-testid=\"terminal-input\"]')?.focus()",
+  );
+  window.webContents.insertText("stty size\n");
+  window.webContents.sendInputEvent({ type: "keyDown", keyCode: "Return" });
+  window.webContents.sendInputEvent({ type: "keyUp", keyCode: "Return" });
+  const resizeObserved = await waitFor(
+    "document.querySelector('[data-testid=\"terminal-transcript\"]')?.textContent.includes('40 120') === true",
+    10_000,
+  );
+  const terminalFacts = await window.webContents.executeJavaScript(`(() => {
+    const text = document.body.textContent ?? '';
+    return {
+      environment_stated: text.includes('startup files not sourced'),
+      limits_stated: text.includes('full-screen programs are not emulated'),
+      status: document.querySelector('.terminal__facts .badge')?.textContent ?? null,
+      cols_rows: Array.from(document.querySelectorAll('.terminal__facts span')).map((node) => node.textContent),
+    };
+  })()`);
+  const terminalShot = await window.webContents.capturePage();
+  writeFileSync(join(outDir, "p18-terminal.png"), terminalShot.toPNG());
+  // Close the shell so the smoke leaves no child process behind.
+  await window.webContents.executeJavaScript(`(() => {
+    const close = Array.from(document.querySelectorAll('[data-testid="terminal-panel"] button')).find(
+      (node) => node.textContent?.includes('Close session'),
+    );
+    if (close instanceof HTMLElement) close.click();
+    return Boolean(close);
+  })()`);
+  const terminalClosed = await waitFor(
+    "document.querySelector('.terminal__tab-status')?.textContent === 'exited'",
+    10_000,
+  );
+  window.webContents.sendInputEvent({ type: "keyDown", keyCode: "j", modifiers: ["meta"] });
+  window.webContents.sendInputEvent({ type: "keyUp", keyCode: "j", modifiers: ["meta"] });
+  await waitFor("document.querySelector('[data-testid=\"terminal-panel\"]') === null");
+
   // P15: the agent observatory is reachable by keyboard and reports a detached
   // studio honestly. No runtime is started here, so this proves the stored /
   // disconnected path with an empty engine list rather than a simulated swarm.
@@ -1288,7 +1522,7 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
     ready,
     cards,
     home_screen: home.screen === "home",
-    nav_count: home.nav_count === 7,
+    nav_count: home.nav_count === 8,
     fixture_label_absent: home.fixture_label === false,
     home_theme_daybreak: home.theme === "daybreak",
     version_rendered: typeof home.version === "string" && home.version.startsWith("Mona "),
@@ -1408,6 +1642,38 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
     agents_inspector_tests_and_tools:
       agentInspector.tests === true && agentInspector.tools === true,
     agents_inspector_terminal_cancel_disabled: agentInspector.cancel_disabled === true,
+    palette_capabilities:
+      capabilityPaletteReady &&
+      paletteCapabilities.open === true &&
+      paletteCapabilities.ranked_locally === true &&
+      paletteCapabilities.has_settings === true &&
+      paletteCapabilities.has_capability === true &&
+      paletteCapabilities.detail_badges > 0,
+    capabilities_explorer:
+      capabilitiesReady &&
+      capabilities.rows >= 50 &&
+      capabilities.verdict.includes("Full parity is not claimed") &&
+      capabilities.drift_stated === true &&
+      capabilities.features > 0 &&
+      capabilities.horizontal_overflow === false,
+    capabilities_gap_named:
+      gapDetailReady &&
+      gapDetail.text.toLowerCase().includes("/v1/workflow") &&
+      gapDetail.no_open_button === true,
+    capability_entry_navigates: capabilityNavigates === true,
+    terminal_panel: terminalPanelReady === true,
+    terminal_session: terminalSessionReady === true,
+    terminal_output: terminalOutputReady === true,
+    terminal_link_inert:
+      inertLinkReady === true &&
+      terminalInert.clickme === true &&
+      terminalInert.no_href === true &&
+      terminalInert.no_url === true &&
+      terminalInert.no_escape === true,
+    terminal_resize_reaches_child: resizeObserved === true,
+    terminal_environment_stated:
+      terminalFacts.environment_stated === true && terminalFacts.limits_stated === true,
+    terminal_exit_observed: terminalClosed === true,
     settings_returned: settingsReturned,
     settings_route_offline:
       routeReady &&
@@ -1449,6 +1715,11 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
       focusLanded,
       agents,
       agentInspector,
+      paletteCapabilities,
+      capabilities,
+      gapDetail,
+      terminalInert,
+      terminalFacts,
     },
     screenshots: [
       "docs/evidence/macos/artifacts/p07-shell-home.png",
@@ -1471,6 +1742,8 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
       "docs/evidence/macos/artifacts/p15-agents-inspector.png",
       "docs/evidence/macos/artifacts/p16-settings-route.png",
       "docs/evidence/macos/artifacts/p17-settings-extensions.png",
+      "docs/evidence/macos/artifacts/p18-capabilities.png",
+      "docs/evidence/macos/artifacts/p18-terminal.png",
     ],
   };
   const out = process.env.MONA_SHELL_SMOKE_OUT;
@@ -2391,6 +2664,39 @@ if (!gotLock) {
           store: productState,
           engine: settingsEngine,
         });
+        // P18: the integrated terminal owns a native pty, not an engine
+        // session. Its only inputs are a workspace path (for the shell's cwd)
+        // and the owned runtime's log path (for the read-only log view).
+        const ownership = store;
+        terminalManager = new TerminalManager({
+          workspaceFor: async (projectId) => {
+            try {
+              const detail = await projectService?.detail(projectId);
+              return detail?.project.rootPath ?? null;
+            } catch {
+              return null;
+            }
+          },
+          logPathFor: (workspace) => {
+            let canonical = workspace;
+            try {
+              canonical = realpathSync(workspace);
+            } catch {
+              // A missing folder is not a log; the read reports it unavailable.
+            }
+            const record = ownership
+              .list()
+              .filter((entry) => entry.canonicalWorkspace === canonical)
+              .sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1))[0];
+            return record ? join(appPaths.logs, `${record.id}.log`) : null;
+          },
+          emit: (event) => {
+            if (mainWindow && !mainWindow.isDestroyed()) {
+              mainWindow.webContents.send("terminal:event", event);
+            }
+          },
+        });
+        capabilityExplorer = new CapabilityExplorer({ store: productState });
       }
 
       // P14: deterministic polish. Attention, notifications, and the digest read
@@ -2859,6 +3165,8 @@ if (!gotLock) {
       agents: agentObservatory,
       settings: routeWorkbench,
       extensions: extensionWorkbench,
+      terminal: terminalManager,
+      capabilities: capabilityExplorer,
       exportDiagnostics: async (report) => {
         const chosen = mainWindow
           ? await dialog.showSaveDialog(mainWindow, {
@@ -2956,6 +3264,8 @@ if (!gotLock) {
 
   app.on("before-quit", () => {
     keepAwake?.release();
+    // A shell never outlives Mona: close every owned pty before the store does.
+    void terminalManager?.disposeAll();
     void workStudio?.close();
     void productState?.close();
   });

@@ -16,6 +16,15 @@ import {
   GoalThreadSchema,
 } from "../shared/contracts/agents";
 import { ExtensionActionIdSchema } from "../shared/contracts/extensions";
+import {
+  TerminalCreateSchema,
+  TerminalLogSchema,
+  TerminalOutputSchema,
+  TerminalResizeSchema,
+  TerminalSearchSchema,
+  TerminalTargetSchema,
+  TerminalWriteSchema,
+} from "../shared/contracts/terminal";
 
 /**
  * Narrow IPC contract. Every invoke is a strict object: unknown fields are
@@ -447,6 +456,22 @@ export const IpcRequests = {
     target: z.string().trim().min(1).max(300),
     expectedRevision: z.string().min(1).max(200).nullable().optional(),
   }),
+  // P18: integrated terminal. Every channel carries inert bytes or bounded
+  // reads; none can start a turn, reach the engine, or touch a workspace file.
+  "terminal:snapshot": z.strictObject({}),
+  "terminal:create": TerminalCreateSchema,
+  "terminal:write": TerminalWriteSchema,
+  "terminal:resize": TerminalResizeSchema,
+  "terminal:close": TerminalTargetSchema,
+  "terminal:output": TerminalOutputSchema,
+  "terminal:search": TerminalSearchSchema,
+  "terminal:log": TerminalLogSchema,
+  // P18: capability coverage. Reads the checked-in inventory and, on refresh,
+  // probes the installed engine's own help (read-only, no inference).
+  "capability:snapshot": z.strictObject({}),
+  "capability:refresh": z.strictObject({}),
+  "capability:report": z.strictObject({}),
+
   "extensions:install": z.strictObject({
     projectId: ProjectId,
     kind: z.enum(["plugin", "skill"]),

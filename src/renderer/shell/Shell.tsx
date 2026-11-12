@@ -10,6 +10,8 @@ import type {
   StateFacts,
 } from "../../shared/contracts/project-bridge";
 import type { OpenResult } from "../../shared/contracts/open";
+import type { CapabilitySnapshot } from "../../shared/contracts/capability";
+import type { TaskView } from "../../shared/contracts/board";
 import {
   POLISH_ACCENTS,
   type PolishAccent,
@@ -39,6 +41,7 @@ import {
   SearchIcon,
   SettingsIcon,
   SparkIcon,
+  TerminalIcon,
   WarningIcon,
 } from "../design/icons";
 import {
@@ -55,6 +58,9 @@ import { CostScreen } from "./Cost";
 import { ChangesScreen } from "./Changes";
 import { SettingsScreen } from "./Settings";
 import { AgentsScreen } from "./Agents";
+import { CapabilitiesScreen, type CapabilityEntryRequest } from "./Capabilities";
+import { TerminalPanel } from "./TerminalPanel";
+import { rankPalette, type PaletteDetail, type PaletteEntry, type PaletteKind } from "./palette";
 import type { ScreenId } from "./types";
 import { projectMonogram, projectAccent } from "./visual";
 
@@ -66,6 +72,7 @@ const SCREENS: Array<{ id: ScreenId; label: string; icon: JSX.Element }> = [
   { id: "cost", label: "Cost lens", icon: <CostIcon size={17} /> },
   { id: "settings", label: "Settings", icon: <SettingsIcon size={17} /> },
   { id: "agents", label: "Agents", icon: <AgentsIcon size={17} /> },
+  { id: "capabilities", label: "Capabilities", icon: <SearchIcon size={17} /> },
 ];
 
 const SCREEN_IDS = SCREENS.map((screen) => screen.id);
@@ -81,13 +88,22 @@ type DialogState =
   | { kind: "remove"; project: ProjectSummary }
   | null;
 
-interface PaletteAction {
-  id: string;
-  label: string;
-  hint: string;
+interface PaletteAction extends PaletteEntry {
   icon: JSX.Element;
   run: () => void;
 }
+
+const SETTINGS_TABS = [
+  { id: "appearance", label: "Appearance" },
+  { id: "attention", label: "Attention" },
+  { id: "data", label: "Data" },
+  { id: "route", label: "Providers & route" },
+  { id: "extensions", label: "Extensions" },
+  { id: "runtime", label: "Runtime" },
+  { id: "finder", label: "Finder" },
+  { id: "privacy", label: "Privacy" },
+  { id: "recovery", label: "Recovery" },
+];
 
 export function Shell(): JSX.Element {
   const [catalog, setCatalog] = useState<ProjectSummary[]>([]);
@@ -117,6 +133,13 @@ export function Shell(): JSX.Element {
   const [noticeTone, setNoticeTone] = useState<"success" | "attention">("success");
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [paletteQuery, setPaletteQuery] = useState("");
+  const [paletteTasks, setPaletteTasks] = useState<TaskView[]>([]);
+  const [paletteCapabilities, setPaletteCapabilities] = useState<CapabilitySnapshot | null>(null);
+  const [settingsTab, setSettingsTab] = useState("appearance");
+  // P18: the terminal panel. A command is only ever prefilled, never executed.
+  const [terminalOpen, setTerminalOpen] = useState(false);
+  const [terminalMode, setTerminalMode] = useState<"shell" | "log">("shell");
+  const [terminalCommand, setTerminalCommand] = useState<string | null>(null);
   const [dialog, setDialog] = useState<DialogState>(null);
   const [draft, setDraft] = useState("");
   const [draftStatus, setDraftStatus] = useState<DraftStatus>("idle");
@@ -808,16 +831,58 @@ export function Shell(): JSX.Element {
     await refreshSelected();
   }, [refreshSelected]);
 
+  const openCapabilityEntry = useCallback(
+    (entry: {
+      kind: PaletteEntry["entryKind"];
+      target: string | null;
+      invocation: string;
+    }): void => {
+      if (entry.kind === "terminal") {
+        setTerminalCommand(entry.invocation);
+        setTerminalMode("shell");
+        setTerminalOpen(true);
+        return;
+      }
+      if (entry.kind === "settings_tab" && entry.target) {
+        setSettingsTab(entry.target);
+        setScreen("settings");
+        return;
+      }
+      if (entry.kind === "screen" && isScreen(entry.target)) {
+        setScreen(entry.target);
+      }
+    },
+    [],
+  );
+
+  // The palette reads local records. Opening it never spends inference: the
+  // board snapshot and the capability inventory are stored or read-only.
+  useEffect(() => {
+    if (!paletteOpen) return;
+    const projectId = selectedRef.current?.project.id ?? null;
+    if (projectId) {
+      void window.mona.boardSnapshot(projectId).then((result) => {
+        if (result.ok) setPaletteTasks(result.value.tasks);
+      });
+    }
+    void window.mona.capabilitySnapshot().then((result) => {
+      if (result.ok) setPaletteCapabilities(result.value);
+    });
+  }, [paletteOpen]);
+
   const paletteActions = useMemo<PaletteAction[]>(() => {
     const actions: PaletteAction[] = SCREENS.map((entry) => ({
       id: `screen-${entry.id}`,
+      kind: "screen" as PaletteKind,
       label: `Go to ${entry.label}`,
       hint: "Screen",
+      keywords: [entry.id],
       icon: entry.icon,
       run: () => setScreen(entry.id),
     }));
     actions.push({
       id: "open-folder",
+      kind: "action",
       label: "Open or import folder…",
       hint: "Project",
       icon: <FolderIcon size={16} />,
@@ -825,6 +890,7 @@ export function Shell(): JSX.Element {
     });
     actions.push({
       id: "focus-mode",
+      kind: "action",
       label: focusMode ? "Turn Focus Mode off" : "Turn Focus Mode on",
       hint: "Layout · ⌘⇧F",
       icon: <SparkIcon size={16} />,
@@ -832,6 +898,7 @@ export function Shell(): JSX.Element {
     });
     actions.push({
       id: "shortcuts",
+      kind: "action",
       label: "Keyboard shortcuts",
       hint: "Help · ⌘/",
       icon: <KeyCap>?</KeyCap>,
@@ -839,6 +906,7 @@ export function Shell(): JSX.Element {
     });
     actions.push({
       id: "quit",
+      kind: "action",
       label: "Quit Mona…",
       hint: "Application",
       icon: <WarningIcon size={16} />,
@@ -847,6 +915,7 @@ export function Shell(): JSX.Element {
     if (selectedRef.current) {
       actions.push({
         id: "reveal",
+        kind: "action",
         label: `Reveal ${selectedRef.current.project.name} in Finder`,
         hint: "Project",
         icon: <SearchIcon size={16} />,
@@ -856,6 +925,7 @@ export function Shell(): JSX.Element {
     for (const project of catalog) {
       actions.push({
         id: `project-${project.id}`,
+        kind: "project",
         label: `Open ${project.name}`,
         hint: project.rootPath,
         icon: (
@@ -866,19 +936,92 @@ export function Shell(): JSX.Element {
         run: () => void selectProject(project, "studio"),
       });
     }
+    for (const tab of SETTINGS_TABS) {
+      actions.push({
+        id: `settings-${tab.id}`,
+        kind: "setting",
+        label: `Settings: ${tab.label}`,
+        hint: "Setting",
+        keywords: ["preferences", "configuration", tab.id],
+        icon: <SettingsIcon size={16} />,
+        run: () => {
+          setSettingsTab(tab.id);
+          setScreen("settings");
+        },
+      });
+    }
+    for (const favorite of favorites) {
+      actions.push({
+        id: `favorite-${favorite.id}`,
+        kind: "prompt",
+        label: `Insert prompt “${favorite.label}”`,
+        hint: "Prompt favorite · inert text",
+        keywords: [favorite.text.slice(0, 200)],
+        icon: <SparkIcon size={16} />,
+        run: () => useFavorite(favorite),
+      });
+    }
+    for (const task of paletteTasks) {
+      actions.push({
+        id: `task-${task.id}`,
+        kind: "prompt",
+        label: `Task: ${task.title}`,
+        hint: "Work board · open the task",
+        keywords: [task.prompt.slice(0, 200), task.status],
+        icon: <BoardIcon size={16} />,
+        run: () => setScreen("board"),
+      });
+    }
+    for (const row of paletteCapabilities?.rows ?? []) {
+      // A cap with no entry point is not offered here; the explorer still shows
+      // it and names the gap.
+      if (row.entryPoint.kind === "none") continue;
+      const detail: PaletteDetail = {
+        classification: row.classification,
+        cost: row.cost,
+        effect: row.description,
+        route: row.invocation,
+        status: row.status,
+      };
+      actions.push({
+        id: `capability-${row.id}`,
+        kind: "capability",
+        label: row.name,
+        hint: `${row.entryPoint.label} · ${row.invocation}`,
+        keywords: [row.id, row.integration, row.description, row.upstreamVersion],
+        detail,
+        entryKind: row.entryPoint.kind,
+        entryTarget: row.entryPoint.target,
+        openable: true,
+        icon: <SearchIcon size={16} />,
+        run: () =>
+          openCapabilityEntry({
+            kind: row.entryPoint.kind,
+            target: row.entryPoint.target,
+            invocation: row.invocation,
+          }),
+      });
+    }
     return actions;
-  }, [catalog, focusMode, openFolder, reveal, selectProject, toggleFocusMode]);
+  }, [
+    catalog,
+    focusMode,
+    openFolder,
+    reveal,
+    selectProject,
+    toggleFocusMode,
+    favorites,
+    paletteTasks,
+    paletteCapabilities,
+    useFavorite,
+    openCapabilityEntry,
+  ]);
 
-  const filteredActions = useMemo(() => {
-    const needle = paletteQuery.trim().toLowerCase();
-    if (!needle) return paletteActions.slice(0, 12);
-    return paletteActions
-      .filter(
-        (action) =>
-          action.label.toLowerCase().includes(needle) || action.hint.toLowerCase().includes(needle),
-      )
-      .slice(0, 12);
-  }, [paletteActions, paletteQuery]);
+  const paletteResults = useMemo(
+    () => rankPalette(paletteActions, paletteQuery, 16),
+    [paletteActions, paletteQuery],
+  );
+  const filteredActions = paletteResults.matches;
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -886,6 +1029,12 @@ export function Shell(): JSX.Element {
         event.preventDefault();
         setPaletteOpen(true);
         setPaletteQuery("");
+        return;
+      }
+      if (event.metaKey && !event.shiftKey && event.key.toLowerCase() === "j") {
+        event.preventDefault();
+        setTerminalMode("shell");
+        setTerminalOpen((value) => !value);
         return;
       }
       if (event.metaKey && event.key.toLowerCase() === "o") {
@@ -916,7 +1065,7 @@ export function Shell(): JSX.Element {
       }
       // Command-modified digits are never text input, so screen switching
       // stays available while the composer has focus.
-      if (event.metaKey && !event.shiftKey && /^[1-7]$/.test(event.key)) {
+      if (event.metaKey && !event.shiftKey && /^[1-8]$/.test(event.key)) {
         const next = SCREEN_IDS[Number(event.key) - 1];
         if (next) {
           event.preventDefault();
@@ -1069,6 +1218,18 @@ export function Shell(): JSX.Element {
               title="Keyboard shortcuts (Command-/)"
             >
               Shortcuts <KeyCap>⌘/</KeyCap>
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              icon={<TerminalIcon size={14} />}
+              onClick={() => {
+                setTerminalMode("shell");
+                setTerminalOpen((value) => !value);
+              }}
+              title="Toggle the terminal (Command-J)"
+            >
+              Terminal <KeyCap>⌘J</KeyCap>
             </Button>
             <Button
               size="sm"
@@ -1248,8 +1409,41 @@ export function Shell(): JSX.Element {
               );
             }}
             onQuit={() => setQuitOpen(true)}
+            openTab={settingsTab}
           />
         ) : null}
+        {screen === "capabilities" ? (
+          <CapabilitiesScreen
+            onOpenEntry={(request: CapabilityEntryRequest) => {
+              if (request.kind === "settings_tab" && request.target) {
+                setSettingsTab(request.target);
+                setScreen("settings");
+                return;
+              }
+              if (request.kind === "screen" && isScreen(request.target)) {
+                setScreen(request.target);
+                return;
+              }
+              if (request.kind === "palette") {
+                setPaletteOpen(true);
+              }
+            }}
+            onTerminal={(command: string) => {
+              setTerminalCommand(command);
+              setTerminalMode("shell");
+              setTerminalOpen(true);
+            }}
+          />
+        ) : null}
+
+        <TerminalPanel
+          projectId={selected?.project.id ?? null}
+          open={terminalOpen}
+          mode={terminalMode}
+          prefill={terminalCommand}
+          onMode={setTerminalMode}
+          onClose={() => setTerminalOpen(false)}
+        />
 
         <footer className="harness__footer">
           <FolderIcon size={14} /> {catalog.length} local project{catalog.length === 1 ? "" : "s"} ·{" "}
@@ -1265,19 +1459,19 @@ export function Shell(): JSX.Element {
       <Dialog
         open={paletteOpen}
         title="Command palette"
-        description="Local navigation over real projects and screens. No model call is made."
+        description="Local navigation over projects, prompts, actions, settings, and engine capabilities. No model call is made."
         onClose={() => setPaletteOpen(false)}
       >
         <div className="palette">
           <label className="field__label" htmlFor="shell-palette-filter">
-            Search projects and actions
+            Search projects, prompts, actions, settings, and capabilities
           </label>
           <input
             id="shell-palette-filter"
             className="input"
             value={paletteQuery}
             onChange={(event) => setPaletteQuery(event.target.value)}
-            placeholder="Project, screen, or action…"
+            placeholder="Project, prompt, setting, or capability…"
             onKeyDown={(event) => {
               if (event.key === "ArrowDown") {
                 event.preventDefault();
@@ -1306,6 +1500,27 @@ export function Shell(): JSX.Element {
                   </span>
                   <span className="palette__label">{action.label}</span>
                   <span className="palette__hint">{action.hint}</span>
+                  {action.detail ? (
+                    <span className="palette__detail">
+                      <Badge
+                        tone={
+                          action.detail.classification === "destructive"
+                            ? "danger"
+                            : action.detail.classification === "write"
+                              ? "attention"
+                              : "neutral"
+                        }
+                      >
+                        {action.detail.classification}
+                      </Badge>
+                      {action.detail.status === "blocked_gap" ? (
+                        <Badge tone="danger">blocked</Badge>
+                      ) : action.detail.status === "unavailable" ? (
+                        <Badge tone="neutral">unavailable</Badge>
+                      ) : null}
+                      <span className="palette__cost">{action.detail.cost}</span>
+                    </span>
+                  ) : null}
                 </button>
               </li>
             ))}
@@ -1313,6 +1528,11 @@ export function Shell(): JSX.Element {
               <li className="palette__empty">No matching action.</li>
             ) : null}
           </ul>
+          <p className="palette__count" data-testid="palette-count">
+            {paletteResults.total} match{paletteResults.total === 1 ? "" : "es"}
+            {paletteResults.truncated ? ` · showing the first ${filteredActions.length}` : ""} ·
+            ranked locally
+          </p>
         </div>
       </Dialog>
 
@@ -1393,9 +1613,15 @@ export function Shell(): JSX.Element {
         <dl className="shortcut-list" data-testid="shortcut-list">
           <div className="shortcut-row">
             <dt>
-              <KeyCap>⌘1</KeyCap>–<KeyCap>⌘7</KeyCap>
+              <KeyCap>⌘1</KeyCap>–<KeyCap>⌘8</KeyCap>
             </dt>
-            <dd>Home, Studio, Work board, Changes, Cost lens, Settings, Agents</dd>
+            <dd>Home, Studio, Work board, Changes, Cost lens, Settings, Agents, Capabilities</dd>
+          </div>
+          <div className="shortcut-row">
+            <dt>
+              <KeyCap>⌘J</KeyCap>
+            </dt>
+            <dd>Toggle the integrated terminal</dd>
           </div>
           <div className="shortcut-row">
             <dt>

@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "label": "P18 integrated terminal — real native pty",
+  "captured_at": "2026-11-12T15:48:58.797Z",
+  "ok": true,
+  "checks": {
+    "session_running": true,
+    "session_cwd_is_workspace": true,
+    "helper_pid_recorded": true,
+    "shell_pid_recorded": true,
+    "pty_is_real": true,
+    "controlling_terminal": true,
+    "path_present": true,
+    "secrets_withheld": true,
+    "startup_files_not_sourced": true,
+    "engine_reachable_from_shell": true,
+    "resize_observed_by_child": true,
+    "search_finds_output": true,
+    "ring_evicts_exactly": true,
+    "newest_output_readable": true,
+    "exit_code_observed": true,
+    "exit_event_emitted": true,
+    "transcript_retained_after_exit": true,
+    "write_refused_after_exit": true,
+    "terminate_reports_exit": true,
+    "shell_gone_after_close": true,
+    "ended_session_evicted_at_cap": true,
+    "final_ended_session_evicted": true,
+    "running_session_not_evicted": true,
+    "log_available": true,
+    "log_redacts_home": true,
+    "log_redacts_key": true,
+    "log_is_read_only": true,
+    "log_missing_is_stated": true,
+    "helper_is_native_arm64": true,
+    "helper_has_no_node_coupling": true,
+    "no_pty_node_module": true
+  },
+  "facts": {
+    "helper": {
+      "binary": "native/macos-pty/build/mona-pty",
+      "build": {
+        "schema_version": 1,
+        "ok": true,
+        "binary": "native/macos-pty/build/mona-pty",
+        "target": "arm64-apple-macos14.0",
+        "arch": "arm64",
+        "sha256": "9c23d0387e4fe3de0b743385b224c37e06ba8cbb5c56af5e6b0f71faeadea68b",
+        "size": 105136,
+        "compiler": "Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)",
+        "file": "native/macos-pty/build/mona-pty: Mach-O 64-bit executable arm64",
+        "signature": "ad-hoc",
+        "signed": true,
+        "verified": true,
+        "built_at": "2026-11-12T15:48:50.936Z"
+      }
+    },
+    "tty": true,
+    "withheld": [
+      {
+        "name": "DEEPSEEK_API_KEY",
+        "withheld": true
+      },
+      {
+        "name": "CODEWHALE_RUNTIME_TOKEN",
+        "withheld": true
+      },
+      {
+        "name": "OPENAI_API_KEY",
+        "withheld": true
+      }
+    ],
+    "startup": {
+      "fake_home": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p18-terminal-yMV5oB/home",
+      "marker_created": false
+    },
+    "engine_in_terminal": true,
+    "resized": {
+      "rows": 43,
+      "cols": 132,
+      "observed": true
+    },
+    "search": {
+      "matches": 2,
+      "first": "\u001b[1m\u001b[7m%\u001b[27m\u001b[1m\u001b[0m                                                                                                                                   \r \r\r\u001b[0m\u001b[27m\u001b[24m\u001b[JMacBook-Air% \u001b[K\u001b[?2004he\becho searchneedle-42\u001b[?2004l\r\r"
+    },
+    "ring": {
+      "total": 336907,
+      "dropped": 74763,
+      "truncated": true,
+      "tail": "                                                                           \r \r\r\u001b[0m\u001b[27m\u001b[24m\u001b[JMacBook-Air% \u001b[K\u001b[?2004h"
+    },
+    "ui_bytes": 336907,
+    "exit": {
+      "status": "exited",
+      "code": 5,
+      "signal": null
+    },
+    "close": {
+      "status": "exited",
+      "shell_pid": 15508,
+      "alive_after_close": false
+    },
+    "session_cap": {
+      "max": 3,
+      "replaced": "term_9464c3bd299a5dc5",
+      "sessions": 3,
+      "refused_with_three_live": true
+    },
+    "log": {
+      "available": true,
+      "path": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p18-terminal-yMV5oB/logs/run.log",
+      "bytes": 120
+    },
+    "native": {
+      "file": "native/macos-pty/build/mona-pty: Mach-O 64-bit executable arm64",
+      "target": "arm64-apple-macos14.0",
+      "signature": "ad-hoc",
+      "verified": true
+    },
+    "runtime_dependencies": [
+      "react",
+      "react-dom",
+      "zod"
+    ]
+  }
+}

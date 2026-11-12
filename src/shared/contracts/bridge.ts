@@ -8,6 +8,16 @@ import type {
   StateFacts,
 } from "./project-bridge";
 import type { OpenFolderView, OpenResult, OpenStatusView, ServiceStatus } from "./open";
+import type {
+  TerminalCreateResult,
+  TerminalEvent,
+  TerminalLogView,
+  TerminalOutputView,
+  TerminalSearchView,
+  TerminalSessionView,
+  TerminalSnapshot,
+} from "./terminal";
+import type { CapabilitySnapshot } from "./capability";
 import type { UsageEvidence } from "./usage";
 import type { BudgetScope, BudgetView, CostExport, CostLedgerView, CostRateCardView } from "./cost";
 import type {
@@ -491,6 +501,44 @@ export interface MonaBridge {
     role: NativeRole;
     instructions: string;
   }): Promise<IpcResult<FleetLaunchResult>>;
+
+  // P18: integrated terminal. Bytes only. A terminal session has no reach into
+  // the engine, the board, the workspace, or the rest of the bridge.
+  terminalSnapshot(): Promise<IpcResult<TerminalSnapshot>>;
+  terminalCreate(input: {
+    projectId?: ProjectId | null;
+    cols?: number;
+    rows?: number;
+  }): Promise<IpcResult<TerminalCreateResult>>;
+  terminalWrite(input: {
+    sessionId: string;
+    data: string;
+    encoding?: "text" | "base64";
+  }): Promise<IpcResult<{ written: number }>>;
+  terminalResize(input: {
+    sessionId: string;
+    cols: number;
+    rows: number;
+  }): Promise<IpcResult<TerminalSessionView>>;
+  terminalClose(sessionId: string): Promise<IpcResult<TerminalSessionView>>;
+  terminalOutput(input: {
+    sessionId: string;
+    cursor?: number;
+    maxBytes?: number;
+  }): Promise<IpcResult<TerminalOutputView>>;
+  terminalSearch(input: {
+    sessionId: string;
+    query: string;
+  }): Promise<IpcResult<TerminalSearchView>>;
+  /** Read-only tail of the owned runtime's engine log for one project. */
+  terminalLog(projectId: ProjectId): Promise<IpcResult<TerminalLogView>>;
+  onTerminalEvent(callback: (event: TerminalEvent) => void): () => void;
+
+  // P18: capability coverage. The snapshot is computed from the checked-in
+  // inventory, a read-only help probe, and this build's entry-point registry.
+  capabilitySnapshot(): Promise<IpcResult<CapabilitySnapshot>>;
+  refreshCapabilities(): Promise<IpcResult<CapabilitySnapshot>>;
+  capabilityReport(): Promise<IpcResult<{ json: string; markdown: string; filename: string }>>;
 }
 
 export interface AppInfo {

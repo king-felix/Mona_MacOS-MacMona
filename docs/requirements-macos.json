@@ -14,7 +14,7 @@
         "sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8"
       }
     ],
-    "indexed_utc": "2026-11-12T08:56:29.008Z"
+    "indexed_utc": "2026-11-12T15:47:35.863Z"
   },
   "prompts": [
     {
@@ -1264,10 +1264,43 @@
       "prompts": [
         "P18"
       ],
-      "status": "pending",
+      "status": "satisfied",
       "acceptance": "pending",
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P18-parity.md",
+          "note": "P18 integrated terminal, command palette, capability explorer, and the computed coverage report"
+        },
+        {
+          "path": "docs/decisions/ADR-012-terminal-and-coverage.md",
+          "note": "native pty ownership, allowlisted environment, inert bounded output, computed coverage"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p18-terminal-smoke.json",
+          "note": "28-check real-pty smoke: controlling terminal, allowlisted env, startup files not sourced, resize observed, ring eviction, exit code, verified close, no pty dependency"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p18-capability-smoke.json",
+          "note": "17-check coverage smoke: reconcile in sync, drift clean, 43/43 CLI help probes, gaps named"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p18-capability-coverage.md",
+          "note": "computed coverage: 43 verified, 28 open, 2 blocked gaps, 2 unavailable; parity not claimed"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p18-shell-smoke.json",
+          "note": "112 real-app checks including palette capabilities, terminal output, inert OSC 8 link, resize observed by the child, exit observed"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p18-terminal.png",
+          "note": "integrated terminal in the real Electron app"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p18-capabilities.png",
+          "note": "capability explorer in the real Electron app"
+        }
+      ],
+      "notes": "P18: the command palette ranks locally over screens, actions, every project, prompt favorites, work-board task prompts, all nine Settings tabs, and every capability row that has an entry point; a capability row shows its classification and cost class before anything happens, and a terminal route only prefills the command. The capability explorer reconciles all 75 discovered rows with an entry point, exact invocation, help source, test, and status. Coverage is computed from the rows (43 verified, 28 open with a named route, 2 blocked gaps, 2 unavailable); 72 rows have an in-app entry point and `entryTargetIsKnown` refuses a target this build does not render. Full parity is explicitly not claimed while workflows and lanes have no /v1 route."
     },
     {
       "id": "MONA-023",
@@ -1276,10 +1309,43 @@
       "prompts": [
         "P18"
       ],
-      "status": "pending",
+      "status": "satisfied",
       "acceptance": "pending",
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P18-parity.md",
+          "note": "P18 integrated terminal, command palette, capability explorer, and the computed coverage report"
+        },
+        {
+          "path": "docs/decisions/ADR-012-terminal-and-coverage.md",
+          "note": "native pty ownership, allowlisted environment, inert bounded output, computed coverage"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p18-terminal-smoke.json",
+          "note": "28-check real-pty smoke: controlling terminal, allowlisted env, startup files not sourced, resize observed, ring eviction, exit code, verified close, no pty dependency"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p18-capability-smoke.json",
+          "note": "17-check coverage smoke: reconcile in sync, drift clean, 43/43 CLI help probes, gaps named"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p18-capability-coverage.md",
+          "note": "computed coverage: 43 verified, 28 open, 2 blocked gaps, 2 unavailable; parity not claimed"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p18-shell-smoke.json",
+          "note": "112 real-app checks including palette capabilities, terminal output, inert OSC 8 link, resize observed by the child, exit observed"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p18-terminal.png",
+          "note": "integrated terminal in the real Electron app"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p18-capabilities.png",
+          "note": "capability explorer in the real Electron app"
+        }
+      ],
+      "notes": "P18: the integrated terminal is a native arm64 pty owned by `native/macos-pty` (no Node addon, no ABI coupling). It launches /bin/zsh -f with an allowlisted environment that withholds provider keys and the runtime token, never sources startup files, supports resize the child observes, copy, search over the retained buffer, reconnect after a renderer reload, session limits, and exact output accounting with a stated truncation. Escape sequences and OSC 8 hyperlinks are stripped to inert text; full-screen programs are stated as unsupported. The engine log view is read-only and redacted. A closed owner channel terminates the shell, so no orphan survives a crash."
     },
     {
       "id": "MONA-024",
@@ -1412,10 +1478,43 @@
         "P18",
         "P26"
       ],
-      "status": "pending",
+      "status": "partial",
       "acceptance": "pending",
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P18-parity.md",
+          "note": "P18 integrated terminal, command palette, capability explorer, and the computed coverage report"
+        },
+        {
+          "path": "docs/decisions/ADR-012-terminal-and-coverage.md",
+          "note": "native pty ownership, allowlisted environment, inert bounded output, computed coverage"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p18-terminal-smoke.json",
+          "note": "28-check real-pty smoke: controlling terminal, allowlisted env, startup files not sourced, resize observed, ring eviction, exit code, verified close, no pty dependency"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p18-capability-smoke.json",
+          "note": "17-check coverage smoke: reconcile in sync, drift clean, 43/43 CLI help probes, gaps named"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p18-capability-coverage.md",
+          "note": "computed coverage: 43 verified, 28 open, 2 blocked gaps, 2 unavailable; parity not claimed"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p18-shell-smoke.json",
+          "note": "112 real-app checks including palette capabilities, terminal output, inert OSC 8 link, resize observed by the child, exit observed"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p18-terminal.png",
+          "note": "integrated terminal in the real Electron app"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p18-capabilities.png",
+          "note": "capability explorer in the real Electron app"
+        }
+      ],
+      "notes": "P18 contribution: version drift is detected by a read-only `--version`/`--help`/`features list` probe and reported as additions/removals against the recorded surface (currently a clean 0.10.2 ff466b2ed0bf match); the coverage report is computed from the rows and names every gap; unknown or unreachable features stay visible instead of being hidden. P26 owns the final feature matrix and the release-level completion statement."
     },
     {
       "id": "MAC-001",
@@ -1640,7 +1739,7 @@
     "ok": true,
     "errors": [],
     "warnings": [],
-    "validated_utc": "2026-11-12T08:56:29.008Z",
+    "validated_utc": "2026-11-12T15:47:35.863Z",
     "prompt_count": 28,
     "requirement_count": 38
   }

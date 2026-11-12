@@ -1,0 +1,2434 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-11-12T15:49:04.282Z",
+  "inventory": "~/DS_Projects/Mona/docs/codewhale-capabilities-macos.json",
+  "coverage": {
+    "rowsTotal": 75,
+    "verified": 43,
+    "unqualified": 28,
+    "unavailable": 2,
+    "blockedGaps": 2,
+    "withEntryPoint": 72,
+    "testedEntryPoint": 51,
+    "byEntryKind": {
+      "terminal": 26,
+      "settings_tab": 17,
+      "screen": 29,
+      "none": 3
+    },
+    "terminalOnly": 26,
+    "nativeControls": 45,
+    "advancedActions": 15,
+    "complete": false,
+    "gaps": [
+      {
+        "id": "MONA-CAP-001",
+        "name": "run",
+        "status": "unqualified",
+        "reason": "The TUI runs in the integrated terminal; Mona's own turns use /v1. Opening the TUI is a deliberate user command, not an automatic fallback."
+      },
+      {
+        "id": "MONA-CAP-003",
+        "name": "session-diagnostics",
+        "status": "unqualified",
+        "reason": "Route is `codewhale sessions` then `codewhale session-diagnostics <jsonl>`. Neither Mona nor its smoke runs it, so no success is claimed."
+      },
+      {
+        "id": "MONA-CAP-004",
+        "name": "scorecard",
+        "status": "unqualified",
+        "reason": "Needs a metrics file to score. No native scorecard panel, and no sample input is invented; the cost lens shows recorded usage, not this quality score."
+      },
+      {
+        "id": "MONA-CAP-006",
+        "name": "speech",
+        "status": "unqualified",
+        "reason": "Paid TTS is outside 1.0 scope. The command is reachable in the terminal; Mona never calls it and never claims a configured route."
+      },
+      {
+        "id": "MONA-CAP-010",
+        "name": "rc",
+        "status": "unqualified",
+        "reason": "Upstream browser handoff; Mona does not depend on it. Reachable only as an explicit terminal command."
+      },
+      {
+        "id": "MONA-CAP-011",
+        "name": "fork",
+        "status": "unqualified",
+        "reason": "Thread forking has no native control. The terminal entry runs the CLI command, and a fork creates a new thread without workspace rollback."
+      },
+      {
+        "id": "MONA-CAP-012",
+        "name": "init",
+        "status": "unqualified",
+        "reason": "Writes a workspace file. The capability row prefills the exact command and never runs it automatically."
+      },
+      {
+        "id": "MONA-CAP-014",
+        "name": "setup",
+        "status": "unqualified",
+        "reason": "Writes configuration. Mona adds MCP servers through the engine's own route instead; `setup` is terminal-only."
+      },
+      {
+        "id": "MONA-CAP-015",
+        "name": "remote-setup",
+        "status": "unavailable",
+        "reason": "Cloud hosting is outside 1.0 scope. No remote is invented and no bundle is generated automatically."
+      },
+      {
+        "id": "MONA-CAP-018",
+        "name": "workflow",
+        "status": "blocked_gap",
+        "reason": "Checked-in JS workflows run through a Lane Runtime with no HTTP route, so Mona cannot launch or inspect them. A terminal entry would not fulfill MONA-019; full parity stays blocked until the engine exposes a route or Victor narrows scope."
+      },
+      {
+        "id": "MONA-CAP-019",
+        "name": "lane",
+        "status": "blocked_gap",
+        "reason": "Lane management is terminal-only on this build. Mona shows no lane control and does not simulate one."
+      },
+      {
+        "id": "MONA-CAP-020",
+        "name": "review",
+        "status": "unqualified",
+        "reason": "The billable model review is terminal-only; Mona's source review reads recorded turn artifacts and Git state instead, so no hidden model call happens."
+      },
+      {
+        "id": "MONA-CAP-021",
+        "name": "apply",
+        "status": "unqualified",
+        "reason": "Destructive and terminal-only. Mona's restore path is the engine's checked one-file file-revert (P13); no patch apply control is offered."
+      },
+      {
+        "id": "MONA-CAP-022",
+        "name": "eval",
+        "status": "unqualified",
+        "reason": "Terminal-only. Cost depends on the suite, so the row states that before invocation."
+      },
+      {
+        "id": "MONA-CAP-025",
+        "name": "integrations",
+        "status": "unqualified",
+        "reason": "Third-party harness integration is terminal-only; Mona makes no claim about a configured harness."
+      },
+      {
+        "id": "MONA-CAP-027",
+        "name": "web",
+        "status": "unqualified",
+        "reason": "The upstream browser client overlaps Mona. Reachable only as an explicit terminal command; Mona never opens it automatically."
+      },
+      {
+        "id": "MONA-CAP-028",
+        "name": "login",
+        "status": "unqualified",
+        "reason": "Credentials never cross the renderer. Provider keys use the dedicated P16 route; account login is terminal-only and user-initiated."
+      },
+      {
+        "id": "MONA-CAP-029",
+        "name": "logout",
+        "status": "unqualified",
+        "reason": "Destructive and terminal-only, with the engine's own confirmation. Mona does not offer a one-click credential wipe."
+      },
+      {
+        "id": "MONA-CAP-030",
+        "name": "auth",
+        "status": "unqualified",
+        "reason": "Provider keys are set through the engine's own route (P16); other auth modes are terminal-only."
+      },
+      {
+        "id": "MONA-CAP-031",
+        "name": "account",
+        "status": "unqualified",
+        "reason": "Local key routes remain primary; account status is terminal-only."
+      },
+      {
+        "id": "MONA-CAP-032",
+        "name": "dispatch",
+        "status": "unavailable",
+        "reason": "Cloud computers are unavailable. No control is shown and no remote is invented."
+      },
+      {
+        "id": "MONA-CAP-033",
+        "name": "mcp-server",
+        "status": "unqualified",
+        "reason": "Terminal-only. Mona is an MCP host, not a server; the row states the reverse direction."
+      },
+      {
+        "id": "MONA-CAP-036",
+        "name": "thread",
+        "status": "unqualified",
+        "reason": "Resume and fork flows are terminal-only beyond the studio's recorded resume."
+      },
+      {
+        "id": "MONA-CAP-037",
+        "name": "sandbox",
+        "status": "unqualified",
+        "reason": "The effective permission posture is shown from the turn receipt (P08), not recomputed here; `sandbox` is terminal-only."
+      },
+      {
+        "id": "MONA-CAP-041",
+        "name": "update",
+        "status": "unqualified",
+        "reason": "Mona never silently upgrades the engine. An engine change is an explicit, separately tested compatibility decision and stays terminal-only here."
+      },
+      {
+        "id": "MONA-CAP-052",
+        "name": "Approvals bridge",
+        "status": "unqualified",
+        "reason": "Mona shows the wait and never auto-approves inside a thread. Answering an approval has no IPC path yet."
+      },
+      {
+        "id": "MONA-CAP-055",
+        "name": "Tool: apply_patch",
+        "status": "unqualified",
+        "reason": "apply_patch is displayed as a tool-attributed change when the agent uses it. Mona offers no direct patch control."
+      },
+      {
+        "id": "MONA-CAP-056",
+        "name": "Web search",
+        "status": "unqualified",
+        "reason": "Web search is provider-native and may add provider charges. Mona makes no claim that a route has it enabled."
+      },
+      {
+        "id": "MONA-CAP-061",
+        "name": "Terminal stream/input",
+        "status": "unqualified",
+        "reason": "Engine terminal sessions can only be attached, never created (404 otherwise), so a client cannot open its own shell through them. Mona owns its PTY instead; an attach view for engine-owned shells is not built."
+      },
+      {
+        "id": "MONA-CAP-062",
+        "name": "Workspace files, search, artifacts",
+        "status": "unqualified",
+        "reason": "Project text search is P19. Mona never copies repository contents into its database to fake it."
+      },
+      {
+        "id": "MONA-CAP-063",
+        "name": "Workspace snapshots/restore",
+        "status": "unqualified",
+        "reason": "Whole-workspace restore (POST /v1/snapshots/{id}/restore) and forking patch-undo are not surfaced. A workspace-wide overwrite stays a separate, explicitly authorized action."
+      },
+      {
+        "id": "MONA-CAP-071",
+        "name": "Engine update path",
+        "status": "unqualified",
+        "reason": "Mona never upgrades the engine silently. The pinned 0.10.2 build is a tested compatibility decision; an upgrade needs a new qualification pass."
+      }
+    ],
+    "summary": "75 discovered rows: 43 verified, 28 open, 2 blocked gaps, 2 unavailable. 51 entry points exercised. Full parity is not claimed while any row is open or blocked."
+  },
+  "drift": {
+    "checked": true,
+    "checkedAt": "2026-11-12T15:49:04.282Z",
+    "error": null,
+    "engineVersion": "0.10.2",
+    "engineCommit": "ff466b2ed0bf",
+    "inventoryVersion": "0.10.2",
+    "inventoryCommit": "ff466b2ed0bfb4ae5267d4d8d0ecb562cf46956e",
+    "versionMatch": true,
+    "commitMatch": true,
+    "additions": [],
+    "removals": [],
+    "note": "The installed engine matches the recorded surface."
+  },
+  "features": [
+    {
+      "name": "shell_tool",
+      "stage": "stable",
+      "enabled": true
+    },
+    {
+      "name": "subagents",
+      "stage": "stable",
+      "enabled": true
+    },
+    {
+      "name": "web_search",
+      "stage": "stable",
+      "enabled": true
+    },
+    {
+      "name": "apply_patch",
+      "stage": "stable",
+      "enabled": true
+    },
+    {
+      "name": "mcp",
+      "stage": "stable",
+      "enabled": true
+    },
+    {
+      "name": "exec_policy",
+      "stage": "stable",
+      "enabled": true
+    },
+    {
+      "name": "vision_model",
+      "stage": "beta",
+      "enabled": false
+    },
+    {
+      "name": "verify_tool",
+      "stage": "stable",
+      "enabled": true
+    },
+    {
+      "name": "code_mode",
+      "stage": "experimental",
+      "enabled": true
+    },
+    {
+      "name": "finance_host",
+      "stage": "experimental",
+      "enabled": false
+    },
+    {
+      "name": "data_host",
+      "stage": "experimental",
+      "enabled": false
+    },
+    {
+      "name": "speech_host",
+      "stage": "experimental",
+      "enabled": false
+    },
+    {
+      "name": "pdf_host",
+      "stage": "experimental",
+      "enabled": false
+    },
+    {
+      "name": "ocr_host",
+      "stage": "experimental",
+      "enabled": false
+    },
+    {
+      "name": "github_host",
+      "stage": "experimental",
+      "enabled": false
+    },
+    {
+      "name": "web_search_host",
+      "stage": "experimental",
+      "enabled": false
+    },
+    {
+      "name": "web_extract_host",
+      "stage": "experimental",
+      "enabled": false
+    },
+    {
+      "name": "review_host",
+      "stage": "experimental",
+      "enabled": false
+    },
+    {
+      "name": "extension_host",
+      "stage": "experimental",
+      "enabled": false
+    }
+  ],
+  "rows": [
+    {
+      "id": "MONA-CAP-001",
+      "name": "run",
+      "description": "Run an interactive or non-interactive task",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "ask/full-access per profile; starts a turn",
+      "cost": "May call the model once per turn.",
+      "arguments": "none",
+      "invocation": "codewhale run",
+      "helpSource": "codewhale run --help",
+      "integration": "integrated_terminal",
+      "entryPoint": {
+        "kind": "terminal",
+        "target": "shell",
+        "label": "Terminal · shell",
+        "tested": true
+      },
+      "uiLocation": "Terminal · shell",
+      "tests": "P18: the terminal smoke launches a real shell in the workspace and runs `codewhale --version`. The interactive TUI itself is not exercised to avoid an unrequested paid session.",
+      "status": "unqualified",
+      "gap": "The TUI runs in the integrated terminal; Mona's own turns use /v1. Opening the TUI is a deliberate user command, not an automatic fallback.",
+      "evidence": []
+    },
+    {
+      "id": "MONA-CAP-002",
+      "name": "doctor",
+      "description": "Run Codewhale diagnostics",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "read",
+      "permission": "read-only",
+      "cost": "No inference.",
+      "arguments": "none",
+      "invocation": "codewhale doctor --json",
+      "helpSource": "codewhale doctor --help",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "settings_tab",
+        "target": "route",
+        "label": "Settings › Providers & route",
+        "tested": true
+      },
+      "uiLocation": "Settings › Providers & route",
+      "tests": "P16: Connection diagnostics runs the engine's doctor in structural mode and redacts paths and secrets.",
+      "status": "verified",
+      "gap": null,
+      "evidence": [
+        "arn:p01-engine-surface.txt"
+      ]
+    },
+    {
+      "id": "MONA-CAP-003",
+      "name": "session-diagnostics",
+      "description": "Summarize local session failure signals without raw content",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "read",
+      "permission": "read-only",
+      "cost": "No inference.",
+      "arguments": "none",
+      "invocation": "codewhale session-diagnostics <jsonl>",
+      "helpSource": "codewhale session-diagnostics --help",
+      "integration": "integrated_terminal",
+      "entryPoint": {
+        "kind": "terminal",
+        "target": "shell",
+        "label": "Terminal · shell",
+        "tested": false
+      },
+      "uiLocation": "Terminal · shell",
+      "tests": "Not exercised: the command needs a session log path and would read personal session data.",
+      "status": "unqualified",
+      "gap": "Route is `codewhale sessions` then `codewhale session-diagnostics <jsonl>`. Neither Mona nor its smoke runs it, so no success is claimed.",
+      "evidence": []
+    },
+    {
+      "id": "MONA-CAP-004",
+      "name": "scorecard",
+      "description": "Score recorded turn metrics against an optional baseline",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "read",
+      "permission": "read-only",
+      "cost": "No inference.",
+      "arguments": "none",
+      "invocation": "codewhale scorecard --input <file>",
+      "helpSource": "codewhale scorecard --help",
+      "integration": "integrated_terminal",
+      "entryPoint": {
+        "kind": "terminal",
+        "target": "shell",
+        "label": "Terminal · shell",
+        "tested": false
+      },
+      "uiLocation": "Terminal · shell",
+      "tests": "P18: `smoke:capability` ran the bare command and it refused with exit 2 (`--input <FILE>` is required), so no success is claimed.",
+      "status": "unqualified",
+      "gap": "Needs a metrics file to score. No native scorecard panel, and no sample input is invented; the cost lens shows recorded usage, not this quality score.",
+      "evidence": []
+    },
+    {
+      "id": "MONA-CAP-005",
+      "name": "models",
+      "description": "List cached models; use --update to refresh configured provider catalogs",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "read",
+      "permission": "read-only; --update performs network calls",
+      "cost": "No inference; --update may incur no token cost.",
+      "arguments": "none",
+      "invocation": "codewhale models --provider <id> --json",
+      "helpSource": "codewhale models --help",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "settings_tab",
+        "target": "route",
+        "label": "Settings › Providers & route",
+        "tested": true
+      },
+      "uiLocation": "Settings › Providers & route",
+      "tests": "P16: live provider/model catalog and refresh.",
+      "status": "verified",
+      "gap": null,
+      "evidence": [
+        "arn:p01-engine-surface.txt"
+      ]
+    },
+    {
+      "id": "MONA-CAP-006",
+      "name": "speech",
+      "description": "Generate speech audio with Xiaomi MiMo TTS models [alias: tts]",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "uses configured TTS credentials",
+      "cost": "Paid TTS; not a token-priced chat call.",
+      "arguments": "none",
+      "invocation": "codewhale speech",
+      "helpSource": "codewhale speech --help",
+      "integration": "advanced_action",
+      "entryPoint": {
+        "kind": "terminal",
+        "target": "shell",
+        "label": "Terminal · shell",
+        "tested": false
+      },
+      "uiLocation": "Terminal · shell",
+      "tests": "Not exercised: a paid TTS route is not configured for this build.",
+      "status": "unqualified",
+      "gap": "Paid TTS is outside 1.0 scope. The command is reachable in the terminal; Mona never calls it and never claims a configured route.",
+      "evidence": []
+    },
+    {
+      "id": "MONA-CAP-007",
+      "name": "sessions",
+      "description": "List saved sessions",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "read",
+      "permission": "read-only",
+      "cost": "No inference.",
+      "arguments": "none",
+      "invocation": "codewhale sessions",
+      "helpSource": "codewhale sessions --help",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "screen",
+        "target": "studio",
+        "label": "Studio · session",
+        "tested": true
+      },
+      "uiLocation": "Studio · session",
+      "tests": "P08: session listing, resume, and history through the Runtime adapter.",
+      "status": "verified",
+      "gap": null,
+      "evidence": [
+        "arn:p01-live.json"
+      ]
+    },
+    {
+      "id": "MONA-CAP-008",
+      "name": "receipts",
+      "description": "Show what a session did: files, commands, web and MCP calls, agents, approvals, and failures. `codewhale receipts [ID|--last] [--format md|json]` [alias: receipt]",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "read",
+      "permission": "read-only; transcript may contain sensitive local content",
+      "cost": "No inference.",
+      "arguments": "none",
+      "invocation": "codewhale receipts [ID|--last] [--format json]",
+      "helpSource": "codewhale receipts --help",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "screen",
+        "target": "changes",
+        "label": "Changes · receipts",
+        "tested": true
+      },
+      "uiLocation": "Changes · receipts",
+      "tests": "P13: change sets, files, artifacts, and attribution from engine receipts.",
+      "status": "verified",
+      "gap": null,
+      "evidence": [
+        "arn:p01-economics.json"
+      ]
+    },
+    {
+      "id": "MONA-CAP-009",
+      "name": "resume",
+      "description": "Resume a saved session",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "starts a new turn if prompted",
+      "cost": "May call the model when resuming with a prompt.",
+      "arguments": "none",
+      "invocation": "codewhale resume <id>",
+      "helpSource": "codewhale resume --help",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "screen",
+        "target": "studio",
+        "label": "Studio · resume",
+        "tested": true
+      },
+      "uiLocation": "Studio · resume",
+      "tests": "P08: explicit resume of a recorded session through /v1.",
+      "status": "verified",
+      "gap": null,
+      "evidence": [
+        "arn:p01-live.json"
+      ]
+    },
+    {
+      "id": "MONA-CAP-010",
+      "name": "rc",
+      "description": "Launch an interactive session and hand it to the Codewhale web app",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "starts a runtime and browser session",
+      "cost": "No inference until the user prompts.",
+      "arguments": "none",
+      "invocation": "codewhale rc",
+      "helpSource": "codewhale rc --help",
+      "integration": "integrated_terminal",
+      "entryPoint": {
+        "kind": "terminal",
+        "target": "shell",
+        "label": "Terminal · shell",
+        "tested": false
+      },
+      "uiLocation": "Terminal · shell",
+      "tests": "Not exercised: requires an interactive browser handoff.",
+      "status": "unqualified",
+      "gap": "Upstream browser handoff; Mona does not depend on it. Reachable only as an explicit terminal command.",
+      "evidence": []
+    },
+    {
+      "id": "MONA-CAP-011",
+      "name": "fork",
+      "description": "Fork a saved session",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "creates a new thread; no workspace rollback",
+      "cost": "A fork itself makes no model call.",
+      "arguments": "none",
+      "invocation": "codewhale fork <id>",
+      "helpSource": "codewhale fork --help",
+      "integration": "integrated_terminal",
+      "entryPoint": {
+        "kind": "terminal",
+        "target": "shell",
+        "label": "Terminal · shell",
+        "tested": false
+      },
+      "uiLocation": "Terminal · shell",
+      "tests": "Documented POST /v1/threads/{id}/fork; no native control or P18 exercise.",
+      "status": "unqualified",
+      "gap": "Thread forking has no native control. The terminal entry runs the CLI command, and a fork creates a new thread without workspace rollback.",
+      "evidence": []
+    },
+    {
+      "id": "MONA-CAP-012",
+      "name": "init",
+      "description": "Create a default AGENTS.md in the current directory",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "writes a workspace file",
+      "cost": "No inference.",
+      "arguments": "none",
+      "invocation": "codewhale init",
+      "helpSource": "codewhale init --help",
+      "integration": "advanced_action",
+      "entryPoint": {
+        "kind": "terminal",
+        "target": "shell",
+        "label": "Terminal · shell",
+        "tested": false
+      },
+      "uiLocation": "Terminal · shell",
+      "tests": "Not exercised: writes AGENTS.md into the working tree.",
+      "status": "unqualified",
+      "gap": "Writes a workspace file. The capability row prefills the exact command and never runs it automatically.",
+      "evidence": []
+    },
+    {
+      "id": "MONA-CAP-013",
+      "name": "install",
+      "description": "Install a plugin bundle without trusting or enabling it",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "writes plugin files; trust is separate",
+      "cost": "No inference.",
+      "arguments": "none",
+      "invocation": "codewhale install <bundle>",
+      "helpSource": "codewhale install --help",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "settings_tab",
+        "target": "extensions",
+        "label": "Settings › Extensions",
+        "tested": true
+      },
+      "uiLocation": "Settings › Extensions",
+      "tests": "P17: plugin bundle install from a local fixture, installed disabled and untrusted.",
+      "status": "verified",
+      "gap": "Trust review stays with the engine (`/plugins trust`); install never implies trust.",
+      "evidence": []
+    },
+    {
+      "id": "MONA-CAP-014",
+      "name": "setup",
+      "description": "Bootstrap MCP config and/or skills directories",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "writes config/skill directories",
+      "cost": "No inference.",
+      "arguments": "none",
+      "invocation": "codewhale setup",
+      "helpSource": "codewhale setup --help",
+      "integration": "advanced_action",
+      "entryPoint": {
+        "kind": "terminal",
+        "target": "shell",
+        "label": "Terminal · shell",
+        "tested": false
+      },
+      "uiLocation": "Terminal · shell",
+      "tests": "Not exercised: bootstraps MCP config and skills directories.",
+      "status": "unqualified",
+      "gap": "Writes configuration. Mona adds MCP servers through the engine's own route instead; `setup` is terminal-only.",
+      "evidence": []
+    },
+    {
+      "id": "MONA-CAP-015",
+      "name": "remote-setup",
+      "description": "Generate a remote Codewhale agent deploy bundle (cloud + chat bridge)",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "produces a cloud/chat-bridge bundle",
+      "cost": "External hosting may cost money.",
+      "arguments": "none",
+      "invocation": "codewhale remote-setup",
+      "helpSource": "codewhale remote-setup --help",
+      "integration": "advanced_action",
+      "entryPoint": {
+        "kind": "terminal",
+        "target": "shell",
+        "label": "Terminal · shell",
+        "tested": false
+      },
+      "uiLocation": "Terminal · shell",
+      "tests": "Not exercised: produces a cloud/chat-bridge deploy bundle.",
+      "status": "unavailable",
+      "gap": "Cloud hosting is outside 1.0 scope. No remote is invented and no bundle is generated automatically.",
+      "evidence": []
+    },
+    {
+      "id": "MONA-CAP-016",
+      "name": "exec",
+      "description": "Run a non-interactive prompt",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "tool-free by default; --auto grants Full Access",
+      "cost": "One-shot model call; usage tokens recorded but no cost in agent mode.",
+      "arguments": "none",
+      "invocation": "codewhale exec --prompt <text> --json",
+      "helpSource": "codewhale exec --help",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "screen",
+        "target": "studio",
+        "label": "Studio · turn",
+        "tested": true
+      },
+      "uiLocation": "Studio · turn",
+      "tests": "P01/P03: paired baseline and one-shot exec; the normal path is the Runtime adapter.",
+      "status": "verified",
+      "gap": "One-shot exec is a diagnostic path, never a silent substitute for the persistent runtime.",
+      "evidence": [
+        "arn:p01-economics.json"
+      ]
+    },
+    {
+      "id": "MONA-CAP-017",
+      "name": "fleet",
+      "description": "Manage durable Agent fleet runs",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "spawns child agents with inherited posture",
+      "cost": "Each child turn is billable.",
+      "arguments": "none",
+      "invocation": "codewhale fleet <subcommand>",
+      "helpSource": "codewhale fleet --help",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "screen",
+        "target": "agents",
+        "label": "Agents · fleets",
+        "tested": true
+      },
+      "uiLocation": "Agents · fleets",
+      "tests": "P15: managed fleet runs, worker controls, receipts, replay, and a real serial run.",
+      "status": "verified",
+      "gap": "Only `this_computer` targets; parallel launch refused.",
+      "evidence": [
+        "docs/evidence/macos/P15-agents.md",
+        "docs/evidence/macos/artifacts/p15-agents-live.json"
+      ]
+    },
+    {
+      "id": "MONA-CAP-018",
+      "name": "workflow",
+      "description": "Run checked-in Workflows through a Lane Runtime backend",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "executes repository workflows",
+      "cost": "Billable model turns.",
+      "arguments": "none",
+      "invocation": "codewhale workflow <name>",
+      "helpSource": "codewhale workflow --help",
+      "integration": "blocked_gap",
+      "entryPoint": {
+        "kind": "none",
+        "target": null,
+        "label": "No in-app route",
+        "tested": false
+      },
+      "uiLocation": "No in-app route",
+      "tests": "Probed: no /v1/workflow* route exists on the pinned build (P15).",
+      "status": "blocked_gap",
+      "gap": "Checked-in JS workflows run through a Lane Runtime with no HTTP route, so Mona cannot launch or inspect them. A terminal entry would not fulfill MONA-019; full parity stays blocked until the engine exposes a route or Victor narrows scope.",
+      "evidence": [
+        "docs/evidence/macos/P15-agents.md"
+      ]
+    },
+    {
+      "id": "MONA-CAP-019",
+      "name": "lane",
+      "description": "Manage running workflow instances (Lanes) and Runtime backends (#4176)",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "process/backend control",
+      "cost": "Billable model turns.",
+      "arguments": "none",
+      "invocation": "codewhale lane <subcommand>",
+      "helpSource": "codewhale lane --help",
+      "integration": "blocked_gap",
+      "entryPoint": {
+        "kind": "none",
+        "target": null,
+        "label": "No in-app route",
+        "tested": false
+      },
+      "uiLocation": "No in-app route",
+      "tests": "Probed: no /v1/lane* route exists on the pinned build (P15).",
+      "status": "blocked_gap",
+      "gap": "Lane management is terminal-only on this build. Mona shows no lane control and does not simulate one.",
+      "evidence": [
+        "docs/evidence/macos/P15-agents.md"
+      ]
+    },
+    {
+      "id": "MONA-CAP-020",
+      "name": "review",
+      "description": "Run a Codewhale-powered code review over a git diff",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "reads the diff; may run tools",
+      "cost": "Billable model call.",
+      "arguments": "none",
+      "invocation": "codewhale review",
+      "helpSource": "codewhale review --help",
+      "integration": "advanced_action",
+      "entryPoint": {
+        "kind": "terminal",
+        "target": "shell",
+        "label": "Terminal · shell",
+        "tested": false
+      },
+      "uiLocation": "Terminal · shell",
+      "tests": "P13: the Changes lens reviews engine-recorded diffs with no inference. The billable `review` command is not exercised.",
+      "status": "unqualified",
+      "gap": "The billable model review is terminal-only; Mona's source review reads recorded turn artifacts and Git state instead, so no hidden model call happens.",
+      "evidence": []
+    },
+    {
+      "id": "MONA-CAP-021",
+      "name": "apply",
+      "description": "Apply a patch file or stdin to the working tree",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "destructive",
+      "permission": "mutates workspace files",
+      "cost": "No inference.",
+      "arguments": "none",
+      "invocation": "codewhale apply <patch>",
+      "helpSource": "codewhale apply --help",
+      "integration": "advanced_action",
+      "entryPoint": {
+        "kind": "terminal",
+        "target": "shell",
+        "label": "Terminal · shell",
+        "tested": false
+      },
+      "uiLocation": "Terminal · shell",
+      "tests": "Not exercised: mutates the working tree.",
+      "status": "unqualified",
+      "gap": "Destructive and terminal-only. Mona's restore path is the engine's checked one-file file-revert (P13); no patch apply control is offered.",
+      "evidence": []
+    },
+    {
+      "id": "MONA-CAP-022",
+      "name": "eval",
+      "description": "Run the offline evaluation harness",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "writes eval artifacts",
+      "cost": "May call the model depending on the suite.",
+      "arguments": "none",
+      "invocation": "codewhale eval",
+      "helpSource": "codewhale eval --help",
+      "integration": "integrated_terminal",
+      "entryPoint": {
+        "kind": "terminal",
+        "target": "shell",
+        "label": "Terminal · shell",
+        "tested": false
+      },
+      "uiLocation": "Terminal · shell",
+      "tests": "Not exercised: writes eval artifacts and may call the model.",
+      "status": "unqualified",
+      "gap": "Terminal-only. Cost depends on the suite, so the row states that before invocation.",
+      "evidence": []
+    },
+    {
+      "id": "MONA-CAP-023",
+      "name": "mcp",
+      "description": "Manage MCP servers",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "writes MCP config; server trust is separate",
+      "cost": "Tool calls may reach external services.",
+      "arguments": "none",
+      "invocation": "codewhale mcp <subcommand>",
+      "helpSource": "codewhale mcp --help",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "settings_tab",
+        "target": "extensions",
+        "label": "Settings › Extensions",
+        "tested": true
+      },
+      "uiLocation": "Settings › Extensions",
+      "tests": "P17: /v1/mcp/* list, add, enable/disable, reconnect, remove with If-Match revisions.",
+      "status": "verified",
+      "gap": "Project-scope MCP entries are read-only through the runtime.",
+      "evidence": []
+    },
+    {
+      "id": "MONA-CAP-024",
+      "name": "features",
+      "description": "Inspect feature flags",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "read",
+      "permission": "read-only",
+      "cost": "No inference.",
+      "arguments": "none",
+      "invocation": "codewhale features list",
+      "helpSource": "codewhale features --help",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "screen",
+        "target": "capabilities",
+        "label": "Capabilities · feature flags",
+        "tested": true
+      },
+      "uiLocation": "Capabilities · feature flags",
+      "tests": "P18: `features list` is probed read-only and the flags render on the Capabilities screen.",
+      "status": "verified",
+      "gap": null,
+      "evidence": [
+        "arn:p01-engine-surface.txt"
+      ]
+    },
+    {
+      "id": "MONA-CAP-025",
+      "name": "integrations",
+      "description": "Connect third-party harnesses through Codewhale (e.g. `integrations dsh status`)",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "writes integration config",
+      "cost": "No inference.",
+      "arguments": "none",
+      "invocation": "codewhale integrations",
+      "helpSource": "codewhale integrations --help",
+      "integration": "advanced_action",
+      "entryPoint": {
+        "kind": "terminal",
+        "target": "shell",
+        "label": "Terminal · shell",
+        "tested": false
+      },
+      "uiLocation": "Terminal · shell",
+      "tests": "Not exercised: writes integration config.",
+      "status": "unqualified",
+      "gap": "Third-party harness integration is terminal-only; Mona makes no claim about a configured harness.",
+      "evidence": []
+    },
+    {
+      "id": "MONA-CAP-026",
+      "name": "serve",
+      "description": "Run a local Codewhale server",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "binds loopback; bearer auth required",
+      "cost": "No inference until a turn starts.",
+      "arguments": "none",
+      "invocation": "codewhale serve --http",
+      "helpSource": "codewhale serve --help",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "settings_tab",
+        "target": "runtime",
+        "label": "Settings › Runtime",
+        "tested": true
+      },
+      "uiLocation": "Settings › Runtime",
+      "tests": "P01/P04: app-server --http under the native supervisor; `serve` is the documented alias.",
+      "status": "verified",
+      "gap": "Mona runs `codewhale app-server --http`, never `serve`; the alias is not offered as a second runtime.",
+      "evidence": []
+    },
+    {
+      "id": "MONA-CAP-027",
+      "name": "web",
+      "description": "Open the first-class local browser client over the canonical Runtime API",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "starts a loopback runtime and browser session",
+      "cost": "No inference until the user prompts.",
+      "arguments": "none",
+      "invocation": "codewhale web",
+      "helpSource": "codewhale web --help",
+      "integration": "integrated_terminal",
+      "entryPoint": {
+        "kind": "terminal",
+        "target": "shell",
+        "label": "Terminal · shell",
+        "tested": false
+      },
+      "uiLocation": "Terminal · shell",
+      "tests": "Not exercised: starts a loopback runtime and opens a browser client.",
+      "status": "unqualified",
+      "gap": "The upstream browser client overlaps Mona. Reachable only as an explicit terminal command; Mona never opens it automatically.",
+      "evidence": []
+    },
+    {
+      "id": "MONA-CAP-028",
+      "name": "login",
+      "description": "Sign in to an existing Codewhale account; new accounts are not open",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "writes account/session credentials",
+      "cost": "No inference.",
+      "arguments": "none",
+      "invocation": "codewhale login",
+      "helpSource": "codewhale login --help",
+      "integration": "advanced_action",
+      "entryPoint": {
+        "kind": "terminal",
+        "target": "shell",
+        "label": "Terminal · shell",
+        "tested": false
+      },
+      "uiLocation": "Terminal · shell",
+      "tests": "Not exercised: writes account/session credentials.",
+      "status": "unqualified",
+      "gap": "Credentials never cross the renderer. Provider keys use the dedicated P16 route; account login is terminal-only and user-initiated.",
+      "evidence": []
+    },
+    {
+      "id": "MONA-CAP-029",
+      "name": "logout",
+      "description": "Remove saved authentication state (every provider key, OAuth login, the Codewhale account session). Asks before deleting",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "destructive",
+      "permission": "deletes provider keys, OAuth login, and account session",
+      "cost": "No inference.",
+      "arguments": "none",
+      "invocation": "codewhale logout",
+      "helpSource": "codewhale logout --help",
+      "integration": "advanced_action",
+      "entryPoint": {
+        "kind": "terminal",
+        "target": "shell",
+        "label": "Terminal · shell",
+        "tested": false
+      },
+      "uiLocation": "Terminal · shell",
+      "tests": "Not exercised: deletes provider keys, OAuth login, and the account session.",
+      "status": "unqualified",
+      "gap": "Destructive and terminal-only, with the engine's own confirmation. Mona does not offer a one-click credential wipe.",
+      "evidence": []
+    },
+    {
+      "id": "MONA-CAP-030",
+      "name": "auth",
+      "description": "Manage authentication credentials and provider mode",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "credential store access",
+      "cost": "No inference.",
+      "arguments": "none",
+      "invocation": "codewhale auth",
+      "helpSource": "codewhale auth --help",
+      "integration": "advanced_action",
+      "entryPoint": {
+        "kind": "terminal",
+        "target": "shell",
+        "label": "Terminal · shell",
+        "tested": false
+      },
+      "uiLocation": "Terminal · shell",
+      "tests": "Not exercised: credential store access.",
+      "status": "unqualified",
+      "gap": "Provider keys are set through the engine's own route (P16); other auth modes are terminal-only.",
+      "evidence": []
+    },
+    {
+      "id": "MONA-CAP-031",
+      "name": "account",
+      "description": "Manage an existing Codewhale account; new accounts are not open [alias: cloud]",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "account session",
+      "cost": "No inference.",
+      "arguments": "none",
+      "invocation": "codewhale account",
+      "helpSource": "codewhale account --help",
+      "integration": "advanced_action",
+      "entryPoint": {
+        "kind": "terminal",
+        "target": "shell",
+        "label": "Terminal · shell",
+        "tested": false
+      },
+      "uiLocation": "Terminal · shell",
+      "tests": "Not exercised: new accounts are not open.",
+      "status": "unqualified",
+      "gap": "Local key routes remain primary; account status is terminal-only.",
+      "evidence": []
+    },
+    {
+      "id": "MONA-CAP-032",
+      "name": "dispatch",
+      "description": "Run a task on a Codewhale cloud computer (not available: cloud computers and accounts are paused for new users)",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "requires a cloud account and remote execution",
+      "cost": "Cloud compute costs money.",
+      "arguments": "none",
+      "invocation": "codewhale dispatch",
+      "helpSource": "codewhale dispatch --help",
+      "integration": "unavailable",
+      "entryPoint": {
+        "kind": "none",
+        "target": null,
+        "label": "Unavailable on this build",
+        "tested": false
+      },
+      "uiLocation": "Unavailable on this build",
+      "tests": "The pinned binary reports cloud computers and accounts as paused for new users.",
+      "status": "unavailable",
+      "gap": "Cloud computers are unavailable. No control is shown and no remote is invented.",
+      "evidence": []
+    },
+    {
+      "id": "MONA-CAP-033",
+      "name": "mcp-server",
+      "description": "Run MCP server mode over stdio",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "exposes Codewhale tools to an MCP client",
+      "cost": "Client-driven model calls.",
+      "arguments": "none",
+      "invocation": "codewhale mcp-server",
+      "helpSource": "codewhale mcp-server --help",
+      "integration": "advanced_action",
+      "entryPoint": {
+        "kind": "terminal",
+        "target": "shell",
+        "label": "Terminal · shell",
+        "tested": false
+      },
+      "uiLocation": "Terminal · shell",
+      "tests": "Not exercised: exposes Codewhale tools to an external MCP client.",
+      "status": "unqualified",
+      "gap": "Terminal-only. Mona is an MCP host, not a server; the row states the reverse direction.",
+      "evidence": []
+    },
+    {
+      "id": "MONA-CAP-034",
+      "name": "config",
+      "description": "Read/write/list config values",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "writes config; reads are redacted",
+      "cost": "No inference.",
+      "arguments": "none",
+      "invocation": "codewhale config dump | doctor",
+      "helpSource": "codewhale config --help",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "settings_tab",
+        "target": "route",
+        "label": "Settings › Providers & route",
+        "tested": true
+      },
+      "uiLocation": "Settings › Providers & route",
+      "tests": "P16: redacted config dump/doctor, engine switch with a backup and stale-read refusal.",
+      "status": "verified",
+      "gap": "Only engine-mediated edits; unknown TOML tables are preserved by the engine's writer.",
+      "evidence": [
+        "arn:p01-engine-surface.txt"
+      ]
+    },
+    {
+      "id": "MONA-CAP-035",
+      "name": "model",
+      "description": "Resolve or list available models across providers",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "reads/changes the default model",
+      "cost": "No inference.",
+      "arguments": "none",
+      "invocation": "codewhale model resolve <name>",
+      "helpSource": "codewhale model --help",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "settings_tab",
+        "target": "route",
+        "label": "Settings › Providers & route",
+        "tested": true
+      },
+      "uiLocation": "Settings › Providers & route",
+      "tests": "P16: requested vs effective route and model-published reasoning levels.",
+      "status": "verified",
+      "gap": null,
+      "evidence": [
+        "arn:p01-engine-surface.txt"
+      ]
+    },
+    {
+      "id": "MONA-CAP-036",
+      "name": "thread",
+      "description": "Manage thread/session metadata and resume/fork flows",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "mutates thread metadata; resume/fork create threads",
+      "cost": "No inference unless a resumed turn runs.",
+      "arguments": "none",
+      "invocation": "codewhale thread <subcommand>",
+      "helpSource": "codewhale thread --help",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "screen",
+        "target": "studio",
+        "label": "Studio · thread",
+        "tested": true
+      },
+      "uiLocation": "Studio · thread",
+      "tests": "P08/P13: resume, history, interrupt, and receipts. Thread metadata editing and fork are not surfaced.",
+      "status": "unqualified",
+      "gap": "Resume and fork flows are terminal-only beyond the studio's recorded resume.",
+      "evidence": []
+    },
+    {
+      "id": "MONA-CAP-037",
+      "name": "sandbox",
+      "description": "Evaluate sandbox/approval policy decisions",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "read",
+      "permission": "read-only evaluation",
+      "cost": "No inference.",
+      "arguments": "none",
+      "invocation": "codewhale sandbox <decision>",
+      "helpSource": "codewhale sandbox --help",
+      "integration": "integrated_terminal",
+      "entryPoint": {
+        "kind": "terminal",
+        "target": "shell",
+        "label": "Terminal · shell",
+        "tested": false
+      },
+      "uiLocation": "Terminal · shell",
+      "tests": "Not exercised: evaluates a policy decision read-only.",
+      "status": "unqualified",
+      "gap": "The effective permission posture is shown from the turn receipt (P08), not recomputed here; `sandbox` is terminal-only.",
+      "evidence": []
+    },
+    {
+      "id": "MONA-CAP-038",
+      "name": "app-server",
+      "description": "Expose the full Engine API with --http, or smaller compatibility controls",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "owns a loopback runtime and process tree",
+      "cost": "No inference until a turn starts.",
+      "arguments": "none",
+      "invocation": "codewhale app-server --http",
+      "helpSource": "codewhale app-server --help",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "settings_tab",
+        "target": "runtime",
+        "label": "Settings › Runtime",
+        "tested": true
+      },
+      "uiLocation": "Settings › Runtime",
+      "tests": "P01/P04/P08: authenticated loopback runtime under the native supervisor with verified ownership.",
+      "status": "verified",
+      "gap": null,
+      "evidence": [
+        "arn:p01-probe.json",
+        "arn:p01-live.json"
+      ]
+    },
+    {
+      "id": "MONA-CAP-039",
+      "name": "completion",
+      "description": "Generate shell completions [alias: completions]",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "read",
+      "permission": "read-only",
+      "cost": "No inference.",
+      "arguments": "none",
+      "invocation": "codewhale completion zsh",
+      "helpSource": "codewhale completion --help",
+      "integration": "integrated_terminal",
+      "entryPoint": {
+        "kind": "terminal",
+        "target": "shell",
+        "label": "Terminal · shell",
+        "tested": true
+      },
+      "uiLocation": "Terminal · shell",
+      "tests": "P18: `smoke:capability` runs `codewhale completion zsh` read-only and records its exit status and output size.",
+      "status": "verified",
+      "gap": "Shell completions are not installed by Mona; the terminal can print them.",
+      "evidence": []
+    },
+    {
+      "id": "MONA-CAP-040",
+      "name": "metrics",
+      "description": "Print a usage rollup from the audit log and session store",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "read",
+      "permission": "reads local audit/session data",
+      "cost": "No inference.",
+      "arguments": "none",
+      "invocation": "codewhale metrics",
+      "helpSource": "codewhale metrics --help",
+      "integration": "integrated_terminal",
+      "entryPoint": {
+        "kind": "terminal",
+        "target": "shell",
+        "label": "Terminal · shell",
+        "tested": true
+      },
+      "uiLocation": "Terminal · shell",
+      "tests": "P18: `smoke:capability` runs `codewhale metrics` read-only and records its exit status and output shape. Mona's own lens reads /v1/usage instead.",
+      "status": "verified",
+      "gap": "Two usage sources can disagree; Mona's cost lens uses the engine's /v1/usage ledger.",
+      "evidence": []
+    },
+    {
+      "id": "MONA-CAP-041",
+      "name": "update",
+      "description": "Update this release binary from GitHub (package-managed installs get migration instructions)",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "destructive",
+      "permission": "replaces the engine binary",
+      "cost": "No inference.",
+      "arguments": "none",
+      "invocation": "codewhale update",
+      "helpSource": "codewhale update --help",
+      "integration": "advanced_action",
+      "entryPoint": {
+        "kind": "terminal",
+        "target": "shell",
+        "label": "Terminal · shell",
+        "tested": false
+      },
+      "uiLocation": "Terminal · shell",
+      "tests": "Not exercised: replaces the engine binary.",
+      "status": "unqualified",
+      "gap": "Mona never silently upgrades the engine. An engine change is an explicit, separately tested compatibility decision and stays terminal-only here.",
+      "evidence": []
+    },
+    {
+      "id": "MONA-CAP-042",
+      "name": "providers",
+      "description": "Export the route catalog (`providers export --json`)",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "read",
+      "permission": "read-only catalog export",
+      "cost": "No inference.",
+      "arguments": "none",
+      "invocation": "codewhale providers export --json",
+      "helpSource": "codewhale providers --help",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "settings_tab",
+        "target": "route",
+        "label": "Settings › Providers & route",
+        "tested": true
+      },
+      "uiLocation": "Settings › Providers & route",
+      "tests": "P01/P16: route catalog export and live provider catalog.",
+      "status": "verified",
+      "gap": null,
+      "evidence": [
+        "arn:p01-probe.json"
+      ]
+    },
+    {
+      "id": "MONA-CAP-043",
+      "name": "help",
+      "description": "Print this message or the help of the given subcommand(s)",
+      "scope": "cli",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "read",
+      "permission": "read-only",
+      "cost": "No inference.",
+      "arguments": "none",
+      "invocation": "codewhale help [COMMAND]",
+      "helpSource": "codewhale help",
+      "integration": "integrated_terminal",
+      "entryPoint": {
+        "kind": "terminal",
+        "target": "shell",
+        "label": "Terminal · shell",
+        "tested": true
+      },
+      "uiLocation": "Terminal · shell",
+      "tests": "P18: `smoke:capability` runs `codewhale help` read-only and parses the command set; the Capabilities screen carries each row's help source.",
+      "status": "verified",
+      "gap": null,
+      "evidence": [
+        "arn:p01-engine-surface.txt"
+      ]
+    },
+    {
+      "id": "MONA-CAP-044",
+      "name": "HTTP Runtime API /v1/*",
+      "description": "HTTP Runtime API /v1/*",
+      "scope": "runtime_api",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "bearer token over loopback; per-route effects",
+      "cost": "No inference on reads; turns bill normally.",
+      "arguments": "GET/POST /v1/* with Authorization: Bearer",
+      "invocation": "app-server --http; typed adapter over /v1/*",
+      "helpSource": "docs/evidence/macos/artifacts/upstream-RUNTIME_API.md",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "settings_tab",
+        "target": "runtime",
+        "label": "Settings › Runtime",
+        "tested": true
+      },
+      "uiLocation": "Settings › Runtime",
+      "tests": "P03: versioned adapter contract, wire validation, submission safety.",
+      "status": "verified",
+      "gap": null,
+      "evidence": [
+        "arn:p01-probe.json"
+      ]
+    },
+    {
+      "id": "MONA-CAP-045",
+      "name": "Versioned adapter contract",
+      "description": "Versioned adapter contract",
+      "scope": "runtime_api",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "adapter-mediated; strict validation at the boundary",
+      "cost": "No extra inference; submission identity persisted before send.",
+      "arguments": "discover, thread, submit, reconcile, subscribe, interrupt, history, usage",
+      "invocation": "src/main/engine/adapter.ts",
+      "helpSource": "docs/evidence/macos/artifacts/upstream-RUNTIME_API.md",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "settings_tab",
+        "target": "runtime",
+        "label": "Settings › Runtime",
+        "tested": true
+      },
+      "uiLocation": "Settings › Runtime",
+      "tests": "P03: adapter contract tests; version/commit pin refuses anything else.",
+      "status": "verified",
+      "gap": "A new engine version is an explicit re-qualification, not a setting.",
+      "evidence": [
+        "arn:p03-engine-smoke.json"
+      ]
+    },
+    {
+      "id": "MONA-CAP-046",
+      "name": "SSE event journal /v1/threads/{id}/events",
+      "description": "SSE event journal /v1/threads/{id}/events",
+      "scope": "runtime_api",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "read",
+      "permission": "read-only replay + live stream",
+      "cost": "No inference; never reexecutes tools.",
+      "arguments": "since_seq, replay_limit, progress",
+      "invocation": "GET /v1/threads/{id}/events (SSE)",
+      "helpSource": "docs/evidence/macos/artifacts/upstream-RUNTIME_API.md",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "screen",
+        "target": "studio",
+        "label": "Studio · timeline",
+        "tested": true
+      },
+      "uiLocation": "Studio · timeline",
+      "tests": "P08: durable event insert with replay dedupe; transport frames are not treated as events.",
+      "status": "verified",
+      "gap": null,
+      "evidence": [
+        "arn:p01-live.json"
+      ]
+    },
+    {
+      "id": "MONA-CAP-047",
+      "name": "Thread/turn lifecycle",
+      "description": "Thread/turn lifecycle",
+      "scope": "runtime_api",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "creates durable thread/turn records",
+      "cost": "A turn bills once.",
+      "arguments": "POST /v1/threads, POST /v1/threads/{id}/turns",
+      "invocation": "POST /v1/threads, /v1/threads/{id}/turns",
+      "helpSource": "docs/evidence/macos/artifacts/upstream-RUNTIME_API.md",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "screen",
+        "target": "studio",
+        "label": "Studio · composer",
+        "tested": true
+      },
+      "uiLocation": "Studio · composer",
+      "tests": "P08: submit, interrupt, resume, receipts.",
+      "status": "verified",
+      "gap": null,
+      "evidence": [
+        "arn:p01-live.json"
+      ]
+    },
+    {
+      "id": "MONA-CAP-048",
+      "name": "Turn interrupt",
+      "description": "Turn interrupt",
+      "scope": "runtime_api",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "stops the owned turn only",
+      "cost": "An in-flight request may still complete upstream.",
+      "arguments": "POST /v1/threads/{id}/turns/{turn_id}/interrupt",
+      "invocation": "POST /v1/threads/{id}/interrupt",
+      "helpSource": "docs/evidence/macos/artifacts/upstream-RUNTIME_API.md",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "screen",
+        "target": "studio",
+        "label": "Studio · control strip",
+        "tested": true
+      },
+      "uiLocation": "Studio · control strip",
+      "tests": "P08/P11: interrupt receipt, uncertain outcome stays visible.",
+      "status": "verified",
+      "gap": null,
+      "evidence": [
+        "arn:p01-live.json"
+      ]
+    },
+    {
+      "id": "MONA-CAP-049",
+      "name": "Resume from saved session",
+      "description": "Resume from saved session",
+      "scope": "runtime_api",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "seeds/returns an open thread from a session",
+      "cost": "No inference by itself.",
+      "arguments": "POST /v1/sessions/{id}/resume-thread",
+      "invocation": "POST /v1/sessions/{id}/resume-thread",
+      "helpSource": "docs/evidence/macos/artifacts/upstream-RUNTIME_API.md",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "screen",
+        "target": "studio",
+        "label": "Studio · resume",
+        "tested": true
+      },
+      "uiLocation": "Studio · resume",
+      "tests": "P01/P08: resume into a live thread with the recorded posture.",
+      "status": "verified",
+      "gap": null,
+      "evidence": [
+        "arn:p01-live.json"
+      ]
+    },
+    {
+      "id": "MONA-CAP-050",
+      "name": "Usage aggregation and cost",
+      "description": "Usage aggregation and cost",
+      "scope": "runtime_api",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "read",
+      "permission": "read-only aggregation across threads",
+      "cost": "Cost is engine-computed; provider billing remains authoritative.",
+      "arguments": "GET /v1/usage?since&until&group_by",
+      "invocation": "GET /v1/usage",
+      "helpSource": "docs/evidence/macos/artifacts/upstream-RUNTIME_API.md",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "screen",
+        "target": "cost",
+        "label": "Cost lens",
+        "tested": true
+      },
+      "uiLocation": "Cost lens",
+      "tests": "P12: cumulative thread total converted to exact per-turn deltas; unknown never becomes zero.",
+      "status": "verified",
+      "gap": null,
+      "evidence": [
+        "arn:p01-economics.json"
+      ]
+    },
+    {
+      "id": "MONA-CAP-051",
+      "name": "Turn history and receipts",
+      "description": "Turn history and receipts",
+      "scope": "runtime_api",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "read",
+      "permission": "read-only transcript/receipt",
+      "cost": "No inference.",
+      "arguments": "GET /v1/threads/{id}, /receipt",
+      "invocation": "GET /v1/threads/{id}/receipts",
+      "helpSource": "docs/evidence/macos/artifacts/upstream-RUNTIME_API.md",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "screen",
+        "target": "changes",
+        "label": "Changes · receipts",
+        "tested": true
+      },
+      "uiLocation": "Changes · receipts",
+      "tests": "P13: receipts with evidence ranks, artifacts, and attribution.",
+      "status": "verified",
+      "gap": null,
+      "evidence": [
+        "arn:p01-live.json"
+      ]
+    },
+    {
+      "id": "MONA-CAP-052",
+      "name": "Approvals bridge",
+      "description": "Approvals bridge",
+      "scope": "runtime_api",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "resolves tool approvals",
+      "cost": "No inference.",
+      "arguments": "POST /v1/approvals/{id}",
+      "invocation": "POST /v1/approvals/{id}",
+      "helpSource": "docs/evidence/macos/artifacts/upstream-RUNTIME_API.md",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "screen",
+        "target": "studio",
+        "label": "Studio · approval wait",
+        "tested": true
+      },
+      "uiLocation": "Studio · approval wait",
+      "tests": "P08: an approval request is surfaced as a real wait. No test resolves one.",
+      "status": "unqualified",
+      "gap": "Mona shows the wait and never auto-approves inside a thread. Answering an approval has no IPC path yet.",
+      "evidence": []
+    },
+    {
+      "id": "MONA-CAP-053",
+      "name": "Permission posture (Full Access)",
+      "description": "Permission posture (Full Access)",
+      "scope": "runtime_api",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "trust_mode + auto_approve + shell",
+      "cost": "Widens tool authority; never silent.",
+      "arguments": "thread fields auto_approve/trust_mode/allow_shell",
+      "invocation": "thread posture at creation; /v1/config",
+      "helpSource": "docs/evidence/macos/artifacts/upstream-RUNTIME_API.md",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "screen",
+        "target": "settings",
+        "label": "Settings · Providers & route",
+        "tested": true
+      },
+      "uiLocation": "Settings · Providers & route",
+      "tests": "P08/P16: posture bound at thread creation; requested vs effective shown.",
+      "status": "verified",
+      "gap": null,
+      "evidence": [
+        "arn:p01-live.json"
+      ]
+    },
+    {
+      "id": "MONA-CAP-054",
+      "name": "Tools: shell and file write",
+      "description": "Tools: shell and file write",
+      "scope": "runtime_api",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "mutates workspace under the posture",
+      "cost": "Tool turns bill normally.",
+      "arguments": "model-visible tool catalog",
+      "invocation": "model-visible tool catalog",
+      "helpSource": "docs/evidence/macos/artifacts/upstream-RUNTIME_API.md",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "screen",
+        "target": "changes",
+        "label": "Changes · tool attribution",
+        "tested": true
+      },
+      "uiLocation": "Changes · tool attribution",
+      "tests": "P08/P13: tool calls and their files are displayed and attributed.",
+      "status": "verified",
+      "gap": null,
+      "evidence": [
+        "arn:p01-live.json"
+      ]
+    },
+    {
+      "id": "MONA-CAP-055",
+      "name": "Tool: apply_patch",
+      "description": "Tool: apply_patch",
+      "scope": "runtime_api",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "mutates workspace files",
+      "cost": "Tool turns bill normally.",
+      "arguments": "model-visible tool catalog",
+      "invocation": "model-visible tool catalog",
+      "helpSource": "docs/evidence/macos/artifacts/upstream-RUNTIME_API.md",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "screen",
+        "target": "changes",
+        "label": "Changes · tool attribution",
+        "tested": true
+      },
+      "uiLocation": "Changes · tool attribution",
+      "tests": "Not exercised as a distinct tool; P13 attributes any tool-written file.",
+      "status": "unqualified",
+      "gap": "apply_patch is displayed as a tool-attributed change when the agent uses it. Mona offers no direct patch control.",
+      "evidence": []
+    },
+    {
+      "id": "MONA-CAP-056",
+      "name": "Web search",
+      "description": "Web search",
+      "scope": "runtime_api",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "read",
+      "permission": "network egress through the provider",
+      "cost": "May add provider-side search charges.",
+      "arguments": "model-visible tool catalog",
+      "invocation": "provider-native web search tool",
+      "helpSource": "docs/evidence/macos/artifacts/upstream-RUNTIME_API.md",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "screen",
+        "target": "studio",
+        "label": "Studio · tool cards",
+        "tested": true
+      },
+      "uiLocation": "Studio · tool cards",
+      "tests": "Not exercised: search semantics differ per provider.",
+      "status": "unqualified",
+      "gap": "Web search is provider-native and may add provider charges. Mona makes no claim that a route has it enabled.",
+      "evidence": []
+    },
+    {
+      "id": "MONA-CAP-057",
+      "name": "Subagents",
+      "description": "Subagents",
+      "scope": "runtime_api",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "spawns child turns with inherited posture",
+      "cost": "Each child turn bills; parent and child totals must not double-count.",
+      "arguments": "feature subagents",
+      "invocation": "POST /v1/agent-runs, GET /v1/agent-runs",
+      "helpSource": "docs/evidence/macos/artifacts/upstream-RUNTIME_API.md",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "screen",
+        "target": "agents",
+        "label": "Agents · sub-agents",
+        "tested": true
+      },
+      "uiLocation": "Agents · sub-agents",
+      "tests": "P15: sub-agent ledger, deduplicated identities, unknown spend preserved.",
+      "status": "verified",
+      "gap": null,
+      "evidence": [
+        "docs/evidence/macos/P15-agents.md",
+        "docs/evidence/macos/artifacts/p15-agents-live.json"
+      ]
+    },
+    {
+      "id": "MONA-CAP-058",
+      "name": "MCP server management",
+      "description": "MCP server management",
+      "scope": "runtime_api",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "server trust and tool exposure",
+      "cost": "External service costs possible.",
+      "arguments": "feature mcp; /v1/mcp/*",
+      "invocation": "GET/POST /v1/mcp/*",
+      "helpSource": "docs/evidence/macos/artifacts/upstream-RUNTIME_API.md",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "settings_tab",
+        "target": "extensions",
+        "label": "Settings › Extensions",
+        "tested": true
+      },
+      "uiLocation": "Settings › Extensions",
+      "tests": "P17: 39-check live smoke with a local MCP fixture.",
+      "status": "verified",
+      "gap": null,
+      "evidence": []
+    },
+    {
+      "id": "MONA-CAP-059",
+      "name": "Skills and plugins",
+      "description": "Skills and plugins",
+      "scope": "runtime_api",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "installs and trusts local bundles",
+      "cost": "No inference by itself.",
+      "arguments": "feature flags; /v1/skills, /v1/plugins",
+      "invocation": "GET/POST /v1/skills, /v1/plugins",
+      "helpSource": "docs/evidence/macos/artifacts/upstream-RUNTIME_API.md",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "settings_tab",
+        "target": "extensions",
+        "label": "Settings › Extensions",
+        "tested": true
+      },
+      "uiLocation": "Settings › Extensions",
+      "tests": "P17: skill toggle and plugin install/remove.",
+      "status": "verified",
+      "gap": "Plugin trust stays with the engine; install never implies trust.",
+      "evidence": []
+    },
+    {
+      "id": "MONA-CAP-060",
+      "name": "Fleet and workflows",
+      "description": "Fleet and workflows",
+      "scope": "runtime_api",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "durable child-agent scheduling",
+      "cost": "Billable child turns.",
+      "arguments": "/v1/fleet/*, /v1/goals",
+      "invocation": "POST /v1/fleet/runs, /v1/fleet/runs/{id}/start",
+      "helpSource": "docs/evidence/macos/artifacts/upstream-RUNTIME_API.md",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "screen",
+        "target": "agents",
+        "label": "Agents · fleets",
+        "tested": true
+      },
+      "uiLocation": "Agents · fleets",
+      "tests": "P15: one real serial fleet run with a partial receipt.",
+      "status": "verified",
+      "gap": "Parallel launch refused; only this_computer targets.",
+      "evidence": [
+        "docs/evidence/macos/P15-agents.md",
+        "docs/evidence/macos/artifacts/p15-parallel-probe.json",
+        "docs/evidence/macos/artifacts/p15-goal-probe.json"
+      ]
+    },
+    {
+      "id": "MONA-CAP-061",
+      "name": "Terminal stream/input",
+      "description": "Terminal stream/input",
+      "scope": "runtime_api",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "interactive shell in the workspace",
+      "cost": "No inference.",
+      "arguments": "/v1/terminal/* (capabilities.terminal_stream=true)",
+      "invocation": "GET /v1/terminal/{name}/output; POST input|resize|kill",
+      "helpSource": "docs/evidence/macos/artifacts/upstream-RUNTIME_API.md",
+      "integration": "integrated_terminal",
+      "entryPoint": {
+        "kind": "terminal",
+        "target": "shell",
+        "label": "Terminal · shell",
+        "tested": true
+      },
+      "uiLocation": "Terminal · shell",
+      "tests": "P18: Mona's pane is a native PTY (mona-pty) with resize, exit, and reconnect tests. The engine's attach-only routes are not exercised.",
+      "status": "unqualified",
+      "gap": "Engine terminal sessions can only be attached, never created (404 otherwise), so a client cannot open its own shell through them. Mona owns its PTY instead; an attach view for engine-owned shells is not built.",
+      "evidence": []
+    },
+    {
+      "id": "MONA-CAP-062",
+      "name": "Workspace files, search, artifacts",
+      "description": "Workspace files, search, artifacts",
+      "scope": "runtime_api",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "read",
+      "permission": "reads only the configured workspace",
+      "cost": "No inference.",
+      "arguments": "GET /v1/workspace/files/search, /v1/threads/{id}/turns/{turn_id}/artifacts",
+      "invocation": "GET /v1/workspace/files/search; GET .../artifacts",
+      "helpSource": "docs/evidence/macos/artifacts/upstream-RUNTIME_API.md",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "screen",
+        "target": "changes",
+        "label": "Changes · artifacts",
+        "tested": true
+      },
+      "uiLocation": "Changes · artifacts",
+      "tests": "P13: artifact windows and file references. Workspace file search is not surfaced.",
+      "status": "unqualified",
+      "gap": "Project text search is P19. Mona never copies repository contents into its database to fake it.",
+      "evidence": []
+    },
+    {
+      "id": "MONA-CAP-063",
+      "name": "Workspace snapshots/restore",
+      "description": "Workspace snapshots/restore",
+      "scope": "runtime_api",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "destructive",
+      "permission": "writes workspace files from side-git",
+      "cost": "No inference.",
+      "arguments": "GET /v1/snapshots, POST restore",
+      "invocation": "GET /v1/snapshots; POST /v1/threads/{id}/file-revert",
+      "helpSource": "docs/evidence/macos/artifacts/upstream-RUNTIME_API.md",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "screen",
+        "target": "changes",
+        "label": "Changes · restore",
+        "tested": true
+      },
+      "uiLocation": "Changes · restore",
+      "tests": "P13: snapshot listing and one-file file-revert, with stale-preview refusal.",
+      "status": "unqualified",
+      "gap": "Whole-workspace restore (POST /v1/snapshots/{id}/restore) and forking patch-undo are not surfaced. A workspace-wide overwrite stays a separate, explicitly authorized action.",
+      "evidence": []
+    },
+    {
+      "id": "MONA-CAP-064",
+      "name": "Provider/model catalog and route visibility",
+      "description": "Provider/model catalog and route visibility",
+      "scope": "runtime_api",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "read",
+      "permission": "read-only; key writes are separate",
+      "cost": "No inference.",
+      "arguments": "GET /v1/providers, /v1/providers/{id}/models",
+      "invocation": "GET /v1/providers, /v1/providers/{id}/models",
+      "helpSource": "docs/evidence/macos/artifacts/upstream-RUNTIME_API.md",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "settings_tab",
+        "target": "route",
+        "label": "Settings › Providers & route",
+        "tested": true
+      },
+      "uiLocation": "Settings › Providers & route",
+      "tests": "P16: live catalogs, requested vs effective, reasoning levels.",
+      "status": "verified",
+      "gap": null,
+      "evidence": [
+        "arn:p01-probe.json"
+      ]
+    },
+    {
+      "id": "MONA-CAP-065",
+      "name": "Session persistence",
+      "description": "Session persistence",
+      "scope": "runtime_api",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "durable local session store",
+      "cost": "No inference.",
+      "arguments": "GET/POST /v1/sessions",
+      "invocation": "GET /v1/sessions, /v1/threads/{id}",
+      "helpSource": "docs/evidence/macos/artifacts/upstream-RUNTIME_API.md",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "screen",
+        "target": "studio",
+        "label": "Studio · resume",
+        "tested": true
+      },
+      "uiLocation": "Studio · resume",
+      "tests": "P01/P08: session persistence and explicit resume.",
+      "status": "verified",
+      "gap": null,
+      "evidence": [
+        "arn:p01-live.json"
+      ]
+    },
+    {
+      "id": "MONA-CAP-066",
+      "name": "Operation idempotency (operation_key)",
+      "description": "Operation idempotency (operation_key)",
+      "scope": "runtime_api",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "durable operation fingerprint; exact replay returns the original",
+      "cost": "Prevents duplicate billing on response loss.",
+      "arguments": "operation_key on thread/turn create",
+      "invocation": "operation_key on submissions",
+      "helpSource": "docs/evidence/macos/artifacts/upstream-RUNTIME_API.md",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "screen",
+        "target": "studio",
+        "label": "Studio · submit",
+        "tested": true
+      },
+      "uiLocation": "Studio · submit",
+      "tests": "P03/P08: intent persisted before the POST; a lost response is reconciled read-only, never resent.",
+      "status": "verified",
+      "gap": null,
+      "evidence": [
+        "arn:p03-engine-smoke.json"
+      ]
+    },
+    {
+      "id": "MONA-CAP-067",
+      "name": "Zero-inference non-turn actions",
+      "description": "Zero-inference non-turn actions",
+      "scope": "product",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "read",
+      "permission": "read-only",
+      "cost": "Proven zero inference for discovery, idle, history, reconnect.",
+      "arguments": "all read routes; client idle",
+      "invocation": "Mona local projections",
+      "helpSource": "docs/decisions/ADR-007-usage-semantics-and-rates.md",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "screen",
+        "target": "home",
+        "label": "Home · Resume Brief",
+        "tested": true
+      },
+      "uiLocation": "Home · Resume Brief",
+      "tests": "P14: digest, attention, and notifications make zero inference calls.",
+      "status": "verified",
+      "gap": null,
+      "evidence": [
+        "arn:p01-probe.json"
+      ]
+    },
+    {
+      "id": "MONA-CAP-068",
+      "name": "Packaged native execution (no Node in PATH)",
+      "description": "Packaged native execution (no Node in PATH)",
+      "scope": "product",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "launches the native arm64 binary directly",
+      "cost": "No inference until a turn starts.",
+      "arguments": "native binary app-server --http",
+      "invocation": "native arm64 runtime under mona-supervisor",
+      "helpSource": "docs/decisions/ADR-003-runtime-supervisor.md",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "settings_tab",
+        "target": "runtime",
+        "label": "Settings › Runtime",
+        "tested": true
+      },
+      "uiLocation": "Settings › Runtime",
+      "tests": "P01/P04: native binary starts with no Node on PATH; no runtime compilation.",
+      "status": "verified",
+      "gap": "Packaging ships the supervisor and pty helpers (P21).",
+      "evidence": [
+        "arn:p01-native-binary.txt"
+      ]
+    },
+    {
+      "id": "MONA-CAP-069",
+      "name": "Finder selected-folder Service (NSServices)",
+      "description": "Finder selected-folder Service (NSServices)",
+      "scope": "product",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "read",
+      "permission": "receives file URLs from Finder; no network by itself",
+      "cost": "No inference.",
+      "arguments": "NSServices Info.plist + AppKit pasteboard read",
+      "invocation": "Finder Service → com.mona.workbench open event",
+      "helpSource": "docs/evidence/macos/P09-finder.md",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "settings_tab",
+        "target": "finder",
+        "label": "Settings › Finder",
+        "tested": true
+      },
+      "uiLocation": "Settings › Finder",
+      "tests": "P09: 21/21 Service smoke with exact-folder delivery; 16/16 app handoff.",
+      "status": "verified",
+      "gap": null,
+      "evidence": [
+        "arn:p01-finder-service.txt"
+      ]
+    },
+    {
+      "id": "MONA-CAP-070",
+      "name": "Single Runtime owner per user store",
+      "description": "Single Runtime owner per user store",
+      "scope": "product",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "second app-server attaches to the first owner",
+      "cost": "No extra inference.",
+      "arguments": "one app-server --http at a time",
+      "invocation": "mona-supervisor ownership record",
+      "helpSource": "docs/decisions/ADR-003-runtime-supervisor.md",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "settings_tab",
+        "target": "runtime",
+        "label": "Settings › Runtime",
+        "tested": true
+      },
+      "uiLocation": "Settings › Runtime",
+      "tests": "P04: verified identity, one owner per user store, ALREADY_OWNED for a second workspace.",
+      "status": "verified",
+      "gap": "Parallel ownership needs an engine decision.",
+      "evidence": []
+    },
+    {
+      "id": "MONA-CAP-071",
+      "name": "Engine update path",
+      "description": "Engine update path",
+      "scope": "product",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "destructive",
+      "permission": "replaces the engine binary",
+      "cost": "No inference.",
+      "arguments": "codewhale update",
+      "invocation": "codewhale update",
+      "helpSource": "codewhale update --help",
+      "integration": "advanced_action",
+      "entryPoint": {
+        "kind": "terminal",
+        "target": "shell",
+        "label": "Terminal · shell",
+        "tested": false
+      },
+      "uiLocation": "Terminal · shell",
+      "tests": "Not exercised: replaces the engine binary.",
+      "status": "unqualified",
+      "gap": "Mona never upgrades the engine silently. The pinned 0.10.2 build is a tested compatibility decision; an upgrade needs a new qualification pass.",
+      "evidence": []
+    },
+    {
+      "id": "MONA-CAP-072",
+      "name": "macOS minimum and signature state",
+      "description": "macOS minimum and signature state",
+      "scope": "product",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "read",
+      "permission": "ad-hoc signed, no TeamIdentifier",
+      "cost": "No inference.",
+      "arguments": "codesign inspection",
+      "invocation": "Mach-O minimum, signature, and host inventory",
+      "helpSource": "docs/discovery-macos.md",
+      "integration": "advanced_action",
+      "entryPoint": {
+        "kind": "screen",
+        "target": "capabilities",
+        "label": "Capabilities · platform",
+        "tested": true
+      },
+      "uiLocation": "Capabilities · platform",
+      "tests": "P00/P01: minimum macOS 11.0, arm64 thin binary, ad-hoc linker signature recorded.",
+      "status": "verified",
+      "gap": "Developer ID signing and notarization are P22.",
+      "evidence": []
+    },
+    {
+      "id": "MONA-CAP-073",
+      "name": "/v1/agent-runs",
+      "description": "/v1/agent-runs",
+      "scope": "runtime_api",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "read",
+      "permission": "bearer token over loopback; no execution",
+      "cost": "No inference.",
+      "arguments": "GET /v1/agent-runs, GET /v1/agent-runs/{run_id}",
+      "invocation": "GET /v1/agent-runs",
+      "helpSource": "docs/evidence/macos/artifacts/upstream-RUNTIME_API.md",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "screen",
+        "target": "agents",
+        "label": "Agents · runs",
+        "tested": true
+      },
+      "uiLocation": "Agents · runs",
+      "tests": "P15: run ledger with real identities and per-identity spend.",
+      "status": "verified",
+      "gap": null,
+      "evidence": [
+        "docs/evidence/macos/P15-agents.md"
+      ]
+    },
+    {
+      "id": "MONA-CAP-074",
+      "name": "Thread goals",
+      "description": "Thread goals",
+      "scope": "runtime_api",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "write",
+      "permission": "setting an active goal starts engine continuation work",
+      "cost": "Continuation turns are billable.",
+      "arguments": "GET/PUT/DELETE /v1/threads/{id}/goal, POST .../complete, POST .../block, GET /v1/goals",
+      "invocation": "POST/DELETE /v1/threads/{id}/goal",
+      "helpSource": "docs/evidence/macos/artifacts/upstream-RUNTIME_API.md",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "screen",
+        "target": "agents",
+        "label": "Agents · goals",
+        "tested": true
+      },
+      "uiLocation": "Agents · goals",
+      "tests": "P15: goal set/complete/block/clear; pause returns 404 and is not offered.",
+      "status": "verified",
+      "gap": null,
+      "evidence": [
+        "docs/evidence/macos/artifacts/p15-goal-probe.json"
+      ]
+    },
+    {
+      "id": "MONA-CAP-075",
+      "name": "Fleet receipts and evidence",
+      "description": "Fleet receipts and evidence",
+      "scope": "runtime_api",
+      "upstreamSource": "codewhale-hq/Codewhale@v0.10.2 (installed native binary)",
+      "upstreamVersion": "0.10.2",
+      "platform": "macOS 26.5.1, arm64 (native)",
+      "classification": "read",
+      "permission": "bearer token over loopback",
+      "cost": "No inference.",
+      "arguments": "GET /v1/fleet/runs/{id}/receipts, .../receipts/{task_id}, .../receipts/{task_id}/evidence",
+      "invocation": "GET /v1/fleet/runs/{id}/receipts",
+      "helpSource": "docs/evidence/macos/artifacts/upstream-RUNTIME_API.md",
+      "integration": "native_view",
+      "entryPoint": {
+        "kind": "screen",
+        "target": "agents",
+        "label": "Agents · receipt evidence",
+        "tested": true
+      },
+      "uiLocation": "Agents · receipt evidence",
+      "tests": "P15: receipt evidence, replay, and partial receipts.",
+      "status": "verified",
+      "gap": "Fleet totals are not reported by the engine; Mona shows no aggregate cost.",
+      "evidence": [
+        "docs/evidence/macos/artifacts/p15-agents-live.json"
+      ]
+    }
+  ]
+}

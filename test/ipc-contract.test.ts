@@ -450,3 +450,56 @@ describe("P15 orchestration IPC validation", () => {
     expect(() => validateIpc("agents:launch-fleet", { ...input, taskId: "task_1" })).toThrow();
   });
 });
+
+describe("terminal IPC validation", () => {
+  const sessionId = "term_0123456789abcdef";
+  const projectId = "prj_0123456789abcdef";
+
+  it("accepts a bounded create and rejects a project-shaped id that is not one", () => {
+    expect(validateIpc("terminal:create", {})).toBeTruthy();
+    expect(validateIpc("terminal:create", { projectId, cols: 120, rows: 40 })).toBeTruthy();
+    expect(() => validateIpc("terminal:create", { cols: 1 })).toThrow();
+    expect(() => validateIpc("terminal:create", { rows: 10_000 })).toThrow();
+    expect(() => validateIpc("terminal:create", { shell: "/bin/bash" })).toThrow();
+  });
+
+  it("bounds terminal input and requires a session-shaped id", () => {
+    expect(validateIpc("terminal:write", { sessionId, data: "ls\n" })).toBeTruthy();
+    expect(() => validateIpc("terminal:write", { sessionId, data: "x".repeat(8_193) })).toThrow();
+    expect(() => validateIpc("terminal:write", { sessionId: "term_zz", data: "x" })).toThrow();
+    expect(() =>
+      validateIpc("terminal:write", { sessionId, data: "x", encoding: "utf-32" }),
+    ).toThrow();
+    expect(() => validateIpc("terminal:write", { sessionId, data: "x", exec: true })).toThrow();
+  });
+
+  it("bounds resize to the same window range as the helper", () => {
+    expect(validateIpc("terminal:resize", { sessionId, cols: 80, rows: 24 })).toBeTruthy();
+    expect(() => validateIpc("terminal:resize", { sessionId, cols: 0, rows: 24 })).toThrow();
+    expect(() => validateIpc("terminal:resize", { sessionId, cols: 80, rows: 1_000 })).toThrow();
+  });
+
+  it("accepts a replay cursor and a bounded log tail", () => {
+    expect(validateIpc("terminal:output", { sessionId, cursor: 0 })).toBeTruthy();
+    expect(() => validateIpc("terminal:output", { sessionId, cursor: -1 })).toThrow();
+    expect(() => validateIpc("terminal:output", { sessionId, maxBytes: 0 })).toThrow();
+    expect(validateIpc("terminal:log", { projectId })).toBeTruthy();
+    expect(() => validateIpc("terminal:log", { projectId, path: "/etc/passwd" })).toThrow();
+  });
+
+  it("keeps search and close narrow", () => {
+    expect(validateIpc("terminal:search", { sessionId, query: "error" })).toBeTruthy();
+    expect(() => validateIpc("terminal:search", { sessionId, query: "" })).toThrow();
+    expect(validateIpc("terminal:close", { sessionId })).toBeTruthy();
+    expect(() => validateIpc("terminal:close", { sessionId, force: true })).toThrow();
+  });
+});
+
+describe("capability IPC validation", () => {
+  it("accepts only empty payloads", () => {
+    expect(validateIpc("capability:snapshot", {})).toEqual({});
+    expect(validateIpc("capability:refresh", {})).toEqual({});
+    expect(validateIpc("capability:report", {})).toEqual({});
+    expect(() => validateIpc("capability:snapshot", { probe: true })).toThrow();
+  });
+});
