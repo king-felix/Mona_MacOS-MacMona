@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 5,
+  "revision": 6,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -37,11 +37,11 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/host-inventory.txt",
-          "sha256": "3a052fd5009c6649c16b0550c7e392d218c134a361e1c229821524e30cfd54d5"
+          "sha256": "16e876d9784073a61ccea287726827619430e0d08a6cd6a0f56d2fbea022ea5c"
         },
         {
           "path": "docs/evidence/macos/artifacts/engine-inventory.txt",
-          "sha256": "3b957c90f6f510106ca69793819640aa76262da4eea02f896249456d6cd57796"
+          "sha256": "c1783266eaa8696923bb5849aecf3b34f1313dc0ee2476bcd65dc2058e881789"
         },
         {
           "path": "docs/evidence/macos/artifacts/signing-inventory.txt",
@@ -397,7 +397,7 @@
   "next_eligible_prompts": [
     "P01"
   ],
-  "last_checkpoint_utc": "2026-11-12T00:35:16.595Z",
+  "last_checkpoint_utc": "2026-11-12T00:35:34.042Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

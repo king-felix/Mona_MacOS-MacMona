@@ -50,7 +50,8 @@ export function buildIndex(root, { statePath, attemptsPath, requirementsPath, ev
   return {
     schema_version: 1,
     generated_utc: new Date().toISOString(),
-    root,
+    // Deliberately no absolute workspace path: the index stays shareable and a
+    // moved checkout re-hashes the same relative paths.
     git: gitInfo(root),
     digest: sha256Buffer(Buffer.from(files.map((file) => `${file.path}:${file.sha256}`).join("\n"))),
     files,

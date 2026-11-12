@@ -91,7 +91,7 @@ and deviations discovered while building.
 ## D-001 — This directory is the Mac build root
 
 - **Date:** 2026-11-11 (P00)
-- **Decision:** Build in `/Users/<user>/DS_Projects/Mona` on a local APFS
+- **Decision:** Build in the current workspace directory (`<workspace>`) on a local APFS
   volume, as Victor directed, rather than creating `~/Developer/Mona-macOS`.
 - **Why:** The user's current request names this working directory. No common
   Windows source tree exists here, so no shared worktree conflict arises.

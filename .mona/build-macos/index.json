@@ -1,13 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-12T00:35:18.987Z",
-  "root": "/Users/<user>/DS_Projects/Mona",
+  "generated_utc": "2026-11-12T00:35:34.116Z",
   "git": {
     "available": true,
-    "commit": "179254b922f5100403df88fad18c2e9a6d950bb8",
+    "commit": "7f893ad8b957b9a4c2e2e7901cab2d141b83d51c",
     "dirty": true
   },
-  "digest": "a3492558f75a5ae45fd94714767baf8f6bf1946f3f4caba71c51594c7ea15b80",
+  "digest": "78c82e030da4d5eeccf22da7d649c146d8a66a8befa585f5122b250915be677b",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -16,7 +15,7 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "0e622230fae36cea327361c1a0427fb4ab1199a4c6d28603a9a929c45145f392",
+      "sha256": "825ff6387463f118a5f933fc8a9c17b245baef0b072cd44cba304837f06a68ac",
       "bytes": 11787
     },
     {
@@ -51,13 +50,13 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/engine-inventory.txt",
-      "sha256": "3b957c90f6f510106ca69793819640aa76262da4eea02f896249456d6cd57796",
-      "bytes": 3026
+      "sha256": "c1783266eaa8696923bb5849aecf3b34f1313dc0ee2476bcd65dc2058e881789",
+      "bytes": 3008
     },
     {
       "path": "docs/evidence/macos/artifacts/host-inventory.txt",
-      "sha256": "3a052fd5009c6649c16b0550c7e392d218c134a361e1c229821524e30cfd54d5",
-      "bytes": 1651
+      "sha256": "16e876d9784073a61ccea287726827619430e0d08a6cd6a0f56d2fbea022ea5c",
+      "bytes": 1642
     },
     {
       "path": "docs/evidence/macos/artifacts/p00-recovery-simulation.txt",

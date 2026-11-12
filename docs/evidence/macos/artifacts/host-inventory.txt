@@ -67,7 +67,7 @@ $ diskutil info / (sorted)
    Volume Read-Only:          Yes (read-only mount flag set)
    Encrypted:                 No
 
-$ df -h /Users/<user>/DS_Projects/Mona
+$ df -h <home>/DS_Projects/Mona
 /dev/disk3s5   228Gi   166Gi    39Gi    81%    835k  409M    0%   /System/Volumes/Data
 
 case-sensitivity probe: touch AlphaCase; test -e alphacase

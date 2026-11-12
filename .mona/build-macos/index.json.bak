@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-11-12T00:35:18.987Z",
+  "root": "/Users/<user>/DS_Projects/Mona",
+  "git": {
+    "available": true,
+    "commit": "179254b922f5100403df88fad18c2e9a6d950bb8",
+    "dirty": true
+  },
+  "digest": "a3492558f75a5ae45fd94714767baf8f6bf1946f3f4caba71c51594c7ea15b80",
+  "files": [
+    {
+      "path": ".mona/build-macos/attempts.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".mona/build-macos/state.json",
+      "sha256": "0e622230fae36cea327361c1a0427fb4ab1199a4c6d28603a9a929c45145f392",
+      "bytes": 11787
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "170d244fda5ea025b27115a8b68804caf969258e66f56493c1d3879e58963e59",
+      "bytes": 6152
+    },
+    {
+      "path": "docs/codewhale-capabilities-macos.json",
+      "sha256": "3b2950e6569e8fecce407ed570381fd0610f1bd4f388eab0a489eb0769d040bf",
+      "bytes": 9492
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/codewhale-app-server-help.txt",
+      "sha256": "43afc0bf542cff10f19d5597fa8a3d01519147dc4d514592bddfa26c538b5273",
+      "bytes": 3041
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/codewhale-help.txt",
+      "sha256": "c29d10a2f8037f0f40384199142ead5cd29f874bdd89ab109f432cdce5298fc4",
+      "bytes": 6534
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/codewhale-route-catalog.json",
+      "sha256": "3f110b6cdcff29011f07cd393b6ac75f35a9e0d4efde78acd9f5823d94daac27",
+      "bytes": 36452
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/codewhale-subcommand-help.txt",
+      "sha256": "af99c274e3a82bc978050d56a0f480083e6e128224ef42358da3d3aad0b9f439",
+      "bytes": 8624
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/engine-inventory.txt",
+      "sha256": "3b957c90f6f510106ca69793819640aa76262da4eea02f896249456d6cd57796",
+      "bytes": 3026
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/host-inventory.txt",
+      "sha256": "3a052fd5009c6649c16b0550c7e392d218c134a361e1c229821524e30cfd54d5",
+      "bytes": 1651
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p00-recovery-simulation.txt",
+      "sha256": "5af6d35d39234dd088285ce8cc3940dfc4f55e47533e614f794a276c1d8b5372",
+      "bytes": 3089
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/signing-inventory.txt",
+      "sha256": "3e45104c0497ce03bcba731224d253e6003d8addfb46933fc778a3b79ae07d7c",
+      "bytes": 397
+    },
+    {
+      "path": "docs/evidence/macos/P00-bootstrap.md",
+      "sha256": "9ca786d32444cd04fce26ad31a14f863e0a3412d986aeb31734cf2f964e054ac",
+      "bytes": 6403
+    },
+    {
+      "path": "docs/requirements-macos.json",
+      "sha256": "23f5712d5366c49138bb7c98a9bf3ad5262d2ca6736c9ceeded4561a30399df2",
+      "bytes": 24504
+    },
+    {
+      "path": "docs/requirements-macos.json",
+      "sha256": "23f5712d5366c49138bb7c98a9bf3ad5262d2ca6736c9ceeded4561a30399df2",
+      "bytes": 24504
+    },
+    {
+      "path": "Mona_macOS_Project.md",
+      "sha256": "d1c02941151c71912bc3e9c8b2509612298d54e05e0bf16fe933b9bd93e3e028",
+      "bytes": 83359
+    },
+    {
+      "path": "Mona_macOS_PROMPTS.md",
+      "sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8",
+      "bytes": 79097
+    }
+  ]
+}
