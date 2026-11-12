@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "revision": 442,
+  "revision": 443,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
   "spec_sha256": "d1c02941151c71912bc3e9c8b2509612298d54e05e0bf16fe933b9bd93e3e028",
   "prompt_file_sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8",
   "current_prompt": "P20",
-  "current_prompt_status": "verifying",
-  "last_verified_commit": "a41f17f",
+  "current_prompt_status": "completed",
+  "last_verified_commit": "6c14cb3",
   "tasks": {
     "P00": {
       "status": "completed",
@@ -2203,7 +2203,7 @@
       "blocker_ids": []
     },
     "P20": {
-      "status": "verifying",
+      "status": "completed",
       "requirements": [
         "MONA-016",
         "MONA-025",
@@ -2220,7 +2220,8 @@
         "Corrected the folder-policy claim about Finder aliases: an alias file is refused as NOT_A_DIRECTORY with instructions instead of being silently followed",
         "Added 22-check scripts/p20-failure-smoke.mjs (npm run smoke:failure, wired into CI) covering stale revision, disk full, barrier, corrupted DB, interrupted restore, missing artifact, archive hostility, repository hooks, redaction, and a killed writer",
         "Extended the Electron lifecycle smoke with a real main-crash phase: SIGKILL the app, prove the supervisor stops the group and exits with zero orphans (27/27 checks)",
-        "Verified: 649 tests in 67 files; typecheck, lint, and format clean; npm run ci 21/21 steps green including smoke:failure and smoke:lifecycle"
+        "Verified: 649 tests in 67 files; typecheck, lint, and format clean; npm run ci 21/21 steps green including smoke:failure and smoke:lifecycle",
+        "Committed as 6c14cb3 with a clean monabuild validate, no open problem, and no attempt consumed"
       ],
       "remaining_steps": [
         "Physical sleep, a second macOS account, and a real revoked provider key remain manual QA at P24/P26",
@@ -2352,7 +2353,7 @@
   "next_eligible_prompts": [
     "P14"
   ],
-  "last_checkpoint_utc": "2026-11-12T17:09:38.325Z",
+  "last_checkpoint_utc": "2026-11-12T17:10:02.639Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",
