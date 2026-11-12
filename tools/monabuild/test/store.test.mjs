@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync, writeFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { checkpoint, computeNextEligible, recover, summarize } from "../lib/store.mjs";
-import { stateFile, makeState } from "./helpers.mjs";
+import { stateFile, makeState, tempDir } from "./helpers.mjs";
 
 test("checkpoint increments the revision and keeps a backup", () => {
   const { path } = stateFile();
@@ -94,4 +94,40 @@ test("eligibility follows registry prerequisites, not a guessed percentage", () 
   const summary = summarize({ ...state, tasks: { ...state.tasks, P01: { ...state.tasks.P01, status: "running" } } }, prompts);
   assert.equal(summary.prompts.by_status.completed, 1);
   assert.equal(summary.prompts.by_status.running, 1);
+});
+
+test("a recorded evidence hash that no longer matches its file is reported", async () => {
+  const { validateEverything } = await import("../lib/validate.mjs");
+  const { addEvidence } = await import("../lib/store.mjs");
+  const { copyFileSync, mkdirSync, writeFileSync: write } = await import("node:fs");
+  const { dirname: dirOf, join: joinPath, resolve: resolvePath } = await import("node:path");
+  const { fileURLToPath } = await import("node:url");
+
+  const root = tempDir();
+  const realRoot = resolvePath(dirOf(fileURLToPath(import.meta.url)), "..", "..", "..");
+  mkdirSync(joinPath(root, "docs", "evidence", "macos"), { recursive: true });
+  mkdirSync(joinPath(root, ".mona", "build-macos"), { recursive: true });
+  for (const name of ["Mona_macOS_Project.md", "Mona_macOS_PROMPTS.md"]) {
+    copyFileSync(joinPath(realRoot, name), joinPath(root, name));
+  }
+  copyFileSync(joinPath(realRoot, "docs", "requirements-macos.json"), joinPath(root, "docs", "requirements-macos.json"));
+  const state = { ...makeState(), spec_sha256: "a".repeat(64), prompt_file_sha256: "b".repeat(64) };
+  const statePath = joinPath(root, ".mona", "build-macos", "state.json");
+  write(statePath, `${JSON.stringify(state, null, 2)}\n`);
+
+  const evidencePath = joinPath(root, "docs", "evidence", "macos", "note.md");
+  write(evidencePath, "original\n");
+  addEvidence(statePath, { prompt: "P00", paths: ["docs/evidence/macos/note.md"] });
+  write(evidencePath, "edited after acceptance\n");
+
+  const report = validateEverything({
+    root,
+    statePath,
+    requirementsPath: joinPath(root, "docs", "requirements-macos.json"),
+    indexPath: joinPath(root, ".mona", "build-macos", "index.json"),
+    attemptsPath: joinPath(root, ".mona", "build-macos", "attempts.jsonl"),
+    evidenceDir: joinPath(root, "docs", "evidence", "macos"),
+  });
+  assert.equal(report.ok, false);
+  assert.match(report.errors.join("\n"), /evidence hash is stale/);
 });
