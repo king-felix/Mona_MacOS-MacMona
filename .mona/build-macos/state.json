@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 557,
+  "revision": 558,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -8,7 +8,7 @@
   "prompt_file_sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8",
   "current_prompt": "P23",
   "current_prompt_status": "completed",
-  "last_verified_commit": "77fb51a",
+  "last_verified_commit": "144b567",
   "tasks": {
     "P00": {
       "status": "completed",
@@ -2444,16 +2444,17 @@
       ],
       "completed_steps": [
         "src/shared/contracts/update.ts: channels, source config, signed manifest envelope, package facts, rejection codes, deferral items, handoff receipt, intent record, uninstall and recovery views, all zod-validated",
-        "src/main/update/{version,manifest,trust,source,coordinator,uninstall}.ts: numeric version order with pre-release precedence; Ed25519 envelope over exact bytes with key fingerprint; pure trust policy (identity, team, signature, digest, length, architecture, min OS, downgrade, replay, engine change) plus real pkgutil inspection; HTTPS-only bounded fetch and digest-while-writing download; verify/defer/record/snapshot/handoff coordinator; manifest-owned uninstall view",
-        "src/main/state/recovery.ts: newer-schema refusal, journal and verified snapshot listing, one explicit restore of a snapshot this build can open and migrate forward; startup dialog distinguishes newer schema, failed migration, and unreadable database",
+        "src/main/update/{version,manifest,trust,source,coordinator,uninstall}.ts: numeric version order with an explicit unparseable-version refusal; Ed25519 envelope over exact bytes with key fingerprint; pure trust policy plus real pkgutil inspection with no fail-open identity or architecture branches; HTTPS-only bounded fetch and streaming digest; verify/defer/record/snapshot/handoff coordinator; fixed-allowlist uninstall view",
+        "src/main/state/recovery.ts: verification-before-mutation, a failure-safe swap that puts the previous database back, newer-schema refusal, and a file-swap path that refuses while a store is open",
+        "Restore from Settings routes through StateStore.restoreFrom (maintenance barrier, close, swap, re-open, rollback) so the live handle never writes into a renamed inode",
         "Schema v8 update_intents with forward-only states, plus store APIs: recordUpdateIntent, attachUpdateBackup, settleUpdateIntent, latestUpdateIntent, listUpdateIntents, appliedUpdatePackages, backupForUpdate (maintenance barrier), activeWork",
         "Eleven IPC channels (update:*, state:recovery*) with strict schemas, narrow preload surface, and bridge types",
-        "src/renderer/shell/UpdateSettings.tsx: Settings -> Updates with real identity, source configuration, check result and code, candidate facts, engine-change disclosure, deferral list, intent history, snapshot restore, and uninstall guide; palette and Settings rail updated",
-        "packaging/macos/scripts/uninstall-mona.sh plus lib/uninstall.mjs and lib/rehearsal.mjs: bounded removal utility, its build-time bound review, and a guard that fails any rehearsal root outside the temp tree",
-        "build.mjs: ships the utility, writes update-metadata.json into the installer resources, rehearses the shipped utility end to end, and persists out/uninstall-rehearsal.json as it goes",
-        "73 tests across update-version, update-trust, update-coordinator, update-recovery, update-uninstall, update-screen, and package-macos; scripts/p23-lifecycle-smoke.mjs with 55 checks in CI",
+        "src/renderer/shell/UpdateSettings.tsx: Settings -> Updates with real identity, source configuration, check result and code, candidate facts, engine-change disclosure, deferral list, intent history, snapshot restore, and uninstall guide",
+        "packaging/macos/scripts/uninstall-mona.sh plus lib/uninstall.mjs and lib/rehearsal.mjs: fixed-allowlist removal with identity verification, a destructive branch bounded by MONA_UNINSTALL_ROOT in rehearsal, the build-time bound review, and the rehearsal-root guard",
+        "build.mjs: ships the utility, writes update-metadata.json into the installer resources, and rehearses the shipped utility end to end including --remove-user-data and a refused home outside the rehearsal root (11 sub-checks)",
+        "82 tests across update-version, update-trust, update-coordinator, update-recovery, update-uninstall, update-screen, and package-macos; scripts/p23-lifecycle-smoke.mjs with 58 checks in CI",
         "Fixed a P18 terminal-smoke race: the ring eviction assertion now waits for the child to stop writing",
-        "Review pass: reconciliation proves a migration only from a strictly newer running version, and an engine-change acknowledgement is accepted only when bound to the package digest"
+        "Two adversarial review passes fixed nine defects: unproven same-version migration, boolean engine consent, live-store restore, missing restore rollback, unparseable version ordering, fail-open package facts, source-declared local package, post-handoff ledger failure, and an overstated uninstall guarantee"
       ],
       "remaining_steps": [],
       "evidence": [
@@ -2539,7 +2540,7 @@
   "next_eligible_prompts": [
     "P14"
   ],
-  "last_checkpoint_utc": "2026-11-12T20:08:26.501Z",
+  "last_checkpoint_utc": "2026-11-12T20:08:42.598Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",
