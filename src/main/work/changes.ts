@@ -69,6 +69,7 @@ export type ChangesErrorCode =
   | "STALE_PREVIEW"
   | "RESTORE_FAILED"
   | "GIT_UNAVAILABLE"
+  | "GIT_FAILED"
   | "COMMIT_REFUSED"
   | "WRITE_CONFLICT"
   | "WRITE_REFUSED";
@@ -459,7 +460,9 @@ export class ChangeLedger {
         preSnapshotId: result.workspace?.preSnapshotId ?? null,
         postSnapshotId: result.workspace?.postSnapshotId ?? null,
         origin: "engine",
-        evidenceRank: 3,
+        // A route read that produced no workspace is weaker evidence than a
+        // settled event: rank it so it can never erase a complete receipt.
+        evidenceRank: result.workspace?.state === "settled" ? 3 : result.workspace !== null ? 2 : 1,
         truncated: result.workspace?.truncated ?? false,
         omitted: result.workspace?.omitted ?? null,
         note: this.noteForState(
@@ -1465,11 +1468,23 @@ export class ChangeLedger {
             detail: `The file changed after the turn (recorded ${ref.revision.slice(0, 8)}, now ${local.revision.slice(0, 8)}).`,
           });
         }
-      } else if (ref.change === "deleted" && local.exists) {
+      } else if (ref.change === "deleted") {
+        if (local.exists) {
+          conflicts.push({
+            path,
+            kind: "changed_after_turn",
+            detail: "The file the turn deleted exists again; restoring would overwrite it.",
+          });
+        }
+      } else if (local.exists) {
+        // The engine recorded no revision for this path (a deleted turn path or
+        // a delta blob over 16 MiB), so Mona cannot tell whether the file
+        // changed after the turn. Never overwrite that silently.
         conflicts.push({
           path,
-          kind: "changed_after_turn",
-          detail: "The file the turn deleted exists again; restoring would overwrite it.",
+          kind: "unverifiable_revision",
+          detail:
+            "The engine recorded no revision for this path, so Mona cannot prove the bytes are still the turn's. Review the file, then acknowledge if reverting is still intended.",
         });
       }
       if (ref.source === "workspace_changed_during_turn") {
@@ -1600,7 +1615,13 @@ export class ChangeLedger {
       }
       const restored: RestoreResultView["restored"] = [];
       const refused: RestoreResultView["refused"] = [];
-      let remaining = preview.scope.map((entry) => entry.path);
+      // Anything the user selected that the preview excluded never ran; report
+      // it rather than dropping it between preview and execution.
+      const inScope = new Set(preview.scope.map((entry) => entry.path));
+      let remaining = [
+        ...input.paths.filter((path) => !inScope.has(path)),
+        ...preview.scope.map((entry) => entry.path),
+      ];
       for (const entry of preview.scope) {
         try {
           const receipt = await engine.adapter.revertFile({
@@ -1682,6 +1703,13 @@ export class ChangeLedger {
   async stagePaths(input: { projectId: ProjectId; paths: string[] }): Promise<GitActionResult> {
     const project = await this.requireProject(input.projectId);
     this.requireGit();
+    const before = await this.git.status(project.canonicalPath);
+    if (!before.available) {
+      throw new ChangesError(
+        "GIT_UNAVAILABLE",
+        before.reason ?? "Git is not available for this folder",
+      );
+    }
     try {
       await this.git.stage(project.canonicalPath, input.paths);
     } catch (error) {
@@ -1783,13 +1811,20 @@ export class ChangeLedger {
   private gitFailure(error: unknown): ChangesError {
     if (error instanceof ChangesError) return error;
     if (error instanceof GitError) {
+      if (error.code === "NOTHING_TO_COMMIT") {
+        return new ChangesError("COMMIT_REFUSED", error.message, error.details);
+      }
+      // A command that ran and failed is not the same as Git being absent, and
+      // an unsafe path is neither.
       return new ChangesError(
-        error.code === "NOTHING_TO_COMMIT" ? "COMMIT_REFUSED" : "GIT_UNAVAILABLE",
+        error.code === "COMMAND_FAILED" || error.code === "INVALID_PATH"
+          ? "GIT_FAILED"
+          : "GIT_UNAVAILABLE",
         error.message,
         error.details,
       );
     }
-    return new ChangesError("GIT_UNAVAILABLE", errorMessage(error));
+    return new ChangesError("GIT_FAILED", errorMessage(error));
   }
 
   // ---------------------------------------------------------------- editor

@@ -50,26 +50,30 @@ Decision record: `docs/decisions/ADR-008-changes-git-and-restore.md`.
 
 ### Automated tests
 
-`docs/evidence/macos/artifacts/p13-tests.txt` — **383 tests in 41 files pass**,
+`docs/evidence/macos/artifacts/p13-tests.txt` — **387 tests in 41 files pass**,
 including:
 
 - `test/work-git.test.ts` (11): clean/dirty/conflict/worktree/subfolder status;
   literal path safety; selected commit leaves unrelated staged work staged; a
   file staged and then edited is not committed by accident; staged vs unstaged
   diffs.
-- `test/work-changes.test.ts` (16): settled projection and source attribution;
+- `test/work-changes.test.ts` (20): settled projection and source attribution;
   unavailable delta is not an empty diff; evidence never regresses; dirty Git
   attribution with unreceipted work; preview conflicts, acknowledgement,
   successful restore receipt, stale preview, exclusions, no-engine refusal,
   lazy text/diff windows, binary detection, write conflicts, selected commits,
-  and non-Git refusal.
+  non-Git refusal, a path with no recorded revision requiring acknowledgement,
+  a still-deleted path needing none, an empty capture never erasing a settled
+  receipt, a partial restore reporting only genuinely unattempted files, and an
+  empty-scope restore being refused.
 - `test/engine-artifacts.test.ts` (15): artifact listing, binary/oversized/
   missing artifact windows, captured vs pending call spans, file-revert 200/
   409/405, restore probe, snapshot listing, workspace read states, and the 409
   write-conflict revision.
-- `test/changes-screen.test.tsx` (3): receipt rendering with real attribution
-  labels, worktree/unreceipted Git rows, non-Git honesty, lazy text load, and
-  the restore-unavailable reason.
+- `test/changes-screen.test.tsx` (4): receipt rendering with real attribution
+  labels, worktree/unreceipted Git rows, non-Git honesty, lazy text load, the
+  restore-unavailable reason, and withholding the editor when a window has no
+  revision.
 - `test/state-database.test.ts` updated for migration v6; migration recovery
   still restores the previous database when a later migration damages the
   schema.
@@ -119,7 +123,7 @@ screenshot is committed from this run.
 ### Local CI
 
 `docs/evidence/macos/artifacts/p13-ci.txt` — format, lint, both typechecks,
-supervisor and service builds, 383 tests, renderer build, `smoke:board`,
+supervisor and service builds, 387 tests, renderer build, `smoke:board`,
 `smoke:cost`, and `smoke:changes` all pass; the renderer secret scan reports 0
 patterns in 3 files.
 
@@ -155,6 +159,36 @@ patterns in 3 files.
   engine's tool and test receipts (name, status, summary, output artifacts);
   when a commit from Mona names the set's paths, the card shows the commit
   hash/subject; otherwise it says no commit from this surface names them.
+
+## Review hardening
+
+An independent review of this change found three defects, all fixed and covered
+by tests before the final commit:
+
+1. **A path with no recorded revision could be restored without acknowledgement.**
+   The engine legitimately omits `revision` for a deleted path or a delta blob
+   over 16 MiB. Restore now raises `unverifiable_revision` when the file exists
+   and the receipt has no revision, so an undetectable later edit is never
+   overwritten silently. A path the turn deleted and that is still missing needs
+   no acknowledgement.
+2. **An empty capture could erase a settled receipt.** A route read that
+   returned no workspace was ranked as strong evidence. Capture now ranks by
+   what it produced (settled 3, present-but-not-settled 2, no workspace 1), and
+   the store refuses any capture that names no files when the stored receipt has
+   some. A settled delta can no longer become "No delta".
+3. **The editor could fail with nothing visible.** Save with no revision now
+   shows an explicit message instead of returning silently, the edit control is
+   withheld without a revision, a rejected invoke is caught and displayed, and
+   the IPC content cap matches the engine's 4 MiB write limit rather than
+   rejecting a fully loaded window. The restore dialog now also shows the
+   recorded revision next to the current one.
+
+Smaller honesty fixes in the same pass: a Git command failure is `GIT_FAILED`
+rather than `GIT_UNAVAILABLE`, `git status` reports when its listing was capped,
+a restore whose preview excluded every selected path is refused instead of
+reporting success, excluded paths are listed in `notAttempted`, the artifact
+`source` is unknown rather than guessed when the engine does not say, and a
+commit-evidence row states how many of the set's paths the commit names.
 
 ## Limitations and capability gaps
 

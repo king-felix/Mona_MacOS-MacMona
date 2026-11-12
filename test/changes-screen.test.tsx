@@ -319,6 +319,30 @@ describe("Changes screen", () => {
     expect(container?.textContent).toContain("Mona does not initialize one");
   });
 
+  it("shows a visible error instead of saving when a window has no revision", async () => {
+    const bridge = stubBridge(snapshot());
+    bridge.readChangeFile = vi.fn(async () => ({
+      ok: true as const,
+      value: { ...fileWindow(), revision: null, canEdit: true },
+    }));
+    act(() => root?.render(<ChangesScreen detail={detail()} onOpenFolder={() => undefined} />));
+    await settle();
+    const fileButton = Array.from(container?.querySelectorAll("button") ?? []).find((button) =>
+      button.textContent?.includes("src/app.ts"),
+    );
+    await act(async () => {
+      (fileButton as HTMLElement).click();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+    // Without a revision the edit control is withheld rather than offered and
+    // then silently failing.
+    const editButton = Array.from(container?.querySelectorAll("button") ?? []).find((button) =>
+      button.textContent?.includes("Edit this file"),
+    );
+    expect(editButton).toBeUndefined();
+    expect(bridge.writeWorkspaceFile).not.toHaveBeenCalled();
+  });
+
   it("loads a text window lazily and shows restore availability honestly", async () => {
     const bridge = stubBridge(snapshot());
     act(() => root?.render(<ChangesScreen detail={detail()} onOpenFolder={() => undefined} />));

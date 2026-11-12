@@ -175,7 +175,12 @@ export interface ArtifactWindowView {
 }
 
 export type RestoreConflictKind =
-  "changed_after_turn" | "unattributed_change" | "not_a_regular_file" | "already_matches";
+  | "changed_after_turn"
+  | "unattributed_change"
+  | "not_a_regular_file"
+  | "already_matches"
+  /** The engine recorded no revision for this path, so a later edit is undetectable. */
+  | "unverifiable_revision";
 
 export interface RestoreScopeEntry {
   path: string;

@@ -5,64 +5,62 @@
 
 Switched to a new branch 'left'
 Switched to branch 'main'
- ✓ test/work-attempts.test.ts (14 tests) 752ms
- ✓ test/projects-service.test.ts (10 tests) 840ms
- ✓ test/state-database.test.ts (13 tests) 947ms
+ ✓ test/work-attempts.test.ts (14 tests) 706ms
+ ✓ test/projects-service.test.ts (10 tests) 830ms
+ ✓ test/state-database.test.ts (13 tests) 921ms
 Preparing worktree (new branch 'linked-branch')
 Not implemented: HTMLCanvasElement's getContext() method: without installing the @napi-rs/canvas npm package
- ✓ test/design-components.test.tsx (17 tests) 894ms
- ✓ test/work-board.test.ts (12 tests) 519ms
- ✓ test/work-studio.test.ts (11 tests) 558ms
- ✓ test/work-costs.test.ts (19 tests) 461ms
- ✓ test/work-changes.test.ts (17 tests) 1675ms
+ ✓ test/design-components.test.tsx (17 tests) 874ms
+ ✓ test/work-studio.test.ts (11 tests) 572ms
+ ✓ test/work-costs.test.ts (19 tests) 469ms
+ ✓ test/work-board.test.ts (12 tests) 604ms
+ ✓ test/work-changes.test.ts (20 tests) 1857ms
    ✓ stage and commit through the ledger (2)
-     ✓ keeps unrelated staged work and refuses mixed staging without an explicit choice 655ms
- ✓ test/runtime-supervisor.test.ts (16 tests) 120ms
- ✓ test/supervisor-native.test.ts (9 tests) 2027ms
+     ✓ keeps unrelated staged work and refuses mixed staging without an explicit choice 701ms
+ ✓ test/supervisor-native.test.ts (9 tests) 1976ms
    ✓ native supervisor (8)
-     ✓ records the escaped process group and stops it by identity 367ms
-     ✓ escalates a TERM-ignoring tree to a bounded SIGKILL 777ms
- ✓ test/state-artifacts.test.ts (5 tests) 239ms
- ✓ test/work-git.test.ts (11 tests) 1979ms
+     ✓ records the escaped process group and stops it by identity 365ms
+     ✓ escalates a TERM-ignoring tree to a bounded SIGKILL 781ms
+ ✓ test/runtime-process.test.ts (8 tests) 402ms
+ ✓ test/work-git.test.ts (11 tests) 2012ms
    ✓ GitService status (6)
-     ✓ reports a merge conflict honestly 309ms
-   ✓ GitService staging and selected commits (3)
-     ✓ stages and commits only the selected path, preserving unrelated staged work 329ms
- ✓ test/state-portable.test.ts (6 tests) 396ms
- ✓ test/runtime-process.test.ts (8 tests) 376ms
- ✓ test/state-catalog.test.ts (10 tests) 359ms
- ✓ test/boundary.test.ts (10 tests) 31ms
- ✓ test/work-profile.test.ts (5 tests) 66ms
- ✓ test/open-coordinator.test.ts (5 tests) 80ms
- ✓ test/engine-adapter.test.ts (16 tests) 38ms
- ✓ test/tool-discovery.test.ts (5 tests) 11ms
- ✓ test/supervisor-records.test.ts (6 tests) 8ms
+     ✓ reports a merge conflict honestly 353ms
+ ✓ test/state-artifacts.test.ts (5 tests) 253ms
+ ✓ test/state-portable.test.ts (6 tests) 444ms
+ ✓ test/runtime-supervisor.test.ts (16 tests) 165ms
+ ✓ test/state-catalog.test.ts (10 tests) 441ms
+ ✓ test/open-coordinator.test.ts (5 tests) 79ms
+ ✓ test/engine-adapter.test.ts (16 tests) 35ms
+ ✓ test/boundary.test.ts (10 tests) 40ms
+ ✓ test/work-profile.test.ts (5 tests) 55ms
+ ✓ test/studio-screen.test.tsx (5 tests) 80ms
+ ✓ test/cost-screen.test.tsx (5 tests) 94ms
  ✓ test/ipc-contract.test.ts (19 tests) 11ms
- ✓ test/state-paths.test.ts (4 tests) 16ms
- ✓ test/cost-screen.test.tsx (5 tests) 104ms
- ✓ test/studio-screen.test.tsx (5 tests) 115ms
- ✓ test/studio-render.test.tsx (8 tests) 14ms
- ✓ test/folder-request.test.ts (12 tests) 9ms
- ✓ test/contracts.test.ts (15 tests) 7ms
- ✓ test/changes-screen.test.tsx (3 tests) 139ms
- ✓ test/engine-sse.test.ts (6 tests) 4ms
- ✓ test/engine-artifacts.test.ts (15 tests) 10ms
- ✓ test/fixtures.test.ts (9 tests) 15ms
- ✓ test/engine-compat.test.ts (4 tests) 7ms
- ✓ test/open-service-status.test.ts (13 tests) 13ms
+ ✓ test/tool-discovery.test.ts (5 tests) 10ms
+ ✓ test/studio-render.test.tsx (8 tests) 18ms
+ ✓ test/contracts.test.ts (15 tests) 25ms
+ ✓ test/changes-screen.test.tsx (4 tests) 108ms
+ ✓ test/supervisor-records.test.ts (6 tests) 16ms
+ ✓ test/state-paths.test.ts (4 tests) 14ms
+ ✓ test/folder-request.test.ts (12 tests) 7ms
+ ✓ test/engine-artifacts.test.ts (15 tests) 5ms
+ ✓ test/engine-compat.test.ts (4 tests) 5ms
  ✓ test/design-no-network.test.ts (4 tests) 6ms
- ✓ test/design-tokens.test.ts (5 tests) 5ms
- ✓ test/work-control.test.ts (8 tests) 4ms
- ✓ test/supervisor-identity.test.ts (9 tests) 3ms
+ ✓ test/design-tokens.test.ts (5 tests) 4ms
+ ✓ test/open-service-status.test.ts (13 tests) 7ms
+ ✓ test/fixtures.test.ts (9 tests) 10ms
+ ✓ test/engine-sse.test.ts (6 tests) 4ms
+ ✓ test/work-control.test.ts (8 tests) 3ms
  ✓ test/supervisor-restart.test.ts (3 tests) 2ms
  ✓ test/open-drop.test.ts (5 tests) 2ms
  ✓ test/navigation.test.ts (6 tests) 2ms
+ ✓ test/supervisor-identity.test.ts (9 tests) 3ms
 
  Test Files  41 passed (41)
-      Tests  383 passed (383)
-   Start at  23:54:02
-   Duration  3.03s (tests 79%, import 10%, environment 8%, transform 2%, worker 1%)
+      Tests  387 passed (387)
+   Start at  23:56:23
+   Duration  3.01s (tests 81%, import 9%, environment 8%, transform 2%, worker 1%)
 
-    Isolate  41 workers spawned · ~139ms startup each (spawn + environment, per file)
-             at least ~675ms faster with isolate: false — reuses workers across files instead of one per file
+    Isolate  41 workers spawned · ~134ms startup each (spawn + environment, per file)
+             at least ~653ms faster with isolate: false — reuses workers across files instead of one per file
 

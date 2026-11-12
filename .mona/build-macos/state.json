@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 203,
+  "revision": 208,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -289,7 +289,7 @@
         },
         {
           "path": "src/main/ipc-contract.ts",
-          "sha256": "c6b0d1110d342cdc3283818dc91412764c6bcfd76d96750ee6ae4b13f1fbdbdb",
+          "sha256": "b4dbf4481b0660fccb4e998ad21ebb840f2acce27ea637e9f29aa0bd3bacba8b",
           "note": "re-verified by the P11 CI run after the board IPC was added"
         },
         {
@@ -1165,7 +1165,7 @@
         },
         {
           "path": "src/main/ipc-contract.ts",
-          "sha256": "c6b0d1110d342cdc3283818dc91412764c6bcfd76d96750ee6ae4b13f1fbdbdb",
+          "sha256": "b4dbf4481b0660fccb4e998ad21ebb840f2acce27ea637e9f29aa0bd3bacba8b",
           "note": "re-verified by the P11 CI run after the open path's shared files changed"
         },
         {
@@ -1301,7 +1301,7 @@
         },
         {
           "path": "src/main/state/store.ts",
-          "sha256": "378a52932f678eea039996babc65660cbdb33ce74e8a76fe0e73f5dddb8c2711",
+          "sha256": "2ea87987873c94ff3dea72b58b67f4291984d12310d46f134c3ea935596f3c7f",
           "note": "re-verified by the P11 CI run; the board, schema, and IPC were extended"
         },
         {
@@ -1324,7 +1324,7 @@
         },
         {
           "path": "src/main/ipc-contract.ts",
-          "sha256": "c6b0d1110d342cdc3283818dc91412764c6bcfd76d96750ee6ae4b13f1fbdbdb",
+          "sha256": "b4dbf4481b0660fccb4e998ad21ebb840f2acce27ea637e9f29aa0bd3bacba8b",
           "note": "re-verified by the P11 CI run; the board, schema, and IPC were extended"
         },
         {
@@ -1532,15 +1532,15 @@
       "evidence": [
         {
           "path": "docs/evidence/macos/P13-review.md",
-          "sha256": "fd097f04bcd0198f307572b5bb7975958f410553f3fe38359ed63f00ea17667c"
+          "sha256": "b80b5d5f2d203f8142e145886a2c3ee9bb06ac3c6a891927b8b6d5c9bac99182"
         },
         {
           "path": "docs/decisions/ADR-008-changes-git-and-restore.md",
-          "sha256": "f653e3d46e0c5799bccee141451bb59e3acec125f4ca24e85efa9cd3ef51a13b"
+          "sha256": "e06bae249c8b573302a40876365b8da2c4aa51666a76e5f39f207616737e904a"
         },
         {
           "path": "docs/evidence/macos/artifacts/p13-tests.txt",
-          "sha256": "dbda18d7e77b62f449a9fd4e1e37dded308ac32bee48c439e5db8994de7c884a"
+          "sha256": "ec79777f27c4760a7bedbf2398747390f3bdc12d404b54b47ffff301ea9240d3"
         },
         {
           "path": "docs/evidence/macos/artifacts/p13-changes-sample.json",
@@ -1564,7 +1564,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p13-ci.txt",
-          "sha256": "df7e9beb940aa8fe909cb8332e4a6efa2714a5d86020e045c790607715c848e0"
+          "sha256": "5fa4c92241d5185a590f1bede6bda58e0cd55d3bce0539076b371e8faa3c3251"
         },
         {
           "path": "docs/evidence/macos/artifacts/p13-shell-changes-file.png",
@@ -1745,7 +1745,7 @@
   "next_eligible_prompts": [
     "P14"
   ],
-  "last_checkpoint_utc": "2026-11-12T06:54:36.657Z",
+  "last_checkpoint_utc": "2026-11-12T06:57:03.522Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

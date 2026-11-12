@@ -299,7 +299,7 @@ export const IpcRequests = {
   "changes:write-file": z.strictObject({
     projectId: ProjectId,
     path: z.string().min(1).max(4096),
-    content: z.string().max(1_048_576),
+    content: z.string().max(4_000_000),
     expectedRevision: z.string().regex(/^[a-f0-9]{64}$/),
   }),
   "changes:reveal": z.strictObject({

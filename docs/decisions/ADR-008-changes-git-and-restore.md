@@ -30,9 +30,10 @@ A completed turn produces a **change set**: workspace delta state (`settled`,
 Mona stores that projection in `change_sets` / `change_files` (migration v6) and
 never scans the workspace to invent a competing list.
 
-- Evidence never regresses. A settled route read (rank 3) is not overwritten by
-  a `turn.artifacts` event without files (rank 2) or a bare `turn.completed`
-  (rank 1). A later complete record may replace an earlier one.
+- Evidence never regresses. A settled route read or settled event (rank 3) is
+  not overwritten by a present-but-unsettled read (rank 2) or a bare
+  `turn.completed` (rank 1), and a capture that names no files never clears a
+  receipt that has some. A later complete record may replace an earlier one.
 - `state: unavailable` is stored with the engine's reason
   (`snapshots_disabled`, `workspace_too_large`, `too_many_files`,
   `unsafe_location`, `snapshot_failed`, `not_captured`, `runtime_restarted`,
@@ -89,11 +90,14 @@ A restore has two phases:
 1. **Preview.** For each selected path: scope, predicted action (`modified`,
    `recreated`, `removed`), current hash, recorded revision, exclusions
    (`no_restore_point`, `not_a_workspace_file`, `outside_workspace`), conflicts
-   (`changed_after_turn`, `unattributed_change`, `not_a_regular_file`), and
+   (`changed_after_turn`, `unattributed_change`, `not_a_regular_file`,
+   `unverifiable_revision`), and
    recovery information. A path whose bytes differ from the recorded revision
    is a `changed_after_turn` conflict; an unattributed delta is always a conflict;
-   both must be acknowledged path by path. `planHash` binds the preview's scope
-   and hashes.
+   a path whose receipt carries no revision (a deleted path, or a delta blob over
+   16 MiB) is an `unverifiable_revision` conflict, because the engine gives Mona
+   no way to detect a later edit there. All conflicts must be acknowledged path
+   by path. `planHash` binds the preview's scope and hashes.
 2. **Execution.** Recompute the preview, compare the supplied `expected` hashes
    to the current files (a mismatch is `STALE_PREVIEW` and nothing runs), check
    acknowledgements, then call `file-revert` sequentially. A failure stops the

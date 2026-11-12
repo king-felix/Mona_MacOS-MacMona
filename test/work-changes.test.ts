@@ -210,6 +210,52 @@ describe("change capture and attribution", () => {
     expect(snapshot.sets[0]?.state).toBe("settled");
   });
 
+  it("never erases a settled receipt's files with an empty captured read", async () => {
+    const { store, projectId } = await setup();
+    const ledger = new ChangeLedger({ store });
+    const adapter = fakeEngine({
+      readTurnArtifacts: async () => ({
+        turnId: "turn_rank",
+        workspace: {
+          state: "settled",
+          reason: null,
+          preSnapshotId: "pre",
+          postSnapshotId: "post",
+          truncated: false,
+          omitted: null,
+        },
+        artifacts: [ref({ path: "src/app.ts" }), ref({ path: "src/other.ts", id: "file_other" })],
+      }),
+    });
+    await ledger.captureTurn({
+      projectId,
+      threadId: "thr_changestest001",
+      engineThreadId: "thr_engine_changes_1",
+      turnId: "turn_rank",
+      adapter,
+      payload: {},
+    });
+    // A later read that answers with no workspace and no artifacts is weaker
+    // evidence and must not turn the settled delta into "no delta".
+    await ledger.captureTurn({
+      projectId,
+      threadId: "thr_changestest001",
+      engineThreadId: "thr_engine_changes_1",
+      turnId: "turn_rank",
+      adapter: fakeEngine({
+        readTurnArtifacts: async () => ({
+          turnId: "turn_rank",
+          workspace: null,
+          artifacts: [],
+        }),
+      }),
+      payload: {},
+    });
+    const set = (await ledger.snapshot(projectId)).sets[0]!;
+    expect(set.state).toBe("settled");
+    expect(set.files).toHaveLength(2);
+  });
+
   it("attributes dirty Git paths from receipts and leaves unreceipted work unclaimed", async () => {
     const { store, workspace, projectId } = await setup({ git: true });
     const ledger = new ChangeLedger({ store });
@@ -535,6 +581,113 @@ describe("restore preview and execution", () => {
         acknowledge: [],
       }),
     ).rejects.toMatchObject({ code: "RESTORE_UNAVAILABLE" });
+  });
+
+  it("requires acknowledgement when the engine recorded no revision for a path", async () => {
+    const { store, workspace, projectId } = await setup();
+    writeFileSync(join(workspace, "big-blob.bin"), "current bytes\n", "utf8");
+    const adapter = fakeEngine({
+      probeRestore: async () => ({ fileRevert: true, snapshots: true, reason: null }),
+      listSnapshots: async () => [],
+      readTurnArtifacts: async () => ({
+        turnId: "turn_no_revision",
+        workspace: {
+          state: "settled",
+          reason: null,
+          preSnapshotId: "tree_pre",
+          postSnapshotId: "tree_post",
+          truncated: false,
+          omitted: null,
+        },
+        artifacts: [
+          ref({
+            id: "file_blob",
+            path: "big-blob.bin",
+            revision: null,
+            sizeBytes: 20 * 1024 * 1024,
+            restoreSnapshotId: "tree_pre",
+          }),
+        ],
+      }),
+    });
+    const ledger = new ChangeLedger({ store, engine: () => ({ adapter, workspace }) });
+    await ledger.captureTurn({
+      projectId,
+      threadId: "thr_changestest001",
+      engineThreadId: "thr_engine_changes_1",
+      turnId: "turn_no_revision",
+      adapter,
+      payload: {},
+    });
+    const set = (await ledger.snapshot(projectId)).sets[0]!;
+    const preview = await ledger.restorePreview({
+      projectId,
+      changeSetId: set.id,
+      paths: ["big-blob.bin"],
+    });
+    expect(preview.scope).toHaveLength(1);
+    expect(preview.scope[0]?.recordedRevision).toBeNull();
+    expect(preview.conflicts.map((entry) => entry.kind)).toContain("unverifiable_revision");
+    expect(preview.requiresAcknowledgement).toEqual(["big-blob.bin"]);
+    await expect(
+      ledger.restore({
+        projectId,
+        changeSetId: set.id,
+        paths: ["big-blob.bin"],
+        expected: preview.scope.map((entry) => ({
+          path: entry.path,
+          expectedHash: entry.expectedHash,
+        })),
+        acknowledge: [],
+      }),
+    ).rejects.toMatchObject({ code: "RESTORE_CONFLICT" });
+  });
+
+  it("keeps a deleted path out of the acknowledgement gate when it is still missing", async () => {
+    const { store, workspace, projectId } = await setup();
+    const adapter = fakeEngine({
+      probeRestore: async () => ({ fileRevert: true, snapshots: true, reason: null }),
+      listSnapshots: async () => [],
+      readTurnArtifacts: async () => ({
+        turnId: "turn_deleted",
+        workspace: {
+          state: "settled",
+          reason: null,
+          preSnapshotId: "tree_pre",
+          postSnapshotId: "tree_post",
+          truncated: false,
+          omitted: null,
+        },
+        artifacts: [
+          ref({
+            id: "file_gone",
+            path: "removed.txt",
+            change: "deleted",
+            revision: null,
+            sizeBytes: null,
+            restoreSnapshotId: "tree_pre",
+          }),
+        ],
+      }),
+    });
+    const ledger = new ChangeLedger({ store, engine: () => ({ adapter, workspace }) });
+    await ledger.captureTurn({
+      projectId,
+      threadId: "thr_changestest001",
+      engineThreadId: "thr_engine_changes_1",
+      turnId: "turn_deleted",
+      adapter,
+      payload: {},
+    });
+    const set = (await ledger.snapshot(projectId)).sets[0]!;
+    const preview = await ledger.restorePreview({
+      projectId,
+      changeSetId: set.id,
+      paths: ["removed.txt"],
+    });
+    expect(preview.scope[0]?.action).toBe("recreated");
+    expect(preview.conflicts).toEqual([]);
+    expect(preview.requiresAcknowledgement).toEqual([]);
   });
 
   it("is unavailable without a live engine and does not invent a snapshot store", async () => {

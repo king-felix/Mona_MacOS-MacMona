@@ -3955,6 +3955,17 @@ export class StateStore {
       if (existing && Number(existing.evidence_rank) > input.evidenceRank) {
         return { id: asString(existing.id), updated: false };
       }
+      if (existing && input.files.length === 0) {
+        // A capture that names no files never erases a receipt that has them.
+        // Otherwise a late or empty read would turn a settled delta into "no
+        // delta", and every restore entry point along with it.
+        const counted = db
+          .prepare("SELECT COUNT(*) AS n FROM change_files WHERE change_set_id = ?")
+          .get(asString(existing.id)) as { n: number };
+        if (Number(counted.n) > 0) {
+          return { id: asString(existing.id), updated: false };
+        }
+      }
       const id = existing ? asString(existing.id) : this.id("chg");
       const truncated = input.truncated === true ? 1 : 0;
       if (existing) {

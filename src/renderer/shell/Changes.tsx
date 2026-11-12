@@ -324,7 +324,7 @@ function FileWindowPanel({
             ) : (
               <span className="muted">Whole window loaded.</span>
             )}
-            {window?.canEdit && file.mode === "text" && !window.truncated ? (
+            {window?.canEdit && file.mode === "text" && !window.truncated && window.revision ? (
               <Button size="sm" variant="ghost" onClick={onEdit}>
                 Edit this file
               </Button>
@@ -836,13 +836,25 @@ export function ChangesScreen({
   }, [projectId, commitMessage, selectedGit, includeUnstaged, load]);
 
   const saveFile = useCallback(async (): Promise<void> => {
-    if (!projectId || !file || !fileWindow || editor === null || !editorRevision) return;
-    const result = await window.mona.writeWorkspaceFile({
-      projectId,
-      path: file.path,
-      content: editor,
-      expectedRevision: editorRevision,
-    });
+    if (!projectId || !file || !fileWindow || editor === null) return;
+    if (!editorRevision) {
+      setConflict(
+        "This window has no recorded revision, so a checked write is impossible. Reload the file; if the engine still reports no revision, edit it in your own editor.",
+      );
+      return;
+    }
+    let result: Awaited<ReturnType<typeof window.mona.writeWorkspaceFile>>;
+    try {
+      result = await window.mona.writeWorkspaceFile({
+        projectId,
+        path: file.path,
+        content: editor,
+        expectedRevision: editorRevision,
+      });
+    } catch (error) {
+      setConflict(`The write was rejected before it reached the engine: ${String(error)}`);
+      return;
+    }
     if (result.ok) {
       setEditor(null);
       setConflict(null);
@@ -870,6 +882,12 @@ export function ChangesScreen({
 
   const beginEdit = useCallback((): void => {
     if (!fileWindow || fileWindow.content === null || fileWindow.truncated) return;
+    if (!fileWindow.revision) {
+      setConflict(
+        "This window has no recorded revision, so Mona cannot check the write. Reload the file first.",
+      );
+      return;
+    }
     setEditor(fileWindow.content);
     setEditorRevision(fileWindow.revision);
     setConflict(null);
