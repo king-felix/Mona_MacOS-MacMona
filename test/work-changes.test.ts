@@ -516,6 +516,25 @@ describe("restore preview and execution", () => {
       "not_a_workspace_file",
     ]);
     expect(preview.canRestore).toBe(false);
+    const live = new ChangeLedger({
+      store,
+      engine: () => ({
+        adapter: fakeEngine({
+          probeRestore: async () => ({ fileRevert: true, snapshots: true, reason: null }),
+          listSnapshots: async () => [],
+        }),
+        workspace,
+      }),
+    });
+    await expect(
+      live.restore({
+        projectId,
+        changeSetId: set.id,
+        paths: ["no-point.txt", "artifacts/out.txt"],
+        expected: [],
+        acknowledge: [],
+      }),
+    ).rejects.toMatchObject({ code: "RESTORE_UNAVAILABLE" });
   });
 
   it("is unavailable without a live engine and does not invent a snapshot store", async () => {

@@ -1567,6 +1567,13 @@ export class ChangeLedger {
           { preview },
         );
       }
+      if (preview.scope.length === 0) {
+        throw new ChangesError(
+          "RESTORE_UNAVAILABLE",
+          "nothing in this selection can be restored; the preview lists why each path is excluded",
+          { preview },
+        );
+      }
       const expectedByPath = new Map(
         input.expected.map((entry) => [entry.path, entry.expectedHash]),
       );
