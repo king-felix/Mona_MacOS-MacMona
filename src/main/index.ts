@@ -38,8 +38,17 @@ import { WorkStudio } from "./work/studio";
 import { StateStore } from "./state/store";
 import { verifyPrivatePermissions } from "./state/paths";
 import { ProjectService, runtimeStatusView } from "./projects/service";
+import { OpenCoordinator } from "./open/coordinator";
+import { parseLaunchArguments } from "./open/folder-request";
+import { inspectServiceStatus, refreshServiceRegistration } from "./open/service-status";
 import type { RuntimeStatus } from "./supervisor/runtime-supervisor";
 import type { ProjectId as StudioProjectId } from "../shared/contracts/ids";
+import type {
+  FolderRequestSource,
+  OpenResult,
+  OpenStatusView,
+  ServiceStatus,
+} from "../shared/contracts/open";
 
 app.setName("Mona");
 
@@ -50,6 +59,7 @@ const IS_LIFECYCLE_SMOKE = process.argv.includes("--lifecycle-smoke");
 const IS_DESIGN_SHOTS = process.argv.includes("--design-shots");
 const IS_SHELL_SMOKE = process.argv.includes("--shell-smoke");
 const IS_STUDIO_SMOKE = process.argv.includes("--studio-smoke");
+const IS_OPEN_SMOKE = process.argv.includes("--open-smoke");
 
 let mainWindow: BrowserWindow | null = null;
 let lifecycle: DesktopLifecycle | null = null;
@@ -64,6 +74,13 @@ let workController: WorkController | null = null;
 let workStudio: WorkStudio | null = null;
 let studioSmokeProjectId: string | null = null;
 let studioSmokeRoot: string | null = null;
+let openCoordinator: OpenCoordinator | null = null;
+let resolveCoordinatorReady: (() => void) | null = null;
+const coordinatorReady = new Promise<void>((resolve) => {
+  resolveCoordinatorReady = resolve;
+});
+/** Every external open attempt observed by this process, in order. */
+const openRequests: OpenResult[] = [];
 
 function hardenAllWebContents(): void {
   app.on("web-contents-created", (_event, contents) => {
@@ -76,6 +93,37 @@ function hardenAllWebContents(): void {
     });
     contents.on("will-attach-webview", (event) => event.preventDefault());
   });
+}
+
+/**
+ * The one entry point for folders supplied from outside the renderer: a Finder
+ * Service handoff (open-file), a second launch, cold-start argv, a drop, or the
+ * native open dialog. Validation, journaling, and the "cannot start work"
+ * guarantee all live behind this call.
+ */
+async function dispatchOpen(
+  input: string,
+  source: FolderRequestSource,
+): Promise<OpenResult | null> {
+  await coordinatorReady;
+  if (!openCoordinator) return null;
+  return openCoordinator.open(input, source);
+}
+
+const SERVICES_SETTINGS_URL = "x-apple.systempreferences:com.apple.LoginItems-Settings.extension";
+
+function serviceStatusFacts(): ServiceStatus {
+  return inspectServiceStatus({
+    home: app.getPath("home"),
+    platform: process.platform,
+    arch: process.arch,
+    packaged: app.isPackaged,
+    servicePathOverride: process.env.MONA_SERVICE_PATH ?? null,
+  });
+}
+
+function openStatusFacts(): OpenStatusView {
+  return { last: openCoordinator?.lastResult() ?? null, service: serviceStatusFacts() };
 }
 
 function openWindow(): BrowserWindow {
@@ -121,6 +169,16 @@ function openWindow(): BrowserWindow {
       void captureDesignShots(window)
         .catch((error: unknown) => {
           process.stderr.write(`design shots failed: ${String(error)}\n`);
+          process.exitCode = 1;
+        })
+        .finally(() => app.quit());
+    });
+  }
+  if (IS_OPEN_SMOKE) {
+    window.webContents.once("did-finish-load", () => {
+      void runOpenSmoke(window)
+        .catch((error: unknown) => {
+          process.stderr.write(`open smoke failed: ${String(error)}\n`);
           process.exitCode = 1;
         })
         .finally(() => app.quit());
@@ -967,6 +1025,163 @@ async function runStudioSmoke(window: BrowserWindow): Promise<void> {
   if (report.ok !== true) process.exitCode = 1;
 }
 
+// ------------------------------------------------------------- open smoke
+
+/**
+ * P09 evidence runner. The driver performs the registered Finder Service
+ * against a temporary project folder twice; this runner proves what the real
+ * application did with it: registered once, selected, composer focused, no
+ * runtime started, no task created, one window, one catalog entry.
+ */
+function openSmokeDir(): string {
+  return join(app.getPath("home"), "Library", "Application Support", "Mona");
+}
+
+async function runOpenSmoke(window: BrowserWindow): Promise<void> {
+  const reportPath = join(openSmokeDir(), "open-smoke.json");
+  mkdirSync(openSmokeDir(), { recursive: true });
+  const report: {
+    schema_version: number;
+    label: string;
+    captured_at: string;
+    ok: boolean;
+    phases: Array<Record<string, unknown>>;
+    checks: Record<string, boolean>;
+    requests: Array<Record<string, unknown>>;
+    facts: Record<string, unknown>;
+    screenshots: string[];
+    error?: unknown;
+  } = {
+    schema_version: 1,
+    label: "P09 REAL APPLICATION HANDOFF — built app, macOS-registered Service",
+    captured_at: "",
+    ok: false,
+    phases: [],
+    checks: {},
+    requests: [],
+    facts: {},
+    screenshots: [],
+  };
+  const flush = () => writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`);
+  const phase = (name: string, extra: Record<string, unknown> = {}) => {
+    report.phases.push({ phase: name, at: new Date().toISOString(), ...extra });
+    flush();
+  };
+  const sleep = (ms: number) => new Promise((resolveSleep) => setTimeout(resolveSleep, ms));
+  const evaluate = <T>(expression: string): Promise<T> =>
+    window.webContents.executeJavaScript(expression) as Promise<T>;
+  const waitFor = async (
+    predicate: () => Promise<boolean> | boolean,
+    timeoutMs: number,
+  ): Promise<boolean> => {
+    const deadline = Date.now() + timeoutMs;
+    while (Date.now() < deadline) {
+      if (await predicate()) return true;
+      await sleep(120);
+    }
+    return false;
+  };
+
+  try {
+    await waitFor(
+      async () => await evaluate<boolean>("document.body.dataset.ready === 'true'"),
+      20_000,
+    );
+    phase("ready", { windows: BrowserWindow.getAllWindows().length });
+
+    const firstSeen = await waitFor(() => openRequests.length >= 1, 90_000);
+    if (!firstSeen) throw new Error("no Finder handoff reached the application");
+    const first = openRequests[0] as OpenResult;
+    const projectId = first.projectId as StudioProjectId;
+    report.requests.push(first as unknown as Record<string, unknown>);
+    phase("first_request", { source: first.source, ok: first.ok, path: first.path });
+
+    const selected = await waitFor(
+      async () => (await evaluate<string>("document.documentElement.dataset.screen")) === "studio",
+      15_000,
+    );
+    await sleep(700);
+    const dom = await evaluate<{
+      screen: string | null;
+      projects: number;
+      composer_focused: boolean;
+      composer_text: string | null;
+      title: string | null;
+      banner: boolean;
+    }>(`(() => ({
+      screen: document.documentElement.dataset.screen,
+      projects: document.querySelectorAll('[data-project-id]').length,
+      composer_focused: document.activeElement?.tagName === 'TEXTAREA',
+      composer_text: document.activeElement?.tagName === 'TEXTAREA' ? document.activeElement.value : null,
+      title: document.querySelector('.context-bar__title')?.textContent ?? null,
+      banner: document.body.textContent.includes('TEST FIXTURE'),
+    }))()`);
+
+    const image = await window.webContents.capturePage();
+    const shotPath = join(openSmokeDir(), "p09-open-handoff.png");
+    writeFileSync(shotPath, image.toPNG());
+    report.screenshots.push(shotPath);
+
+    const statsAfterFirst = await productState?.stats();
+    const tasksAfterFirst = projectId ? await productState?.listTasks(projectId) : [];
+    phase("first_observed", {
+      selected,
+      projects: statsAfterFirst?.projects ?? null,
+      tasks: tasksAfterFirst?.length ?? null,
+      engine: supervisor?.status().state ?? "unknown",
+    });
+
+    const secondSeen = await waitFor(() => openRequests.length >= 2, 90_000);
+    if (!secondSeen) throw new Error("the second Finder handoff never arrived");
+    const second = openRequests[1] as OpenResult;
+    report.requests.push(second as unknown as Record<string, unknown>);
+    await sleep(600);
+    const statsAfterSecond = await productState?.stats();
+    const tasksAfterSecond = projectId ? await productState?.listTasks(projectId) : [];
+    phase("second_observed", {
+      created: second.created,
+      project_id: second.projectId,
+      projects: statsAfterSecond?.projects ?? null,
+    });
+
+    const checks: Record<string, boolean> = {
+      handoff_reached_app: first.ok === true,
+      handoff_source_service: first.source === "open_file" || first.source === "service",
+      handoff_created_project: first.created === true,
+      handoff_path_is_folder: typeof first.path === "string" && first.path.startsWith("/"),
+      no_runtime_started:
+        first.runtimeStarted === false && supervisor?.status().state !== "running",
+      no_task_created:
+        (tasksAfterFirst?.length ?? 0) === 0 && (tasksAfterSecond?.length ?? 0) === 0,
+      studio_selected: dom.screen === "studio",
+      composer_focused: dom.composer_focused === true,
+      single_window: BrowserWindow.getAllWindows().length === 1,
+      catalog_single_entry: statsAfterFirst?.projects === 1 && statsAfterSecond?.projects === 1,
+      second_open_reused: second.ok === true && second.created === false,
+      same_project_selected: second.projectId === first.projectId,
+      renderer_not_fixture: dom.banner === false,
+    };
+    report.checks = checks;
+    report.facts = {
+      first,
+      second,
+      dom,
+      tasks: tasksAfterSecond?.length ?? null,
+      projects: statsAfterSecond?.projects ?? null,
+      engine: supervisor?.status().state ?? "unknown",
+      windows: BrowserWindow.getAllWindows().length,
+    };
+    report.ok = Object.values(checks).every(Boolean);
+  } catch (error) {
+    report.error =
+      error instanceof Error ? { message: error.message, stack: error.stack } : String(error);
+    report.ok = false;
+  }
+  report.captured_at = new Date().toISOString();
+  flush();
+  if (report.ok !== true) process.exitCode = 1;
+}
+
 function writeSmoke(value: unknown): void {
   const out = process.env.MONA_SMOKE_OUT;
   if (!out) return;
@@ -1183,6 +1398,14 @@ if (!gotLock) {
   // running instance receives the folder through `second-instance`.
   app.exit(0);
 } else {
+  // A Finder Service handoff arrives as an `open documents` Apple event. It
+  // must be handled before `ready`: Electron emits it that early on a cold
+  // launch, and `preventDefault` keeps the app from quitting on the event.
+  app.on("open-file", (event, path) => {
+    event.preventDefault();
+    void dispatchOpen(path, "open_file");
+  });
+
   const paths = resolveAppPaths();
   const store = new OwnershipStore(join(paths.state, "runtime-ownership.json"));
   const productionDriver: RuntimeDriver = createProductionDriver({
@@ -1236,6 +1459,9 @@ if (!gotLock) {
         lifecycleEvidence = { ...lifecycleEvidence, shutdown: status };
         writeLifecycleEvidence();
       }
+    },
+    onOpenRequest: (request) => {
+      void dispatchOpen(request.path, "second_instance");
     },
   });
   lifecycle.install();
@@ -1320,7 +1546,8 @@ if (!gotLock) {
     hardenSession(session.defaultSession);
     try {
       const appPaths = resolveAppPaths();
-      const smokeState = IS_SMOKE || IS_LIFECYCLE_SMOKE || IS_SHELL_SMOKE || IS_STUDIO_SMOKE;
+      const smokeState =
+        IS_SMOKE || IS_LIFECYCLE_SMOKE || IS_SHELL_SMOKE || IS_STUDIO_SMOKE || IS_OPEN_SMOKE;
       const stateRoot = smokeState
         ? mkdtempSync(join(tmpdir(), "mona-product-state-"))
         : appPaths.state;
@@ -1335,6 +1562,21 @@ if (!gotLock) {
         chooseFolder: chooseProjectFolder,
         reveal: (path) => shell.showItemInFolder(path),
       });
+      openCoordinator = new OpenCoordinator({
+        projects: projectService,
+        journalPath: join(appPaths.support, "open", "last-open.json"),
+        onResult: (result) => {
+          openRequests.push(result);
+          if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send("open:result", result);
+            if (result.ok && result.projectId) {
+              mainWindow.webContents.send("projects:changed", { projectId: result.projectId });
+            }
+          }
+        },
+      });
+      resolveCoordinatorReady?.();
+      resolveCoordinatorReady = null;
       if (workController && supervisor) {
         workStudio = new WorkStudio({
           store: productState,
@@ -1410,6 +1652,28 @@ if (!gotLock) {
       runtimeStatus: () => runtimeStatusView(supervisor?.status() ?? fallbackStatus),
       stateFacts,
       studio: workStudio,
+      openRequest: async (input, source) => {
+        const result = await dispatchOpen(input, source);
+        if (!result) {
+          throw Object.assign(new Error("Mona is still starting; try again in a moment."), {
+            code: "RUNTIME_UNAVAILABLE",
+          });
+        }
+        return result;
+      },
+      openStatus: openStatusFacts,
+      serviceStatus: serviceStatusFacts,
+      refreshService: () => {
+        const before = serviceStatusFacts();
+        refreshServiceRegistration(before.installPath);
+        return serviceStatusFacts();
+      },
+      openServiceSettings: async () => {
+        // A constant Apple URL scheme, never a caller-supplied target.
+        await shell.openExternal(SERVICES_SETTINGS_URL);
+        return { opened: true };
+      },
+      chooseFolder: chooseProjectFolder,
     });
     if (IS_LIFECYCLE_SMOKE) {
       // The smoke builds its own temporary supervisor; recover nothing from the
@@ -1422,6 +1686,18 @@ if (!gotLock) {
     // Reconcile runtime ownership left by a previous run before any new work.
     await supervisor?.recover().catch(() => undefined);
     openWindow();
+    // A cold launch may carry the folder as an argument (a second launch is
+    // handled by the single-instance event instead).
+    const launchRequest = parseLaunchArguments(process.argv.slice(1), {
+      appPath: app.getAppPath(),
+      executablePath: process.execPath,
+    });
+    if (launchRequest) {
+      void dispatchOpen(
+        launchRequest.ok ? launchRequest.request.input : launchRequest.input,
+        "argv",
+      );
+    }
     app.on("activate", () => {
       if (BrowserWindow.getAllWindows().length === 0) openWindow();
     });

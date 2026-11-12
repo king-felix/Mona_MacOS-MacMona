@@ -205,6 +205,57 @@ a {
   min-height: 100vh;
 }
 
+/* Folder drop: an explicit, bounded affordance. The overlay is decorative; the
+   result is announced through the notification region. */
+.shell--drop-active {
+  outline: 2px dashed var(--primary);
+  outline-offset: -6px;
+}
+
+.drop-overlay {
+  position: fixed;
+  inset: 44px 12px 12px calc(var(--rail-width) + 12px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--surface-raised) 88%, transparent);
+  border: 1px solid var(--primary);
+  z-index: 40;
+  pointer-events: none;
+  animation: drop-in var(--motion-fast) var(--ease-out);
+}
+
+.drop-overlay__label {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.drop-overlay__hint {
+  font-size: var(--text-sm);
+  color: var(--muted);
+}
+
+@keyframes drop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.995);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drop-overlay {
+    animation: none;
+  }
+}
+
 .titlebar {
   position: fixed;
   inset: 0 0 auto 0;

@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "revision": 89,
+  "revision": 95,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
   "spec_sha256": "d1c02941151c71912bc3e9c8b2509612298d54e05e0bf16fe933b9bd93e3e028",
   "prompt_file_sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8",
-  "current_prompt": "P08",
+  "current_prompt": "P09",
   "current_prompt_status": "completed",
   "last_verified_commit": "5676c52",
   "tasks": {
@@ -53,7 +53,7 @@
         },
         {
           "path": "docs/requirements-macos.json",
-          "sha256": "c027fb0466e37eee5699c5bf37fb3268fdb2211fe9e267d24d179b145eda937f"
+          "sha256": "ac24895179127a5ff402f1d812739330f469f4af5d061a3792ad5eb0d9c6c362"
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
@@ -81,7 +81,7 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "256a5be91c80c6f10b16e39fafc74a2f44a9bdcd665cb875608e7214661e60e0"
+          "sha256": "849e710125883de4324cec1f5655ee21becd03e8b8ac621eedbb8b2ba8ffb589"
         },
         {
           "path": "docs/evidence/macos/artifacts/p00-test-run.txt",
@@ -234,7 +234,7 @@
         },
         {
           "path": "package.json",
-          "sha256": "5ae5f3ba5f470285a269a822b98909902b5d8ea74889dd6a1d4dbea80c358a17"
+          "sha256": "f0a0eac489bcf083c27ff3201627bd986ccca60aaec33d9fb25eb2857f7ab92a"
         },
         {
           "path": "package-lock.json",
@@ -262,15 +262,15 @@
         },
         {
           "path": "scripts/ci.mjs",
-          "sha256": "8e7fccc5a1a70f054802f6a83d2017c156e991197f8416abee9e3acc913dd7e0"
+          "sha256": "874c125f47cf3e92db3d68e56b9f1a56f2caddad02da6c9b85655582f9c38c5d"
         },
         {
           "path": "scripts/smoke.mjs",
-          "sha256": "edfa0b1772715f8b817c03d215dfaef54e52c459fe25f592588d559721e107d2"
+          "sha256": "c640375775b450057e1de3eeccdef419e556f5efd0e5046cb082f20a80f7514a"
         },
         {
           "path": "native/macos-services/README.md",
-          "sha256": "96a1ed4d9b0d81276e2d731ac99f4d1414982959b7ea2fdaf31110bcba4324d7"
+          "sha256": "27027526c1605e8ced9dfa5c2bf4107911e30ace1fdce01862c346d91977521b"
         },
         {
           "path": "native/macos-supervisor/README.md",
@@ -282,15 +282,15 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "3562d7b098ab3b9e4bd4509bd0ad528a95aa42e0711226a0c80256ca0cca9841"
+          "sha256": "7c12c228ded4b2432fd862367d7bfb66dcc86bd17c8b321bec41a779ea453b31"
         },
         {
           "path": "src/main/ipc-contract.ts",
-          "sha256": "fadca6e1b26e4f4dece63240e4865356b268f5e1cdd5c60fc3966cb6e498456d"
+          "sha256": "592ec2a45f0b263a531fa436027434915182f5c76ac5b0f8b96fd81456c7a231"
         },
         {
           "path": "src/main/ipc.ts",
-          "sha256": "83c40605b4cc5f37edbfa0f7fc1a48dc591f22ddd1b36a6b4011e3206f6eeae5"
+          "sha256": "679424bc2a5613a7dc457541f6422059a38b374d5dd9d6e0170471ec2329d4b5"
         },
         {
           "path": "src/main/menu.ts",
@@ -318,7 +318,7 @@
         },
         {
           "path": "src/preload/index.ts",
-          "sha256": "5e574c525927764eabdac9ea6d139beab286b83742adff2145d8f02c27c6c356"
+          "sha256": "467979fdf14d8b949ae1d63b3b3e20f3e2907e03cef3e89f546f44ca1f1d91d9"
         },
         {
           "path": "src/renderer/App.tsx",
@@ -338,11 +338,11 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "6e2c682f5088d0d123a1f61d116862fa1b38d6a2ab2d80098503706c77040050"
+          "sha256": "111d3f4d5b6315b6b932d36f17c412d3dc579da80e01c587892cb6e6f532c60a"
         },
         {
           "path": "src/shared/contracts/bridge.ts",
-          "sha256": "1fc6129966d13bbe5e53c8b3562f2a53d1edf01bfe7ce56ddd4f7cbef3d76217"
+          "sha256": "e8b7010a48b75639f478fb8dd5e91087822c3d420f195bb8347c21f09d40995c"
         },
         {
           "path": "src/shared/contracts/engine.ts",
@@ -394,7 +394,7 @@
         },
         {
           "path": "test/ipc-contract.test.ts",
-          "sha256": "d81b4cf7d0690402f9dca1557e4b6c39aaa455b412f7fd1331fda1452dc03b71"
+          "sha256": "5bdb65502265ee14ea0ac60329ced39a57730a6aec735ae5b94ce8000404627e"
         },
         {
           "path": "test/navigation.test.ts",
@@ -543,7 +543,7 @@
         },
         {
           "path": "package.json",
-          "sha256": "5ae5f3ba5f470285a269a822b98909902b5d8ea74889dd6a1d4dbea80c358a17"
+          "sha256": "f0a0eac489bcf083c27ff3201627bd986ccca60aaec33d9fb25eb2857f7ab92a"
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
@@ -633,7 +633,7 @@
         },
         {
           "path": "scripts/ci.mjs",
-          "sha256": "8e7fccc5a1a70f054802f6a83d2017c156e991197f8416abee9e3acc913dd7e0"
+          "sha256": "874c125f47cf3e92db3d68e56b9f1a56f2caddad02da6c9b85655582f9c38c5d"
         },
         {
           "path": "src/main/supervisor/identity.ts",
@@ -665,11 +665,11 @@
         },
         {
           "path": "src/main/desktop-lifecycle.ts",
-          "sha256": "bcd9eec8ca656fa2c8de4ae2b2a5045cd18fdea5de17efb6fe56aa6b4f0d9b8a"
+          "sha256": "c2726dd50228f280f349573368cfb6db1d7dfb479add5cc2654af8e23146bff5"
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "3562d7b098ab3b9e4bd4509bd0ad528a95aa42e0711226a0c80256ca0cca9841"
+          "sha256": "7c12c228ded4b2432fd862367d7bfb66dcc86bd17c8b321bec41a779ea453b31"
         },
         {
           "path": "src/main/engine/runtime-process.ts",
@@ -717,11 +717,11 @@
         },
         {
           "path": "package.json",
-          "sha256": "5ae5f3ba5f470285a269a822b98909902b5d8ea74889dd6a1d4dbea80c358a17"
+          "sha256": "f0a0eac489bcf083c27ff3201627bd986ccca60aaec33d9fb25eb2857f7ab92a"
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "256a5be91c80c6f10b16e39fafc74a2f44a9bdcd665cb875608e7214661e60e0"
+          "sha256": "849e710125883de4324cec1f5655ee21becd03e8b8ac621eedbb8b2ba8ffb589"
         }
       ],
       "blocker_ids": [],
@@ -1022,15 +1022,206 @@
       ]
     },
     "P09": {
-      "status": "pending",
+      "status": "completed",
       "requirements": [
         "MONA-004",
         "MAC-002"
       ],
-      "completed_steps": [],
+      "completed_steps": [
+        "Built the signed standalone Swift/AppKit Mona.service: folder-only Services advertisement, file-URL validation (scheme, host, existence, directory, readability, disk roots, online-only cloud items), alias/symlink resolution, app lookup by bundle identity with SecStaticCodeCheckValidity, and one odoc Apple Event; bounded refusal alerts, a handoff receipt, and a phase trace",
+        "Proved real macOS discovery and launch: NSPerformService performed the registered Service with 21/21 checks, including exact-folder delivery verified by device/inode, awkward names (spaces, quotes, $, semicolon, newline, NFD Unicode), folder-only eligibility, and typed refusals for files, empty and text selections, and multi-selection",
+        "Added one validated open dispatcher in main: file URL or absolute path only, percent-decoding, symlink resolution, errno mapping, disk-root refusal, and launch-argument parsing that ignores the executable",
+        "Added OpenCoordinator (validate, register once, journal, notify) with no supervisor, adapter, or task API, so opening cannot start a runtime or create work",
+        "Wired open-file (registered before ready), second-instance handoff, cold-start argv, the native dialog, and window drop through that dispatcher; added strict IPC (open:folder, open:status, service:status, service:refresh, service:open-settings) and open:result pushes",
+        "Added window folder drop with a one-folder rule and visible affordance, composer focus after a handoff, and a Settings Finder panel with measured registration state, last handoff, and guided recovery",
+        "Verified the real application end to end: 16/16 checks with a real Service handoff into a built app bundle - registered once, Studio selected, composer focused, no runtime, no task, one window, second handoff reused",
+        "274 tests in 33 files pass, local CI green (Service build added to CI), Electron security smoke 20/20 after fixing a stale P08 bridge expectation, shell smoke 32/32"
+      ],
       "remaining_steps": [],
-      "evidence": [],
-      "blocker_ids": []
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P09-finder.md",
+          "sha256": "ad90e473dd5eb269746f69aa9a4905569fb957a445749206628b7ed5d38458f5"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p09-service-smoke.json",
+          "sha256": "dc38d9afcfc14be64b4efee79881d4ee54b533c4108bfd92286fb3449ab1c17e"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p09-app-handoff.json",
+          "sha256": "5751d293da0d243d48b0f5a64980a70b4d675ffa2c3f01318b284a568d8fc4f8"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p09-app-run.json",
+          "sha256": "76157b87b251ee6c2e370b3a243bb8d117d13d2c965029645c57bb34f0ecbf6b"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p09-open-handoff.png",
+          "sha256": "333d123f84bf4be025f3b11139515b98b2bbcc5168b61d42987979344e9d7b79"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p09-tests.txt",
+          "sha256": "7b3662fcb77a1f013d55e697f6164264c7d7ac6bd85476037e0160656b80cb60"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p09-ci.json",
+          "sha256": "94b8c10ad9c30cc264d5217a77c4a5c7a2e04f0c6bf3fd7f24d19e86c7d1e109"
+        },
+        {
+          "path": "native/macos-services/main.swift",
+          "sha256": "e73af2e7ea4a63c7ab2cfb534b96b883d8e9dea611cd8cf68dbaf295a45f9b2b"
+        },
+        {
+          "path": "native/macos-services/Info.plist",
+          "sha256": "3a7f41a287f0ac7f09e448d0f12eb4cfcc3494829ee9858086bf3433bef0ba78"
+        },
+        {
+          "path": "native/macos-services/README.md",
+          "sha256": "27027526c1605e8ced9dfa5c2bf4107911e30ace1fdce01862c346d91977521b"
+        },
+        {
+          "path": "native/macos-services/test-support/probe/main.swift",
+          "sha256": "b82f7db6cbcaef94afc5ff0dade652fb96a396a9240c9cafd2aa390ca0c687b0"
+        },
+        {
+          "path": "native/macos-services/test-support/probe/Info.plist",
+          "sha256": "5ce7611a5fa51cc53098a430612862a0a16572696a1bd88dce8a90a8d3c833b8"
+        },
+        {
+          "path": "native/macos-services/test-support/harness/main.swift",
+          "sha256": "85c448bd4d3729d09b303f99ad48e09a33f434dca2b1db4b6b593cf1aa04b5e4"
+        },
+        {
+          "path": "native/macos-services/test-support/harness/Info.plist",
+          "sha256": "1321ddf57aa76dadc98db09578c2e7891d44793df5405b1830b67e6fb5b9bf1d"
+        },
+        {
+          "path": "scripts/build-service.mjs",
+          "sha256": "e1c3421a883f69bc25b0724a8ae3d8fe3a638032eaf29f731e417caff152fcc7"
+        },
+        {
+          "path": "scripts/build-service-fixtures.mjs",
+          "sha256": "f69d88aa2b75d0a27fd8b3a0ea0bbfece3285c404e0b8caf278263226628f854"
+        },
+        {
+          "path": "scripts/service-smoke.mjs",
+          "sha256": "dd218fe8f5e8fcc37bdce58dc6c49a22f46f3e8a7090c84bad648d5dbdac4a2f"
+        },
+        {
+          "path": "scripts/open-smoke.mjs",
+          "sha256": "fc4a634bf85a2c96f441c5996e94b3e8d16b6bcae247bb41b73d71fcc39bcc06"
+        },
+        {
+          "path": "scripts/smoke.mjs",
+          "sha256": "c640375775b450057e1de3eeccdef419e556f5efd0e5046cb082f20a80f7514a"
+        },
+        {
+          "path": "scripts/ci.mjs",
+          "sha256": "874c125f47cf3e92db3d68e56b9f1a56f2caddad02da6c9b85655582f9c38c5d"
+        },
+        {
+          "path": "package.json",
+          "sha256": "f0a0eac489bcf083c27ff3201627bd986ccca60aaec33d9fb25eb2857f7ab92a"
+        },
+        {
+          "path": "src/main/open/folder-request.ts",
+          "sha256": "d1013c8da245f821cff1b43ccaf56a7286df5956aac59735ee342f08d49b1c3a"
+        },
+        {
+          "path": "src/main/open/coordinator.ts",
+          "sha256": "3419d9bc07678efb6bf39b38f50b66681ad9102551d341b9f68c60ae79258021"
+        },
+        {
+          "path": "src/main/open/service-status.ts",
+          "sha256": "9c8c165000811f5eb1a234571d4ecda34ed2ef86098954af12284fc1edbd285a"
+        },
+        {
+          "path": "src/main/index.ts",
+          "sha256": "7c12c228ded4b2432fd862367d7bfb66dcc86bd17c8b321bec41a779ea453b31"
+        },
+        {
+          "path": "src/main/desktop-lifecycle.ts",
+          "sha256": "c2726dd50228f280f349573368cfb6db1d7dfb479add5cc2654af8e23146bff5"
+        },
+        {
+          "path": "src/main/ipc.ts",
+          "sha256": "679424bc2a5613a7dc457541f6422059a38b374d5dd9d6e0170471ec2329d4b5"
+        },
+        {
+          "path": "src/main/ipc-contract.ts",
+          "sha256": "592ec2a45f0b263a531fa436027434915182f5c76ac5b0f8b96fd81456c7a231"
+        },
+        {
+          "path": "src/main/projects/service.ts",
+          "sha256": "1565cddf312136d25c8f96ada052f4c6774f51d88ad3514c3fb276f48f1205b9"
+        },
+        {
+          "path": "src/preload/index.ts",
+          "sha256": "467979fdf14d8b949ae1d63b3b3e20f3e2907e03cef3e89f546f44ca1f1d91d9"
+        },
+        {
+          "path": "src/shared/contracts/open.ts",
+          "sha256": "41ecebe5cccac0232ba0ea1b22527f537c43615f8a2453961b4885e3fd6dabc7"
+        },
+        {
+          "path": "src/shared/contracts/bridge.ts",
+          "sha256": "e8b7010a48b75639f478fb8dd5e91087822c3d420f195bb8347c21f09d40995c"
+        },
+        {
+          "path": "src/renderer/shell/Shell.tsx",
+          "sha256": "ccd4be4a4ca384067e1b9840bf9bcf90916ff01e3ac8b1b152eb5a2147c5089a"
+        },
+        {
+          "path": "src/renderer/shell/drop.ts",
+          "sha256": "7f475ab431411e71f4b54830edeefd1a1dc2fc166826e9dd96850bb506966a6a"
+        },
+        {
+          "path": "src/renderer/shell/FinderIntegration.tsx",
+          "sha256": "b5a6202756e85b2ade3533f295fe1a432544c0472b88add21985ac19d76fe380"
+        },
+        {
+          "path": "src/renderer/shell/Settings.tsx",
+          "sha256": "2326f132c06dd39de62fa369b15411c27a75d97535dd78515cd27356276a4721"
+        },
+        {
+          "path": "src/renderer/styles.css",
+          "sha256": "111d3f4d5b6315b6b932d36f17c412d3dc579da80e01c587892cb6e6f532c60a"
+        },
+        {
+          "path": "test/folder-request.test.ts",
+          "sha256": "87d24c9e2b955d38430781fd11b1f4baef923a9582a5b6a99b191ee5a3b3293e"
+        },
+        {
+          "path": "test/open-coordinator.test.ts",
+          "sha256": "54c576edc49d5cd29b459c8cdf67aac4aacb8b9af11ef209439f495e2b1ee6f3"
+        },
+        {
+          "path": "test/open-service-status.test.ts",
+          "sha256": "0bdb39b9bec9cf890bfe40d2b49b1227c5048816b0bead8b4b16cb428aff3bf6"
+        },
+        {
+          "path": "test/open-drop.test.ts",
+          "sha256": "7b68cc3f948aab63037eb62e29af0ea8dad0baa87247244974137ccf46ff7dec"
+        },
+        {
+          "path": "test/ipc-contract.test.ts",
+          "sha256": "5bdb65502265ee14ea0ac60329ced39a57730a6aec735ae5b94ce8000404627e"
+        },
+        {
+          "path": ".mona/build-macos/DECISIONS.md",
+          "sha256": "849e710125883de4324cec1f5655ee21becd03e8b8ac621eedbb8b2ba8ffb589"
+        }
+      ],
+      "blocker_ids": [],
+      "notes": [
+        "P09-01: a Finder handoff never starts the runtime; Studio shows Start engine with the composer focused (D-019).",
+        "P09-02: the Service is installed per-user for development; /Library/Services placement and Developer ID signing are P21/P22 (D-020).",
+        "P09-03: LaunchServices ignores app bundles in temporary directories, and the Services daemon can serve a stale record after a bundle change; the smoke installs in ~/Applications, re-installs, and retries once (D-021).",
+        "P09-04: NSPerformService does not re-apply menu eligibility, so the Service validates every selection itself.",
+        "P09-05: OS-level drag input is not scripted; drop rules and the IPC channel are unit and contract tested, and the equivalent Service path is proven end to end.",
+        "P09-06: the interactive multi-selection alert is human QA (P24/P26); the refusal path is covered by CLI tests.",
+        "P09-07: the Electron security smoke's expected-bridge list was stale after P08; it now lists the full narrow bridge."
+      ]
     },
     "P10": {
       "status": "pending",
@@ -1249,7 +1440,7 @@
   "next_eligible_prompts": [
     "P08"
   ],
-  "last_checkpoint_utc": "2026-11-12T03:48:05.854Z",
+  "last_checkpoint_utc": "2026-11-12T04:20:06.552Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

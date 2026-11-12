@@ -18,6 +18,16 @@ export const IpcRequests = {
     query: z.string().trim().max(200).optional(),
     includeArchived: z.boolean().optional(),
   }),
+  // Every externally supplied folder enters here. Sources are enumerated so a
+  // caller cannot claim an origin it does not have.
+  "open:folder": z.strictObject({
+    path: z.string().min(1).max(8192),
+    source: z.enum(["drop"]),
+  }),
+  "open:status": z.strictObject({}),
+  "service:status": z.strictObject({}),
+  "service:refresh": z.strictObject({}),
+  "service:open-settings": z.strictObject({}),
   "projects:open": z.strictObject({
     rootPath: z.string().min(1).max(4096).startsWith("/").optional(),
   }),

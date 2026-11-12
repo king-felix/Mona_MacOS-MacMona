@@ -57,6 +57,23 @@ const EXPECTED_BRIDGE = [
   "runtimeStatus",
   "stateFacts",
   "onProjectsChanged",
+  "pathForDroppedFile",
+  "openDroppedFolder",
+  "openStatus",
+  "serviceStatus",
+  "refreshService",
+  "openServiceSettings",
+  "onOpenResult",
+  "studioState",
+  "startStudio",
+  "submitTask",
+  "interruptNow",
+  "pauseAfterTask",
+  "resumeQueue",
+  "cancelQueued",
+  "reconcileSubmission",
+  "stopStudio",
+  "onStudioChanged",
 ].sort();
 
 const checks = {

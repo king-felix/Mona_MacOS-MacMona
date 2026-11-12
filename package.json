@@ -29,7 +29,10 @@
     "build:supervisor": "node scripts/build-supervisor.mjs",
     "smoke:lifecycle": "npm run build && node scripts/lifecycle-smoke.mjs",
     "smoke:shell": "npm run build && node scripts/shell-smoke.mjs",
-    "smoke:studio": "npm run build && node scripts/studio-smoke.mjs"
+    "smoke:studio": "npm run build && node scripts/studio-smoke.mjs",
+    "build:service": "node scripts/build-service.mjs",
+    "smoke:service": "node scripts/service-smoke.mjs",
+    "smoke:open": "node scripts/open-smoke.mjs"
   },
   "dependencies": {
     "react": "19.3.1",

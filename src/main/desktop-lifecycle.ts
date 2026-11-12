@@ -1,13 +1,17 @@
 import { app, BrowserWindow, powerMonitor, type WebContents } from "electron";
-import { statSync } from "node:fs";
 import { resolve } from "node:path";
+import { parseLaunchArguments } from "./open/folder-request";
 import type { RuntimeStatus, RuntimeSupervisor } from "./supervisor/runtime-supervisor";
 import type { QuitTransition, WorkController, WorkSnapshot } from "./work/control";
 
 export interface OpenRequest {
+  /** Canonical folder path, already validated. */
   path: string;
+  /** The argument exactly as it arrived. */
+  input: string;
   receivedAt: string;
   source: "second_instance" | "argv";
+  notes: string[];
 }
 
 export interface DesktopLifecycleStatus {
@@ -29,6 +33,10 @@ export interface DesktopLifecycleOptions {
   currentWindow: () => BrowserWindow | null;
   openWindow: () => BrowserWindow;
   onStatus?: (status: DesktopLifecycleStatus) => void;
+  /** Every accepted second-launch folder is handed to this one dispatcher. */
+  onOpenRequest?: (request: OpenRequest) => void;
+  /** Test hook; the production parser validates through the folder policy. */
+  resolveOpenRequest?: (argv: string[], workingDirectory: string) => OpenRequest | null;
   shutdownTimeoutMs?: number;
 }
 
@@ -131,7 +139,10 @@ export class DesktopLifecycle {
   /** A second launch hands its folder to the existing owner. */
   handleSecondInstance(argv: string[], workingDirectory: string): OpenRequest | null {
     const request = this.parseOpenRequest(argv, workingDirectory);
-    if (request) this.lastOpenRequest = request;
+    if (request) {
+      this.lastOpenRequest = request;
+      this.options.onOpenRequest?.(request);
+    }
     this.focusWindow();
     this.emit();
     return request;
@@ -191,27 +202,21 @@ export class DesktopLifecycle {
   }
 
   private parseOpenRequest(argv: string[], workingDirectory: string): OpenRequest | null {
-    // Electron's argv starts with the app bundle/entry path; that is not a
-    // user folder. Take the last remaining existing directory so a launcher
-    // can pass flags before the folder.
-    const appPath = resolve(app.getAppPath());
-    const candidates: string[] = [];
-    for (const argument of argv) {
-      if (!argument || argument.startsWith("-")) continue;
-      const candidate = resolve(workingDirectory, argument);
-      if (candidate === appPath) continue;
-      try {
-        if (statSync(candidate).isDirectory()) candidates.push(candidate);
-      } catch {
-        // Not a path; ignore launcher flags.
-      }
+    if (this.options.resolveOpenRequest) {
+      return this.options.resolveOpenRequest(argv, workingDirectory);
     }
-    const chosen = candidates.at(-1);
-    if (!chosen) return null;
+    const parsed = parseLaunchArguments(argv, {
+      appPath: resolve(app.getAppPath()),
+      workingDirectory,
+      executablePath: process.execPath,
+    });
+    if (!parsed || !parsed.ok) return null;
     return {
-      path: chosen,
-      receivedAt: new Date().toISOString(),
+      path: parsed.request.path,
+      input: parsed.request.input,
+      receivedAt: parsed.request.receivedAt,
       source: "second_instance",
+      notes: parsed.request.notes,
     };
   }
 

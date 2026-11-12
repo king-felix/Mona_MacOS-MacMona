@@ -7,6 +7,7 @@ import type {
   RuntimeStatusView,
   StateFacts,
 } from "./project-bridge";
+import type { OpenFolderView, OpenResult, OpenStatusView, ServiceStatus } from "./open";
 import type { UsageEvidence } from "./usage";
 import type {
   StudioActionResult,
@@ -61,6 +62,17 @@ export interface MonaBridge {
   stateFacts(): Promise<StateFacts>;
   /** Main-process catalog changes (menu open, Finder handoff, relocation). */
   onProjectsChanged(callback: (projectId?: string) => void): () => void;
+
+  // Finder handoff, Dock/window drops, and the open dialog.
+  /** Resolve a dropped `File` to its absolute path inside the preload. */
+  pathForDroppedFile(file: File): string | null;
+  openDroppedFolder(path: string): Promise<IpcResult<OpenFolderView>>;
+  openStatus(): Promise<OpenStatusView>;
+  serviceStatus(): Promise<ServiceStatus>;
+  refreshService(): Promise<ServiceStatus>;
+  openServiceSettings(): Promise<IpcResult<{ opened: boolean }>>;
+  /** Every external open attempt, accepted or refused, for honest reporting. */
+  onOpenResult(callback: (result: OpenResult) => void): () => void;
 
   // Live work studio. Reading state never starts a runtime or spends inference.
   studioState(projectId: ProjectId): Promise<IpcResult<StudioSnapshot>>;

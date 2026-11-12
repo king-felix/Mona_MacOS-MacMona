@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from "electron";
+import { contextBridge, ipcRenderer, webUtils } from "electron";
 import type { AppInfo, AppPathInfo, MonaBridge, ToolDiscovery } from "../shared/contracts/bridge";
 import type { ProjectId } from "../shared/contracts/ids";
 import type {
@@ -9,6 +9,12 @@ import type {
   RuntimeStatusView,
   StateFacts,
 } from "../shared/contracts/project-bridge";
+import type {
+  OpenFolderView,
+  OpenResult,
+  OpenStatusView,
+  ServiceStatus,
+} from "../shared/contracts/open";
 import type {
   StudioActionResult,
   StudioMode,
@@ -57,6 +63,34 @@ const bridge: MonaBridge = {
 
   runtimeStatus: (): Promise<RuntimeStatusView> => ipcRenderer.invoke("runtime:status", {}),
   stateFacts: (): Promise<StateFacts> => ipcRenderer.invoke("state:facts", {}),
+
+  // A dropped File never crosses as an object: the preload resolves its path
+  // with Electron's supported API and the main process validates that path.
+  pathForDroppedFile: (file: File): string | null => {
+    try {
+      const path = webUtils.getPathForFile(file);
+      return typeof path === "string" && path.length > 0 ? path : null;
+    } catch {
+      return null;
+    }
+  },
+  openDroppedFolder: (path: string): Promise<IpcResult<OpenFolderView>> =>
+    ipcRenderer.invoke("open:folder", { path, source: "drop" }),
+  openStatus: (): Promise<OpenStatusView> => ipcRenderer.invoke("open:status", {}),
+  serviceStatus: (): Promise<ServiceStatus> => ipcRenderer.invoke("service:status", {}),
+  refreshService: (): Promise<ServiceStatus> => ipcRenderer.invoke("service:refresh", {}),
+  openServiceSettings: (): Promise<IpcResult<{ opened: boolean }>> =>
+    ipcRenderer.invoke("service:open-settings", {}),
+  onOpenResult: (callback: (result: OpenResult) => void): (() => void) => {
+    const listener = (_event: unknown, payload: unknown) => {
+      if (!payload || typeof payload !== "object") return;
+      const result = payload as Partial<OpenResult>;
+      if (typeof result.ok !== "boolean" || typeof result.source !== "string") return;
+      callback(result as OpenResult);
+    };
+    ipcRenderer.on("open:result", listener);
+    return () => ipcRenderer.removeListener("open:result", listener);
+  },
 
   studioState: (projectId: ProjectId): Promise<IpcResult<StudioSnapshot>> =>
     ipcRenderer.invoke("studio:state", { projectId }),

@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "label": "P09 REAL APPLICATION HANDOFF — built app, macOS-registered Service",
+  "captured_at": "2026-11-12T04:17:59.178Z",
+  "ok": true,
+  "phases": [
+    {
+      "phase": "ready",
+      "at": "2026-11-12T04:17:56.565Z",
+      "windows": 1
+    },
+    {
+      "phase": "first_request",
+      "at": "2026-11-12T04:17:57.672Z",
+      "source": "open_file",
+      "ok": true,
+      "path": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona p09 project 18106"
+    },
+    {
+      "phase": "first_observed",
+      "at": "2026-11-12T04:17:58.573Z",
+      "selected": true,
+      "projects": 1,
+      "tasks": 0,
+      "engine": "disconnected"
+    },
+    {
+      "phase": "second_observed",
+      "at": "2026-11-12T04:17:59.177Z",
+      "created": false,
+      "project_id": "prj_e7db3c81c9ebbf4c",
+      "projects": 1
+    }
+  ],
+  "checks": {
+    "handoff_reached_app": true,
+    "handoff_source_service": true,
+    "handoff_created_project": true,
+    "handoff_path_is_folder": true,
+    "no_runtime_started": true,
+    "no_task_created": true,
+    "studio_selected": true,
+    "composer_focused": true,
+    "single_window": true,
+    "catalog_single_entry": true,
+    "second_open_reused": true,
+    "same_project_selected": true,
+    "renderer_not_fixture": true
+  },
+  "requests": [
+    {
+      "ok": true,
+      "source": "open_file",
+      "input": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona p09 project 18106",
+      "path": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona p09 project 18106",
+      "projectId": "prj_e7db3c81c9ebbf4c",
+      "projectName": "mona p09 project 18106",
+      "created": true,
+      "code": null,
+      "message": null,
+      "notes": [],
+      "at": "2026-11-12T04:17:57.671Z",
+      "runtimeStarted": false,
+      "taskCreated": false
+    },
+    {
+      "ok": true,
+      "source": "open_file",
+      "input": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona p09 project 18106",
+      "path": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona p09 project 18106",
+      "projectId": "prj_e7db3c81c9ebbf4c",
+      "projectName": "mona p09 project 18106",
+      "created": false,
+      "code": null,
+      "message": null,
+      "notes": [],
+      "at": "2026-11-12T04:17:58.486Z",
+      "runtimeStarted": false,
+      "taskCreated": false
+    }
+  ],
+  "facts": {
+    "first": {
+      "ok": true,
+      "source": "open_file",
+      "input": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona p09 project 18106",
+      "path": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona p09 project 18106",
+      "projectId": "prj_e7db3c81c9ebbf4c",
+      "projectName": "mona p09 project 18106",
+      "created": true,
+      "code": null,
+      "message": null,
+      "notes": [],
+      "at": "2026-11-12T04:17:57.671Z",
+      "runtimeStarted": false,
+      "taskCreated": false
+    },
+    "second": {
+      "ok": true,
+      "source": "open_file",
+      "input": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona p09 project 18106",
+      "path": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona p09 project 18106",
+      "projectId": "prj_e7db3c81c9ebbf4c",
+      "projectName": "mona p09 project 18106",
+      "created": false,
+      "code": null,
+      "message": null,
+      "notes": [],
+      "at": "2026-11-12T04:17:58.486Z",
+      "runtimeStarted": false,
+      "taskCreated": false
+    },
+    "dom": {
+      "screen": "studio",
+      "projects": 0,
+      "composer_focused": true,
+      "composer_text": "",
+      "title": "mona p09 project 18106",
+      "banner": false
+    },
+    "tasks": 0,
+    "projects": 1,
+    "engine": "disconnected",
+    "windows": 1
+  },
+  "screenshots": [
+    "/Users/<user>/Library/Application Support/Mona/p09-open-handoff.png"
+  ]
+}

@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-12T03:48:05.943Z",
+  "generated_utc": "2026-11-12T04:20:09.490Z",
   "git": {
     "available": true,
-    "commit": "91dacad9d9769425cf7fa040a50fe6ccc135afa4",
+    "commit": "acfbdc9a43085c1c53f6af0d60de8acc72a249fa",
     "dirty": true
   },
-  "digest": "4cf1dc5a7b088652c3402a475ced01c8613efa84cef51e2b2def152622cb01f6",
+  "digest": "f326bb03366d032453ecb494de2db9c20a72aa868ffca15bfb407c80c54157a8",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,8 +15,8 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "5301f17f28d38b6cda66cb3dacb4116c2030751daf9a37715865d229d1bbe463",
-      "bytes": 59228
+      "sha256": "3461d3d7adf1122180b2351f715917fd0387c72e384828eaf231d0556b21e203",
+      "bytes": 69266
     },
     {
       "path": "AGENTS.md",
@@ -364,6 +364,36 @@
       "bytes": 4000
     },
     {
+      "path": "docs/evidence/macos/artifacts/p09-app-handoff.json",
+      "sha256": "5751d293da0d243d48b0f5a64980a70b4d675ffa2c3f01318b284a568d8fc4f8",
+      "bytes": 5079
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p09-app-run.json",
+      "sha256": "76157b87b251ee6c2e370b3a243bb8d117d13d2c965029645c57bb34f0ecbf6b",
+      "bytes": 3849
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p09-ci.json",
+      "sha256": "94b8c10ad9c30cc264d5217a77c4a5c7a2e04f0c6bf3fd7f24d19e86c7d1e109",
+      "bytes": 856
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p09-open-handoff.png",
+      "sha256": "333d123f84bf4be025f3b11139515b98b2bbcc5168b61d42987979344e9d7b79",
+      "bytes": 275963
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p09-service-smoke.json",
+      "sha256": "dc38d9afcfc14be64b4efee79881d4ee54b533c4108bfd92286fb3449ab1c17e",
+      "bytes": 15768
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p09-tests.txt",
+      "sha256": "7b3662fcb77a1f013d55e697f6164264c7d7ac6bd85476037e0160656b80cb60",
+      "bytes": 5186
+    },
+    {
       "path": "docs/evidence/macos/artifacts/signing-inventory.txt",
       "sha256": "3e45104c0497ce03bcba731224d253e6003d8addfb46933fc778a3b79ae07d7c",
       "bytes": 397
@@ -429,13 +459,18 @@
       "bytes": 9660
     },
     {
+      "path": "docs/evidence/macos/P09-finder.md",
+      "sha256": "ad90e473dd5eb269746f69aa9a4905569fb957a445749206628b7ed5d38458f5",
+      "bytes": 10566
+    },
+    {
       "path": "docs/requirements-macos.json",
-      "sha256": "c027fb0466e37eee5699c5bf37fb3268fdb2211fe9e267d24d179b145eda937f",
+      "sha256": "ac24895179127a5ff402f1d812739330f469f4af5d061a3792ad5eb0d9c6c362",
       "bytes": 40178
     },
     {
       "path": "docs/requirements-macos.json",
-      "sha256": "c027fb0466e37eee5699c5bf37fb3268fdb2211fe9e267d24d179b145eda937f",
+      "sha256": "ac24895179127a5ff402f1d812739330f469f4af5d061a3792ad5eb0d9c6c362",
       "bytes": 40178
     },
     {

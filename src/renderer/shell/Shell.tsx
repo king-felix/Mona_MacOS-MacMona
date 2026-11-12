@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type JSX } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent, type JSX } from "react";
 import type { AppInfo, AppPathInfo, ToolDiscovery } from "../../shared/contracts/bridge";
 import type { ProjectId } from "../../shared/contracts/ids";
 import type { StudioActionResult, StudioMode, StudioSnapshot } from "../../shared/contracts/studio";
@@ -9,6 +9,8 @@ import type {
   RuntimeStatusView,
   StateFacts,
 } from "../../shared/contracts/project-bridge";
+import type { OpenResult } from "../../shared/contracts/open";
+import { selectDroppedPath } from "./drop";
 import {
   Badge,
   Button,
@@ -105,6 +107,7 @@ export function Shell(): JSX.Element {
   const [studio, setStudio] = useState<StudioSnapshot | null>(null);
   const [studioMode, setStudioMode] = useState<StudioMode>("work");
   const [studioBusy, setStudioBusy] = useState(false);
+  const [dropActive, setDropActive] = useState(false);
 
   const queryRef = useRef(query);
   const archivedRef = useRef(showArchived);
@@ -243,6 +246,43 @@ export function Shell(): JSX.Element {
     if (studioResult.ok) setStudio(studioResult.value);
   }, []);
 
+  /**
+   * A Finder handoff opens the project and puts the cursor in the composer.
+   * It does not start the engine and it does not submit anything.
+   */
+  const focusComposer = useCallback((): void => {
+    requestAnimationFrame(() => {
+      const composer = document.querySelector<HTMLTextAreaElement>(".composer textarea");
+      composer?.focus();
+    });
+  }, []);
+
+  const handleOpenResult = useCallback(
+    async (result: OpenResult): Promise<void> => {
+      if (!result.ok) {
+        setError(
+          `${result.code ?? "OPEN_FAILED"}: ${result.message ?? "Mona could not open that folder."}`,
+        );
+        return;
+      }
+      setNotice(
+        result.created
+          ? `Added “${result.projectName ?? "project"}” to the catalog. Runtime not started.`
+          : `Opened “${result.projectName ?? "project"}”. Runtime not started.`,
+      );
+      const list = await window.mona.listProjects(undefined, true);
+      if (list.ok) {
+        setCatalog(list.value);
+        const project = list.value.find((entry) => entry.id === result.projectId);
+        if (project) {
+          await selectProject(project, "studio");
+          focusComposer();
+        }
+      }
+    },
+    [focusComposer, selectProject],
+  );
+
   const boot = useCallback(async (): Promise<void> => {
     try {
       const [app, appPaths, list, status, stateFacts, discovered] = await Promise.all([
@@ -283,9 +323,29 @@ export function Shell(): JSX.Element {
           const target = projectId
             ? result.value.find((project) => project.id === projectId)
             : undefined;
-          if (target) await selectProject(target, "studio");
+          if (target) {
+            await selectProject(target, "studio");
+            focusComposer();
+          }
         }
       })();
+    });
+    const offOpen = window.mona.onOpenResult((result) => {
+      // Drops and the native dialog are answered by the caller that started
+      // them; a Service handoff, second launch, or open-file event is announced
+      // here. The catalog refresh and selection arrive on `projects:changed`.
+      if (result.source === "drop" || result.source === "dialog") return;
+      if (!result.ok) {
+        setError(
+          `${result.code ?? "OPEN_FAILED"}: ${result.message ?? "Mona could not open that folder."}`,
+        );
+        return;
+      }
+      setNotice(
+        result.created
+          ? `Added “${result.projectName ?? "project"}” from Finder. Runtime not started.`
+          : `Opened “${result.projectName ?? "project"}” from Finder. Runtime not started.`,
+      );
     });
     const offStudio = window.mona.onStudioChanged((push) => {
       const current = selectedRef.current?.project.id;
@@ -305,11 +365,12 @@ export function Shell(): JSX.Element {
     });
     return () => {
       off();
+      offOpen();
       offStudio();
       if (draftTimer.current) clearTimeout(draftTimer.current);
       if (studioTimer.current) clearTimeout(studioTimer.current);
     };
-  }, [boot, refreshCatalog, refreshSelected, selectProject]);
+  }, [boot, focusComposer, refreshCatalog, refreshSelected, selectProject]);
 
   useEffect(() => {
     if (!selected) return;
@@ -339,6 +400,30 @@ export function Shell(): JSX.Element {
     await selectProject(result.value.project, "studio");
   }, [refreshCatalog, selectProject]);
   openFolderRef.current = () => void openFolder();
+
+  const onDrop = useCallback(
+    async (event: DragEvent<HTMLDivElement>): Promise<void> => {
+      event.preventDefault();
+      setDropActive(false);
+      const files = Array.from(event.dataTransfer?.files ?? []);
+      const selection = selectDroppedPath(files, (file) =>
+        window.mona.pathForDroppedFile(file as File),
+      );
+      if (!selection.path) {
+        if (selection.error) setError(selection.error);
+        return;
+      }
+      setBusy(true);
+      const result = await window.mona.openDroppedFolder(selection.path);
+      setBusy(false);
+      if (!result.ok) {
+        setError(`${result.error.code}: ${result.error.message}`);
+        return;
+      }
+      await handleOpenResult(result.value.result);
+    },
+    [handleOpenResult],
+  );
 
   const performProjectAction = useCallback(
     async (
@@ -622,7 +707,28 @@ export function Shell(): JSX.Element {
   const engineState = selected?.engine ?? null;
 
   return (
-    <div className="harness shell">
+    <div
+      className={`harness shell ${dropActive ? "shell--drop-active" : ""}`}
+      onDragOver={(event) => {
+        if (event.dataTransfer?.types?.includes("Files")) {
+          event.preventDefault();
+          event.dataTransfer.dropEffect = "copy";
+          setDropActive(true);
+        }
+      }}
+      onDragLeave={(event) => {
+        if (event.currentTarget === event.target) setDropActive(false);
+      }}
+      onDrop={(event) => void onDrop(event)}
+    >
+      {dropActive ? (
+        <div className="drop-overlay" aria-hidden="true">
+          <span className="drop-overlay__label">Drop a folder to open it in Mona</span>
+          <span className="drop-overlay__hint">
+            One folder at a time · opening never starts the engine or submits a task
+          </span>
+        </div>
+      ) : null}
       <a className="skip-link" href="#screen-main">
         Skip to content
       </a>

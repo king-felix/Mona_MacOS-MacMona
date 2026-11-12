@@ -334,3 +334,63 @@ and deviations discovered while building.
   turn left non-terminal by a crash. The pinned engine emits plumbing events
   (`item.started`, `turn.workspace_snapshot`, `model.tools.snapshot`, …); they are
   stored and counted in the UI rather than dropped, so "unknown" stays visible.
+
+## D-019 — A Finder handoff opens a project, never starts work
+
+- **Date:** 2026-11-11 (P09)
+- **Decision:** Every externally supplied folder — Finder Service, Dock or
+  window drop, a second launch, `open-file`, and the native open dialog — enters
+  one `OpenCoordinator` that can only validate, register, select, and focus. It
+  has no supervisor, adapter, or task API to reach for. A Finder handoff does not
+  start the headless runtime; Studio shows **Start engine** and the composer is
+  focused.
+- **Why:** Spec §5.1 step 3 describes the engine starting as part of the Finder
+  journey, while §5.1 step 4 and the P09 prompt forbid an external link from
+  authorizing execution. Starting a process tree from an Apple Event that any
+  local process can send is the weaker promise. P08 already made starting the
+  engine an explicit user act with a verified listener, so the open path keeps
+  that invariant and says so in the UI.
+- **Consequence:** One extra keystroke for a Finder-opened project. In exchange,
+  no external argument can spawn an engine, submit a prompt, or resume a turn —
+  and the type of the open result carries `runtimeStarted: false` and
+  `taskCreated: false` as literals.
+
+## D-020 — `Mona.service` is a standalone bundle; development installs are per-user
+
+- **Date:** 2026-11-11 (P09)
+- **Decision:** The Service is a `BNDL` bundle with an `NSServices` entry and a
+  single Swift executable. Development installs go to `~/Library/Services` and
+  are removed by the smoke; the packaged installer places the same bundle in
+  `/Library/Services` with the app (P21). The app is located by bundle identifier
+  `com.mona.workbench` and validated with `SecStaticCodeCheckValidity`; at P22
+  that identity carries a Developer ID signature, and until then ad-hoc is
+  accepted and labelled as such.
+- **Why:** The spec asks for a signed standalone payload and forbids private
+  `pbs` flags, Finder scripting, and preference editing. Per-user scope keeps
+  local work possible without root while keeping the release layout explicit.
+- **Consequence:** `npm run smoke:service` installs and removes the user-scope
+  bundle and records an install manifest with the executable digest. `Info.plist`
+  declares `public.folder` only, so the menu does not offer the Service for
+  files; the Service still validates every selection because `NSPerformService`
+  does not re-apply menu eligibility.
+
+## D-021 — Two measured LaunchServices behaviors shape the open path
+
+- **Date:** 2026-11-11 (P09)
+- **Observation:** (1) `NSWorkspace.urlForApplication(withBundleIdentifier:)`
+  returned `nil` for a correctly signed bundle in a temporary directory and
+  resolved it immediately once the same bundle was in `~/Applications`.
+  (2) After a Service bundle is replaced, the Services daemon can serve a stale
+  record: `NSPerformService` returns success without launching the helper until
+  the bundle is re-installed and re-registered with `lsregister -f`.
+- **Decision:** The application smoke installs a development bundle in
+  `~/Applications` and always performs a fresh Service install plus
+  `lsregister -f`; if the first handoff is not observed it re-installs once,
+  records the attempt, and fails rather than looping. The doctor reports
+  install path, registration source, and last handoff instead of guessing.
+- **Why:** These are OS behaviors, not defects to paper over. A bounded retry
+  with recorded evidence is honest; a background "install watcher" or a silent
+  second attempt would hide whether Finder integration actually works.
+- **Consequence:** P21 must install the Service and the app in the same
+  transaction and re-register after any bundle replacement; P24 verifies the
+  packaged layout on a clean recipient.

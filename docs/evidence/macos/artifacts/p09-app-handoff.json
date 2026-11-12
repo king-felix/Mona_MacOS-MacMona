@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "label": "P09 APPLICATION HANDOFF — real Service into the built app",
+  "captured_at": "2026-11-12T04:17:59.383Z",
+  "ok": true,
+  "phases": [
+    {
+      "phase": "built",
+      "at": "2026-11-12T04:17:50.594Z"
+    },
+    {
+      "phase": "dev_bundle",
+      "at": "2026-11-12T04:17:51.778Z",
+      "path": "/Users/<user>/Applications/MonaDev.app",
+      "bundle_identifier": "com.mona.workbench",
+      "signature": "ad-hoc",
+      "signed": true,
+      "verified": true
+    },
+    {
+      "phase": "service_installed",
+      "at": "2026-11-12T04:17:54.565Z",
+      "path": "/Users/<user>/Library/Services/Mona.service"
+    },
+    {
+      "phase": "launched",
+      "at": "2026-11-12T04:17:54.617Z"
+    },
+    {
+      "phase": "first_handoff",
+      "at": "2026-11-12T04:17:57.857Z"
+    },
+    {
+      "phase": "second_handoff",
+      "at": "2026-11-12T04:17:59.256Z"
+    },
+    {
+      "phase": "finished",
+      "at": "2026-11-12T04:17:59.256Z",
+      "report_written": true
+    },
+    {
+      "phase": "app_exited",
+      "at": "2026-11-12T04:17:59.296Z",
+      "exited": true
+    }
+  ],
+  "steps": [
+    {
+      "step": "first_handoff",
+      "attempt": 1,
+      "harness": {
+        "mode": "url",
+        "pasteboard_types": [
+          "public.file-url",
+          "CorePasteboardFlavorType 0x6675726C",
+          "dyn.ah62d4rv4gu8y6y4grf0gn5xbrzw1gydcr7u1e3cytf2gn",
+          "NSFilenamesPboardType",
+          "dyn.ah62d4rv4gu8yc6durvwwaznwmuuha2pxsvw0e55bsmwca7d3sbwu",
+          "Apple URL pasteboard type"
+        ],
+        "paths": [
+          "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona p09 project 18106"
+        ],
+        "performed": true,
+        "schema_version": 1,
+        "service": "Start new DS project with Mona",
+        "timestamp": "2026-11-12T04:17:57Z"
+      },
+      "observed": true
+    },
+    {
+      "step": "second_handoff",
+      "harness": {
+        "mode": "url",
+        "pasteboard_types": [
+          "public.file-url",
+          "CorePasteboardFlavorType 0x6675726C",
+          "dyn.ah62d4rv4gu8y6y4grf0gn5xbrzw1gydcr7u1e3cytf2gn",
+          "NSFilenamesPboardType",
+          "dyn.ah62d4rv4gu8yc6durvwwaznwmuuha2pxsvw0e55bsmwca7d3sbwu",
+          "Apple URL pasteboard type"
+        ],
+        "paths": [
+          "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona p09 project 18106"
+        ],
+        "performed": true,
+        "schema_version": 1,
+        "service": "Start new DS project with Mona",
+        "timestamp": "2026-11-12T04:17:58Z"
+      },
+      "observed": true
+    }
+  ],
+  "checks": {
+    "app_is_bundle_identity": true,
+    "app_signed_and_verified": true,
+    "service_forwarded": true,
+    "service_used_bundle_identity": true,
+    "app_received_handoff": true,
+    "project_registered": true,
+    "studio_selected": true,
+    "composer_focused": true,
+    "no_runtime_started": true,
+    "no_task_created": true,
+    "single_window": true,
+    "catalog_not_duplicated": true,
+    "second_handoff_reused": true,
+    "same_project_selected": true,
+    "renderer_not_fixture": true,
+    "app_exited_cleanly": true
+  },
+  "service_receipt": {
+    "action": "open_folder",
+    "app_bundle_identifier": "com.mona.workbench",
+    "app_path": "/Users/<user>/Applications/MonaDev.app",
+    "app_signature": "adhoc:com.mona.workbench",
+    "device": 16777232,
+    "forwarded": true,
+    "inode": 33199756,
+    "inputs": [
+      "file:///var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona%20p09%20project%2018106/"
+    ],
+    "invocation": "service",
+    "notes": [
+      "app: located by bundle identity com.mona.workbench"
+    ],
+    "ok": true,
+    "resolved_path": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona p09 project 18106",
+    "schema_version": 1,
+    "strategy": "documents",
+    "timestamp": "2026-11-12T04:17:58.452Z"
+  },
+  "app": {
+    "path": "/Users/<user>/Applications/MonaDev.app",
+    "bundle_identifier": "com.mona.workbench",
+    "signature": "ad-hoc",
+    "signed": true,
+    "verified": true
+  },
+  "screenshots": [
+    "docs/evidence/macos/artifacts/p09-open-handoff.png"
+  ],
+  "error": null,
+  "service_trace": {
+    "phases": [
+      {
+        "at": "2026-11-12T04:17:57.588Z",
+        "invocation": "service",
+        "phase": "launched",
+        "pid": 18331
+      },
+      {
+        "at": "2026-11-12T04:17:57.633Z",
+        "count": 1,
+        "phase": "message_received",
+        "pid": 18331
+      },
+      {
+        "at": "2026-11-12T04:17:57.666Z",
+        "code": "ok",
+        "ok": true,
+        "phase": "finished",
+        "pid": 18331
+      },
+      {
+        "at": "2026-11-12T04:17:58.404Z",
+        "invocation": "service",
+        "phase": "launched",
+        "pid": 18339
+      },
+      {
+        "at": "2026-11-12T04:17:58.450Z",
+        "count": 1,
+        "phase": "message_received",
+        "pid": 18339
+      },
+      {
+        "at": "2026-11-12T04:17:58.485Z",
+        "code": "ok",
+        "ok": true,
+        "phase": "finished",
+        "pid": 18339
+      }
+    ],
+    "schema_version": 1
+  }
+}

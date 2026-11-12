@@ -30,6 +30,9 @@ DerivedData/
 .mona/build-macos/*.tmp-*
 .mona/build-macos/state.json.corrupt-*
 
+# Regenerated registry keeps an atomic-write backup beside it
+docs/requirements-macos.json.bak
+
 # P01 integration-spike scratch output (raw evidence is copied to docs/evidence)
 .p01/
 

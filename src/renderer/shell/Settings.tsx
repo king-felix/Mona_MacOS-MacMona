@@ -24,6 +24,7 @@ import {
   ShieldIcon,
   TerminalIcon,
 } from "../design/icons";
+import { FinderIntegration } from "./FinderIntegration";
 import type { Density, ThemeName } from "../design/tokens";
 
 export function SettingsScreen({
@@ -68,6 +69,7 @@ export function SettingsScreen({
           { id: "appearance", label: "Appearance", icon: <BranchIcon size={15} /> },
           { id: "data", label: "Data", icon: <FolderIcon size={15} /> },
           { id: "runtime", label: "Runtime", icon: <TerminalIcon size={15} /> },
+          { id: "finder", label: "Finder", icon: <FolderIcon size={15} /> },
           { id: "privacy", label: "Privacy", icon: <ShieldIcon size={15} /> },
           { id: "recovery", label: "Recovery", icon: <ArchiveIcon size={15} /> },
         ]}
@@ -243,6 +245,10 @@ export function SettingsScreen({
               ))}
             </ul>
           </Card>
+        </TabPanel>
+
+        <TabPanel id="finder" active={tab === "finder"}>
+          <FinderIntegration />
         </TabPanel>
 
         <TabPanel id="privacy" active={tab === "privacy"}>

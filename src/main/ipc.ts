@@ -6,7 +6,14 @@ import { isAllowedNavigation } from "./navigation";
 import { StateError } from "./state/errors";
 import type { ProjectService } from "./projects/service";
 import type { WorkStudio } from "./work/studio";
+import type { ProjectId } from "../shared/contracts/ids";
 import type { IpcResult, RuntimeStatusView, StateFacts } from "../shared/contracts/project-bridge";
+import type {
+  FolderRequestSource,
+  OpenResult,
+  OpenStatusView,
+  ServiceStatus,
+} from "../shared/contracts/open";
 
 /**
  * Trusted-sender check. IPC answers only the local renderer document this
@@ -27,6 +34,13 @@ export interface IpcDependencies {
   runtimeStatus: () => RuntimeStatusView;
   stateFacts: () => Promise<StateFacts>;
   studio: WorkStudio | null;
+  /** The one dispatcher for externally supplied folders (validated, journaled). */
+  openRequest: (input: string, source: FolderRequestSource) => Promise<OpenResult>;
+  openStatus: () => OpenStatusView;
+  serviceStatus: () => ServiceStatus;
+  refreshService: () => ServiceStatus;
+  openServiceSettings: () => Promise<{ opened: boolean }>;
+  chooseFolder: () => Promise<string | null>;
 }
 
 async function envelope<T>(work: () => Promise<T> | T): Promise<IpcResult<T>> {
@@ -95,9 +109,44 @@ export function registerIpc(rendererRoot: string, dependencies: IpcDependencies)
       dependencies.projects.list({ query: value.query, includeArchived: value.includeArchived }),
     );
   });
-  handle("projects:open", (input) =>
-    envelope(() => dependencies.projects.open((input as { rootPath?: string }).rootPath)),
-  );
+  // The open dialog and the Finder handoff converge on the same validated
+  // dispatcher, so both paths register identically and neither can start work.
+  const openThroughDispatcher = async (
+    target: string,
+    source: FolderRequestSource,
+  ): Promise<{
+    project: Awaited<ReturnType<ProjectService["summaryById"]>>;
+    created: boolean;
+    result: OpenResult;
+  }> => {
+    const result = await dependencies.openRequest(target, source);
+    if (!result.ok || !result.projectId) {
+      throw new StateError("INVALID_PATH", result.message ?? "Mona could not open that folder.", {
+        openCode: result.code,
+        source,
+      });
+    }
+    const project = await dependencies.projects.summaryById(result.projectId as ProjectId);
+    return { project, created: result.created, result };
+  };
+
+  handle("projects:open", (input) => {
+    const provided = (input as { rootPath?: string }).rootPath;
+    return envelope(async () => {
+      const target = provided ?? (await dependencies.chooseFolder());
+      if (!target) return null;
+      const opened = await openThroughDispatcher(target, provided ? "drop" : "dialog");
+      return { project: opened.project, created: opened.created };
+    });
+  });
+  handle("open:folder", (input) => {
+    const value = input as { path: string; source: "drop" };
+    return envelope(() => openThroughDispatcher(value.path, value.source));
+  });
+  handle("open:status", () => dependencies.openStatus());
+  handle("service:status", () => dependencies.serviceStatus());
+  handle("service:refresh", () => dependencies.refreshService());
+  handle("service:open-settings", () => envelope(() => dependencies.openServiceSettings()));
   handle("projects:detail", (input) =>
     envelope(() => dependencies.projects.detail((input as { projectId: never }).projectId)),
   );

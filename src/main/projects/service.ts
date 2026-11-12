@@ -183,6 +183,15 @@ export class ProjectService {
     return projects.map(summary);
   }
 
+  /** Catalog entry for one project, used by the open dispatcher's result. */
+  async summaryById(id: ProjectId): Promise<ProjectSummary> {
+    const project = await this.store.getProject(id, { includeRemoved: true });
+    if (!project) {
+      throw new StateError("NOT_FOUND", "project is not in the catalog", { projectId: id });
+    }
+    return summary(project);
+  }
+
   async open(rootPath?: string): Promise<OpenProjectResult | null> {
     const path = rootPath ?? (await this.chooseFolder());
     if (!path) return null;

@@ -125,3 +125,30 @@ describe("studio IPC validation", () => {
     expect(() => validateIpc("studio:start", { projectId: "thr_0123456789abcdef" })).toThrow();
   });
 });
+
+describe("open path IPC validation", () => {
+  it("accepts a dropped folder path with the enumerated source", () => {
+    expect(validateIpc("open:folder", { path: "/Users/example/project", source: "drop" })).toEqual({
+      path: "/Users/example/project",
+      source: "drop",
+    });
+  });
+
+  it("rejects an invented source, an empty path, and an oversized path", () => {
+    expect(() => validateIpc("open:folder", { path: "/tmp/x", source: "service" })).toThrow(
+      /malformed/i,
+    );
+    expect(() => validateIpc("open:folder", { path: "", source: "drop" })).toThrow(/malformed/i);
+    expect(() =>
+      validateIpc("open:folder", { path: `/${"a".repeat(9000)}`, source: "drop" }),
+    ).toThrow(/malformed/i);
+  });
+
+  it("accepts empty strict payloads for the read-only status channels", () => {
+    expect(validateIpc("open:status", {})).toEqual({});
+    expect(validateIpc("service:status", {})).toEqual({});
+    expect(validateIpc("service:refresh", {})).toEqual({});
+    expect(validateIpc("service:open-settings", {})).toEqual({});
+    expect(() => validateIpc("service:refresh", { path: "/tmp/evil" })).toThrow(/malformed/i);
+  });
+});
