@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 448,
+  "revision": 449,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -8,7 +8,7 @@
   "prompt_file_sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8",
   "current_prompt": "P20",
   "current_prompt_status": "completed",
-  "last_verified_commit": "6c14cb3",
+  "last_verified_commit": "2e09bd0",
   "tasks": {
     "P00": {
       "status": "completed",
@@ -2221,7 +2221,8 @@
         "Added 22-check scripts/p20-failure-smoke.mjs (npm run smoke:failure, wired into CI) covering stale revision, disk full, barrier, corrupted DB, interrupted restore, missing artifact, archive hostility, repository hooks, redaction, and a killed writer",
         "Extended the Electron lifecycle smoke with a real main-crash phase: SIGKILL the app, prove the supervisor stops the group and exits with zero orphans (27/27 checks)",
         "Verified: 649 tests in 67 files; typecheck, lint, and format clean; npm run ci 21/21 steps green including smoke:failure and smoke:lifecycle",
-        "Committed as 6c14cb3 with a clean monabuild validate, no open problem, and no attempt consumed"
+        "Committed as 6c14cb3 with a clean monabuild validate, no open problem, and no attempt consumed",
+        "Review pass: dropped SSH_AUTH_SOCK from the Git allowlist (no network Git operation exists) and reset the gap-recovery budget per turn, each with a test"
       ],
       "remaining_steps": [
         "Physical sleep, a second macOS account, and a real revoked provider key remain manual QA at P24/P26",
@@ -2231,11 +2232,11 @@
       "evidence": [
         {
           "path": "docs/evidence/macos/P20-failure-matrix.md",
-          "sha256": "aacf03e34ffb4ba1c4768679b30ce2404c359850ee99cdbb34c4e19643b713d0"
+          "sha256": "2937deb4d4be5e26ab2e538fc0681a68090a7252339ae9b18ab3cc269bfa4a8c"
         },
         {
           "path": "docs/evidence/macos/artifacts/p20-failure-smoke.json",
-          "sha256": "3f8afd6f525d09642b20e344effcb28a0dcf766422cbbb9492359058fa45f009"
+          "sha256": "b1b05f14904180186669f8134d2074fc260ce06e92ddc2aaf730018053762fc2"
         },
         {
           "path": "docs/evidence/macos/artifacts/p20-lifecycle-crash.json",
@@ -2243,11 +2244,11 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p20-ci.txt",
-          "sha256": "a4104e16f7dabd1e6392aea0b85d014f72b931a78af802666b709d86cb46e1a7"
+          "sha256": "1220225c6d3839bc9c7df2908d3f00aea6ecf5ca91bc973e59b7d47f581cda0c"
         },
         {
           "path": "docs/decisions/ADR-014-hardening-and-failure-boundaries.md",
-          "sha256": "7abb4b7c275cc29d1c8d0d1e633c50b8070efaeca17199d1c71b28a848ef0007"
+          "sha256": "1d332b678d386d2127cf57a7eabdc6a793879a6268729bfbc0a47709148f42ab"
         },
         {
           "path": "scripts/p20-failure-smoke.mjs",
@@ -2353,7 +2354,7 @@
   "next_eligible_prompts": [
     "P14"
   ],
-  "last_checkpoint_utc": "2026-11-12T17:18:01.223Z",
+  "last_checkpoint_utc": "2026-11-12T17:18:17.538Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",
