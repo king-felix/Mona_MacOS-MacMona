@@ -111,8 +111,8 @@ export class WorkController {
       active: this.active?.task ?? null,
       queueDepth: this.queue.length,
       note: this.active
-        ? "the active task continues; no new task starts after it"
-        : "nothing is running; the queue will not start new work",
+        ? "the active task continues; no new Mona-queued task starts after it. This boundary does not gate a native_workflow-owned task, which its own scheduler starts."
+        : "nothing is running; the Mona queue will not start new work. This boundary does not gate a native_workflow-owned task, which its own scheduler starts.",
     };
   }
 

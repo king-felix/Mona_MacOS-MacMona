@@ -71,6 +71,69 @@ export interface TaskRunView {
   note: string | null;
 }
 
+export type ProblemStatus = "open" | "blocked" | "resolved";
+export type ProblemEventKind =
+  "created" | "attempt" | "progress_reset" | "blocked" | "acknowledged" | "reopened" | "resolved";
+export type ProblemActor = "agent" | "human" | "mona_queue";
+
+/** One recorded hypothesis-and-result cycle. */
+export interface ProblemAttemptView {
+  id: string;
+  taskId: TaskId | null;
+  requirement: string;
+  symptom: string | null;
+  hypothesis: string;
+  action: string;
+  observed: string;
+  materialProgress: boolean;
+  evidence: string[];
+  createdAt: string;
+}
+
+export interface ProblemEventView {
+  id: string;
+  kind: ProblemEventKind;
+  actor: ProblemActor;
+  reason: string | null;
+  evidence: string[];
+  createdAt: string;
+}
+
+/** A stable problem with both counters and its full local audit history. */
+export interface ProblemView {
+  id: string;
+  projectId: ProjectId;
+  taskId: TaskId | null;
+  requirement: string;
+  symptom: string;
+  status: ProblemStatus;
+  totalAttempts: number;
+  noProgressAttempts: number;
+  helpNeeded: string | null;
+  blockedAt: string | null;
+  resolvedAt: string | null;
+  resolution: string | null;
+  attempts: ProblemAttemptView[];
+  events: ProblemEventView[];
+  createdAt: string;
+  updatedAt: string;
+  revision: number;
+}
+
+/** The Victor handoff card: what stopped, why, and exactly what help is needed. */
+export interface BlockedProblemCard {
+  problemId: string;
+  taskId: TaskId | null;
+  taskTitle: string | null;
+  requirement: string;
+  symptom: string;
+  totalAttempts: number;
+  noProgressAttempts: number;
+  evidence: string[];
+  helpNeeded: string;
+  blockedAt: string;
+}
+
 /** The full, honest view of one task. */
 export interface TaskView {
   id: TaskId;
@@ -95,6 +158,10 @@ export interface TaskView {
   staleReason: string | null;
   completedAt: string | null;
   importedFrom: string | null;
+  /** The engine turn this task's dispatch opened, if one is still active. */
+  activeTurnId: string | null;
+  openProblemCount: number;
+  blockedProblemCount: number;
   createdAt: string;
   updatedAt: string;
   revision: number;
@@ -125,6 +192,8 @@ export interface HandoffView {
   lastVerifiedStep: string | null;
   nextExactAction: string;
   blockers: Array<{ taskId: TaskId; title: string; reason: string }>;
+  /** Blocked problems are the actionable handoff to Victor. */
+  blockedProblems: BlockedProblemCard[];
   openAttempts: number;
   evidencePaths: string[];
   generatedAt: string;
@@ -133,6 +202,7 @@ export interface HandoffView {
 export interface BoardSnapshot {
   projectId: ProjectId;
   tasks: TaskView[];
+  problems: ProblemView[];
   selection: TaskSelection;
   handoff: HandoffView;
 }

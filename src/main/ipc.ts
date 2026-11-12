@@ -229,7 +229,28 @@ export function registerIpc(rendererRoot: string, dependencies: IpcDependencies)
     );
   });
   handle("studio:interrupt", (input) =>
-    envelope(() => requireStudio().interrupt((input as { projectId: never }).projectId)),
+    envelope(async () => {
+      const value = input as { projectId: never };
+      const result = await requireStudio().interrupt(value.projectId);
+      if (!dependencies.board) return result;
+      if (result.confirmed !== true && !result.uncertain) return result;
+      try {
+        const linked = await dependencies.board.noteEngineInterrupt(value.projectId, {
+          turnId: result.turnId,
+          confirmed: result.confirmed === true,
+          uncertain: result.uncertain,
+          note: result.note,
+        });
+        return { ...result, note: `${result.note}; ${linked.note}` };
+      } catch (error) {
+        return {
+          ...result,
+          note: `${result.note}; the linked task could not be annotated: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        };
+      }
+    }),
   );
   handle("studio:pause", (input) =>
     envelope(() => requireStudio().pauseAfterTask((input as { projectId: never }).projectId)),
@@ -352,6 +373,50 @@ export function registerIpc(rendererRoot: string, dependencies: IpcDependencies)
   handle("board:handoff", (input) =>
     envelope(() => requireBoard().handoff((input as { projectId: never }).projectId)),
   );
+  handle("board:attempt", (input) => {
+    const value = input as {
+      projectId: never;
+      taskId?: never | null;
+      requirement: string;
+      symptom: string;
+      hypothesis: string;
+      action: string;
+      observed: string;
+      materialProgress: boolean;
+      evidence?: string[];
+      reason?: string | null;
+      helpNeeded?: string | null;
+      actor?: "agent" | "human" | "mona_queue";
+    };
+    return envelope(() =>
+      requireBoard().recordAttempt({
+        ...value,
+        taskId: value.taskId ?? null,
+      }),
+    );
+  });
+  handle("board:problem-acknowledge", (input) => {
+    const value = input as { problemId: string; note?: string | null };
+    return envelope(() => requireBoard().acknowledgeProblem(value.problemId, value.note));
+  });
+  handle("board:problem-resolve", (input) => {
+    const value = input as { problemId: string; resolution: string; evidence?: string[] };
+    return envelope(() =>
+      requireBoard().resolveProblem(value.problemId, {
+        resolution: value.resolution,
+        evidence: value.evidence,
+      }),
+    );
+  });
+  handle("board:problem-reopen", (input) => {
+    const value = input as { problemId: string; reason: string; evidence: string[] };
+    return envelope(() =>
+      requireBoard().reopenProblem(value.problemId, {
+        reason: value.reason,
+        evidence: value.evidence,
+      }),
+    );
+  });
   handle("board:dispatch-next", (input) => {
     const value = input as { projectId: never };
     return envelope(async () => {
@@ -371,7 +436,11 @@ export function registerIpc(rendererRoot: string, dependencies: IpcDependencies)
             mode: "work",
           });
           if (result.outcome === "accepted") {
-            return { accepted: true, note: `turn ${result.turnId ?? "accepted"}` };
+            return {
+              accepted: true,
+              note: `turn ${result.turnId ?? "accepted"}`,
+              turnId: result.turnId ?? null,
+            };
           }
           return {
             accepted: false,
@@ -383,6 +452,9 @@ export function registerIpc(rendererRoot: string, dependencies: IpcDependencies)
           owner: "mona_queue",
           preflight: async () => {
             const snapshot = await studio.snapshot(value.projectId);
+            if (snapshot.pauseAfterTask) {
+              return "the Mona queue is paused after the current task; resume the queue before starting new work";
+            }
             if (snapshot.activeTurnId) {
               return "a mutating turn is already active in this workspace";
             }

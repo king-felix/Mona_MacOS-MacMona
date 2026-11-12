@@ -19,10 +19,12 @@ const base = mkdtempSync(join(tmpdir(), "mona-p10-"));
 const stateDir = join(base, "state");
 const workspace = join(base, "workspace");
 const otherWorkspace = join(base, "other-workspace");
+const attemptWorkspace = join(base, "attempt-workspace");
 mkdirSync(join(workspace, "src"), { recursive: true });
 mkdirSync(join(workspace, "test"), { recursive: true });
 mkdirSync(join(workspace, "evidence"), { recursive: true });
 mkdirSync(join(otherWorkspace, "src"), { recursive: true });
+mkdirSync(join(attemptWorkspace, "src"), { recursive: true });
 
 writeFileSync(
   join(workspace, "test", "feature.test.mjs"),
@@ -228,6 +230,124 @@ checks.handoff_from_state =
 const transitions = await store.listTaskTransitions(projectId);
 checks.transitions_audited = transitions.length >= 6;
 
+// ---------------------------------------------------------------- P11 ledger
+const attemptProject = await store.openProject(attemptWorkspace);
+const attemptProjectId = attemptProject.project.id;
+const loopTask = await store.createTask({
+  projectId: attemptProjectId,
+  title: "An unproductive loop",
+  prompt: "Make the failing check pass without changing the requirement.",
+  requirements: ["MONA-011"],
+});
+const dependentTask = await store.createTask({
+  projectId: attemptProjectId,
+  title: "Depends on the loop",
+  prompt: "Continue after the loop is fixed.",
+  dependsOn: [loopTask.id],
+});
+const independentTask = await store.createTask({
+  projectId: attemptProjectId,
+  title: "Independent work",
+  prompt: "This task does not depend on the loop.",
+});
+await board.startTask(loopTask.id);
+const attempt = (symptom, materialProgress = false, extra = {}) =>
+  board.recordAttempt({
+    projectId: attemptProjectId,
+    taskId: loopTask.id,
+    requirement: "MONA-011",
+    symptom,
+    hypothesis: "the cache key ignores the workspace",
+    action: "include the canonical path in the key",
+    observed: "the same assertion still fails",
+    materialProgress,
+    ...extra,
+  });
+const attemptOne = await attempt("the same assertion still fails");
+const attemptTwo = await attempt("a differently worded error message");
+checks.attempt_one_open =
+  attemptOne.problem.status === "open" && attemptOne.problem.totalAttempts === 1;
+checks.attempt_two_same_problem =
+  attemptTwo.problem.id === attemptOne.problem.id && attemptTwo.problem.noProgressAttempts === 2;
+const attemptThree = await attempt("the same assertion still fails");
+const loopAfterBlock = await store.getTask(loopTask.id);
+checks.attempt_three_blocks =
+  attemptThree.blocked === true &&
+  attemptThree.problem.status === "blocked" &&
+  attemptThree.problem.noProgressAttempts === 3;
+checks.attempt_task_blocked = loopAfterBlock?.status === "blocked";
+let fourthHiddenRetry = "unexpected acceptance";
+try {
+  await attempt("one last try");
+} catch (error) {
+  fourthHiddenRetry = `${error.code ?? "ERROR"}: ${error.message}`;
+}
+checks.attempt_fourth_rejected = fourthHiddenRetry.startsWith("CONFLICT");
+const acknowledged = await board.acknowledgeProblem(attemptThree.problem.id, "seen by the builder");
+checks.attempt_ack_keeps_count =
+  acknowledged.problem.status === "blocked" &&
+  acknowledged.problem.totalAttempts === 3 &&
+  acknowledged.problem.noProgressAttempts === 3;
+const attemptSelection = await board.selectNext(attemptProjectId);
+checks.independent_work_continues =
+  attemptSelection.taskId === independentTask.id &&
+  attemptSelection.waiting.some(
+    (entry) => entry.taskId === dependentTask.id && entry.blocking.includes(loopTask.id),
+  );
+let pausedCalls = 0;
+const pausedRun = await board.runOnce(
+  attemptProjectId,
+  async () => {
+    pausedCalls += 1;
+    return { accepted: true };
+  },
+  { shouldPause: () => true },
+);
+checks.pause_gate_blocks_dispatch =
+  pausedRun.stoppedBecause === "paused" && pausedRun.ran.length === 0 && pausedCalls === 0;
+const attemptHandoff = await board.handoff(attemptProjectId);
+checks.victor_handoff_card =
+  attemptHandoff.blockedProblems.length === 1 &&
+  attemptHandoff.blockedProblems[0].helpNeeded.includes("MONA-011");
+checks.handoff_names_unblock_not_start =
+  attemptHandoff.nextExactAction.includes("Unblock MONA-011") &&
+  !attemptHandoff.nextExactAction.includes("Start");
+
+// Interrupt attribution is by turn identity, never "some running task".
+await store.attachTaskTurn(loopTask.id, "turn_p11_sample");
+const wrongTurn = await board.noteEngineInterrupt(attemptProjectId, {
+  turnId: "turn_manual",
+  confirmed: true,
+  uncertain: false,
+  note: "interrupt confirmed for an unrelated manual turn",
+});
+checks.interrupt_attribution_by_turn =
+  wrongTurn.taskId === null && (await store.getTask(loopTask.id))?.status === "blocked";
+await board.clearFinishedTurn(attemptProjectId, "turn_p11_sample");
+const finishedTurn = await board.noteEngineInterrupt(attemptProjectId, {
+  turnId: "turn_p11_sample",
+  confirmed: true,
+  uncertain: false,
+  note: "interrupt confirmed after the turn already finished",
+});
+checks.finished_turn_releases_link =
+  finishedTurn.taskId === null && (await store.getTask(loopTask.id))?.activeTurnId === null;
+const reopenedProblem = await board.reopenProblem(attemptThree.problem.id, {
+  reason: "the reproduction is narrowed to the cache key",
+  evidence: [join(attemptWorkspace, "src", "repro.txt")],
+});
+checks.reopen_keeps_total =
+  reopenedProblem.problem.status === "open" &&
+  reopenedProblem.problem.totalAttempts === 3 &&
+  reopenedProblem.problem.noProgressAttempts === 0;
+const resumedLoop = await board.resumeTask(loopTask.id);
+checks.reopen_allows_resume = resumedLoop.task.status === "running";
+const attemptEvents = await store.listProblemEvents(attemptProjectId);
+checks.attempt_audit =
+  attemptEvents.some((event) => event.kind === "blocked") &&
+  attemptEvents.some((event) => event.kind === "acknowledged") &&
+  attemptEvents.some((event) => event.kind === "reopened");
+
 const redact = (value) =>
   value
     .split(base)
@@ -236,18 +356,33 @@ const redact = (value) =>
     .join("~");
 
 const ok = Object.values(checks).every(Boolean);
-log(`P10 sample run: ${ok ? "PASS" : "FAIL"}`);
+log(`P10/P11 sample run: ${ok ? "PASS" : "FAIL"}`);
 for (const [name, value] of Object.entries(checks)) log(`  ${value ? "ok  " : "FAIL"} ${name}`);
 
 console.log(
   JSON.stringify(
     {
       schema_version: 1,
-      prompt: "P10",
+      prompts: ["P10", "P11"],
       ok,
       checks,
       cycle_rejection: redact(rejected.cycle),
       imported_tasks: imported.created.map((entry) => ({ ...entry, key: entry.key })),
+      attempts: {
+        problem_id: attemptThree.problem.id,
+        total: attemptThree.problem.totalAttempts,
+        consecutive: attemptThree.problem.noProgressAttempts,
+        blocked_status: attemptThree.problem.status,
+        task_status: loopAfterBlock?.status ?? null,
+        fourth_retry: redact(fourthHiddenRetry),
+        handoff: attemptHandoff.blockedProblems.map((card) => ({
+          problem: card.problemId,
+          requirement: card.requirement,
+          help: card.helpNeeded,
+          evidence: card.evidence.map(redact),
+        })),
+        audit: attemptEvents.map((event) => ({ kind: event.kind, actor: event.actor })),
+      },
       queue: {
         ran: queue.ran,
         stopped_because: queue.stoppedBecause,

@@ -28,6 +28,7 @@ import type {
   ContextPreview,
   HandoffView,
   ImportPlanResult,
+  ProblemView,
   QueueRunResult,
   ReconcileResult,
   TaskOwner,
@@ -166,6 +167,22 @@ const bridge: MonaBridge = {
     ipcRenderer.invoke("board:handoff", { projectId }),
   dispatchNextTask: (projectId: ProjectId): Promise<IpcResult<QueueRunResult>> =>
     ipcRenderer.invoke("board:dispatch-next", { projectId }),
+  recordProblemAttempt: (
+    input,
+  ): Promise<IpcResult<{ problem: ProblemView; blocked: boolean; task: TaskView | null }>> =>
+    ipcRenderer.invoke("board:attempt", input),
+  acknowledgeProblem: (problemId: string, note?: string | null) =>
+    ipcRenderer.invoke(
+      "board:problem-acknowledge",
+      note === undefined ? { problemId } : { problemId, note },
+    ),
+  resolveProblem: (problemId: string, resolution: string, evidence?: string[]) =>
+    ipcRenderer.invoke(
+      "board:problem-resolve",
+      evidence === undefined ? { problemId, resolution } : { problemId, resolution, evidence },
+    ),
+  reopenProblem: (problemId: string, reason: string, evidence: string[]) =>
+    ipcRenderer.invoke("board:problem-reopen", { problemId, reason, evidence }),
 
   onStudioChanged: (callback: (push: StudioPush) => void): (() => void) => {
     const listener = (_event: unknown, payload: unknown) => {

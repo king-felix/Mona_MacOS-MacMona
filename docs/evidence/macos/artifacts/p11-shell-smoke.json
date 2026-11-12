@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-11-12T05:12:18.404Z",
+  "ok": true,
+  "checks": {
+    "ready": true,
+    "cards": true,
+    "home_screen": true,
+    "nav_count": true,
+    "fixture_label_absent": true,
+    "version_rendered": true,
+    "keyboard_studio": true,
+    "home_returned": true,
+    "studio_ready": true,
+    "studio_title": true,
+    "engine_state_reported": true,
+    "draft_present": true,
+    "draft_preserved": true,
+    "send_enabled": true,
+    "mode_controls": true,
+    "profile_reported": true,
+    "offline_event": true,
+    "no_fake_percent": true,
+    "composer_above_strip": true,
+    "board_ready": true,
+    "task_visible": true,
+    "board_lanes": true,
+    "attempt_detail_open": true,
+    "blocked_problem_panel": true,
+    "attempt_counters_rendered": true,
+    "attempt_records_rendered": true,
+    "acknowledge_keeps_count_label": true,
+    "reopen_control_present": true,
+    "resolve_control_present": true,
+    "blocked_help_in_detail": true,
+    "start_refused_while_blocked": true,
+    "victor_handoff_rendered": true,
+    "blocked_attempt_counters": true,
+    "blocked_help_card": true,
+    "cost_screen": true,
+    "cost_empty_usage": true,
+    "settings_ready": true,
+    "database_visible": true,
+    "runtime_panel": true,
+    "palette_open": true,
+    "palette_focus": true,
+    "palette_project_action": true,
+    "palette_escape": true,
+    "no_horizontal_overflow": true
+  },
+  "facts": {
+    "home": {
+      "cards": 1,
+      "screen": "home",
+      "fixture_label": false,
+      "nav_count": 5,
+      "version": "Mona 0.1.0-p02",
+      "horizontal_overflow": false
+    },
+    "studio": {
+      "screen": "studio",
+      "title": "Shell smoke project",
+      "engine": false,
+      "engine_not_started": true,
+      "draft_present": true,
+      "draft_text": "Keep this draft local to the shell smoke project.",
+      "send_enabled": true,
+      "mode_controls": true,
+      "profile_reported": true,
+      "event_present": true,
+      "fake_percent": false,
+      "horizontal_overflow": false
+    },
+    "board": {
+      "screen": "board",
+      "task_present": true,
+      "lanes": 6,
+      "victor_handoff": true,
+      "blocked_attempts": true,
+      "help_card": true,
+      "horizontal_overflow": false
+    },
+    "attempts": {
+      "blocked_problem_visible": true,
+      "total_consecutive": true,
+      "attempt_records": 3,
+      "audit_actions": true,
+      "reopen_control": true,
+      "resolve_control": true,
+      "blocked_help": true,
+      "start_disabled": true
+    },
+    "cost": {
+      "screen": "cost",
+      "empty_usage": true,
+      "horizontal_overflow": false
+    },
+    "settings": {
+      "screen": "settings",
+      "database_visible": true,
+      "runtime_visible": true,
+      "horizontal_overflow": false
+    },
+    "palette": {
+      "open": true,
+      "focus_inside": true,
+      "has_project_action": true
+    },
+    "composerFits": {
+      "ok": true,
+      "send_bottom": 536,
+      "strip_top": 565,
+      "covered": false
+    }
+  },
+  "screenshots": [
+    "docs/evidence/macos/artifacts/p07-shell-home.png",
+    "docs/evidence/macos/artifacts/p07-shell-studio.png",
+    "docs/evidence/macos/artifacts/p07-shell-board.png",
+    "docs/evidence/macos/artifacts/p11-shell-board.png",
+    "docs/evidence/macos/artifacts/p11-shell-attempts.png",
+    "docs/evidence/macos/artifacts/p07-shell-settings.png"
+  ],
+  "electron": {
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+}

@@ -14,6 +14,8 @@ import type {
   ContextPreview,
   HandoffView,
   ImportPlanResult,
+  ProblemActor,
+  ProblemView,
   QueueRunResult,
   ReconcileResult,
   TaskOwner,
@@ -162,6 +164,34 @@ export interface MonaBridge {
   reconcileBoard(projectId: ProjectId, resume?: boolean): Promise<IpcResult<ReconcileResult>>;
   boardHandoff(projectId: ProjectId): Promise<IpcResult<HandoffView>>;
   dispatchNextTask(projectId: ProjectId): Promise<IpcResult<QueueRunResult>>;
+  recordProblemAttempt(input: {
+    projectId: ProjectId;
+    taskId?: TaskId | null;
+    requirement: string;
+    symptom: string;
+    hypothesis: string;
+    action: string;
+    observed: string;
+    materialProgress: boolean;
+    evidence?: string[];
+    reason?: string | null;
+    helpNeeded?: string | null;
+    actor?: ProblemActor;
+  }): Promise<IpcResult<{ problem: ProblemView; blocked: boolean; task: TaskView | null }>>;
+  acknowledgeProblem(
+    problemId: string,
+    note?: string | null,
+  ): Promise<IpcResult<{ problem: ProblemView }>>;
+  resolveProblem(
+    problemId: string,
+    resolution: string,
+    evidence?: string[],
+  ): Promise<IpcResult<{ problem: ProblemView }>>;
+  reopenProblem(
+    problemId: string,
+    reason: string,
+    evidence: string[],
+  ): Promise<IpcResult<{ problem: ProblemView }>>;
 }
 
 export interface AppInfo {

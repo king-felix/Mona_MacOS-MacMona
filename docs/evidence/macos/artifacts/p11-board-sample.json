@@ -1,0 +1,183 @@
+{
+  "schema_version": 1,
+  "prompts": [
+    "P10",
+    "P11"
+  ],
+  "ok": true,
+  "checks": {
+    "dependency_cycle_rejected": true,
+    "no_partial_import": true,
+    "import_is_inert": true,
+    "imported_tasks_pending": true,
+    "imported_owner_default": true,
+    "deterministic_selection": true,
+    "preview_has_prompt": true,
+    "preview_excludes_spec": true,
+    "queue_ran_one": true,
+    "queue_stopped": true,
+    "other_tasks_unstarted": true,
+    "running_is_one": true,
+    "evidence_gated_completion": true,
+    "prerequisite_verified": true,
+    "interrupted_next_step": true,
+    "resume_at_recorded_step": true,
+    "stale_after_code_change": true,
+    "criteria_survive_export": true,
+    "round_trip_criteria": true,
+    "workspaces_isolated": true,
+    "handoff_from_state": true,
+    "transitions_audited": true,
+    "attempt_one_open": true,
+    "attempt_two_same_problem": true,
+    "attempt_three_blocks": true,
+    "attempt_task_blocked": true,
+    "attempt_fourth_rejected": true,
+    "attempt_ack_keeps_count": true,
+    "independent_work_continues": true,
+    "pause_gate_blocks_dispatch": true,
+    "victor_handoff_card": true,
+    "handoff_names_unblock_not_start": true,
+    "interrupt_attribution_by_turn": true,
+    "finished_turn_releases_link": true,
+    "reopen_keeps_total": true,
+    "reopen_allows_resume": true,
+    "attempt_audit": true
+  },
+  "cycle_rejection": "CONFLICT: dependency cycle: a -> b -> a",
+  "imported_tasks": [
+    {
+      "key": "build",
+      "taskId": "tsk_00000003"
+    },
+    {
+      "key": "review",
+      "taskId": "tsk_00000004"
+    },
+    {
+      "key": "docs",
+      "taskId": "tsk_00000005"
+    }
+  ],
+  "attempts": {
+    "problem_id": "prb_00000026",
+    "total": 3,
+    "consecutive": 3,
+    "blocked_status": "blocked",
+    "task_status": "blocked",
+    "fourth_retry": "CONFLICT: this problem is blocked after three attempts without progress; reopen it with material new evidence or resolve it first",
+    "handoff": [
+      {
+        "problem": "prb_00000026",
+        "requirement": "MONA-011",
+        "help": "Unblock MONA-011: the same assertion still fails — new evidence or a decision is required.",
+        "evidence": []
+      }
+    ],
+    "audit": [
+      {
+        "kind": "created",
+        "actor": "agent"
+      },
+      {
+        "kind": "attempt",
+        "actor": "agent"
+      },
+      {
+        "kind": "attempt",
+        "actor": "agent"
+      },
+      {
+        "kind": "attempt",
+        "actor": "agent"
+      },
+      {
+        "kind": "blocked",
+        "actor": "agent"
+      },
+      {
+        "kind": "acknowledged",
+        "actor": "human"
+      },
+      {
+        "kind": "reopened",
+        "actor": "human"
+      }
+    ]
+  },
+  "queue": {
+    "ran": [
+      "tsk_00000003"
+    ],
+    "stopped_because": "one_prompt_per_assignment",
+    "executor_calls": 1
+  },
+  "handoff": {
+    "current_task": "Review the result",
+    "current_status": "running",
+    "last_verified_step": "read the output",
+    "next_exact_action": "Continue \"Review the result\"; the engine owns the active turn, and the recorded step is \"record the decision\".",
+    "open_attempts": 0
+  },
+  "stale": [
+    {
+      "taskId": "tsk_00000003",
+      "reason": "workspace changed after verification (11b69ca9 → 5aa3463b)"
+    }
+  ],
+  "transitions": [
+    {
+      "task": "tsk_00000003",
+      "from": "pending",
+      "to": "running",
+      "actor": "mona_queue",
+      "reason": null
+    },
+    {
+      "task": "tsk_00000003",
+      "from": "running",
+      "to": "verifying",
+      "actor": "human",
+      "reason": null
+    },
+    {
+      "task": "tsk_00000003",
+      "from": "verifying",
+      "to": "completed",
+      "actor": "human",
+      "reason": "acceptance passed: 1 criteria"
+    },
+    {
+      "task": "tsk_00000004",
+      "from": "pending",
+      "to": "running",
+      "actor": "mona_queue",
+      "reason": null
+    },
+    {
+      "task": "tsk_00000004",
+      "from": "running",
+      "to": "interrupted",
+      "actor": "mona_queue",
+      "reason": "sample crash"
+    },
+    {
+      "task": "tsk_00000004",
+      "from": "interrupted",
+      "to": "running",
+      "actor": "mona_queue",
+      "reason": "resume at record the decision"
+    },
+    {
+      "task": "tsk_00000003",
+      "from": "completed",
+      "to": "verifying",
+      "actor": "reconciler",
+      "reason": "workspace changed after verification (11b69ca9 → 5aa3463b)"
+    }
+  ],
+  "workspace_files": {
+    "feature": "<tmp>/workspace/src/feature.mjs",
+    "test_output": "<tmp>/workspace/evidence/test-output.txt"
+  }
+}

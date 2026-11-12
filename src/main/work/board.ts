@@ -1,12 +1,15 @@
 import { z } from "zod";
 import type {
   AcceptanceCriterion,
+  BlockedProblemCard,
   BlockedTask,
   BoardSnapshot,
   ContextPreview,
   DispatchResult,
   HandoffView,
   ImportPlanResult,
+  ProblemActor,
+  ProblemView,
   QueueRunResult,
   ReconcileResult,
   TaskOwner,
@@ -18,6 +21,9 @@ import type {
 import type { ProjectId, TaskId } from "../../shared/contracts/ids";
 import { StateError } from "../state/errors";
 import type {
+  AttemptRecord,
+  StoredProblem,
+  StoredProblemEvent,
   StoredProject,
   StoredTask,
   StoredTaskStep,
@@ -43,6 +49,8 @@ export interface TaskExecutorOutcome {
   /** True when the request may have reached the engine but no receipt proved it. */
   outcomeUnknown?: boolean;
   note?: string | null;
+  /** The engine turn that accepted the prompt, when the executor has a receipt. */
+  turnId?: string | null;
 }
 
 export type TaskExecutor = (input: TaskExecutorInput) => Promise<TaskExecutorOutcome>;
@@ -107,7 +115,9 @@ interface LoadedBoard {
   steps: Map<string, TaskStep[]>;
   dependencies: Array<{ taskId: TaskId; dependsOnTaskId: TaskId }>;
   runs: Awaited<ReturnType<StateStore["listTaskRuns"]>>;
-  attempts: number;
+  problems: StoredProblem[];
+  problemAttempts: AttemptRecord[];
+  problemEvents: StoredProblemEvent[];
   evidence: Array<{
     taskId: TaskId | null;
     requirementId: string;
@@ -155,10 +165,16 @@ export class TaskBoard {
   async snapshot(projectId: ProjectId): Promise<BoardSnapshot> {
     const loaded = await this.load(projectId);
     const views = this.toViews(loaded);
-    const selection = this.selectFrom(loaded.tasks, loaded.dependencies, "mona_queue");
+    const selection = this.selectFrom(
+      loaded.tasks,
+      loaded.dependencies,
+      loaded.problems,
+      "mona_queue",
+    );
     return {
       projectId,
       tasks: views,
+      problems: this.problemViews(loaded),
       selection,
       handoff: this.handoffFrom(loaded, views),
     };
@@ -224,6 +240,135 @@ export class TaskBoard {
     return this.taskView(input.taskId);
   }
 
+  /**
+   * Record one hypothesis-and-result cycle. The store enforces the counters and
+   * the third-attempt block inside one transaction; the board only re-reads.
+   */
+  async recordAttempt(input: {
+    projectId: ProjectId;
+    taskId?: TaskId | null;
+    requirement: string;
+    symptom: string;
+    hypothesis: string;
+    action: string;
+    observed: string;
+    materialProgress: boolean;
+    evidence?: string[];
+    reason?: string | null;
+    helpNeeded?: string | null;
+    actor?: ProblemActor;
+  }): Promise<{ problem: ProblemView; blocked: boolean; task: TaskView | null }> {
+    const result = await this.store.recordProblemAttempt(input);
+    const loaded = await this.load(result.problem.projectId);
+    const view = this.problemViews(loaded).find((problem) => problem.id === result.problem.id);
+    if (!view) throw new StateError("NOT_FOUND", "recorded problem disappeared");
+    return {
+      problem: view,
+      blocked: result.blocked,
+      task: result.problem.taskId ? await this.taskView(result.problem.taskId) : null,
+    };
+  }
+
+  /** Visibility only: an acknowledgement changes no counter and unblocks nothing. */
+  async acknowledgeProblem(
+    problemId: string,
+    note?: string | null,
+  ): Promise<{ problem: ProblemView }> {
+    const problem = await this.store.acknowledgeProblem(problemId, { note });
+    return { problem: await this.problemView(problem.projectId, problemId) };
+  }
+
+  /** A human decision ends the problem and keeps the attempt history intact. */
+  async resolveProblem(
+    problemId: string,
+    input: { resolution: string; evidence?: string[] },
+  ): Promise<{ problem: ProblemView }> {
+    const problem = await this.store.resolveProblem(problemId, input);
+    return { problem: await this.problemView(problem.projectId, problemId) };
+  }
+
+  /** The only counter reset path: material new evidence plus a reason. */
+  async reopenProblem(
+    problemId: string,
+    input: { reason: string; evidence: string[] },
+  ): Promise<{ problem: ProblemView }> {
+    const problem = await this.store.reopenProblem(problemId, input);
+    return { problem: await this.problemView(problem.projectId, problemId) };
+  }
+
+  /** Release the dispatch→turn link when the engine reports that turn finished. */
+  async clearFinishedTurn(projectId: ProjectId, turnId: string): Promise<TaskId[]> {
+    return this.store.clearTaskTurn(projectId, turnId);
+  }
+
+  /** The Victor handoff card, derived from stored state only. */
+  async blockedHandoff(projectId: ProjectId): Promise<BlockedProblemCard[]> {
+    return this.blockedCards(await this.load(projectId));
+  }
+
+  /**
+   * Connect an engine interrupt receipt to the task it actually stopped. A
+   * confirmed interrupt moves the task to `interrupted`; an uncertain one leaves
+   * the status alone and records that reconciliation is required.
+   */
+  async noteEngineInterrupt(
+    projectId: ProjectId,
+    input: { turnId: string | null; confirmed: boolean; uncertain: boolean; note: string },
+  ): Promise<{ taskId: TaskId | null; status: TaskView["status"] | null; note: string }> {
+    if (!input.turnId) {
+      return {
+        taskId: null,
+        status: null,
+        note: "the interrupt named no engine turn, so no task was attributed",
+      };
+    }
+    const loaded = await this.load(projectId);
+    // Attribution is by turn identity, never by "some running task". A manual
+    // studio turn, or a task whose turn already finished, is left alone.
+    const running = loaded.tasks.find(
+      (task) =>
+        task.status === "running" &&
+        task.activeTurnId !== null &&
+        task.activeTurnId === input.turnId,
+    );
+    if (!running) {
+      return {
+        taskId: null,
+        status: null,
+        note: "the interrupted turn does not belong to this project's Mona-dispatched task",
+      };
+    }
+    if (input.confirmed) {
+      await this.store.updateTaskStatus(running.id, "interrupted", running.revision, {
+        actor: running.executionOwner,
+        reason: input.note,
+      });
+      await this.store.attachTaskTurn(running.id, null);
+      return {
+        taskId: running.id,
+        status: "interrupted",
+        note: "the task is interrupted because the engine confirmed the interrupt",
+      };
+    }
+    await this.store.appendTaskEvent({
+      taskId: running.id,
+      actor: running.executionOwner,
+      reason: `interrupt outcome is uncertain: ${input.note}; reconcile before treating the task as stopped`,
+    });
+    return {
+      taskId: running.id,
+      status: running.status,
+      note: "the task remains running because the interrupt is uncertain",
+    };
+  }
+
+  private async problemView(projectId: ProjectId, problemId: string): Promise<ProblemView> {
+    const loaded = await this.load(projectId);
+    const view = this.problemViews(loaded).find((problem) => problem.id === problemId);
+    if (!view) throw new StateError("NOT_FOUND", `problem ${problemId} does not exist`);
+    return view;
+  }
+
   async startTask(
     taskId: TaskId,
     expectedRevision?: number,
@@ -246,8 +391,8 @@ export class TaskBoard {
   }> {
     const task = await this.store.getTask(taskId);
     if (!task) throw new StateError("NOT_FOUND", `task ${taskId} does not exist`);
-    if (task.status !== "interrupted") {
-      throw new StateError("CONFLICT", "only an interrupted task can resume", {
+    if (task.status !== "interrupted" && task.status !== "blocked") {
+      throw new StateError("CONFLICT", "only an interrupted or blocked task can resume", {
         task_id: taskId,
         status: task.status,
       });
@@ -359,7 +504,7 @@ export class TaskBoard {
 
   async selectNext(projectId: ProjectId, owner: TaskOwner = "mona_queue"): Promise<TaskSelection> {
     const loaded = await this.load(projectId);
-    return this.selectFrom(loaded.tasks, loaded.dependencies, owner);
+    return this.selectFrom(loaded.tasks, loaded.dependencies, loaded.problems, owner);
   }
 
   /**
@@ -380,6 +525,7 @@ export class TaskBoard {
     }
     const dispatch = await this.dispatchNext(projectId, executor, {
       owner: options.owner,
+      shouldPause: options.shouldPause,
       preflight: options.preflight,
     });
     if (!dispatch.dispatched) {
@@ -397,12 +543,26 @@ export class TaskBoard {
     executor: TaskExecutor,
     options: {
       owner?: TaskOwner;
+      shouldPause?: () => boolean;
       preflight?: () => Promise<string | null> | string | null;
     } = {},
   ): Promise<DispatchResult> {
     const owner = options.owner ?? "mona_queue";
+    if (options.shouldPause?.()) {
+      return {
+        dispatched: false,
+        taskId: null,
+        owner,
+        runId: null,
+        reason:
+          "the Mona queue is paused after the current task; resume the queue before starting new work",
+        accepted: false,
+        outcomeUnknown: false,
+        preview: null,
+      };
+    }
     const loaded = await this.load(projectId);
-    const selection = this.selectFrom(loaded.tasks, loaded.dependencies, owner);
+    const selection = this.selectFrom(loaded.tasks, loaded.dependencies, loaded.problems, owner);
     if (!selection.taskId) {
       return {
         dispatched: false,
@@ -472,6 +632,9 @@ export class TaskBoard {
     try {
       const outcome = await executor({ task: started.task, preview });
       if (outcome.accepted) {
+        if (outcome.turnId) {
+          await this.store.attachTaskTurn(task.id, outcome.turnId);
+        }
         await this.store.finishTaskRun(started.run.id, "completed", outcome.note ?? null);
         return {
           dispatched: true,
@@ -590,11 +753,22 @@ export class TaskBoard {
     if (!project) {
       throw new StateError("NOT_FOUND", "project is not in the catalog", { projectId });
     }
-    const [tasks, dependencies, runs, attempts, evidence, transitions] = await Promise.all([
+    const [
+      tasks,
+      dependencies,
+      runs,
+      problems,
+      problemAttempts,
+      problemEvents,
+      evidence,
+      transitions,
+    ] = await Promise.all([
       this.store.listTasks(projectId),
       this.store.listDependencies(projectId),
       this.store.listTaskRuns(projectId),
+      this.store.listProblems(projectId),
       this.store.listAttempts(projectId),
+      this.store.listProblemEvents(projectId),
       this.store.listRequirementEvidence(projectId),
       this.store.listTaskTransitions(projectId),
     ]);
@@ -611,7 +785,9 @@ export class TaskBoard {
       steps,
       dependencies,
       runs,
-      attempts: attempts.length,
+      problems,
+      problemAttempts,
+      problemEvents,
       evidence: evidence.map((entry) => ({
         taskId: entry.taskId,
         requirementId: entry.requirementId,
@@ -655,6 +831,13 @@ export class TaskBoard {
         staleReason: task.staleReason,
         completedAt: task.completedAt,
         importedFrom: task.importedFrom,
+        activeTurnId: task.activeTurnId,
+        openProblemCount: loaded.problems.filter(
+          (problem) => problem.taskId === task.id && problem.status !== "resolved",
+        ).length,
+        blockedProblemCount: loaded.problems.filter(
+          (problem) => problem.taskId === task.id && problem.status === "blocked",
+        ).length,
         createdAt: task.createdAt,
         updatedAt: task.updatedAt,
         revision: task.revision,
@@ -663,9 +846,83 @@ export class TaskBoard {
     });
   }
 
+  private problemViews(loaded: LoadedBoard): ProblemView[] {
+    return loaded.problems.map((problem) => ({
+      id: problem.id,
+      projectId: problem.projectId,
+      taskId: problem.taskId,
+      requirement: problem.requirement,
+      symptom: problem.symptom,
+      status: problem.status,
+      totalAttempts: problem.totalAttempts,
+      noProgressAttempts: problem.noProgressAttempts,
+      helpNeeded: problem.helpNeeded,
+      blockedAt: problem.blockedAt,
+      resolvedAt: problem.resolvedAt,
+      resolution: problem.resolution,
+      attempts: loaded.problemAttempts
+        .filter((attempt) => attempt.problemId === problem.id)
+        .map((attempt) => ({
+          id: attempt.id,
+          taskId: attempt.taskId,
+          requirement: attempt.requirement,
+          symptom: attempt.symptom,
+          hypothesis: attempt.hypothesis,
+          action: attempt.action,
+          observed: attempt.observed,
+          materialProgress: attempt.materialProgress,
+          evidence: attempt.evidence,
+          createdAt: attempt.createdAt,
+        })),
+      events: loaded.problemEvents
+        .filter((event) => event.problemId === problem.id)
+        .map((event) => ({
+          id: event.id,
+          kind: event.kind,
+          actor: event.actor,
+          reason: event.reason,
+          evidence: event.evidence,
+          createdAt: event.createdAt,
+        })),
+      createdAt: problem.createdAt,
+      updatedAt: problem.updatedAt,
+      revision: problem.revision,
+    }));
+  }
+
+  private blockedCards(loaded: LoadedBoard): BlockedProblemCard[] {
+    const titles = new Map(loaded.tasks.map((task) => [task.id as string, task.title]));
+    return loaded.problems
+      .filter((problem) => problem.status === "blocked")
+      .map((problem) => {
+        const evidence = [
+          ...new Set(
+            loaded.problemAttempts
+              .filter((attempt) => attempt.problemId === problem.id)
+              .flatMap((attempt) => attempt.evidence),
+          ),
+        ].slice(-8);
+        return {
+          problemId: problem.id,
+          taskId: problem.taskId,
+          taskTitle: problem.taskId ? (titles.get(problem.taskId) ?? null) : null,
+          requirement: problem.requirement,
+          symptom: problem.symptom,
+          totalAttempts: problem.totalAttempts,
+          noProgressAttempts: problem.noProgressAttempts,
+          evidence,
+          helpNeeded:
+            problem.helpNeeded ??
+            `Unblock ${problem.requirement}: ${problem.symptom} — new evidence or a decision is required.`,
+          blockedAt: problem.blockedAt ?? problem.updatedAt,
+        };
+      });
+  }
+
   private selectFrom(
     tasks: readonly StoredTask[],
     dependencies: ReadonlyArray<{ taskId: TaskId; dependsOnTaskId: TaskId }>,
+    problems: readonly StoredProblem[],
     owner: TaskOwner,
   ): TaskSelection {
     const byId = new Map(tasks.map((task) => [task.id as string, task]));
@@ -682,12 +939,29 @@ export class TaskBoard {
     const eligible: TaskId[] = [];
     const waiting: BlockedTask[] = [];
     const ordered = [...tasks].sort(compareTasks);
+    const problemBlocked = new Set(
+      problems
+        .filter((problem) => problem.status === "blocked" && problem.taskId !== null)
+        .map((problem) => problem.taskId as TaskId),
+    );
     for (const task of ordered) {
       if (task.status !== "pending") continue;
       if (task.executionOwner !== owner) {
         waiting.push({
           taskId: task.id,
           reason: `owned by ${task.executionOwner}`,
+          unmet: [],
+          blocking: [],
+        });
+        continue;
+      }
+      const blockedProblems = problems.filter(
+        (problem) => problem.taskId === task.id && problem.status === "blocked",
+      );
+      if (blockedProblems.length > 0) {
+        waiting.push({
+          taskId: task.id,
+          reason: `a recorded problem is blocked after three attempts without material progress`,
           unmet: [],
           blocking: [],
         });
@@ -700,7 +974,7 @@ export class TaskBoard {
       if (unmet.length > 0) {
         const blocking = prerequisites.filter((id) => {
           const status = byId.get(id)?.status;
-          return status === "blocked" || status === "interrupted";
+          return status === "blocked" || status === "interrupted" || problemBlocked.has(id);
         });
         waiting.push({
           taskId: task.id,
@@ -780,10 +1054,20 @@ export class TaskBoard {
 
   private handoffFrom(loaded: LoadedBoard, views: readonly TaskView[]): HandoffView {
     const evidencePaths = [...new Set(loaded.evidence.map((entry) => entry.path))].slice(-20);
+    const blockedProblems = this.blockedCards(loaded);
+    const unresolved = new Set(
+      loaded.problems
+        .filter((problem) => problem.status !== "resolved")
+        .map((problem) => problem.id),
+    );
+    const openAttempts = loaded.problemAttempts.filter((attempt) =>
+      unresolved.has(attempt.problemId),
+    ).length;
     const focus =
       views.find((task) => task.status === "running") ??
       views.find((task) => task.status === "verifying") ??
       views.find((task) => task.status === "blocked") ??
+      views.find((task) => task.blockedProblemCount > 0) ??
       views.find((task) => task.status === "interrupted") ??
       views.find((task) => task.status === "pending" && this.isEligible(task, views));
     const blockers = views
@@ -791,7 +1075,10 @@ export class TaskBoard {
       .map((task) => ({
         taskId: task.id,
         title: task.title,
-        reason: task.staleReason ?? "blocked; new evidence or a human decision is required",
+        reason:
+          blockedProblems.find((card) => card.taskId === task.id)?.helpNeeded ??
+          task.staleReason ??
+          "blocked; new evidence or a human decision is required",
       }));
     if (!focus) {
       return {
@@ -803,9 +1090,12 @@ export class TaskBoard {
         nextExactAction:
           views.length === 0
             ? "Add a bounded task with acceptance criteria, or import an inert plan."
-            : "No eligible task. Resolve a blocked prerequisite or unblock an interrupted task.",
+            : blockedProblems.length > 0
+              ? `Victor must unblock ${blockedProblems[0]?.requirement}: ${blockedProblems[0]?.helpNeeded}`
+              : "No eligible task. Resolve a blocked prerequisite or unblock an interrupted task.",
         blockers,
-        openAttempts: loaded.attempts,
+        blockedProblems,
+        openAttempts,
         evidencePaths,
         generatedAt: new Date().toISOString(),
       };
@@ -815,29 +1105,39 @@ export class TaskBoard {
       stepLabelAt(steps, "completed") ??
       (focus.status === "completed" ? "all acceptance criteria recorded" : null);
     const unsatisfied = focus.acceptance.filter((criterion) => !criterion.satisfied).length;
+    const blockedCard = blockedProblems.find((card) => card.taskId === focus.id);
     let nextExactAction: string;
-    switch (focus.status) {
-      case "running":
-        nextExactAction = `Continue "${focus.title}"; the engine owns the active turn, and the recorded step is "${focus.nextStep ?? "unrecorded"}".`;
-        break;
-      case "verifying":
-        nextExactAction = `Verify "${focus.title}": ${unsatisfied} of ${focus.acceptance.length} criteria remain, then complete with a fresh fingerprint.`;
-        break;
-      case "blocked":
-        nextExactAction = `Resolve the blocker on "${focus.title}": ${focus.staleReason ?? "record material new evidence or a decision"}.`;
-        break;
-      case "interrupted":
-        nextExactAction = `Resume "${focus.title}" at step "${focus.nextStep ?? "the beginning"}".`;
-        break;
-      case "completed":
-        nextExactAction = `"${focus.title}" is verified. Start the next eligible task.`;
-        break;
-      case "skipped":
-        nextExactAction = `"${focus.title}" was skipped by an explicit scope decision.`;
-        break;
-      default:
-        nextExactAction = `Start "${focus.title}"; all prerequisites are completed.`;
-    }
+    // A task whose problem is blocked cannot start in any status, including
+    // pending, so the handoff names the unblock step rather than "Start".
+    if (blockedCard) {
+      nextExactAction = `Unblock ${blockedCard.requirement} on "${focus.title}": ${blockedCard.helpNeeded}`;
+    } else
+      switch (focus.status) {
+        case "running":
+          nextExactAction = `Continue "${focus.title}"; the engine owns the active turn, and the recorded step is "${focus.nextStep ?? "unrecorded"}".`;
+          break;
+        case "verifying":
+          nextExactAction = `Verify "${focus.title}": ${unsatisfied} of ${focus.acceptance.length} criteria remain, then complete with a fresh fingerprint.`;
+          break;
+        case "blocked":
+          nextExactAction = `Resolve the blocker on "${focus.title}": ${
+            blockedProblems.find((card) => card.taskId === focus.id)?.helpNeeded ??
+            focus.staleReason ??
+            "record material new evidence or a decision"
+          }`;
+          break;
+        case "interrupted":
+          nextExactAction = `Resume "${focus.title}" at step "${focus.nextStep ?? "the beginning"}".`;
+          break;
+        case "completed":
+          nextExactAction = `"${focus.title}" is verified. Start the next eligible task.`;
+          break;
+        case "skipped":
+          nextExactAction = `"${focus.title}" was skipped by an explicit scope decision.`;
+          break;
+        default:
+          nextExactAction = `Start "${focus.title}"; all prerequisites are completed.`;
+      }
     return {
       projectId: loaded.project.id,
       currentTaskId: focus.id,
@@ -846,7 +1146,8 @@ export class TaskBoard {
       lastVerifiedStep: lastVerified,
       nextExactAction,
       blockers,
-      openAttempts: loaded.attempts,
+      blockedProblems,
+      openAttempts,
       evidencePaths,
       generatedAt: new Date().toISOString(),
     };

@@ -684,14 +684,79 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
   window.webContents.sendInputEvent({ type: "keyUp", keyCode: "3", modifiers: ["meta"] });
   const boardReady = await waitFor("document.documentElement.dataset.screen === 'board'");
   await new Promise((resolve) => setTimeout(resolve, 300));
+  await window.webContents.executeJavaScript(`(() => {
+    const main = document.getElementById('screen-main');
+    if (main) main.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    window.scrollTo(0, 0);
+    return true;
+  })()`);
+  await new Promise((resolve) => setTimeout(resolve, 250));
   const board = await window.webContents.executeJavaScript(`(() => ({
     screen: document.documentElement.dataset.screen,
     task_present: document.body.textContent.includes('Make the catalog real'),
     lanes: document.querySelectorAll('.board__lane').length,
+    victor_handoff: document.body.textContent.includes('Victor handoff'),
+    blocked_attempts: document.body.textContent.includes('3 attempts · 3 consecutive without progress'),
+    help_card: document.body.textContent.includes('new evidence or a decision is required'),
     horizontal_overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1
   }))()`);
+  await window.webContents.executeJavaScript(`(() => {
+    const main = document.getElementById('screen-main');
+    if (main) main.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    window.scrollTo(0, 0);
+    return true;
+  })()`);
+  await new Promise((resolve) => setTimeout(resolve, 200));
   const boardShot = await window.webContents.capturePage();
   writeFileSync(join(outDir, "p07-shell-board.png"), boardShot.toPNG());
+  writeFileSync(join(outDir, "p11-shell-board.png"), boardShot.toPNG());
+
+  // P11: open the blocked task and prove the attempt ledger renders from state.
+  await window.webContents.executeJavaScript(
+    "document.querySelector('.task-card--blocked')?.click(); true",
+  );
+  const attemptDetail = await waitFor(
+    "document.querySelector('.problem-list__item--blocked') !== null",
+  );
+  await new Promise((resolve) => setTimeout(resolve, 250));
+  await window.webContents.executeJavaScript(`(() => {
+    const panels = Array.from(document.querySelectorAll('.problem-list__item--blocked'));
+    const detailPanel = panels[panels.length - 1];
+    detailPanel?.scrollIntoView({ block: 'center' });
+    return true;
+  })()`);
+  await new Promise((resolve) => setTimeout(resolve, 200));
+  const attempts = await window.webContents.executeJavaScript(`(() => {
+    const panels = Array.from(document.querySelectorAll('.problem-list__item--blocked'));
+    const problem = panels[panels.length - 1] ?? null;
+    return {
+      blocked_problem_visible: Boolean(problem),
+      total_consecutive:
+        document.body.textContent?.includes('3 total · 3 without progress') === true &&
+        document.body.textContent?.includes('3 attempts · 3 consecutive without progress') === true,
+      attempt_records: document.querySelectorAll('.attempt-list li').length,
+      audit_actions: Array.from(document.querySelectorAll('button')).some((button) =>
+        button.textContent?.includes('Acknowledge (keeps count)'),
+      ),
+      reopen_control: Array.from(document.querySelectorAll('button')).some((button) =>
+        button.textContent?.includes('Reopen with evidence'),
+      ),
+      resolve_control: Array.from(document.querySelectorAll('button')).some((button) =>
+        button.textContent?.includes('Resolve with decision'),
+      ),
+      blocked_help: problem?.textContent?.includes('new evidence or a decision is required') ?? false,
+      start_disabled: Array.from(document.querySelectorAll('button')).every(
+        (button) => !button.textContent?.includes('Resume at recorded step') || button.disabled,
+      ),
+    };
+  })()`);
+  await new Promise((resolve) => setTimeout(resolve, 200));
+  const attemptShot = await window.webContents.capturePage();
+  writeFileSync(join(outDir, "p11-shell-attempts.png"), attemptShot.toPNG());
 
   window.webContents.sendInputEvent({ type: "keyDown", keyCode: "4", modifiers: ["meta"] });
   window.webContents.sendInputEvent({ type: "keyUp", keyCode: "4", modifiers: ["meta"] });
@@ -753,7 +818,19 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
     composer_above_strip: composerFits.ok === true,
     board_ready: boardReady && board.screen === "board",
     task_visible: board.task_present === true,
-    board_lanes: board.lanes === 4,
+    board_lanes: board.lanes === 6,
+    attempt_detail_open: attemptDetail === true,
+    blocked_problem_panel: attempts.blocked_problem_visible === true,
+    attempt_counters_rendered: attempts.total_consecutive === true,
+    attempt_records_rendered: attempts.attempt_records === 3,
+    acknowledge_keeps_count_label: attempts.audit_actions === true,
+    reopen_control_present: attempts.reopen_control === true,
+    resolve_control_present: attempts.resolve_control === true,
+    blocked_help_in_detail: attempts.blocked_help === true,
+    start_refused_while_blocked: attempts.start_disabled === true,
+    victor_handoff_rendered: board.victor_handoff === true,
+    blocked_attempt_counters: board.blocked_attempts === true,
+    blocked_help_card: board.help_card === true,
     cost_screen: costReady && cost.screen === "cost",
     cost_empty_usage: cost.empty_usage === true,
     settings_ready: settingsReady && settings.screen === "settings",
@@ -776,11 +853,13 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
     captured_at: new Date().toISOString(),
     ok,
     checks,
-    facts: { home, studio, board, cost, settings, palette, composerFits },
+    facts: { home, studio, board, attempts, cost, settings, palette, composerFits },
     screenshots: [
       "docs/evidence/macos/artifacts/p07-shell-home.png",
       "docs/evidence/macos/artifacts/p07-shell-studio.png",
       "docs/evidence/macos/artifacts/p07-shell-board.png",
+      "docs/evidence/macos/artifacts/p11-shell-board.png",
+      "docs/evidence/macos/artifacts/p11-shell-attempts.png",
       "docs/evidence/macos/artifacts/p07-shell-settings.png",
     ],
   };
@@ -1632,6 +1711,11 @@ if (!gotLock) {
               mainWindow.webContents.send("studio:changed", push);
             }
           },
+          // A finished turn releases its task link, so a later interrupt of a
+          // different turn can never be attributed to it.
+          onTurnFinished: async (projectId, turnId) => {
+            await taskBoard?.clearFinishedTurn(projectId, turnId);
+          },
         });
       }
       if (productState) {
@@ -1661,6 +1745,28 @@ if (!gotLock) {
           title: "Make the catalog real",
           prompt: "Open a folder, select the project, and keep drafts local.",
         });
+        // P11: a real blocked problem so the shell renders the Victor handoff
+        // card and the attempt counters from stored state, not from a fixture.
+        const attempted = await productState.createTask({
+          projectId: opened.project.id,
+          title: "An unproductive loop",
+          prompt: "Make the failing check pass without lowering the requirement.",
+          requirements: ["MONA-011"],
+        });
+        await productState.beginTaskRun({ taskId: attempted.id, owner: "mona_queue" });
+        for (let attempt = 1; attempt <= 3; attempt += 1) {
+          await productState.recordProblemAttempt({
+            projectId: opened.project.id,
+            taskId: attempted.id,
+            requirement: "MONA-011",
+            symptom: `the same assertion still fails after hypothesis ${attempt}`,
+            hypothesis: `hypothesis ${attempt}: the cache key ignores the workspace`,
+            action: `attempt ${attempt}: include the canonical path in the key`,
+            observed: "the same assertion still fails",
+            materialProgress: false,
+            evidence: ["docs/evidence/macos/artifacts/p11-shell-blocked.txt"],
+          });
+        }
         const detail = await projectService.detail(opened.project.id);
         const thread = detail.threads[0];
         if (thread) {

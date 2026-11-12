@@ -1,0 +1,51 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.1.0 [39m[90m/Users/<user>/DS_Projects/Mona[39m
+
+ [32m✓[39m test/state-portable.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 590[2mms[22m[39m
+ [32m✓[39m test/work-studio.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 666[2mms[22m[39m
+ [32m✓[39m test/work-board.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 703[2mms[22m[39m
+ [32m✓[39m test/projects-service.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 905[2mms[22m[39m
+ [32m✓[39m test/state-database.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 972[2mms[22m[39m
+Not implemented: HTMLCanvasElement's getContext() method: without installing the @napi-rs/canvas npm package
+ [32m✓[39m test/design-components.test.tsx [2m([22m[2m17 tests[22m[2m)[22m[33m 770[2mms[22m[39m
+ [32m✓[39m test/runtime-process.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 361[2mms[22m[39m
+ [32m✓[39m test/state-catalog.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 373[2mms[22m[39m
+ [32m✓[39m test/runtime-supervisor.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 129[2mms[22m[39m
+ [32m✓[39m test/state-artifacts.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 213[2mms[22m[39m
+ [32m✓[39m test/work-attempts.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 597[2mms[22m[39m
+ [32m✓[39m test/boundary.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 29[2mms[22m[39m
+ [32m✓[39m test/work-profile.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 49[2mms[22m[39m
+ [32m✓[39m test/engine-adapter.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+ [32m✓[39m test/open-coordinator.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 71[2mms[22m[39m
+ [32m✓[39m test/studio-screen.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 66[2mms[22m[39m
+ [32m✓[39m test/tool-discovery.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m test/fixtures.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m test/state-paths.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m test/supervisor-identity.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m test/contracts.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m test/supervisor-records.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m test/ipc-contract.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m test/engine-sse.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m test/open-service-status.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m test/folder-request.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m test/studio-render.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m test/engine-compat.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m test/design-no-network.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m test/supervisor-restart.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m test/work-control.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m test/design-tokens.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m test/open-drop.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m test/navigation.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m test/supervisor-native.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 1995[2mms[22m[39m
+   [32m✓[39m native supervisor [2m(8)[22m
+     [33m[2m✓[22m[39m records the escaped process group and stops it by identity[33m 376[2mms[22m[39m
+     [33m[2m✓[22m[39m escalates a TERM-ignoring tree to a bounded SIGKILL[33m 772[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m35 passed[39m[22m[90m (35)[39m
+[2m      Tests [22m [1m[32m304 passed[39m[22m[90m (304)[39m
+[2m   Start at [22m 22:12:06
+[2m   Duration [22m 2.17s[2m (tests 81%, import 11%, environment 5%, transform 2%, worker 1%)[22m
+
+[2m    Isolate [22m [33m35 workers spawned[39m[2m · ~122ms startup each (spawn + environment, per file)[22m
+[2m            [22m [2mat least ~488ms faster with [22m[33misolate: false[39m[2m — reuses workers across files instead of one per file[22m
+

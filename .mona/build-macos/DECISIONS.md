@@ -454,3 +454,45 @@ and deviations discovered while building.
   evidence or a human decision. The real dispatch path goes through the studio's
   single-turn guard; turn completion to task verification is explicit until
   P11/P14.
+
+## D-025 — The attempt ledger is a state machine, not a UI convention
+
+- **Date:** 2026-11-11 (P11)
+- **Decision:** A problem is one durable row per active
+  `(project, task, requirement)`, plus a taskless path keyed by a normalized
+  symptom fingerprint. `recordProblemAttempt` inserts the attempt, increments
+  total and consecutive counters, and blocks at the third consecutive no-progress
+  attempt in one transaction. A blocked problem refuses a fourth attempt; a
+  progress claim needs linked evidence or a short reason; acknowledgement only
+  appends an audit event. Reopening is the only reset path and requires new
+  evidence plus a reason. `beginTaskRun` and status writes re-check the database,
+  so selection cannot be bypassed.
+- **Why:** The spec's failure mode is a loop that “almost works” forever. A UI
+  badge cannot prevent it, and an in-memory count resets with the session. The
+  stable id is anchored to the task and requirement so a reworded symptom keeps
+  the same problem; the partial unique indexes make a second active problem
+  impossible. Putting the cap in a CHECK constraint and the fourth-attempt
+  refusal in the store makes the promise testable.
+- **Consequence:** The fourth retry is refused for a direct store caller too.
+  A `pending` task is not moved to `blocked` (no §8.2 edge); its problem blocks
+  and both selection and `beginTaskRun` refuse it. Blocking a running task
+  interrupts its task-run receipt. See ADR-006 for the engine-internal boundary.
+
+## D-026 — Control actions stay distinct and name their execution owner
+
+- **Date:** 2026-11-11 (P11)
+- **Decision:** Pause-after-task gates only the Mona queue dispatch preflight and
+  is re-checked in `dispatchNext`; its note says a native-workflow-owned task is
+  not gated. Interrupt-now keeps the engine receipt and, through the IPC
+  boundary, links a confirmed receipt to the task (`interrupted`, turn cleared);
+  an uncertain receipt leaves the task `running` and appends an audit note.
+  Cancel-queued reports the real queue (usually empty under one-prompt-per-
+  assignment) and never touches the active turn. Blocker-paused is a
+  task/problem state, never a process state.
+- **Why:** Spec §10.3 defines four actions with different effects. Conflating
+  pause with stop, or claiming that an uncertain interrupt stopped a task, would
+  make the UI lie about process reality. Recording `active_turn_id` avoids
+  guessing which task an interrupt belonged to.
+- **Consequence:** Turn completion → task verification remains P14. A finished
+  turn does not silently complete a task, and stopping a process never promises
+  rollback of external side effects.

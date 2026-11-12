@@ -47,6 +47,12 @@ export interface WorkStudioOptions {
   /** Test seam: build the adapter over an injected transport. */
   newAdapter?: (transport: RuntimeTransport, projectId: ProjectId) => EngineAdapter;
   notify?: (push: StudioPush) => void;
+  /**
+   * Called when an engine turn reaches a terminal event. It is how the work
+   * board clears the dispatch→turn link, so a later interrupt cannot be
+   * attributed to a task whose turn already finished.
+   */
+  onTurnFinished?: (projectId: ProjectId, turnId: string) => Promise<void> | void;
   now?: () => Date;
   reconnect?: {
     attempts?: number;
@@ -184,6 +190,8 @@ export class WorkStudio {
   private readonly reconnectBaseMs: number;
   private readonly reconnectMaxMs: number;
   private readonly sleep: (ms: number) => Promise<void>;
+  private readonly onTurnFinished:
+    ((projectId: ProjectId, turnId: string) => Promise<void> | void) | null;
   private active: StudioSession | null = null;
   private closed = false;
 
@@ -199,6 +207,7 @@ export class WorkStudio {
           store: new SqliteSubmissionStore(options.store, projectId),
         }));
     this.notify = options.notify ?? (() => undefined);
+    this.onTurnFinished = options.onTurnFinished ?? null;
     this.now = options.now ?? (() => new Date());
     this.reconnectAttempts = options.reconnect?.attempts ?? 6;
     this.reconnectBaseMs = options.reconnect?.baseDelayMs ?? 250;
@@ -745,6 +754,13 @@ export class WorkStudio {
     session.active = null;
     session.pendingInput = null;
     this.work.taskFinished();
+    if (turnId && this.onTurnFinished) {
+      try {
+        await this.onTurnFinished(session.projectId, turnId);
+      } catch (error) {
+        this.diagnose(session, `the task turn link was not cleared: ${errorMessage(error)}`);
+      }
+    }
     if (status === "failed") {
       const payload = (event.payload ?? {}) as { reason?: unknown; error?: unknown };
       const reason =
@@ -828,6 +844,9 @@ export class WorkStudio {
 
   async interrupt(projectId: ProjectId): Promise<StudioActionResult> {
     const session = this.requireSession(projectId);
+    // Capture the target before the interrupt: the receipt names the turn that
+    // was actually asked to stop, so a caller never has to guess.
+    const targetTurnId = session.active?.turnId ?? this.work.snapshot().active?.turnId ?? null;
     const transition = await this.work.interruptNow();
     if (transition.receipt && transition.receipt.interrupted && session.lastSubmissionKey) {
       const submission = await this.store.getSubmission(session.lastSubmissionKey);
@@ -845,6 +864,7 @@ export class WorkStudio {
     );
     return {
       action: "interrupt_now",
+      turnId: targetTurnId,
       note: transition.note,
       confirmed: transition.receipt ? transition.confirmed : null,
       uncertain: transition.uncertain,
@@ -861,6 +881,7 @@ export class WorkStudio {
     if (session) this.push(session, "control", "pause_after_task");
     return {
       action: "pause_after_task",
+      turnId: null,
       note: transition.note,
       confirmed: null,
       uncertain: false,
@@ -876,6 +897,7 @@ export class WorkStudio {
     this.pushControl(projectId, "queue_resumed");
     return this.snapshot(projectId).then((snapshot) => ({
       action: "resume_queue",
+      turnId: null,
       note: "the queue boundary is cleared; new work may start",
       confirmed: null,
       uncertain: false,
@@ -892,6 +914,7 @@ export class WorkStudio {
     if (session) this.push(session, "control", "cancel_queued");
     return {
       action: "cancel_queued",
+      turnId: null,
       note: transition.note,
       confirmed: null,
       uncertain: false,
@@ -999,6 +1022,7 @@ export class WorkStudio {
     }
     return {
       action: "stop_runtime",
+      turnId: null,
       note: notes.join("; "),
       confirmed: interrupted,
       uncertain,

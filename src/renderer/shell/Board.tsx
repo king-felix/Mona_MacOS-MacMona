@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useMemo, useState, type JSX } from "react";
 import type { IpcResult, ProjectDetail } from "../../shared/contracts/project-bridge";
 import type {
+  BlockedProblemCard,
   BoardSnapshot,
   ContextPreview,
+  ProblemView,
   TaskOwner,
   TaskView,
 } from "../../shared/contracts/board";
@@ -100,14 +102,358 @@ function requirementList(value: string): string[] {
     .filter((entry) => entry.length > 0);
 }
 
+const EMPTY_ATTEMPT = {
+  requirement: "",
+  symptom: "",
+  hypothesis: "",
+  action: "",
+  observed: "",
+  evidence: "",
+  progress: false,
+  reason: "",
+};
+
+function ProblemSection({
+  task,
+  problems,
+  busy,
+  onAction,
+}: {
+  task: TaskView;
+  problems: ProblemView[];
+  busy: boolean;
+  onAction: (action: () => Promise<unknown>) => void;
+}): JSX.Element {
+  const [attempt, setAttempt] = useState({
+    ...EMPTY_ATTEMPT,
+    requirement: task.requirements[0] ?? "",
+  });
+  const [notes, setNotes] = useState<Record<string, string>>({});
+  const [reopen, setReopen] = useState<Record<string, { reason: string; evidence: string }>>({});
+
+  const record = () => {
+    onAction(async () => {
+      const result = await unwrap(() =>
+        window.mona.recordProblemAttempt({
+          projectId: task.projectId,
+          taskId: task.id,
+          requirement: attempt.requirement.trim(),
+          symptom: attempt.symptom.trim(),
+          hypothesis: attempt.hypothesis.trim(),
+          action: attempt.action.trim(),
+          observed: attempt.observed.trim(),
+          materialProgress: attempt.progress,
+          evidence: attempt.evidence.trim() ? [attempt.evidence.trim()] : [],
+          reason: attempt.reason.trim() || null,
+        }),
+      );
+      setAttempt({ ...EMPTY_ATTEMPT, requirement: attempt.requirement });
+      if (result.blocked) {
+        // The store has already blocked the problem and, when the task was
+        // running, moved it to blocked. Reloading shows the Victor card.
+      }
+    });
+  };
+
+  const reopenField = (problemId: string) => reopen[problemId] ?? { reason: "", evidence: "" };
+
+  return (
+    <>
+      <h3>Problems and attempts</h3>
+      <p className="muted">
+        One hypothesis-and-result cycle is one attempt. Three consecutive attempts without material
+        progress block the problem; acknowledgement cannot reset that count.
+      </p>
+      {problems.length === 0 ? (
+        <p className="muted">No recorded problem for this task.</p>
+      ) : (
+        <ul className="problem-list">
+          {problems.map((problem) => {
+            const latest = problem.attempts[problem.attempts.length - 1];
+            return (
+              <li
+                key={problem.id}
+                className={`problem-list__item problem-list__item--${problem.status}`}
+              >
+                <div className="problem-list__head">
+                  <Badge
+                    tone={
+                      problem.status === "blocked"
+                        ? "attention"
+                        : problem.status === "resolved"
+                          ? "neutral"
+                          : "primary"
+                    }
+                  >
+                    {problem.status}
+                  </Badge>{" "}
+                  <Badge tone="neutral">{problem.requirement}</Badge>{" "}
+                  <span className="mono">{problem.id}</span>{" "}
+                  <span className="muted">
+                    {problem.totalAttempts} total · {problem.noProgressAttempts} without progress
+                  </span>
+                </div>
+                <p>{problem.symptom}</p>
+                {problem.status === "blocked" ? (
+                  <Callout tone="attention" title="Blocked after three attempts">
+                    {problem.helpNeeded ?? "New evidence or a decision is required."}
+                  </Callout>
+                ) : null}
+                {problem.resolution ? (
+                  <p className="muted">Resolved by decision: {problem.resolution}</p>
+                ) : null}
+                <ol className="attempt-list">
+                  {problem.attempts.map((entry) => (
+                    <li key={entry.id}>
+                      <span className="muted">{relativeTime(entry.createdAt)}</span> ·{" "}
+                      <strong>
+                        {entry.materialProgress ? "material progress" : "no progress"}
+                      </strong>
+                      <div>Hypothesis: {entry.hypothesis}</div>
+                      <div>Action: {entry.action}</div>
+                      <div>Observed: {entry.observed}</div>
+                      {entry.evidence.length > 0 ? (
+                        <div className="mono">{entry.evidence.join(", ")}</div>
+                      ) : null}
+                    </li>
+                  ))}
+                </ol>
+                {latest ? null : <p className="muted">No attempts recorded yet.</p>}
+                <div className="button-row">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    disabled={busy}
+                    onClick={() =>
+                      onAction(() =>
+                        unwrap(() =>
+                          window.mona.acknowledgeProblem(
+                            problem.id,
+                            notes[problem.id]?.trim() || null,
+                          ),
+                        ),
+                      )
+                    }
+                  >
+                    Acknowledge (keeps count)
+                  </Button>
+                </div>
+                {problem.status === "blocked" ? (
+                  <div className="inline-form">
+                    <TextField
+                      label="New evidence path"
+                      value={reopenField(problem.id).evidence}
+                      onChange={(event) =>
+                        setReopen((current) => ({
+                          ...current,
+                          [problem.id]: {
+                            ...reopenField(problem.id),
+                            evidence: event.target.value,
+                          },
+                        }))
+                      }
+                      placeholder="docs/evidence/new-proof.md"
+                    />
+                    <TextField
+                      label="Why it is material"
+                      value={reopenField(problem.id).reason}
+                      onChange={(event) =>
+                        setReopen((current) => ({
+                          ...current,
+                          [problem.id]: { ...reopenField(problem.id), reason: event.target.value },
+                        }))
+                      }
+                      placeholder="a failing reproduction narrowed to the parser"
+                    />
+                    <Button
+                      size="sm"
+                      variant="primary"
+                      disabled={busy || !reopenField(problem.id).evidence.trim()}
+                      onClick={() =>
+                        onAction(() =>
+                          unwrap(() =>
+                            window.mona.reopenProblem(
+                              problem.id,
+                              reopenField(problem.id).reason.trim() || "material new evidence",
+                              [reopenField(problem.id).evidence.trim()],
+                            ),
+                          ),
+                        )
+                      }
+                    >
+                      Reopen with evidence
+                    </Button>
+                  </div>
+                ) : null}
+                {problem.status !== "resolved" ? (
+                  <div className="inline-form">
+                    <TextField
+                      label="Human resolution"
+                      value={notes[problem.id] ?? ""}
+                      onChange={(event) =>
+                        setNotes((current) => ({ ...current, [problem.id]: event.target.value }))
+                      }
+                      placeholder="Victor decided to defer this requirement"
+                    />
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      disabled={busy || !(notes[problem.id] ?? "").trim()}
+                      onClick={() =>
+                        onAction(() =>
+                          unwrap(() =>
+                            window.mona.resolveProblem(
+                              problem.id,
+                              (notes[problem.id] ?? "").trim(),
+                            ),
+                          ),
+                        )
+                      }
+                    >
+                      Resolve with decision
+                    </Button>
+                  </div>
+                ) : null}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      <div className="form-grid">
+        <TextField
+          label="Requirement"
+          value={attempt.requirement}
+          onChange={(event) =>
+            setAttempt((current) => ({ ...current, requirement: event.target.value }))
+          }
+          placeholder="MONA-011"
+        />
+        <TextField
+          label="Symptom"
+          value={attempt.symptom}
+          onChange={(event) =>
+            setAttempt((current) => ({ ...current, symptom: event.target.value }))
+          }
+          placeholder="the test still fails with the same assertion"
+        />
+        <TextField
+          label="Hypothesis"
+          value={attempt.hypothesis}
+          onChange={(event) =>
+            setAttempt((current) => ({ ...current, hypothesis: event.target.value }))
+          }
+          placeholder="the cache key ignores the workspace"
+        />
+        <TextField
+          label="Action"
+          value={attempt.action}
+          onChange={(event) =>
+            setAttempt((current) => ({ ...current, action: event.target.value }))
+          }
+          placeholder="changed the key to include the canonical path"
+        />
+        <TextField
+          label="Observed result"
+          value={attempt.observed}
+          onChange={(event) =>
+            setAttempt((current) => ({ ...current, observed: event.target.value }))
+          }
+          placeholder="same failure; key is still stale"
+        />
+        <TextField
+          label="Evidence path"
+          value={attempt.evidence}
+          onChange={(event) =>
+            setAttempt((current) => ({ ...current, evidence: event.target.value }))
+          }
+          placeholder="docs/evidence/attempt-1.txt"
+        />
+        <TextField
+          label="Progress reason (required if claiming progress)"
+          value={attempt.reason}
+          onChange={(event) =>
+            setAttempt((current) => ({ ...current, reason: event.target.value }))
+          }
+          placeholder="reproduction narrowed to one function"
+        />
+        <label className="depends-field__option">
+          <input
+            type="checkbox"
+            checked={attempt.progress}
+            onChange={(event) =>
+              setAttempt((current) => ({ ...current, progress: event.target.checked }))
+            }
+          />{" "}
+          This attempt made material progress
+        </label>
+      </div>
+      <div className="button-row">
+        <Button
+          variant="secondary"
+          disabled={
+            busy ||
+            !attempt.requirement.trim() ||
+            !attempt.symptom.trim() ||
+            !attempt.hypothesis.trim() ||
+            !attempt.action.trim() ||
+            !attempt.observed.trim()
+          }
+          onClick={record}
+        >
+          Record attempt
+        </Button>
+      </div>
+    </>
+  );
+}
+
+function VictorHandoff({ cards }: { cards: BlockedProblemCard[] }): JSX.Element {
+  return (
+    <Card title="Victor handoff" eyebrow="Blocked problems from durable state">
+      <p className="muted">
+        These problems stopped after three consecutive attempts without material progress. They are
+        not retried automatically and their requirements stay blocked.
+      </p>
+      <ul className="problem-list">
+        {cards.map((card) => (
+          <li key={card.problemId} className="problem-list__item problem-list__item--blocked">
+            <div className="problem-list__head">
+              <Badge tone="attention">blocked</Badge>{" "}
+              <Badge tone="neutral">{card.requirement}</Badge>{" "}
+              <span className="mono">{card.problemId}</span>
+            </div>
+            <p>
+              <strong>{card.taskTitle ?? "No task"}</strong> — {card.symptom}
+            </p>
+            <p className="muted">
+              {card.totalAttempts} attempts · {card.noProgressAttempts} consecutive without progress
+              · blocked {relativeTime(card.blockedAt)}
+            </p>
+            <Callout tone="attention" title="Exact help needed">
+              {card.helpNeeded}
+            </Callout>
+            {card.evidence.length > 0 ? (
+              <p className="mono">{card.evidence.join(", ")}</p>
+            ) : (
+              <p className="muted">No evidence path was linked to the attempts.</p>
+            )}
+          </li>
+        ))}
+      </ul>
+    </Card>
+  );
+}
+
 function TaskDetail({
   task,
   all,
+  problems,
   busy,
   onAction,
 }: {
   task: TaskView;
   all: TaskView[];
+  problems: ProblemView[];
   busy: boolean;
   onAction: (action: () => Promise<unknown>) => void;
 }): JSX.Element {
@@ -326,7 +672,7 @@ function TaskDetail({
           {task.status === "pending" ? (
             <Button
               variant="primary"
-              disabled={busy}
+              disabled={busy || task.blockedProblemCount > 0}
               onClick={() =>
                 onAction(() => unwrap(() => window.mona.startBoardTask(task.id, task.revision)))
               }
@@ -334,10 +680,10 @@ function TaskDetail({
               Start run
             </Button>
           ) : null}
-          {task.status === "interrupted" ? (
+          {task.status === "interrupted" || task.status === "blocked" ? (
             <Button
               variant="primary"
-              disabled={busy}
+              disabled={busy || task.blockedProblemCount > 0}
               onClick={() => onAction(() => unwrap(() => window.mona.resumeBoardTask(task.id)))}
             >
               Resume at recorded step
@@ -378,6 +724,12 @@ function TaskDetail({
             Preview submitted context
           </Button>
         </div>
+        {task.blockedProblemCount > 0 ? (
+          <p className="muted">
+            A blocked problem must be resolved or reopened with new evidence before this task can
+            start.
+          </p>
+        ) : null}
         {unsatisfied > 0 ? (
           <p className="muted">{unsatisfied} acceptance criteria must be satisfied first.</p>
         ) : null}
@@ -388,6 +740,8 @@ function TaskDetail({
             <p className="muted">Excluded: {preview.excluded.join("; ")}</p>
           </div>
         ) : null}
+        <ProblemSection task={task} problems={problems} busy={busy} onAction={onAction} />
+
         {task.steps.length > 0 ? (
           <>
             <h3>Recorded steps</h3>
@@ -750,11 +1104,16 @@ export function BoardScreen({
         </Card>
       ) : null}
 
+      {snapshot && snapshot.handoff.blockedProblems.length > 0 ? (
+        <VictorHandoff cards={snapshot.handoff.blockedProblems} />
+      ) : null}
+
       {selected ? (
         <TaskDetail
           key={`${selected.id}:${selected.revision}`}
           task={selected}
           all={tasks}
+          problems={(snapshot?.problems ?? []).filter((problem) => problem.taskId === selected.id)}
           busy={busy}
           onAction={runAction}
         />
@@ -776,7 +1135,15 @@ export function BoardScreen({
       ) : (
         <div className="board" role="region" aria-label="Task lanes">
           {LANES.map((lane) => {
-            const laneTasks = tasks.filter((task) => lane.match.includes(task.status));
+            const laneTasks = tasks.filter((task) => {
+              if (lane.id === "attention") {
+                return lane.match.includes(task.status) || task.blockedProblemCount > 0;
+              }
+              if (lane.id === "ready") {
+                return task.status === "pending" && task.blockedProblemCount === 0;
+              }
+              return lane.match.includes(task.status);
+            });
             return (
               <section
                 className="board__lane"
@@ -833,13 +1200,20 @@ export function BoardScreen({
                             <InfoIcon size={13} /> {task.owner}
                             {task.importedFrom ? ` · imported ${task.importedFrom}` : ""}
                           </p>
-                          {task.requirements.length > 0 ? (
+                          {task.requirements.length > 0 || task.openProblemCount > 0 ? (
                             <div className="task-card__chips">
                               {task.requirements.map((requirement) => (
                                 <Badge key={requirement} tone="neutral">
                                   {requirement}
                                 </Badge>
                               ))}
+                              {task.blockedProblemCount > 0 ? (
+                                <Badge tone="attention">
+                                  {task.blockedProblemCount} blocked problem
+                                </Badge>
+                              ) : task.openProblemCount > 0 ? (
+                                <Badge tone="primary">{task.openProblemCount} open problem</Badge>
+                              ) : null}
                             </div>
                           ) : null}
                           {dependencies.length > 0 ? (

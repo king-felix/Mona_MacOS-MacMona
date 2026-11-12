@@ -364,10 +364,66 @@ CREATE TABLE task_events (
 CREATE INDEX task_events_task ON task_events (task_id, created_at);
 `;
 
+// v4 makes the three-attempt rule a property of stored state rather than a
+// convention. A problem has one stable row per active (project, task,
+// requirement) pair; attempts are linked to it; counters live on the problem so
+// a new session reads the same numbers. The partial unique indexes are what stop
+// a re-worded symptom or a reopened session from silently creating a second
+// problem, and the CHECK on no_progress_attempts caps the counter at three.
+const V4 = `
+ALTER TABLE tasks ADD COLUMN active_turn_id TEXT;
+
+CREATE TABLE problems (
+  id                   TEXT PRIMARY KEY CHECK (id GLOB 'prb_[a-z0-9]*'),
+  project_id           TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  task_id              TEXT REFERENCES tasks(id) ON DELETE SET NULL,
+  requirement          TEXT NOT NULL CHECK (length(requirement) BETWEEN 1 AND 40),
+  symptom              TEXT NOT NULL CHECK (length(symptom) BETWEEN 1 AND 4000),
+  symptom_fingerprint  TEXT NOT NULL,
+  status               TEXT NOT NULL DEFAULT 'open'
+                       CHECK (status IN ('open', 'blocked', 'resolved')),
+  total_attempts       INTEGER NOT NULL DEFAULT 0 CHECK (total_attempts >= 0),
+  no_progress_attempts INTEGER NOT NULL DEFAULT 0
+                       CHECK (no_progress_attempts BETWEEN 0 AND 3),
+  help_needed          TEXT,
+  blocked_at           TEXT,
+  resolved_at          TEXT,
+  resolution           TEXT,
+  created_at           TEXT NOT NULL,
+  updated_at           TEXT NOT NULL,
+  revision             INTEGER NOT NULL DEFAULT 1 CHECK (revision >= 1)
+);
+CREATE UNIQUE INDEX problems_active_task
+  ON problems (project_id, task_id, requirement)
+  WHERE status <> 'resolved' AND task_id IS NOT NULL;
+CREATE UNIQUE INDEX problems_active_fingerprint
+  ON problems (project_id, symptom_fingerprint)
+  WHERE status <> 'resolved' AND task_id IS NULL;
+CREATE INDEX problems_project_status ON problems (project_id, status);
+
+-- Append-only audit. An acknowledgement is recorded here and changes no
+-- counter; only an attempt with evidence, a human resolution, or a new-evidence
+-- reopen can change the problem's lifecycle.
+CREATE TABLE problem_events (
+  id            TEXT PRIMARY KEY,
+  project_id    TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  problem_id    TEXT NOT NULL REFERENCES problems(id) ON DELETE CASCADE,
+  kind          TEXT NOT NULL CHECK (kind IN (
+                  'created', 'attempt', 'progress_reset', 'blocked',
+                  'acknowledged', 'reopened', 'resolved')),
+  actor         TEXT NOT NULL CHECK (actor IN ('agent', 'human', 'mona_queue')),
+  reason        TEXT,
+  evidence_json TEXT NOT NULL DEFAULT '[]',
+  created_at    TEXT NOT NULL
+);
+CREATE INDEX problem_events_problem ON problem_events (problem_id, created_at);
+`;
+
 export const MIGRATIONS: readonly Migration[] = [
   { version: 1, name: "core-project-state", sql: V1 },
   { version: 2, name: "project-identity-fields", sql: V2 },
   { version: 3, name: "task-board-and-continuity", sql: V3 },
+  { version: 4, name: "attempt-ledger-and-boundaries", sql: V4 },
 ];
 
 export const CURRENT_SCHEMA_VERSION = MIGRATIONS[MIGRATIONS.length - 1]?.version ?? 0;
@@ -381,6 +437,8 @@ export const REQUIRED_TABLES: readonly string[] = [
   "event_cursors",
   "events",
   "meta",
+  "problem_events",
+  "problems",
   "project_paths",
   "projects",
   "requirement_evidence",
@@ -401,10 +459,14 @@ export const REQUIRED_TABLES: readonly string[] = [
 ];
 
 const V3_TABLES: readonly string[] = ["task_acceptance", "task_events", "task_runs", "task_steps"];
+const V4_TABLES: readonly string[] = ["problem_events", "problems"];
 
-/** Tables a database at `version` must have. Older targets predate v3. */
+/** Tables a database at `version` must have. Older targets predate v3 and v4. */
 export function requiredTablesFor(version: number): readonly string[] {
-  return version >= 3 ? REQUIRED_TABLES : REQUIRED_TABLES.filter((t) => !V3_TABLES.includes(t));
+  let tables: readonly string[] = REQUIRED_TABLES;
+  if (version < 4) tables = tables.filter((t) => !V4_TABLES.includes(t));
+  if (version < 3) tables = tables.filter((t) => !V3_TABLES.includes(t));
+  return tables;
 }
 
 export function migrationChecksum(migration: Migration): string {

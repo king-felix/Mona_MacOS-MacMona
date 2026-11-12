@@ -14,7 +14,7 @@
         "sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8"
       }
     ],
-    "indexed_utc": "2026-11-12T04:40:01.792Z"
+    "indexed_utc": "2026-11-12T05:12:41.841Z"
   },
   "prompts": [
     {
@@ -746,10 +746,39 @@
       "prompts": [
         "P11"
       ],
-      "status": "pending",
+      "status": "satisfied",
       "acceptance": "pending",
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P11-attempts.md",
+          "note": "P11 problem ledger, control boundaries, and verification"
+        },
+        {
+          "path": "docs/decisions/ADR-006-attempt-enforcement-boundary.md",
+          "note": "mechanical vs cooperative enforcement boundary"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p11-tests.txt",
+          "note": "300 tests in 35 files, including 10 attempt-ledger tests"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p11-board-sample.json",
+          "note": "34/34 sample-project checks, including 12 attempt/control checks"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p11-shell-smoke.json",
+          "note": "35/35 real-shell checks with a seeded blocked problem"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p11-shell-board.png",
+          "note": "rendered Victor handoff card and attempt counters"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p11-ci.txt",
+          "note": "local CI green: format, lint, typecheck, tests, build, board smoke"
+        }
+      ],
+      "notes": "P11: stable problem ids anchored to task+requirement, total and consecutive counters, hypothesis/action/observed/evidence records, block at three consecutive no-progress attempts, fourth retry refused in the store, acknowledgement cannot reset, reopen requires evidence and reason, human resolution is audited, blocked dependency propagation with independent work continuing, and the Victor handoff card generated from state. Engine-internal loops remain cooperative per ADR-006; Mona does not parse error strings or claim a semantic guarantee inside one turn. Final human QA is P26."
     },
     {
       "id": "MONA-012",
@@ -760,7 +789,7 @@
         "P08",
         "P11"
       ],
-      "status": "partial",
+      "status": "satisfied",
       "acceptance": "pending",
       "evidence": [
         {
@@ -786,9 +815,37 @@
         {
           "path": "docs/evidence/macos/artifacts/p08-studio-offline.png",
           "note": "runtime stopped with history intact, not a fake completion"
+        },
+        {
+          "path": "docs/evidence/macos/P11-attempts.md",
+          "note": "P11 problem ledger, control boundaries, and verification"
+        },
+        {
+          "path": "docs/decisions/ADR-006-attempt-enforcement-boundary.md",
+          "note": "mechanical vs cooperative enforcement boundary"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p11-tests.txt",
+          "note": "300 tests in 35 files, including 10 attempt-ledger tests"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p11-board-sample.json",
+          "note": "34/34 sample-project checks, including 12 attempt/control checks"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p11-shell-smoke.json",
+          "note": "35/35 real-shell checks with a seeded blocked problem"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p11-shell-board.png",
+          "note": "rendered Victor handoff card and attempt counters"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p11-ci.txt",
+          "note": "local CI green: format, lint, typecheck, tests, build, board smoke"
         }
       ],
-      "notes": "P08: the execution control strip wires Pause after task, Resume queue, Interrupt now, Cancel queued, and Stop engine to WorkController with distinct effects and receipts. A confirmed interrupt writes the submission as interrupted and reconciled; an unconfirmed one is reported uncertain with the engine note; stop is never reported as completion and never claims rollback. Queue starts and three-attempt enforcement are P11, so the requirement stays partial."
+      "notes": "P11 adds the queue start boundary, blocker-paused task state, and interrupt-to-task linkage on top of P08's distinct control receipts and P10's resume. Pause-after-task gates only mona_queue dispatch and says a native workflow is not gated; a confirmed interrupt moves the linked task to interrupted, an uncertain one leaves it running with an audit note; cancel-queued reports the real queue; stop never claims rollback. Final human QA is P26."
     },
     {
       "id": "MONA-013",
@@ -1334,7 +1391,7 @@
     "ok": true,
     "errors": [],
     "warnings": [],
-    "validated_utc": "2026-11-12T04:40:01.792Z",
+    "validated_utc": "2026-11-12T05:12:41.841Z",
     "prompt_count": 28,
     "requirement_count": 38
   }

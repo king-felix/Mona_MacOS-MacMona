@@ -165,6 +165,37 @@ export const IpcRequests = {
   }),
   "board:handoff": z.strictObject({ projectId: ProjectId }),
   "board:dispatch-next": z.strictObject({ projectId: ProjectId }),
+
+  // Problem ledger. Recording an attempt is the only call that can move the
+  // three-attempt counters; acknowledgement cannot reset them.
+  "board:attempt": z.strictObject({
+    projectId: ProjectId,
+    taskId: TaskId.nullable().optional(),
+    requirement: z.string().regex(/^(MONA|MAC)-\d{3}$/),
+    symptom: z.string().min(1).max(4000),
+    hypothesis: z.string().min(1).max(4000),
+    action: z.string().min(1).max(4000),
+    observed: z.string().min(1).max(4000),
+    materialProgress: z.boolean(),
+    evidence: z.array(z.string().min(1).max(2048)).max(20).optional(),
+    reason: z.string().max(2000).nullable().optional(),
+    helpNeeded: z.string().max(4000).nullable().optional(),
+    actor: z.enum(["agent", "human", "mona_queue"]).optional(),
+  }),
+  "board:problem-acknowledge": z.strictObject({
+    problemId: z.string().min(1).max(200),
+    note: z.string().max(2000).nullable().optional(),
+  }),
+  "board:problem-resolve": z.strictObject({
+    problemId: z.string().min(1).max(200),
+    resolution: z.string().min(1).max(4000),
+    evidence: z.array(z.string().min(1).max(2048)).max(20).optional(),
+  }),
+  "board:problem-reopen": z.strictObject({
+    problemId: z.string().min(1).max(200),
+    reason: z.string().min(1).max(2000),
+    evidence: z.array(z.string().min(1).max(2048)).min(1).max(20),
+  }),
 } as const;
 
 export type IpcChannel = keyof typeof IpcRequests;

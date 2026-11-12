@@ -80,6 +80,8 @@ export interface StoredTask {
   staleReason: string | null;
   completedAt: string | null;
   importedFrom: string | null;
+  /** The engine turn a Mona dispatch opened for this task, if one is active. */
+  activeTurnId: string | null;
   createdAt: string;
   updatedAt: string;
   revision: number;
@@ -216,6 +218,50 @@ export interface AttemptRecord {
   createdAt: string;
 }
 
+export type ProblemState = "open" | "blocked" | "resolved";
+export type ProblemEventKind =
+  "created" | "attempt" | "progress_reset" | "blocked" | "acknowledged" | "reopened" | "resolved";
+export type ProblemActor = "agent" | "human" | "mona_queue";
+
+/** One persistent problem: stable id, current symptom, and both counters. */
+export interface StoredProblem {
+  id: string;
+  projectId: ProjectId;
+  taskId: TaskId | null;
+  requirement: string;
+  symptom: string;
+  symptomFingerprint: string;
+  status: ProblemState;
+  totalAttempts: number;
+  noProgressAttempts: number;
+  helpNeeded: string | null;
+  blockedAt: string | null;
+  resolvedAt: string | null;
+  resolution: string | null;
+  createdAt: string;
+  updatedAt: string;
+  revision: number;
+}
+
+export interface StoredProblemEvent {
+  id: string;
+  projectId: ProjectId;
+  problemId: string;
+  kind: ProblemEventKind;
+  actor: ProblemActor;
+  reason: string | null;
+  evidence: string[];
+  createdAt: string;
+}
+
+export interface ProblemAttemptResult {
+  problem: StoredProblem;
+  attempt: AttemptRecord;
+  events: StoredProblemEvent[];
+  blocked: boolean;
+  taskStatus: TaskState | null;
+}
+
 export interface ArtifactRecord {
   id: string;
   projectId: ProjectId;
@@ -312,6 +358,9 @@ const MAX_CRITERIA = 50;
 const MAX_STEPS = 50;
 const MAX_REQUIREMENTS = 50;
 
+/** Spec §8.4: three consecutive attempts without material progress stops the problem. */
+export const MAX_NO_PROGRESS_ATTEMPTS = 3;
+
 function asString(value: unknown): string {
   return String(value ?? "");
 }
@@ -373,6 +422,7 @@ function taskFromRow(row: DbRow): StoredTask {
     staleReason: asNullableString(row.stale_reason),
     completedAt: asNullableString(row.completed_at),
     importedFrom: asNullableString(row.imported_from),
+    activeTurnId: asNullableString(row.active_turn_id),
     createdAt: asString(row.created_at),
     updatedAt: asString(row.updated_at),
     revision: asNumber(row.revision),
@@ -416,6 +466,76 @@ function runFromRow(row: DbRow): TaskRunView {
     endedAt: asNullableString(row.ended_at),
     note: asNullableString(row.note),
   };
+}
+
+function attemptFromRow(row: DbRow): AttemptRecord {
+  return {
+    id: asString(row.id),
+    projectId: asString(row.project_id) as ProjectId,
+    taskId: asNullableString(row.task_id) as TaskId | null,
+    problemId: asString(row.problem_id),
+    requirement: asString(row.requirement),
+    symptom: asNullableString(row.symptom),
+    hypothesis: asString(row.hypothesis),
+    action: asString(row.action),
+    observed: asString(row.observed),
+    materialProgress: Number(row.material_progress) === 1,
+    evidence: JSON.parse(asString(row.evidence_json) || "[]") as string[],
+    createdAt: asString(row.created_at),
+  };
+}
+
+function problemFromRow(row: DbRow): StoredProblem {
+  return {
+    id: asString(row.id),
+    projectId: asString(row.project_id) as ProjectId,
+    taskId: asNullableString(row.task_id) as TaskId | null,
+    requirement: asString(row.requirement),
+    symptom: asString(row.symptom),
+    symptomFingerprint: asString(row.symptom_fingerprint),
+    status: asString(row.status) as ProblemState,
+    totalAttempts: asNumber(row.total_attempts),
+    noProgressAttempts: asNumber(row.no_progress_attempts),
+    helpNeeded: asNullableString(row.help_needed),
+    blockedAt: asNullableString(row.blocked_at),
+    resolvedAt: asNullableString(row.resolved_at),
+    resolution: asNullableString(row.resolution),
+    createdAt: asString(row.created_at),
+    updatedAt: asString(row.updated_at),
+    revision: asNumber(row.revision),
+  };
+}
+
+function problemEventFromRow(row: DbRow): StoredProblemEvent {
+  return {
+    id: asString(row.id),
+    projectId: asString(row.project_id) as ProjectId,
+    problemId: asString(row.problem_id),
+    kind: asString(row.kind) as ProblemEventKind,
+    actor: asString(row.actor) as ProblemActor,
+    reason: asNullableString(row.reason),
+    evidence: JSON.parse(asString(row.evidence_json) || "[]") as string[],
+    createdAt: asString(row.created_at),
+  };
+}
+
+/** Normalize a symptom so whitespace, case, and trailing punctuation do not
+ * create a second problem for the same condition. */
+function normalizeSymptom(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/[`"'\u2018\u2019\u201c\u201d]/g, "")
+    .replace(/\s+/g, " ")
+    .replace(/[.;:,]+$/g, "")
+    .trim();
+}
+
+function symptomFingerprint(requirement: string, symptom: string): string {
+  return createHash("sha256")
+    .update(requirement.trim().toUpperCase())
+    .update("\0")
+    .update(normalizeSymptom(symptom))
+    .digest("hex");
 }
 
 function validateRequirementIds(value: readonly string[]): string[] {
@@ -1727,6 +1847,16 @@ export class StateStore {
             unmet,
           });
         }
+        const blockedProblem = db
+          .prepare("SELECT id FROM problems WHERE task_id = ? AND status = 'blocked' LIMIT 1")
+          .get(id) as { id: string } | undefined;
+        if (blockedProblem) {
+          throw new StateError(
+            "CONFLICT",
+            "a blocked problem must be resolved or reopened with new evidence before this task starts",
+            { task_id: id, problem_id: String(blockedProblem.id) },
+          );
+        }
         const other = db
           .prepare("SELECT id FROM tasks WHERE project_id = ? AND status = 'running' AND id <> ?")
           .get(asString(row.project_id), id) as { id: string } | undefined;
@@ -1768,7 +1898,7 @@ export class StateStore {
         this.checkTaskRevision(row, input.expectedRevision);
       }
       const from = asString(row.status) as TaskState;
-      if (from !== "pending" && from !== "interrupted") {
+      if (from !== "pending" && from !== "interrupted" && from !== "blocked") {
         throw new StateError("CONFLICT", `a ${from} task cannot start`, {
           task_id: input.taskId,
           status: from,
@@ -1787,6 +1917,16 @@ export class StateStore {
           task_id: input.taskId,
           unmet,
         });
+      }
+      const blockedProblem = db
+        .prepare("SELECT id FROM problems WHERE task_id = ? AND status = 'blocked' LIMIT 1")
+        .get(input.taskId) as { id: string } | undefined;
+      if (blockedProblem) {
+        throw new StateError(
+          "CONFLICT",
+          "a blocked problem must be resolved or reopened with new evidence before this task starts",
+          { task_id: input.taskId, problem_id: String(blockedProblem.id) },
+        );
       }
       const decision = decideTransition({ from, to: "running", actor: input.owner });
       if (!decision.allowed) {
@@ -1825,7 +1965,8 @@ export class StateStore {
         )
         .get(input.taskId) as DbRow | undefined;
       db.prepare(
-        "UPDATE tasks SET status = 'running', next_step = ?, updated_at = ?, revision = revision + 1 WHERE id = ?",
+        "UPDATE tasks SET status = 'running', active_turn_id = NULL, next_step = ?, updated_at = ?, " +
+          "revision = revision + 1 WHERE id = ?",
       ).run(step ? String(step.label) : null, now, input.taskId);
       if (step) {
         const runningStep = db
@@ -1845,7 +1986,11 @@ export class StateStore {
         from,
         "running",
         input.owner,
-        from === "interrupted" ? `resume at ${step ? String(step.label) : "recorded step"}` : null,
+        from === "interrupted"
+          ? `resume at ${step ? String(step.label) : "recorded step"}`
+          : from === "blocked"
+            ? "started from a blocked task; no active blocked problem remains"
+            : null,
         now,
       );
       return {
@@ -1880,7 +2025,8 @@ export class StateStore {
           DbRow | undefined;
         if (task && asString(task.status) === "running") {
           db.prepare(
-            "UPDATE tasks SET status = 'interrupted', updated_at = ?, revision = revision + 1 WHERE id = ?",
+            "UPDATE tasks SET status = 'interrupted', active_turn_id = NULL, updated_at = ?, " +
+              "revision = revision + 1 WHERE id = ?",
           ).run(now, asString(run.task_id));
           this.auditTaskTransition(
             db,
@@ -1925,8 +2071,9 @@ export class StateStore {
         });
       }
       db.prepare(
-        "UPDATE tasks SET status = 'verifying', verification_fingerprint = ?, verification_stale = 0, " +
-          "stale_reason = NULL, updated_at = ?, revision = revision + 1 WHERE id = ?",
+        "UPDATE tasks SET status = 'verifying', active_turn_id = NULL, verification_fingerprint = ?, " +
+          "verification_stale = 0, stale_reason = NULL, updated_at = ?, revision = revision + 1 " +
+          "WHERE id = ?",
       ).run(fingerprint, now, id);
       this.auditTaskTransition(
         db,
@@ -1998,9 +2145,9 @@ export class StateStore {
         });
       }
       db.prepare(
-        "UPDATE tasks SET status = 'completed', completed_at = ?, verification_fingerprint = ?, " +
-          "verification_stale = 0, stale_reason = NULL, next_step = NULL, updated_at = ?, " +
-          "revision = revision + 1 WHERE id = ?",
+        "UPDATE tasks SET status = 'completed', active_turn_id = NULL, completed_at = ?, " +
+          "verification_fingerprint = ?, verification_stale = 0, stale_reason = NULL, " +
+          "next_step = NULL, updated_at = ?, revision = revision + 1 WHERE id = ?",
       ).run(now, input.fingerprint, now, id);
       this.auditTaskTransition(
         db,
@@ -2080,8 +2227,9 @@ export class StateStore {
 
   private setTaskStatusRow(db: DatabaseSync, id: string, status: TaskStatus, now: string): void {
     db.prepare(
-      "UPDATE tasks SET status = ?, updated_at = ?, revision = revision + 1 WHERE id = ?",
-    ).run(status, now, id);
+      "UPDATE tasks SET status = ?, active_turn_id = CASE WHEN ? = 'running' THEN active_turn_id " +
+        "ELSE NULL END, updated_at = ?, revision = revision + 1 WHERE id = ?",
+    ).run(status, status, now, id);
   }
 
   private auditTaskTransition(
@@ -2159,6 +2307,12 @@ export class StateStore {
     });
   }
 
+  /**
+   * Legacy journal entry: an imported or historical attempt that predates the
+   * problem ledger. Mona's dispatch path never calls this; it uses
+   * `recordProblemAttempt`, whose counters and block transitions are enforced
+   * inside one transaction.
+   */
   async recordAttempt(input: {
     projectId: ProjectId;
     taskId?: TaskId | null;
@@ -2222,21 +2376,487 @@ export class StateStore {
               .prepare("SELECT * FROM attempts WHERE project_id = ? ORDER BY created_at")
               .all(projectId)
       ) as DbRow[];
-      return rows.map((row) => ({
-        id: asString(row.id),
-        projectId: asString(row.project_id) as ProjectId,
-        taskId: asNullableString(row.task_id) as TaskId | null,
-        problemId: asString(row.problem_id),
-        requirement: asString(row.requirement),
-        symptom: asNullableString(row.symptom),
-        hypothesis: asString(row.hypothesis),
-        action: asString(row.action),
-        observed: asString(row.observed),
-        materialProgress: Number(row.material_progress) === 1,
-        evidence: JSON.parse(asString(row.evidence_json) || "[]") as string[],
-        createdAt: asString(row.created_at),
-      }));
+      return rows.map(attemptFromRow);
     });
+  }
+
+  async listProblems(projectId: ProjectId): Promise<StoredProblem[]> {
+    return this.read((db) => {
+      const rows = db
+        .prepare("SELECT * FROM problems WHERE project_id = ? ORDER BY created_at, id")
+        .all(projectId) as DbRow[];
+      return rows.map(problemFromRow);
+    });
+  }
+
+  async getProblem(problemId: string): Promise<StoredProblem | null> {
+    return this.read((db) => {
+      const row = db.prepare("SELECT * FROM problems WHERE id = ?").get(problemId) as
+        DbRow | undefined;
+      return row ? problemFromRow(row) : null;
+    });
+  }
+
+  async listProblemEvents(projectId: ProjectId, problemId?: string): Promise<StoredProblemEvent[]> {
+    return this.read((db) => {
+      const rows = (
+        problemId
+          ? db
+              .prepare(
+                "SELECT * FROM problem_events WHERE project_id = ? AND problem_id = ? " +
+                  "ORDER BY created_at, rowid",
+              )
+              .all(projectId, problemId)
+          : db
+              .prepare(
+                "SELECT * FROM problem_events WHERE project_id = ? ORDER BY created_at, rowid",
+              )
+              .all(projectId)
+      ) as DbRow[];
+      return rows.map(problemEventFromRow);
+    });
+  }
+
+  /**
+   * Record one hypothesis-and-result cycle against a stable problem. One
+   * transaction creates or finds the problem, inserts the attempt, moves the
+   * counters, and — at the third consecutive attempt without material progress —
+   * blocks the problem and its running/verifying task. A fourth attempt against
+   * a blocked problem is refused, as is a progress claim with no evidence.
+   */
+  async recordProblemAttempt(input: {
+    projectId: ProjectId;
+    taskId?: TaskId | null;
+    requirement: string;
+    symptom: string;
+    hypothesis: string;
+    action: string;
+    observed: string;
+    materialProgress: boolean;
+    evidence?: string[];
+    reason?: string | null;
+    helpNeeded?: string | null;
+    actor?: ProblemActor;
+  }): Promise<ProblemAttemptResult> {
+    const requirement = input.requirement.trim().toUpperCase();
+    if (!/^(MONA|MAC)-\d{3}$/.test(requirement)) {
+      throw new StateError("CONFLICT", "requirement ids look like MONA-001 or MAC-001", {
+        requirement: input.requirement,
+      });
+    }
+    const symptom = input.symptom.trim();
+    if (symptom.length < 1 || symptom.length > 4000) {
+      throw new StateError("CONFLICT", "a symptom must be between 1 and 4000 characters");
+    }
+    for (const field of ["hypothesis", "action", "observed"] as const) {
+      if (input[field].trim().length < 1) {
+        throw new StateError("CONFLICT", `an attempt needs a non-empty ${field}`);
+      }
+    }
+    const evidence = [...new Set((input.evidence ?? []).map((path) => path.trim()))].filter(
+      (path) => path.length > 0,
+    );
+    const reason = input.reason?.trim() ?? "";
+    if (input.materialProgress && evidence.length === 0 && reason.length === 0) {
+      throw new StateError(
+        "CONFLICT",
+        "material progress needs linked evidence or a short reason before the counter resets",
+      );
+    }
+    const actor = input.actor ?? "agent";
+    const fingerprint = symptomFingerprint(requirement, symptom);
+
+    return this.write((db, now) => {
+      if (input.taskId) {
+        this.requireTaskRow(db, input.taskId);
+        const owner = db.prepare("SELECT project_id FROM tasks WHERE id = ?").get(input.taskId) as
+          DbRow | undefined;
+        if (owner && asString(owner.project_id) !== input.projectId) {
+          throw new StateError("CONFLICT", "task is not in this project", {
+            task_id: input.taskId,
+          });
+        }
+      }
+
+      // A task-bound attempt keys only on its task and requirement. It never
+      // adopts a taskless problem, because a taskless row would leave the block
+      // detached from the task that selection and beginTaskRun check.
+      const row = input.taskId
+        ? (db
+            .prepare(
+              "SELECT * FROM problems WHERE project_id = ? AND task_id = ? AND requirement = ? " +
+                "AND status <> 'resolved' LIMIT 1",
+            )
+            .get(input.projectId, input.taskId, requirement) as DbRow | undefined)
+        : (db
+            .prepare(
+              "SELECT * FROM problems WHERE project_id = ? AND symptom_fingerprint = ? " +
+                "AND task_id IS NULL AND status <> 'resolved' LIMIT 1",
+            )
+            .get(input.projectId, fingerprint) as DbRow | undefined);
+
+      const events: StoredProblemEvent[] = [];
+      const event = (
+        problemId: string,
+        kind: ProblemEventKind,
+        eventReason: string | null,
+        eventEvidence: string[],
+      ): void => {
+        const id = this.id("pev");
+        db.prepare(
+          "INSERT INTO problem_events (id, project_id, problem_id, kind, actor, reason, " +
+            "evidence_json, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        ).run(
+          id,
+          input.projectId,
+          problemId,
+          kind,
+          actor,
+          eventReason,
+          JSON.stringify(eventEvidence),
+          now,
+        );
+        events.push({
+          id,
+          projectId: input.projectId,
+          problemId,
+          kind,
+          actor,
+          reason: eventReason,
+          evidence: eventEvidence,
+          createdAt: now,
+        });
+      };
+
+      let problemId: string;
+      if (!row) {
+        problemId = this.id("prb");
+        db.prepare(
+          "INSERT INTO problems (id, project_id, task_id, requirement, symptom, " +
+            "symptom_fingerprint, status, total_attempts, no_progress_attempts, help_needed, " +
+            "blocked_at, resolved_at, resolution, created_at, updated_at, revision) " +
+            "VALUES (?, ?, ?, ?, ?, ?, 'open', 0, 0, NULL, NULL, NULL, NULL, ?, ?, 1)",
+        ).run(
+          problemId,
+          input.projectId,
+          input.taskId ?? null,
+          requirement,
+          symptom,
+          fingerprint,
+          now,
+          now,
+        );
+        event(problemId, "created", `problem created for ${requirement}`, evidence);
+      } else {
+        problemId = asString(row.id);
+        if (asString(row.status) === "blocked") {
+          throw new StateError(
+            "CONFLICT",
+            "this problem is blocked after three attempts without progress; " +
+              "reopen it with material new evidence or resolve it first",
+            { problem_id: problemId, status: "blocked" },
+          );
+        }
+      }
+
+      const current = db.prepare("SELECT * FROM problems WHERE id = ?").get(problemId) as DbRow;
+      const total = asNumber(current.total_attempts) + 1;
+      const noProgress = input.materialProgress ? 0 : asNumber(current.no_progress_attempts) + 1;
+      const blocked = noProgress >= MAX_NO_PROGRESS_ATTEMPTS && !input.materialProgress;
+      const helpNeeded = blocked
+        ? input.helpNeeded?.trim() ||
+          `Unblock ${requirement}: ${symptom} — new evidence or a decision is required.`
+        : asNullableString(current.help_needed);
+      const status = blocked ? "blocked" : "open";
+
+      const attemptId = this.id("atp");
+      db.prepare(
+        "INSERT INTO attempts (id, project_id, task_id, problem_id, requirement, symptom, " +
+          "hypothesis, action, observed, material_progress, evidence_json, created_at) " +
+          "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      ).run(
+        attemptId,
+        input.projectId,
+        input.taskId ?? null,
+        problemId,
+        requirement,
+        symptom,
+        input.hypothesis,
+        input.action,
+        input.observed,
+        input.materialProgress ? 1 : 0,
+        JSON.stringify(evidence),
+        now,
+      );
+      db.prepare(
+        "UPDATE problems SET symptom = ?, symptom_fingerprint = ?, status = ?, " +
+          "total_attempts = ?, no_progress_attempts = ?, help_needed = ?, " +
+          "blocked_at = ?, updated_at = ?, revision = revision + 1 WHERE id = ?",
+      ).run(
+        symptom,
+        fingerprint,
+        status,
+        total,
+        noProgress,
+        helpNeeded,
+        blocked ? now : asNullableString(current.blocked_at),
+        now,
+        problemId,
+      );
+      event(
+        problemId,
+        "attempt",
+        input.materialProgress
+          ? "material progress; consecutive counter reset"
+          : `no material progress (${noProgress}/${MAX_NO_PROGRESS_ATTEMPTS})`,
+        evidence,
+      );
+      if (input.materialProgress) {
+        event(problemId, "progress_reset", reason || "material progress recorded", evidence);
+      }
+
+      let taskStatus: TaskState | null = null;
+      if (blocked) {
+        const blockHelp =
+          helpNeeded ??
+          `Unblock ${requirement}: ${symptom} — new evidence or a decision is required.`;
+        event(problemId, "blocked", blockHelp, evidence);
+        if (input.taskId) {
+          taskStatus = this.blockTaskForProblem(db, input.taskId, blockHelp, now);
+        }
+      }
+
+      return {
+        problem: problemFromRow(
+          db.prepare("SELECT * FROM problems WHERE id = ?").get(problemId) as DbRow,
+        ),
+        attempt: attemptFromRow(
+          db.prepare("SELECT * FROM attempts WHERE id = ?").get(attemptId) as DbRow,
+        ),
+        events,
+        blocked,
+        taskStatus,
+      };
+    });
+  }
+
+  /** Acknowledgement is visibility, not progress: no counter changes. */
+  async acknowledgeProblem(
+    problemId: string,
+    options: { note?: string | null; actor?: ProblemActor } = {},
+  ): Promise<StoredProblem> {
+    return this.write((db, now) => {
+      const row = db.prepare("SELECT * FROM problems WHERE id = ?").get(problemId) as
+        DbRow | undefined;
+      if (!row) throw new StateError("NOT_FOUND", `problem ${problemId} does not exist`);
+      db.prepare(
+        "INSERT INTO problem_events (id, project_id, problem_id, kind, actor, reason, " +
+          "evidence_json, created_at) VALUES (?, ?, ?, 'acknowledged', ?, ?, '[]', ?)",
+      ).run(
+        this.id("pev"),
+        asString(row.project_id),
+        problemId,
+        options.actor ?? "human",
+        options.note?.trim() || "acknowledged without changing the attempt count",
+        now,
+      );
+      db.prepare("UPDATE problems SET updated_at = ?, revision = revision + 1 WHERE id = ?").run(
+        now,
+        problemId,
+      );
+      return problemFromRow(
+        db.prepare("SELECT * FROM problems WHERE id = ?").get(problemId) as DbRow,
+      );
+    });
+  }
+
+  /** A human decision ends the problem; attempts are history, never erased. */
+  async resolveProblem(
+    problemId: string,
+    input: { resolution: string; evidence?: string[]; actor?: ProblemActor },
+  ): Promise<StoredProblem> {
+    const resolution = input.resolution.trim();
+    if (resolution.length < 1) {
+      throw new StateError("CONFLICT", "resolving a problem needs a recorded decision");
+    }
+    return this.write((db, now) => {
+      const row = db.prepare("SELECT * FROM problems WHERE id = ?").get(problemId) as
+        DbRow | undefined;
+      if (!row) throw new StateError("NOT_FOUND", `problem ${problemId} does not exist`);
+      if (asString(row.status) === "resolved") {
+        throw new StateError("CONFLICT", "problem is already resolved", { problem_id: problemId });
+      }
+      db.prepare(
+        "UPDATE problems SET status = 'resolved', resolution = ?, resolved_at = ?, " +
+          "help_needed = NULL, updated_at = ?, revision = revision + 1 WHERE id = ?",
+      ).run(resolution, now, now, problemId);
+      const evidence = [...new Set((input.evidence ?? []).map((p) => p.trim()))].filter(Boolean);
+      db.prepare(
+        "INSERT INTO problem_events (id, project_id, problem_id, kind, actor, reason, " +
+          "evidence_json, created_at) VALUES (?, ?, ?, 'resolved', ?, ?, ?, ?)",
+      ).run(
+        this.id("pev"),
+        asString(row.project_id),
+        problemId,
+        input.actor ?? "human",
+        resolution,
+        JSON.stringify(evidence),
+        now,
+      );
+      return problemFromRow(
+        db.prepare("SELECT * FROM problems WHERE id = ?").get(problemId) as DbRow,
+      );
+    });
+  }
+
+  /**
+   * The only path that resets the consecutive counter on a blocked problem.
+   * It requires material new evidence and a reason, keeps the total, and leaves
+   * an audit record that a later session can read.
+   */
+  async reopenProblem(
+    problemId: string,
+    input: { reason: string; evidence: string[]; actor?: ProblemActor },
+  ): Promise<StoredProblem> {
+    const reason = input.reason.trim();
+    const evidence = [...new Set((input.evidence ?? []).map((p) => p.trim()))].filter(Boolean);
+    if (reason.length < 1) {
+      throw new StateError("CONFLICT", "reopening a blocked problem needs a short reason");
+    }
+    if (evidence.length === 0) {
+      throw new StateError(
+        "CONFLICT",
+        "reopening a blocked problem needs at least one new evidence path",
+      );
+    }
+    return this.write((db, now) => {
+      const row = db.prepare("SELECT * FROM problems WHERE id = ?").get(problemId) as
+        DbRow | undefined;
+      if (!row) throw new StateError("NOT_FOUND", `problem ${problemId} does not exist`);
+      if (asString(row.status) !== "blocked") {
+        throw new StateError("CONFLICT", "only a blocked problem reopens on new evidence", {
+          problem_id: problemId,
+          status: asString(row.status),
+        });
+      }
+      db.prepare(
+        "UPDATE problems SET status = 'open', no_progress_attempts = 0, blocked_at = NULL, " +
+          "help_needed = NULL, updated_at = ?, revision = revision + 1 WHERE id = ?",
+      ).run(now, problemId);
+      db.prepare(
+        "INSERT INTO problem_events (id, project_id, problem_id, kind, actor, reason, " +
+          "evidence_json, created_at) VALUES (?, ?, ?, 'reopened', ?, ?, ?, ?)",
+      ).run(
+        this.id("pev"),
+        asString(row.project_id),
+        problemId,
+        input.actor ?? "human",
+        reason,
+        JSON.stringify(evidence),
+        now,
+      );
+      return problemFromRow(
+        db.prepare("SELECT * FROM problems WHERE id = ?").get(problemId) as DbRow,
+      );
+    });
+  }
+
+  /**
+   * The mechanical gate for every dispatch path: a task with any blocked
+   * problem cannot start, even if a caller skips board selection.
+   */
+  async blockedProblemsForTask(taskId: TaskId): Promise<StoredProblem[]> {
+    return this.read((db) => {
+      const rows = db
+        .prepare(
+          "SELECT * FROM problems WHERE task_id = ? AND status = 'blocked' ORDER BY created_at",
+        )
+        .all(taskId) as DbRow[];
+      return rows.map(problemFromRow);
+    });
+  }
+
+  /** Attach the engine turn a Mona dispatch opened, so a confirmed interrupt
+   * can name the task it stopped instead of guessing from timestamps. */
+  async attachTaskTurn(taskId: TaskId, turnId: string | null): Promise<StoredTask> {
+    return this.write((db, now) => {
+      this.requireTaskRow(db, taskId);
+      db.prepare(
+        "UPDATE tasks SET active_turn_id = ?, updated_at = ?, revision = revision + 1 WHERE id = ?",
+      ).run(turnId, now, taskId);
+      return taskFromRow(db.prepare("SELECT * FROM tasks WHERE id = ?").get(taskId) as DbRow);
+    });
+  }
+
+  /**
+   * Clear a dispatch→turn link when that exact turn ended. Matching on the turn
+   * id means a finished turn never clears a link that a newer dispatch owns.
+   */
+  async clearTaskTurn(projectId: ProjectId, turnId: string): Promise<TaskId[]> {
+    return this.write((db, now) => {
+      const rows = db
+        .prepare("SELECT id FROM tasks WHERE project_id = ? AND active_turn_id = ?")
+        .all(projectId, turnId) as DbRow[];
+      if (rows.length === 0) return [];
+      db.prepare(
+        "UPDATE tasks SET active_turn_id = NULL, updated_at = ?, revision = revision + 1 " +
+          "WHERE project_id = ? AND active_turn_id = ?",
+      ).run(now, projectId, turnId);
+      return rows.map((row) => asString(row.id) as TaskId);
+    });
+  }
+
+  /** Append an audit note without pretending a status transition happened. */
+  async appendTaskEvent(input: {
+    taskId: TaskId;
+    actor: TransitionActor;
+    reason: string;
+  }): Promise<void> {
+    return this.write((db, now) => {
+      const row = this.requireTaskRow(db, input.taskId);
+      const status = asString(row.status);
+      db.prepare(
+        "INSERT INTO task_events (id, project_id, task_id, from_status, to_status, actor, reason, created_at) " +
+          "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      ).run(
+        this.id("tev"),
+        asString(row.project_id),
+        input.taskId,
+        status,
+        status,
+        input.actor,
+        input.reason,
+        now,
+      );
+    });
+  }
+
+  private blockTaskForProblem(
+    db: DatabaseSync,
+    taskId: TaskId,
+    helpNeeded: string,
+    now: string,
+  ): TaskState | null {
+    const row = db.prepare("SELECT * FROM tasks WHERE id = ?").get(taskId) as DbRow | undefined;
+    if (!row) return null;
+    const from = asString(row.status) as TaskState;
+    if (from !== "running" && from !== "verifying") return from;
+    db.prepare(
+      "UPDATE task_runs SET state = 'interrupted', ended_at = ?, note = ? " +
+        "WHERE task_id = ? AND state = 'running'",
+    ).run(now, helpNeeded, taskId);
+    this.setTaskStatusRow(db, taskId, "blocked", now);
+    this.auditTaskTransition(
+      db,
+      asString(row.project_id) as ProjectId,
+      taskId,
+      from,
+      "blocked",
+      asString(row.execution_owner) === "native_workflow" ? "native_workflow" : "mona_queue",
+      helpNeeded,
+      now,
+    );
+    return "blocked";
   }
 
   async addDecision(input: {
@@ -3425,6 +4045,11 @@ export class StateStore {
       `project:${escapeLike(projectId)}:%`,
     );
     db.prepare("DELETE FROM attempts WHERE project_id = ?").run(projectId);
+    // Problems must go before tasks: a task delete sets problems.task_id NULL,
+    // which would orphan an active ledger row and could collide on the taskless
+    // fingerprint index. A replace import starts from a clean ledger.
+    db.prepare("DELETE FROM problem_events WHERE project_id = ?").run(projectId);
+    db.prepare("DELETE FROM problems WHERE project_id = ?").run(projectId);
     db.prepare("DELETE FROM requirement_evidence WHERE project_id = ?").run(projectId);
     db.prepare(
       "DELETE FROM task_dependencies WHERE task_id IN (SELECT id FROM tasks WHERE project_id = ?)",

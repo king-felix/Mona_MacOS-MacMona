@@ -99,7 +99,7 @@ describe("database + migrations", () => {
     }
   });
 
-  it("upgrades v2 tasks to the v3 state machine without dropping dependencies or evidence", async () => {
+  it("upgrades v2 tasks through the v3/v4 schema without dropping dependencies or evidence", async () => {
     const dir = tempDir();
     const dbPath = join(dir, "mona.sqlite");
     const v2 = await migrateDatabase({
@@ -141,7 +141,7 @@ describe("database + migrations", () => {
 
     const v3 = await migrateDatabase({ dbPath, migrations: MIGRATIONS, now: makeClock().now });
     try {
-      expect(v3.db.prepare("PRAGMA user_version").get()).toMatchObject({ user_version: 3 });
+      expect(v3.db.prepare("PRAGMA user_version").get()).toMatchObject({ user_version: 4 });
       const tasks = v3.db
         .prepare("SELECT id, status, execution_owner FROM tasks ORDER BY id")
         .all() as Array<{ id: string; status: string; execution_owner: string }>;
@@ -167,6 +167,20 @@ describe("database + migrations", () => {
         v3.db
           .prepare(
             "SELECT COUNT(*) AS n FROM sqlite_master WHERE type = 'table' AND name = 'task_acceptance'",
+          )
+          .get(),
+      ).toMatchObject({ n: 1 });
+      expect(
+        v3.db
+          .prepare(
+            "SELECT COUNT(*) AS n FROM sqlite_master WHERE type = 'table' AND name = 'problems'",
+          )
+          .get(),
+      ).toMatchObject({ n: 1 });
+      expect(
+        v3.db
+          .prepare(
+            "SELECT COUNT(*) AS n FROM pragma_table_info('tasks') WHERE name = 'active_turn_id'",
           )
           .get(),
       ).toMatchObject({ n: 1 });
@@ -232,7 +246,7 @@ describe("database + migrations", () => {
     v1.db.close();
 
     const bad: Migration = {
-      version: 4,
+      version: 5,
       name: "broken",
       sql: "CREATE TABLE collateral (id INTEGER); INSERT INTO missing_table (id) VALUES (1);",
     };
@@ -288,7 +302,7 @@ describe("database + migrations", () => {
     });
     v2.db.close();
 
-    const destructive: Migration = { version: 4, name: "drop-drafts", sql: "DROP TABLE drafts;" };
+    const destructive: Migration = { version: 5, name: "drop-drafts", sql: "DROP TABLE drafts;" };
     let failure: StateError | null = null;
     try {
       const outcome = await migrateDatabase({

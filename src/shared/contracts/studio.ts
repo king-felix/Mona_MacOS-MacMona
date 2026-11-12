@@ -102,6 +102,8 @@ export interface StudioSubmitResult {
 
 export interface StudioActionResult {
   action: "interrupt_now" | "pause_after_task" | "resume_queue" | "cancel_queued" | "stop_runtime";
+  /** The engine turn this action targeted, so a caller never guesses. */
+  turnId: string | null;
   note: string;
   confirmed: boolean | null;
   uncertain: boolean;
