@@ -13,6 +13,7 @@ function stopReceipt(overrides: Partial<SupervisorStopReceipt> = {}): Supervisor
     escalated: false,
     survivors: [],
     via: "control_socket",
+    verified: true,
     ...overrides,
   };
 }

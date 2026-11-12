@@ -108,6 +108,14 @@ export class OwnershipStore {
     );
   }
 
+  /**
+   * Records whose stop could not be verified. They are reclassified at the next
+   * launch so a leftover tree cannot hide behind a `failed` label.
+   */
+  unverified(): OwnershipRecord[] {
+    return this.list().filter((record) => record.state === "failed");
+  }
+
   put(record: OwnershipRecord): OwnershipRecord {
     const snapshot = this.read();
     const records = snapshot.records.filter((candidate) => candidate.id !== record.id);

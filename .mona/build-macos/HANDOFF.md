@@ -1,7 +1,6 @@
 # Handoff — Mona macOS build
 
-**Last checkpoint:** 2026-11-11 (P04, revision 44) · verified content commit
-`31fe0e0` (evidence redaction follow-up `098a7d2`)
+**Last checkpoint:** 2026-11-11 (P04, revision 50)
 **Current prompt:** P05 — **pending, not started**
 
 ## Where the build stands
@@ -23,9 +22,18 @@ shows “Not connected” and “Cost unknown”.
   and then EOF on owner death. The token is never on argv or in the supervisor
   environment. The supervisor stops the tree and exits on EOF.
 - **Stop receipts.** A mode-0600 control socket answers `status`, `stop`, and
-  `force-stop`. Stop is TERM to the verified tree → bounded grace → KILL only
-  verified survivors. Receipts carry `graceful`, `escalated`, `survivors`, and
-  child exit; “stopped” is never inferred from silence.
+  `force-stop`. Stop is TERM to the verified tree → bounded grace that keeps
+  re-sampling for newly forked descendants → KILL only verified survivors.
+  Receipts carry `graceful`, `escalated`, `survivors`, `verified`, and child
+  exit; “stopped” is never inferred from silence. Only one caller owns a stop,
+  so a racing SIGTERM cannot abandon the tree; an owner stop that lands
+  mid-spawn is applied to the child the moment it exists.
+- **Earned stops only.** The supervisor-unreachable fallback reports
+  `verified: false` and is recorded as `failed` for re-check. A restart is
+  allowed only when the supervisor emitted a `stopped` receipt with no
+  survivors; otherwise `STOP_UNVERIFIED`, no restart, no second owner. Starts
+  are serialized, and the adapter layer independently refuses a start beside a
+  live/orphaned record or one it cannot prove it owns.
 - **Ownership records.** Atomic 0600 JSON at `<state>/runtime-ownership.json`
   with executable path + SHA-256, supervisor/child pid + start time, pgid, port,
   control socket, engine identity, state, and receipts. **No token field.** One
@@ -48,11 +56,12 @@ shows “Not connected” and “Cost unknown”.
   receipt, uncertainty reported), cancel-queued (future starts only), and
   quit-and-stop (interrupt then stop, one bounded forced escalation, no rollback
   claim) are separate, tested transitions.
-- **Verification.** 119 tests in 16 files; Electron lifecycle smoke 21/21; real
-  pinned-engine smoke 17/17 through the supervisor (completed turn, 15 events,
-  `deepseek`/`deepseek-flash`/`full_access`, listener verified in-tree, clean
-  shutdown, record stopped). CI green; renderer secret scan 226,270 bytes, no
-  findings.
+- **Verification.** 127 tests in 16 files (`npm test` builds the supervisor
+  first and fails rather than skips the native suite on this host); Electron
+  lifecycle smoke 21/21 run three times; real pinned-engine smoke 17/17 through
+  the supervisor (completed turn, 15 events, `deepseek`/`deepseek-flash`/
+  `full_access`, listener verified in-tree, clean shutdown, record stopped).
+  CI green; renderer secret scan 226,270 bytes, no findings.
 
 ## Next exact action (P05)
 
@@ -109,12 +118,15 @@ complete, so pause here.
     the shell is still the P02 placeholder.
 11. **Pause/interrupt controls have no UI** — `WorkController` is implemented and
     tested; P08/P11 connect it.
+12. **Supervisor-unreachable fallback** — cannot see descendants that left the
+    process group; those stops report `verified: false` and are re-checked at
+    the next launch.
 
 ## Key files
 
-- `.mona/build-macos/state.json` — prompt status (revision 44).
+- `.mona/build-macos/state.json` — prompt status (revision 50).
 - `.mona/build-macos/attempts.jsonl` — empty; nothing failed three times.
-- `.mona/build-macos/DECISIONS.md` — D-001…D-013.
+- `.mona/build-macos/DECISIONS.md` — D-001…D-014.
 - `.mona/build-macos/BLOCKERS.md` — external prerequisites only.
 - `docs/requirements-macos.json` — generated traceability (never hand-edit).
 - `docs/codewhale-capabilities-macos.json` — 72 qualified rows.

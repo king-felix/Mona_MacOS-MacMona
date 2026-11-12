@@ -10,6 +10,8 @@ export interface ProcessEntry {
   pid: number;
   ppid: number;
   pgid: number;
+  /** `ps` state; a leading `Z` means finished work, not a live process. */
+  state: string;
   startedAt: string;
 }
 
@@ -18,34 +20,37 @@ export interface RecordedIdentity {
   startedAt: string;
 }
 
-const TABLE_ROW = /^\s*(\d+)\s+(\d+)\s+(\d+)\s+(.+?)\s*$/;
-
 export function parseProcessTable(raw: string): Map<number, ProcessEntry> {
   const table = new Map<number, ProcessEntry>();
   for (const line of raw.split("\n")) {
-    const match = TABLE_ROW.exec(line);
-    if (!match) continue;
-    const pid = Number(match[1]);
-    const ppid = Number(match[2]);
-    const pgid = Number(match[3]);
-    const startedAt = (match[4] ?? "").trim();
-    if (!Number.isInteger(pid) || pid <= 0 || !startedAt) continue;
-    table.set(pid, { pid, ppid, pgid, startedAt });
+    // `<pid> <ppid> <pgid> <stat> <lstart>`; lstart is five whitespace-separated
+    // tokens ("Wed Nov 11 18:32:59 2026") and stat can contain 's', '+', '<'…
+    const tokens = line.trim().split(/\s+/);
+    if (tokens.length < 9) continue;
+    const pid = Number(tokens[0]);
+    const ppid = Number(tokens[1]);
+    const pgid = Number(tokens[2]);
+    const state = tokens[3] ?? "";
+    const startedAt = tokens.slice(-5).join(" ");
+    if (!Number.isInteger(pid) || pid <= 0 || !state || !startedAt) continue;
+    table.set(pid, { pid, ppid, pgid, state, startedAt });
   }
   return table;
 }
 
 export function readProcessTable(): Map<number, ProcessEntry> {
-  const result = spawnSync("ps", ["-axo", "pid=,ppid=,pgid=,lstart="], { encoding: "utf8" });
+  const result = spawnSync("ps", ["-axo", "pid=,ppid=,pgid=,stat=,lstart="], { encoding: "utf8" });
   return parseProcessTable(result.stdout ?? "");
 }
 
 export function readProcessEntry(pid: number): ProcessEntry | null {
   if (!Number.isInteger(pid) || pid <= 0) return null;
-  const result = spawnSync("ps", ["-o", "pid=,ppid=,pgid=,lstart=", "-p", String(pid)], {
+  const result = spawnSync("ps", ["-o", "pid=,ppid=,pgid=,stat=,lstart=", "-p", String(pid)], {
     encoding: "utf8",
   });
-  return parseProcessTable(result.stdout ?? "").get(pid) ?? null;
+  const entry = parseProcessTable(result.stdout ?? "").get(pid) ?? null;
+  // A zombie is finished work: never treat it as a live owner or signal it.
+  return entry !== null && !isZombie(entry) ? entry : null;
 }
 
 /** Executable path of a live process, or null if it is gone. */
@@ -61,12 +66,22 @@ export function readExecutablePath(pid: number): string | null {
  * recorded start time. A mismatch means the pid was reused and is a stranger.
  */
 export function isSameProcess(identity: RecordedIdentity, entry = readProcessEntry(identity.pid)) {
-  return entry !== null && entry.pid === identity.pid && entry.startedAt === identity.startedAt;
+  return (
+    entry !== null &&
+    entry.pid === identity.pid &&
+    entry.startedAt === identity.startedAt &&
+    !isZombie(entry)
+  );
+}
+
+export function isZombie(entry: { state: string }): boolean {
+  return entry.state.startsWith("Z");
 }
 
 export function descendantsOf(root: number, table = readProcessTable()): Set<number> {
   const children = new Map<number, number[]>();
   for (const entry of table.values()) {
+    if (isZombie(entry)) continue;
     const list = children.get(entry.ppid) ?? [];
     list.push(entry.pid);
     children.set(entry.ppid, list);

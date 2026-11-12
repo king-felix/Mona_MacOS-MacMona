@@ -196,6 +196,8 @@ final class SupervisorState {
     var tracked: [Int32: ProcessIdentity] = [:]
     var stopping = false
     var finished = false
+    var spawned = false
+    var ownerGone = false
     var childExit: [String: Any]?
 
     func withLock<T>(_ body: () -> T) -> T {
@@ -236,6 +238,17 @@ func signalOwned(_ signal: Int32) {
     }
 }
 
+/// Signal one verified identity. Returns true when a signal was sent.
+func signalIdentity(_ identity: ProcessIdentity, _ signal: Int32) -> Bool {
+    if let current = processIdentity(identity.pid), current.startSec == identity.startSec,
+       current.startUsec == identity.startUsec
+    {
+        _ = kill(identity.pid, signal)
+        return true
+    }
+    return false
+}
+
 func aliveTracked() -> [Int32] {
     let (child, tracked) = state.withLock { (state.childStart, state.tracked) }
     var alive: [Int32] = []
@@ -264,7 +277,10 @@ func stopTree(reason: String, graceMs: Int, force: Bool) -> [String: Any] {
         return true
     }
     if !shouldRun {
-        return ["ok": false, "state": "already_stopping"]
+        // Another path already owns the stop and the process exit. Report that
+        // plainly and let it finish; never exit from a losing caller, or the
+        // tree could be abandoned mid-stop with the wrong exit code.
+        return ["ok": false, "state": "already_stopping", "acted": false]
     }
 
     emit(["event": "stopping", "reason": reason, "grace_ms": graceMs, "force": force])
@@ -291,9 +307,20 @@ func stopTree(reason: String, graceMs: Int, force: Bool) -> [String: Any] {
                 signaled += 1
             }
         }
+        var signalled = Set<String>()
+        for identity in snapshot.values { signalled.insert(identity.token) }
+        signalled.insert(expected?.token ?? "")
         let deadline = Date().addingTimeInterval(Double(graceMs) / 1000.0)
         while Date() < deadline {
             if aliveTracked().isEmpty { break }
+            // A grandchild forked after the last sample is still ours. Re-sample
+            // during the grace period and TERM anything new by identity.
+            trackDescendants()
+            for identity in state.withLock({ Array(state.tracked.values) })
+            where !signalled.contains(identity.token) {
+                signalled.insert(identity.token)
+                if signalIdentity(identity, SIGTERM) { signaled += 1 }
+            }
             usleep(50_000)
         }
     } else {
@@ -327,6 +354,7 @@ func stopTree(reason: String, graceMs: Int, force: Bool) -> [String: Any] {
     let survivors = aliveTracked()
     let receipt: [String: Any] = [
         "ok": true,
+        "acted": true,
         "state": survivors.isEmpty ? "stopped" : "survivors",
         "reason": reason,
         "graceful": !force,
@@ -393,8 +421,17 @@ func watchOwner() {
             let count = read(3, &buffer, buffer.count)
             if count > 0 { continue }
             if count == 0 {
+                let spawned = state.withLock { state.spawned }
+                if !spawned {
+                    // The child may be mid-spawn; the spawn path stops it.
+                    state.withLock { state.ownerGone = true }
+                    return
+                }
                 let receipt = stopTree(reason: "owner_liveness_lost", graceMs: options.graceMs, force: false)
-                finish(exitCode: receipt["state"] as? String == "stopped" ? 0 : 1)
+                if receipt["acted"] as? Bool == true {
+                    finish(exitCode: receipt["state"] as? String == "stopped" ? 0 : 1)
+                }
+                return
             }
             if errno == EINTR { continue }
             return
@@ -474,7 +511,9 @@ func handleControlConnection(_ fd: Int32) {
         let receipt = stopTree(reason: "control_request", graceMs: grace, force: force)
         respond(fd, receipt.merging(["ok": true]) { current, _ in current })
         close(fd)
-        finish(exitCode: (receipt["state"] as? String) == "stopped" ? 0 : 1)
+        if receipt["acted"] as? Bool == true {
+            finish(exitCode: (receipt["state"] as? String) == "stopped" ? 0 : 1)
+        }
     default:
         respond(fd, ["ok": false, "error": "unknown op \(operation)"])
         close(fd)
@@ -534,8 +573,14 @@ signal(SIGPIPE, SIG_IGN)
 signal(SIGTERM, SIG_IGN)
 let termSource = DispatchSource.makeSignalSource(signal: SIGTERM, queue: .global())
 termSource.setEventHandler {
+    if !state.withLock({ state.spawned }) {
+        state.withLock { state.ownerGone = true }
+        return
+    }
     let receipt = stopTree(reason: "supervisor_sigterm", graceMs: options.graceMs, force: false)
-    finish(exitCode: (receipt["state"] as? String) == "stopped" ? 0 : 1)
+    if receipt["acted"] as? Bool == true {
+        finish(exitCode: (receipt["state"] as? String) == "stopped" ? 0 : 1)
+    }
 }
 termSource.resume()
 watchOwner()
@@ -598,10 +643,19 @@ guard let identity = processIdentity(childPid) else {
     _ = kill(-childPid, SIGKILL)
     finish(exitCode: 6)
 }
-state.withLock {
+let ownerGoneDuringSpawn = state.withLock { () -> Bool in
     state.childPid = childPid
     state.childStart = identity
     state.tracked[childPid] = identity
+    state.spawned = true
+    return state.ownerGone
+}
+if ownerGoneDuringSpawn {
+    // The owner died while the child was being created: never leave it behind.
+    let receipt = stopTree(reason: "owner_liveness_lost_during_spawn", graceMs: options.graceMs, force: false)
+    if receipt["acted"] as? Bool == true {
+        finish(exitCode: 0)
+    }
 }
 
 emit([
@@ -635,10 +689,14 @@ DispatchQueue.global().async {
                 receipt["signal"] = Int(wTermSignal(status))
             }
             state.withLock { state.childExit = receipt }
-            // Clean up descendants that the child left behind.
-            _ = stopTree(reason: "child_exited", graceMs: 1_000, force: false)
+            // Clean up descendants that the child left behind. If a stop is
+            // already in progress, that path owns the exit.
+            let stopReceipt = stopTree(reason: "child_exited", graceMs: 1_000, force: false)
             emit(["event": "exited", "child_pid": Int32(childPid), "exit": receipt])
-            finish(exitCode: 0)
+            if stopReceipt["acted"] as? Bool == true {
+                finish(exitCode: 0)
+            }
+            return
         }
         usleep(100_000)
     }

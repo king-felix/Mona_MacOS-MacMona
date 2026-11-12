@@ -1,22 +1,30 @@
 import { describe, expect, it } from "vitest";
-import { descendantsOf, isSameProcess, parseProcessTable } from "../src/main/supervisor/identity";
+import {
+  descendantsOf,
+  isSameProcess,
+  isZombie,
+  parseProcessTable,
+} from "../src/main/supervisor/identity";
 import { classifyOwnership, type OwnershipRecord } from "../src/main/supervisor/records";
 
 describe("process table parsing", () => {
   it("parses padded BSD start times without losing the identity", () => {
     const raw = [
-      "    1     0     1 Mon Nov  2 15:24:27 2026    ",
-      "  211     1   211 Fri Nov  6 20:17:54 2026    ",
-      " 5000  211  5000 Wed Nov 11 18:32:59 2026    ",
+      "    1     0     1 Ss   Mon Nov  2 15:24:27 2026    ",
+      "  211     1   211 S    Fri Nov  6 20:17:54 2026    ",
+      " 5000   211  5000 S+   Wed Nov 11 18:32:59 2026    ",
+      " 5001   211  5001 Z    Wed Nov 11 18:33:01 2026    ",
     ].join("\n");
     const table = parseProcessTable(raw);
-    expect(table.size).toBe(3);
+    expect(table.size).toBe(4);
     expect(table.get(211)).toEqual({
       pid: 211,
       ppid: 1,
       pgid: 211,
-      startedAt: "Fri Nov  6 20:17:54 2026",
+      state: "S",
+      startedAt: "Fri Nov 6 20:17:54 2026",
     });
+    expect(isZombie(table.get(5001)!)).toBe(true);
   });
 
   it("ignores malformed rows instead of inventing processes", () => {
@@ -26,22 +34,32 @@ describe("process table parsing", () => {
 });
 
 describe("process identity", () => {
-  const entry = { pid: 42, ppid: 1, pgid: 42, startedAt: "Wed Nov 11 18:32:59 2026" };
+  const entry = {
+    pid: 42,
+    ppid: 1,
+    pgid: 42,
+    state: "S",
+    startedAt: "Wed Nov 11 18:32:59 2026",
+  };
 
   it("matches only the same pid with the same start time", () => {
     expect(isSameProcess({ pid: 42, startedAt: entry.startedAt }, entry)).toBe(true);
     expect(isSameProcess({ pid: 42, startedAt: "Wed Nov 11 18:33:59 2026" }, entry)).toBe(false);
     expect(isSameProcess({ pid: 42, startedAt: entry.startedAt }, null)).toBe(false);
+    expect(isSameProcess({ pid: 42, startedAt: entry.startedAt }, { ...entry, state: "Z" })).toBe(
+      false,
+    );
   });
 
   it("walks grandchildren and stops at the tree boundary", () => {
     const table = parseProcessTable(
       [
-        "  100     1   100 root",
-        "  101   100   100 child",
-        "  102   101   100 grandchild",
-        "  200     1   200 unrelated",
-        "  201   200   200 other-child",
+        "  100     1   100 S Wed Nov 11 18:00:00 2026",
+        "  101   100   100 S Wed Nov 11 18:00:01 2026",
+        "  102   101   100 S Wed Nov 11 18:00:02 2026",
+        "  200     1   200 S Wed Nov 11 17:00:00 2026",
+        "  201   200   200 S Wed Nov 11 17:00:01 2026",
+        "  103   100   100 Z Wed Nov 11 18:00:03 2026",
       ].join("\n"),
     );
     const tree = [...descendantsOf(100, table)].sort();
@@ -81,6 +99,7 @@ describe("ownership verdicts", () => {
               pid,
               ppid: pid === 901 ? 900 : 1,
               pgid: 901,
+              state: "S",
               startedAt: pid === 900 ? base.supervisorStartedAt : base.childStartedAt,
             }
           : null,
@@ -93,7 +112,9 @@ describe("ownership verdicts", () => {
   it("refuses a reused pid as a stranger, even when it is alive", () => {
     const verdict = classifyOwnership(base, {
       readEntry: (pid) =>
-        pid === 901 ? { pid, ppid: 1, pgid: 901, startedAt: "Thu Nov 12 09:00:00 2026" } : null,
+        pid === 901
+          ? { pid, ppid: 1, pgid: 901, state: "S", startedAt: "Thu Nov 12 09:00:00 2026" }
+          : null,
       readExecutable: () => "/usr/bin/stranger",
     });
     expect(verdict.verdict).toBe("pid_reused");
@@ -106,6 +127,7 @@ describe("ownership verdicts", () => {
         pid,
         ppid: pid === 901 ? 900 : 1,
         pgid: 901,
+        state: "S",
         startedAt: pid === 901 ? base.childStartedAt : base.supervisorStartedAt,
       }),
       readExecutable: (pid) => (pid === 901 ? "/usr/bin/sleep" : base.executable),
@@ -116,7 +138,9 @@ describe("ownership verdicts", () => {
   it("reports an orphaned child when only the supervisor is gone", () => {
     const verdict = classifyOwnership(base, {
       readEntry: (pid) =>
-        pid === 901 ? { pid, ppid: 1, pgid: 901, startedAt: base.childStartedAt } : null,
+        pid === 901
+          ? { pid, ppid: 1, pgid: 901, state: "S", startedAt: base.childStartedAt }
+          : null,
       readExecutable: () => base.executable,
     });
     expect(verdict.verdict).toBe("orphaned_owned");

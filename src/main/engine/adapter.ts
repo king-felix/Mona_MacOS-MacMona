@@ -156,10 +156,15 @@ export class CodewhaleAdapter implements EngineAdapter {
 
   async shutdownOwnedRuntime(handle: RuntimeHandle): Promise<{ stopped: boolean }> {
     const result = await stopOwnedRuntime(handle);
-    this.owned = null;
-    this.info = null;
-    this.capabilities = null;
-    return { stopped: result.state === "stopped" };
+    const stopped = result.state === "stopped";
+    // Keep the handle while survivors are known so a retry targets the same
+    // tree; dropping it would invite a second owner beside the leftovers.
+    if (stopped) {
+      this.owned = null;
+      this.info = null;
+      this.capabilities = null;
+    }
+    return { stopped };
   }
 
   // ------------------------------------------------------------------- threads

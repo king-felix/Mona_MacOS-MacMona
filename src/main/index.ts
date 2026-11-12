@@ -13,6 +13,7 @@ import { denyWindowOpen, isAllowedNavigation, shouldQuitOnWindowAllClosed } from
 import { DesktopLifecycle } from "./desktop-lifecycle";
 import { descendantsOf, readProcessEntry, readProcessTable } from "./supervisor/identity";
 import {
+  lastStopReceipt,
   resolveSupervisorBinary,
   startSupervisor,
   stopByVerifiedIdentity,
@@ -250,6 +251,7 @@ function smokeDriver(stateDir: string): RuntimeDriver {
         childStartedAt: record.childStartedAt,
         pgid: record.pgid,
       }),
+    lastStopReceipt,
     markRecord: (record, patch) =>
       store.put({ ...record, ...patch, updatedAt: new Date().toISOString() }),
   };
@@ -420,6 +422,7 @@ if (!gotLock) {
       }
     },
     stopRecorded: (record) => stopRecordedRuntime(record),
+    lastStopReceipt,
     markRecord: (record, patch) => store.put({ ...record, ...patch }),
   };
 
@@ -449,6 +452,7 @@ if (!gotLock) {
             escalated: false,
             survivors: [] as number[],
             via: "control_socket" as const,
+            verified: true,
             note: "no owned runtime",
           }),
   });

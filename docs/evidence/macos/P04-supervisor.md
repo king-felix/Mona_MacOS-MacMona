@@ -13,7 +13,7 @@ from quit, survives renderer crashes and sleep/wake, reconciles stale ownership
 records without killing strangers, and restarts only the process after a
 bounded crash sequence.
 
-Verification: **119 tests in 16 files pass**, the Electron lifecycle smoke passes
+Verification: **127 tests in 16 files pass**, the Electron lifecycle smoke passes
 **21/21** checks, the real pinned-engine smoke passes **17/17** checks through
 the supervisor, and local CI is green (`p04-ci.txt`).
 
@@ -21,7 +21,7 @@ the supervisor, and local CI is green (`p04-ci.txt`).
 
 `native/macos-supervisor/main.swift` → `build/mona-supervisor` (Mach-O arm64,
 deployment target `arm64-apple-macos14.0`, ad-hoc signed and verified,
-SHA-256 `f7a650e4…c66f4271`, 183,824 bytes). Build receipt:
+SHA-256 `033ee5b2…a708e07a`, 201,920 bytes). Build receipt:
 `artifacts/p04-supervisor-build.json`.
 
 Contract:
@@ -36,9 +36,16 @@ mona-supervisor --control <socket> --workspace <dir> [--grace-ms N]
   (`POSIX_SPAWN_CLOEXEC_DEFAULT`).
 - Descendants are sampled every 250 ms and once more immediately before stop.
 - `status`, `stop`, and `force-stop` are answered over a mode-0600 Unix socket.
-- Signals are installed before the child exists, so a stop during startup still
-  cleans up whatever was spawned.
-- Zombies are not treated as live processes.
+- Signals and owner liveness are armed before the child exists; an owner stop
+  that arrives mid-spawn is remembered and the just-created child is stopped
+  immediately, so a stop during startup cannot leak a runtime.
+- Descendants are re-sampled during the stop grace period, so a grandchild
+  forked after the last regular sample is still found and signalled by identity.
+- Zombies are not treated as live processes on either side of the boundary
+  (`ps` state `Z` is filtered in the supervisor and in Mona's process table).
+- Only one caller owns the stop: losing stop paths report `already_stopping`
+  and never call `exit`, so a SIGTERM racing a control stop cannot abandon the
+  tree with a wrong exit code.
 - The supervisor unlinks its socket and exits with the child; it never becomes a
   daemon.
 
@@ -55,16 +62,36 @@ mona-supervisor --control <socket> --workspace <dir> [--grace-ms N]
   supervisor's `pid:sec.usec` token only as startup evidence; control-socket
   stop with a verified-identity fallback.
 - `src/main/supervisor/runtime-supervisor.ts` — one runtime per user store,
-  workspace serialization, external read-only attach, suspend/resume,
-  bounded process-only restart, record reconciliation.
+  serialized starts, workspace serialization, external read-only attach,
+  suspend/resume, bounded process-only restart, record reconciliation.
 - `src/main/engine/runtime-process.ts` — resolves and hashes the native engine,
-  validates the workspace, preflights the port, verifies the child's parent and
-  executable, waits for authenticated `/v1/runtime/info`, and verifies that the
-  listener is inside the supervised tree and runs the recorded binary.
+  validates the workspace, refuses a live/orphaned record for the same
+  workspace, preflights the port, verifies the child's parent and executable,
+  waits for authenticated `/v1/runtime/info`, and verifies that the listener is
+  inside the supervised tree and runs the recorded binary.
 
 Records live at `<state>/runtime-ownership.json`; runtime logs at
 `<state>/logs/<id>.log`; control sockets under `<state>/run/` (or a short temp
 path when the state path would exceed the Unix-socket limit).
+
+## Truthful stop and restart semantics
+
+A stop receipt carries `verified`. Only the supervisor's control socket can
+prove the whole tree is gone, so only that path sets `verified: true`. The
+signal fallback (used when the supervisor is unreachable) signals the verified
+child and its recorded process group, reports any remaining group member, and
+sets `verified: false`; it never claims more than it knows. An unverified stop
+is recorded as `failed`, not `stopped`, and is reclassified at the next launch.
+
+A supervisor exit is not proof the runtime tree stopped. Before restarting,
+Mona looks for the stop receipt the supervisor itself emitted (`stopped` event).
+Without one, the record is marked `failed` with `STOP_UNVERIFIED`, no restart is
+scheduled, and no second owner starts. A restart after a wake probe is refused
+unless the stop before it was `stopped`.
+
+Concurrent `ensure` calls are refused (`ALREADY_OWNED`) rather than racing two
+spawns, and a start during `reconnecting`/`stopping` is refused rather than
+silently stopping the in-flight owner.
 
 ## Shutdown / recovery matrix
 
@@ -81,7 +108,12 @@ path when the state path would exceed the Unix-socket limit).
 | Dock reopen | `activate` opens a window | lifecycle smoke | 1 window, same runtime/child |
 | Sleep | state becomes `reconnecting` | lifecycle smoke + unit | runtime `reconnecting`, child alive |
 | Wake | health probe, no resubmission | lifecycle smoke + unit | `running`, same child; start count unchanged |
-| Runtime crash | bounded process restart | `runtime-supervisor` | `reconnecting` → `starting` → `running`; no turn resubmission |
+| Runtime crash (supervisor reported a tree stop) | bounded process restart | `runtime-supervisor` | `reconnecting` → `starting` → `running`; no turn resubmission |
+| Supervisor killed, no stop receipt | refuse restart, mark failed | `runtime-supervisor` | `failed` / `STOP_UNVERIFIED`, no second owner |
+| Unhealthy after wake, stop incomplete | refuse restart | `runtime-supervisor` | `failed` / `STOP_INCOMPLETE` |
+| Fallback stop (supervisor unreachable) | verified identity only | `runtime-supervisor`, `runtime-process` | state `stopped`, `verified: false`, record `failed` for re-check |
+| Concurrent starts | serialized guard | `runtime-supervisor` | second call `ALREADY_OWNED`, one spawn |
+| Leftover record, same workspace | reconcile then start | `runtime-supervisor`, `runtime-process` | orphan stopped; pid-reuse refused |
 | Restart budget exhausted | stop restarting, report failure | `runtime-supervisor` | `failed` / `RESTART_EXHAUSTED` |
 | Quit (⌘Q) | interrupt then stop owned tree | lifecycle smoke | `stopped: true`, `escalated: false`, `rollback: not_promised`, all pids dead |
 | Second launch | single-instance handoff | lifecycle smoke | second exits 0; owner receives the folder |
@@ -143,7 +175,10 @@ the supervisor.
 5. **A supervisor stop during a hardware failure** depends on the OS delivering
    fd-3 EOF; if the whole machine loses power, the next launch reconciles the
    record and stops only a verified orphan.
-6. **Forced termination is not rollback.** If a turn already sent a provider
+6. **The signal fallback cannot see escaped descendants.** If the supervisor is
+   unreachable, only the verified child and its process group can be checked;
+   the receipt says `verified: false` and the record is re-checked next launch.
+7. **Forced termination is not rollback.** If a turn already sent a provider
    request, stopping the process cannot undo it; submission reconciliation
    remains a separate decision (P03 contract).
 
@@ -164,6 +199,6 @@ the supervisor.
 - `artifacts/p04-supervisor-build.json` — supervisor build/signature/hash.
 - `artifacts/p04-lifecycle-smoke.json` — 21/21 Electron lifecycle checks.
 - `artifacts/p04-engine-smoke.json` — 17/17 real-engine checks.
-- `artifacts/p04-tests.txt` — 119 passing tests.
+- `artifacts/p04-tests.txt` — 127 passing tests.
 - `artifacts/p04-ci.txt` — format, lint, typecheck, supervisor, tests, build,
   renderer secret scan (`226,270` bytes, no findings).

@@ -22,6 +22,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
+    "pretest": "node scripts/build-supervisor.mjs",
     "test:watch": "vitest",
     "ci": "node scripts/ci.mjs",
     "engine:smoke": "npm run build && npm run build:supervisor && node scripts/engine-smoke.mjs",

@@ -24,7 +24,15 @@ function supervisorBinary(): string | null {
 }
 
 const BINARY = supervisorBinary();
-const enabled = BINARY !== null;
+// On this project's target host the native path must be exercised: `npm test`
+// builds the supervisor first, so a missing binary is a hard failure, not a
+// silent skip. Other hosts report the native qualification as pending.
+const NATIVE_REQUIRED = process.platform === "darwin" && process.arch === "arm64";
+if (NATIVE_REQUIRED && BINARY === null) {
+  throw new Error(
+    "native supervisor binary is missing; run `npm run build:supervisor` (npm test does this automatically)",
+  );
+}
 
 function isLive(pid: number): boolean {
   const result = spawnSync("ps", ["-o", "stat=", "-p", String(pid)], { encoding: "utf8" });
@@ -100,7 +108,7 @@ process.on("SIGTERM", () => process.exit(0));
 setInterval(() => {}, 1000);
 `;
 
-describe.skipIf(!enabled)("native supervisor", () => {
+describe.skipIf(!NATIVE_REQUIRED)("native supervisor", () => {
   it("stops the entire owned tree and leaves unrelated processes alone", async () => {
     const unrelated = spawn("/bin/sleep", ["120"], { stdio: "ignore" });
     const tree = await startTree(GRACEFUL_PARENT);
@@ -205,6 +213,27 @@ setInterval(() => {}, 1000);
     }
   }, 10_000);
 
+  it("keeps one stop owner when SIGTERM races a control-socket stop", async () => {
+    const tree = await startTree(GRACEFUL_PARENT, { graceMs: 900 });
+    try {
+      const control = stopSupervisor(tree.handle, { graceMs: 900 }).catch(() => ({
+        state: "unreachable",
+        acted: false,
+      }));
+      tree.handle.process.kill("SIGTERM");
+      await control;
+      const exit = await Promise.race([
+        tree.handle.exit,
+        new Promise((resolveTimeout) => setTimeout(() => resolveTimeout(null), 8_000)),
+      ]);
+      expect(exit).not.toBeNull();
+      expect((exit as { code: number | null }).code).toBe(0);
+      expect(await waitFor(() => tree.pids.every((pid) => !isLive(pid)))).toBe(true);
+    } finally {
+      await tree.stop().catch(() => undefined);
+    }
+  }, 20_000);
+
   it("reports a supervisor-level status receipt with the tracked tree", async () => {
     const tree = await startTree(GRACEFUL_PARENT);
     try {
@@ -220,11 +249,12 @@ setInterval(() => {}, 1000);
 });
 
 describe("native supervisor availability", () => {
-  it("reports why native qualification is skipped when unavailable", () => {
-    if (enabled) {
+  it("exercises the native path on the target host", () => {
+    if (NATIVE_REQUIRED) {
       expect(BINARY).toContain("mona-supervisor");
       return;
     }
+    // Non-target hosts keep native qualification explicitly pending.
     expect(["darwin", "linux", "win32"]).toContain(process.platform);
   });
 });

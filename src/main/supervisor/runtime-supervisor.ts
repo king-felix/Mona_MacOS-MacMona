@@ -52,6 +52,11 @@ export interface RuntimeDriver {
   healthy(handle: SupervisorHandle, token: string, baseUrl: string): Promise<boolean>;
   /** Stop a runtime described only by its durable record (after an app restart). */
   stopRecorded(record: OwnershipRecord): Promise<SupervisorStopReceipt>;
+  /**
+   * The stop receipt the supervisor itself emitted, when one exists. A
+   * supervisor that exits without one has not proven the tree is gone.
+   */
+  lastStopReceipt?(handle: SupervisorHandle): SupervisorStopReceipt | null;
   markRecord(record: OwnershipRecord, patch: Partial<OwnershipRecord>): OwnershipRecord;
 }
 
@@ -96,6 +101,7 @@ export class RuntimeSupervisor {
   private readonly onStatus: ((status: RuntimeStatus) => void) | undefined;
   private readonly stopGraceMs: number;
   private current: CurrentRuntime | null = null;
+  private startInFlight: Promise<RuntimeStatus> | null = null;
   private external: { workspace: string; port: number } | null = null;
   private statusValue: RuntimeStatus;
   private restartTimer: unknown = null;
@@ -148,6 +154,15 @@ export class RuntimeSupervisor {
   }
 
   async ensure(workspace: string): Promise<RuntimeStatus> {
+    // Serialize starts: two overlapping calls must not both spawn an owner.
+    if (this.startInFlight) {
+      throw new RuntimeOwnershipError(
+        "ALREADY_OWNED",
+        "a runtime start is already in progress",
+        "await the in-flight start; parallel ownership is not proven",
+        { requestedWorkspace: workspace },
+      );
+    }
     if (this.current) {
       if (this.current.record.workspace === workspace && this.statusValue.state === "running") {
         return this.status();
@@ -182,6 +197,16 @@ export class RuntimeSupervisor {
     }
 
     this.external = null;
+    const attempt = this.startRuntime(workspace);
+    this.startInFlight = attempt;
+    try {
+      return await attempt;
+    } finally {
+      if (this.startInFlight === attempt) this.startInFlight = null;
+    }
+  }
+
+  private async startRuntime(workspace: string): Promise<RuntimeStatus> {
     await this.reconcileRecords();
     this.setState("starting", "start_requested", { workspace, external: false });
     try {
@@ -224,6 +249,7 @@ export class RuntimeSupervisor {
         escalated: false,
         survivors: [],
         via: "control_socket",
+        verified: true,
         note: `no owned runtime (${reason})`,
       };
     }
@@ -240,8 +266,11 @@ export class RuntimeSupervisor {
       receipt = { ...forced, escalated: true };
     }
     const stopped = receipt.state === "stopped";
+    const verified = stopped && receipt.verified;
     this.driver.markRecord(runtime.record, {
-      state: stopped ? "stopped" : "failed",
+      // An unverified stop is recorded as failed, not stopped, so the next
+      // launch re-checks it instead of trusting a fallback's optimism.
+      state: verified ? "stopped" : "failed",
       stopReceipt: receipt as unknown as Record<string, unknown>,
       updatedAt: new Date(this.now()).toISOString(),
     });
@@ -349,7 +378,8 @@ export class RuntimeSupervisor {
    * therefore just as stale, and skipping it would create a second owner.
    */
   private async reconcileRecords(): Promise<void> {
-    for (const record of this.store.live()) {
+    const candidates = [...this.store.live(), ...this.store.unverified()];
+    for (const record of candidates) {
       const evidence = classifyOwnership(record);
       if (evidence.verdict === "live_owned" || evidence.verdict === "orphaned_owned") {
         const receipt = await this.driver.stopRecorded(record);
@@ -411,12 +441,58 @@ export class RuntimeSupervisor {
     const runtime = this.current;
     if (!runtime || runtime.record.id !== recordId) return;
     if (this.statusValue.state === "stopping" || this.statusValue.state === "stopped") return;
-    const clean = code === 0 && signal === null;
+
+    // A supervisor exit is not proof that the runtime tree is gone: the
+    // supervisor itself can be killed while the engine keeps running. Trust
+    // only a stop receipt the supervisor emitted, otherwise refuse to restart.
+    const emitted = this.driver.lastStopReceipt?.(runtime.handle) ?? null;
+    const treeVerified = emitted !== null && emitted.state === "stopped";
+    const survivors = emitted?.survivors ?? [];
+
+    if (!treeVerified) {
+      const evidence =
+        emitted === null
+          ? {
+              verdict: "unknown",
+              note: "the supervisor exited without a stop receipt",
+              supervisorAlive: false,
+              childAlive: false,
+            }
+          : classifyOwnership(runtime.record);
+      this.driver.markRecord(runtime.record, {
+        state: "failed",
+        updatedAt: new Date(this.now()).toISOString(),
+        stopReceipt: {
+          via: "process_exit_unverified",
+          code,
+          signal,
+          emitted,
+          evidence,
+        },
+      });
+      this.current = null;
+      this.setState("failed", "runtime_tree_not_verified_stopped", {
+        ownershipId: recordId,
+        port: null,
+        engine: null,
+        lastFailure: {
+          code: "STOP_UNVERIFIED",
+          message: `supervisor exited (code ${code ?? "none"}, signal ${signal ?? "none"}) without proving the runtime tree stopped`,
+          action:
+            "retry the stop; Mona will not restart the runtime or start a second owner beside a possible leftover",
+          details: { code, signal, emitted, survivors },
+        },
+        pendingRestartInMs: null,
+      });
+      return;
+    }
+
     this.driver.markRecord(runtime.record, {
       state: "stopped",
       updatedAt: new Date(this.now()).toISOString(),
-      stopReceipt: { via: "process_exit", code, signal },
+      stopReceipt: { via: "process_exit", code, signal, emitted },
     });
+    const clean = code === 0 && signal === null;
     const decision = this.restartPolicy.noteExit(clean);
     this.current = null;
     if (this.shuttingDown || !decision.restart) {
@@ -456,7 +532,24 @@ export class RuntimeSupervisor {
     const decision = this.restartPolicy.noteExit(false);
     // Stop the still-present process before starting a replacement so ownership
     // never forks into two runtimes on one user store.
-    await this.driver.stop(runtime.handle, { graceMs: 2_000 });
+    const receipt = await this.driver.stop(runtime.handle, { graceMs: 2_000 });
+    if (receipt.state !== "stopped") {
+      this.driver.markRecord(runtime.record, {
+        state: "failed",
+        updatedAt: new Date(this.now()).toISOString(),
+        stopReceipt: receipt as unknown as Record<string, unknown>,
+      });
+      this.setState("failed", `${reason}_stop_incomplete`, {
+        lastFailure: {
+          code: "STOP_INCOMPLETE",
+          message: `unhealthy runtime did not stop (${receipt.state}); restart refused`,
+          action: "inspect the process tree; Mona will not run two owners on one user store",
+          details: { receipt },
+        },
+        pendingRestartInMs: null,
+      });
+      return;
+    }
     this.current = null;
     if (this.shuttingDown || !decision.restart) {
       this.setState("failed", `${reason}_restart_exhausted`, {

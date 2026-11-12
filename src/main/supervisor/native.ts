@@ -4,7 +4,7 @@ import { connect } from "node:net";
 import { resolve } from "node:path";
 import { createInterface } from "node:readline";
 import { RuntimeLifecycleError } from "./errors";
-import { isSameProcess, readProcessEntry } from "./identity";
+import { isSameProcess, readProcessEntry, readProcessTable } from "./identity";
 
 export interface SupervisorStartOptions {
   binary: string;
@@ -49,6 +49,12 @@ export interface SupervisorStopReceipt {
   survivors: number[];
   exit?: { code: number | null; signal: number | null; reaped?: boolean };
   via: "control_socket" | "signal_fallback";
+  /**
+   * True only when the whole owned tree was verified gone. The control socket
+   * can prove this; a signal fallback cannot see descendants that escaped the
+   * process group, so it reports false instead of claiming more than it knows.
+   */
+  verified: boolean;
   note?: string;
 }
 
@@ -211,10 +217,11 @@ export async function startSupervisor(options: SupervisorStartOptions): Promise<
   // all compare the same representation.
   const childEntry = readProcessEntry(startedReceipt.child_pid);
   if (!childEntry || childEntry.ppid !== (child.pid ?? -1)) {
-    const supervisorEntry = readProcessEntry(child.pid ?? -1);
-    // If the supervisor is already gone, the child was reparented because the
-    // runtime exited during startup: that is a startup failure, not a stranger.
-    const supervisorAlive = supervisorEntry !== null;
+    // Node's exitCode is authoritative for our own child; a zombie supervisor is
+    // still "gone" for this decision.
+    const supervisorAlive = child.exitCode === null && child.signalCode === null;
+    // A vanished child means it exited during startup; that is the runtime's
+    // failure, not an ownership mismatch.
     const startupFailure = childEntry === null || !supervisorAlive;
     const cleanup = await shutdownAfterFailedStart(child, exit, options.graceMs ?? 2_000);
     throw new RuntimeLifecycleError(
@@ -292,6 +299,7 @@ export async function stopSupervisor(
       survivors,
       exit: response.exit as SupervisorStopReceipt["exit"],
       via: "control_socket",
+      verified: survivors.length === 0,
     };
   } catch (error) {
     // The supervisor is unreachable. Fall back to a verified-identity signal;
@@ -319,15 +327,23 @@ export async function stopByVerifiedIdentity(
 ): Promise<SupervisorStopReceipt> {
   const graceMs = options.graceMs ?? 8_000;
   const identity = { pid: target.childPid, startedAt: target.childStartedAt };
+  const groupSurvivors = () =>
+    [...readProcessTable().values()]
+      .filter((entry) => entry.pgid === target.pgid && entry.pid !== process.pid)
+      .map((entry) => entry.pid);
   if (readProcessEntry(target.childPid) === null) {
+    const leftover = groupSurvivors();
     return {
-      ok: true,
-      state: "stopped",
+      ok: leftover.length === 0,
+      state: leftover.length === 0 ? "stopped" : "survivors",
       graceful: true,
       escalated: false,
-      survivors: [],
+      survivors: leftover,
       via: "signal_fallback",
-      note: options.note ?? "the recorded process is already gone",
+      verified: false,
+      note:
+        options.note ??
+        "the recorded process is already gone; escaped descendants cannot be seen without the supervisor",
     };
   }
   if (!isSameProcess(identity)) {
@@ -338,6 +354,7 @@ export async function stopByVerifiedIdentity(
       escalated: false,
       survivors: [],
       via: "signal_fallback",
+      verified: false,
       note:
         options.note ??
         `pid ${target.childPid} is not the recorded process; refusing to signal a reused pid`,
@@ -356,7 +373,8 @@ export async function stopByVerifiedIdentity(
     const killDeadline = Date.now() + 2_000;
     while (Date.now() < killDeadline && isSameProcess(identity)) await sleep(50);
   }
-  const survivors = isSameProcess(identity) ? [target.childPid] : [];
+  const childAlive = isSameProcess(identity);
+  const survivors = childAlive ? [target.childPid] : groupSurvivors();
   return {
     ok: survivors.length === 0,
     state: survivors.length === 0 ? "stopped" : "survivors",
@@ -364,19 +382,29 @@ export async function stopByVerifiedIdentity(
     escalated,
     survivors,
     via: "signal_fallback",
+    // Without the supervisor we cannot enumerate descendants that left the
+    // process group, so this path never claims a verified tree stop.
+    verified: false,
     note: options.note,
   };
 }
 
 function signalGroup(target: VerifiedTarget, signal: NodeJS.Signals): void {
-  try {
-    process.kill(-target.pgid, signal);
-  } catch {
+  // The owned child always leads its own group. If a record's pgid is anything
+  // else it is untrustworthy (or forged), and signalling it could reach the
+  // caller's own group; signal only the verified child in that case.
+  if (target.pgid === target.childPid) {
     try {
-      process.kill(target.childPid, signal);
+      process.kill(-target.pgid, signal);
+      return;
     } catch {
-      // Already gone.
+      // Fall through to the single-pid signal.
     }
+  }
+  try {
+    process.kill(target.childPid, signal);
+  } catch {
+    // Already gone.
   }
 }
 
@@ -438,6 +466,29 @@ export function controlRequest(
       finish(error instanceof Error ? error : new Error(String(error)));
     });
   });
+}
+
+/**
+ * The last stop receipt the supervisor emitted, or null when it never reached
+ * the stop path. Used to decide whether a supervisor exit proves the tree gone.
+ */
+export function lastStopReceipt(handle: SupervisorHandle): SupervisorStopReceipt | null {
+  for (let index = handle.events.length - 1; index >= 0; index -= 1) {
+    const event = handle.events[index] as Record<string, unknown> | undefined;
+    if (event?.event !== "stopped") continue;
+    const survivors = Array.isArray(event.survivors) ? (event.survivors as number[]) : [];
+    return {
+      ok: event.ok === true,
+      state: String(event.state ?? (survivors.length === 0 ? "stopped" : "survivors")),
+      graceful: event.graceful !== false,
+      escalated: event.escalated === true,
+      survivors,
+      exit: event.exit as SupervisorStopReceipt["exit"],
+      via: "control_socket",
+      verified: survivors.length === 0 && event.state === "stopped",
+    };
+  }
+  return null;
 }
 
 export function processStartToken(pid: number): string | null {

@@ -13,6 +13,7 @@ export type RuntimeLifecycleCode = Extract<
   | "OWNERSHIP_MISMATCH"
   | "INCOMPATIBLE_ENGINE"
   | "STALE_OWNERSHIP"
+  | "ALREADY_OWNED"
 >;
 
 /**

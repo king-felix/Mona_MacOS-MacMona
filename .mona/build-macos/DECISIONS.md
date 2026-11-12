@@ -202,3 +202,31 @@ and deviations discovered while building.
   `RuntimeSupervisor.status()` for real UI state. A physical lid-close sleep was
   not performed; suspend/resume is qualified with Electron power events and
   unit tests, and the limitation is recorded in the P04 evidence.
+
+## D-014 — Stop receipts must be earned, not inferred
+
+- **Date:** 2026-11-11 (P04, review follow-up)
+- **Decision:** A `SupervisorStopReceipt` carries `verified`. Only the
+  supervisor's control socket can prove the whole tree is gone; the
+  supervisor-unreachable signal fallback signals the verified child and the
+  group it leads (only when `pgid === childPid`) and reports `verified: false`.
+  An unverified stop is recorded as `failed`, not `stopped`, and reclassified
+  at the next launch. A restart is allowed only when the supervisor emitted a
+  `stopped` receipt with no survivors; otherwise the record becomes
+  `STOP_UNVERIFIED` and no restart or second owner happens. The adapter layer
+  independently refuses a start when a live/orphaned record exists for the same
+  canonical workspace, and refuses records it cannot prove it owns. Starts are
+  serialized. The supervisor re-samples descendants during the stop grace
+  period, filters zombies on both sides, applies an owner stop that arrives
+  mid-spawn to the new child, and lets only one caller own the stop so a racing
+  SIGTERM cannot abandon the tree.
+- **Why:** Review showed three ways to claim a stop that was not proven: a
+  supervisor killed while the engine lived (then restarting beside it), a
+  fallback that could not see escaped descendants, and a wake restart that
+  ignored an incomplete stop. All three would produce two owners on one user
+  store or a false "stopped".
+- **Consequence:** `npm test` now builds the supervisor first (`pretest`) and
+  the native suite fails rather than skips on this arm64 host, so the native
+  guarantees are actually executed by the default test command. Escaped
+  descendants remain untrackable when the supervisor is already gone; that is
+  reported as unverified rather than hidden.

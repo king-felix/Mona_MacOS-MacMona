@@ -33,6 +33,7 @@ import {
   type SupervisorStopReceipt,
 } from "../supervisor/native";
 import {
+  classifyOwnership,
   executableDigest,
   controlSocketPath,
   newRecordId,
@@ -177,6 +178,47 @@ async function assertPortAvailable(port: number): Promise<void> {
   );
 }
 
+/**
+ * One runtime per user store, enforced below the desktop layer too: a live or
+ * orphaned record for this workspace is reconciled first, and a record whose
+ * pid cannot be proven ours blocks the start instead of being signalled.
+ */
+async function assertNoLiveOwner(store: OwnershipStore, canonical: string): Promise<void> {
+  const existing = store.forWorkspace(canonical);
+  if (!existing) return;
+  const evidence = classifyOwnership(existing);
+  if (evidence.verdict === "live_owned" || evidence.verdict === "orphaned_owned") {
+    const receipt = await stopRecordedRuntime(existing);
+    store.put({
+      ...existing,
+      state: receipt.state === "stopped" ? "stopped" : "failed",
+      updatedAt: new Date().toISOString(),
+      stopReceipt: receipt as unknown as Record<string, unknown>,
+    });
+    if (receipt.state === "stopped") return;
+    throw new RuntimeLifecycleError(
+      "ALREADY_OWNED",
+      `a runtime for this workspace did not stop (${receipt.state})`,
+      "inspect the process tree; Mona will not start a second owner",
+      { record: existing.id, survivors: receipt.survivors },
+    );
+  }
+  if (evidence.verdict === "pid_reused" || evidence.verdict === "foreign_executable") {
+    throw new RuntimeLifecycleError(
+      "STALE_OWNERSHIP",
+      evidence.note,
+      "inspect the leftover process; Mona will not signal a pid it cannot prove it started",
+      { record: existing.id, verdict: evidence.verdict },
+    );
+  }
+  store.put({
+    ...existing,
+    state: "stopped",
+    updatedAt: new Date().toISOString(),
+    stopReceipt: { via: "record_reconcile", note: evidence.note, signaled: false },
+  });
+}
+
 function canonicalWorkspace(workspace: string): string {
   let stats;
   try {
@@ -228,6 +270,7 @@ export async function startOwnedRuntime(input: RuntimeStartInput): Promise<Owned
   const supervisorBinary = resolveSupervisorBinary(input.supervisorPath);
   const stateDir = input.stateDir ?? defaultStateDir();
   const store = input.store ?? new OwnershipStore(join(stateDir, "runtime-ownership.json"));
+  await assertNoLiveOwner(store, canonical);
   const port = input.port ?? (await allocatePort());
   if (input.port !== undefined) await assertPortAvailable(port);
 
@@ -598,6 +641,8 @@ export async function stopRecordedRuntime(
         survivors: Array.isArray(response.survivors) ? (response.survivors as number[]) : [],
         exit: response.exit as SupervisorStopReceipt["exit"],
         via: "control_socket",
+        verified:
+          Array.isArray(response.survivors) && (response.survivors as number[]).length === 0,
       };
     }
   } catch {

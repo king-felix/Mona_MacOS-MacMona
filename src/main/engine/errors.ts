@@ -19,7 +19,8 @@ export type AdapterErrorCode =
   | "STARTUP_FAILED"
   | "STARTUP_TIMEOUT"
   | "OWNERSHIP_MISMATCH"
-  | "STALE_OWNERSHIP";
+  | "STALE_OWNERSHIP"
+  | "ALREADY_OWNED";
 
 export class AdapterError extends Error {
   constructor(

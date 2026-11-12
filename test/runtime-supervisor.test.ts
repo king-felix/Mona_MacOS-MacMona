@@ -15,7 +15,7 @@ import {
 
 interface FakeRuntime {
   childPid: number;
-  resolveExit: (code: number | null, signal: NodeJS.Signals | null) => void;
+  resolveExit: (result: { code: number | null; signal: NodeJS.Signals | null }) => void;
 }
 
 class FakeDriver implements RuntimeDriver {
@@ -26,6 +26,7 @@ class FakeDriver implements RuntimeDriver {
   runtimes: FakeRuntime[] = [];
   healthyResult = true;
   stubborn = false;
+  emittedStop: SupervisorStopReceipt | null = stopReceipt();
   private nextPid = 4_100;
 
   constructor(private readonly store: OwnershipStore) {}
@@ -33,10 +34,10 @@ class FakeDriver implements RuntimeDriver {
   async start(workspace: string): Promise<StartedRuntime> {
     this.starts.push(workspace);
     const pid = this.nextPid++;
-    let resolveExit!: (code: number | null, signal: NodeJS.Signals | null) => void;
-    const exit = new Promise<{ code: number | null; signal: NodeJS.Signals | null }>(
-      (resolve) => (resolveExit = resolve),
-    );
+    let resolveExit!: (result: { code: number | null; signal: NodeJS.Signals | null }) => void;
+    const exit = new Promise<{ code: number | null; signal: NodeJS.Signals | null }>((resolve) => {
+      resolveExit = resolve;
+    });
     const handle = {
       binary: "/fake/supervisor",
       pid: pid + 1_000,
@@ -93,6 +94,10 @@ class FakeDriver implements RuntimeDriver {
     return stopReceipt();
   }
 
+  lastStopReceipt(): SupervisorStopReceipt | null {
+    return this.emittedStop;
+  }
+
   markRecord(record: OwnershipRecord, patch: Partial<OwnershipRecord>): OwnershipRecord {
     this.marks.push({ id: record.id, patch });
     return this.store.put({ ...record, ...patch });
@@ -107,6 +112,7 @@ function stopReceipt(): SupervisorStopReceipt {
     escalated: false,
     survivors: [],
     via: "control_socket",
+    verified: true,
   };
 }
 
@@ -177,6 +183,29 @@ describe("runtime supervisor", () => {
     await expect(supervisor.ensure("/tmp/ws-b")).rejects.toMatchObject({ code: "ALREADY_OWNED" });
   });
 
+  it("does not restart when the supervisor exited without a stop receipt", async () => {
+    const { supervisor, driver, scheduled } = harness();
+    await supervisor.ensure("/tmp/ws-a");
+    driver.emittedStop = null;
+    driver.runtimes[0]?.resolveExit({ code: null, signal: "SIGKILL" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(supervisor.status().state).toBe("failed");
+    expect(supervisor.status().lastFailure?.code).toBe("STOP_UNVERIFIED");
+    expect(scheduled).toHaveLength(0);
+    expect(driver.starts).toHaveLength(1);
+    expect(driver.marks.at(-1)?.patch.state).toBe("failed");
+  });
+
+  it("refuses concurrent starts instead of spawning two owners", async () => {
+    const { supervisor, driver } = harness();
+    const first = supervisor.ensure("/tmp/ws-a");
+    await expect(supervisor.ensure("/tmp/ws-a")).rejects.toMatchObject({
+      code: "ALREADY_OWNED",
+    });
+    await first;
+    expect(driver.starts).toHaveLength(1);
+  });
+
   it("refuses a new start while the owned runtime is reconnecting", async () => {
     const { supervisor, driver } = harness();
     await supervisor.ensure("/tmp/ws-a");
@@ -195,7 +224,7 @@ describe("runtime supervisor", () => {
     const { supervisor, driver, scheduled, advance } = harness();
     await supervisor.ensure("/tmp/ws-a");
     advance(10);
-    driver.runtimes[0]?.resolveExit(1, null);
+    driver.runtimes[0]?.resolveExit({ code: 1, signal: null });
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(supervisor.status().state).toBe("reconnecting");
     expect(scheduled).toHaveLength(1);
@@ -210,14 +239,14 @@ describe("runtime supervisor", () => {
   it("stops restarting after the bounded budget and stays truthful", async () => {
     const { supervisor, driver, scheduled, advance } = harness({ maxRestarts: 1 });
     await supervisor.ensure("/tmp/ws-a");
-    driver.runtimes[0]?.resolveExit(1, null);
+    driver.runtimes[0]?.resolveExit({ code: 1, signal: null });
     await new Promise((resolve) => setTimeout(resolve, 0));
     advance(200);
     scheduled[0]?.callback();
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(driver.starts).toHaveLength(2);
 
-    driver.runtimes[1]?.resolveExit(1, null);
+    driver.runtimes[1]?.resolveExit({ code: 1, signal: null });
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(supervisor.status().state).toBe("failed");
     expect(supervisor.status().lastFailure?.code).toBe("RESTART_EXHAUSTED");

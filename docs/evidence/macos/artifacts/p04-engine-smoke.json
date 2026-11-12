@@ -5,8 +5,8 @@
     "version": "0.10.2",
     "commit": "ff466b2ed0bfb4ae5267d4d8d0ecb562cf46956e"
   },
-  "thread_id": "thr_c01ef832fe284d21b2d2c2a0b9cd54e4",
-  "turn_id": "turn_a2295c062fa24852984e93f661938dc8",
+  "thread_id": "thr_6579153d092a461f95ed23b1d7db771a",
+  "turn_id": "turn_06f42769e95142a1b4d0698e6680d993",
   "turn_status": "completed",
   "effective": {
     "provider": "deepseek",
@@ -15,28 +15,28 @@
   },
   "usage": {
     "totals": {
-      "inputTokens": 15794,
-      "outputTokens": 15,
-      "cachedTokens": 5760,
+      "inputTokens": 9476,
+      "outputTokens": 9,
+      "cachedTokens": 3456,
       "reasoningTokens": 0,
-      "costUsd": 0.00479076,
+      "costUsd": 0.002874336,
       "costComplete": true,
-      "turns": 5
+      "turns": 3
     }
   },
   "projection": {
-    "threadId": "thr_c01ef832fe284d21b2d2c2a0b9cd54e4",
-    "lastSeq": 1040,
+    "threadId": "thr_6579153d092a461f95ed23b1d7db771a",
+    "lastSeq": 1070,
     "status": "completed",
     "messages": [
       {
-        "itemId": "item_466c4bf1ddfa411d93d8b1a1993bddb4",
+        "itemId": "item_66af3424103043c29f428ad42605ee4b",
         "kind": "user_message",
         "text": "Reply with exactly: pong",
         "status": "completed"
       },
       {
-        "itemId": "item_96763d69f362457fa67738f67c2ff1cf",
+        "itemId": "item_5f8dc856ebd54092957a5b67fbc9124e",
         "kind": "agent_message",
         "text": "pong",
         "status": "completed"
@@ -73,18 +73,18 @@
   },
   "error": null,
   "supervision": {
-    "supervisor_pid": 64005,
-    "child_pid": 64006,
-    "child_started_at": "Wed Nov 11 18:56:04 2026",
-    "pgid": 64006,
-    "listener_pid": 64006,
-    "ownership_id": "rt_4539387c5386",
+    "supervisor_pid": 7890,
+    "child_pid": 7891,
+    "child_started_at": "Wed Nov 11 19:04:44 2026",
+    "pgid": 7891,
+    "listener_pid": 7891,
+    "ownership_id": "rt_2ad1f0d1dc0e",
     "executable_sha256": "da0229610647f1cc2dd14c4227b333a92ea276a49f5d4d79160fa19e515e590d",
     "records": [
       {
-        "id": "rt_4539387c5386",
+        "id": "rt_2ad1f0d1dc0e",
         "state": "running",
-        "port": 64017,
+        "port": 64640,
         "executable": "/opt/homebrew/lib/node_modules/codewhale/bin/downloads/codewhale",
         "has_token": false
       }

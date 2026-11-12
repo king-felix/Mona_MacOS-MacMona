@@ -1,104 +1,101 @@
 
 [1m[30m[46m RUN [49m[39m[22m [36mv5.1.0 [39m[90m$HOME/DS_Projects/Mona[39m
 
- [32m✓[39m test/tool-discovery.test.ts[2m > [22mGUI-launch tool discovery[2m > [22mfinds a tool on the inherited PATH first[32m 6[2mms[22m[39m
+ [32m✓[39m test/tool-discovery.test.ts[2m > [22mGUI-launch tool discovery[2m > [22mfinds a tool on the inherited PATH first[32m 5[2mms[22m[39m
  [32m✓[39m test/tool-discovery.test.ts[2m > [22mGUI-launch tool discovery[2m > [22mfalls back to the well-known Homebrew location[32m 2[2mms[22m[39m
  [32m✓[39m test/tool-discovery.test.ts[2m > [22mGUI-launch tool discovery[2m > [22mreports a missing tool honestly[32m 0[2mms[22m[39m
  [32m✓[39m test/tool-discovery.test.ts[2m > [22mGUI-launch tool discovery[2m > [22mrefuses path-like tool names[32m 0[2mms[22m[39m
  [32m✓[39m test/tool-discovery.test.ts[2m > [22mGUI-launch tool discovery[2m > [22mdoes not treat a non-executable file as a tool[32m 2[2mms[22m[39m
  [32m✓[39m test/supervisor-records.test.ts[2m > [22mownership records[2m > [22mround-trips records with an incrementing revision and owner-only mode[32m 3[2mms[22m[39m
  [32m✓[39m test/supervisor-records.test.ts[2m > [22mownership records[2m > [22mnever persists a bearer token[32m 1[2mms[22m[39m
- [32m✓[39m test/supervisor-records.test.ts[2m > [22mownership records[2m > [22mtreats only starting/running records as live for a workspace[32m 2[2mms[22m[39m
- [32m✓[39m test/supervisor-records.test.ts[2m > [22mownership records[2m > [22mpreserves an unreadable file instead of silently discarding it[32m 0[2mms[22m[39m
- [32m✓[39m test/supervisor-records.test.ts[2m > [22mownership records[2m > [22mprunes old stopped records but keeps live and recent ones[32m 4[2mms[22m[39m
+ [32m✓[39m test/supervisor-records.test.ts[2m > [22mownership records[2m > [22mtreats only starting/running records as live for a workspace[32m 1[2mms[22m[39m
+ [32m✓[39m test/supervisor-records.test.ts[2m > [22mownership records[2m > [22mpreserves an unreadable file instead of silently discarding it[32m 1[2mms[22m[39m
+ [32m✓[39m test/supervisor-records.test.ts[2m > [22mownership records[2m > [22mprunes old stopped records but keeps live and recent ones[32m 1[2mms[22m[39m
  [32m✓[39m test/supervisor-records.test.ts[2m > [22mownership records[2m > [22mhashes the exact executable bytes[32m 1[2mms[22m[39m
- [32m✓[39m test/contracts.test.ts[2m > [22mbranded identities[2m > [22maccepts a project id with the right prefix[32m 1[2mms[22m[39m
- [32m✓[39m test/contracts.test.ts[2m > [22mbranded identities[2m > [22mrejects a project id carrying another entity's prefix[32m 17[2mms[22m[39m
- [32m✓[39m test/contracts.test.ts[2m > [22mbranded identities[2m > [22mrejects a bare string where a project id is required[32m 4[2mms[22m[39m
- [32m✓[39m test/contracts.test.ts[2m > [22mdomain schemas[2m > [22mparses a valid project[32m 0[2mms[22m[39m
- [32m✓[39m test/contracts.test.ts[2m > [22mdomain schemas[2m > [22mrejects unknown fields on a Mona-owned input record[32m 1[2mms[22m[39m
- [32m✓[39m test/contracts.test.ts[2m > [22mdomain schemas[2m > [22mrequires an absolute macOS path[32m 1[2mms[22m[39m
- [32m✓[39m test/contracts.test.ts[2m > [22mevent envelope[2m > [22mkeeps unknown event kinds and extra upstream fields for diagnostics[32m 15[2mms[22m[39m
- [32m✓[39m test/contracts.test.ts[2m > [22mevent envelope[2m > [22mrejects a wrong thread identity[32m 0[2mms[22m[39m
- [32m✓[39m test/contracts.test.ts[2m > [22mevent envelope[2m > [22mrejects a non-numeric sequence[32m 0[2mms[22m[39m
- [32m✓[39m test/contracts.test.ts[2m > [22msubmission state[2m > [22mtreats outcome_unknown as non-terminal, never success[32m 0[2mms[22m[39m
- [32m✓[39m test/contracts.test.ts[2m > [22msubmission state[2m > [22mrejects an unknown status[32m 1[2mms[22m[39m
- [32m✓[39m test/contracts.test.ts[2m > [22musage evidence and errors[2m > [22maccepts unknown cost instead of coercing it to zero[32m 1[2mms[22m[39m
- [32m✓[39m test/contracts.test.ts[2m > [22musage evidence and errors[2m > [22mrejects a negative token count[32m 2[2mms[22m[39m
- [32m✓[39m test/contracts.test.ts[2m > [22musage evidence and errors[2m > [22mrejects a lower-case error code[32m 1[2mms[22m[39m
- [32m✓[39m test/contracts.test.ts[2m > [22meffective profile[2m > [22mrequires effective identity, including permission posture[32m 2[2mms[22m[39m
- [32m✓[39m test/runtime-supervisor.test.ts[2m > [22mruntime supervisor[2m > [22mowns one runtime and reports it running[32m 3[2mms[22m[39m
- [32m✓[39m test/runtime-supervisor.test.ts[2m > [22mruntime supervisor[2m > [22mserializes workspaces instead of starting a second owner[32m 1[2mms[22m[39m
- [32m✓[39m test/runtime-supervisor.test.ts[2m > [22mruntime supervisor[2m > [22mrefuses a new start while the owned runtime is reconnecting[32m 1[2mms[22m[39m
- [32m✓[39m test/runtime-supervisor.test.ts[2m > [22mruntime supervisor[2m > [22mrestarts only the process after an unexpected exit[32m 5[2mms[22m[39m
- [32m✓[39m test/runtime-supervisor.test.ts[2m > [22mruntime supervisor[2m > [22mstops restarting after the bounded budget and stays truthful[32m 4[2mms[22m[39m
- [32m✓[39m test/runtime-supervisor.test.ts[2m > [22mruntime supervisor[2m > [22mturns sleep into reconnecting, not a duplicate request[32m 1[2mms[22m[39m
- [32m✓[39m test/runtime-supervisor.test.ts[2m > [22mruntime supervisor[2m > [22mstops an unreachable process before restarting it after wake[32m 0[2mms[22m[39m
- [32m✓[39m test/runtime-supervisor.test.ts[2m > [22mruntime supervisor[2m > [22mstops the owned runtime and marks the record[32m 1[2mms[22m[39m
- [32m✓[39m test/runtime-supervisor.test.ts[2m > [22mruntime supervisor[2m > [22mnever stops an externally launched runtime[32m 0[2mms[22m[39m
- [32m✓[39m test/runtime-supervisor.test.ts[2m > [22mruntime supervisor[2m > [22mrefuses to signal a record whose pid was reused[32m 34[2mms[22m[39m
- [32m✓[39m test/runtime-supervisor.test.ts[2m > [22mruntime supervisor[2m > [22mstops a stale record for the same workspace before starting a new owner[32m 43[2mms[22m[39m
- [32m✓[39m test/runtime-supervisor.test.ts[2m > [22mruntime supervisor[2m > [22mrefuses to start beside a leftover runtime that will not stop[32m 22[2mms[22m[39m
- [32m✓[39m test/engine-adapter.test.ts[2m > [22mdiscovery and compatibility[2m > [22mreturns the pinned identity and advertised capabilities[32m 8[2mms[22m[39m
- [32m✓[39m test/engine-adapter.test.ts[2m > [22mdiscovery and compatibility[2m > [22mrejects an incompatible engine before any mutation[32m 3[2mms[22m[39m
- [32m✓[39m test/engine-adapter.test.ts[2m > [22mthreads and submissions[2m > [22mcreates a thread with the workspace and explicit execution posture[32m 3[2mms[22m[39m
- [32m✓[39m test/engine-adapter.test.ts[2m > [22mthreads and submissions[2m > [22mpersists submission intent before transmission and sends the prompt unchanged[32m 2[2mms[22m[39m
- [32m✓[39m test/engine-adapter.test.ts[2m > [22mthreads and submissions[2m > [22mmarks a lost response outcome-unknown and never retries the write[32m 8[2mms[22m[39m
+ [32m✓[39m test/fixtures.test.ts[2m > [22mlabeled fixtures[2m > [22mparses connecting[32m 2[2mms[22m[39m
+ [32m✓[39m test/fixtures.test.ts[2m > [22mlabeled fixtures[2m > [22mparses running[32m 0[2mms[22m[39m
+ [32m✓[39m test/fixtures.test.ts[2m > [22mlabeled fixtures[2m > [22mparses completed[32m 0[2mms[22m[39m
+ [32m✓[39m test/fixtures.test.ts[2m > [22mlabeled fixtures[2m > [22mparses interrupted[32m 0[2mms[22m[39m
+ [32m✓[39m test/fixtures.test.ts[2m > [22mlabeled fixtures[2m > [22mparses unknownCost[32m 2[2mms[22m[39m
+ [32m✓[39m test/fixtures.test.ts[2m > [22mlabeled fixtures[2m > [22mparses blocked[32m 1[2mms[22m[39m
+ [32m✓[39m test/fixtures.test.ts[2m > [22mlabeled fixtures[2m > [22mparses unsupported[32m 4[2mms[22m[39m
+ [32m✓[39m test/fixtures.test.ts[2m > [22mlabeled fixtures[2m > [22mrejects the malformed fixture rather than tolerating it[32m 1[2mms[22m[39m
+ [32m✓[39m test/fixtures.test.ts[2m > [22mlabeled fixtures[2m > [22mcovers every required display state[32m 0[2mms[22m[39m
+ [32m✓[39m test/engine-adapter.test.ts[2m > [22mdiscovery and compatibility[2m > [22mreturns the pinned identity and advertised capabilities[32m 6[2mms[22m[39m
+ [32m✓[39m test/engine-adapter.test.ts[2m > [22mdiscovery and compatibility[2m > [22mrejects an incompatible engine before any mutation[32m 2[2mms[22m[39m
+ [32m✓[39m test/engine-adapter.test.ts[2m > [22mthreads and submissions[2m > [22mcreates a thread with the workspace and explicit execution posture[32m 4[2mms[22m[39m
+ [32m✓[39m test/engine-adapter.test.ts[2m > [22mthreads and submissions[2m > [22mpersists submission intent before transmission and sends the prompt unchanged[32m 11[2mms[22m[39m
+ [32m✓[39m test/engine-adapter.test.ts[2m > [22mthreads and submissions[2m > [22mmarks a lost response outcome-unknown and never retries the write[32m 5[2mms[22m[39m
  [32m✓[39m test/engine-adapter.test.ts[2m > [22mthreads and submissions[2m > [22mreports an absent operation without resubmitting[32m 1[2mms[22m[39m
- [32m✓[39m test/engine-adapter.test.ts[2m > [22mthreads and submissions[2m > [22mrejects a turn response belonging to another thread[32m 1[2mms[22m[39m
+ [32m✓[39m test/engine-adapter.test.ts[2m > [22mthreads and submissions[2m > [22mrejects a turn response belonging to another thread[32m 2[2mms[22m[39m
  [32m✓[39m test/engine-adapter.test.ts[2m > [22mthreads and submissions[2m > [22mrejects history that belongs to another thread[32m 1[2mms[22m[39m
- [32m✓[39m test/engine-adapter.test.ts[2m > [22mstreaming, replay, and projection[2m > [22mprojects deterministic state and reconnecting does not duplicate it[32m 3[2mms[22m[39m
+ [32m✓[39m test/engine-adapter.test.ts[2m > [22mstreaming, replay, and projection[2m > [22mprojects deterministic state and reconnecting does not duplicate it[32m 4[2mms[22m[39m
  [32m✓[39m test/engine-adapter.test.ts[2m > [22mstreaming, replay, and projection[2m > [22mkeeps malformed, drifted, and wrong-thread frames as diagnostics and continues[32m 2[2mms[22m[39m
  [32m✓[39m test/engine-adapter.test.ts[2m > [22minterrupt, profile, usage, capabilities[2m > [22mconfirms an interrupt only from terminal turn state[32m 1[2mms[22m[39m
  [32m✓[39m test/engine-adapter.test.ts[2m > [22minterrupt, profile, usage, capabilities[2m > [22mrefuses interrupt with a typed reason when the runtime cannot interrupt[32m 1[2mms[22m[39m
  [32m✓[39m test/engine-adapter.test.ts[2m > [22minterrupt, profile, usage, capabilities[2m > [22mreports requested versus effective route and can fail closed[32m 2[2mms[22m[39m
  [32m✓[39m test/engine-adapter.test.ts[2m > [22minterrupt, profile, usage, capabilities[2m > [22mfails closed when Full Access was requested but not effective[32m 1[2mms[22m[39m
  [32m✓[39m test/engine-adapter.test.ts[2m > [22minterrupt, profile, usage, capabilities[2m > [22mmaps usage without inventing a complete cost[32m 1[2mms[22m[39m
- [32m✓[39m test/engine-adapter.test.ts[2m > [22minterrupt, profile, usage, capabilities[2m > [22mreturns a typed unsupported result for an unknown capability[32m 1[2mms[22m[39m
- [32m✓[39m test/runtime-supervisor.test.ts[2m > [22mruntime supervisor[2m > [22mrecovers a verified orphan from a previous run[32m 31[2mms[22m[39m
- [32m✓[39m test/ipc-contract.test.ts[2m > [22mIPC validation[2m > [22maccepts an empty strict payload for app:info[32m 3[2mms[22m[39m
- [32m✓[39m test/ipc-contract.test.ts[2m > [22mIPC validation[2m > [22mrejects an unknown channel[32m 0[2mms[22m[39m
- [32m✓[39m test/ipc-contract.test.ts[2m > [22mIPC validation[2m > [22mrejects unknown fields[32m 1[2mms[22m[39m
- [32m✓[39m test/ipc-contract.test.ts[2m > [22mIPC validation[2m > [22mrejects a non-object payload[32m 1[2mms[22m[39m
- [32m✓[39m test/ipc-contract.test.ts[2m > [22mIPC validation[2m > [22mvalidates tool names and caps the list[32m 5[2mms[22m[39m
- [32m✓[39m test/runtime-process.test.ts[2m > [22mruntime startup states are actionable[2m > [22mrefuses a missing workspace before spawning anything[32m 6[2mms[22m[39m
+ [32m✓[39m test/engine-adapter.test.ts[2m > [22minterrupt, profile, usage, capabilities[2m > [22mreturns a typed unsupported result for an unknown capability[32m 0[2mms[22m[39m
+ [32m✓[39m test/engine-compat.test.ts[2m > [22mengine compatibility policy[2m > [22maccepts the pinned version and commit with required capabilities[32m 1[2mms[22m[39m
+ [32m✓[39m test/engine-compat.test.ts[2m > [22mengine compatibility policy[2m > [22mrejects a different engine version[32m 0[2mms[22m[39m
+ [32m✓[39m test/engine-compat.test.ts[2m > [22mengine compatibility policy[2m > [22mrejects a different commit even with the same version[32m 0[2mms[22m[39m
+ [32m✓[39m test/engine-compat.test.ts[2m > [22mengine compatibility policy[2m > [22mnames each missing required capability[32m 0[2mms[22m[39m
+ [32m✓[39m test/runtime-process.test.ts[2m > [22mruntime startup states are actionable[2m > [22mrefuses a missing workspace before spawning anything[32m 4[2mms[22m[39m
  [32m✓[39m test/runtime-process.test.ts[2m > [22mruntime startup states are actionable[2m > [22mnames a missing executable[32m 1[2mms[22m[39m
- [32m✓[39m test/runtime-process.test.ts[2m > [22mruntime startup states are actionable[2m > [22mnames a non-executable file[32m 1[2mms[22m[39m
- [32m✓[39m test/runtime-process.test.ts[2m > [22mruntime startup states are actionable[2m > [22mreports an occupied port without spawning a runtime[32m 65[2mms[22m[39m
- [32m✓[39m test/fixtures.test.ts[2m > [22mlabeled fixtures[2m > [22mparses connecting[32m 4[2mms[22m[39m
- [32m✓[39m test/fixtures.test.ts[2m > [22mlabeled fixtures[2m > [22mparses running[32m 0[2mms[22m[39m
- [32m✓[39m test/fixtures.test.ts[2m > [22mlabeled fixtures[2m > [22mparses completed[32m 0[2mms[22m[39m
- [32m✓[39m test/fixtures.test.ts[2m > [22mlabeled fixtures[2m > [22mparses interrupted[32m 0[2mms[22m[39m
- [32m✓[39m test/fixtures.test.ts[2m > [22mlabeled fixtures[2m > [22mparses unknownCost[32m 1[2mms[22m[39m
- [32m✓[39m test/fixtures.test.ts[2m > [22mlabeled fixtures[2m > [22mparses blocked[32m 1[2mms[22m[39m
- [32m✓[39m test/fixtures.test.ts[2m > [22mlabeled fixtures[2m > [22mparses unsupported[32m 1[2mms[22m[39m
- [32m✓[39m test/fixtures.test.ts[2m > [22mlabeled fixtures[2m > [22mrejects the malformed fixture rather than tolerating it[32m 2[2mms[22m[39m
- [32m✓[39m test/fixtures.test.ts[2m > [22mlabeled fixtures[2m > [22mcovers every required display state[32m 1[2mms[22m[39m
- [32m✓[39m test/runtime-process.test.ts[2m > [22mruntime startup states are actionable[2m > [22mrejects a listener outside the supervised tree as a stranger[32m 49[2mms[22m[39m
- [32m✓[39m test/runtime-process.test.ts[2m > [22mruntime startup states are actionable[2m > [22mreports a runtime that exits during startup and records the failure[32m 44[2mms[22m[39m
- [32m✓[39m test/boundary.test.ts[2m > [22mrenderer boundary[2m > [22mnever imports upstream wire types or Node/Electron internals[32m 4[2mms[22m[39m
- [32m✓[39m test/boundary.test.ts[2m > [22mrenderer boundary[2m > [22mexposes no raw ipcRenderer from the preload[32m 2[2mms[22m[39m
- [32m✓[39m test/boundary.test.ts[2m > [22mcontent security policy[2m > [22mdenies network connections from the renderer[32m 0[2mms[22m[39m
- [32m✓[39m test/boundary.test.ts[2m > [22mcontent security policy[2m > [22mdoes not allow inline or eval script execution[32m 0[2mms[22m[39m
- [32m✓[39m test/engine-compat.test.ts[2m > [22mengine compatibility policy[2m > [22maccepts the pinned version and commit with required capabilities[32m 3[2mms[22m[39m
- [32m✓[39m test/engine-compat.test.ts[2m > [22mengine compatibility policy[2m > [22mrejects a different engine version[32m 1[2mms[22m[39m
- [32m✓[39m test/engine-compat.test.ts[2m > [22mengine compatibility policy[2m > [22mrejects a different commit even with the same version[32m 1[2mms[22m[39m
- [32m✓[39m test/engine-compat.test.ts[2m > [22mengine compatibility policy[2m > [22mnames each missing required capability[32m 2[2mms[22m[39m
- [32m✓[39m test/work-control.test.ts[2m > [22mwork transitions stay distinct[2m > [22mpause after task lets the active task finish and holds the queue[32m 3[2mms[22m[39m
- [32m✓[39m test/work-control.test.ts[2m > [22mwork transitions stay distinct[2m > [22minterrupt now is an engine operation and does not cancel the queue[32m 1[2mms[22m[39m
- [32m✓[39m test/work-control.test.ts[2m > [22mwork transitions stay distinct[2m > [22mreports an uncertain interrupt instead of claiming a stop[32m 1[2mms[22m[39m
- [32m✓[39m test/work-control.test.ts[2m > [22mwork transitions stay distinct[2m > [22mcancel queued removes future starts only[32m 0[2mms[22m[39m
- [32m✓[39m test/work-control.test.ts[2m > [22mwork transitions stay distinct[2m > [22mquit and stop work interrupts first, then stops, and never claims rollback[32m 0[2mms[22m[39m
- [32m✓[39m test/work-control.test.ts[2m > [22mwork transitions stay distinct[2m > [22mdistinguishes an uncertain interrupt from a confirmed one during quit[32m 0[2mms[22m[39m
- [32m✓[39m test/work-control.test.ts[2m > [22mwork transitions stay distinct[2m > [22mdoes not silently turn a failed stop into success[32m 0[2mms[22m[39m
- [32m✓[39m test/work-control.test.ts[2m > [22mwork transitions stay distinct[2m > [22mrefuses new work once quitting has begun[32m 0[2mms[22m[39m
+ [32m✓[39m test/runtime-process.test.ts[2m > [22mruntime startup states are actionable[2m > [22mnames a non-executable file[32m 0[2mms[22m[39m
+ [32m✓[39m test/runtime-process.test.ts[2m > [22mruntime startup states are actionable[2m > [22mreports an occupied port without spawning a runtime[32m 54[2mms[22m[39m
+ [32m✓[39m test/runtime-supervisor.test.ts[2m > [22mruntime supervisor[2m > [22mowns one runtime and reports it running[32m 4[2mms[22m[39m
+ [32m✓[39m test/runtime-supervisor.test.ts[2m > [22mruntime supervisor[2m > [22mserializes workspaces instead of starting a second owner[32m 1[2mms[22m[39m
+ [32m✓[39m test/runtime-supervisor.test.ts[2m > [22mruntime supervisor[2m > [22mdoes not restart when the supervisor exited without a stop receipt[32m 1[2mms[22m[39m
+ [32m✓[39m test/runtime-supervisor.test.ts[2m > [22mruntime supervisor[2m > [22mrefuses concurrent starts instead of spawning two owners[32m 1[2mms[22m[39m
+ [32m✓[39m test/runtime-supervisor.test.ts[2m > [22mruntime supervisor[2m > [22mrefuses a new start while the owned runtime is reconnecting[32m 1[2mms[22m[39m
+ [32m✓[39m test/runtime-supervisor.test.ts[2m > [22mruntime supervisor[2m > [22mrestarts only the process after an unexpected exit[32m 3[2mms[22m[39m
+ [32m✓[39m test/runtime-supervisor.test.ts[2m > [22mruntime supervisor[2m > [22mstops restarting after the bounded budget and stays truthful[32m 8[2mms[22m[39m
+ [32m✓[39m test/runtime-supervisor.test.ts[2m > [22mruntime supervisor[2m > [22mturns sleep into reconnecting, not a duplicate request[32m 1[2mms[22m[39m
+ [32m✓[39m test/runtime-supervisor.test.ts[2m > [22mruntime supervisor[2m > [22mstops an unreachable process before restarting it after wake[32m 2[2mms[22m[39m
+ [32m✓[39m test/runtime-supervisor.test.ts[2m > [22mruntime supervisor[2m > [22mstops the owned runtime and marks the record[32m 1[2mms[22m[39m
+ [32m✓[39m test/runtime-supervisor.test.ts[2m > [22mruntime supervisor[2m > [22mnever stops an externally launched runtime[32m 0[2mms[22m[39m
+ [32m✓[39m test/runtime-supervisor.test.ts[2m > [22mruntime supervisor[2m > [22mrefuses to signal a record whose pid was reused[32m 21[2mms[22m[39m
+ [32m✓[39m test/runtime-supervisor.test.ts[2m > [22mruntime supervisor[2m > [22mstops a stale record for the same workspace before starting a new owner[32m 52[2mms[22m[39m
+ [32m✓[39m test/runtime-supervisor.test.ts[2m > [22mruntime supervisor[2m > [22mrefuses to start beside a leftover runtime that will not stop[32m 63[2mms[22m[39m
+ [32m✓[39m test/contracts.test.ts[2m > [22mbranded identities[2m > [22maccepts a project id with the right prefix[32m 2[2mms[22m[39m
+ [32m✓[39m test/contracts.test.ts[2m > [22mbranded identities[2m > [22mrejects a project id carrying another entity's prefix[32m 1[2mms[22m[39m
+ [32m✓[39m test/contracts.test.ts[2m > [22mbranded identities[2m > [22mrejects a bare string where a project id is required[32m 1[2mms[22m[39m
+ [32m✓[39m test/contracts.test.ts[2m > [22mdomain schemas[2m > [22mparses a valid project[32m 0[2mms[22m[39m
+ [32m✓[39m test/contracts.test.ts[2m > [22mdomain schemas[2m > [22mrejects unknown fields on a Mona-owned input record[32m 0[2mms[22m[39m
+ [32m✓[39m test/contracts.test.ts[2m > [22mdomain schemas[2m > [22mrequires an absolute macOS path[32m 0[2mms[22m[39m
+ [32m✓[39m test/contracts.test.ts[2m > [22mevent envelope[2m > [22mkeeps unknown event kinds and extra upstream fields for diagnostics[32m 1[2mms[22m[39m
+ [32m✓[39m test/contracts.test.ts[2m > [22mevent envelope[2m > [22mrejects a wrong thread identity[32m 0[2mms[22m[39m
+ [32m✓[39m test/contracts.test.ts[2m > [22mevent envelope[2m > [22mrejects a non-numeric sequence[32m 0[2mms[22m[39m
+ [32m✓[39m test/contracts.test.ts[2m > [22msubmission state[2m > [22mtreats outcome_unknown as non-terminal, never success[32m 0[2mms[22m[39m
+ [32m✓[39m test/contracts.test.ts[2m > [22msubmission state[2m > [22mrejects an unknown status[32m 0[2mms[22m[39m
+ [32m✓[39m test/contracts.test.ts[2m > [22musage evidence and errors[2m > [22maccepts unknown cost instead of coercing it to zero[32m 1[2mms[22m[39m
+ [32m✓[39m test/contracts.test.ts[2m > [22musage evidence and errors[2m > [22mrejects a negative token count[32m 0[2mms[22m[39m
+ [32m✓[39m test/contracts.test.ts[2m > [22musage evidence and errors[2m > [22mrejects a lower-case error code[32m 0[2mms[22m[39m
+ [32m✓[39m test/contracts.test.ts[2m > [22meffective profile[2m > [22mrequires effective identity, including permission posture[32m 1[2mms[22m[39m
  [32m✓[39m test/engine-sse.test.ts[2m > [22mSSE parsing[2m > [22mwaits for a blank line before emitting a split frame[32m 1[2mms[22m[39m
  [32m✓[39m test/engine-sse.test.ts[2m > [22mSSE parsing[2m > [22mhandles CRLF and multi-line data[32m 0[2mms[22m[39m
  [32m✓[39m test/engine-sse.test.ts[2m > [22mSSE parsing[2m > [22mflags malformed JSON without throwing[32m 0[2mms[22m[39m
  [32m✓[39m test/engine-sse.test.ts[2m > [22mSSE parsing[2m > [22mrejects an unbounded frame[32m 0[2mms[22m[39m
  [32m✓[39m test/engine-sse.test.ts[2m > [22mSSE parsing[2m > [22mignores comments and keeps the last event id[32m 0[2mms[22m[39m
  [32m✓[39m test/engine-sse.test.ts[2m > [22mUTF-8 stream decoding[2m > [22mreassembles a multi-byte character split across chunks[32m 1[2mms[22m[39m
- [32m✓[39m test/supervisor-identity.test.ts[2m > [22mprocess table parsing[2m > [22mparses padded BSD start times without losing the identity[32m 1[2mms[22m[39m
+ [32m✓[39m test/runtime-supervisor.test.ts[2m > [22mruntime supervisor[2m > [22mrecovers a verified orphan from a previous run[32m 33[2mms[22m[39m
+ [32m✓[39m test/work-control.test.ts[2m > [22mwork transitions stay distinct[2m > [22mpause after task lets the active task finish and holds the queue[32m 3[2mms[22m[39m
+ [32m✓[39m test/work-control.test.ts[2m > [22mwork transitions stay distinct[2m > [22minterrupt now is an engine operation and does not cancel the queue[32m 1[2mms[22m[39m
+ [32m✓[39m test/work-control.test.ts[2m > [22mwork transitions stay distinct[2m > [22mreports an uncertain interrupt instead of claiming a stop[32m 0[2mms[22m[39m
+ [32m✓[39m test/work-control.test.ts[2m > [22mwork transitions stay distinct[2m > [22mcancel queued removes future starts only[32m 0[2mms[22m[39m
+ [32m✓[39m test/work-control.test.ts[2m > [22mwork transitions stay distinct[2m > [22mquit and stop work interrupts first, then stops, and never claims rollback[32m 0[2mms[22m[39m
+ [32m✓[39m test/work-control.test.ts[2m > [22mwork transitions stay distinct[2m > [22mdistinguishes an uncertain interrupt from a confirmed one during quit[32m 0[2mms[22m[39m
+ [32m✓[39m test/work-control.test.ts[2m > [22mwork transitions stay distinct[2m > [22mdoes not silently turn a failed stop into success[32m 0[2mms[22m[39m
+ [32m✓[39m test/work-control.test.ts[2m > [22mwork transitions stay distinct[2m > [22mrefuses new work once quitting has begun[32m 1[2mms[22m[39m
+ [32m✓[39m test/runtime-process.test.ts[2m > [22mruntime startup states are actionable[2m > [22mrejects a listener outside the supervised tree as a stranger[32m 62[2mms[22m[39m
+ [32m✓[39m test/runtime-process.test.ts[2m > [22mruntime startup states are actionable[2m > [22mrefuses to start beside a record it cannot prove it owns[32m 15[2mms[22m[39m
+ [32m✓[39m test/boundary.test.ts[2m > [22mrenderer boundary[2m > [22mnever imports upstream wire types or Node/Electron internals[32m 3[2mms[22m[39m
+ [32m✓[39m test/boundary.test.ts[2m > [22mrenderer boundary[2m > [22mexposes no raw ipcRenderer from the preload[32m 0[2mms[22m[39m
+ [32m✓[39m test/boundary.test.ts[2m > [22mcontent security policy[2m > [22mdenies network connections from the renderer[32m 0[2mms[22m[39m
+ [32m✓[39m test/boundary.test.ts[2m > [22mcontent security policy[2m > [22mdoes not allow inline or eval script execution[32m 0[2mms[22m[39m
+ [32m✓[39m test/supervisor-identity.test.ts[2m > [22mprocess table parsing[2m > [22mparses padded BSD start times without losing the identity[32m 2[2mms[22m[39m
  [32m✓[39m test/supervisor-identity.test.ts[2m > [22mprocess table parsing[2m > [22mignores malformed rows instead of inventing processes[32m 0[2mms[22m[39m
  [32m✓[39m test/supervisor-identity.test.ts[2m > [22mprocess identity[2m > [22mmatches only the same pid with the same start time[32m 0[2mms[22m[39m
  [32m✓[39m test/supervisor-identity.test.ts[2m > [22mprocess identity[2m > [22mwalks grandchildren and stops at the tree boundary[32m 0[2mms[22m[39m
@@ -107,25 +104,33 @@
  [32m✓[39m test/supervisor-identity.test.ts[2m > [22mownership verdicts[2m > [22mrefuses a matching pid that now runs a different executable[32m 0[2mms[22m[39m
  [32m✓[39m test/supervisor-identity.test.ts[2m > [22mownership verdicts[2m > [22mreports an orphaned child when only the supervisor is gone[32m 0[2mms[22m[39m
  [32m✓[39m test/supervisor-identity.test.ts[2m > [22mownership verdicts[2m > [22mreports stopped when neither identity is alive[32m 0[2mms[22m[39m
- [32m✓[39m test/supervisor-native.test.ts[2m > [22mnative supervisor[2m > [22mstops the entire owned tree and leaves unrelated processes alone[32m 216[2mms[22m[39m
  [32m✓[39m test/supervisor-restart.test.ts[2m > [22mbounded restart policy[2m > [22mbacks off and stops after the restart budget[32m 1[2mms[22m[39m
  [32m✓[39m test/supervisor-restart.test.ts[2m > [22mbounded restart policy[2m > [22mdoes not restart after a clean exit[32m 0[2mms[22m[39m
  [32m✓[39m test/supervisor-restart.test.ts[2m > [22mbounded restart policy[2m > [22mresets the count only after a demonstrably stable run[32m 0[2mms[22m[39m
+ [32m✓[39m test/ipc-contract.test.ts[2m > [22mIPC validation[2m > [22maccepts an empty strict payload for app:info[32m 1[2mms[22m[39m
+ [32m✓[39m test/ipc-contract.test.ts[2m > [22mIPC validation[2m > [22mrejects an unknown channel[32m 0[2mms[22m[39m
+ [32m✓[39m test/ipc-contract.test.ts[2m > [22mIPC validation[2m > [22mrejects unknown fields[32m 1[2mms[22m[39m
+ [32m✓[39m test/ipc-contract.test.ts[2m > [22mIPC validation[2m > [22mrejects a non-object payload[32m 0[2mms[22m[39m
+ [32m✓[39m test/ipc-contract.test.ts[2m > [22mIPC validation[2m > [22mvalidates tool names and caps the list[32m 1[2mms[22m[39m
+ [32m✓[39m test/supervisor-native.test.ts[2m > [22mnative supervisor[2m > [22mstops the entire owned tree and leaves unrelated processes alone[32m 229[2mms[22m[39m
  [32m✓[39m test/navigation.test.ts[2m > [22mnavigation policy[2m > [22mallows the local renderer document and its assets[32m 1[2mms[22m[39m
  [32m✓[39m test/navigation.test.ts[2m > [22mnavigation policy[2m > [22mrefuses remote navigation[32m 0[2mms[22m[39m
  [32m✓[39m test/navigation.test.ts[2m > [22mnavigation policy[2m > [22mrefuses local files outside the renderer root[32m 0[2mms[22m[39m
  [32m✓[39m test/navigation.test.ts[2m > [22mnavigation policy[2m > [22mrefuses a malformed URL[32m 0[2mms[22m[39m
  [32m✓[39m test/navigation.test.ts[2m > [22mclose-versus-quit policy[2m > [22mkeeps the app alive when the last window closes on macOS[32m 0[2mms[22m[39m
  [32m✓[39m test/navigation.test.ts[2m > [22mclose-versus-quit policy[2m > [22mquits on other platforms[32m 0[2mms[22m[39m
- [32m✓[39m test/supervisor-native.test.ts[2m > [22mnative supervisor[2m > [22mrecords the escaped process group and stops it by identity[33m 365[2mms[22m[39m
- [32m✓[39m test/supervisor-native.test.ts[2m > [22mnative supervisor[2m > [22mescalates a TERM-ignoring tree to a bounded SIGKILL[33m 796[2mms[22m[39m
- [32m✓[39m test/supervisor-native.test.ts[2m > [22mnative supervisor[2m > [22mstops the tree when the owner-liveness channel closes[32m 193[2mms[22m[39m
- [32m✓[39m test/supervisor-native.test.ts[2m > [22mnative supervisor[2m > [22mnever signals a live pid whose start time does not match[32m 7[2mms[22m[39m
- [32m✓[39m test/supervisor-native.test.ts[2m > [22mnative supervisor[2m > [22mreports a supervisor-level status receipt with the tracked tree[32m 144[2mms[22m[39m
- [32m✓[39m test/supervisor-native.test.ts[2m > [22mnative supervisor availability[2m > [22mreports why native qualification is skipped when unavailable[32m 0[2mms[22m[39m
+ [32m✓[39m test/runtime-process.test.ts[2m > [22mruntime startup states are actionable[2m > [22mstops a verified orphan record before starting a new owner[32m 217[2mms[22m[39m
+ [32m✓[39m test/runtime-process.test.ts[2m > [22mruntime startup states are actionable[2m > [22mreports a runtime that exits during startup and records the failure[32m 31[2mms[22m[39m
+ [32m✓[39m test/supervisor-native.test.ts[2m > [22mnative supervisor[2m > [22mrecords the escaped process group and stops it by identity[33m 345[2mms[22m[39m
+ [32m✓[39m test/supervisor-native.test.ts[2m > [22mnative supervisor[2m > [22mescalates a TERM-ignoring tree to a bounded SIGKILL[33m 759[2mms[22m[39m
+ [32m✓[39m test/supervisor-native.test.ts[2m > [22mnative supervisor[2m > [22mstops the tree when the owner-liveness channel closes[32m 208[2mms[22m[39m
+ [32m✓[39m test/supervisor-native.test.ts[2m > [22mnative supervisor[2m > [22mnever signals a live pid whose start time does not match[32m 8[2mms[22m[39m
+ [32m✓[39m test/supervisor-native.test.ts[2m > [22mnative supervisor[2m > [22mkeeps one stop owner when SIGTERM races a control-socket stop[32m 161[2mms[22m[39m
+ [32m✓[39m test/supervisor-native.test.ts[2m > [22mnative supervisor[2m > [22mreports a supervisor-level status receipt with the tracked tree[32m 137[2mms[22m[39m
+ [32m✓[39m test/supervisor-native.test.ts[2m > [22mnative supervisor availability[2m > [22mexercises the native path on the target host[32m 0[2mms[22m[39m
 
 [2m Test Files [22m [1m[32m16 passed[39m[22m[90m (16)[39m
-[2m      Tests [22m [1m[32m122 passed[39m[22m[90m (122)[39m
-[2m   Start at [22m 18:55:49
-[2m   Duration [22m 1.88s[2m (tests 82%, import 13%, transform 4%, worker 1%)[22m
+[2m      Tests [22m [1m[32m127 passed[39m[22m[90m (127)[39m
+[2m   Start at [22m 19:04:29
+[2m   Duration [22m 1.98s[2m (tests 86%, import 10%, transform 3%, worker 1%)[22m
 
