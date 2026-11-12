@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-12T02:52:12.524Z",
+  "generated_utc": "2026-11-12T02:52:52.193Z",
   "git": {
     "available": true,
-    "commit": "18e06b1dacc172668ee824690ecaf2e127fcb678",
+    "commit": "a817fa5c07309dbdd37d2af1b1b9462c5ce6a54e",
     "dirty": true
   },
-  "digest": "7f376f45f6753fd5b66b78d664425eb5e077b58eb9ae614812b46aabfc7be015",
+  "digest": "16a25fd6f18226866569bb1209408083ad2905c85ba32d0285d551d85c7bca6f",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,8 +15,8 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "719ca3bc5c993944760392dd2b910ef784ac1fdb5c4b73dfeb676bbd5bea3d14",
-      "bytes": 42403
+      "sha256": "1588a6279ef820bd38158f19d7da1ce8f91da192d9431eb853f6cc5a60486346",
+      "bytes": 45813
     },
     {
       "path": "AGENTS.md",

@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "revision": 52,
+  "revision": 58,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
   "spec_sha256": "d1c02941151c71912bc3e9c8b2509612298d54e05e0bf16fe933b9bd93e3e028",
   "prompt_file_sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8",
-  "current_prompt": "P04",
+  "current_prompt": "P05",
   "current_prompt_status": "completed",
-  "last_verified_commit": "31fe0e0",
+  "last_verified_commit": "a817fa5",
   "tasks": {
     "P00": {
       "status": "completed",
@@ -53,7 +53,7 @@
         },
         {
           "path": "docs/requirements-macos.json",
-          "sha256": "f580c60d59303e88f1707b2e339626f3231adbf6aef468dc4e33718b0b653192"
+          "sha256": "de19ffc35b21869c341eee61a2defe58f35a5b0c196e5fce855008374a62fa7e"
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
@@ -81,7 +81,7 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "fee496299cce0f8611507c5591dfde66380aee933db62c742b513e87283dcbe4"
+          "sha256": "1707bc276a405f904f1d04563d61edbd9cc0f7e0a2f8a346f13d686dfa21f7ad"
         },
         {
           "path": "docs/evidence/macos/artifacts/p00-test-run.txt",
@@ -266,7 +266,7 @@
         },
         {
           "path": "scripts/smoke.mjs",
-          "sha256": "3407e7cb923b1d22ce05362e6ce7bc3be845803fd77c6dc93a02c8ed422f4acb"
+          "sha256": "6155468c1694e3795e5173f63acd604a5ae72859eaa98e95076a4d639f38577d"
         },
         {
           "path": "native/macos-services/README.md",
@@ -282,7 +282,7 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "91ba771ca84f7120e1572d024fd1880db05f3e449c121122015a9b4fc5f609de"
+          "sha256": "aecbc18033e1cbab3d8283121ac7c8a9f78a4a11455c15a8b3af30bf0154212a"
         },
         {
           "path": "src/main/ipc-contract.ts",
@@ -290,7 +290,7 @@
         },
         {
           "path": "src/main/ipc.ts",
-          "sha256": "55d8a2d3c2ee8f07d1dde7f0c36f4bef0d37650cf2c6b6ef09656ea135882370"
+          "sha256": "57e97f656459983d5af10e8eff53b017ecdd80223472df5f275501689c16ba06"
         },
         {
           "path": "src/main/menu.ts",
@@ -302,7 +302,7 @@
         },
         {
           "path": "src/main/paths.ts",
-          "sha256": "cf4c7b038e5c3638210a3b20ce84f63c8b0442c29a60a84b237e49e35096b08e"
+          "sha256": "8d618ce4133a09ece8ceb0808b105fc603474e58c3ffc7c8a1721fe59f14d187"
         },
         {
           "path": "src/main/security.ts",
@@ -342,7 +342,7 @@
         },
         {
           "path": "src/shared/contracts/bridge.ts",
-          "sha256": "c2e8063da74a1fe5e49a68c76344fb3c61f82f5f656fbceca56053b7cc1cb62a"
+          "sha256": "b898b1fd298ba5e1b1f14760c426deeed6a0e814b86c70ff1624377e2a6a1a64"
         },
         {
           "path": "src/shared/contracts/engine.ts",
@@ -669,7 +669,7 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "91ba771ca84f7120e1572d024fd1880db05f3e449c121122015a9b4fc5f609de"
+          "sha256": "aecbc18033e1cbab3d8283121ac7c8a9f78a4a11455c15a8b3af30bf0154212a"
         },
         {
           "path": "src/main/engine/runtime-process.ts",
@@ -721,7 +721,7 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "fee496299cce0f8611507c5591dfde66380aee933db62c742b513e87283dcbe4"
+          "sha256": "1707bc276a405f904f1d04563d61edbd9cc0f7e0a2f8a346f13d686dfa21f7ad"
         }
       ],
       "blocker_ids": [],
@@ -733,17 +733,58 @@
       ]
     },
     "P05": {
-      "status": "pending",
+      "status": "completed",
       "requirements": [
         "MONA-005",
         "MONA-010",
         "MONA-016",
         "MONA-025"
       ],
-      "completed_steps": [],
+      "completed_steps": [
+        "Selected and verified built-in node:sqlite (Electron 45 Node 24.22.2): DatabaseSync, WAL, foreign keys, and the online backup API work without a native module",
+        "Implemented schema v1 plus a v2 upgrade with checksummed migrations, per-row revisions, foreign keys, one BEGIN IMMEDIATE write path, and a single store writer",
+        "Implemented the maintenance barrier shared by reads and writes; backup, snapshot, and restore take it exclusively and quiesce active work",
+        "Implemented pre-migration snapshots with durable journals, snapshot restore on migration or validation failure, preserved failed databases, and refusal of newer or edited schemas",
+        "Implemented project identity by canonical path and (dev, ino): alias deduplication, path history, deliberate relocation, catalog removal without touching source, and nested-repo/worktree detection",
+        "Implemented tasks, dependencies, evidence, attempts, decisions, events/cursors, usage, capability snapshots, settings versions, drafts, submissions (SqliteSubmissionStore), and runtime bindings",
+        "Implemented digest-checked portable project export/import with revision conflicts, atomic import, bounded content-addressed artifacts, retention that protects blocked-task evidence, and disk-full refusal that cannot claim completion",
+        "Wired per-user Application Support storage into the Electron app; smoke reports an open, integrity-clean, 0600/0700 database",
+        "Verified: 37 new P05 tests (166 total), crash injection before/during/after a transaction, migration failure restore, backup/restore with quiesced writers, alias/worktree/relocation cases, and Electron smoke 21/21"
+      ],
       "remaining_steps": [],
-      "evidence": [],
-      "blocker_ids": []
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P05-state.md",
+          "sha256": "e5815795b584158594159c6b4b400868045c6bfb1e17fd4aa356270d1d2316ad"
+        },
+        {
+          "path": "docs/decisions/ADR-004-project-state.md",
+          "sha256": "4a0625e6f56e290274e37550a4a5d2955eafa57acff8e9075f838a08a5e00776"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p05-tests.txt",
+          "sha256": "78d213726c5258eb684a79638d95ebe4e1b2ba01295afd2adec0f4445dda3e47"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p05-full-suite.txt",
+          "sha256": "1b8f2997ee55b49c88a86fdc37329d14749116f98fa1392652dc092646418db2"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p05-schema.txt",
+          "sha256": "e79011dae2b0d8230f2c5254443255888d3a782e08c6ae5bdf6b7ff018795f86"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p05-state-smoke.json",
+          "sha256": "5fbc708aea436ceeb3046a4c2f6f6e1ecd0472e544d2fb9234dab6643c82f104"
+        }
+      ],
+      "blocker_ids": [],
+      "notes": [
+        "P05-01: product state is SQLite via node:sqlite; engine history remains authoritative and runtime bindings plus artifact bytes are machine-local, excluded from export.",
+        "P05-02: a second real macOS account was not created; path isolation, 0700/0600 modes, and the absence of a token column are verified here, and literal multi-user denial belongs to P24.",
+        "P05-03: network filesystem refusal uses /usr/bin/stat -f %T and is skipped when that tool is unavailable; the P24 host audit must confirm.",
+        "P05-04: artifact bytes are not portable; import reports missing digests rather than inventing files."
+      ]
     },
     "P06": {
       "status": "pending",
@@ -1008,9 +1049,9 @@
     }
   },
   "next_eligible_prompts": [
-    "P04"
+    "P06"
   ],
-  "last_checkpoint_utc": "2026-11-12T02:06:18.514Z",
+  "last_checkpoint_utc": "2026-11-12T02:52:52.109Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

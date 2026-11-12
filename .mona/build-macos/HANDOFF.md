@@ -1,147 +1,106 @@
 # Handoff — Mona macOS build
 
-**Last checkpoint:** 2026-11-11 (P04, revision 52) · verified content
-`e102cc3` (evidence refresh `2b7def2`)
-**Current prompt:** P05 — **pending, not started**
+**Last checkpoint:** 2026-11-11 (P05, revision 58) · verified commit `a817fa5`
+**Current prompt:** P06 — **pending, not started**
 
 ## Where the build stands
 
-P00–P04 are complete: qualified headless integration, a secure desktop shell, a
-contract-tested engine adapter, and a native process supervisor with an honest
-desktop lifecycle. No product UI is connected to the engine yet; the shell still
-shows “Not connected” and “Cost unknown”.
+P00–P05 are complete: qualified headless integration, a secure desktop shell, a
+contract-tested engine adapter, a native process supervisor with honest desktop
+lifecycle, and a transactional per-user project database. P06 (design system)
+and P07 (catalog and shell) are next; P07 also depends on P06, so P06 is the only
+eligible prompt.
 
-### P04 — owned runtime processes (complete)
+### P05 — transactional project state (complete)
 
-- **Native supervisor.** `native/macos-supervisor` (Swift, arm64, macOS 14
-  target, ad-hoc signed) leads each owned runtime tree. The child is spawned in
-  its own process group; the supervisor samples descendants every 250 ms and
-  stops escaped/reparented grandchildren by `(pid, start time)`. It never
-  signals a pid whose start time changed, never kills by name, and exits with
-  the child or owner — no login item, launch agent, or daemon.
-- **Owner liveness.** fd 3 carries the runtime bearer token as its first line
-  and then EOF on owner death. The token is never on argv or in the supervisor
-  environment. The supervisor stops the tree and exits on EOF.
-- **Stop receipts.** A mode-0600 control socket answers `status`, `stop`, and
-  `force-stop`. Stop is TERM to the verified tree → bounded grace that keeps
-  re-sampling for newly forked descendants → KILL only verified survivors.
-  Receipts carry `graceful`, `escalated`, `survivors`, `verified`, and child
-  exit; “stopped” is never inferred from silence. Only one caller owns a stop,
-  so a racing SIGTERM cannot abandon the tree; an owner stop that lands
-  mid-spawn is applied to the child the moment it exists.
-- **Earned stops only.** The supervisor-unreachable fallback reports
-  `verified: false` and is recorded as `failed` for re-check. A restart is
-  allowed only when the supervisor emitted a `stopped` receipt with no
-  survivors; otherwise `STOP_UNVERIFIED`, no restart, no second owner. Starts
-  are serialized, and the adapter layer independently refuses a start beside a
-  live/orphaned record or one it cannot prove it owns.
-- **Ownership records.** Atomic 0600 JSON at `<state>/runtime-ownership.json`
-  with executable path + SHA-256, supervisor/child pid + start time, pgid, port,
-  control socket, engine identity, state, and receipts. **No token field.** One
-  owned runtime per user store; a second workspace gets `ALREADY_OWNED`.
-- **Stale recovery.** Verified orphans are stopped; a reused pid or foreign
-  executable yields `STALE_OWNERSHIP` with no signal. External runtimes are
-  read-only attach and are never stopped by Mona.
-- **Startup hardening.** Workspace and executable validation with SHA-256, port
-  bind preflight, child parent/start/executable verification, authenticated
-  loopback `/v1/runtime/info`, pinned compatibility, and listener-in-tree
-  verification. Occupied port, permission denial, missing/non-executable
-  engine, missing supervisor, incompatible engine, startup timeout, and
-  ownership mismatch are typed and carry an action.
-- **Desktop lifecycle.** Single instance; a second launch hands its folder over
-  and exits. ⌘W keeps the app and runtime; Dock reopen shows the same work. A
-  renderer crash does not touch the runtime. Sleep → `reconnecting`, resume
-  probes health, and an unhealthy runtime is stopped before a bounded restart.
-  Runtime crash restarts **the process only** — never resubmits work.
-- **Transitions.** Pause-after-task (queue boundary), interrupt-now (engine
-  receipt, uncertainty reported), cancel-queued (future starts only), and
-  quit-and-stop (interrupt then stop, one bounded forced escalation, no rollback
-  claim) are separate, tested transitions.
-- **Verification.** 129 tests in 16 files (`npm test` builds the supervisor
-  first and fails rather than skips the native suite on this host); Electron
-  lifecycle smoke 21/21 run three times; real pinned-engine smoke 17/17 through
-  the supervisor (completed turn, 15 events, `deepseek`/`deepseek-flash`/
-  `full_access`, listener verified in-tree, clean shutdown, record stopped).
-  CI green; renderer secret scan 226,270 bytes, no findings.
+- **Mechanism.** Electron 45's built-in `node:sqlite` (Node 24.22.2), WAL,
+  `synchronous=FULL`, foreign keys, one `BEGIN IMMEDIATE` write path, per-row
+  revisions, checksummed migrations (schema v2). No native module.
+- **Barrier.** `MaintenanceBarrier` gates every reader/writer; backup, snapshot,
+  and restore are exclusive and quiesce active work.
+- **Recovery.** Pre-migration snapshot via the online backup API plus a durable
+  journal; a failed migration restores the snapshot; the failed DB and journal are
+  preserved; newer or edited schemas are refused.
+- **Identity.** Canonical path + `(dev, ino)`; aliases, `..`, trailing slashes,
+  and symlinks resolve to one project; path history and deliberate relocation;
+  nested repos and linked worktrees are distinct.
+- **State.** Projects, paths, runtime bindings (no token column), threads, turns,
+  submissions (`SqliteSubmissionStore` preserves P03 persist-before-send), tasks,
+  dependencies, evidence, attempts, decisions, events/cursors, usage, capability
+  snapshots, settings versions, drafts, artifacts.
+- **Portability.** Digest-stable export/import with revision conflicts and atomic
+  import; runtime bindings and artifact bytes excluded. Bounded artifacts,
+  retention that protects blocked-task and requirement evidence, orphan sweep.
+- **Disk pressure.** Headroom probe fails writes closed; real `SQLITE_FULL`
+  rolls back; task completion is never claimed.
+- **Storage.** `~/Library/Application Support/Mona/state/mona.sqlite`, 0600;
+  directories 0700; cloud-synced and network filesystems refused. Smoke reports
+  the database open with clean integrity and private modes.
+- **Verification.** 166 tests in 21 files (37 new P05), Electron smoke 21/21,
+  lint 0 errors, `monabuild validate` clean. Evidence:
+  `docs/evidence/macos/P05-state.md`, ADR-004.
 
-## Next exact action (P05)
+## Next exact action (P06)
 
-Read spec §8, §10.1, §17; the P00 bootstrap state helpers (`tools/monabuild/`);
-P03 submission contract (`src/main/engine/submission-store.ts`,
-`adapter.ts`); P04 ownership records (`src/main/supervisor/records.ts`); this
-handoff. Then implement transactional project state:
+Read spec §4, §12, §15; `docs/design-system.md` (to create); the P02 renderer
+(`src/renderer/`), shared fixtures (`src/shared/fixtures/`), and this handoff.
+Then implement the Daybreak/Afterglow design system:
 
-1. Choose the SQLite mechanism available in the Electron 45 embedded Node
-   (24.22.2) — verify `node:sqlite` locally or pin a native module; record the
-   decision. No DB inside the app bundle, iCloud, or a shared system payload.
-2. Schema and migrations for projects, runtime bindings, threads, turns,
-   submissions, tasks, dependencies, requirement evidence, attempts, decisions,
-   event cursors, usage, capability snapshots, settings versions. Foreign keys,
-   revision checks, one write path.
-3. Engine session history stays authoritative; store IDs/projections only.
-4. Atomic project export/import with digests and revisions; artifacts as bounded
-   files with metadata; retention and disk-space handling.
-5. Per-user Application Support paths; verify two macOS users cannot read each
-   other’s runtime tokens or receive each other’s sessions.
-6. Migration backup/restore via a safe snapshot; a maintenance barrier every
-   writer (adapter ingestion, indexer, task runner) must respect. Keep the old
-   DB on validation failure; never unlink a recovery journal as an optimistic
-   repair.
-7. Crash-injection tests before/during/after a transaction; stale-revision
-   writes fail; migration failure is recoverable; backup/restore with writers
-   quiesced; disk-full does not produce false completion; two aliases of one
-   project do not duplicate it; test relocation and distinct worktrees.
+1. Tokens for color, typography, spacing, surfaces, focus, density, and
+   120–180 ms motion; validate contrast rather than assuming the starting palette.
+2. Accessible button, input, select, tab, dialog, menu, notification, badge,
+   card, inspector, empty state, skeleton, and error components; status uses text
+   and icon, never color alone.
+3. Fixture-backed screens for home, project studio, work board, cost lens,
+   blocker card, and settings, labeled as a visual development harness. Include
+   long paths, long task names, unknown cost, disconnected state, many events,
+   and permission labels.
+4. Command-key conventions, native chrome, Retina scaling, VoiceOver labels,
+   keyboard reachability, visible focus, reduced motion, 1280×800 and 200%
+   scaling. No external font/asset requests and zero inference.
+5. Automated accessibility checks, keyboard inspection, screenshots in both
+   themes and both densities; record real screenshots and
+   `docs/evidence/macos/P06-design.md`.
 
-Do not start P05 unless it is the assigned prompt; the requested P04 work is
-complete, so pause here.
+Do not start P07 until P06 is complete and checkpointed.
 
 ## Nonblocking issues carried forward
 
-1. **Single-owner runtime** — enforced (`ALREADY_OWNED`). Parallel ownership
-   still needs a future tested engine decision; never invent a separate
-   `CODEWHALE_HOME`.
-2. **Direct cost unknown** — `codewhale exec` agent mode omits the usage split
-   and price coverage. No exact-parity claim may be made.
+1. **Single-owner runtime** — enforced (`ALREADY_OWNED`); parallel ownership needs
+   a future tested engine decision.
+2. **Direct cost unknown** — `codewhale exec` agent mode omits the usage split and
+   price coverage.
 3. **Adapter gaps** — approvals, clarifications, steer, artifacts, workspace
    search/restore, terminal, and fleet are not adapter operations yet.
-4. **Usage cost completeness** — `costComplete: false` appears whenever unpriced
-   turns are in range; preserved honestly.
+4. **Usage cost completeness** — `costComplete: false` when unpriced turns exist.
 5. **Electron embedded Node is 24.22.2**, not the host 26.13.0.
-6. **No Developer ID signing** — P22 prerequisite; local app and supervisor are
-   ad-hoc signed.
-7. **Supervisor packaging** — the compiled binary is gitignored; P21 must ship
-   it beside app resources and P22 must sign it.
-8. **Physical sleep not performed** — suspend/resume is qualified with real
-   Electron power events plus unit tests; a lid-close test remains manual.
-9. **Keep-awake cleanup not implemented** — optional P04 item; no assertion is
-   taken, so nothing is released.
-10. **Renderer state not wired** — P07 consumes `RuntimeSupervisor.status()`;
-    the shell is still the P02 placeholder.
-11. **Pause/interrupt controls have no UI** — `WorkController` is implemented and
-    tested; P08/P11 connect it.
-12. **Supervisor-unreachable fallback** — cannot see descendants that left the
-    process group; those stops report `verified: false` and are re-checked at
-    the next launch.
+6. **No Developer ID signing** — P22 prerequisite.
+7. **Supervisor packaging** — compiled binary gitignored; P21/P22 must ship/sign.
+8. **Physical sleep not performed** — manual lid-close test remains.
+9. **Renderer state not wired** — P07 consumes `RuntimeSupervisor.status()` and
+   `StateStore`; the shell is still the P02 placeholder.
+10. **Pause/interrupt controls have no UI** — P08/P11 connect `WorkController`.
+11. **Second macOS account not exercised** — P24 owns literal multi-user denial;
+    P05 verifies modes, disjoint paths, and no token column.
+12. **Network filesystem check** — `/usr/bin/stat -f %T`; skipped if unavailable.
+13. **Artifact bytes are not portable** — import reports missing digests.
+14. **Adapter ingestion barrier** — available; P08 routes live ingestion through it.
 
 ## Key files
 
-- `.mona/build-macos/state.json` — prompt status (revision 52).
+- `.mona/build-macos/state.json` — prompt status (revision 58).
 - `.mona/build-macos/attempts.jsonl` — empty; nothing failed three times.
-- `.mona/build-macos/DECISIONS.md` — D-001…D-014.
+- `.mona/build-macos/DECISIONS.md` — D-001…D-015.
 - `.mona/build-macos/BLOCKERS.md` — external prerequisites only.
-- `docs/requirements-macos.json` — generated traceability (never hand-edit).
-- `docs/codewhale-capabilities-macos.json` — 72 qualified rows.
-- `docs/discovery-macos.md` — host/engine facts plus P01 qualification.
+- `docs/requirements-macos.json` — generated traceability (never hand-edit structure).
 - `docs/decisions/ADR-001-desktop-stack.md`, `ADR-002-ipc-boundary.md`,
-  `ADR-003-runtime-supervisor.md`.
-- `docs/evidence/macos/P01-feasibility.md`, `P02-foundation.md`,
-  `P03-adapter.md`, `P04-supervisor.md`.
-- `docs/evidence/macos/artifacts/p04-*`.
-- `native/macos-supervisor/` — Swift supervisor plus build/test notes.
-- `src/main/supervisor/` — identity, records, native client, restart policy,
-  runtime supervisor; `src/main/work/control.ts` — transitions;
-  `src/main/desktop-lifecycle.ts` — Electron lifecycle.
-- `src/main/engine/` — adapter and supervised runtime driver.
+  `ADR-003-runtime-supervisor.md`, `ADR-004-project-state.md`.
+- `docs/evidence/macos/P00…P05-*.md` and `artifacts/p0*-*`.
+- `src/main/state/` — database, schema/migrations, barrier, store, identity,
+  artifacts, portable, paths, `SqliteSubmissionStore`.
+- `src/main/supervisor/`, `src/main/engine/`, `src/main/work/`,
+  `src/main/desktop-lifecycle.ts`.
+- `native/macos-supervisor/`, `native/macos-services/`.
 - `scripts/build-supervisor.mjs`, `scripts/lifecycle-smoke.mjs`,
-  `scripts/engine-smoke.mjs`.
+  `scripts/engine-smoke.mjs`, `scripts/ci.mjs`, `scripts/smoke.mjs`.
 - `AGENTS.md` — operating contract and commands.
