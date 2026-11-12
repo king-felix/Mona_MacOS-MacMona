@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-12T16:39:13.276Z",
+  "generated_utc": "2026-11-12T16:39:48.265Z",
   "git": {
     "available": true,
-    "commit": "391d1b12b97a60f0f8ca2194c13f3968c9226058",
+    "commit": "82a574a40b2c77ac792ea72c2a026b24054e5f13",
     "dirty": true
   },
-  "digest": "7aa9d8ce5208b89e2f00a481254cad3768165c966648b4c46d28066ed3f99433",
+  "digest": "c65b73691657c1b44102a9f1e63afcad50ffcac29af2b84626e043911b56078d",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,7 +15,7 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "5e5456b0bbd8f78ade2bebed205f5ac60353a5acb60951d2678a1c52c1e67085",
+      "sha256": "5bae2567fc51d1a3619193d6b87934178d7a2c74052a691fda42e6eb0a70f3a5",
       "bytes": 121615
     },
     {
@@ -705,8 +705,8 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p19-ci.txt",
-      "sha256": "2af7fc4e52dd92d70dd30608dda590f2957e684a45d558d61c7bc527fddb8ccf",
-      "bytes": 60724
+      "sha256": "e2bd7e765c15d0125db51cc71bb09e088e44d4b388848951d05bb56dfa773a83",
+      "bytes": 60626
     },
     {
       "path": "docs/evidence/macos/artifacts/p19-memory-handoff.png",

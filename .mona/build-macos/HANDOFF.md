@@ -512,6 +512,10 @@ the assembled product survives hostile and failing inputs. Then:
     `~tmp/…`) per item 32, but a re-run still needs
     `monabuild evidence --prompt P19 docs/evidence/macos/artifacts/p19-memory-smoke.json`
     before the next checkpoint. The same applies to every `*-smoke.json` artifact.
+    A captured CI log does too: `p19-ci.txt` is `npm run ci` output, which names
+    the checkout by absolute path, so it is redacted (`/Users/<name>` → `~`)
+    before it is committed. Item 84's two P16/P17/P18 findings are the same class
+    left unredacted at the time; P19's own artifacts scan clean.
 
 ## Key files
 

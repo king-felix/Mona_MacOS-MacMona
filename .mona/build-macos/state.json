@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 421,
+  "revision": 427,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -2113,7 +2113,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p19-ci.txt",
-          "sha256": "2af7fc4e52dd92d70dd30608dda590f2957e684a45d558d61c7bc527fddb8ccf"
+          "sha256": "e2bd7e765c15d0125db51cc71bb09e088e44d4b388848951d05bb56dfa773a83"
         },
         {
           "path": "docs/evidence/macos/artifacts/p19-memory-search.png",
@@ -2197,7 +2197,7 @@
         },
         {
           "path": ".mona/build-macos/HANDOFF.md",
-          "sha256": "537b8aa750b442a09c5187b223d29c109dda40c220d0c78713fd3d82d70d3c49"
+          "sha256": "49e2f343462c49d4255d778ea8f7884a5b1c11c7ae9587629fc0abd079d76d34"
         }
       ],
       "blocker_ids": []
@@ -2307,7 +2307,7 @@
   "next_eligible_prompts": [
     "P14"
   ],
-  "last_checkpoint_utc": "2026-11-12T16:39:13.180Z",
+  "last_checkpoint_utc": "2026-11-12T16:39:48.169Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",
