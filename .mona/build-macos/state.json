@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 192,
+  "revision": 194,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -8,7 +8,7 @@
   "prompt_file_sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8",
   "current_prompt": "P13",
   "current_prompt_status": "completed",
-  "last_verified_commit": "b6def91",
+  "last_verified_commit": "9915026",
   "tasks": {
     "P00": {
       "status": "completed",
@@ -53,8 +53,8 @@
         },
         {
           "path": "docs/requirements-macos.json",
-          "sha256": "2d261bcfb4d51c22098b9edc07d6d4e25f68498bcccf424e22ce83b994672115",
-          "note": "re-verified after P12 regenerated the registry and decisions"
+          "sha256": "d12f77dcea810f87cde278235fd0a2467b4175e689ff01de354ab710d04820c6",
+          "note": "re-verified after P13 regenerated the registry and decisions"
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
@@ -1741,7 +1741,7 @@
   "next_eligible_prompts": [
     "P14"
   ],
-  "last_checkpoint_utc": "2026-11-12T06:49:03.538Z",
+  "last_checkpoint_utc": "2026-11-12T06:49:16.257Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",
