@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "revision": 209,
+  "revision": 250,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
   "spec_sha256": "d1c02941151c71912bc3e9c8b2509612298d54e05e0bf16fe933b9bd93e3e028",
   "prompt_file_sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8",
-  "current_prompt": "P13",
+  "current_prompt": "P14",
   "current_prompt_status": "completed",
   "last_verified_commit": "5b3f1ca",
   "tasks": {
@@ -53,8 +53,8 @@
         },
         {
           "path": "docs/requirements-macos.json",
-          "sha256": "77cf7793a950c97a9e26040aea1e5668253be196db2a7455cc0a468efa6c9775",
-          "note": "re-verified after P13 regenerated the registry and decisions"
+          "sha256": "5dce9a69077e5505fea7445b0557843c833677be90c6f3038c01b79cb4727c23",
+          "note": "re-verified after P13 regenerated the registry and decisions; hash re-recorded at P14 after shared files changed"
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
@@ -82,8 +82,8 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "0187d235da0adaf49f152e125e2abf830741e9cb8842939eadd29a4ec3dd6569",
-          "note": "re-verified after P12 regenerated the registry and decisions"
+          "sha256": "912c3b5fdfd7bf4c02f4f18aea52ab8ec5cc8abab71a606fb19fd84de279b33c",
+          "note": "re-verified after P12 regenerated the registry and decisions; hash re-recorded at P14 after shared files changed"
         },
         {
           "path": "docs/evidence/macos/artifacts/p00-test-run.txt",
@@ -236,7 +236,8 @@
         },
         {
           "path": "package.json",
-          "sha256": "0dd3faa4c0b85b36d71766b4b7b58b90a8bc0cd4299746160b443d73683b19be"
+          "sha256": "52550de1c70c2184dbac707e92aeacb8c454294cf4a14a8a39a72fd8434ca8f9",
+          "note": "hash re-recorded at P14 after shared files changed; file re-verified in the P14 CI run"
         },
         {
           "path": "package-lock.json",
@@ -264,7 +265,8 @@
         },
         {
           "path": "scripts/ci.mjs",
-          "sha256": "43db64ff4b8273e515a8cf7ba9fda6970f660ef94ffd8d5c0554a765ded2e364"
+          "sha256": "a196837ebc2b622e026a1b846f6f9dbbd51fe43f87eff15bdaa36c1fd42f6235",
+          "note": "hash re-recorded at P14 after shared files changed; file re-verified in the P14 CI run"
         },
         {
           "path": "scripts/smoke.mjs",
@@ -284,22 +286,23 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "83332a54d3b52433f800d6009ecb4bbe4dab6539ebb697586e2d62cf5ca76165",
-          "note": "re-verified by the P11 CI run after the board IPC was added"
+          "sha256": "6aa197e1e4cc2d9db226b6a869034fc1a628645fcad1b4c671d88450e309206b",
+          "note": "re-verified by the P11 CI run after the board IPC was added; hash re-recorded at P14 after shared files changed"
         },
         {
           "path": "src/main/ipc-contract.ts",
-          "sha256": "b4dbf4481b0660fccb4e998ad21ebb840f2acce27ea637e9f29aa0bd3bacba8b",
-          "note": "re-verified by the P11 CI run after the board IPC was added"
+          "sha256": "083fafa04a6103318500fa407a79f125cb741282ca3dcf9c78323beeee9bbb45",
+          "note": "re-verified by the P11 CI run after the board IPC was added; hash re-recorded at P14 after shared files changed"
         },
         {
           "path": "src/main/ipc.ts",
-          "sha256": "0e49dafeb055d0150dc14ef8a2ad5c43c2a3855086e21ce4e84f454904a90bc4",
-          "note": "re-verified by the P11 CI run after the board IPC was added"
+          "sha256": "60e10a56e6fdf04ca4604b0aa537b6def7a1717b254c60dead6adf1dad3ee700",
+          "note": "re-verified by the P11 CI run after the board IPC was added; hash re-recorded at P14 after shared files changed"
         },
         {
           "path": "src/main/menu.ts",
-          "sha256": "3d23d62436396851c2c7774c17d4a95899050c6efe255be568c7c1b0b591d3e1"
+          "sha256": "95bf022840d4849c58a28c7a43377bbba8adb6688977d49170c3ef0fb4e55b82",
+          "note": "hash re-recorded at P14 after shared files changed; file re-verified in the P14 CI run"
         },
         {
           "path": "src/main/navigation.ts",
@@ -323,8 +326,8 @@
         },
         {
           "path": "src/preload/index.ts",
-          "sha256": "5ce9dcb20f8c583732c821b985484a46741fdc1752abac6ceb57438e76fd6723",
-          "note": "re-verified by the P11 CI run after the board IPC was added"
+          "sha256": "cd414f667c38022c57d3eea516a3823020136622d455fe7dd17bfeb394d3704c",
+          "note": "re-verified by the P11 CI run after the board IPC was added; hash re-recorded at P14 after shared files changed"
         },
         {
           "path": "src/renderer/App.tsx",
@@ -344,12 +347,13 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "b7e25c0ba27794e31c918c78ec16e8bf47953e7e310b6816dcd1c9e67d088a25"
+          "sha256": "ea6437e26ceb8a16bcce7e9ff4a95b49aaf94e030956eb2fc4ad569a4f538a9f",
+          "note": "hash re-recorded at P14 after shared files changed; file re-verified in the P14 CI run"
         },
         {
           "path": "src/shared/contracts/bridge.ts",
-          "sha256": "f73cfa71fb5c7e923fe6282947f2d1b248fd23c181774760ec8db50ad9fd6767",
-          "note": "re-verified by the P11 CI run after the board IPC was added"
+          "sha256": "b2cd963a5f8310a1f8acf0be80bfaca0ff31b086fb7d2f71fb08b6422e38f4fa",
+          "note": "re-verified by the P11 CI run after the board IPC was added; hash re-recorded at P14 after shared files changed"
         },
         {
           "path": "src/shared/contracts/engine.ts",
@@ -365,7 +369,8 @@
         },
         {
           "path": "src/shared/contracts/index.ts",
-          "sha256": "263cca0b8d8de06fcae252637adb95faa75142250d244a0d560846b14a2cf347"
+          "sha256": "b34285c790f0f6b4599948a3d0c85057e2e494ae09e69aea55c923c0684ee0a5",
+          "note": "hash re-recorded at P14 after shared files changed; file re-verified in the P14 CI run"
         },
         {
           "path": "src/shared/contracts/project.ts",
@@ -401,7 +406,8 @@
         },
         {
           "path": "test/ipc-contract.test.ts",
-          "sha256": "9b0d7fa64a51ff25cb2f68c03ca7c56da124b9c3ed1226a8bb32aa80ab2fcc99"
+          "sha256": "7a3af12dfb8148ed34994644f74a6953164bf2fb5f9ac0ca9edf8395ae917632",
+          "note": "hash re-recorded at P14 after shared files changed; file re-verified in the P14 CI run"
         },
         {
           "path": "test/navigation.test.ts",
@@ -554,7 +560,8 @@
         },
         {
           "path": "package.json",
-          "sha256": "0dd3faa4c0b85b36d71766b4b7b58b90a8bc0cd4299746160b443d73683b19be"
+          "sha256": "52550de1c70c2184dbac707e92aeacb8c454294cf4a14a8a39a72fd8434ca8f9",
+          "note": "hash re-recorded at P14 after shared files changed; file re-verified in the P14 CI run"
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
@@ -636,7 +643,8 @@
         },
         {
           "path": "scripts/lifecycle-smoke.mjs",
-          "sha256": "836425f77abd518672f990a5664c8893c39802a06b025b2d929897cb90a42055"
+          "sha256": "285f8e6e35bc1913a12f8cf3c46ad2c3b35982fbe533e4de4ddecf190cd1c57d",
+          "note": "hash re-recorded at P14 after shared files changed; file re-verified in the P14 CI run"
         },
         {
           "path": "scripts/engine-smoke.mjs",
@@ -644,7 +652,8 @@
         },
         {
           "path": "scripts/ci.mjs",
-          "sha256": "43db64ff4b8273e515a8cf7ba9fda6970f660ef94ffd8d5c0554a765ded2e364"
+          "sha256": "a196837ebc2b622e026a1b846f6f9dbbd51fe43f87eff15bdaa36c1fd42f6235",
+          "note": "hash re-recorded at P14 after shared files changed; file re-verified in the P14 CI run"
         },
         {
           "path": "src/main/supervisor/identity.ts",
@@ -681,8 +690,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "83332a54d3b52433f800d6009ecb4bbe4dab6539ebb697586e2d62cf5ca76165",
-          "note": "re-verified by the P11 CI run after the pause note changed"
+          "sha256": "6aa197e1e4cc2d9db226b6a869034fc1a628645fcad1b4c671d88450e309206b",
+          "note": "re-verified by the P11 CI run after the pause note changed; hash re-recorded at P14 after shared files changed"
         },
         {
           "path": "src/main/engine/runtime-process.ts",
@@ -730,12 +739,13 @@
         },
         {
           "path": "package.json",
-          "sha256": "0dd3faa4c0b85b36d71766b4b7b58b90a8bc0cd4299746160b443d73683b19be"
+          "sha256": "52550de1c70c2184dbac707e92aeacb8c454294cf4a14a8a39a72fd8434ca8f9",
+          "note": "hash re-recorded at P14 after shared files changed; file re-verified in the P14 CI run"
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "0187d235da0adaf49f152e125e2abf830741e9cb8842939eadd29a4ec3dd6569",
-          "note": "re-verified by the P11 CI run after the pause note changed"
+          "sha256": "912c3b5fdfd7bf4c02f4f18aea52ab8ec5cc8abab71a606fb19fd84de279b33c",
+          "note": "re-verified by the P11 CI run after the pause note changed; hash re-recorded at P14 after shared files changed"
         }
       ],
       "blocker_ids": [],
@@ -1131,11 +1141,13 @@
         },
         {
           "path": "scripts/ci.mjs",
-          "sha256": "43db64ff4b8273e515a8cf7ba9fda6970f660ef94ffd8d5c0554a765ded2e364"
+          "sha256": "a196837ebc2b622e026a1b846f6f9dbbd51fe43f87eff15bdaa36c1fd42f6235",
+          "note": "hash re-recorded at P14 after shared files changed; file re-verified in the P14 CI run"
         },
         {
           "path": "package.json",
-          "sha256": "0dd3faa4c0b85b36d71766b4b7b58b90a8bc0cd4299746160b443d73683b19be"
+          "sha256": "52550de1c70c2184dbac707e92aeacb8c454294cf4a14a8a39a72fd8434ca8f9",
+          "note": "hash re-recorded at P14 after shared files changed; file re-verified in the P14 CI run"
         },
         {
           "path": "src/main/open/folder-request.ts",
@@ -1151,8 +1163,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "83332a54d3b52433f800d6009ecb4bbe4dab6539ebb697586e2d62cf5ca76165",
-          "note": "re-verified by the P11 CI run after the open path's shared files changed"
+          "sha256": "6aa197e1e4cc2d9db226b6a869034fc1a628645fcad1b4c671d88450e309206b",
+          "note": "re-verified by the P11 CI run after the open path's shared files changed; hash re-recorded at P14 after shared files changed"
         },
         {
           "path": "src/main/desktop-lifecycle.ts",
@@ -1160,13 +1172,13 @@
         },
         {
           "path": "src/main/ipc.ts",
-          "sha256": "0e49dafeb055d0150dc14ef8a2ad5c43c2a3855086e21ce4e84f454904a90bc4",
-          "note": "re-verified by the P11 CI run after the open path's shared files changed"
+          "sha256": "60e10a56e6fdf04ca4604b0aa537b6def7a1717b254c60dead6adf1dad3ee700",
+          "note": "re-verified by the P11 CI run after the open path's shared files changed; hash re-recorded at P14 after shared files changed"
         },
         {
           "path": "src/main/ipc-contract.ts",
-          "sha256": "b4dbf4481b0660fccb4e998ad21ebb840f2acce27ea637e9f29aa0bd3bacba8b",
-          "note": "re-verified by the P11 CI run after the open path's shared files changed"
+          "sha256": "083fafa04a6103318500fa407a79f125cb741282ca3dcf9c78323beeee9bbb45",
+          "note": "re-verified by the P11 CI run after the open path's shared files changed; hash re-recorded at P14 after shared files changed"
         },
         {
           "path": "src/main/projects/service.ts",
@@ -1174,8 +1186,8 @@
         },
         {
           "path": "src/preload/index.ts",
-          "sha256": "5ce9dcb20f8c583732c821b985484a46741fdc1752abac6ceb57438e76fd6723",
-          "note": "re-verified by the P11 CI run after the open path's shared files changed"
+          "sha256": "cd414f667c38022c57d3eea516a3823020136622d455fe7dd17bfeb394d3704c",
+          "note": "re-verified by the P11 CI run after the open path's shared files changed; hash re-recorded at P14 after shared files changed"
         },
         {
           "path": "src/shared/contracts/open.ts",
@@ -1183,12 +1195,13 @@
         },
         {
           "path": "src/shared/contracts/bridge.ts",
-          "sha256": "f73cfa71fb5c7e923fe6282947f2d1b248fd23c181774760ec8db50ad9fd6767",
-          "note": "re-verified by the P11 CI run after the open path's shared files changed"
+          "sha256": "b2cd963a5f8310a1f8acf0be80bfaca0ff31b086fb7d2f71fb08b6422e38f4fa",
+          "note": "re-verified by the P11 CI run after the open path's shared files changed; hash re-recorded at P14 after shared files changed"
         },
         {
           "path": "src/renderer/shell/Shell.tsx",
-          "sha256": "bd44ac57c1cfd69d1aa29bb13431b4f151ee38a781d033d2f06d0c79b8baf78a"
+          "sha256": "59cd4dfff20ec58cad0c3e21652eb5ae510ee0831705e7c2c0494e414e3bac34",
+          "note": "hash re-recorded at P14 after shared files changed; file re-verified in the P14 CI run"
         },
         {
           "path": "src/renderer/shell/drop.ts",
@@ -1200,11 +1213,13 @@
         },
         {
           "path": "src/renderer/shell/Settings.tsx",
-          "sha256": "2326f132c06dd39de62fa369b15411c27a75d97535dd78515cd27356276a4721"
+          "sha256": "eb19aed7aa4a50e17743835cb55707f5374dff01b6233f59c03e6882066fef51",
+          "note": "hash re-recorded at P14 after shared files changed; file re-verified in the P14 CI run"
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "b7e25c0ba27794e31c918c78ec16e8bf47953e7e310b6816dcd1c9e67d088a25"
+          "sha256": "ea6437e26ceb8a16bcce7e9ff4a95b49aaf94e030956eb2fc4ad569a4f538a9f",
+          "note": "hash re-recorded at P14 after shared files changed; file re-verified in the P14 CI run"
         },
         {
           "path": "test/folder-request.test.ts",
@@ -1224,12 +1239,13 @@
         },
         {
           "path": "test/ipc-contract.test.ts",
-          "sha256": "9b0d7fa64a51ff25cb2f68c03ca7c56da124b9c3ed1226a8bb32aa80ab2fcc99"
+          "sha256": "7a3af12dfb8148ed34994644f74a6953164bf2fb5f9ac0ca9edf8395ae917632",
+          "note": "hash re-recorded at P14 after shared files changed; file re-verified in the P14 CI run"
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "0187d235da0adaf49f152e125e2abf830741e9cb8842939eadd29a4ec3dd6569",
-          "note": "re-verified by the P11 CI run after the open path's shared files changed"
+          "sha256": "912c3b5fdfd7bf4c02f4f18aea52ab8ec5cc8abab71a606fb19fd84de279b33c",
+          "note": "re-verified by the P11 CI run after the open path's shared files changed; hash re-recorded at P14 after shared files changed"
         },
         {
           "path": "docs/evidence/macos/artifacts/p09-finder-panel.png",
@@ -1301,8 +1317,8 @@
         },
         {
           "path": "src/main/state/store.ts",
-          "sha256": "2ea87987873c94ff3dea72b58b67f4291984d12310d46f134c3ea935596f3c7f",
-          "note": "re-verified by the P11 CI run; the board, schema, and IPC were extended"
+          "sha256": "d9ba14e55ba145fc123f799d94820631e8b20577d3ea899349cc1d220cf3934f",
+          "note": "re-verified by the P11 CI run; hash re-recorded at P14 after shared files changed"
         },
         {
           "path": "src/main/state/portable.ts",
@@ -1319,33 +1335,33 @@
         },
         {
           "path": "src/shared/contracts/bridge.ts",
-          "sha256": "f73cfa71fb5c7e923fe6282947f2d1b248fd23c181774760ec8db50ad9fd6767",
-          "note": "re-verified by the P11 CI run; the board, schema, and IPC were extended"
+          "sha256": "b2cd963a5f8310a1f8acf0be80bfaca0ff31b086fb7d2f71fb08b6422e38f4fa",
+          "note": "re-verified by the P11 CI run; hash re-recorded at P14 after shared files changed"
         },
         {
           "path": "src/main/ipc-contract.ts",
-          "sha256": "b4dbf4481b0660fccb4e998ad21ebb840f2acce27ea637e9f29aa0bd3bacba8b",
-          "note": "re-verified by the P11 CI run; the board, schema, and IPC were extended"
+          "sha256": "083fafa04a6103318500fa407a79f125cb741282ca3dcf9c78323beeee9bbb45",
+          "note": "re-verified by the P11 CI run; hash re-recorded at P14 after shared files changed"
         },
         {
           "path": "src/main/ipc.ts",
-          "sha256": "0e49dafeb055d0150dc14ef8a2ad5c43c2a3855086e21ce4e84f454904a90bc4",
-          "note": "re-verified by the P11 CI run; the board, schema, and IPC were extended"
+          "sha256": "60e10a56e6fdf04ca4604b0aa537b6def7a1717b254c60dead6adf1dad3ee700",
+          "note": "re-verified by the P11 CI run; hash re-recorded at P14 after shared files changed"
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "83332a54d3b52433f800d6009ecb4bbe4dab6539ebb697586e2d62cf5ca76165",
-          "note": "re-verified by the P11 CI run; the board, schema, and IPC were extended"
+          "sha256": "6aa197e1e4cc2d9db226b6a869034fc1a628645fcad1b4c671d88450e309206b",
+          "note": "re-verified by the P11 CI run; hash re-recorded at P14 after shared files changed"
         },
         {
           "path": "src/preload/index.ts",
-          "sha256": "5ce9dcb20f8c583732c821b985484a46741fdc1752abac6ceb57438e76fd6723",
-          "note": "re-verified by the P11 CI run; the board, schema, and IPC were extended"
+          "sha256": "cd414f667c38022c57d3eea516a3823020136622d455fe7dd17bfeb394d3704c",
+          "note": "re-verified by the P11 CI run; hash re-recorded at P14 after shared files changed"
         },
         {
           "path": "src/renderer/shell/Board.tsx",
-          "sha256": "aff9bc45c3de43b4a7e20bd8646a8c188cbeb7749c078c0d6364bfe9bdaa7ca5",
-          "note": "re-verified by the P11 CI run; the board, schema, and IPC were extended"
+          "sha256": "8ae824067f1ff0db356443d18de3f2e6b42e3137c4846d91ce92d91bda208417",
+          "note": "re-verified by the P11 CI run; hash re-recorded at P14 after shared files changed"
         },
         {
           "path": "src/renderer/design/primitives.tsx",
@@ -1353,7 +1369,8 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "b7e25c0ba27794e31c918c78ec16e8bf47953e7e310b6816dcd1c9e67d088a25"
+          "sha256": "ea6437e26ceb8a16bcce7e9ff4a95b49aaf94e030956eb2fc4ad569a4f538a9f",
+          "note": "hash re-recorded at P14 after shared files changed; file re-verified in the P14 CI run"
         },
         {
           "path": "test/work-board.test.ts",
@@ -1574,14 +1591,76 @@
       "blocker_ids": []
     },
     "P14": {
-      "status": "pending",
+      "status": "completed",
       "requirements": [
         "MONA-017",
         "MONA-029"
       ],
-      "completed_steps": [],
+      "completed_steps": [
+        "Polish contracts: digest, Since you left, preferences, notifications, attention, favorites, and identity",
+        "Deterministic PolishDigest: Resume Brief and Since you left from tasks, events, change receipts, and usage with no model call and no completion percentage",
+        "PolishNotifier: derived completion/blocker/limit alerts, durable deduplication across reconnects, generic default content, half-open quiet hours in a stated IANA zone",
+        "Attention: pure plan, menu-bar title/tooltip, Dock badge, native menu, explicit quit, launch-at-login off by default and read back",
+        "Keep-awake scoped to active work with idempotent release on work end, preference change, and quit",
+        "Renderer: Home Resume Brief and catch-up groups, Studio Focus Mode with favorites, Settings Attention tab, identity editor, shortcut list, Escape leaves Focus Mode",
+        "Keyboard: Command-1..6, Command-K, Command-O, Command-Shift-F, Command-Shift-B, Command-period, Command-/, Escape",
+        "Verification: 424 tests in 46 files, 21-check polish sample, 80-check Electron shell smoke, 21-check lifecycle smoke, local CI green with a clean secret scan"
+      ],
       "remaining_steps": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P14-polish.md",
+          "sha256": "3cae924a2c79979f98a3bd5cad08b6a140c05b3add83f6c00a107086ddd561bc"
+        },
+        {
+          "path": "docs/decisions/ADR-009-polish-digest-and-attention.md",
+          "sha256": "c021e766e35de48433a40f4ecc113acbaa4ac9a09512d56a48ea641ccd6e4e09"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p14-tests.txt",
+          "sha256": "8b20339a73e6c731310568027afe5f987509d79701fd3bbb75239487a1c35aae"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p14-polish-sample.json",
+          "sha256": "acebc7d9212b58a903dce6baa4c298c83d90a8916c7bb24101d7f826f32c0dce"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p14-shell-smoke.json",
+          "sha256": "3e7097a7c6806dff332ce1277eacf09a991ff8241962e45f7d1f6c4bf691ee54"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p14-lifecycle-smoke.json",
+          "sha256": "49a2a794afa5a5e41e8bf47a0f22d1bc304a72e2c4553d37b3fe2f9dc3be1788"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p14-home-daybreak.png",
+          "sha256": "ac3880eef21436a95156577d3229b047f2636db56e98ca01349bd1af02287257"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p14-settings-attention.png",
+          "sha256": "5e5b46b958f052de26c8317e8318029c658178b19e568f0bcc92fee83af803fa"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p14-settings-attention-native.png",
+          "sha256": "29acded8f21fe396c9d6991139c98d3aa07c045337ec40896da9b8f15381f1ad"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p14-settings-receipts.png",
+          "sha256": "19e808af295c92112c08a9a511b9e1e531612c446fd29bdf10508732d74e89d1"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p14-studio-focus-afterglow.png",
+          "sha256": "f306c8e75bc1297570ea26335589f87e99b53ccb5e9bc6c20ad564c71e4c3404"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p14-ci.txt",
+          "sha256": "c6e80c56ca44baa83bf8d1d8ae8e7fec0209ae52e3b835b8828fa5912e19844d"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p14-typecheck.txt",
+          "sha256": "0b4247e7a6a7dbd030b2c302cef4fa6b83fc6c16fb8e9c0e04379fd374ee6328"
+        }
+      ],
       "blocker_ids": []
     },
     "P15": {
@@ -1745,7 +1824,7 @@
   "next_eligible_prompts": [
     "P14"
   ],
-  "last_checkpoint_utc": "2026-11-12T06:57:09.094Z",
+  "last_checkpoint_utc": "2026-11-12T07:39:25.949Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

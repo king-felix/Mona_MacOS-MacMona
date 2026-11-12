@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-12T06:57:09.230Z",
+  "generated_utc": "2026-11-12T07:39:33.849Z",
   "git": {
     "available": true,
-    "commit": "5b3f1cab583990b7ff4d42bc438b736bb81652ed",
+    "commit": "88acfca4f936b2b88ba06c6af77201d77d972831",
     "dirty": true
   },
-  "digest": "1ddc798cff26484e7c496700635257f29223e0285970b90d06ec903a5a14e305",
+  "digest": "77b30a0cae7a0271f1c23af2c8b0853d87755bf8309697dc66efc61963beb767",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,8 +15,8 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "9ab1ca1b91015e1efc95197dd4fb2f7d2972dcc2c1bc9c84ffacc2f0fd559f5f",
-      "bytes": 86501
+      "sha256": "7799732274adb5a36a266eaac43ed662cdc725472ab9d3a9160a0b43c4741516",
+      "bytes": 92728
     },
     {
       "path": "AGENTS.md",
@@ -529,6 +529,61 @@
       "bytes": 3005
     },
     {
+      "path": "docs/evidence/macos/artifacts/p14-ci.txt",
+      "sha256": "c6e80c56ca44baa83bf8d1d8ae8e7fec0209ae52e3b835b8828fa5912e19844d",
+      "bytes": 27635
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p14-home-daybreak.png",
+      "sha256": "ac3880eef21436a95156577d3229b047f2636db56e98ca01349bd1af02287257",
+      "bytes": 432611
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p14-lifecycle-smoke.json",
+      "sha256": "49a2a794afa5a5e41e8bf47a0f22d1bc304a72e2c4553d37b3fe2f9dc3be1788",
+      "bytes": 9750
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p14-polish-sample.json",
+      "sha256": "acebc7d9212b58a903dce6baa4c298c83d90a8916c7bb24101d7f826f32c0dce",
+      "bytes": 7017
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p14-settings-attention-native.png",
+      "sha256": "29acded8f21fe396c9d6991139c98d3aa07c045337ec40896da9b8f15381f1ad",
+      "bytes": 253576
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p14-settings-attention.png",
+      "sha256": "5e5b46b958f052de26c8317e8318029c658178b19e568f0bcc92fee83af803fa",
+      "bytes": 276048
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p14-settings-receipts.png",
+      "sha256": "19e808af295c92112c08a9a511b9e1e531612c446fd29bdf10508732d74e89d1",
+      "bytes": 267696
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p14-shell-smoke.json",
+      "sha256": "3e7097a7c6806dff332ce1277eacf09a991ff8241962e45f7d1f6c4bf691ee54",
+      "bytes": 6841
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p14-studio-focus-afterglow.png",
+      "sha256": "f306c8e75bc1297570ea26335589f87e99b53ccb5e9bc6c20ad564c71e4c3404",
+      "bytes": 280425
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p14-tests.txt",
+      "sha256": "8b20339a73e6c731310568027afe5f987509d79701fd3bbb75239487a1c35aae",
+      "bytes": 3451
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p14-typecheck.txt",
+      "sha256": "0b4247e7a6a7dbd030b2c302cef4fa6b83fc6c16fb8e9c0e04379fd374ee6328",
+      "bytes": 124
+    },
+    {
       "path": "docs/evidence/macos/artifacts/signing-inventory.txt",
       "sha256": "3e45104c0497ce03bcba731224d253e6003d8addfb46933fc778a3b79ae07d7c",
       "bytes": 397
@@ -619,14 +674,19 @@
       "bytes": 13273
     },
     {
-      "path": "docs/requirements-macos.json",
-      "sha256": "77cf7793a950c97a9e26040aea1e5668253be196db2a7455cc0a468efa6c9775",
-      "bytes": 51590
+      "path": "docs/evidence/macos/P14-polish.md",
+      "sha256": "3cae924a2c79979f98a3bd5cad08b6a140c05b3add83f6c00a107086ddd561bc",
+      "bytes": 10901
     },
     {
       "path": "docs/requirements-macos.json",
-      "sha256": "77cf7793a950c97a9e26040aea1e5668253be196db2a7455cc0a468efa6c9775",
-      "bytes": 51590
+      "sha256": "5dce9a69077e5505fea7445b0557843c833677be90c6f3038c01b79cb4727c23",
+      "bytes": 54324
+    },
+    {
+      "path": "docs/requirements-macos.json",
+      "sha256": "5dce9a69077e5505fea7445b0557843c833677be90c6f3038c01b79cb4727c23",
+      "bytes": 54324
     },
     {
       "path": "Mona_macOS_Project.md",

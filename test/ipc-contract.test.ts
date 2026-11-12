@@ -296,3 +296,90 @@ describe("cost ledger IPC validation", () => {
     expect(() => validateIpc("cost:export-file", { projectId })).toThrow();
   });
 });
+
+describe("polish IPC validation", () => {
+  const projectId = "prj_0123456789abcdef";
+
+  it("accepts local reads and rejects unknown fields", () => {
+    expect(validateIpc("polish:digest", { projectId })).toEqual({ projectId });
+    expect(validateIpc("polish:mark-seen", { projectId })).toEqual({ projectId });
+    expect(validateIpc("polish:refresh", { projectId })).toEqual({ projectId });
+    expect(validateIpc("polish:status", {})).toEqual({});
+    expect(() => validateIpc("polish:digest", { projectId, prompt: "summarize" })).toThrow();
+  });
+
+  it("validates preference patches strictly", () => {
+    expect(validateIpc("polish:preferences-set", { patch: { dockBadge: false } })).toEqual({
+      patch: { dockBadge: false },
+    });
+    // A partial notification patch is legal; the store merges it with the
+    // current value rather than resetting quiet hours or category toggles.
+    expect(
+      validateIpc("polish:preferences-set", { patch: { notifications: { enabled: true } } }),
+    ).toEqual({ patch: { notifications: { enabled: true } } });
+    expect(() =>
+      validateIpc("polish:preferences-set", {
+        patch: {
+          notifications: {
+            enabled: true,
+            completion: true,
+            blocker: true,
+            limit: true,
+            showDetails: false,
+            quietHours: { enabled: true, start: "25:00", end: "07:00", timeZone: "UTC" },
+          },
+        },
+      }),
+    ).toThrow();
+    expect(() =>
+      validateIpc("polish:preferences-set", { patch: { launchAtLogin: "yes" } }),
+    ).toThrow();
+    expect(() =>
+      validateIpc("polish:preferences-set", { patch: { installHelper: true } }),
+    ).toThrow();
+  });
+
+  it("validates project identity without accepting arbitrary markup", () => {
+    expect(
+      validateIpc("polish:identity", {
+        projectId,
+        accent: "coral",
+        monogram: "AB",
+        expectedRevision: 2,
+      }),
+    ).toBeTruthy();
+    expect(() =>
+      validateIpc("polish:identity", {
+        projectId,
+        accent: "neon",
+        monogram: "AB",
+        expectedRevision: 2,
+      }),
+    ).toThrow();
+    expect(() =>
+      validateIpc("polish:identity", {
+        projectId,
+        accent: null,
+        monogram: "ABCDE",
+        expectedRevision: 2,
+      }),
+    ).toThrow();
+    expect(() =>
+      validateIpc("polish:identity", { projectId, accent: null, monogram: null }),
+    ).toThrow();
+  });
+
+  it("keeps favorites inert and quit explicit", () => {
+    expect(
+      validateIpc("polish:favorite-save", { label: "Review", text: "Review the diff." }),
+    ).toEqual({ label: "Review", text: "Review the diff." });
+    expect(() =>
+      validateIpc("polish:favorite-save", { label: "Run", text: "do it", execute: true }),
+    ).toThrow();
+    expect(validateIpc("polish:favorite-remove", { id: "fav_00000001" })).toEqual({
+      id: "fav_00000001",
+    });
+    expect(validateIpc("polish:quit", { interrupt: true })).toEqual({ interrupt: true });
+    expect(() => validateIpc("polish:quit", {})).toThrow();
+  });
+});

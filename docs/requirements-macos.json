@@ -14,7 +14,7 @@
         "sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8"
       }
     ],
-    "indexed_utc": "2026-11-12T06:46:57.993Z"
+    "indexed_utc": "2026-11-12T07:37:51.909Z"
   },
   "prompts": [
     {
@@ -652,6 +652,10 @@
         {
           "path": "docs/evidence/macos/artifacts/p07-shell-settings.png",
           "note": "rendered real Settings"
+        },
+        {
+          "path": "docs/evidence/macos/P14-polish.md",
+          "note": "P14 contribution: density/layout persistence, Focus Mode, both-theme screenshots"
         }
       ],
       "notes": "P06: measured Daybreak/Afterglow tokens, accessible components, density and 200% scaling, reduced motion, six fixture screens. P07 renders the real shell with the same system; VoiceOver walkthrough and aesthetic review remain P24/P26."
@@ -697,7 +701,7 @@
     {
       "id": "MONA-008",
       "track": "Core",
-      "title": "Explicit Plan/Work and effective permission display; Victor\u2019s saved DS Full Access profile; no silent policy widening",
+      "title": "Explicit Plan/Work and effective permission display; Victor’s saved DS Full Access profile; no silent policy widening",
       "prompts": [
         "P03",
         "P08",
@@ -1071,10 +1075,43 @@
       "prompts": [
         "P14"
       ],
-      "status": "pending",
+      "status": "satisfied",
       "acceptance": "pending",
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P14-polish.md",
+          "note": "P14 deterministic digest, attention, notifications, review fixes, and verification"
+        },
+        {
+          "path": "docs/decisions/ADR-009-polish-digest-and-attention.md",
+          "note": "projection, deduplication, redaction, quiet hours, scoped native side effects"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p14-polish-sample.json",
+          "note": "23-check sample: digest, one-shot alerts, quiet hours across zones, service-wired keep-awake, favorites"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p14-shell-smoke.json",
+          "note": "81 real-app checks: notification attempt receipt, attention settings, notification focus"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p14-lifecycle-smoke.json",
+          "note": "22 lifecycle checks including menu-bar installation after Dock reopen"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p14-tests.txt",
+          "note": "433 tests in 47 files, including 14 notification, 6 attention, and 4 service-wiring tests"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p14-settings-attention.png",
+          "note": "rendered attention settings in Daybreak"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p14-settings-receipts.png",
+          "note": "delivery receipts reporting the system's real refusal on this host"
+        }
+      ],
+      "notes": "P14: Resume Brief and Since you left are deterministic projections of stored tasks, events, receipts, and usage (no model call, no completion percentage). Completion, blocker, and limit alerts are re-derived from state, serialized per project, deduplicated by durable key across reconnects, redacted by default, and respect half-open quiet hours in a stated IANA zone. A receipt records what macOS reported: shown, handed over, refused, or suppressed, with a reason; only shown counts as delivered. On this dev host macOS refuses notifications, and the UI says so. Menu-bar title/tooltip, Dock badge, blocker and completion counts, and an explicit quit are wired to native APIs whose state is read back. Keep-awake is one assertion taken only for observed active work; launch at login is off until chosen. Permission denial and a second account remain P24/P26."
     },
     {
       "id": "MONA-018",
@@ -1240,59 +1277,35 @@
         "P07",
         "P14"
       ],
-      "status": "pending",
+      "status": "satisfied",
       "acceptance": "pending",
       "evidence": [
         {
-          "path": "docs/design-system.md",
-          "note": "tokens, components, measured contrast, keyboard map"
+          "path": "docs/evidence/macos/P14-polish.md",
+          "note": "P14 Resume Brief, Since you left, Focus Mode, favorites, and keyboard flow"
         },
         {
-          "path": "docs/evidence/macos/P06-design.md",
-          "note": "P06 verification: axe, keyboard, screenshots"
+          "path": "docs/decisions/ADR-009-polish-digest-and-attention.md",
+          "note": "brief and digest are pure projections with no completion percentage"
         },
         {
-          "path": "docs/evidence/macos/artifacts/p06-shots.json",
-          "note": "15 rendered screenshots, both themes and 200% zoom"
+          "path": "docs/evidence/macos/artifacts/p14-tests.txt",
+          "note": "433 tests in 47 files, including 7 digest, 4 service-wiring, and 5 renderer polish tests"
         },
         {
-          "path": "docs/evidence/macos/artifacts/p06-keyboard.json",
-          "note": "real Tab/Command-key inspection with visible focus"
+          "path": "docs/evidence/macos/artifacts/p14-shell-smoke.json",
+          "note": "Resume Brief from stored records, Focus Mode with emergency controls, shortcut list, notification focus"
         },
         {
-          "path": "docs/evidence/macos/artifacts/p06-tests.txt",
-          "note": "26 design tests"
+          "path": "docs/evidence/macos/artifacts/p14-home-daybreak.png",
+          "note": "rendered Resume Brief and Since you left in Daybreak"
         },
         {
-          "path": "docs/evidence/macos/P07-projects.md",
-          "note": "P07 catalog and shell verification"
-        },
-        {
-          "path": "docs/evidence/macos/artifacts/p07-tests.txt",
-          "note": "project service and IPC tests"
-        },
-        {
-          "path": "docs/evidence/macos/artifacts/p07-shell-smoke.json",
-          "note": "29 end-to-end shell checks"
-        },
-        {
-          "path": "docs/evidence/macos/artifacts/p07-shell-home.png",
-          "note": "rendered real Home"
-        },
-        {
-          "path": "docs/evidence/macos/artifacts/p07-shell-studio.png",
-          "note": "rendered real Studio"
-        },
-        {
-          "path": "docs/evidence/macos/artifacts/p07-shell-board.png",
-          "note": "rendered real Work board"
-        },
-        {
-          "path": "docs/evidence/macos/artifacts/p07-shell-settings.png",
-          "note": "rendered real Settings"
+          "path": "docs/evidence/macos/artifacts/p14-studio-focus-afterglow.png",
+          "note": "rendered Focus Mode with favorite chip in Afterglow"
         }
       ],
-      "notes": "P06: deterministic digest, evidence-linked actions, keyboard map and palette shell. P07: real command palette over projects/screens, Command-1-5 navigation, Command-O folder dialog, drafts and view state. Resume Brief and Focus Mode remain P14."
+      "notes": "P14: Resume Brief (current prompt, unresolved blocker with both attempt counters, test result, changed-file accounting from receipts, spend confidence, exact next action) and Since you left (grouped completions, blockers, observed tests, session and attention events after a per-project watermark). A missing engine delta is named rather than shown as zero changes, and a failed observed test renders as a problem. Focus Mode keeps one task, the timeline, the composer, and the interrupt/pause strip; the inspector steps aside and Escape leaves it. Prompt favorites are inert local text. Keyboard-first: Command-1..6 screens, Command-K palette, Command-O open, Command-Shift-F Focus Mode, Command-Shift-B blockers, Command-period interrupt, Command-/ shortcut list. Navigation makes no inference call."
     },
     {
       "id": "MONA-030",
@@ -1390,9 +1403,13 @@
         {
           "path": "docs/evidence/macos/artifacts/p07-shell-settings.png",
           "note": "rendered real Settings"
+        },
+        {
+          "path": "docs/evidence/macos/P14-polish.md",
+          "note": "P14 contribution: close-versus-Quit, Dock/menu-bar attention, native shortcuts"
         }
       ],
-      "notes": "P06: native chrome, Command-key conventions, keyboard-reachable screens, visible focus, VoiceOver-readable labels. P07: native File \u2192 Open Project\u2026 dialog and real shell keyboard navigation. Finder selected-folder Service and file-URL dispatch remain P09; spoken walkthrough is P24/P26."
+      "notes": "P06: native chrome, Command-key conventions, keyboard-reachable screens, visible focus, VoiceOver-readable labels. P07: native File → Open Project… dialog and real shell keyboard navigation. Finder selected-folder Service and file-URL dispatch remain P09; spoken walkthrough is P24/P26."
     },
     {
       "id": "MAC-003",
@@ -1518,7 +1535,7 @@
     "ok": true,
     "errors": [],
     "warnings": [],
-    "validated_utc": "2026-11-12T06:46:57.993Z",
+    "validated_utc": "2026-11-12T07:37:51.909Z",
     "prompt_count": 28,
     "requirement_count": 38
   }

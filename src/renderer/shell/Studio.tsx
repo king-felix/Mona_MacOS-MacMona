@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type JSX } from "react";
 import type { ProjectDetail } from "../../shared/contracts/project-bridge";
 import type { StudioMode, StudioSnapshot } from "../../shared/contracts/studio";
+import type { PromptFavorite } from "../../shared/contracts/polish";
 import {
   Badge,
   Button,
@@ -43,6 +44,12 @@ export interface StudioProps {
   draftStatus: "idle" | "saving" | "saved" | "error";
   inspectorTab: string;
   onInspectorTab: (tab: string) => void;
+  focusMode: boolean;
+  favorites: PromptFavorite[];
+  onToggleFocus: () => void;
+  onUseFavorite: (favorite: PromptFavorite) => void;
+  onRequestSaveFavorite: () => void;
+  onRemoveFavorite: (id: string) => void;
   onDraft: (text: string) => void;
   onMode: (mode: StudioMode) => void;
   onOpenFolder: () => void;
@@ -213,7 +220,10 @@ export function StudioScreen(props: StudioProps): JSX.Element {
       connectionState === "failed");
 
   return (
-    <div className="screen screen--studio">
+    <div
+      className={`screen screen--studio ${props.focusMode ? "screen--studio-focus" : ""}`}
+      data-focus-mode={props.focusMode ? "on" : "off"}
+    >
       <div className="context-bar">
         <div className="context-bar__identity">
           <span className={`monogram monogram--${projectAccent(project)}`} aria-hidden="true">
@@ -225,6 +235,17 @@ export function StudioScreen(props: StudioProps): JSX.Element {
               {project.rootPath}
             </span>
           </div>
+        </div>
+        <div className="context-bar__actions">
+          <Button
+            size="sm"
+            variant={props.focusMode ? "primary" : "ghost"}
+            onClick={props.onToggleFocus}
+            title="Focus Mode keeps one task, the timeline, the composer, and the emergency controls. Command-Shift-F toggles it."
+            aria-pressed={props.focusMode}
+          >
+            {props.focusMode ? "Focus Mode on" : "Focus Mode"}
+          </Button>
         </div>
         <div className="context-bar__facts">
           <span className="fact">
@@ -446,6 +467,48 @@ export function StudioScreen(props: StudioProps): JSX.Element {
                     : "Work uses the saved Full Access profile."}
               </span>
             </div>
+            <div className="favorites" aria-label="Prompt favorites">
+              <span className="favorites__label">Favorites</span>
+              {props.favorites.length === 0 ? (
+                <span className="hint-line">
+                  None saved yet. A favorite is inert local text until you insert it.
+                </span>
+              ) : (
+                props.favorites.map((favorite) => (
+                  <span className="favorite-chip" key={favorite.id}>
+                    <button
+                      type="button"
+                      className="favorite-chip__insert"
+                      onClick={() => props.onUseFavorite(favorite)}
+                      title={favorite.text.slice(0, 240)}
+                    >
+                      {favorite.label}
+                    </button>
+                    <button
+                      type="button"
+                      className="favorite-chip__remove"
+                      aria-label={`Remove favorite ${favorite.label}`}
+                      onClick={() => props.onRemoveFavorite(favorite.id)}
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))
+              )}
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={props.onRequestSaveFavorite}
+                disabled={props.draft.trim().length === 0}
+                title={
+                  props.draft.trim().length === 0
+                    ? "Write a prompt first; Mona saves exactly what is in the composer"
+                    : "Save the composer text as a reusable favorite"
+                }
+              >
+                Save prompt…
+              </Button>
+            </div>
             <TextArea
               label="Task prompt"
               hint="Saved locally for this project and thread. Rendering Markdown is safe: raw HTML never executes."
@@ -493,143 +556,145 @@ export function StudioScreen(props: StudioProps): JSX.Element {
           </div>
         </section>
 
-        <aside className="studio__inspector" aria-label="Inspector">
-          <Tabs
-            label="Inspector sections"
-            value={props.inspectorTab}
-            onChange={props.onInspectorTab}
-            tabs={[
-              { id: "task", label: "Task" },
-              { id: "requirements", label: "Requirements" },
-              { id: "context", label: "Context" },
-            ]}
-          />
-          <TabPanel id="task" active={props.inspectorTab === "task"}>
-            {currentTask ? (
-              <Inspector
-                title="Current task"
-                actions={<StatusBadge status={currentTask.status as WorkStatus} />}
-                label="Current task"
-              >
-                <p className="inspector__task-title">{currentTask.title}</p>
+        {props.focusMode ? null : (
+          <aside className="studio__inspector" aria-label="Inspector">
+            <Tabs
+              label="Inspector sections"
+              value={props.inspectorTab}
+              onChange={props.onInspectorTab}
+              tabs={[
+                { id: "task", label: "Task" },
+                { id: "requirements", label: "Requirements" },
+                { id: "context", label: "Context" },
+              ]}
+            />
+            <TabPanel id="task" active={props.inspectorTab === "task"}>
+              {currentTask ? (
+                <Inspector
+                  title="Current task"
+                  actions={<StatusBadge status={currentTask.status as WorkStatus} />}
+                  label="Current task"
+                >
+                  <p className="inspector__task-title">{currentTask.title}</p>
+                  <dl className="detail-list">
+                    <div className="detail-row">
+                      <dt>Task</dt>
+                      <dd className="mono">{currentTask.id}</dd>
+                    </div>
+                    <div className="detail-row">
+                      <dt>Updated</dt>
+                      <dd>{relativeTime(currentTask.updatedAt)}</dd>
+                    </div>
+                    <div className="detail-row">
+                      <dt>Depends on</dt>
+                      <dd>
+                        {currentTask.dependsOn.length === 0
+                          ? "Nothing"
+                          : currentTask.dependsOn.join(", ")}
+                      </dd>
+                    </div>
+                  </dl>
+                  <div className="inspector__actions">
+                    <Button size="sm" variant="secondary" onClick={props.onShowBoard}>
+                      Open work board
+                    </Button>
+                  </div>
+                </Inspector>
+              ) : (
+                <EmptyState
+                  icon={<ClockIcon size={24} />}
+                  title="No tasks yet"
+                  description="Tasks are created explicitly. Mona does not infer a task or a percentage from project activity."
+                />
+              )}
+            </TabPanel>
+            <TabPanel id="requirements" active={props.inspectorTab === "requirements"}>
+              {detail.evidence.length === 0 ? (
+                <EmptyState
+                  icon={<InfoIcon size={24} />}
+                  title="No requirement evidence"
+                  description="Evidence appears here when a task records it. Completion is never inferred from a checked box."
+                />
+              ) : (
+                <ul className="requirement-list">
+                  {detail.evidence.map((entry) => (
+                    <li className="requirement-row" key={`${entry.requirementId}-${entry.path}`}>
+                      <span className="requirement-row__id mono">{entry.requirementId}</span>
+                      <span className="requirement-row__title mono">{entry.path}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </TabPanel>
+            <TabPanel id="context" active={props.inspectorTab === "context"}>
+              <Card title="Context" eyebrow="Real local state">
                 <dl className="detail-list">
                   <div className="detail-row">
-                    <dt>Task</dt>
-                    <dd className="mono">{currentTask.id}</dd>
-                  </div>
-                  <div className="detail-row">
-                    <dt>Updated</dt>
-                    <dd>{relativeTime(currentTask.updatedAt)}</dd>
-                  </div>
-                  <div className="detail-row">
-                    <dt>Depends on</dt>
+                    <dt>Connection</dt>
                     <dd>
-                      {currentTask.dependsOn.length === 0
-                        ? "Nothing"
-                        : currentTask.dependsOn.join(", ")}
+                      {studio
+                        ? `${studio.connection.state}: ${studio.connection.reason}`
+                        : "The studio has not started in this launch"}
+                    </dd>
+                  </div>
+                  <div className="detail-row">
+                    <dt>Submission</dt>
+                    <dd>
+                      {studio?.submission
+                        ? `${studio.submission.status} · ${studio.submission.reconciled ? "reconciled" : "not reconciled"}`
+                        : "No submission recorded"}
+                    </dd>
+                  </div>
+                  <div className="detail-row">
+                    <dt>Repository</dt>
+                    <dd>
+                      {detail.project.repositoryKind === "none"
+                        ? "Plain folder"
+                        : detail.project.repositoryKind}
+                    </dd>
+                  </div>
+                  <div className="detail-row">
+                    <dt>Threads</dt>
+                    <dd>{detail.threads.length}</dd>
+                  </div>
+                  <div className="detail-row">
+                    <dt>Events</dt>
+                    <dd>{detail.events.length} stored</dd>
+                  </div>
+                  <div className="detail-row">
+                    <dt>Runtime</dt>
+                    <dd>{engine.blockedReason ?? "Bound to this workspace"}</dd>
+                  </div>
+                  <div className="detail-row">
+                    <dt>Binding</dt>
+                    <dd className="mono wrap">
+                      {engine.binding
+                        ? `${engine.binding.executable} · ${engine.binding.state}`
+                        : "No runtime binding"}
+                    </dd>
+                  </div>
+                  <div className="detail-row">
+                    <dt>Tokens</dt>
+                    <dd>
+                      {formatTokens(usage.inputTokens)} input · {formatTokens(usage.outputTokens)}{" "}
+                      output
                     </dd>
                   </div>
                 </dl>
-                <div className="inspector__actions">
-                  <Button size="sm" variant="secondary" onClick={props.onShowBoard}>
-                    Open work board
-                  </Button>
-                </div>
-              </Inspector>
-            ) : (
-              <EmptyState
-                icon={<ClockIcon size={24} />}
-                title="No tasks yet"
-                description="Tasks are created explicitly. Mona does not infer a task or a percentage from project activity."
-              />
-            )}
-          </TabPanel>
-          <TabPanel id="requirements" active={props.inspectorTab === "requirements"}>
-            {detail.evidence.length === 0 ? (
-              <EmptyState
-                icon={<InfoIcon size={24} />}
-                title="No requirement evidence"
-                description="Evidence appears here when a task records it. Completion is never inferred from a checked box."
-              />
-            ) : (
-              <ul className="requirement-list">
-                {detail.evidence.map((entry) => (
-                  <li className="requirement-row" key={`${entry.requirementId}-${entry.path}`}>
-                    <span className="requirement-row__id mono">{entry.requirementId}</span>
-                    <span className="requirement-row__title mono">{entry.path}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </TabPanel>
-          <TabPanel id="context" active={props.inspectorTab === "context"}>
-            <Card title="Context" eyebrow="Real local state">
-              <dl className="detail-list">
-                <div className="detail-row">
-                  <dt>Connection</dt>
-                  <dd>
-                    {studio
-                      ? `${studio.connection.state}: ${studio.connection.reason}`
-                      : "The studio has not started in this launch"}
-                  </dd>
-                </div>
-                <div className="detail-row">
-                  <dt>Submission</dt>
-                  <dd>
-                    {studio?.submission
-                      ? `${studio.submission.status} · ${studio.submission.reconciled ? "reconciled" : "not reconciled"}`
-                      : "No submission recorded"}
-                  </dd>
-                </div>
-                <div className="detail-row">
-                  <dt>Repository</dt>
-                  <dd>
-                    {detail.project.repositoryKind === "none"
-                      ? "Plain folder"
-                      : detail.project.repositoryKind}
-                  </dd>
-                </div>
-                <div className="detail-row">
-                  <dt>Threads</dt>
-                  <dd>{detail.threads.length}</dd>
-                </div>
-                <div className="detail-row">
-                  <dt>Events</dt>
-                  <dd>{detail.events.length} stored</dd>
-                </div>
-                <div className="detail-row">
-                  <dt>Runtime</dt>
-                  <dd>{engine.blockedReason ?? "Bound to this workspace"}</dd>
-                </div>
-                <div className="detail-row">
-                  <dt>Binding</dt>
-                  <dd className="mono wrap">
-                    {engine.binding
-                      ? `${engine.binding.executable} · ${engine.binding.state}`
-                      : "No runtime binding"}
-                  </dd>
-                </div>
-                <div className="detail-row">
-                  <dt>Tokens</dt>
-                  <dd>
-                    {formatTokens(usage.inputTokens)} input · {formatTokens(usage.outputTokens)}{" "}
-                    output
-                  </dd>
-                </div>
-              </dl>
-            </Card>
-            {studio && studio.diagnostics.length > 0 ? (
-              <details className="diagnostics">
-                <summary>Diagnostics ({studio.diagnostics.length})</summary>
-                <ul>
-                  {studio.diagnostics.map((entry) => (
-                    <li key={entry}>{entry}</li>
-                  ))}
-                </ul>
-              </details>
-            ) : null}
-          </TabPanel>
-        </aside>
+              </Card>
+              {studio && studio.diagnostics.length > 0 ? (
+                <details className="diagnostics">
+                  <summary>Diagnostics ({studio.diagnostics.length})</summary>
+                  <ul>
+                    {studio.diagnostics.map((entry) => (
+                      <li key={entry}>{entry}</li>
+                    ))}
+                  </ul>
+                </details>
+              ) : null}
+            </TabPanel>
+          </aside>
+        )}
       </div>
 
       <div className="control-strip" role="region" aria-label="Execution controls">

@@ -611,3 +611,89 @@ and deviations discovered while building.
 - **Consequence:** Unsupported effects (excluded paths, build output,
   deployments, API writes, installed software) are named, not promised.
   Whole-workspace restore remains a recorded capability gap (MONA-CAP-063).
+
+## D-033 — The Resume Brief and "Since you left" are projections, not summaries
+
+- **Date:** 2026-11-12 (P14)
+- **Decision:** `PolishDigest` composes the board snapshot, settled change sets,
+  the cost ledger, stored events, and one per-project `polish:seen:<id>`
+  watermark into typed facts and ordered groups. It never calls a model and
+  emits no completion percentage; `ResumeBriefView` carries
+  `noCompletionPercentage: true` and the tests assert that no `%` appears. An
+  absent source is named ("Changes unavailable", "No usage recorded") instead of
+  rendered as a zero, and a task with no acceptance check says "No machine check
+  recorded" rather than implying a pass.
+- **Why:** Spec §9.1 forbids hidden convenience inference, and §12 asks for a
+  brief from real state. A summarizer would spend tokens on every visit and make
+  identical state produce different prose; a percentage bar would be exactly the
+  invented progress the three-attempt rule exists to prevent.
+- **Consequence:** The brief is only as complete as the records. Receipts
+  captured before P13 leave a gap that is reported, and reading a project
+  advances only the watermark — never a task, attempt, or verification state.
+
+## D-034 — Alerts are re-derived from state, deduplicated durably, and redacted by default
+
+- **Date:** 2026-11-12 (P14)
+- **Decision:** `PolishNotifier` computes completion, blocker, and limit
+  candidates from stored tasks, blocked problems, and budget evaluations on
+  every refresh, keyed by stable identity, and records delivered and suppressed
+  keys in `settings` (`polish:notifications`). The first refresh seeds a cursor
+  rather than replaying history. Quiet hours are half-open, wrap midnight, and
+  are evaluated through `Intl` in a stated IANA zone. A suppressed alert is
+  recorded with its reason and never queued. Default bodies are generic; task
+  titles, paths, and help text appear only after `showDetails` is enabled.
+- **Why:** An event subscription loses position across a reconnect, so the same
+  completion would be announced twice; a lock-screen body carrying a prompt
+  fragment or file name is a real leak. Quiet hours are a delivery preference,
+  not a scheduling authority, so they must not pause work or silently defer.
+- **Consequence:** Delivery is at-most-once per key. A denied system permission
+  or a quiet window shows a `suppressed` receipt with the reason in Settings.
+  Travel and DST change when the window lands, and the time zone is validated so
+  an unknown zone is refused rather than approximated.
+
+## D-035 — Native attention is scoped, opt-in, and read back
+
+- **Date:** 2026-11-12 (P14)
+- **Decision:** `planAttention` is a pure function over running/blocked/unseen/
+  limit counts; `AttentionController` writes chrome only on change and clears it
+  when the user turns a surface off. Launch at login is off by default, applied
+  only from the stored preference, and the controller reads the system's real
+  login-item state at construction so a default of "off" makes no call. One
+  power assertion is held only while work is active and the preference is on;
+  release is idempotent and runs on work end, preference change, and quit. A
+  tray that fails to install is reported in Settings instead of shown as
+  working. Focus Mode hides the inspector but keeps the control strip, and
+  Escape leaves it.
+- **Why:** An unreleased power assertion drains a battery; a self-installed
+  login item is an unrequested change to the user's Mac; a menu-bar control that
+  silently does nothing is worse than a stated absence. Focus Mode must not hide
+  Interrupt now or the blocker access path.
+- **Consequence:** Menu-bar appearance and Dock badge are verified by installed
+  state and tooltip, not by a screen capture of the system menu bar; packaging
+  (P21) verifies the login item at install time. Closing the window still keeps
+  work alive, and Quit remains the explicit interrupt-and-stop.
+
+## D-036 — A delivery receipt records what the system reported, not an assumption
+
+- **Date:** 2026-11-12 (P14, review follow-up)
+- **Decision:** `NotificationHost.deliver` resolves `shown` (the system confirmed
+  display), `failed` (the system refused), or `handed_over` (accepted with no
+  confirmation inside the window). Only `shown` sets `delivered: true`; Settings
+  labels all four states including `suppressed`. Any receipt — even a refusal —
+  spends the key, so a permanently denied permission cannot retry on every
+  refresh. `PolishNotifier.refresh` is serialized per project, because main and
+  the renderer both observe the same terminal push and interleaved loads could
+  each see an unseen key. A change set the engine stored as `unavailable` is
+  counted and named ("N turns with no recorded delta") instead of being filtered
+  away, and a test result's tone follows the observed command status before any
+  check arithmetic.
+- **Why:** The review found the first implementation reporting a refused
+  notification as delivered, a missing delta as zero changed files, a failed
+  observed test as success, and a duplicate-delivery race. Each was a claim about
+  something never observed — the exact failure mode spec §2 promise 2 forbids.
+  On this host macOS genuinely refuses dev-context notifications, so the old code
+  would have shown a reassuring falsehood in Settings.
+- **Consequence:** A refused or unconfirmed alert is visible as such. `delivered`
+  is a strict subset of receipts, so a UI must read `delivery` to describe the
+  outcome. Keep-awake state reports `scopedToActiveWork` only while an assertion
+  is actually held for observed work.

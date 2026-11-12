@@ -51,6 +51,16 @@ import type {
   TaskSelection,
   TaskView,
 } from "../shared/contracts/board";
+import type {
+  NotificationReceiptView,
+  PolishDigestView,
+  PolishFocusTarget,
+  PolishPreferences,
+  PolishPreferencesPatch,
+  PolishStatusView,
+  ProjectIdentityInput,
+  PromptFavorite,
+} from "../shared/contracts/polish";
 
 /**
  * The only bridge the renderer gets. No raw ipcRenderer, no Node, no shell.
@@ -254,6 +264,49 @@ const bridge: MonaBridge = {
     path: string,
   ): Promise<IpcResult<{ revealed: boolean }>> =>
     ipcRenderer.invoke("changes:reveal", { projectId, path }),
+
+  polishDigest: (projectId: ProjectId): Promise<IpcResult<PolishDigestView>> =>
+    ipcRenderer.invoke("polish:digest", { projectId }),
+  markPolishSeen: (projectId: ProjectId): Promise<IpcResult<{ seenAt: string }>> =>
+    ipcRenderer.invoke("polish:mark-seen", { projectId }),
+  polishStatus: (): Promise<IpcResult<PolishStatusView>> => ipcRenderer.invoke("polish:status", {}),
+  refreshPolish: (projectId: ProjectId): Promise<IpcResult<PolishStatusView>> =>
+    ipcRenderer.invoke("polish:refresh", { projectId }),
+  setPolishPreferences: (patch: PolishPreferencesPatch): Promise<IpcResult<PolishPreferences>> =>
+    ipcRenderer.invoke("polish:preferences-set", { patch }),
+  setProjectIdentity: (input: {
+    projectId: ProjectId;
+    accent: ProjectIdentityInput["accent"];
+    monogram: string | null;
+    expectedRevision: number;
+  }): Promise<IpcResult<ProjectSummary>> => ipcRenderer.invoke("polish:identity", input),
+  promptFavorites: (): Promise<IpcResult<PromptFavorite[]>> =>
+    ipcRenderer.invoke("polish:favorites", {}),
+  savePromptFavorite: (input: {
+    label: string;
+    text: string;
+  }): Promise<IpcResult<PromptFavorite>> => ipcRenderer.invoke("polish:favorite-save", input),
+  removePromptFavorite: (id: string): Promise<IpcResult<{ removed: boolean }>> =>
+    ipcRenderer.invoke("polish:favorite-remove", { id }),
+  testNotification: (): Promise<IpcResult<NotificationReceiptView>> =>
+    ipcRenderer.invoke("polish:notification-test", {}),
+  quitMona: (interrupt: boolean): Promise<IpcResult<{ requested: boolean; note: string }>> =>
+    ipcRenderer.invoke("polish:quit", { interrupt }),
+  onPolishFocus: (callback: (target: PolishFocusTarget) => void): (() => void) => {
+    const listener = (_event: unknown, payload: unknown) => {
+      if (!payload || typeof payload !== "object") return;
+      const target = payload as Partial<PolishFocusTarget>;
+      if (typeof target.projectId !== "string" || typeof target.screen !== "string") return;
+      callback(target as PolishFocusTarget);
+    };
+    ipcRenderer.on("polish:focus", listener);
+    return () => ipcRenderer.removeListener("polish:focus", listener);
+  },
+  onToggleFocus: (callback: () => void): (() => void) => {
+    const listener = () => callback();
+    ipcRenderer.on("polish:toggle-focus", listener);
+    return () => ipcRenderer.removeListener("polish:toggle-focus", listener);
+  },
 
   onStudioChanged: (callback: (push: StudioPush) => void): (() => void) => {
     const listener = (_event: unknown, payload: unknown) => {

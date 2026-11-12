@@ -9,6 +9,7 @@ import type { WorkStudio } from "./work/studio";
 import type { TaskBoard } from "./work/board";
 import type { CostLedger } from "./work/costs";
 import type { ChangeLedger } from "./work/changes";
+import type { PolishService } from "./work/polish";
 import type { ProjectId } from "../shared/contracts/ids";
 import type { ImportPlanResult } from "../shared/contracts/board";
 import type { IpcResult, RuntimeStatusView, StateFacts } from "../shared/contracts/project-bridge";
@@ -41,6 +42,9 @@ export interface IpcDependencies {
   board: TaskBoard | null;
   cost: CostLedger | null;
   changes: ChangeLedger | null;
+  polish: PolishService | null;
+  /** Explicit quit; the existing shutdown path interrupts and stops owned work. */
+  quit: (interrupt: boolean) => Promise<{ requested: boolean; note: string }>;
   revealWorkspacePath: (projectId: ProjectId, path: string) => Promise<{ revealed: boolean }>;
   /** Native file dialogs live in the main entry point, not in the IPC layer. */
   importPlanFile: (projectId: ProjectId) => Promise<ImportPlanResult | null>;
@@ -653,4 +657,61 @@ export function registerIpc(rendererRoot: string, dependencies: IpcDependencies)
     const value = input as { projectId: never; path: string };
     return envelope(() => dependencies.revealWorkspacePath(value.projectId, value.path));
   });
+
+  // ----------------------------------------------------------- daily polish
+  const requirePolish = (): PolishService => {
+    const polish = dependencies.polish;
+    if (!polish) {
+      throw Object.assign(
+        new Error("the polish surface is unavailable because project state did not open"),
+        { code: "RUNTIME_UNAVAILABLE" },
+      );
+    }
+    return polish;
+  };
+
+  handle("polish:digest", (input) => {
+    const value = input as { projectId: never };
+    return envelope(() => requirePolish().digestView(value.projectId));
+  });
+  handle("polish:mark-seen", (input) => {
+    const value = input as { projectId: never };
+    return envelope(() => requirePolish().markSeen(value.projectId));
+  });
+  handle("polish:status", () => envelope(() => requirePolish().status()));
+  handle("polish:refresh", (input) => {
+    const value = input as { projectId: never };
+    return envelope(() => requirePolish().refresh(value.projectId));
+  });
+  handle("polish:preferences-set", (input) => {
+    const value = input as { patch: Parameters<PolishService["setPreferences"]>[0] };
+    return envelope(() => requirePolish().setPreferences(value.patch));
+  });
+  handle("polish:identity", (input) => {
+    const value = input as {
+      projectId: never;
+      accent: Parameters<PolishService["identity"]>[1]["accent"];
+      monogram: string | null;
+      expectedRevision: number;
+    };
+    return envelope(() =>
+      requirePolish().identity(
+        value.projectId,
+        { accent: value.accent, monogram: value.monogram },
+        value.expectedRevision,
+      ),
+    );
+  });
+  handle("polish:favorites", () => envelope(() => requirePolish().favorites()));
+  handle("polish:favorite-save", (input) => {
+    const value = input as { label: string; text: string };
+    return envelope(() => requirePolish().saveFavorite(value));
+  });
+  handle("polish:favorite-remove", (input) =>
+    envelope(() => requirePolish().removeFavorite((input as { id: string }).id)),
+  );
+  handle("polish:notification-test", () => envelope(() => requirePolish().notifyTest()));
+  handle("polish:quit", (input) =>
+    envelope(() => dependencies.quit((input as { interrupt: boolean }).interrupt)),
+  );
 }

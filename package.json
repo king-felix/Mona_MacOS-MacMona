@@ -35,7 +35,8 @@
     "smoke:open": "node scripts/open-smoke.mjs",
     "smoke:board": "npm run build:main && node scripts/board-smoke.mjs",
     "smoke:cost": "npm run build:main && node scripts/cost-smoke.mjs",
-    "smoke:changes": "npm run build:main && node scripts/changes-smoke.mjs"
+    "smoke:changes": "npm run build:main && node scripts/changes-smoke.mjs",
+    "smoke:polish": "npm run build:main && node scripts/polish-smoke.mjs"
   },
   "dependencies": {
     "react": "19.3.1",

@@ -3240,6 +3240,7 @@ export class StateStore {
         payload: JSON.parse(asString(row.payload_json)),
         timestamp: asString(row.timestamp),
         recordedAt: asString(row.recorded_at),
+        turnId: asNullableString(row.turn_id),
       }));
     });
   }

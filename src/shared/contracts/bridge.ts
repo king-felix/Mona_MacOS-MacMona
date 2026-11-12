@@ -43,6 +43,16 @@ import type {
   StudioSnapshot,
   StudioSubmitResult,
 } from "./studio";
+import type {
+  NotificationReceiptView,
+  PolishDigestView,
+  PolishFocusTarget,
+  PolishPreferences,
+  PolishPreferencesPatch,
+  PolishStatusView,
+  ProjectIdentityInput,
+  PromptFavorite,
+} from "./polish";
 
 /** The complete, narrow surface the renderer may reach. Nothing else is exposed. */
 export interface MonaBridge {
@@ -312,6 +322,29 @@ export interface MonaBridge {
     projectId: ProjectId,
     path: string,
   ): Promise<IpcResult<{ revealed: boolean }>>;
+
+  // Daily-use polish. Reads and explicit local preferences only; none of these
+  // calls can start a turn or spend inference.
+  polishDigest(projectId: ProjectId): Promise<IpcResult<PolishDigestView>>;
+  markPolishSeen(projectId: ProjectId): Promise<IpcResult<{ seenAt: string }>>;
+  polishStatus(): Promise<IpcResult<PolishStatusView>>;
+  refreshPolish(projectId: ProjectId): Promise<IpcResult<PolishStatusView>>;
+  setPolishPreferences(patch: PolishPreferencesPatch): Promise<IpcResult<PolishPreferences>>;
+  setProjectIdentity(input: {
+    projectId: ProjectId;
+    accent: ProjectIdentityInput["accent"];
+    monogram: string | null;
+    expectedRevision: number;
+  }): Promise<IpcResult<ProjectSummary>>;
+  promptFavorites(): Promise<IpcResult<PromptFavorite[]>>;
+  savePromptFavorite(input: { label: string; text: string }): Promise<IpcResult<PromptFavorite>>;
+  removePromptFavorite(id: string): Promise<IpcResult<{ removed: boolean }>>;
+  testNotification(): Promise<IpcResult<NotificationReceiptView>>;
+  quitMona(interrupt: boolean): Promise<IpcResult<{ requested: boolean; note: string }>>;
+  /** A notification click: focus the project and the evidence it names. */
+  onPolishFocus(callback: (target: PolishFocusTarget) => void): () => void;
+  /** Native Work → Toggle Focus Mode menu item. */
+  onToggleFocus(callback: () => void): () => void;
 }
 
 export interface AppInfo {

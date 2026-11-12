@@ -8,7 +8,7 @@
 //  - Quit interrupts/stops the owned tree, and every child is gone afterwards.
 import { spawn, spawnSync } from "node:child_process";
 import { createRequire } from "node:module";
-import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, realpathSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
@@ -105,6 +105,17 @@ const pids = evidence?.pids?.tree ?? [];
 const shutdown = evidence?.shutdown?.shutdownReceipt ?? null;
 const aliveAfterQuit = pids.filter(isLive);
 
+// The dispatcher deliberately resolves symlinks before registration (P09 path
+// policy), and macOS puts temp directories behind `/private`. Compare canonical
+// paths so the check still asserts the same folder reached the owner.
+function canonical(path) {
+  try {
+    return realpathSync(path);
+  } catch {
+    return path;
+  }
+}
+
 const checks = {
   owner_exit_zero: ownerExit?.code === 0,
   second_instance_exit_zero: secondExit?.code === 0,
@@ -122,7 +133,10 @@ const checks = {
   window_closed_kept_work: phases.window_closed?.child_alive === true,
   dock_reopen_created_window: phases.dock_reopen?.windows === 1,
   dock_reopen_same_work: phases.dock_reopen?.same_work === true,
-  second_instance_dispatched: phases.second_instance?.received?.path === openPath,
+  dock_reopen_menu_bar_installed: phases.dock_reopen?.menu_bar_installed === true,
+  second_instance_dispatched:
+    typeof phases.second_instance?.received?.path === "string" &&
+    canonical(phases.second_instance.received.path) === canonical(openPath),
   quit_stopped_tree: shutdown?.stopped === true,
   quit_reported_no_rollback: shutdown?.rollback === "not_promised",
   quit_receipt_names_interrupt: typeof shutdown?.interrupted === "boolean",

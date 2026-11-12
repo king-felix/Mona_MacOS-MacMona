@@ -32,6 +32,7 @@ for (const script of [
   "smoke:board",
   "smoke:cost",
   "smoke:changes",
+  "smoke:polish",
 ]) {
   if (!run(script, "npm", ["run", script])) break;
 }

@@ -1,4 +1,5 @@
 import type { ProjectSummary } from "../../shared/contracts/project-bridge";
+import type { PolishDigestView, PolishScreen } from "../../shared/contracts/polish";
 
 export type ScreenId = "home" | "studio" | "board" | "changes" | "cost" | "settings";
 
@@ -8,6 +9,7 @@ export interface HomeProps {
   query: string;
   showArchived: boolean;
   busy: boolean;
+  digest: PolishDigestView | null;
   onQuery: (query: string) => void;
   onToggleArchived: () => void;
   onOpenFolder: () => void;
@@ -18,4 +20,7 @@ export interface HomeProps {
   onRemove: (project: ProjectSummary) => void;
   onRelocate: (project: ProjectSummary) => void;
   onReveal: (project: ProjectSummary) => void;
+  onEditIdentity: (project: ProjectSummary) => void;
+  onOpenScreen: (screen: PolishScreen) => void;
+  onRevealEvidence: (path: string) => void;
 }

@@ -1,0 +1,228 @@
+{
+  "schema_version": 1,
+  "label": "P14 DETERMINISTIC POLISH SAMPLE — no engine, no provider call",
+  "captured_at": "2026-11-12T07:36:30.867Z",
+  "ok": true,
+  "checks": {
+    "brief_matches_focus_task": true,
+    "brief_reports_blocker": true,
+    "brief_changed_files": true,
+    "brief_spend_incomplete": true,
+    "brief_has_no_percentage": true,
+    "since_groups_present": true,
+    "mark_seen_advances": true,
+    "catch_up_after_mark": true,
+    "notification_seed_silent": true,
+    "notification_delivers_once": true,
+    "notification_reconnect_silent": true,
+    "notification_default_is_redacted": true,
+    "notification_receipt_states_delivery": true,
+    "quiet_hours_suppresses": true,
+    "quiet_timezones_correct": true,
+    "attention_badge": true,
+    "attention_menu": true,
+    "attention_surfaces_clear": true,
+    "launch_at_login_off": true,
+    "keep_awake_scoped": true,
+    "keep_awake_preference_off": true,
+    "favorite_saved": true,
+    "identity_normalized": true
+  },
+  "facts": {
+    "resume": {
+      "projectId": "prj_00000001",
+      "projectName": "P14 sample",
+      "generatedAt": "2026-11-12T09:00:44.000Z",
+      "source": {
+        "lastSeenAt": "2026-11-12T08:00:42.000Z",
+        "eventsConsidered": 2,
+        "tasksConsidered": 2,
+        "changeSetsConsidered": 1
+      },
+      "currentTask": {
+        "id": "tsk_00000007",
+        "title": "An unproductive loop",
+        "status": "pending",
+        "prompt": "Make the failing check pass without lowering the requirement.",
+        "nextStep": null
+      },
+      "lastVerifiedStep": null,
+      "unresolvedBlocker": {
+        "problemId": "prb_00000008",
+        "taskId": "tsk_00000007",
+        "taskTitle": "An unproductive loop",
+        "requirement": "MONA-011",
+        "helpNeeded": "Unblock MONA-011: the same assertion still fails — new evidence or a decision is required.",
+        "totalAttempts": 3,
+        "noProgressAttempts": 3,
+        "evidence": [
+          "docs/evidence/attempt.txt"
+        ],
+        "blockedAt": "2026-11-12T09:00:31.000Z"
+      },
+      "blockers": [
+        {
+          "problemId": "prb_00000008",
+          "taskId": "tsk_00000007",
+          "taskTitle": "An unproductive loop",
+          "requirement": "MONA-011",
+          "helpNeeded": "Unblock MONA-011: the same assertion still fails — new evidence or a decision is required.",
+          "totalAttempts": 3,
+          "noProgressAttempts": 3,
+          "evidence": [
+            "docs/evidence/attempt.txt"
+          ],
+          "blockedAt": "2026-11-12T09:00:31.000Z"
+        }
+      ],
+      "testResult": {
+        "available": true,
+        "satisfiedChecks": 0,
+        "totalChecks": 0,
+        "label": "Observed: npm test (completed)",
+        "lastEvidencePath": null,
+        "lastAt": null,
+        "observedCommand": {
+          "command": "npm test",
+          "status": "completed",
+          "at": "2026-11-12T09:00:36.000Z"
+        },
+        "note": "A test command was observed in stored engine events. Its exit status is not interpreted here; the tool status is shown."
+      },
+      "changes": {
+        "available": true,
+        "countedFiles": 1,
+        "turns": 1,
+        "unreceiptedPaths": 0,
+        "truncated": false,
+        "label": "1 file in 1 recorded turn",
+        "note": "Stored receipts are shown. Connect the studio to re-read them from the engine."
+      },
+      "spend": {
+        "observed": true,
+        "knownUsd": 0.0042,
+        "complete": false,
+        "label": "At least $0.0042; 1 of 2 turns unpriced",
+        "reportedTurns": 1,
+        "estimatedTurns": 0,
+        "unknownTurns": 1,
+        "missingTurns": 0
+      },
+      "nextStep": "Unblock MONA-011 on \"An unproductive loop\": Unblock MONA-011: the same assertion still fails — new evidence or a decision is required.",
+      "facts": [
+        {
+          "label": "Unresolved blocker",
+          "value": "MONA-011 · Unblock MONA-011: the same assertion still fails — new evidence or a decision is required.",
+          "tone": "danger"
+        },
+        {
+          "label": "Current prompt",
+          "value": "An unproductive loop · pending",
+          "tone": "neutral"
+        },
+        {
+          "label": "Test result",
+          "value": "Observed: npm test (completed)",
+          "tone": "attention"
+        },
+        {
+          "label": "Changed files",
+          "value": "1 file in 1 recorded turn",
+          "tone": "neutral"
+        },
+        {
+          "label": "Spend confidence",
+          "value": "At least $0.0042; 1 of 2 turns unpriced",
+          "tone": "attention"
+        }
+      ],
+      "noCompletionPercentage": true
+    },
+    "since": {
+      "since": "2026-11-12T08:00:42.000Z",
+      "entryCount": 4,
+      "groups": [
+        {
+          "id": "completion",
+          "entries": [
+            "Verified: Make the catalog real",
+            "Turn completed · 1 file receipt"
+          ]
+        },
+        {
+          "id": "blocker",
+          "entries": [
+            "Blocked: An unproductive loop"
+          ]
+        },
+        {
+          "id": "test",
+          "entries": [
+            "Test command completed"
+          ]
+        }
+      ]
+    },
+    "sinceAfterMark": 1,
+    "notifications": {
+      "seeded": 0,
+      "delivered": [
+        {
+          "title": "Mona · work finished",
+          "body": "Open Mona to review the project record. Detailed content is hidden on the lock screen."
+        }
+      ],
+      "reconnect": 0
+    },
+    "quiet": {
+      "overnight_inside": true,
+      "no_quiet_at_noon": true,
+      "end_is_exclusive": true,
+      "other_zone_not_quiet": true
+    },
+    "attention": {
+      "active": {
+        "badge": "2",
+        "menuTitle": "◐ Working · 1 blocked",
+        "tooltip": "Mona · work in progress · 1 blocked · 1 finished since your last visit",
+        "running": true,
+        "blocked": 1,
+        "unseenCompletions": 1,
+        "installed": true,
+        "updatedAt": "2026-11-12T07:36:30.861Z",
+        "note": "sample host"
+      },
+      "clearedBadge": "2",
+      "lastBadge": "2",
+      "lastMenu": {
+        "title": "◐ Working · 1 blocked",
+        "tooltip": "Mona · work in progress · 1 blocked · 1 finished since your last visit"
+      }
+    },
+    "keepAwake": {
+      "started": 1,
+      "stopped": 1,
+      "activeWhileWorking": {
+        "active": true,
+        "scopedToActiveWork": true,
+        "note": "work is active and keep-awake is enabled"
+      },
+      "afterPreferenceOff": {
+        "active": false,
+        "scopedToActiveWork": false,
+        "note": "keep-awake is turned off in Settings"
+      }
+    },
+    "favorite": {
+      "id": "fav_4c027a2c1cef4dff",
+      "label": "Review the diff",
+      "text": "Review the diff and record what changed.",
+      "createdAt": "2026-11-12T07:36:30.865Z",
+      "updatedAt": "2026-11-12T07:36:30.865Z"
+    },
+    "identity": {
+      "accent": "mint",
+      "monogram": "P1"
+    }
+  }
+}

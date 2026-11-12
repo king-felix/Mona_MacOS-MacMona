@@ -14,7 +14,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createMainWindow } from "./window";
 import { hardenSession } from "./security";
-import { installApplicationMenu } from "./menu";
+import { installApplicationMenu, type ApplicationMenuHandle } from "./menu";
 import { registerIpc } from "./ipc";
 import { discoverTools } from "./tool-discovery";
 import { resolveAppPaths } from "./paths";
@@ -40,6 +40,12 @@ import { WorkStudio } from "./work/studio";
 import { TaskBoard } from "./work/board";
 import { CostLedger } from "./work/costs";
 import { ChangeLedger } from "./work/changes";
+import { PolishService } from "./work/polish";
+import { PolishPreferencesStore } from "./work/preferences";
+import { PolishNotifier, type NotificationSources } from "./work/notifications";
+import { AttentionController, KeepAwake } from "./work/attention";
+import { createElectronAttentionHost, createElectronKeepAwakeHost } from "./work/attention-host";
+import { createElectronNotificationHost } from "./work/notification-host";
 import { StateError } from "./state/errors";
 import { StateStore } from "./state/store";
 import { verifyPrivatePermissions } from "./state/paths";
@@ -55,6 +61,7 @@ import type {
   OpenStatusView,
   ServiceStatus,
 } from "../shared/contracts/open";
+import type { PolishFocusTarget } from "../shared/contracts/polish";
 
 app.setName("Mona");
 
@@ -81,6 +88,10 @@ let workStudio: WorkStudio | null = null;
 let taskBoard: TaskBoard | null = null;
 let costLedger: CostLedger | null = null;
 let changeLedger: ChangeLedger | null = null;
+let polishService: PolishService | null = null;
+let polishMenu: ApplicationMenuHandle | null = null;
+let keepAwake: KeepAwake | null = null;
+let activeProjectId: StudioProjectId | null = null;
 let studioSmokeProjectId: string | null = null;
 let studioSmokeRoot: string | null = null;
 let openCoordinator: OpenCoordinator | null = null;
@@ -211,6 +222,55 @@ function openWindow(): BrowserWindow {
     });
   }
   return window;
+}
+
+function showMainWindow(): BrowserWindow {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.show();
+    mainWindow.focus();
+    return mainWindow;
+  }
+  return openWindow();
+}
+
+/**
+ * Notification clicks and the menu-bar menu land here. The target names a
+ * project and the evidence it refers to; the renderer selects it. This never
+ * starts a runtime or a task.
+ */
+function focusPolish(target: PolishFocusTarget): void {
+  const window = showMainWindow();
+  if (typeof target.projectId === "string" && target.projectId.length > 0) {
+    activeProjectId = target.projectId as StudioProjectId;
+  }
+  const send = (): void => {
+    if (!window.isDestroyed()) window.webContents.send("polish:focus", target);
+  };
+  if (window.webContents.isLoading()) window.webContents.once("did-finish-load", send);
+  else send();
+}
+
+async function interruptActiveWork(): Promise<void> {
+  const projectId = activeProjectId;
+  if (!projectId || !workStudio) return;
+  try {
+    await workStudio.interrupt(projectId);
+  } catch {
+    // The receipt UI reports the real outcome; the menu action stays honest.
+  }
+  await polishService?.refresh(projectId).catch(() => undefined);
+}
+
+async function requestQuit(interrupt: boolean): Promise<{ requested: boolean; note: string }> {
+  if (interrupt) await interruptActiveWork();
+  setTimeout(() => app.quit(), 250);
+  return {
+    requested: true,
+    note: interrupt
+      ? "Quit requested. Active work was asked to interrupt; only the runtime Mona owns is stopped."
+      : "Quit requested. If work is active, the shutdown path interrupts it before the owned runtime stops.",
+  };
 }
 
 async function captureSmoke(window: BrowserWindow): Promise<void> {
@@ -626,16 +686,61 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
 
   const ready = await waitFor("document.body.dataset.ready === 'true'");
   const cards = await waitFor("document.querySelectorAll('[data-project-id]').length > 0");
+
+  // Evidence runs must not inherit the previous run's theme from localStorage.
+  window.webContents.sendInputEvent({ type: "keyDown", keyCode: "6", modifiers: ["meta"] });
+  window.webContents.sendInputEvent({ type: "keyUp", keyCode: "6", modifiers: ["meta"] });
+  await waitFor("document.documentElement.dataset.screen === 'settings'");
+  await window.webContents.executeJavaScript(`(() => {
+    const daybreak = Array.from(document.querySelectorAll('.segmented__option')).find(
+      (node) => (node.textContent ?? '').trim() === 'Daybreak',
+    );
+    if (daybreak instanceof HTMLElement) daybreak.click();
+    const comfortable = Array.from(document.querySelectorAll('.segmented__option')).find(
+      (node) => (node.textContent ?? '').trim() === 'Comfortable',
+    );
+    if (comfortable instanceof HTMLElement) comfortable.click();
+    return Boolean(daybreak && comfortable);
+  })()`);
+  window.webContents.sendInputEvent({ type: "keyDown", keyCode: "1", modifiers: ["meta"] });
+  window.webContents.sendInputEvent({ type: "keyUp", keyCode: "1", modifiers: ["meta"] });
+  await waitFor("document.documentElement.dataset.screen === 'home'");
+  await new Promise((resolve) => setTimeout(resolve, 250));
   const home = await window.webContents.executeJavaScript(`(() => ({
     cards: document.querySelectorAll('[data-project-id]').length,
     screen: document.documentElement.dataset.screen,
     fixture_label: document.body.textContent.includes('TEST FIXTURE'),
     nav_count: document.querySelectorAll('[data-nav]').length,
     version: document.querySelector('[data-testid="app-version"]')?.textContent ?? null,
+    theme: document.documentElement.dataset.theme,
     horizontal_overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1
   }))()`);
   const homeShot = await window.webContents.capturePage();
   writeFileSync(join(outDir, "p07-shell-home.png"), homeShot.toPNG());
+
+  // P14: the Resume Brief and "Since you left" render from stored records.
+  const resumeReady = await waitFor(
+    "document.querySelector('[data-testid=\"resume-brief\"]') !== null",
+  );
+  await new Promise((resolve) => setTimeout(resolve, 250));
+  const resume = await window.webContents.executeJavaScript(`(() => {
+    const text = document.body.textContent ?? '';
+    const brief = document.querySelector('[data-testid="resume-brief"]');
+    const since = document.querySelector('[data-testid="since-you-left"]');
+    return {
+      brief: Boolean(brief),
+      heading: text.includes('Resume Brief'),
+      next_action: Boolean(document.querySelector('[data-testid="resume-next"]')),
+      blocker: text.includes('Unresolved blocker'),
+      since_present: Boolean(since),
+      since_entries: since ? since.querySelectorAll('.digest__item').length : 0,
+      no_completion_percent: !/\b\d+%\b/.test(text),
+      no_model_call: text.includes('no model call'),
+      facts: document.querySelectorAll('[data-testid="resume-facts"] .detail-row').length,
+    };
+  })()`);
+  const resumeShot = await window.webContents.capturePage();
+  writeFileSync(join(outDir, "p14-home-daybreak.png"), resumeShot.toPNG());
 
   // Keyboard path to Studio first: every major screen must be reachable without a mouse.
   window.webContents.sendInputEvent({ type: "keyDown", keyCode: "2", modifiers: ["meta"] });
@@ -862,12 +967,188 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
   window.webContents.sendInputEvent({ type: "keyUp", keyCode: "Escape" });
   const paletteClosed = await waitFor("document.querySelector('[role=\"dialog\"]') === null");
 
+  // P14: attention settings, Focus Mode in Afterglow, and the shortcut list.
+  await window.webContents.executeJavaScript(`(() => {
+    const tab = Array.from(document.querySelectorAll('[role="tab"]')).find(
+      (node) => (node.textContent ?? '').trim() === 'Attention',
+    );
+    if (tab instanceof HTMLElement) tab.click();
+    return Boolean(tab);
+  })()`);
+  const attentionReady = await waitFor("document.body.textContent.includes('Quiet hours')");
+  await new Promise((resolve) => setTimeout(resolve, 250));
+  const attention = await window.webContents.executeJavaScript(`(() => {
+    const text = document.body.textContent ?? '';
+    const loginSwitch = Array.from(document.querySelectorAll('[role="switch"]')).find(
+      (node) => (node.textContent ?? '').includes('Open Mona at login'),
+    );
+    return {
+      ready: text.includes('Quiet hours'),
+      keep_awake: text.includes('Keep the Mac awake while work is active'),
+      login_off: loginSwitch ? loginSwitch.getAttribute('aria-checked') === 'false' : false,
+      menu_bar_state: text.includes('menu-bar status is installed'),
+      test_button: Array.from(document.querySelectorAll('button')).some(
+        (node) => node.textContent?.includes('Send test notification'),
+      ),
+      receipts: Boolean(document.querySelector('[data-testid="notification-receipts"]')),
+    };
+  })()`);
+  const attentionShot = await window.webContents.capturePage();
+  writeFileSync(join(outDir, "p14-settings-attention.png"), attentionShot.toPNG());
+
+  // The second half of the tab carries native state and delivery receipts.
+  await window.webContents.executeJavaScript(`(() => {
+    const card = Array.from(document.querySelectorAll('.card')).find((node) =>
+      node.textContent?.includes('Attention surfaces'),
+    );
+    card?.scrollIntoView({ block: 'start' });
+    return Boolean(card);
+  })()`);
+  await new Promise((resolve) => setTimeout(resolve, 250));
+  const attentionDetailShot = await window.webContents.capturePage();
+  writeFileSync(join(outDir, "p14-settings-attention-native.png"), attentionDetailShot.toPNG());
+
+  // Exercise the real notification path once and record what the system did.
+  await window.webContents.executeJavaScript(`(() => {
+    const button = Array.from(document.querySelectorAll('button')).find(
+      (node) => node.textContent?.includes('Send test notification'),
+    );
+    if (button instanceof HTMLElement) button.click();
+    return Boolean(button);
+  })()`);
+  const notificationTest = await waitFor(
+    "document.querySelector('[data-testid=\"notification-receipts\"]') !== null",
+    5_000,
+  );
+  await window.webContents.executeJavaScript(`(() => {
+    const card = Array.from(document.querySelectorAll('.card')).find((node) =>
+      node.textContent?.includes('Delivery receipts'),
+    );
+    card?.scrollIntoView({ block: 'start' });
+    return Boolean(card);
+  })()`);
+  await new Promise((resolve) => setTimeout(resolve, 250));
+  const notification = await window.webContents.executeJavaScript(`(() => {
+    const list = document.querySelector('[data-testid="notification-receipts"]');
+    const text = list?.textContent ?? '';
+    return {
+      receipt: Boolean(list),
+      text,
+      shown: text.includes('shown'),
+      handed_over: text.includes('handed over'),
+      refused: text.includes('system refused'),
+      suppressed_with_reason: text.includes('suppressed'),
+    };
+  })()`);
+  const receiptsShot = await window.webContents.capturePage();
+  writeFileSync(join(outDir, "p14-settings-receipts.png"), receiptsShot.toPNG());
+
+  // Switch to Afterglow so the second theme gets equal evidence.
+  await window.webContents.executeJavaScript(`(() => {
+    const appearance = Array.from(document.querySelectorAll('[role="tab"]')).find(
+      (node) => (node.textContent ?? '').trim() === 'Appearance',
+    );
+    if (appearance instanceof HTMLElement) appearance.click();
+    return Boolean(appearance);
+  })()`);
+  await new Promise((resolve) => setTimeout(resolve, 150));
+  const afterglow = await window.webContents.executeJavaScript(`(() => {
+    const option = Array.from(document.querySelectorAll('.segmented__option')).find(
+      (node) => (node.textContent ?? '').trim() === 'Afterglow',
+    );
+    if (option instanceof HTMLElement) option.click();
+    return Boolean(option);
+  })()`);
+  await new Promise((resolve) => setTimeout(resolve, 250));
+  const themeApplied = await window.webContents.executeJavaScript(
+    "document.documentElement.dataset.theme",
+  );
+
+  window.webContents.sendInputEvent({ type: "keyDown", keyCode: "2", modifiers: ["meta"] });
+  window.webContents.sendInputEvent({ type: "keyUp", keyCode: "2", modifiers: ["meta"] });
+  await waitFor("document.documentElement.dataset.screen === 'studio'");
+  window.webContents.sendInputEvent({
+    type: "keyDown",
+    keyCode: "F",
+    modifiers: ["meta", "shift"],
+  });
+  window.webContents.sendInputEvent({ type: "keyUp", keyCode: "F", modifiers: ["meta", "shift"] });
+  const focusOn = await waitFor("document.documentElement.dataset.focusMode === 'on'");
+  await new Promise((resolve) => setTimeout(resolve, 250));
+  const focus = await window.webContents.executeJavaScript(`(() => ({
+    focus_on: document.querySelector('[data-focus-mode="on"]') !== null,
+    inspector_hidden: document.querySelector('[aria-label="Inspector"]') === null,
+    control_strip: document.querySelector('.control-strip') !== null,
+    interrupt_visible: document.body.textContent.includes('Interrupt now'),
+    favorites: document.querySelectorAll('.favorite-chip').length,
+    no_overflow: document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1,
+  }))()`);
+  const focusComposer = await window.webContents.executeJavaScript(`(() => {
+    window.scrollTo(0, document.documentElement.scrollHeight);
+    const send = document.querySelector('[data-testid="studio-send"]');
+    const strip = document.querySelector('.control-strip');
+    if (!send || !strip) return { ok: false, reason: 'missing send or strip' };
+    const sendRect = send.getBoundingClientRect();
+    const stripRect = strip.getBoundingClientRect();
+    const covered = Array.from(document.elementsFromPoint(
+      sendRect.left + sendRect.width / 2,
+      sendRect.top + sendRect.height / 2,
+    )).some((node) => strip.contains(node));
+    window.scrollTo(0, 0);
+    return { ok: !covered && sendRect.bottom <= stripRect.top + 1, covered };
+  })()`);
+  const focusShot = await window.webContents.capturePage();
+  writeFileSync(join(outDir, "p14-studio-focus-afterglow.png"), focusShot.toPNG());
+
+  window.webContents.sendInputEvent({ type: "keyDown", keyCode: "/", modifiers: ["meta"] });
+  window.webContents.sendInputEvent({ type: "keyUp", keyCode: "/", modifiers: ["meta"] });
+  const shortcutsOpen = await waitFor(
+    "document.querySelector('[data-testid=\"shortcut-list\"]') !== null",
+  );
+  const shortcuts = await window.webContents.executeJavaScript(`(() => {
+    const list = document.querySelector('[data-testid="shortcut-list"]');
+    return {
+      open: Boolean(list),
+      rows: list ? list.querySelectorAll('.shortcut-row').length : 0,
+      focus_mode: list ? list.textContent.includes('Focus Mode') : false,
+      deliberate_interrupt: list ? list.textContent.includes('Interrupt current work') : false,
+    };
+  })()`);
+  window.webContents.sendInputEvent({ type: "keyDown", keyCode: "Escape" });
+  window.webContents.sendInputEvent({ type: "keyUp", keyCode: "Escape" });
+  const shortcutsClosed = await waitFor(
+    "document.querySelector('[data-testid=\"shortcut-list\"]') === null",
+  );
+
+  // P14: a notification click focuses the named project and evidence. The real
+  // macOS click cannot be scripted here, so this drives the same message the
+  // click handler sends and proves the renderer's handling of it.
+  const focusTargetProject = await window.webContents.executeJavaScript(
+    "localStorage.getItem('mona.lastProject')",
+  );
+  window.webContents.send("polish:focus", {
+    projectId: focusTargetProject,
+    screen: "changes",
+    taskId: null,
+    problemId: null,
+    changeSetId: "cs_notification_focus",
+    fromNotification: true,
+  });
+  const notificationFocus = await waitFor("document.documentElement.dataset.screen === 'changes'");
+  await new Promise((resolve) => setTimeout(resolve, 400));
+  const focusLanded = await window.webContents.executeJavaScript(`(() => ({
+    screen: document.documentElement.dataset.screen,
+    change_screen: document.querySelector('.change-set-wrap') !== null,
+    focus_mode_remaining: document.documentElement.dataset.focusMode,
+  }))()`);
+
   const checks: Record<string, boolean> = {
     ready,
     cards,
     home_screen: home.screen === "home",
     nav_count: home.nav_count === 6,
     fixture_label_absent: home.fixture_label === false,
+    home_theme_daybreak: home.theme === "daybreak",
     version_rendered: typeof home.version === "string" && home.version.startsWith("Mona "),
     keyboard_studio: keyboardStudio,
     home_returned: homeReturned,
@@ -929,6 +1210,39 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
       board.horizontal_overflow === false &&
       cost.horizontal_overflow === false &&
       settings.horizontal_overflow === false,
+    resume_brief_rendered: resumeReady && resume.brief === true && resume.heading === true,
+    resume_brief_has_next_action: resume.next_action === true,
+    resume_brief_shows_blocker: resume.blocker === true,
+    resume_brief_facts: resume.facts >= 5,
+    resume_brief_no_percentage: resume.no_completion_percent === true,
+    resume_brief_no_model_call: resume.no_model_call === true,
+    since_you_left_rendered: resume.since_present === true && resume.since_entries >= 2,
+    attention_settings_ready: attentionReady && attention.ready === true,
+    attention_keep_awake_control: attention.keep_awake === true,
+    attention_launch_at_login_off: attention.login_off === true,
+    attention_menu_bar_reported: attention.menu_bar_state === true,
+    attention_test_control: attention.test_button === true,
+    afterglow_selected: afterglow === true && themeApplied === "afterglow",
+    focus_mode_on: focusOn && focus.focus_on === true,
+    focus_mode_hides_inspector: focus.inspector_hidden === true,
+    focus_mode_keeps_controls: focus.control_strip === true && focus.interrupt_visible === true,
+    focus_mode_no_overflow: focus.no_overflow === true,
+    focus_mode_composer_usable: focusComposer.ok === true,
+    notification_test_receipt:
+      notificationTest &&
+      notification.receipt === true &&
+      (notification.shown === true ||
+        notification.handed_over === true ||
+        notification.refused === true ||
+        notification.suppressed_with_reason === true),
+    shortcuts_open: shortcutsOpen && shortcuts.open === true,
+    shortcuts_cover_focus_and_interrupt:
+      shortcuts.rows >= 8 &&
+      shortcuts.focus_mode === true &&
+      shortcuts.deliberate_interrupt === true,
+    shortcuts_escape: shortcutsClosed,
+    notification_click_focuses_project:
+      notificationFocus && focusLanded.screen === "changes" && focusLanded.change_screen === true,
   };
   const ok = Object.values(checks).every(Boolean);
   const report = {
@@ -936,7 +1250,23 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
     captured_at: new Date().toISOString(),
     ok,
     checks,
-    facts: { home, studio, board, attempts, cost, settings, palette, composerFits },
+    facts: {
+      home,
+      studio,
+      board,
+      attempts,
+      cost,
+      settings,
+      palette,
+      composerFits,
+      resume,
+      attention,
+      focus,
+      focusComposer,
+      notification,
+      shortcuts,
+      focusLanded,
+    },
     screenshots: [
       "docs/evidence/macos/artifacts/p07-shell-home.png",
       "docs/evidence/macos/artifacts/p07-shell-studio.png",
@@ -948,6 +1278,11 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
       "docs/evidence/macos/artifacts/p13-shell-changes-file.png",
       "docs/evidence/macos/artifacts/p12-shell-cost.png",
       "docs/evidence/macos/artifacts/p12-shell-cost-detail.png",
+      "docs/evidence/macos/artifacts/p14-home-daybreak.png",
+      "docs/evidence/macos/artifacts/p14-settings-attention.png",
+      "docs/evidence/macos/artifacts/p14-settings-attention-native.png",
+      "docs/evidence/macos/artifacts/p14-settings-receipts.png",
+      "docs/evidence/macos/artifacts/p14-studio-focus-afterglow.png",
     ],
   };
   const out = process.env.MONA_SHELL_SMOKE_OUT;
@@ -1498,6 +1833,7 @@ async function runLifecycleSmoke(initialWindow: BrowserWindow): Promise<void> {
     phases,
     pids: {},
     workspace,
+    polish: polishService ? await polishService.status() : null,
   };
 
   const note = (phase: string, value: Record<string, unknown>) => phases.push({ phase, ...value });
@@ -1573,6 +1909,7 @@ async function runLifecycleSmoke(initialWindow: BrowserWindow): Promise<void> {
     windows: BrowserWindow.getAllWindows().length,
     same_work: runtime.handle()?.childPid === handle.childPid,
     child_alive: isAlive(handle.childPid),
+    menu_bar_installed: polishService ? (await polishService.status()).menuBar.installed : false,
   });
 
   const expectedOpen = process.env.MONA_LIFECYCLE_SMOKE_OPEN_PATH;
@@ -1778,6 +2115,9 @@ if (!gotLock) {
         journalPath: join(appPaths.support, "open", "last-open.json"),
         onResult: (result) => {
           openRequests.push(result);
+          if (result.ok && result.projectId) {
+            activeProjectId = result.projectId as StudioProjectId;
+          }
           if (mainWindow && !mainWindow.isDestroyed()) {
             mainWindow.webContents.send("open:result", result);
             if (result.ok && result.projectId) {
@@ -1800,8 +2140,24 @@ if (!gotLock) {
           ledger: new CostLedger(productState),
           changes: changeLedger,
           notify: (push) => {
+            activeProjectId = push.projectId as StudioProjectId;
             if (mainWindow && !mainWindow.isDestroyed()) {
               mainWindow.webContents.send("studio:changed", push);
+            }
+            if (push.kind === "submission") {
+              polishMenu?.setInterruptEnabled(
+                push.state !== "completed" &&
+                  push.state !== "failed" &&
+                  push.state !== "interrupted" &&
+                  push.state !== "canceled" &&
+                  push.state !== "sending",
+              );
+            }
+            // Turn start, turn end, control changes, and connection changes all
+            // move attention or keep-awake scope. Streamed `event` pushes do
+            // not, so a long turn does not re-read the board per token.
+            if (push.kind !== "event") {
+              void polishService?.refresh(push.projectId as StudioProjectId).catch(() => undefined);
             }
           },
           // A finished turn releases its task link, so a later interrupt of a
@@ -1817,6 +2173,87 @@ if (!gotLock) {
         changeLedger ??= new ChangeLedger({
           store: productState,
           engine: (projectId) => workStudio?.engineAccess(projectId) ?? null,
+        });
+      }
+
+      // P14: deterministic polish. Attention, notifications, and the digest read
+      // stored records only; none of these objects can start a turn.
+      if (productState && projectService && taskBoard) {
+        const board = taskBoard;
+        const cost = costLedger;
+        const preferences = new PolishPreferencesStore({ store: productState });
+        const sources: NotificationSources = {
+          tasks: async (projectId) =>
+            (await board.snapshot(projectId)).tasks.map((task) => ({
+              id: task.id,
+              title: task.title,
+              completedAt: task.completedAt,
+            })),
+          problems: async (projectId) =>
+            (await board.snapshot(projectId)).problems
+              .filter((problem) => problem.status === "blocked")
+              .map((problem) => ({
+                id: problem.id,
+                taskId: problem.taskId,
+                title: problem.symptom,
+                requirement: problem.requirement,
+                helpNeeded: problem.helpNeeded ?? "a human decision is required",
+                blockedAt: problem.blockedAt,
+              })),
+          budgets: async (projectId) => {
+            if (!cost) return [];
+            try {
+              const ledger = await cost.ledger(projectId, {});
+              return ledger.evaluations.map((evaluation) => ({
+                id: evaluation.budgetId,
+                level: evaluation.level,
+                message: evaluation.message,
+                at: evaluation.windowStart,
+              }));
+            } catch {
+              return [];
+            }
+          },
+        };
+        const notificationHost = createElectronNotificationHost({ onFocus: focusPolish });
+        const notifier = new PolishNotifier({
+          store: productState,
+          sources,
+          host: notificationHost,
+          preferences: () => preferences.get(),
+          projectName: async (projectId) =>
+            (await productState?.getProject(projectId, { includeRemoved: true }))?.name ??
+            "project",
+        });
+        const attentionHost = createElectronAttentionHost({
+          onOpen: () => showMainWindow(),
+          onInterrupt: () => void interruptActiveWork(),
+          onShowBlockers: () => {
+            if (!activeProjectId) return;
+            focusPolish({
+              projectId: activeProjectId,
+              screen: "board",
+              taskId: null,
+              problemId: null,
+              changeSetId: null,
+              fromNotification: false,
+            });
+          },
+          onQuit: () => void requestQuit(true),
+        });
+        keepAwake = new KeepAwake(createElectronKeepAwakeHost());
+        polishService = new PolishService({
+          store: productState,
+          board,
+          projects: projectService,
+          changes: changeLedger,
+          cost: costLedger,
+          notifier,
+          attention: new AttentionController(attentionHost),
+          keepAwake,
+          preferences,
+          isTurnActive: async (projectId) =>
+            (await workStudio?.snapshot(projectId).catch(() => null))?.activeTurnId != null,
         });
       }
     } catch (error) {
@@ -2004,6 +2441,30 @@ if (!gotLock) {
           },
           timestamp: new Date().toISOString(),
         });
+        // P14: a real catch-up watermark and a completed turn, so Home renders
+        // "Since you left" from stored records rather than a fixture.
+        await productState.putSettings(`polish:seen:${opened.project.id}`, {
+          seenAt: new Date(Date.now() - 3_600_000).toISOString(),
+        });
+        await productState.putSettings("prompts:favorites", {
+          items: [
+            {
+              id: "fav_0123456789abcdef",
+              label: "Review the diff",
+              text: "Review the diff and record what changed.",
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            },
+          ],
+        });
+        await productState.recordEvent({
+          threadId: changesThread,
+          seq: 3,
+          kind: "turn.completed",
+          turnId: "turn_shell_p13_0001",
+          payload: { turn_id: "turn_shell_p13_0001" },
+          timestamp: new Date().toISOString(),
+        });
       }
     }
 
@@ -2018,7 +2479,26 @@ if (!gotLock) {
       studioSmokeRoot = root;
     }
 
-    installApplicationMenu({ onOpenProject: () => void openProjectFromMenu() });
+    polishMenu = installApplicationMenu({
+      onOpenProject: () => void openProjectFromMenu(),
+      onInterrupt: () => void interruptActiveWork(),
+      onShowBlockers: () => {
+        if (!activeProjectId) return;
+        focusPolish({
+          projectId: activeProjectId,
+          screen: "board",
+          taskId: null,
+          problemId: null,
+          changeSetId: null,
+          fromNotification: false,
+        });
+      },
+      onToggleFocus: () => {
+        const window = showMainWindow();
+        window.webContents.send("polish:toggle-focus");
+      },
+      onQuit: () => void requestQuit(true),
+    });
 
     const importPlanFile = async (projectId: StudioProjectId) => {
       if (!taskBoard) throw new StateError("CONFLICT", "the work board is unavailable");
@@ -2093,6 +2573,8 @@ if (!gotLock) {
       board: taskBoard,
       cost: costLedger,
       changes: changeLedger,
+      polish: polishService,
+      quit: requestQuit,
       revealWorkspacePath: async (projectId, path) => {
         const ledger = changeLedger;
         if (!ledger) {
@@ -2159,6 +2641,7 @@ if (!gotLock) {
   });
 
   app.on("before-quit", () => {
+    keepAwake?.release();
     void workStudio?.close();
     void productState?.close();
   });

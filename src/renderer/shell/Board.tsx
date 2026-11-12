@@ -766,10 +766,13 @@ export function BoardScreen({
   detail,
   onOpenFolder,
   onShowStudio,
+  focusTaskId = null,
 }: {
   detail: ProjectDetail | null;
   onOpenFolder: () => void;
   onShowStudio: () => void;
+  /** A notification click names the task to open. */
+  focusTaskId?: TaskId | null;
 }): JSX.Element {
   const projectId = detail?.project.id ?? null;
   const [snapshot, setSnapshot] = useState<BoardSnapshot | null>(null);
@@ -801,6 +804,10 @@ export function BoardScreen({
     setSnapshot(null);
     void load();
   }, [load]);
+
+  useEffect(() => {
+    if (focusTaskId) setSelectedId(focusTaskId);
+  }, [focusTaskId, projectId]);
 
   const runAction = useCallback(
     (action: () => Promise<unknown>) => {

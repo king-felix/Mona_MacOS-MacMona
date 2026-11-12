@@ -1,5 +1,10 @@
 import { z } from "zod";
 import { ProjectId, TaskId } from "../shared/contracts/ids";
+import {
+  FavoriteInputSchema,
+  POLISH_ACCENTS,
+  PolishPreferencesPatchSchema,
+} from "../shared/contracts/polish";
 
 /**
  * Narrow IPC contract. Every invoke is a strict object: unknown fields are
@@ -306,6 +311,27 @@ export const IpcRequests = {
     projectId: ProjectId,
     path: z.string().min(1).max(4096),
   }),
+
+  // Daily-use polish. Everything here is a local read or an explicit user
+  // preference; no channel starts a turn, calls a model, or mutates project work.
+  "polish:digest": z.strictObject({ projectId: ProjectId }),
+  "polish:mark-seen": z.strictObject({ projectId: ProjectId }),
+  "polish:status": z.strictObject({}),
+  "polish:refresh": z.strictObject({ projectId: ProjectId }),
+  "polish:preferences-set": z.strictObject({ patch: PolishPreferencesPatchSchema }),
+  "polish:identity": z.strictObject({
+    projectId: ProjectId,
+    accent: z.enum(POLISH_ACCENTS).nullable(),
+    monogram: z.string().max(4).nullable(),
+    expectedRevision: z.number().int().min(1),
+  }),
+  "polish:favorites": z.strictObject({}),
+  "polish:favorite-save": FavoriteInputSchema,
+  "polish:favorite-remove": z.strictObject({ id: z.string().min(1).max(80) }),
+  "polish:notification-test": z.strictObject({}),
+  // Quit is explicit; the existing shutdown path interrupts active work and
+  // stops only the runtime Mona owns.
+  "polish:quit": z.strictObject({ interrupt: z.boolean() }),
 } as const;
 
 export type IpcChannel = keyof typeof IpcRequests;

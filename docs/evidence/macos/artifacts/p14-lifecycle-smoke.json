@@ -1,0 +1,340 @@
+{
+  "ok": true,
+  "checks": {
+    "owner_exit_zero": true,
+    "second_instance_exit_zero": true,
+    "evidence_written": true,
+    "runtime_started": true,
+    "tree_alive_before_crash": true,
+    "sleep_became_reconnecting": true,
+    "sleep_kept_process": true,
+    "wake_resumed": true,
+    "wake_kept_same_work": true,
+    "renderer_crash_kept_main": true,
+    "renderer_crash_counted": true,
+    "renderer_crash_kept_work": true,
+    "window_closed_app_alive": true,
+    "window_closed_kept_work": true,
+    "dock_reopen_created_window": true,
+    "dock_reopen_same_work": true,
+    "dock_reopen_menu_bar_installed": true,
+    "second_instance_dispatched": true,
+    "quit_stopped_tree": true,
+    "quit_reported_no_rollback": true,
+    "quit_receipt_names_interrupt": true,
+    "all_children_dead_after_quit": true
+  },
+  "error": null,
+  "pids": [
+    75718,
+    75719,
+    75720
+  ],
+  "alive_after_quit": [],
+  "shutdown": {
+    "action": "quit_and_stop_work",
+    "interrupted": false,
+    "interruptUncertain": false,
+    "stopped": true,
+    "escalated": true,
+    "survivors": [],
+    "rollback": "not_promised",
+    "notes": [
+      "no active turn to interrupt",
+      "runtime control_socket stop confirmed after forced escalation",
+      "forced termination is last-resort cleanup, not rollback"
+    ]
+  },
+  "evidence": {
+    "schema_version": 1,
+    "ok": true,
+    "phases": [
+      {
+        "phase": "started",
+        "state": "running",
+        "alive": [
+          75718,
+          75719,
+          75720
+        ],
+        "runtime_status": {
+          "state": "running",
+          "reason": "started",
+          "since": "2026-11-12T07:35:57.803Z",
+          "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-lifecycle-work-V8NgHN",
+          "ownershipId": "rt_fd5dcdda18c0",
+          "port": 0,
+          "engine": {
+            "version": "smoke",
+            "commit": "smoke"
+          },
+          "external": false,
+          "restarts": 0,
+          "lastFailure": null,
+          "pendingRestartInMs": null
+        }
+      },
+      {
+        "phase": "sleep",
+        "runtime_state": "reconnecting",
+        "child_alive": true
+      },
+      {
+        "phase": "wake",
+        "resumed": true,
+        "runtime_state": "running",
+        "same_work": true,
+        "child_alive": true
+      },
+      {
+        "phase": "renderer_crash",
+        "main_alive": true,
+        "renderer_crashes": 1,
+        "runtime_state": "running",
+        "child_alive": true,
+        "tree_alive": [
+          75718,
+          75719,
+          75720
+        ]
+      },
+      {
+        "phase": "window_closed",
+        "windows": 0,
+        "runtime_state": "running",
+        "child_alive": true,
+        "tree_alive": [
+          75718,
+          75719,
+          75720
+        ]
+      },
+      {
+        "phase": "dock_reopen",
+        "windows": 1,
+        "same_work": true,
+        "child_alive": true,
+        "menu_bar_installed": true
+      },
+      {
+        "phase": "second_instance",
+        "expected": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-RsKRcn",
+        "received": {
+          "path": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-RsKRcn",
+          "input": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-RsKRcn",
+          "receivedAt": "2026-11-12T07:35:57.910Z",
+          "source": "second_instance",
+          "notes": [
+            "resolved: symlink or alias resolved before registration"
+          ]
+        },
+        "windows": 1
+      }
+    ],
+    "pids": {
+      "supervisor": 75717,
+      "child": 75718,
+      "pgid": 75718,
+      "tree": [
+        75718,
+        75719,
+        75720
+      ]
+    },
+    "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-lifecycle-work-V8NgHN",
+    "polish": {
+      "preferences": {
+        "notifications": {
+          "enabled": true,
+          "completion": true,
+          "blocker": true,
+          "limit": true,
+          "showDetails": false,
+          "quietHours": {
+            "enabled": false,
+            "start": "22:00",
+            "end": "07:00",
+            "timeZone": "America/Denver"
+          }
+        },
+        "dockBadge": true,
+        "menuBarStatus": true,
+        "keepAwakeDuringWork": false,
+        "launchAtLogin": false
+      },
+      "attention": {
+        "badge": null,
+        "menuTitle": "◐ Mona",
+        "tooltip": "Mona · idle",
+        "running": false,
+        "blocked": 0,
+        "unseenCompletions": 0,
+        "installed": true,
+        "updatedAt": "2026-11-12T07:35:57.742Z",
+        "note": "menu-bar status is installed; the Dock badge is a native app badge"
+      },
+      "keepAwake": {
+        "active": false,
+        "scopedToActiveWork": false,
+        "note": "keep-awake is turned off in Settings"
+      },
+      "launchAtLogin": {
+        "enabled": false,
+        "applied": false,
+        "note": "Launch at login has not been evaluated yet."
+      },
+      "menuBar": {
+        "installed": true,
+        "note": "menu-bar status is installed; the Dock badge is a native app badge"
+      },
+      "notifications": {
+        "available": true,
+        "note": "macOS notifications are available. Delivery also depends on the system permission for Mona.",
+        "recent": []
+      }
+    },
+    "lifecycle_before_start": {
+      "quitRequested": false,
+      "shutdownRunning": false,
+      "shutdownComplete": false,
+      "shutdownReceipt": null,
+      "shutdownError": null,
+      "lastOpenRequest": null,
+      "rendererCrashes": 0,
+      "lastPowerEvent": null,
+      "runtime": {
+        "state": "disconnected",
+        "reason": "never_started",
+        "since": "2026-11-12T07:35:57.553Z",
+        "workspace": null,
+        "ownershipId": null,
+        "port": null,
+        "engine": null,
+        "external": false,
+        "restarts": 0,
+        "lastFailure": null,
+        "pendingRestartInMs": null
+      },
+      "work": {
+        "active": null,
+        "queued": [],
+        "pauseAfterTask": false,
+        "quitting": false
+      }
+    },
+    "runtime_before_quit": {
+      "state": "running",
+      "reason": "running_after_renderer_crash",
+      "since": "2026-11-12T07:35:58.216Z",
+      "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-lifecycle-work-V8NgHN",
+      "ownershipId": "rt_fd5dcdda18c0",
+      "port": 0,
+      "engine": {
+        "version": "smoke",
+        "commit": "smoke"
+      },
+      "external": false,
+      "restarts": 0,
+      "lastFailure": null,
+      "pendingRestartInMs": null
+    },
+    "lifecycle_before_quit": {
+      "quitRequested": false,
+      "shutdownRunning": false,
+      "shutdownComplete": false,
+      "shutdownReceipt": null,
+      "shutdownError": null,
+      "lastOpenRequest": {
+        "path": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-RsKRcn",
+        "input": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-RsKRcn",
+        "receivedAt": "2026-11-12T07:35:57.910Z",
+        "source": "second_instance",
+        "notes": [
+          "resolved: symlink or alias resolved before registration"
+        ]
+      },
+      "rendererCrashes": 1,
+      "lastPowerEvent": "resume",
+      "runtime": {
+        "state": "running",
+        "reason": "running_after_renderer_crash",
+        "since": "2026-11-12T07:35:58.216Z",
+        "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-lifecycle-work-V8NgHN",
+        "ownershipId": "rt_fd5dcdda18c0",
+        "port": 0,
+        "engine": {
+          "version": "smoke",
+          "commit": "smoke"
+        },
+        "external": false,
+        "restarts": 0,
+        "lastFailure": null,
+        "pendingRestartInMs": null
+      },
+      "work": {
+        "active": null,
+        "queued": [],
+        "pauseAfterTask": false,
+        "quitting": false
+      }
+    },
+    "shutdown": {
+      "quitRequested": true,
+      "shutdownRunning": false,
+      "shutdownComplete": true,
+      "shutdownReceipt": {
+        "action": "quit_and_stop_work",
+        "interrupted": false,
+        "interruptUncertain": false,
+        "stopped": true,
+        "escalated": true,
+        "survivors": [],
+        "rollback": "not_promised",
+        "notes": [
+          "no active turn to interrupt",
+          "runtime control_socket stop confirmed after forced escalation",
+          "forced termination is last-resort cleanup, not rollback"
+        ]
+      },
+      "shutdownError": null,
+      "lastOpenRequest": {
+        "path": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-RsKRcn",
+        "input": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-RsKRcn",
+        "receivedAt": "2026-11-12T07:35:57.910Z",
+        "source": "second_instance",
+        "notes": [
+          "resolved: symlink or alias resolved before registration"
+        ]
+      },
+      "rendererCrashes": 1,
+      "lastPowerEvent": "resume",
+      "runtime": {
+        "state": "stopped",
+        "reason": "stopped",
+        "since": "2026-11-12T07:36:24.753Z",
+        "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-lifecycle-work-V8NgHN",
+        "ownershipId": null,
+        "port": null,
+        "engine": null,
+        "external": false,
+        "restarts": 0,
+        "lastFailure": null,
+        "pendingRestartInMs": null
+      },
+      "work": {
+        "active": null,
+        "queued": [],
+        "pauseAfterTask": false,
+        "quitting": true
+      }
+    }
+  },
+  "owner_log": {
+    "stdout": "",
+    "stderr": ""
+  },
+  "second_exit": {
+    "code": 0,
+    "signal": null
+  }
+}

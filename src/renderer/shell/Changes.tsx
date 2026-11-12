@@ -365,191 +365,201 @@ function ChangeSetCard({
     : 0;
   const commitEvidence = committedPathCount > 0 ? snapshot.lastCommit : null;
   return (
-    <Card
-      className="change-set"
-      eyebrow={`Turn ${short(set.turnId, 12)} · ${relativeTime(set.capturedAt)}`}
-      title={STATE_LABEL[set.state] ?? set.state}
-      actions={
-        <div className="change-set__actions">
-          <Badge tone={STATE_TONE[set.state] ?? "neutral"}>{set.state}</Badge>
-          {set.truncated ? (
-            <Badge tone="attention">capped{set.omitted ? ` · ${set.omitted} omitted` : ""}</Badge>
-          ) : null}
-          {restorable.length > 0 ? (
-            <Button size="sm" variant="ghost" onClick={onSelectAll}>
-              Select all restorable
+    <div className="change-set-wrap" data-change-set-id={set.id}>
+      <Card
+        className="change-set"
+        eyebrow={`Turn ${short(set.turnId, 12)} · ${relativeTime(set.capturedAt)}`}
+        title={STATE_LABEL[set.state] ?? set.state}
+        actions={
+          <div className="change-set__actions">
+            <Badge tone={STATE_TONE[set.state] ?? "neutral"}>{set.state}</Badge>
+            {set.truncated ? (
+              <Badge tone="attention">capped{set.omitted ? ` · ${set.omitted} omitted` : ""}</Badge>
+            ) : null}
+            {restorable.length > 0 ? (
+              <Button size="sm" variant="ghost" onClick={onSelectAll}>
+                Select all restorable
+              </Button>
+            ) : null}
+            <Button
+              size="sm"
+              variant="secondary"
+              disabled={selected.length === 0 || !snapshot.restore.available}
+              onClick={onRestore}
+              title={
+                snapshot.restore.available ? undefined : (snapshot.restore.reason ?? undefined)
+              }
+            >
+              Restore selected ({selected.length})
             </Button>
-          ) : null}
-          <Button
-            size="sm"
-            variant="secondary"
-            disabled={selected.length === 0 || !snapshot.restore.available}
-            onClick={onRestore}
-            title={snapshot.restore.available ? undefined : (snapshot.restore.reason ?? undefined)}
+          </div>
+        }
+      >
+        {set.note ? (
+          <Callout
+            tone={set.state === "unavailable" ? "attention" : "neutral"}
+            title={set.state === "unavailable" ? "No workspace delta" : "Engine note"}
           >
-            Restore selected ({selected.length})
-          </Button>
-        </div>
-      }
-    >
-      {set.note ? (
-        <Callout
-          tone={set.state === "unavailable" ? "attention" : "neutral"}
-          title={set.state === "unavailable" ? "No workspace delta" : "Engine note"}
-        >
-          {set.note}
-        </Callout>
-      ) : null}
-      <div className="change-set__facts">
-        <span className="muted">
-          {set.files.length} file{set.files.length === 1 ? "" : "s"} · {set.tools.length} tool
-          receipt
-          {set.tools.length === 1 ? "" : "s"}
-        </span>
-        {set.preSnapshotId ? (
-          <span className="mono muted">pre-turn {short(set.preSnapshotId, 10)}</span>
+            {set.note}
+          </Callout>
         ) : null}
-        {set.postSnapshotId ? (
-          <span className="mono muted">post-turn {short(set.postSnapshotId, 10)}</span>
-        ) : null}
-        {commitEvidence ? (
-          <span className="mono">
-            commit {commitEvidence.shortHash} · {commitEvidence.subject} · {committedPathCount}/
-            {set.files.length} paths
+        <div className="change-set__facts">
+          <span className="muted">
+            {set.files.length} file{set.files.length === 1 ? "" : "s"} · {set.tools.length} tool
+            receipt
+            {set.tools.length === 1 ? "" : "s"}
           </span>
-        ) : null}
-      </div>
-      {set.files.length === 0 ? (
-        <p className="muted">
-          {set.state === "settled"
-            ? "The engine settled this turn with no changed files."
-            : "No file references were recorded. This is not an empty diff; the engine reported no delta."}
-        </p>
-      ) : (
-        <ul className="change-files" aria-label={`Files changed in turn ${set.turnId}`}>
-          {set.files.map((file) => {
-            const attribution = attributionLabel(file.attribution, file);
-            const isSelected = selected.includes(file.path);
-            return (
-              <li className="change-file" key={`${set.id}:${file.path}:${file.kind}`}>
-                <input
-                  type="checkbox"
-                  aria-label={`Select ${file.path} for restore`}
-                  checked={isSelected}
-                  disabled={file.kind !== "file" || !file.restoreSnapshotId}
-                  onChange={() => onToggle(file.path)}
-                  title={
-                    file.restoreSnapshotId
-                      ? "This path has an engine restore point"
-                      : "No restore point was recorded for this path"
-                  }
-                />
-                <div className="change-file__main">
-                  <button
-                    type="button"
-                    className="change-file__path mono"
-                    onClick={() => onOpen(file.path, "text")}
-                  >
-                    {file.path}
-                  </button>
-                  <p className="change-file__meta muted">
-                    {sourceLabel(file.source)}
-                    {file.previousPath ? ` · from ${file.previousPath}` : ""}
-                  </p>
-                </div>
-                <div className="change-file__badges">
-                  <Badge tone={CHANGE_TONE[file.change] ?? "neutral"}>{file.change}</Badge>
-                  <Badge tone={attribution.tone}>{attribution.label}</Badge>
-                  <Badge tone="neutral">{bytes(file.sizeBytes)}</Badge>
-                  {file.binaryHint ? <Badge tone="neutral">likely binary</Badge> : null}
-                  {file.oversized ? <Badge tone="attention">over 16 MiB</Badge> : null}
-                  {file.restoreSnapshotId ? (
-                    <Badge tone="success">restore point</Badge>
-                  ) : (
-                    <Badge tone="neutral">no restore point</Badge>
-                  )}
-                </div>
-                <div className="change-file__actions">
-                  <Button size="sm" variant="ghost" onClick={() => onOpen(file.path, "diff")}>
-                    Diff
-                  </Button>
-                  {file.kind === "file" ? (
-                    <Button size="sm" variant="ghost" onClick={() => onReveal(file.path)}>
-                      Reveal
-                    </Button>
-                  ) : null}
-                  {file.artifactId ? (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => onArtifact(file.artifactId as string)}
+          {set.preSnapshotId ? (
+            <span className="mono muted">pre-turn {short(set.preSnapshotId, 10)}</span>
+          ) : null}
+          {set.postSnapshotId ? (
+            <span className="mono muted">post-turn {short(set.postSnapshotId, 10)}</span>
+          ) : null}
+          {commitEvidence ? (
+            <span className="mono">
+              commit {commitEvidence.shortHash} · {commitEvidence.subject} · {committedPathCount}/
+              {set.files.length} paths
+            </span>
+          ) : null}
+        </div>
+        {set.files.length === 0 ? (
+          <p className="muted">
+            {set.state === "settled"
+              ? "The engine settled this turn with no changed files."
+              : "No file references were recorded. This is not an empty diff; the engine reported no delta."}
+          </p>
+        ) : (
+          <ul className="change-files" aria-label={`Files changed in turn ${set.turnId}`}>
+            {set.files.map((file) => {
+              const attribution = attributionLabel(file.attribution, file);
+              const isSelected = selected.includes(file.path);
+              return (
+                <li className="change-file" key={`${set.id}:${file.path}:${file.kind}`}>
+                  <input
+                    type="checkbox"
+                    aria-label={`Select ${file.path} for restore`}
+                    checked={isSelected}
+                    disabled={file.kind !== "file" || !file.restoreSnapshotId}
+                    onChange={() => onToggle(file.path)}
+                    title={
+                      file.restoreSnapshotId
+                        ? "This path has an engine restore point"
+                        : "No restore point was recorded for this path"
+                    }
+                  />
+                  <div className="change-file__main">
+                    <button
+                      type="button"
+                      className="change-file__path mono"
+                      onClick={() => onOpen(file.path, "text")}
                     >
-                      Output
+                      {file.path}
+                    </button>
+                    <p className="change-file__meta muted">
+                      {sourceLabel(file.source)}
+                      {file.previousPath ? ` · from ${file.previousPath}` : ""}
+                    </p>
+                  </div>
+                  <div className="change-file__badges">
+                    <Badge tone={CHANGE_TONE[file.change] ?? "neutral"}>{file.change}</Badge>
+                    <Badge tone={attribution.tone}>{attribution.label}</Badge>
+                    <Badge tone="neutral">{bytes(file.sizeBytes)}</Badge>
+                    {file.binaryHint ? <Badge tone="neutral">likely binary</Badge> : null}
+                    {file.oversized ? <Badge tone="attention">over 16 MiB</Badge> : null}
+                    {file.restoreSnapshotId ? (
+                      <Badge tone="success">restore point</Badge>
+                    ) : (
+                      <Badge tone="neutral">no restore point</Badge>
+                    )}
+                  </div>
+                  <div className="change-file__actions">
+                    <Button size="sm" variant="ghost" onClick={() => onOpen(file.path, "diff")}>
+                      Diff
                     </Button>
-                  ) : null}
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-      {set.tools.length > 0 ? (
-        <details className="change-tools">
-          <summary>Tool and test receipts ({set.tools.length})</summary>
-          <ul>
-            {set.tools.map((tool) => (
-              <li key={`${tool.itemId ?? tool.toolCallId ?? tool.summary}`}>
-                <div>
-                  <span className="mono">{tool.toolName ?? "tool call"}</span>
-                  <Badge tone={tool.status === "completed" ? "success" : "danger"}>
-                    {tool.status}
-                  </Badge>
-                  {tool.summary ? <span className="muted"> {tool.summary}</span> : null}
-                </div>
-                {tool.artifacts.length > 0 ? (
-                  <div className="change-tools__artifacts">
-                    {tool.artifacts.map((artifact) => (
+                    {file.kind === "file" ? (
+                      <Button size="sm" variant="ghost" onClick={() => onReveal(file.path)}>
+                        Reveal
+                      </Button>
+                    ) : null}
+                    {file.artifactId ? (
                       <Button
-                        key={artifact.id}
                         size="sm"
                         variant="ghost"
-                        onClick={() => onArtifact(artifact.id)}
+                        onClick={() => onArtifact(file.artifactId as string)}
                       >
-                        {artifact.kind}{" "}
-                        {artifact.sizeBytes === null ? "" : bytes(artifact.sizeBytes)}
+                        Output
                       </Button>
-                    ))}
+                    ) : null}
                   </div>
-                ) : null}
-              </li>
-            ))}
+                </li>
+              );
+            })}
           </ul>
-          {commitEvidence ? (
-            <p className="mono">
-              Commit evidence: {commitEvidence.shortHash} · {commitEvidence.subject} ·{" "}
-              {committedPathCount} of {set.files.length} paths
-            </p>
-          ) : (
+        )}
+        {set.tools.length > 0 ? (
+          <details className="change-tools">
+            <summary>Tool and test receipts ({set.tools.length})</summary>
+            <ul>
+              {set.tools.map((tool) => (
+                <li key={`${tool.itemId ?? tool.toolCallId ?? tool.summary}`}>
+                  <div>
+                    <span className="mono">{tool.toolName ?? "tool call"}</span>
+                    <Badge tone={tool.status === "completed" ? "success" : "danger"}>
+                      {tool.status}
+                    </Badge>
+                    {tool.summary ? <span className="muted"> {tool.summary}</span> : null}
+                  </div>
+                  {tool.artifacts.length > 0 ? (
+                    <div className="change-tools__artifacts">
+                      {tool.artifacts.map((artifact) => (
+                        <Button
+                          key={artifact.id}
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => onArtifact(artifact.id)}
+                        >
+                          {artifact.kind}{" "}
+                          {artifact.sizeBytes === null ? "" : bytes(artifact.sizeBytes)}
+                        </Button>
+                      ))}
+                    </div>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+            {commitEvidence ? (
+              <p className="mono">
+                Commit evidence: {commitEvidence.shortHash} · {commitEvidence.subject} ·{" "}
+                {committedPathCount} of {set.files.length} paths
+              </p>
+            ) : (
+              <p className="muted">
+                No commit from this surface names these paths yet; the commands and results above
+                remain the recorded receipts.
+              </p>
+            )}
             <p className="muted">
-              No commit from this surface names these paths yet; the commands and results above
-              remain the recorded receipts.
+              These are the engine's own command and result receipts. Mona did not re-run them.
             </p>
-          )}
-          <p className="muted">
-            These are the engine's own command and result receipts. Mona did not re-run them.
-          </p>
-        </details>
-      ) : null}
-    </Card>
+          </details>
+        ) : null}
+      </Card>
+    </div>
   );
 }
 
 export function ChangesScreen({
   detail,
   onOpenFolder,
+  focusChangeSetId = null,
+  onFocusHandled,
 }: {
   detail: ProjectDetail | null;
   onOpenFolder: () => void;
+  /** A notification click names the receipt to show. */
+  focusChangeSetId?: string | null;
+  /** Called once the named receipt has been brought into view. */
+  onFocusHandled?: () => void;
 }): JSX.Element {
   const projectId = detail?.project.id ?? null;
   const [snapshot, setSnapshot] = useState<ChangesSnapshot | null>(null);
@@ -579,6 +589,21 @@ export function ChangesScreen({
   const [includeUnstaged, setIncludeUnstaged] = useState(false);
   const [gitBusy, setGitBusy] = useState(false);
   const [gitRefusal, setGitRefusal] = useState<{ message: string; paths: string[] } | null>(null);
+
+  // A notification names one receipt. Scroll to it once, then tell the shell so
+  // a later refresh cannot keep yanking the view back.
+  useEffect(() => {
+    if (!focusChangeSetId) return;
+    setTab("receipts");
+    const timer = setTimeout(() => {
+      const node = document.querySelector(
+        `[data-change-set-id="${focusChangeSetId.replace(/"/g, "")}"]`,
+      );
+      node?.scrollIntoView({ block: "center" });
+      onFocusHandled?.();
+    }, 120);
+    return () => clearTimeout(timer);
+  }, [focusChangeSetId, onFocusHandled, snapshot]);
 
   const load = useCallback(
     async (refresh: boolean): Promise<void> => {

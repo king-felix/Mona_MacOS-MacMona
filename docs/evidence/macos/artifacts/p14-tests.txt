@@ -1,0 +1,74 @@
+# npx vitest run (P14 final)
+
+
+ RUN  v5.1.0 <home>/DS_Projects/Mona
+
+Switched to a new branch 'left'
+Switched to branch 'main'
+ ✓ test/work-attempts.test.ts (14 tests) 742ms
+ ✓ test/projects-service.test.ts (10 tests) 797ms
+ ✓ test/state-database.test.ts (13 tests) 968ms
+Preparing worktree (new branch 'linked-branch')
+Not implemented: HTMLCanvasElement's getContext() method: without installing the @napi-rs/canvas npm package
+ ✓ test/design-components.test.tsx (17 tests) 824ms
+ ✓ test/work-board.test.ts (12 tests) 561ms
+ ✓ test/state-portable.test.ts (6 tests) 424ms
+ ✓ test/work-studio.test.ts (11 tests) 591ms
+ ✓ test/work-changes.test.ts (20 tests) 1881ms
+   ✓ stage and commit through the ledger (2)
+     ✓ keeps unrelated staged work and refuses mixed staging without an explicit choice 719ms
+ ✓ test/supervisor-native.test.ts (9 tests) 1974ms
+   ✓ native supervisor (8)
+     ✓ records the escaped process group and stops it by identity 361ms
+     ✓ escalates a TERM-ignoring tree to a bounded SIGKILL 819ms
+ ✓ test/work-digest.test.ts (7 tests) 414ms
+ ✓ test/work-git.test.ts (11 tests) 2037ms
+   ✓ GitService status (6)
+     ✓ reports a merge conflict honestly 312ms
+   ✓ GitService staging and selected commits (3)
+     ✓ stages and commits only the selected path, preserving unrelated staged work 302ms
+ ✓ test/runtime-process.test.ts (8 tests) 408ms
+ ✓ test/state-catalog.test.ts (10 tests) 431ms
+ ✓ test/work-costs.test.ts (19 tests) 525ms
+ ✓ test/runtime-supervisor.test.ts (16 tests) 134ms
+ ✓ test/state-artifacts.test.ts (5 tests) 287ms
+ ✓ test/work-preferences.test.ts (6 tests) 334ms
+ ✓ test/work-notifications.test.ts (14 tests) 298ms
+ ✓ test/work-polish-service.test.ts (4 tests) 132ms
+ ✓ test/cost-screen.test.tsx (5 tests) 83ms
+ ✓ test/open-coordinator.test.ts (5 tests) 75ms
+ ✓ test/work-profile.test.ts (5 tests) 56ms
+ ✓ test/polish-screen.test.tsx (5 tests) 90ms
+ ✓ test/supervisor-records.test.ts (6 tests) 12ms
+ ✓ test/engine-adapter.test.ts (16 tests) 50ms
+ ✓ test/boundary.test.ts (10 tests) 69ms
+ ✓ test/tool-discovery.test.ts (5 tests) 6ms
+ ✓ test/ipc-contract.test.ts (23 tests) 24ms
+ ✓ test/studio-screen.test.tsx (5 tests) 81ms
+ ✓ test/changes-screen.test.tsx (4 tests) 139ms
+ ✓ test/folder-request.test.ts (12 tests) 8ms
+ ✓ test/fixtures.test.ts (9 tests) 6ms
+ ✓ test/contracts.test.ts (15 tests) 14ms
+ ✓ test/studio-render.test.tsx (8 tests) 16ms
+ ✓ test/state-paths.test.ts (4 tests) 10ms
+ ✓ test/engine-artifacts.test.ts (15 tests) 6ms
+ ✓ test/engine-compat.test.ts (4 tests) 7ms
+ ✓ test/open-service-status.test.ts (13 tests) 8ms
+ ✓ test/supervisor-identity.test.ts (9 tests) 6ms
+ ✓ test/engine-sse.test.ts (6 tests) 4ms
+ ✓ test/design-tokens.test.ts (5 tests) 3ms
+ ✓ test/work-control.test.ts (8 tests) 3ms
+ ✓ test/design-no-network.test.ts (4 tests) 3ms
+ ✓ test/work-attention.test.ts (6 tests) 4ms
+ ✓ test/supervisor-restart.test.ts (3 tests) 2ms
+ ✓ test/open-drop.test.ts (5 tests) 2ms
+ ✓ test/navigation.test.ts (6 tests) 2ms
+
+ Test Files  47 passed (47)
+      Tests  433 passed (433)
+   Start at  00:35:42
+   Duration  3.42s (tests 79%, import 10%, environment 8%, transform 2%, worker 1%)
+
+    Isolate  47 workers spawned · ~135ms startup each (spawn + environment, per file)
+             at least ~772ms faster with isolate: false — reuses workers across files instead of one per file
+

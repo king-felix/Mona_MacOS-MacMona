@@ -1,0 +1,5 @@
+# typecheck (P14 final)
+$ npx tsc -p tsconfig.main.json --noEmit
+exit=0
+$ npx tsc -p tsconfig.renderer.json --noEmit
+exit=0

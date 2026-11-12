@@ -1,8 +1,10 @@
 import type { JSX } from "react";
 import type { ProjectSummary } from "../../shared/contracts/project-bridge";
+import type { PolishDigestView, PolishScreen } from "../../shared/contracts/polish";
 import {
   Badge,
   Button,
+  Callout,
   Card,
   EmptyState,
   IconButton,
@@ -13,10 +15,14 @@ import {
 import {
   ArchiveIcon,
   ArrowUpRightIcon,
+  CheckIcon,
+  ClockIcon,
   FolderIcon,
   PinIcon,
   PlusIcon,
   SearchIcon,
+  SparkIcon,
+  WarningIcon,
 } from "../design/icons";
 import type { HomeProps } from "./types";
 import { projectAccent, projectMonogram, relativeTime, repositoryLabel } from "./visual";
@@ -31,12 +37,20 @@ function ProjectRow({
   onRemove,
   onRelocate,
   onReveal,
+  onEditIdentity,
 }: {
   project: ProjectSummary;
   selected: boolean;
 } & Pick<
   HomeProps,
-  "onSelect" | "onRename" | "onPin" | "onArchive" | "onRemove" | "onRelocate" | "onReveal"
+  | "onSelect"
+  | "onRename"
+  | "onPin"
+  | "onArchive"
+  | "onRemove"
+  | "onRelocate"
+  | "onReveal"
+  | "onEditIdentity"
 >): JSX.Element {
   return (
     <article className={`project-row ${selected ? "project-row--selected" : ""}`}>
@@ -89,6 +103,12 @@ function ProjectRow({
             },
             { id: "rename", label: "Rename label…", onSelect: () => onRename(project) },
             {
+              id: "identity",
+              label: "Project identity…",
+              icon: <SparkIcon size={15} />,
+              onSelect: () => onEditIdentity(project),
+            },
+            {
               id: "pin",
               label: project.pinned ? "Unpin" : "Pin",
               icon: <PinIcon size={15} />,
@@ -119,6 +139,152 @@ function ProjectRow({
   );
 }
 
+function toneFor(tone: string): "neutral" | "success" | "attention" | "danger" {
+  return tone === "success" || tone === "attention" || tone === "danger" ? tone : "neutral";
+}
+
+function ResumeBrief({
+  digest,
+  onOpenScreen,
+  onRevealEvidence,
+}: {
+  digest: PolishDigestView;
+  onOpenScreen: (screen: PolishScreen) => void;
+  onRevealEvidence: (path: string) => void;
+}): JSX.Element {
+  const { resume, sinceYouLeft } = digest;
+  const current = resume.currentTask;
+  return (
+    <section className="resume" aria-labelledby="resume-heading" data-testid="resume-brief">
+      <div className="section__header">
+        <h2 className="section__title" id="resume-heading">
+          Resume Brief
+        </h2>
+        <span className="section__hint">
+          Built from stored tasks, events, receipts, and usage · no model call · no invented
+          percentage
+        </span>
+      </div>
+      <div className="resume__grid">
+        <Card
+          title={current ? current.title : "No task in focus"}
+          eyebrow={current ? `Current prompt · ${current.status}` : "Current prompt"}
+        >
+          <dl className="detail-list" data-testid="resume-facts">
+            {resume.facts.map((fact) => (
+              <div className="detail-row" key={fact.label}>
+                <dt>{fact.label}</dt>
+                <dd>
+                  <Badge tone={toneFor(fact.tone)}>{fact.value}</Badge>
+                </dd>
+              </div>
+            ))}
+            {resume.lastVerifiedStep ? (
+              <div className="detail-row">
+                <dt>Last verified step</dt>
+                <dd>{resume.lastVerifiedStep}</dd>
+              </div>
+            ) : null}
+          </dl>
+          <p className="resume__next" data-testid="resume-next">
+            <strong>Next exact action.</strong> {resume.nextStep}
+          </p>
+          {resume.unresolvedBlocker ? (
+            <Callout
+              tone="danger"
+              title={`Unresolved blocker · ${resume.unresolvedBlocker.requirement}`}
+              action={
+                <Button size="sm" variant="secondary" onClick={() => onOpenScreen("board")}>
+                  Open blocker
+                </Button>
+              }
+            >
+              {resume.unresolvedBlocker.helpNeeded}
+              <span className="hint-line">
+                {resume.unresolvedBlocker.totalAttempts} total ·{" "}
+                {resume.unresolvedBlocker.noProgressAttempts} without progress · acknowledging does
+                not reset the count
+              </span>
+            </Callout>
+          ) : null}
+          <p className="hint-line">
+            {resume.testResult.note} {resume.changes.note} {resume.spend.label}.
+          </p>
+        </Card>
+
+        <Card
+          title="Since you left"
+          eyebrow={
+            sinceYouLeft.since
+              ? `Since ${new Date(sinceYouLeft.since).toLocaleString()}`
+              : "First visit"
+          }
+        >
+          <p className="hint-line">{sinceYouLeft.note}</p>
+          {sinceYouLeft.groups.length > 0 ? (
+            <div className="digest" data-testid="since-you-left">
+              {sinceYouLeft.groups.map((group) => (
+                <div className="digest__group" key={group.id}>
+                  <h3 className="digest__title">
+                    {group.id === "completion" ? (
+                      <CheckIcon size={14} />
+                    ) : group.id === "blocker" || group.id === "attention" ? (
+                      <WarningIcon size={14} />
+                    ) : group.id === "test" ? (
+                      <ClockIcon size={14} />
+                    ) : (
+                      <SparkIcon size={14} />
+                    )}
+                    {group.title}
+                    <span className="digest__count">{group.entries.length}</span>
+                  </h3>
+                  <ul className="digest__list">
+                    {group.entries.map((entry) => (
+                      <li key={entry.key} className="digest__item">
+                        <button
+                          type="button"
+                          className="digest__open"
+                          onClick={() => onOpenScreen(entry.screen)}
+                        >
+                          <span className="digest__entry-title">{entry.title}</span>
+                          <span className="digest__entry-time">
+                            {new Date(entry.at).toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </span>
+                          {entry.detail ? (
+                            <span className="digest__entry-detail">{entry.detail}</span>
+                          ) : null}
+                        </button>
+                        {entry.evidencePath ? (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => onRevealEvidence(entry.evidencePath ?? "")}
+                          >
+                            Evidence
+                          </Button>
+                        ) : null}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+              {sinceYouLeft.duplicatesSuppressed > 0 ? (
+                <p className="hint-line">
+                  {sinceYouLeft.duplicatesSuppressed} duplicate event row
+                  {sinceYouLeft.duplicatesSuppressed === 1 ? "" : "s"} ignored.
+                </p>
+              ) : null}
+            </div>
+          ) : null}
+        </Card>
+      </div>
+    </section>
+  );
+}
+
 export function HomeScreen(props: HomeProps): JSX.Element {
   const { catalog, selectedId, query, showArchived, busy } = props;
   const active = catalog.filter((project) => !project.archived);
@@ -143,6 +309,19 @@ export function HomeScreen(props: HomeProps): JSX.Element {
           </Button>
         }
       />
+
+      {props.digest ? (
+        <ResumeBrief
+          digest={props.digest}
+          onOpenScreen={props.onOpenScreen}
+          onRevealEvidence={props.onRevealEvidence}
+        />
+      ) : (
+        <p className="hint-line" data-testid="resume-empty">
+          Select a project to see its deterministic Resume Brief. Nothing here is generated by a
+          model.
+        </p>
+      )}
 
       <div className="home-toolbar">
         <div className="search-field">

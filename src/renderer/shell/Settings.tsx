@@ -5,24 +5,34 @@ import type {
   RuntimeStatusView,
   StateFacts,
 } from "../../shared/contracts/project-bridge";
+import type {
+  PolishPreferences,
+  PolishPreferencesPatch,
+  PolishStatusView,
+} from "../../shared/contracts/polish";
 import {
   Badge,
+  Button,
   Callout,
   Card,
   EmptyState,
   ScreenHeader,
   SegmentedControl,
+  Switch,
   TabPanel,
   Tabs,
+  TextField,
 } from "../design/primitives";
 import {
   ArchiveIcon,
   BranchIcon,
+  ClockIcon,
   FolderIcon,
   LockIcon,
   RefreshIcon,
   ShieldIcon,
   TerminalIcon,
+  WarningIcon,
 } from "../design/icons";
 import { FinderIntegration } from "./FinderIntegration";
 import type { Density, ThemeName } from "../design/tokens";
@@ -38,6 +48,10 @@ export function SettingsScreen({
   density,
   onTheme,
   onDensity,
+  polish,
+  onPatchPreferences,
+  onTestNotification,
+  onQuit,
 }: {
   app: AppInfo | null;
   paths: AppPathInfo | null;
@@ -49,9 +63,31 @@ export function SettingsScreen({
   density: Density;
   onTheme: (theme: ThemeName) => void;
   onDensity: (density: Density) => void;
+  polish: PolishStatusView | null;
+  onPatchPreferences: (patch: PolishPreferencesPatch) => void;
+  onTestNotification: () => void;
+  onQuit: () => void;
 }): JSX.Element {
   const [tab, setTab] = useState("appearance");
   const problems = facts?.permissionProblems ?? [];
+  const preferences: PolishPreferences | null = polish?.preferences ?? null;
+  const patchNotifications = (
+    next: Omit<Partial<PolishPreferences["notifications"]>, "quietHours"> & {
+      quietHours?: Partial<PolishPreferences["notifications"]["quietHours"]>;
+    },
+  ): void => {
+    if (!preferences) return;
+    onPatchPreferences({
+      notifications: {
+        ...preferences.notifications,
+        ...next,
+        quietHours: {
+          ...preferences.notifications.quietHours,
+          ...(next.quietHours ?? {}),
+        },
+      },
+    });
+  };
 
   return (
     <div className="screen screen--settings">
@@ -67,6 +103,7 @@ export function SettingsScreen({
         onChange={setTab}
         tabs={[
           { id: "appearance", label: "Appearance", icon: <BranchIcon size={15} /> },
+          { id: "attention", label: "Attention", icon: <WarningIcon size={15} /> },
           { id: "data", label: "Data", icon: <FolderIcon size={15} /> },
           { id: "runtime", label: "Runtime", icon: <TerminalIcon size={15} /> },
           { id: "finder", label: "Finder", icon: <FolderIcon size={15} /> },
@@ -108,19 +145,235 @@ export function SettingsScreen({
           <Card title="Keyboard" eyebrow="Every screen reachable without a mouse">
             <ul className="rule-list">
               <li>
-                Command-1 through Command-5 switch Home, Studio, Work board, Cost lens, and
+                Command-1 through Command-6 switch Home, Studio, Work board, Changes, Cost lens, and
                 Settings.
               </li>
-              <li>Command-K opens the command palette; Escape closes it and returns focus.</li>
+              <li>
+                Command-Shift-F toggles Focus Mode; Command-Shift-B opens blockers; Command-period
+                interrupts active work after a deliberate key combination.
+              </li>
+              <li>Command-K opens the command palette; Command-/ lists every shortcut.</li>
               <li>
                 Command-O opens the project folder dialog. Command-W closes the window without
-                quitting.
+                quitting; Command-Q is the explicit quit.
               </li>
               <li>
                 Tab and Shift-Tab traverse the rail, catalog, actions, and dialogs in DOM order.
               </li>
             </ul>
           </Card>
+        </TabPanel>
+
+        <TabPanel id="attention" active={tab === "attention"}>
+          {polish && preferences ? (
+            <>
+              <Card title="Notifications" eyebrow="Local alerts only">
+                <div className="settings-switches">
+                  <Switch
+                    label="Send completion, blocker, and limit alerts"
+                    checked={preferences.notifications.enabled}
+                    onChange={(enabled) => patchNotifications({ enabled })}
+                  />
+                  <Switch
+                    label="Task completion"
+                    checked={preferences.notifications.completion}
+                    onChange={(completion) => patchNotifications({ completion })}
+                  />
+                  <Switch
+                    label="Blockers"
+                    checked={preferences.notifications.blocker}
+                    onChange={(blocker) => patchNotifications({ blocker })}
+                  />
+                  <Switch
+                    label="Cost limit warnings"
+                    checked={preferences.notifications.limit}
+                    onChange={(limit) => patchNotifications({ limit })}
+                  />
+                  <Switch
+                    label="Show task details in notification text"
+                    checked={preferences.notifications.showDetails}
+                    onChange={(showDetails) => patchNotifications({ showDetails })}
+                  />
+                </div>
+                <p className="hint-line">
+                  Hidden details are the default: a lock screen shows only that Mona has an update,
+                  never a prompt fragment, file name, or help request.
+                </p>
+                <div className="quiet-hours">
+                  <Switch
+                    label="Quiet hours"
+                    checked={preferences.notifications.quietHours.enabled}
+                    onChange={(enabled) => patchNotifications({ quietHours: { enabled } })}
+                  />
+                  <TextField
+                    label="Starts"
+                    type="time"
+                    value={preferences.notifications.quietHours.start}
+                    onChange={(event) =>
+                      patchNotifications({ quietHours: { start: event.target.value } })
+                    }
+                    disabled={!preferences.notifications.quietHours.enabled}
+                  />
+                  <TextField
+                    label="Ends"
+                    type="time"
+                    value={preferences.notifications.quietHours.end}
+                    onChange={(event) =>
+                      patchNotifications({ quietHours: { end: event.target.value } })
+                    }
+                    disabled={!preferences.notifications.quietHours.enabled}
+                  />
+                  <TextField
+                    label="Time zone"
+                    hint="IANA zone, for example Europe/Berlin. Quiet hours follow this zone across travel and daylight saving."
+                    defaultValue={preferences.notifications.quietHours.timeZone}
+                    disabled={!preferences.notifications.quietHours.enabled}
+                    onBlur={(event) => {
+                      const timeZone = event.target.value.trim();
+                      if (timeZone && timeZone !== preferences.notifications.quietHours.timeZone) {
+                        patchNotifications({ quietHours: { timeZone } });
+                      }
+                    }}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") event.currentTarget.blur();
+                    }}
+                  />
+                </div>
+                <p className="hint-line">
+                  Quiet hours silence delivery only. Computation continues unless you explicitly
+                  pause or interrupt. An alert inside the window is recorded as suppressed rather
+                  than delivered later.
+                </p>
+              </Card>
+
+              <Card title="Attention surfaces" eyebrow="Native macOS state">
+                <div className="settings-switches">
+                  <Switch
+                    label="Dock badge"
+                    checked={preferences.dockBadge}
+                    onChange={(dockBadge) => onPatchPreferences({ dockBadge })}
+                  />
+                  <Switch
+                    label="Menu-bar status"
+                    checked={preferences.menuBarStatus}
+                    onChange={(menuBarStatus) => onPatchPreferences({ menuBarStatus })}
+                  />
+                  <Switch
+                    label="Keep the Mac awake while work is active"
+                    checked={preferences.keepAwakeDuringWork}
+                    onChange={(keepAwakeDuringWork) => onPatchPreferences({ keepAwakeDuringWork })}
+                  />
+                  <Switch
+                    label="Open Mona at login"
+                    checked={preferences.launchAtLogin}
+                    onChange={(launchAtLogin) => onPatchPreferences({ launchAtLogin })}
+                  />
+                </div>
+                <dl className="detail-list" data-testid="attention-state">
+                  <div className="detail-row">
+                    <dt>Menu bar</dt>
+                    <dd>
+                      {polish.attention.menuTitle} · {polish.menuBar.note}
+                    </dd>
+                  </div>
+                  <div className="detail-row">
+                    <dt>Badge</dt>
+                    <dd>{polish.attention.badge ?? "None"}</dd>
+                  </div>
+                  <div className="detail-row">
+                    <dt>Blocked</dt>
+                    <dd>{polish.attention.blocked}</dd>
+                  </div>
+                  <div className="detail-row">
+                    <dt>Finished since your last visit</dt>
+                    <dd>{polish.attention.unseenCompletions}</dd>
+                  </div>
+                  <div className="detail-row">
+                    <dt>Keep awake</dt>
+                    <dd>
+                      {polish.keepAwake.active ? "Assertion held" : "Released"} ·{" "}
+                      {polish.keepAwake.note}
+                    </dd>
+                  </div>
+                  <div className="detail-row">
+                    <dt>Launch at login</dt>
+                    <dd>
+                      {polish.launchAtLogin.applied ? "Registered" : "Off"} ·{" "}
+                      {polish.launchAtLogin.note}
+                    </dd>
+                  </div>
+                </dl>
+                <p className="hint-line">
+                  The power assertion is scoped to an active turn or running task and is released
+                  when work ends, the setting is turned off, or Mona quits.
+                </p>
+              </Card>
+
+              <Card title="Delivery receipts" eyebrow="No silent drops">
+                <div className="inline-facts">
+                  <Button size="sm" variant="secondary" onClick={onTestNotification}>
+                    Send test notification
+                  </Button>
+                  <Badge tone={polish.notifications.available ? "success" : "attention"}>
+                    {polish.notifications.available ? "System available" : "Unavailable"}
+                  </Badge>
+                </div>
+                <p className="hint-line">{polish.notifications.note}</p>
+                {polish.notifications.recent.length === 0 ? (
+                  <p className="hint-line">No alert has been attempted in this launch.</p>
+                ) : (
+                  <ul className="evidence-list" data-testid="notification-receipts">
+                    {polish.notifications.recent
+                      .slice()
+                      .reverse()
+                      .map((receipt) => (
+                        <li key={`${receipt.key}-${receipt.at}`}>
+                          <Badge
+                            tone={
+                              receipt.delivery === "shown"
+                                ? "success"
+                                : receipt.delivery === "handed_over"
+                                  ? "attention"
+                                  : receipt.delivery === "failed"
+                                    ? "danger"
+                                    : "neutral"
+                            }
+                          >
+                            {receipt.delivery === "shown"
+                              ? "shown"
+                              : receipt.delivery === "handed_over"
+                                ? "handed over"
+                                : receipt.delivery === "failed"
+                                  ? "system refused"
+                                  : "suppressed"}
+                          </Badge>{" "}
+                          {receipt.kind} · {receipt.suppressedReason ?? receipt.title}{" "}
+                          <span className="muted">{new Date(receipt.at).toLocaleString()}</span>
+                        </li>
+                      ))}
+                  </ul>
+                )}
+              </Card>
+
+              <Card title="Quit" eyebrow="Closing is not quitting">
+                <p className="hint-line">
+                  Close the window to keep work running; the Dock icon and menu-bar status remain.
+                  Quitting interrupts active work and stops only the runtime Mona owns.
+                </p>
+                <Button variant="danger" onClick={onQuit}>
+                  Quit Mona…
+                </Button>
+              </Card>
+            </>
+          ) : (
+            <Card>
+              <EmptyState
+                icon={<ClockIcon size={26} />}
+                title="Attention state unavailable"
+                description="The local preference store did not answer. Notifications and menu-bar state stay off rather than pretending to be configured."
+              />
+            </Card>
+          )}
         </TabPanel>
 
         <TabPanel id="data" active={tab === "data"}>

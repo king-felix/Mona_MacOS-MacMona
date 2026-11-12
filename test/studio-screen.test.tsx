@@ -171,6 +171,12 @@ function render(props: Partial<Parameters<typeof StudioScreen>[0]> = {}): void {
         onCancelQueued={() => undefined}
         onStop={() => undefined}
         onReconcile={() => undefined}
+        focusMode={false}
+        favorites={[]}
+        onToggleFocus={() => undefined}
+        onUseFavorite={() => undefined}
+        onRequestSaveFavorite={() => undefined}
+        onRemoveFavorite={() => undefined}
         {...props}
       />,
     );

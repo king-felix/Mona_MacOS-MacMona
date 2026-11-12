@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent, type JSX } from "react";
 import type { AppInfo, AppPathInfo, ToolDiscovery } from "../../shared/contracts/bridge";
-import type { ProjectId } from "../../shared/contracts/ids";
+import type { ProjectId, TaskId } from "../../shared/contracts/ids";
 import type { StudioActionResult, StudioMode, StudioSnapshot } from "../../shared/contracts/studio";
 import type {
   IpcResult,
@@ -10,6 +10,13 @@ import type {
   StateFacts,
 } from "../../shared/contracts/project-bridge";
 import type { OpenResult } from "../../shared/contracts/open";
+import {
+  POLISH_ACCENTS,
+  type PolishAccent,
+  type PolishDigestView,
+  type PolishStatusView,
+  type PromptFavorite,
+} from "../../shared/contracts/polish";
 import { selectDroppedPath } from "./drop";
 import {
   Badge,
@@ -111,6 +118,26 @@ export function Shell(): JSX.Element {
   const [studioMode, setStudioMode] = useState<StudioMode>("work");
   const [studioBusy, setStudioBusy] = useState(false);
   const [dropActive, setDropActive] = useState(false);
+  const [digest, setDigest] = useState<PolishDigestView | null>(null);
+  const [polishStatus, setPolishStatus] = useState<PolishStatusView | null>(null);
+  const [focusMode, setFocusMode] = useState(false);
+  const [favorites, setFavorites] = useState<PromptFavorite[]>([]);
+  const [polishFocus, setPolishFocus] = useState<{
+    taskId: TaskId | null;
+    problemId: string | null;
+    changeSetId: string | null;
+  } | null>(null);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const [identityDialog, setIdentityDialog] = useState<{
+    project: ProjectSummary;
+    accent: string | null;
+    monogram: string;
+  } | null>(null);
+  const [favoriteDialog, setFavoriteDialog] = useState<{
+    label: string;
+    text: string;
+  } | null>(null);
+  const [quitOpen, setQuitOpen] = useState(false);
 
   const queryRef = useRef(query);
   const archivedRef = useRef(showArchived);
@@ -123,6 +150,7 @@ export function Shell(): JSX.Element {
   const draftTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const studioTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const openFolderRef = useRef<() => void>(() => undefined);
+  const toggleFocusModeRef = useRef<() => void>(() => undefined);
 
   queryRef.current = query;
   archivedRef.current = showArchived;
@@ -143,6 +171,9 @@ export function Shell(): JSX.Element {
   useEffect(() => {
     document.documentElement.dataset.screen = screen;
   }, [screen]);
+  useEffect(() => {
+    document.documentElement.dataset.focusMode = focusMode ? "on" : "off";
+  }, [focusMode]);
 
   const refreshCatalog = useCallback(async (): Promise<void> => {
     const result = await window.mona.listProjects(
@@ -201,9 +232,10 @@ export function Shell(): JSX.Element {
     async (project: ProjectSummary, target?: ScreenId): Promise<void> => {
       await flushDraft();
       setBusy(true);
-      const [result, studioResult] = await Promise.all([
+      const [result, studioResult, digestResult] = await Promise.all([
         window.mona.projectDetail(project.id),
         window.mona.studioState(project.id),
+        window.mona.polishDigest(project.id),
       ]);
       if (!result.ok) {
         setError(`${result.error.code}: ${result.error.message}`);
@@ -225,13 +257,25 @@ export function Shell(): JSX.Element {
         screen?: unknown;
         inspectorTab?: unknown;
         studioMode?: unknown;
+        focusMode?: unknown;
       } | null;
       setInspectorTab(typeof view?.inspectorTab === "string" ? view.inspectorTab : "task");
       setStudioMode(view?.studioMode === "plan" ? "plan" : "work");
+      setFocusMode(view?.focusMode === true);
       setScreen(target ?? (isScreen(view?.screen) ? view.screen : "studio"));
+      setDigest(digestResult.ok ? digestResult.value : null);
       localStorage.setItem("mona.lastProject", detail.project.id);
       setError(null);
       setBusy(false);
+      // Reading the project is the visit. The digest above was computed from the
+      // old watermark, so entries remain visible; the next visit starts after
+      // this mark. Whether a notification was acknowledged changes no task.
+      void window.mona.markPolishSeen(detail.project.id).then((marked) => {
+        if (!marked.ok) return;
+        void window.mona.polishStatus().then((status) => {
+          if (status.ok) setPolishStatus(status.value);
+        });
+      });
     },
     [flushDraft],
   );
@@ -248,6 +292,101 @@ export function Shell(): JSX.Element {
     }
     if (studioResult.ok) setStudio(studioResult.value);
   }, []);
+
+  const focusToggleAt = useRef(0);
+  const toggleFocusMode = useCallback((): void => {
+    // The Work menu accelerator and the in-window shortcut can both observe one
+    // deliberate key press; one press must never toggle twice.
+    const at = Date.now();
+    if (at - focusToggleAt.current < 200) return;
+    focusToggleAt.current = at;
+    setFocusMode((previous) => {
+      const next = !previous;
+      if (next) setScreen("studio");
+      return next;
+    });
+  }, []);
+
+  const refreshFavorites = useCallback(async (): Promise<void> => {
+    const result = await window.mona.promptFavorites();
+    if (result.ok) setFavorites(result.value);
+  }, []);
+
+  const useFavorite = useCallback(
+    (favorite: PromptFavorite): void => {
+      const current = draftRef.current.text;
+      const text =
+        current.trim().length === 0 ? favorite.text : `${current.trimEnd()}\n\n${favorite.text}`;
+      setDraft(text);
+      draftRef.current.text = text;
+      setDraftStatus("saving");
+      if (draftTimer.current) clearTimeout(draftTimer.current);
+      draftTimer.current = setTimeout(() => {
+        draftTimer.current = null;
+        void persistDraft();
+      }, 500);
+      setNotice(`Inserted “${favorite.label}” into the composer. Nothing has been sent.`);
+    },
+    [persistDraft],
+  );
+
+  const removeFavorite = useCallback(
+    async (id: string): Promise<void> => {
+      const result = await window.mona.removePromptFavorite(id);
+      if (!result.ok) {
+        setError(`${result.error.code}: ${result.error.message}`);
+        return;
+      }
+      setNotice("Prompt favorite removed.");
+      await refreshFavorites();
+    },
+    [refreshFavorites],
+  );
+
+  const submitFavorite = useCallback(async (): Promise<void> => {
+    if (!favoriteDialog) return;
+    const label = favoriteDialog.label.trim();
+    if (!label) return;
+    const text = favoriteDialog.text;
+    setFavoriteDialog(null);
+    const result = await window.mona.savePromptFavorite({ label, text });
+    if (!result.ok) {
+      setError(`${result.error.code}: ${result.error.message}`);
+      return;
+    }
+    setNotice("Prompt favorite saved locally.");
+    await refreshFavorites();
+  }, [favoriteDialog, refreshFavorites]);
+
+  const revealEvidence = useCallback((path: string): void => {
+    const project = selectedRef.current?.project.id;
+    if (!project) return;
+    void window.mona.revealWorkspacePath(project, path).then((result) => {
+      if (!result.ok) setError(`${result.error.code}: ${result.error.message}`);
+      else setNotice("Revealed evidence in Finder.");
+    });
+  }, []);
+
+  const submitIdentity = useCallback(async (): Promise<void> => {
+    if (!identityDialog) return;
+    const { project, accent, monogram } = identityDialog;
+    setIdentityDialog(null);
+    setBusy(true);
+    const result = await window.mona.setProjectIdentity({
+      projectId: project.id,
+      accent: accent as PolishAccent | null,
+      monogram: monogram.trim().length === 0 ? null : monogram.trim(),
+      expectedRevision: project.revision,
+    });
+    setBusy(false);
+    if (!result.ok) {
+      setError(`${result.error.code}: ${result.error.message}`);
+      return;
+    }
+    setNotice("Project identity updated.");
+    await refreshCatalog();
+    if (selectedRef.current?.project.id === project.id) await selectProject(result.value);
+  }, [identityDialog, refreshCatalog, selectProject]);
 
   /**
    * A Finder handoff opens the project and puts the cursor in the composer.
@@ -288,19 +427,24 @@ export function Shell(): JSX.Element {
 
   const boot = useCallback(async (): Promise<void> => {
     try {
-      const [app, appPaths, list, status, stateFacts, discovered] = await Promise.all([
-        window.mona.getAppInfo(),
-        window.mona.getPaths(),
-        window.mona.listProjects(),
-        window.mona.runtimeStatus(),
-        window.mona.stateFacts(),
-        window.mona.discoverTools(["codewhale", "git", "node"]),
-      ]);
+      const [app, appPaths, list, status, stateFacts, discovered, favoriteList, polish] =
+        await Promise.all([
+          window.mona.getAppInfo(),
+          window.mona.getPaths(),
+          window.mona.listProjects(),
+          window.mona.runtimeStatus(),
+          window.mona.stateFacts(),
+          window.mona.discoverTools(["codewhale", "git", "node"]),
+          window.mona.promptFavorites(),
+          window.mona.polishStatus(),
+        ]);
       setAppInfo(app);
       setPaths(appPaths);
       setRuntime(status);
       setFacts(stateFacts);
       setTools(discovered);
+      setFavorites(favoriteList.ok ? favoriteList.value : []);
+      setPolishStatus(polish.ok ? polish.value : null);
       if (!list.ok) {
         setError(`${list.error.code}: ${list.error.message}`);
         return;
@@ -362,6 +506,11 @@ export function Shell(): JSX.Element {
         () => {
           studioTimer.current = null;
           void refreshSelected();
+          if (push.kind !== "event") {
+            void window.mona.refreshPolish(push.projectId as ProjectId).then((status) => {
+              if (status.ok) setPolishStatus(status.value);
+            });
+          }
         },
         push.kind === "event" ? 400 : 40,
       );
@@ -376,12 +525,40 @@ export function Shell(): JSX.Element {
   }, [boot, focusComposer, refreshCatalog, refreshSelected, selectProject]);
 
   useEffect(() => {
+    const offFocus = window.mona.onPolishFocus((target) => {
+      void (async () => {
+        const list = await window.mona.listProjects(undefined, true);
+        if (!list.ok) return;
+        const project = list.value.find((entry) => entry.id === target.projectId);
+        if (project) {
+          await selectProject(project, isScreen(target.screen) ? target.screen : "studio");
+        }
+        setPolishFocus({
+          taskId: target.taskId,
+          problemId: target.problemId,
+          changeSetId: target.changeSetId,
+        });
+      })();
+    });
+    const offToggle = window.mona.onToggleFocus(() => toggleFocusModeRef.current());
+    return () => {
+      offFocus();
+      offToggle();
+    };
+  }, [selectProject]);
+
+  useEffect(() => {
     if (!selected) return;
     const timer = setTimeout(() => {
-      void window.mona.saveProjectView(selected.project.id, { screen, inspectorTab, studioMode });
+      void window.mona.saveProjectView(selected.project.id, {
+        screen,
+        inspectorTab,
+        studioMode,
+        focusMode,
+      });
     }, 300);
     return () => clearTimeout(timer);
-  }, [screen, inspectorTab, selected, studioMode]);
+  }, [screen, inspectorTab, selected, studioMode, focusMode]);
 
   const openFolder = useCallback(async (): Promise<void> => {
     setBusy(true);
@@ -403,6 +580,7 @@ export function Shell(): JSX.Element {
     await selectProject(result.value.project, "studio");
   }, [refreshCatalog, selectProject]);
   openFolderRef.current = () => void openFolder();
+  toggleFocusModeRef.current = toggleFocusMode;
 
   const onDrop = useCallback(
     async (event: DragEvent<HTMLDivElement>): Promise<void> => {
@@ -639,6 +817,27 @@ export function Shell(): JSX.Element {
       icon: <FolderIcon size={16} />,
       run: () => void openFolder(),
     });
+    actions.push({
+      id: "focus-mode",
+      label: focusMode ? "Turn Focus Mode off" : "Turn Focus Mode on",
+      hint: "Layout · ⌘⇧F",
+      icon: <SparkIcon size={16} />,
+      run: () => toggleFocusMode(),
+    });
+    actions.push({
+      id: "shortcuts",
+      label: "Keyboard shortcuts",
+      hint: "Help · ⌘/",
+      icon: <KeyCap>?</KeyCap>,
+      run: () => setShortcutsOpen(true),
+    });
+    actions.push({
+      id: "quit",
+      label: "Quit Mona…",
+      hint: "Application",
+      icon: <WarningIcon size={16} />,
+      run: () => setQuitOpen(true),
+    });
     if (selectedRef.current) {
       actions.push({
         id: "reveal",
@@ -662,7 +861,7 @@ export function Shell(): JSX.Element {
       });
     }
     return actions;
-  }, [catalog, openFolder, reveal, selectProject]);
+  }, [catalog, focusMode, openFolder, reveal, selectProject, toggleFocusMode]);
 
   const filteredActions = useMemo(() => {
     const needle = paletteQuery.trim().toLowerCase();
@@ -688,6 +887,27 @@ export function Shell(): JSX.Element {
         openFolderRef.current();
         return;
       }
+      if (event.metaKey && event.shiftKey && event.key.toLowerCase() === "f") {
+        event.preventDefault();
+        toggleFocusModeRef.current();
+        return;
+      }
+      if (event.metaKey && event.key === "/") {
+        event.preventDefault();
+        setShortcutsOpen(true);
+        return;
+      }
+      // Escape leaves Focus Mode when no dialog owns the key. The composer and
+      // the timeline keep their own Escape behaviour; a dialog closes itself.
+      const typing =
+        event.target instanceof HTMLElement &&
+        (event.target.tagName === "INPUT" ||
+          event.target.tagName === "TEXTAREA" ||
+          event.target.isContentEditable);
+      if (event.key === "Escape" && !typing && !document.querySelector('[role="dialog"]')) {
+        setFocusMode(false);
+        return;
+      }
       // Command-modified digits are never text input, so screen switching
       // stays available while the composer has focus.
       if (event.metaKey && !event.shiftKey && /^[1-6]$/.test(event.key)) {
@@ -704,6 +924,18 @@ export function Shell(): JSX.Element {
 
   const activeScreen = SCREENS.find((entry) => entry.id === screen) ?? SCREENS[0];
   const engineState = selected?.engine ?? null;
+  // One short, deduplicated announcement per real change: quiet enough for a
+  // screen reader during a long session, and never per streamed token.
+  const attentionAnnouncement = useMemo(() => {
+    if (!polishStatus) return "";
+    const { blocked, unseenCompletions, running } = polishStatus.attention;
+    const parts = [
+      running ? "work in progress" : null,
+      blocked > 0 ? `${blocked} blocked` : null,
+      unseenCompletions > 0 ? `${unseenCompletions} finished since your last visit` : null,
+    ].filter(Boolean);
+    return parts.length > 0 ? `Attention: ${parts.join(", ")}.` : "";
+  }, [polishStatus]);
 
   return (
     <div
@@ -826,6 +1058,14 @@ export function Shell(): JSX.Element {
             </Button>
             <Button
               size="sm"
+              variant="ghost"
+              onClick={() => setShortcutsOpen(true)}
+              title="Keyboard shortcuts (Command-/)"
+            >
+              Shortcuts <KeyCap>⌘/</KeyCap>
+            </Button>
+            <Button
+              size="sm"
               variant="secondary"
               icon={<SearchIcon size={14} />}
               onClick={() => setPaletteOpen(true)}
@@ -854,6 +1094,7 @@ export function Shell(): JSX.Element {
 
         <VisuallyHidden>
           <p aria-live="polite">Screen: {activeScreen?.label}</p>
+          {attentionAnnouncement ? <p aria-live="polite">{attentionAnnouncement}</p> : null}
         </VisuallyHidden>
 
         {screen === "home" ? (
@@ -887,6 +1128,18 @@ export function Shell(): JSX.Element {
             onRemove={(project) => setDialog({ kind: "remove", project })}
             onRelocate={(project) => void relocate(project)}
             onReveal={reveal}
+            digest={digest}
+            onEditIdentity={(project) =>
+              setIdentityDialog({
+                project,
+                accent: project.accent,
+                monogram: project.monogram ?? "",
+              })
+            }
+            onOpenScreen={(screen) => {
+              if (isScreen(screen)) setScreen(screen);
+            }}
+            onRevealEvidence={revealEvidence}
           />
         ) : null}
         {screen === "studio" ? (
@@ -911,6 +1164,14 @@ export function Shell(): JSX.Element {
             onCancelQueued={() => void runStudioAction((id) => window.mona.cancelQueued(id))}
             onStop={() => void runStudioAction((id) => window.mona.stopStudio(id))}
             onReconcile={() => void reconcileStudio()}
+            focusMode={focusMode}
+            favorites={favorites}
+            onToggleFocus={toggleFocusMode}
+            onUseFavorite={useFavorite}
+            onRequestSaveFavorite={() =>
+              setFavoriteDialog({ label: "", text: draftRef.current.text })
+            }
+            onRemoveFavorite={(id) => void removeFavorite(id)}
           />
         ) : null}
         {screen === "board" ? (
@@ -918,10 +1179,16 @@ export function Shell(): JSX.Element {
             detail={selected}
             onOpenFolder={() => void openFolder()}
             onShowStudio={() => setScreen("studio")}
+            focusTaskId={polishFocus?.taskId ?? null}
           />
         ) : null}
         {screen === "changes" ? (
-          <ChangesScreen detail={selected} onOpenFolder={() => void openFolder()} />
+          <ChangesScreen
+            detail={selected}
+            onOpenFolder={() => void openFolder()}
+            focusChangeSetId={polishFocus?.changeSetId ?? null}
+            onFocusHandled={() => setPolishFocus(null)}
+          />
         ) : null}
         {screen === "cost" ? (
           <CostScreen detail={selected} onOpenFolder={() => void openFolder()} />
@@ -938,6 +1205,31 @@ export function Shell(): JSX.Element {
             density={density}
             onTheme={setTheme}
             onDensity={setDensity}
+            polish={polishStatus}
+            onPatchPreferences={async (patch) => {
+              const result = await window.mona.setPolishPreferences(patch);
+              if (!result.ok) {
+                setError(`${result.error.code}: ${result.error.message}`);
+                return;
+              }
+              const status = await window.mona.polishStatus();
+              if (status.ok) setPolishStatus(status.value);
+            }}
+            onTestNotification={async () => {
+              const result = await window.mona.testNotification();
+              if (!result.ok) {
+                setError(`${result.error.code}: ${result.error.message}`);
+                return;
+              }
+              const status = await window.mona.polishStatus();
+              if (status.ok) setPolishStatus(status.value);
+              setNotice(
+                result.value.delivered
+                  ? "Test notification handed to macOS."
+                  : `Notification was not delivered: ${result.value.suppressedReason ?? "unknown reason"}`,
+              );
+            }}
+            onQuit={() => setQuitOpen(true)}
           />
         ) : null}
 
@@ -1068,6 +1360,192 @@ export function Shell(): JSX.Element {
             </p>
           </div>
         ) : null}
+      </Dialog>
+      <Dialog
+        open={shortcutsOpen}
+        title="Keyboard shortcuts"
+        description="Every screen is reachable without a mouse. Navigation makes no model call."
+        onClose={() => setShortcutsOpen(false)}
+        footer={
+          <Button variant="primary" onClick={() => setShortcutsOpen(false)}>
+            Close
+          </Button>
+        }
+      >
+        <dl className="shortcut-list" data-testid="shortcut-list">
+          <div className="shortcut-row">
+            <dt>
+              <KeyCap>⌘1</KeyCap>–<KeyCap>⌘6</KeyCap>
+            </dt>
+            <dd>Home, Studio, Work board, Changes, Cost lens, Settings</dd>
+          </div>
+          <div className="shortcut-row">
+            <dt>
+              <KeyCap>⌘K</KeyCap>
+            </dt>
+            <dd>Command palette</dd>
+          </div>
+          <div className="shortcut-row">
+            <dt>
+              <KeyCap>⌘O</KeyCap>
+            </dt>
+            <dd>Open a project folder</dd>
+          </div>
+          <div className="shortcut-row">
+            <dt>
+              <KeyCap>⌘⇧F</KeyCap>
+            </dt>
+            <dd>Toggle Focus Mode (Studio)</dd>
+          </div>
+          <div className="shortcut-row">
+            <dt>
+              <KeyCap>⌘⇧B</KeyCap>
+            </dt>
+            <dd>Show blockers in the work board</dd>
+          </div>
+          <div className="shortcut-row">
+            <dt>
+              <KeyCap>⌘.</KeyCap>
+            </dt>
+            <dd>Interrupt current work (deliberate combination)</dd>
+          </div>
+          <div className="shortcut-row">
+            <dt>
+              <KeyCap>⌘/</KeyCap>
+            </dt>
+            <dd>This shortcut list</dd>
+          </div>
+          <div className="shortcut-row">
+            <dt>
+              <KeyCap>⌘W</KeyCap>
+            </dt>
+            <dd>Close the window; work continues</dd>
+          </div>
+          <div className="shortcut-row">
+            <dt>
+              <KeyCap>⌘Q</KeyCap>
+            </dt>
+            <dd>Quit; interrupts active work and stops the owned runtime</dd>
+          </div>
+        </dl>
+      </Dialog>
+
+      <Dialog
+        open={identityDialog !== null}
+        title="Project identity"
+        description="A local color and monogram. The folder name and its contents are unchanged."
+        onClose={() => setIdentityDialog(null)}
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setIdentityDialog(null)}>
+              Cancel
+            </Button>
+            <Button variant="primary" onClick={() => void submitIdentity()}>
+              Save identity
+            </Button>
+          </>
+        }
+      >
+        {identityDialog ? (
+          <div className="identity-editor" data-testid="identity-editor">
+            <span className="harness-controls__label">Accent</span>
+            <div className="identity-swatches" role="group" aria-label="Project accent">
+              {POLISH_ACCENTS.map((accent) => (
+                <button
+                  key={accent}
+                  type="button"
+                  className={`swatch swatch--${accent} ${identityDialog.accent === accent ? "swatch--current" : ""}`}
+                  aria-label={`Use the ${accent} accent`}
+                  aria-pressed={identityDialog.accent === accent}
+                  onClick={() => setIdentityDialog({ ...identityDialog, accent })}
+                />
+              ))}
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setIdentityDialog({ ...identityDialog, accent: null })}
+              >
+                Automatic
+              </Button>
+            </div>
+            <TextField
+              label="Monogram"
+              hint="One or two letters or digits. Leave empty to derive it from the name."
+              value={identityDialog.monogram}
+              maxLength={2}
+              onChange={(event) =>
+                setIdentityDialog({ ...identityDialog, monogram: event.target.value })
+              }
+            />
+          </div>
+        ) : null}
+      </Dialog>
+
+      <Dialog
+        open={favoriteDialog !== null}
+        title="Save prompt favorite"
+        description="Favorites are inert local text. Inserting one fills the composer; nothing is sent."
+        onClose={() => setFavoriteDialog(null)}
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setFavoriteDialog(null)}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              onClick={() => void submitFavorite()}
+              disabled={!favoriteDialog || !favoriteDialog.label.trim()}
+            >
+              Save favorite
+            </Button>
+          </>
+        }
+      >
+        {favoriteDialog ? (
+          <div className="favorite-editor">
+            <TextField
+              label="Favorite label"
+              value={favoriteDialog.label}
+              maxLength={80}
+              autoFocus
+              onChange={(event) =>
+                setFavoriteDialog({ ...favoriteDialog, label: event.target.value })
+              }
+            />
+            <p className="hint-line">Exact text that will be inserted:</p>
+            <pre className="favorite-preview" data-testid="favorite-preview">
+              {favoriteDialog.text}
+            </pre>
+          </div>
+        ) : null}
+      </Dialog>
+
+      <Dialog
+        open={quitOpen}
+        title="Quit Mona?"
+        description="Closing the last window keeps Mona running. Quitting interrupts active work and stops only the runtime Mona owns."
+        onClose={() => setQuitOpen(false)}
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setQuitOpen(false)}>
+              Keep working
+            </Button>
+            <Button
+              variant="danger"
+              onClick={() => {
+                setQuitOpen(false);
+                void window.mona.quitMona(true);
+              }}
+            >
+              Quit and interrupt
+            </Button>
+          </>
+        }
+      >
+        <p className="hint-line">
+          A finish already sent to the provider may still complete. Quit does not promise a rollback
+          of external effects.
+        </p>
       </Dialog>
     </div>
   );
