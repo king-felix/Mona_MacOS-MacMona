@@ -1,6 +1,6 @@
 # Handoff — Mona macOS build
 
-**Last checkpoint:** 2026-11-11 (P11) · revision 120 · verified commit pending
+**Last checkpoint:** 2026-11-11 (P11) · revision 126 · verified commit `e32b1a1`
 **Current prompt:** P11 completed. Next eligible: **P12** — not started, not
 authorized in this session.
 
@@ -41,8 +41,8 @@ controls**.
   workflows are not gated; a confirmed interrupt moves the linked task to
   `interrupted`, an uncertain one leaves it `running` with an audit note;
   cancel-queued reports the real queue.
-- **Verification** — 300 tests in 35 files; P10/P11 sample run **34/34**;
-  Electron shell smoke **35/35** with a real seeded blocked problem; local CI
+- **Verification** — 304 tests in 35 files; P10/P11 sample run **37/37**;
+  Electron shell smoke **44/44** with a real seeded blocked problem; local CI
   green. Evidence: `docs/evidence/macos/P11-attempts.md`, ADR-006, and
   `artifacts/p11-*`.
 
@@ -112,14 +112,14 @@ controls:
 27. **Evidence generation redacts the build machine's home directory**; earlier
     P01 artifacts still contain one absolute path, recorded rather than
     rewritten.
-28. **P07 shell screenshots are restored after the P11 smoke** — the P11 shell
+29. **P07 shell screenshots are restored after the P11 smoke** — the P11 shell
     run rewrites those paths; they were restored to their committed bytes so
     P07's hash-pinned evidence stays valid. `p11-shell-board.png` keeps the P11
     capture.
 
 ## Key files
 
-- `.mona/build-macos/state.json` — prompt status (revision from last checkpoint).
+- `.mona/build-macos/state.json` — prompt status (revision 126 at the P11 checkpoint).
 - `.mona/build-macos/attempts.jsonl` — empty; nothing failed three times.
 - `.mona/build-macos/DECISIONS.md` — D-001…D-026.
 - `.mona/build-macos/BLOCKERS.md` — external prerequisites only.

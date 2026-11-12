@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "revision": 119,
+  "revision": 126,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
   "spec_sha256": "d1c02941151c71912bc3e9c8b2509612298d54e05e0bf16fe933b9bd93e3e028",
   "prompt_file_sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8",
-  "current_prompt": "P10",
+  "current_prompt": "P11",
   "current_prompt_status": "completed",
-  "last_verified_commit": "8c9991e",
+  "last_verified_commit": "e32b1a1",
   "tasks": {
     "P00": {
       "status": "completed",
@@ -53,7 +53,8 @@
         },
         {
           "path": "docs/requirements-macos.json",
-          "sha256": "360c08ff255c4c5861df217ad75563cbe72f54ee8b3a463375e2e976f5891d0e"
+          "sha256": "ceee54426c088f62f1ffabbc69e62747a58c6e444bf201f21f49061f389dbea2",
+          "note": "re-verified after P11 regenerated the registry and decisions"
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
@@ -81,7 +82,8 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "2ad2b04a173f400104d3117472eeb576096cbba4e348bc2039eef786b56a73b7"
+          "sha256": "fa3f19981f964f0b35d6848361e32cfd24e15f21d2287617cd6a5ef2ae8ed902",
+          "note": "re-verified after P11 regenerated the registry and decisions"
         },
         {
           "path": "docs/evidence/macos/artifacts/p00-test-run.txt",
@@ -282,15 +284,18 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "b2e83e20a41676ead48c9e9ca48382d123d7a11d9410f9f1d573ee1422451f33"
+          "sha256": "076cdafed3b6987632502149296d928b5553156769bc9f1b38385dcd53bca8af",
+          "note": "re-verified by the P11 CI run after the board IPC was added"
         },
         {
           "path": "src/main/ipc-contract.ts",
-          "sha256": "f2efa659a0b328527f45f197866072f683d0f1c09614db204e3e03ae22712ae8"
+          "sha256": "dcbde7bf8e3cb465f302f27aa2b6a90a3e3504abd844e360ffddefa3769b3fc4",
+          "note": "re-verified by the P11 CI run after the board IPC was added"
         },
         {
           "path": "src/main/ipc.ts",
-          "sha256": "3a65a7869441705abfdd19edb3e6a064cea20fa5e7e30b4564b8d1a78de4b274"
+          "sha256": "3db5a48dc71f83cb4dacfdb0cead04d4ef3ff14b013bb68235448639f6fb4f9a",
+          "note": "re-verified by the P11 CI run after the board IPC was added"
         },
         {
           "path": "src/main/menu.ts",
@@ -318,7 +323,8 @@
         },
         {
           "path": "src/preload/index.ts",
-          "sha256": "a68d935a607792b13689e1a8884a836fde1ed5ecec974b6aa10df04563084a1a"
+          "sha256": "8e7a3c21fa49dd8fb57a4786bedc606275e63276f399299c2897254cc2b48271",
+          "note": "re-verified by the P11 CI run after the board IPC was added"
         },
         {
           "path": "src/renderer/App.tsx",
@@ -342,7 +348,8 @@
         },
         {
           "path": "src/shared/contracts/bridge.ts",
-          "sha256": "e46ee517448a05285fa08e9f2b759ddeec4ca77c0c4c7ea2dc7a0c5d6d5fdd59"
+          "sha256": "04f894707e942965e6a74c1bc3740080e7460115ee33ee68f16be4bd49c23280",
+          "note": "re-verified by the P11 CI run after the board IPC was added"
         },
         {
           "path": "src/shared/contracts/engine.ts",
@@ -665,7 +672,8 @@
         },
         {
           "path": "src/main/work/control.ts",
-          "sha256": "fef3b48d6b76c152f162197b1772cad7919d993902efce0b2b25ef016bf381c4"
+          "sha256": "1848e492293ee85ac741d845df910947ef5997f19182a307a995f0905acbf0d5",
+          "note": "re-verified by the P11 CI run after the pause note changed"
         },
         {
           "path": "src/main/desktop-lifecycle.ts",
@@ -673,7 +681,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "b2e83e20a41676ead48c9e9ca48382d123d7a11d9410f9f1d573ee1422451f33"
+          "sha256": "076cdafed3b6987632502149296d928b5553156769bc9f1b38385dcd53bca8af",
+          "note": "re-verified by the P11 CI run after the pause note changed"
         },
         {
           "path": "src/main/engine/runtime-process.ts",
@@ -725,7 +734,8 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "2ad2b04a173f400104d3117472eeb576096cbba4e348bc2039eef786b56a73b7"
+          "sha256": "fa3f19981f964f0b35d6848361e32cfd24e15f21d2287617cd6a5ef2ae8ed902",
+          "note": "re-verified by the P11 CI run after the pause note changed"
         }
       ],
       "blocker_ids": [],
@@ -1141,7 +1151,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "b2e83e20a41676ead48c9e9ca48382d123d7a11d9410f9f1d573ee1422451f33"
+          "sha256": "076cdafed3b6987632502149296d928b5553156769bc9f1b38385dcd53bca8af",
+          "note": "re-verified by the P11 CI run after the open path's shared files changed"
         },
         {
           "path": "src/main/desktop-lifecycle.ts",
@@ -1149,11 +1160,13 @@
         },
         {
           "path": "src/main/ipc.ts",
-          "sha256": "3a65a7869441705abfdd19edb3e6a064cea20fa5e7e30b4564b8d1a78de4b274"
+          "sha256": "3db5a48dc71f83cb4dacfdb0cead04d4ef3ff14b013bb68235448639f6fb4f9a",
+          "note": "re-verified by the P11 CI run after the open path's shared files changed"
         },
         {
           "path": "src/main/ipc-contract.ts",
-          "sha256": "f2efa659a0b328527f45f197866072f683d0f1c09614db204e3e03ae22712ae8"
+          "sha256": "dcbde7bf8e3cb465f302f27aa2b6a90a3e3504abd844e360ffddefa3769b3fc4",
+          "note": "re-verified by the P11 CI run after the open path's shared files changed"
         },
         {
           "path": "src/main/projects/service.ts",
@@ -1161,7 +1174,8 @@
         },
         {
           "path": "src/preload/index.ts",
-          "sha256": "a68d935a607792b13689e1a8884a836fde1ed5ecec974b6aa10df04563084a1a"
+          "sha256": "8e7a3c21fa49dd8fb57a4786bedc606275e63276f399299c2897254cc2b48271",
+          "note": "re-verified by the P11 CI run after the open path's shared files changed"
         },
         {
           "path": "src/shared/contracts/open.ts",
@@ -1169,7 +1183,8 @@
         },
         {
           "path": "src/shared/contracts/bridge.ts",
-          "sha256": "e46ee517448a05285fa08e9f2b759ddeec4ca77c0c4c7ea2dc7a0c5d6d5fdd59"
+          "sha256": "04f894707e942965e6a74c1bc3740080e7460115ee33ee68f16be4bd49c23280",
+          "note": "re-verified by the P11 CI run after the open path's shared files changed"
         },
         {
           "path": "src/renderer/shell/Shell.tsx",
@@ -1213,7 +1228,8 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "2ad2b04a173f400104d3117472eeb576096cbba4e348bc2039eef786b56a73b7"
+          "sha256": "fa3f19981f964f0b35d6848361e32cfd24e15f21d2287617cd6a5ef2ae8ed902",
+          "note": "re-verified by the P11 CI run after the open path's shared files changed"
         },
         {
           "path": "docs/evidence/macos/artifacts/p09-finder-panel.png",
@@ -1267,7 +1283,8 @@
         },
         {
           "path": "src/main/work/board.ts",
-          "sha256": "8ee4db45eaba11d97890abd8709d00d448e9c772afdc94d4c2d77ffd4c9c218b"
+          "sha256": "2bbc22934a55d32cfa05b41236b652a3fa07da142934ff1936f978cd990b4daa",
+          "note": "re-verified by the P11 CI run; the board, schema, and IPC were extended"
         },
         {
           "path": "src/main/work/fingerprint.ts",
@@ -1279,11 +1296,13 @@
         },
         {
           "path": "src/main/state/schema.ts",
-          "sha256": "b8c306db5fb7c501cfa449ee018a920d85c44f03b38cc08e668e496fb1a8d501"
+          "sha256": "3ce65300ac3cf3c3e605b6d1464a16541719666343b1b25186b7238f3cfd164d",
+          "note": "re-verified by the P11 CI run; the board, schema, and IPC were extended"
         },
         {
           "path": "src/main/state/store.ts",
-          "sha256": "e9a29406d83c5af125cc70798f7ea93c182dd780e7618717d591422dcd9d373a"
+          "sha256": "3eb8fc265d5c09998df75a2b5c5360bf8caf1b9e29088aaede5256aaad6f370e",
+          "note": "re-verified by the P11 CI run; the board, schema, and IPC were extended"
         },
         {
           "path": "src/main/state/portable.ts",
@@ -1291,7 +1310,8 @@
         },
         {
           "path": "src/shared/contracts/board.ts",
-          "sha256": "813bb4b0ceba099ee3558eab93456194bc41fe19228e8e75a9be0b99d7826230"
+          "sha256": "590d78111abdc65d0b94a1de0248a8c5544d86cef5912493b773acf84bfdab86",
+          "note": "re-verified by the P11 CI run; the board, schema, and IPC were extended"
         },
         {
           "path": "src/shared/contracts/project.ts",
@@ -1299,27 +1319,33 @@
         },
         {
           "path": "src/shared/contracts/bridge.ts",
-          "sha256": "e46ee517448a05285fa08e9f2b759ddeec4ca77c0c4c7ea2dc7a0c5d6d5fdd59"
+          "sha256": "04f894707e942965e6a74c1bc3740080e7460115ee33ee68f16be4bd49c23280",
+          "note": "re-verified by the P11 CI run; the board, schema, and IPC were extended"
         },
         {
           "path": "src/main/ipc-contract.ts",
-          "sha256": "f2efa659a0b328527f45f197866072f683d0f1c09614db204e3e03ae22712ae8"
+          "sha256": "dcbde7bf8e3cb465f302f27aa2b6a90a3e3504abd844e360ffddefa3769b3fc4",
+          "note": "re-verified by the P11 CI run; the board, schema, and IPC were extended"
         },
         {
           "path": "src/main/ipc.ts",
-          "sha256": "3a65a7869441705abfdd19edb3e6a064cea20fa5e7e30b4564b8d1a78de4b274"
+          "sha256": "3db5a48dc71f83cb4dacfdb0cead04d4ef3ff14b013bb68235448639f6fb4f9a",
+          "note": "re-verified by the P11 CI run; the board, schema, and IPC were extended"
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "b2e83e20a41676ead48c9e9ca48382d123d7a11d9410f9f1d573ee1422451f33"
+          "sha256": "076cdafed3b6987632502149296d928b5553156769bc9f1b38385dcd53bca8af",
+          "note": "re-verified by the P11 CI run; the board, schema, and IPC were extended"
         },
         {
           "path": "src/preload/index.ts",
-          "sha256": "a68d935a607792b13689e1a8884a836fde1ed5ecec974b6aa10df04563084a1a"
+          "sha256": "8e7a3c21fa49dd8fb57a4786bedc606275e63276f399299c2897254cc2b48271",
+          "note": "re-verified by the P11 CI run; the board, schema, and IPC were extended"
         },
         {
           "path": "src/renderer/shell/Board.tsx",
-          "sha256": "56955aaecc59ed07685f2a56c400bd3a26042aedb40a5f4bea53f09af1971a53"
+          "sha256": "aff9bc45c3de43b4a7e20bd8646a8c188cbeb7749c078c0d6364bfe9bdaa7ca5",
+          "note": "re-verified by the P11 CI run; the board, schema, and IPC were extended"
         },
         {
           "path": "src/renderer/design/primitives.tsx",
@@ -1335,25 +1361,86 @@
         },
         {
           "path": "test/state-database.test.ts",
-          "sha256": "5ffa0ece9d87e0ad3f15e9ccf20771542e368e1a4a06038694150258bdba18ef"
+          "sha256": "cb2be7910d783f0fd2a69000087383f73517ade223633b1182f56e7a30f61a08",
+          "note": "re-verified by the P11 CI run; the board, schema, and IPC were extended"
         },
         {
           "path": "scripts/board-smoke.mjs",
-          "sha256": "c2fdfe76645a05678c2a698c4df156a0f1062df25caf96f826575725953fd249"
+          "sha256": "1d75c53715c2a99a55698da14c0bd80b63c25812d4285203c1435f603425fe21",
+          "note": "re-verified by the P11 CI run; the board, schema, and IPC were extended"
         }
       ],
       "blocker_ids": [],
       "started_utc": "2026-11-11T21:40:00.000Z"
     },
     "P11": {
-      "status": "pending",
+      "status": "completed",
       "requirements": [
         "MONA-011",
         "MONA-012"
       ],
-      "completed_steps": [],
+      "completed_steps": [
+        "Read spec 8.4/8.5/10.3, O3, ADR-005, and the P10 board/control boundary",
+        "Added migration v4: problems, problem_events, and tasks.active_turn_id with partial unique indexes that keep one active problem per task+requirement or taskless fingerprint",
+        "Implemented recordProblemAttempt as one transaction: stable id, both counters, evidenced-progress reset, third-attempt block, and fourth-attempt refusal",
+        "Added acknowledgement (audit only), human resolution, and evidence-gated reopen; block propagation into selection, dispatch, and beginTaskRun",
+        "Connected pause-after-task to the dispatch preflight, attributed interrupts by exact turn id, released the link on turn completion, and reported cancel-queued truthfully",
+        "Cleared the ledger on replace import and refused taskless-problem adoption for task-bound attempts",
+        "Added 14 attempt-ledger tests, extended the sample run to 37 checks and the shell smoke to 44 checks, wrote ADR-006, and refreshed the earlier prompts' evidence after CI passed"
+      ],
       "remaining_steps": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P11-attempts.md",
+          "sha256": "e84704b2933b925b4ccfc9a309b0324c0c117bf123d92ca4ea574a402c11a1e6",
+          "note": "P11 attempt ledger, control boundaries, and verification"
+        },
+        {
+          "path": "docs/decisions/ADR-006-attempt-enforcement-boundary.md",
+          "sha256": "7cfb5eb2a52fcc3019cf2e2eb60494078e8b67207a408bbc1d39c62d3595648b",
+          "note": "P11 attempt ledger, control boundaries, and verification"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p11-tests.txt",
+          "sha256": "b5d503f76a05042b1c3533a113ba50de6456997731ffc1fd2472d98ab4aeba4a",
+          "note": "P11 attempt ledger, control boundaries, and verification"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p11-board-sample.json",
+          "sha256": "2a82a921d8e767518da4dd69800ad231466a9c1626ccf07f6d7b51873564ebaf",
+          "note": "P11 attempt ledger, control boundaries, and verification"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p11-attempts.txt",
+          "sha256": "82aa118bb89b44579d8002f89ecd7449ceb150c8aeed7e8ab3b68da3bbfa69ef",
+          "note": "P11 attempt ledger, control boundaries, and verification"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p11-shell-smoke.json",
+          "sha256": "0b6874723a03565857d2a61aff9bf4516abce3c33896d5ab777cda84319b3a54",
+          "note": "P11 attempt ledger, control boundaries, and verification"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p11-shell-board.png",
+          "sha256": "51f17e1eeb46326fd600954cda1a4e13eca19169ffcfeccc82b5a3e2e6f145ae",
+          "note": "P11 attempt ledger, control boundaries, and verification"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p11-shell-attempts.png",
+          "sha256": "d6a974a4135553bbcd89beea9e18533b2fe686527c2142d1c82b85489d595025",
+          "note": "P11 attempt ledger, control boundaries, and verification"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p11-ci.txt",
+          "sha256": "1f999677b81593ea0c8d0a6b8dbb1cff2c2b3627b30adeed1ee5c62b1c8b91a0",
+          "note": "P11 attempt ledger, control boundaries, and verification"
+        },
+        {
+          "path": "test/work-attempts.test.ts",
+          "sha256": "39e32c540cdcc7535422a8fc85fa98ff5eeea2702e2cb141784e2a114f5e0198",
+          "note": "P11 attempt ledger, control boundaries, and verification"
+        }
+      ],
       "blocker_ids": []
     },
     "P12": {
@@ -1550,7 +1637,7 @@
   "next_eligible_prompts": [
     "P08"
   ],
-  "last_checkpoint_utc": "2026-11-12T04:43:38.951Z",
+  "last_checkpoint_utc": "2026-11-12T05:13:33.006Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",
