@@ -1,0 +1,96 @@
+{
+  "$id": "mona/requirements-macos@1",
+  "title": "Mona macOS requirement and prompt traceability registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "spec", "prompts", "requirements", "validated"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "generated_by": { "type": "string" },
+    "spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "platform", "files", "indexed_utc"],
+      "properties": {
+        "version": { "const": "macOS-1.0" },
+        "platform": { "const": "darwin-arm64" },
+        "indexed_utc": { "type": "string" },
+        "files": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "sha256"],
+            "properties": {
+              "path": { "type": "string" },
+              "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+            }
+          }
+        }
+      }
+    },
+    "prompts": {
+      "type": "array",
+      "minItems": 28,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title", "prerequisites", "requirement_ids", "status"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^P\\d{2}$" },
+          "title": { "type": "string" },
+          "prerequisites": { "type": "array", "items": { "type": "string", "pattern": "^P\\d{2}$" } },
+          "requirement_ids": { "type": "array", "items": { "type": "string", "pattern": "^(MONA|MAC)-\\d{3}$" } },
+          "final_acceptance_of_all": { "type": "boolean" },
+          "status": { "const": "pending" }
+        }
+      }
+    },
+    "requirements": {
+      "type": "array",
+      "minItems": 38,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "track", "title", "prompts", "status", "acceptance", "evidence"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^(MONA|MAC)-\\d{3}$" },
+          "track": { "enum": ["Foundation", "Core", "Complete"] },
+          "title": { "type": "string" },
+          "prompts": { "type": "array", "items": { "type": "string", "pattern": "^P\\d{2}$" } },
+          "status": { "enum": ["pending", "partial", "satisfied", "blocked"] },
+          "acceptance": { "enum": ["pending", "accepted", "rejected"] },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["path"],
+              "properties": {
+                "path": { "type": "string" },
+                "sha256": { "type": ["string", "null"] },
+                "note": { "type": "string" }
+              }
+            }
+          },
+          "notes": { "type": "string" }
+        }
+      }
+    },
+    "dependency_order": { "type": "array", "items": { "type": "string" } },
+    "validated": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ok", "errors", "warnings", "validated_utc", "prompt_count", "requirement_count"],
+      "properties": {
+        "ok": { "type": "boolean" },
+        "errors": { "type": "array", "items": { "type": "string" } },
+        "warnings": { "type": "array", "items": { "type": "string" } },
+        "validated_utc": { "type": "string" },
+        "prompt_count": { "type": "integer" },
+        "requirement_count": { "type": "integer" }
+      }
+    }
+  }
+}

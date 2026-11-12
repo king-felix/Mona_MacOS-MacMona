@@ -1,0 +1,983 @@
+{
+  "schema_version": 1,
+  "generated_by": "tools/monabuild (deterministic parse of the two specification files)",
+  "spec": {
+    "version": "macOS-1.0",
+    "platform": "darwin-arm64",
+    "files": [
+      {
+        "path": "Mona_macOS_Project.md",
+        "sha256": "d1c02941151c71912bc3e9c8b2509612298d54e05e0bf16fe933b9bd93e3e028"
+      },
+      {
+        "path": "Mona_macOS_PROMPTS.md",
+        "sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8"
+      }
+    ],
+    "indexed_utc": "2026-11-12T00:32:13.566Z"
+  },
+  "prompts": [
+    {
+      "id": "P00",
+      "title": "Mac bootstrap, inventory, durable build ledger",
+      "prerequisites": [],
+      "requirement_ids": [
+        "MONA-001",
+        "MONA-010",
+        "MAC-001",
+        "MAC-008"
+      ],
+      "final_acceptance_of_all": false,
+      "status": "pending"
+    },
+    {
+      "id": "P01",
+      "title": "Integration, cost, and coverage gates",
+      "prerequisites": [
+        "P00"
+      ],
+      "requirement_ids": [
+        "MONA-001",
+        "MONA-002",
+        "MONA-003",
+        "MONA-030"
+      ],
+      "final_acceptance_of_all": false,
+      "status": "pending"
+    },
+    {
+      "id": "P02",
+      "title": "Desktop repository and contracts",
+      "prerequisites": [
+        "P01"
+      ],
+      "requirement_ids": [
+        "MONA-006",
+        "MONA-026"
+      ],
+      "final_acceptance_of_all": false,
+      "status": "pending"
+    },
+    {
+      "id": "P03",
+      "title": "Real engine adapter",
+      "prerequisites": [
+        "P02"
+      ],
+      "requirement_ids": [
+        "MONA-001",
+        "MONA-002",
+        "MONA-007",
+        "MONA-008",
+        "MONA-016"
+      ],
+      "final_acceptance_of_all": false,
+      "status": "pending"
+    },
+    {
+      "id": "P04",
+      "title": "Runtime/process supervisor",
+      "prerequisites": [
+        "P03"
+      ],
+      "requirement_ids": [
+        "MONA-002",
+        "MONA-012",
+        "MONA-016",
+        "MAC-003"
+      ],
+      "final_acceptance_of_all": false,
+      "status": "pending"
+    },
+    {
+      "id": "P05",
+      "title": "Transactional state and migration",
+      "prerequisites": [
+        "P02"
+      ],
+      "requirement_ids": [
+        "MONA-005",
+        "MONA-010",
+        "MONA-016",
+        "MONA-025"
+      ],
+      "final_acceptance_of_all": false,
+      "status": "pending"
+    },
+    {
+      "id": "P06",
+      "title": "Design system and accessible screens",
+      "prerequisites": [
+        "P02"
+      ],
+      "requirement_ids": [
+        "MONA-006",
+        "MONA-029",
+        "MAC-002"
+      ],
+      "final_acceptance_of_all": false,
+      "status": "pending"
+    },
+    {
+      "id": "P07",
+      "title": "Project catalog and shell",
+      "prerequisites": [
+        "P04",
+        "P05",
+        "P06"
+      ],
+      "requirement_ids": [
+        "MONA-005",
+        "MONA-006",
+        "MONA-029"
+      ],
+      "final_acceptance_of_all": false,
+      "status": "pending"
+    },
+    {
+      "id": "P08",
+      "title": "Live work studio",
+      "prerequisites": [
+        "P03",
+        "P07"
+      ],
+      "requirement_ids": [
+        "MONA-007",
+        "MONA-008",
+        "MONA-012",
+        "MONA-014"
+      ],
+      "final_acceptance_of_all": false,
+      "status": "pending"
+    },
+    {
+      "id": "P09",
+      "title": "Finder Service, folder drop and native launch",
+      "prerequisites": [
+        "P07",
+        "P08"
+      ],
+      "requirement_ids": [
+        "MONA-004",
+        "MAC-002"
+      ],
+      "final_acceptance_of_all": false,
+      "status": "pending"
+    },
+    {
+      "id": "P10",
+      "title": "Prompt work board and continuity",
+      "prerequisites": [
+        "P05",
+        "P08"
+      ],
+      "requirement_ids": [
+        "MONA-009",
+        "MONA-010",
+        "MONA-024"
+      ],
+      "final_acceptance_of_all": false,
+      "status": "pending"
+    },
+    {
+      "id": "P11",
+      "title": "Attempt ledger and execution boundaries",
+      "prerequisites": [
+        "P04",
+        "P10"
+      ],
+      "requirement_ids": [
+        "MONA-011",
+        "MONA-012"
+      ],
+      "final_acceptance_of_all": false,
+      "status": "pending"
+    },
+    {
+      "id": "P12",
+      "title": "Cost ledger and budgets",
+      "prerequisites": [
+        "P03",
+        "P05",
+        "P08"
+      ],
+      "requirement_ids": [
+        "MONA-003",
+        "MONA-013"
+      ],
+      "final_acceptance_of_all": false,
+      "status": "pending"
+    },
+    {
+      "id": "P13",
+      "title": "Changes, Git, tests and restore",
+      "prerequisites": [
+        "P08",
+        "P05"
+      ],
+      "requirement_ids": [
+        "MONA-014",
+        "MONA-015"
+      ],
+      "final_acceptance_of_all": false,
+      "status": "pending"
+    },
+    {
+      "id": "P14",
+      "title": "Resume Brief, menu bar and focus",
+      "prerequisites": [
+        "P10",
+        "P11",
+        "P12",
+        "P13"
+      ],
+      "requirement_ids": [
+        "MONA-017",
+        "MONA-029"
+      ],
+      "final_acceptance_of_all": false,
+      "status": "pending"
+    },
+    {
+      "id": "P15",
+      "title": "Agent observatory and native workflows",
+      "prerequisites": [
+        "P11",
+        "P12",
+        "P13"
+      ],
+      "requirement_ids": [
+        "MONA-018",
+        "MONA-019"
+      ],
+      "final_acceptance_of_all": false,
+      "status": "pending"
+    },
+    {
+      "id": "P16",
+      "title": "Provider/model/configuration workbench",
+      "prerequisites": [
+        "P08",
+        "P12"
+      ],
+      "requirement_ids": [
+        "MONA-008",
+        "MONA-020",
+        "MAC-003"
+      ],
+      "final_acceptance_of_all": false,
+      "status": "pending"
+    },
+    {
+      "id": "P17",
+      "title": "MCP, skills, plugins and hooks",
+      "prerequisites": [
+        "P16"
+      ],
+      "requirement_ids": [
+        "MONA-021"
+      ],
+      "final_acceptance_of_all": false,
+      "status": "pending"
+    },
+    {
+      "id": "P18",
+      "title": "Terminal and complete capability explorer",
+      "prerequisites": [
+        "P15",
+        "P17"
+      ],
+      "requirement_ids": [
+        "MONA-022",
+        "MONA-023",
+        "MONA-030"
+      ],
+      "final_acceptance_of_all": false,
+      "status": "pending"
+    },
+    {
+      "id": "P19",
+      "title": "Memory, import/export and diagnostics",
+      "prerequisites": [
+        "P10",
+        "P13",
+        "P18"
+      ],
+      "requirement_ids": [
+        "MONA-024",
+        "MONA-025"
+      ],
+      "final_acceptance_of_all": false,
+      "status": "pending"
+    },
+    {
+      "id": "P20",
+      "title": "Recovery, security and failure testing",
+      "prerequisites": [
+        "P14",
+        "P15",
+        "P16",
+        "P17",
+        "P18",
+        "P19"
+      ],
+      "requirement_ids": [
+        "MONA-016",
+        "MONA-025",
+        "MONA-026"
+      ],
+      "final_acceptance_of_all": false,
+      "status": "pending"
+    },
+    {
+      "id": "P21",
+      "title": "Self-contained arm64 app and offline installer",
+      "prerequisites": [
+        "P09",
+        "P20"
+      ],
+      "requirement_ids": [
+        "MONA-004",
+        "MONA-027",
+        "MAC-001",
+        "MAC-004"
+      ],
+      "final_acceptance_of_all": false,
+      "status": "pending"
+    },
+    {
+      "id": "P22",
+      "title": "Signing, notarization and release automation",
+      "prerequisites": [
+        "P21"
+      ],
+      "requirement_ids": [
+        "MONA-027",
+        "MAC-005"
+      ],
+      "final_acceptance_of_all": false,
+      "status": "pending"
+    },
+    {
+      "id": "P23",
+      "title": "Update, migration and uninstall lifecycle",
+      "prerequisites": [
+        "P21"
+      ],
+      "requirement_ids": [
+        "MONA-025",
+        "MONA-027",
+        "MAC-006"
+      ],
+      "final_acceptance_of_all": false,
+      "status": "pending"
+    },
+    {
+      "id": "P24",
+      "title": "Clean recipient install qualification",
+      "prerequisites": [
+        "P22",
+        "P23"
+      ],
+      "requirement_ids": [
+        "MONA-028",
+        "MAC-007"
+      ],
+      "final_acceptance_of_all": false,
+      "status": "pending"
+    },
+    {
+      "id": "P25",
+      "title": "Shared-core/Windows coordination audit",
+      "prerequisites": [
+        "P20"
+      ],
+      "requirement_ids": [
+        "MAC-008"
+      ],
+      "final_acceptance_of_all": false,
+      "status": "pending"
+    },
+    {
+      "id": "P26",
+      "title": "Whole-product QA and economics recheck",
+      "prerequisites": [
+        "P24",
+        "P25"
+      ],
+      "requirement_ids": [
+        "MONA-003",
+        "MONA-006",
+        "MONA-028",
+        "MONA-030",
+        "MAC-001",
+        "MAC-002",
+        "MAC-003",
+        "MAC-004",
+        "MAC-005",
+        "MAC-006",
+        "MAC-007",
+        "MAC-008"
+      ],
+      "final_acceptance_of_all": false,
+      "status": "pending"
+    },
+    {
+      "id": "P27",
+      "title": "Shareable release and final handoff",
+      "prerequisites": [
+        "P26"
+      ],
+      "requirement_ids": [
+        "MONA-027",
+        "MONA-028"
+      ],
+      "final_acceptance_of_all": true,
+      "status": "pending"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "MONA-001",
+      "track": "Foundation",
+      "title": "Discover installed Codewhale identity, path, matching source, and actual capabilities; record reproducible evidence",
+      "prompts": [
+        "P00",
+        "P01",
+        "P03"
+      ],
+      "status": "pending",
+      "acceptance": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "MONA-002",
+      "track": "Foundation",
+      "title": "Prove tool-enabled Full Access headless execution, live events, interrupt, resume, and correct provider/model",
+      "prompts": [
+        "P01",
+        "P03",
+        "P04"
+      ],
+      "status": "pending",
+      "acceptance": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "MONA-003",
+      "track": "Foundation",
+      "title": "Cost parity gate, zero idle inference, no hidden model or routing changes",
+      "prompts": [
+        "P01",
+        "P12",
+        "P26"
+      ],
+      "status": "pending",
+      "acceptance": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "MONA-004",
+      "track": "Core",
+      "title": "Finder selected-folder Service, Dock/folder drop and open dialog, single-instance dispatch, safe file URLs, idempotent registration",
+      "prompts": [
+        "P09",
+        "P21"
+      ],
+      "status": "pending",
+      "acceptance": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "MONA-005",
+      "track": "Core",
+      "title": "Project catalog: create, open, rename label, archive, pin, search, relocate, reveal folder; deleting catalog entries never deletes source",
+      "prompts": [
+        "P05",
+        "P07"
+      ],
+      "status": "pending",
+      "acceptance": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "MONA-006",
+      "track": "Core",
+      "title": "Bright accessible desktop shell; Daybreak/Afterglow themes, density, scale, reduced motion",
+      "prompts": [
+        "P02",
+        "P06",
+        "P07",
+        "P26"
+      ],
+      "status": "pending",
+      "acceptance": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "MONA-007",
+      "track": "Core",
+      "title": "Streaming conversation, drafts, attachments only when supported, file references, copy/export, search, code rendering",
+      "prompts": [
+        "P03",
+        "P08"
+      ],
+      "status": "pending",
+      "acceptance": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "MONA-008",
+      "track": "Core",
+      "title": "Explicit Plan/Work and effective permission display; Victor’s saved DS Full Access profile; no silent policy widening",
+      "prompts": [
+        "P03",
+        "P08",
+        "P16"
+      ],
+      "status": "pending",
+      "acceptance": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "MONA-009",
+      "track": "Core",
+      "title": "Work board: prompt catalog, dependencies, acceptance criteria, deterministic eligible-task selection",
+      "prompts": [
+        "P10"
+      ],
+      "status": "pending",
+      "acceptance": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "MONA-010",
+      "track": "Core",
+      "title": "Durable state, handoff, decisions, requirement traceability, attempt ledger, conflict detection",
+      "prompts": [
+        "P00",
+        "P05",
+        "P10"
+      ],
+      "status": "pending",
+      "acceptance": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "MONA-011",
+      "track": "Core",
+      "title": "Three-attempt enforcement for Mona-managed jobs; honest visibility and cooperative instruction for engine-internal loops",
+      "prompts": [
+        "P11"
+      ],
+      "status": "pending",
+      "acceptance": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "MONA-012",
+      "track": "Core",
+      "title": "Pause after task, interrupt now, queue cancel, resume, stop owned descendants; truthful partial/uncertain outcomes",
+      "prompts": [
+        "P04",
+        "P08",
+        "P11"
+      ],
+      "status": "pending",
+      "acceptance": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "MONA-013",
+      "track": "Core",
+      "title": "Cost lens: usage, cache evidence, attribution, unknowns, budgets, export; no invented exact balance",
+      "prompts": [
+        "P12"
+      ],
+      "status": "pending",
+      "acceptance": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "MONA-014",
+      "track": "Core",
+      "title": "Changes, tests, artifacts, receipts, provenance; virtualized diff and large-output handling",
+      "prompts": [
+        "P08",
+        "P13"
+      ],
+      "status": "pending",
+      "acceptance": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "MONA-015",
+      "track": "Core",
+      "title": "Git status/branch/worktree awareness, selected commits, non-Git operation, conflict-aware restore",
+      "prompts": [
+        "P13"
+      ],
+      "status": "pending",
+      "acceptance": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "MONA-016",
+      "track": "Core",
+      "title": "Crash/reconnect recovery, duplicate event suppression, uncertain submission reconciliation",
+      "prompts": [
+        "P03",
+        "P04",
+        "P05",
+        "P20"
+      ],
+      "status": "pending",
+      "acceptance": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "MONA-017",
+      "track": "Core",
+      "title": "Deterministic activity digest, menu-bar/Dock attention, quiet hours, completion/blocker notifications without inference",
+      "prompts": [
+        "P14"
+      ],
+      "status": "pending",
+      "acceptance": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "MONA-018",
+      "track": "Complete",
+      "title": "Agent observatory: parent/child graph, task ownership, lifecycle, aggregate and individual spend when exposed",
+      "prompts": [
+        "P15"
+      ],
+      "status": "pending",
+      "acceptance": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "MONA-019",
+      "track": "Complete",
+      "title": "Native goals, fleets, workflows, queue/runs and artifacts, using verified engine features without a competing scheduler",
+      "prompts": [
+        "P15"
+      ],
+      "status": "pending",
+      "acceptance": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "MONA-020",
+      "track": "Complete",
+      "title": "Provider/model/profile selection, effective route visibility, reasoning settings, routing controls; Flash route locked by default",
+      "prompts": [
+        "P16"
+      ],
+      "status": "pending",
+      "acceptance": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "MONA-021",
+      "track": "Complete",
+      "title": "MCP server, skill, plugin, hook, rule and instruction management through supported interfaces; health and provenance",
+      "prompts": [
+        "P17"
+      ],
+      "status": "pending",
+      "acceptance": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "MONA-022",
+      "track": "Complete",
+      "title": "Command palette and capability explorer covering the entire pinned supported surface, including less common commands",
+      "prompts": [
+        "P18"
+      ],
+      "status": "pending",
+      "acceptance": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "MONA-023",
+      "track": "Complete",
+      "title": "Integrated terminal and read-only advanced logs; explicit user-controlled terminal features when supported",
+      "prompts": [
+        "P18"
+      ],
+      "status": "pending",
+      "acceptance": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "MONA-024",
+      "track": "Complete",
+      "title": "Local project memory/search, context-selection preview, prompt library/import/export and resume packet",
+      "prompts": [
+        "P10",
+        "P19"
+      ],
+      "status": "pending",
+      "acceptance": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "MONA-025",
+      "track": "Complete",
+      "title": "Settings backup/restore, migration, data retention, portable project handoff, diagnostics bundle and offline browsing",
+      "prompts": [
+        "P05",
+        "P19",
+        "P20",
+        "P23"
+      ],
+      "status": "pending",
+      "acceptance": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "MONA-026",
+      "track": "Complete",
+      "title": "Secure local boundary: renderer isolation, narrow IPC, runtime auth, redaction, path and Markdown safety",
+      "prompts": [
+        "P02",
+        "P20"
+      ],
+      "status": "pending",
+      "acceptance": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "MONA-027",
+      "track": "Complete",
+      "title": "Signed/notarized/stapled macOS arm64 installer, native Finder Service, update compatibility, clean uninstall",
+      "prompts": [
+        "P21",
+        "P22",
+        "P23",
+        "P27"
+      ],
+      "status": "pending",
+      "acceptance": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "MONA-028",
+      "track": "Complete",
+      "title": "Automated and human QA, performance budgets, full feature matrix, release evidence, user/developer documentation",
+      "prompts": [
+        "P24",
+        "P26",
+        "P27"
+      ],
+      "status": "pending",
+      "acceptance": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "MONA-029",
+      "track": "Core",
+      "title": "Model-free quick wins: Resume Brief, Focus Mode, evidence-linked completion cards, keyboard-first navigation",
+      "prompts": [
+        "P06",
+        "P07",
+        "P14"
+      ],
+      "status": "pending",
+      "acceptance": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "MONA-030",
+      "track": "Complete",
+      "title": "No artificial feature hiding: honest unsupported states, version drift detection, upgrade qualification and coverage report",
+      "prompts": [
+        "P01",
+        "P18",
+        "P26"
+      ],
+      "status": "pending",
+      "acceptance": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "MAC-001",
+      "track": "Foundation",
+      "title": "Native arm64 runtime, SDK/dependency compatibility, explicit macOS minimum and tested version matrix",
+      "prompts": [
+        "P00",
+        "P21",
+        "P26"
+      ],
+      "status": "pending",
+      "acceptance": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "MAC-002",
+      "track": "Core",
+      "title": "Finder Service/file URLs, Dock and Cmd shortcuts, VoiceOver, native open dialog, menu-bar and close-versus-Quit semantics",
+      "prompts": [
+        "P06",
+        "P09",
+        "P26"
+      ],
+      "status": "pending",
+      "acceptance": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "MAC-003",
+      "track": "Core",
+      "title": "Correct per-user storage, Keychain/privacy handling, GUI environment/tool discovery, sleep/wake and process ownership",
+      "prompts": [
+        "P04",
+        "P16",
+        "P26"
+      ],
+      "status": "pending",
+      "acceptance": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "MAC-004",
+      "track": "Complete",
+      "title": "Offline self-contained `.pkg`, runtime payload manifest, no mandatory consumer development tools, safe install/uninstall",
+      "prompts": [
+        "P21",
+        "P26"
+      ],
+      "status": "pending",
+      "acceptance": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "MAC-005",
+      "track": "Complete",
+      "title": "Developer ID signatures, minimal Hardened Runtime entitlements, notarization, stapling, Gatekeeper validation",
+      "prompts": [
+        "P22",
+        "P26"
+      ],
+      "status": "pending",
+      "acceptance": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "MAC-006",
+      "track": "Complete",
+      "title": "Authenticated update/reinstall flow, architecture/OS checks, active-run deferral, recoverable migration, no silent engine upgrade",
+      "prompts": [
+        "P23",
+        "P26"
+      ],
+      "status": "pending",
+      "acceptance": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "MAC-007",
+      "track": "Complete",
+      "title": "Clean recipient test with quarantine, no developer tools/caches/credentials, permissions/denial/multi-user/offline cases",
+      "prompts": [
+        "P24",
+        "P26"
+      ],
+      "status": "pending",
+      "acceptance": "pending",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "MAC-008",
+      "track": "Complete",
+      "title": "Parallel Windows coordination, separate build ledger, portable core contract, release BOM/provenance and reproducible commands",
+      "prompts": [
+        "P00",
+        "P25",
+        "P26"
+      ],
+      "status": "pending",
+      "acceptance": "pending",
+      "evidence": [],
+      "notes": ""
+    }
+  ],
+  "dependency_order": [
+    "P00",
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08",
+    "P09",
+    "P10",
+    "P11",
+    "P12",
+    "P13",
+    "P14",
+    "P15",
+    "P16",
+    "P17",
+    "P18",
+    "P19",
+    "P20",
+    "P21",
+    "P22",
+    "P23",
+    "P24",
+    "P25",
+    "P26",
+    "P27"
+  ],
+  "validated": {
+    "ok": true,
+    "errors": [],
+    "warnings": [],
+    "validated_utc": "2026-11-12T00:32:13.566Z",
+    "prompt_count": 28,
+    "requirement_count": 38
+  }
+}

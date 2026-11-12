@@ -1,0 +1,117 @@
+# Interrupted-checkpoint recovery simulation (P00)
+# Temp root: $TMP (copy of the real ledger; the real state was not touched)
+
+$ monabuild checkpoint --expect-revision 2 --patch-json '{"notes":["simulation"]}'
+{
+  "ok": true,
+  "revision": 3,
+  "abandoned_temp_files": 0,
+  "current_prompt": "P00",
+  "current_prompt_status": "running"
+}
+exit=0
+
+# Simulate a crash mid-write: truncate the committed state and leave an uncommitted temp file
+  .
+  ..
+  .state.json.tmp-999-deadbeef
+  schemas
+  state.json
+  state.json.bak
+
+$ monabuild recover
+{
+  "ok": true,
+  "state_path": "/private/tmp/mona-recovery.KvAa/.mona/build-macos/state.json",
+  "restored_from_backup": true,
+  "preserved_corrupt_copy": "/private/tmp/mona-recovery.KvAa/.mona/build-macos/state.json.corrupt-2026-11-12T00-34-06-624Z",
+  "removed_temp_files": [
+    "/private/tmp/mona-recovery.KvAa/.mona/build-macos/.state.json.tmp-999-deadbeef"
+  ],
+  "removed_stale_lock": false,
+  "notes": [
+    "state unreadable: /private/tmp/mona-recovery.KvAa/.mona/build-macos/state.json is not valid JSON: Unterminated string in JSON at position 41 (line 1 column 42)",
+    "restored committed revision 2 from backup",
+    "discarded uncommitted temp files; their checkpoint never committed"
+  ]
+}
+exit=0
+
+$ ls .mona/build-macos (corrupt copy preserved, temp removed)
+  .
+  ..
+  schemas
+  state.json
+  state.json.bak
+  state.json.corrupt-2026-11-12T00-34-06-624Z
+
+$ monabuild validate
+{
+  "ok": true,
+  "errors": [],
+  "warnings": [
+    "index.json is absent; run: monabuild index --write"
+  ],
+  "state": {
+    "revision": 2,
+    "current_prompt": "P00",
+    "current_prompt_status": "running",
+    "tasks": 28
+  },
+  "requirements": {
+    "prompts": 28,
+    "requirements": 38,
+    "dependency_order_head": [
+      "P00",
+      "P01",
+      "P02",
+      "P03",
+      "P04"
+    ]
+  },
+  "attempts": [],
+  "index": null
+}
+exit=0
+
+# Attempt ledger enforcement across process boundaries
+$ attempt #1 (no material progress)
+  exit=0
+$ attempt #2 (no material progress)
+  exit=0
+$ attempt #3 (no material progress)
+  exit=0
+$ attempt #4 (must be refused)
+{
+  "ok": false,
+  "error": "problem DEMO-PROBLEM-1 has 3 consecutive no-progress attempts and is blocked.\nDo not make another attempt. Record the blocker, the exact help needed, and continue independent eligible work.\nTo reopen after a human decision, run: monabuild reopen --problem DEMO-PROBLEM-1 --decision-ref <reference>",
+  "problem_state": {
+    "problem_id": "DEMO-PROBLEM-1",
+    "total_attempts": 3,
+    "consecutive_no_progress": 3,
+    "blocked": true,
+    "resolved": false,
+    "last_observed": "same failure, different wording",
+    "last_reopen": null,
+    "requirement": "MONA-001"
+  }
+}
+exit=3
+
+$ monabuild status (attempt summary)
+{
+  "revision": 2,
+  "next": [],
+  "attempts": [
+    {
+      "problem_id": "DEMO-PROBLEM-1",
+      "total_attempts": 3,
+      "consecutive_no_progress": 3,
+      "blocked": true,
+      "resolved": false,
+      "last_observed": "same failure, different wording",
+      "last_reopen": null,
+      "requirement": "MONA-001"
+    }
+  ]
+}

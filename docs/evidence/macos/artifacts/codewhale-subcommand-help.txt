@@ -1,0 +1,211 @@
+===== config =====
+Read/write/list config values
+
+Usage: codewhale config [OPTIONS] <COMMAND>
+
+Commands:
+  get        
+  set        
+  unset      
+  telemetry  Review aggregate usage counting by Codewhale and PostHog (default on)
+  list       
+  path       
+  edit       Open the config file in `$VISUAL`/`$EDITOR` (else `vi`)
+  doctor     Check the loaded config: unknown keys, empty secrets, malformed URLs. Read-only; prints warnings, fails on errors, never prints a credential
+  dump       Print the effective config (including `--set` overlays) as TOML with secrets redacted by key name
+  import     Import a portable config bundle from a file, HTTPS URL, or stdin (-)
+  export     Export a portable, secret-free config bundle
+  migrate    Move legacy top-level `base_url` / `api_key` into their `[providers.<name>]` tables, keeping comments. Writes a one-time, credential-free backup first. Codewhale already reads the old shape; this only tidies the file
+  help       Print this message or the help of the given subcommand(s)
+
+Options:
+      --enable <FEATURE>   Enable a feature for this run (repeatable)
+      --disable <FEATURE>  Disable a feature for this run (repeatable)
+  -h, --help               Print help
+===== models =====
+List cached models; use --update to refresh configured provider catalogs
+
+Usage: codewhale models [OPTIONS] [ARGS]...
+
+Arguments:
+  [ARGS]...  Arguments and options forwarded to the command
+
+Options:
+      --enable <FEATURE>   Enable a feature for this run (repeatable)
+      --disable <FEATURE>  Disable a feature for this run (repeatable)
+  -h, --help               Print help
+
+Examples:
+  codewhale models --update
+  codewhale models --update --provider openai
+  codewhale models --provider openai-codex --json
+
+--update (alias: --refresh) refreshes configured provider catalogs. --provider ID limits the scope.
+===== model =====
+Resolve or list available models across providers
+
+Usage: codewhale model [OPTIONS] <COMMAND>
+
+Commands:
+  list     
+  resolve  
+  set      Set the default model (e.g. "deepseek-v4-pro"; "pro"/"flash" on routes that serve DeepSeek)
+  help     Print this message or the help of the given subcommand(s)
+
+Options:
+      --enable <FEATURE>   Enable a feature for this run (repeatable)
+      --disable <FEATURE>  Disable a feature for this run (repeatable)
+  -h, --help               Print help
+===== exec =====
+Run a non-interactive prompt
+
+Usage: codewhale exec [OPTIONS] [ARGS]...
+
+Arguments:
+  [ARGS]...  Arguments and options forwarded to the command
+
+Options:
+      --enable <FEATURE>   Enable a feature for this run (repeatable)
+      --disable <FEATURE>  Disable a feature for this run (repeatable)
+  -h, --help               Print help
+
+Examples:
+  codewhale exec "explain this function"
+  codewhale exec --auto "list crates/ with ls"
+  codewhale exec --auto --output-format stream-json "fix the failing test"
+
+Run options such as --model, --provider, --config and --profile work before or after exec:
+  codewhale --model MODEL exec "explain this function"
+  codewhale exec --model MODEL "explain this function"
+
+Common forwarded flags:
+  --auto                           Enable tools with automatic approvals and Full Access by default
+  --sandbox <POLICY>               Override the sandbox policy for this run
+  --json                           Emit summary JSON
+===== serve =====
+Run a local Codewhale server
+
+Usage: codewhale serve [OPTIONS] [ARGS]...
+
+Arguments:
+  [ARGS]...  Arguments and options forwarded to the command
+
+Options:
+      --enable <FEATURE>   Enable a feature for this run (repeatable)
+      --disable <FEATURE>  Disable a feature for this run (repeatable)
+  -h, --help               Print help
+
+Forwarded serve options:
+      --mcp                 Start MCP server over stdio
+      --http                Start runtime HTTP/SSE API server
+      --mobile              Start runtime HTTP/SSE API server with the mobile control page
+      --web                 Start the embedded loopback-only browser client
+      --qr                  Show a QR code for the mobile URL (requires --mobile)
+      --acp                 Start ACP server over stdio for editor clients
+      --host <HOST>         Bind host (default 127.0.0.1; --mobile is loopback-only)
+      --port <PORT>         Bind port [default: 7878]
+      --workers <WORKERS>   Background task worker count (1-8)
+      --cors-origin <URL>   Additional CORS origin to allow (repeatable)
+      --auth-token <TOKEN>  Require this bearer token for /v1/* runtime API routes
+      --insecure            Disable runtime API auth when no token is configured
+===== doctor =====
+Run Codewhale diagnostics
+
+Usage: codewhale doctor [OPTIONS]
+
+Arguments:
+  [ARGS]...  Arguments and options forwarded to the command
+
+Options:
+      --enable <FEATURE>   Enable a feature for this run (repeatable)
+      --disable <FEATURE>  Disable a feature for this run (repeatable)
+  -h, --help               Print help
+
+Doctor options:
+      --json             Emit machine-readable structural JSON output (always offline)
+      --context-json     Emit only the diagnostic context source map as JSON
+      --probe-local      Opt in to probing a local provider endpoint (may start a local service)
+      --probe-api        Opt in to probing the configured hosted provider API
+      --check-updates    Opt in to contacting the release service for an update check
+      --probe-mcp        Opt in to starting enabled MCP servers and checking process/protocol reachability
+      --probe-search     Opt in to a credential-free transport probe of the selected search provider
+      --fix              Plan and apply automatic repairs with consent (#5552)
+      --yes              Apply the planned repairs without prompting (requires --fix)
+      --repair-sessions  Repair the saved-session store now: re-index recoverable sessions, unbind dead thread links, set aside (never delete) what nothing uses
+      --dry-run          With --repair-sessions: report what would be repaired, change nothing
+===== receipts =====
+Show what a session did: files, commands, web and MCP calls, agents, approvals, and failures. `codewhale receipts [ID|--last] [--format md|json]`
+
+Usage: codewhale receipts [ID|--last] [--format <md|json>]
+
+Arguments:
+  [ARGS]...  Arguments and options forwarded to the command
+
+Options:
+      --enable <FEATURE>   Enable a feature for this run (repeatable)
+      --disable <FEATURE>  Disable a feature for this run (repeatable)
+  -h, --help               Print help
+
+Receipt options:
+      --last             Show the most recent session
+      --format <FORMAT>  Output format: md or json
+
+ID is a saved session id or prefix; `codewhale sessions` lists them.
+===== sessions =====
+List saved sessions
+
+Usage: codewhale sessions [OPTIONS] [ARGS]...
+
+Arguments:
+  [ARGS]...  Arguments and options forwarded to the command
+
+Options:
+      --enable <FEATURE>   Enable a feature for this run (repeatable)
+      --disable <FEATURE>  Disable a feature for this run (repeatable)
+  -h, --help               Print help
+===== thread =====
+Manage thread/session metadata and resume/fork flows
+
+Usage: codewhale thread [OPTIONS] <COMMAND>
+
+Commands:
+  list        
+  read        
+  resume      Resume through the acknowledged owner and print its durable receipt
+  fork        Fork complete history through the owner and print the new receipt
+  archive     
+  unarchive   
+  set-name    
+  clear-name  Remove the custom name from a thread, restoring the default `(unnamed)` rendering in `thread list`
+  help        Print this message or the help of the given subcommand(s)
+
+Options:
+      --enable <FEATURE>   Enable a feature for this run (repeatable)
+      --disable <FEATURE>  Disable a feature for this run (repeatable)
+  -h, --help               Print help
+===== providers =====
+Export the route catalog (`providers export --json`)
+
+Usage: codewhale providers [OPTIONS] <COMMAND>
+
+Commands:
+  export  Write the owned route catalog as JSON (cwc contract)
+  help    Print this message or the help of the given subcommand(s)
+
+Options:
+      --enable <FEATURE>   Enable a feature for this run (repeatable)
+      --disable <FEATURE>  Disable a feature for this run (repeatable)
+  -h, --help               Print help
+===== sandbox =====
+Evaluate sandbox/approval policy decisions
+
+Usage: codewhale sandbox [OPTIONS] <COMMAND>
+
+Commands:
+  check  
+  help   Print this message or the help of the given subcommand(s)
+
+Options:
+      --enable <FEATURE>   Enable a feature for this run (repeatable)
+      --disable <FEATURE>  Disable a feature for this run (repeatable)
+  -h, --help               Print help

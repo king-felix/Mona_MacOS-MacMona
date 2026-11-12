@@ -1,0 +1,15 @@
+{
+  "name": "@mona/monabuild",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Bootstrap build-ledger utility for the Mona macOS build. Not part of the Mona product.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test test/",
+    "validate": "node cli.mjs validate",
+    "status": "node cli.mjs status"
+  }
+}

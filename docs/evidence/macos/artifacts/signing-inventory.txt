@@ -1,0 +1,15 @@
+$ security find-identity -v -p codesigning
+     0 valid identities found
+
+$ spctl --status
+assessments enabled
+
+$ xcrun -f notarytool
+/Library/Developer/CommandLineTools/usr/bin/notarytool
+
+$ for t in codesign pkgbuild productbuild spctl stapler
+codesign -> /usr/bin/codesign
+pkgbuild -> /usr/bin/pkgbuild
+productbuild -> /usr/bin/productbuild
+spctl -> /usr/sbin/spctl
+stapler -> /usr/bin/stapler

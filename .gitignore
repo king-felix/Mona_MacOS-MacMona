@@ -1,0 +1,28 @@
+# macOS
+.DS_Store
+.AppleDouble
+
+# Node / package managers
+node_modules/
+npm-debug.log*
+yarn-error.log*
+.pnpm-store/
+
+# Build and packaging outputs
+dist/
+out/
+build/
+release/
+*.app
+*.dmg
+*.pkg
+*.xcarchive
+DerivedData/
+
+# Build ledger: machine-local, transient, or recovery-only artifacts.
+# state.json, attempts.jsonl, index.json, and the Markdown ledger stay tracked.
+.mona/build-macos/local.json
+.mona/build-macos/state.json.bak
+.mona/build-macos/state.json.lock/
+.mona/build-macos/*.tmp-*
+.mona/build-macos/state.json.corrupt-*

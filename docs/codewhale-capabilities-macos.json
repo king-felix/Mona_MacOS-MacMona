@@ -1,0 +1,311 @@
+{
+  "schema_version": 1,
+  "status": "structure_only",
+  "note": "P00 records engine identity and the observed command surface. Capability qualification, integration routes, permissions, and cost implications are populated in P01 against this pinned binary.",
+  "engine": {
+    "name": "Codewhale",
+    "version": "0.10.2",
+    "commit": "ff466b2ed0bf",
+    "install": "npm global under /opt/homebrew (wrapper) + native binary bin/downloads/codewhale",
+    "native_binary": {
+      "arch": "arm64",
+      "format": "Mach-O thin",
+      "bytes": 90300464,
+      "sha256": "da0229610647f1cc2dd14c4227b333a92ea276a49f5d4d79160fa19e515e590d",
+      "signature": "adhoc linker-signed; no TeamIdentifier"
+    },
+    "license": "MIT",
+    "source_reference": "https://github.com/codewhale-hq/Codewhale (tag/commit to be pinned at P01)"
+  },
+  "transports_observed": [
+    {
+      "name": "app-server --http",
+      "kind": "HTTP/SSE runtime API",
+      "default_port": 7878,
+      "auth": "bearer token via --auth-token / CODEWHALE_RUNTIME_TOKEN",
+      "status": "advertised-not-qualified"
+    },
+    {
+      "name": "app-server --stdio",
+      "kind": "JSON-RPC compatibility control",
+      "status": "advertised-not-qualified"
+    },
+    {
+      "name": "app-server --socket",
+      "kind": "JSON-RPC over private local socket",
+      "status": "advertised-not-qualified"
+    },
+    {
+      "name": "serve --http / --web / --mobile",
+      "kind": "server aliases and browser client",
+      "status": "advertised-not-qualified"
+    },
+    {
+      "name": "exec",
+      "kind": "one-shot non-interactive run",
+      "status": "advertised-not-qualified"
+    }
+  ],
+  "observed_cli_commands": [
+    {
+      "name": "run",
+      "description": "Run an interactive or non-interactive task",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "doctor",
+      "description": "Run Codewhale diagnostics",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "session-diagnostics",
+      "description": "Summarize local session failure signals without raw content",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "scorecard",
+      "description": "Score recorded turn metrics against an optional baseline",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "models",
+      "description": "List cached models; use --update to refresh configured provider catalogs",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "speech",
+      "description": "Generate speech audio with Xiaomi MiMo TTS models [alias: tts]",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "sessions",
+      "description": "List saved sessions",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "receipts",
+      "description": "Show what a session did: files, commands, web and MCP calls, agents, approvals, and failures. `codewhale receipts [ID|--last] [--format md|json]` [alias: receipt]",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "resume",
+      "description": "Resume a saved session",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "rc",
+      "description": "Launch an interactive session and hand it to the Codewhale web app",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "fork",
+      "description": "Fork a saved session",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "init",
+      "description": "Create a default AGENTS.md in the current directory",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "install",
+      "description": "Install a plugin bundle without trusting or enabling it",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "setup",
+      "description": "Bootstrap MCP config and/or skills directories",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "remote-setup",
+      "description": "Generate a remote Codewhale agent deploy bundle (cloud + chat bridge)",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "exec",
+      "description": "Run a non-interactive prompt",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "fleet",
+      "description": "Manage durable Agent fleet runs",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "workflow",
+      "description": "Run checked-in Workflows through a Lane Runtime backend",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "lane",
+      "description": "Manage running workflow instances (Lanes) and Runtime backends (#4176)",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "review",
+      "description": "Run a Codewhale-powered code review over a git diff",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "apply",
+      "description": "Apply a patch file or stdin to the working tree",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "eval",
+      "description": "Run the offline evaluation harness",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "mcp",
+      "description": "Manage MCP servers",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "features",
+      "description": "Inspect feature flags",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "integrations",
+      "description": "Connect third-party harnesses through Codewhale (e.g. `integrations dsh status`)",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "serve",
+      "description": "Run a local Codewhale server",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "web",
+      "description": "Open the first-class local browser client over the canonical Runtime API",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "login",
+      "description": "Sign in to an existing Codewhale account; new accounts are not open",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "logout",
+      "description": "Remove saved authentication state (every provider key, OAuth login, the Codewhale account session). Asks before deleting",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "auth",
+      "description": "Manage authentication credentials and provider mode",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "account",
+      "description": "Manage an existing Codewhale account; new accounts are not open [alias: cloud]",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "dispatch",
+      "description": "Run a task on a Codewhale cloud computer (not available: cloud computers and accounts are paused for new users)",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "mcp-server",
+      "description": "Run MCP server mode over stdio",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "config",
+      "description": "Read/write/list config values",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "model",
+      "description": "Resolve or list available models across providers",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "thread",
+      "description": "Manage thread/session metadata and resume/fork flows",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "sandbox",
+      "description": "Evaluate sandbox/approval policy decisions",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "app-server",
+      "description": "Expose the full Engine API with --http, or smaller compatibility controls",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "completion",
+      "description": "Generate shell completions [alias: completions]",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "metrics",
+      "description": "Print a usage rollup from the audit log and session store",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "update",
+      "description": "Update this release binary from GitHub (package-managed installs get migration instructions)",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "providers",
+      "description": "Export the route catalog (`providers export --json`)",
+      "status": "discovered-unqualified"
+    },
+    {
+      "name": "help",
+      "description": "Print this message or the help of the given subcommand(s)",
+      "status": "discovered-unqualified"
+    }
+  ],
+  "capability_row_contract": {
+    "fields": [
+      "mona_id",
+      "upstream_name",
+      "upstream_source",
+      "upstream_version",
+      "platform",
+      "classification",
+      "permission_implications",
+      "cost_implications",
+      "required_arguments",
+      "integration",
+      "ui_location",
+      "tests",
+      "status",
+      "gap"
+    ],
+    "classification_enum": [
+      "read",
+      "write",
+      "destructive"
+    ],
+    "integration_enum": [
+      "native_view",
+      "advanced_action",
+      "integrated_terminal",
+      "unavailable",
+      "blocked_gap"
+    ],
+    "status_enum": [
+      "unqualified",
+      "verified",
+      "unavailable",
+      "blocked_gap"
+    ]
+  },
+  "capabilities": [],
+  "coverage": {
+    "rows_total": 0,
+    "verified": 0,
+    "unavailable": 0,
+    "blocked_gaps": 0,
+    "assessed_utc": "2026-11-12T00:34:01.338Z",
+    "summary": "No capability is claimed supported yet. P01 owns discovery and qualification."
+  }
+}

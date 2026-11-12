@@ -1,0 +1,98 @@
+$ command -v codewhale
+/opt/homebrew/bin/codewhale
+
+$ ls -l /opt/homebrew/bin/codewhale
+lrwxr-xr-x  1 <user>  admin  46 Nov  2 20:48 /opt/homebrew/bin/codewhale -> ../lib/node_modules/codewhale/bin/codewhale.js
+
+$ codewhale --version
+codewhale 0.10.2 (ff466b2ed0bf)
+
+native binary:
+-rwxr-xr-x  1 <user>  admin  90300464 Nov  2 21:07 /opt/homebrew/lib/node_modules/codewhale/bin/downloads/codewhale
+/opt/homebrew/lib/node_modules/codewhale/bin/downloads/codewhale: Mach-O 64-bit executable arm64
+
+$ shasum -a 256 <native binary>
+da0229610647f1cc2dd14c4227b333a92ea276a49f5d4d79160fa19e515e590d  /opt/homebrew/lib/node_modules/codewhale/bin/downloads/codewhale
+
+$ codesign -dv <native binary>
+Executable=/opt/homebrew/lib/node_modules/codewhale/bin/downloads/codewhale
+Identifier=codewhale-a6cab96c6216f297
+Format=Mach-O thin (arm64)
+CodeDirectory v=20400 size=700152 flags=0x20002(adhoc,linker-signed) hashes=21876+0 location=embedded
+Signature=adhoc
+Info.plist=not bound
+TeamIdentifier=not set
+Sealed Resources=none
+Internal requirements=none
+
+$ npm ls -g --depth=0
+/opt/homebrew/lib
+├── codewhale@0.10.2
+└── npm@11.20.0
+
+
+$ codewhale config doctor
+# /Users/<user>/.codewhale/config.toml
+doctor: credentials and endpoints clean
+
+$ codewhale config dump (tool-redacted)
+# /Users/<user>/.codewhale/config.toml
+auth_mode = "api_key"
+default_text_model = "deepseek-flash"
+provider = "deepseek"
+reasoning_effort = "auto"
+route_preferences_version = 1
+
+[providers.deepseek]
+auth_mode = "api_key"
+model = "deepseek-flash"
+
+[stream]
+chunk_timeout_secs = 900
+connect_timeout_secs = 30
+force_http1 = false
+http2_keep_alive_interval_secs = 15
+http2_keep_alive_timeout_secs = 20
+max_content_mb = 10
+max_duration_secs = 1800
+max_resumes = 3
+max_stream_errors = 5
+max_transparent_retries = 2
+open_timeout_secs = 45
+tcp_keepalive_secs = 30
+
+[update]
+check_for_updates = true
+
+$ codewhale model resolve deepseek-flash
+requested: deepseek-flash
+resolved: deepseek-flash
+provider: deepseek
+used_fallback: false
+canonical_model: deepseek-flash
+limits: {"context_tokens":1000000,"output_tokens":384000}
+capabilities: {"attachments":"supported","image_input":"supported","files_api":"supported","reasoning":"supported","native_tool_calls":"supported","structured_output":"supported","parallel_tool_calls":"supported","streaming":"supported","prompt_caching":"supported","server_side_web_search":"supported"}
+provider_source: config
+model_source: argument
+
+$ codewhale features list
+feature	stage	enabled
+shell_tool	stable	true
+subagents	stable	true
+web_search	stable	true
+apply_patch	stable	true
+mcp	stable	true
+exec_policy	stable	true
+vision_model	beta	false
+verify_tool	stable	true
+code_mode	experimental	true
+finance_host	experimental	false
+data_host	experimental	false
+speech_host	experimental	false
+pdf_host	experimental	false
+ocr_host	experimental	false
+github_host	experimental	false
+web_search_host	experimental	false
+web_extract_host	experimental	false
+review_host	experimental	false
+extension_host	experimental	false

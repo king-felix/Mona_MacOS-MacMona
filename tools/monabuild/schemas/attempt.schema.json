@@ -1,0 +1,30 @@
+{
+  "$id": "mona/build-attempt@1",
+  "title": "One attempt-ledger record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "kind",
+    "ts_utc",
+    "problem_id",
+    "requirement"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "kind": { "enum": ["attempt", "reopen", "resolve"] },
+    "ts_utc": { "type": "string", "minLength": 20 },
+    "problem_id": { "type": "string", "pattern": "^[A-Z][A-Z0-9-]{2,40}$" },
+    "requirement": { "type": "string", "pattern": "^(MONA|MAC)-\\d{3}$" },
+    "symptom": { "type": "string" },
+    "hypothesis": { "type": "string" },
+    "action": { "type": "string" },
+    "observed": { "type": "string" },
+    "material_progress": { "type": "boolean" },
+    "evidence": { "type": "array", "items": { "type": "string" } },
+    "attempt": { "type": "integer", "minimum": 1 },
+    "consecutive_no_progress": { "type": "integer", "minimum": 0, "maximum": 3 },
+    "decision_ref": { "type": "string" },
+    "note": { "type": "string" }
+  }
+}

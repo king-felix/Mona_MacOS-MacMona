@@ -1,0 +1,435 @@
+{
+  "schema_version": 1,
+  "revision": 2,
+  "project": "Mona",
+  "spec_version": "macOS-1.0",
+  "platform": "darwin-arm64",
+  "spec_sha256": "d1c02941151c71912bc3e9c8b2509612298d54e05e0bf16fe933b9bd93e3e028",
+  "prompt_file_sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8",
+  "current_prompt": "P00",
+  "current_prompt_status": "running",
+  "last_verified_commit": null,
+  "tasks": {
+    "P00": {
+      "status": "running",
+      "requirements": [
+        "MONA-001",
+        "MONA-010",
+        "MAC-001",
+        "MAC-008"
+      ],
+      "completed_steps": [
+        "Inspected Mac host, toolchain, Rosetta/native process state, filesystem, and signing identity",
+        "Located installed Codewhale 0.10.2 (npm wrapper + native arm64 binary), captured help surfaces, redacted route and model resolution",
+        "Generated docs/requirements-macos.json from both specifications: 28 prompts, 38 requirements, validated dependency DAG",
+        "Built tools/monabuild: schema validation, atomic replacement, revision-conflict detection, interrupted-checkpoint recovery, attempt ledger, hash index, secret scan",
+        "Initialized .mona/build-macos ledger with atomic revision 1"
+      ],
+      "remaining_steps": [
+        "Write AGENTS.md operating contract",
+        "Write discovery report, capability inventory structure, and signing prerequisite record",
+        "Demonstrate interrupted-checkpoint recovery with recorded evidence",
+        "Create the initial local git commit",
+        "Update requirement traceability and handoff for P00 completion"
+      ],
+      "evidence": [],
+      "blocker_ids": [],
+      "started_utc": "2026-11-12T00:33:09.865Z",
+      "updated_utc": "2026-11-12T00:33:09.865Z"
+    },
+    "P01": {
+      "status": "pending",
+      "requirements": [
+        "MONA-001",
+        "MONA-002",
+        "MONA-003",
+        "MONA-030"
+      ],
+      "completed_steps": [],
+      "remaining_steps": [],
+      "evidence": [],
+      "blocker_ids": []
+    },
+    "P02": {
+      "status": "pending",
+      "requirements": [
+        "MONA-006",
+        "MONA-026"
+      ],
+      "completed_steps": [],
+      "remaining_steps": [],
+      "evidence": [],
+      "blocker_ids": []
+    },
+    "P03": {
+      "status": "pending",
+      "requirements": [
+        "MONA-001",
+        "MONA-002",
+        "MONA-007",
+        "MONA-008",
+        "MONA-016"
+      ],
+      "completed_steps": [],
+      "remaining_steps": [],
+      "evidence": [],
+      "blocker_ids": []
+    },
+    "P04": {
+      "status": "pending",
+      "requirements": [
+        "MONA-002",
+        "MONA-012",
+        "MONA-016",
+        "MAC-003"
+      ],
+      "completed_steps": [],
+      "remaining_steps": [],
+      "evidence": [],
+      "blocker_ids": []
+    },
+    "P05": {
+      "status": "pending",
+      "requirements": [
+        "MONA-005",
+        "MONA-010",
+        "MONA-016",
+        "MONA-025"
+      ],
+      "completed_steps": [],
+      "remaining_steps": [],
+      "evidence": [],
+      "blocker_ids": []
+    },
+    "P06": {
+      "status": "pending",
+      "requirements": [
+        "MONA-006",
+        "MONA-029",
+        "MAC-002"
+      ],
+      "completed_steps": [],
+      "remaining_steps": [],
+      "evidence": [],
+      "blocker_ids": []
+    },
+    "P07": {
+      "status": "pending",
+      "requirements": [
+        "MONA-005",
+        "MONA-006",
+        "MONA-029"
+      ],
+      "completed_steps": [],
+      "remaining_steps": [],
+      "evidence": [],
+      "blocker_ids": []
+    },
+    "P08": {
+      "status": "pending",
+      "requirements": [
+        "MONA-007",
+        "MONA-008",
+        "MONA-012",
+        "MONA-014"
+      ],
+      "completed_steps": [],
+      "remaining_steps": [],
+      "evidence": [],
+      "blocker_ids": []
+    },
+    "P09": {
+      "status": "pending",
+      "requirements": [
+        "MONA-004",
+        "MAC-002"
+      ],
+      "completed_steps": [],
+      "remaining_steps": [],
+      "evidence": [],
+      "blocker_ids": []
+    },
+    "P10": {
+      "status": "pending",
+      "requirements": [
+        "MONA-009",
+        "MONA-010",
+        "MONA-024"
+      ],
+      "completed_steps": [],
+      "remaining_steps": [],
+      "evidence": [],
+      "blocker_ids": []
+    },
+    "P11": {
+      "status": "pending",
+      "requirements": [
+        "MONA-011",
+        "MONA-012"
+      ],
+      "completed_steps": [],
+      "remaining_steps": [],
+      "evidence": [],
+      "blocker_ids": []
+    },
+    "P12": {
+      "status": "pending",
+      "requirements": [
+        "MONA-003",
+        "MONA-013"
+      ],
+      "completed_steps": [],
+      "remaining_steps": [],
+      "evidence": [],
+      "blocker_ids": []
+    },
+    "P13": {
+      "status": "pending",
+      "requirements": [
+        "MONA-014",
+        "MONA-015"
+      ],
+      "completed_steps": [],
+      "remaining_steps": [],
+      "evidence": [],
+      "blocker_ids": []
+    },
+    "P14": {
+      "status": "pending",
+      "requirements": [
+        "MONA-017",
+        "MONA-029"
+      ],
+      "completed_steps": [],
+      "remaining_steps": [],
+      "evidence": [],
+      "blocker_ids": []
+    },
+    "P15": {
+      "status": "pending",
+      "requirements": [
+        "MONA-018",
+        "MONA-019"
+      ],
+      "completed_steps": [],
+      "remaining_steps": [],
+      "evidence": [],
+      "blocker_ids": []
+    },
+    "P16": {
+      "status": "pending",
+      "requirements": [
+        "MONA-008",
+        "MONA-020",
+        "MAC-003"
+      ],
+      "completed_steps": [],
+      "remaining_steps": [],
+      "evidence": [],
+      "blocker_ids": []
+    },
+    "P17": {
+      "status": "pending",
+      "requirements": [
+        "MONA-021"
+      ],
+      "completed_steps": [],
+      "remaining_steps": [],
+      "evidence": [],
+      "blocker_ids": []
+    },
+    "P18": {
+      "status": "pending",
+      "requirements": [
+        "MONA-022",
+        "MONA-023",
+        "MONA-030"
+      ],
+      "completed_steps": [],
+      "remaining_steps": [],
+      "evidence": [],
+      "blocker_ids": []
+    },
+    "P19": {
+      "status": "pending",
+      "requirements": [
+        "MONA-024",
+        "MONA-025"
+      ],
+      "completed_steps": [],
+      "remaining_steps": [],
+      "evidence": [],
+      "blocker_ids": []
+    },
+    "P20": {
+      "status": "pending",
+      "requirements": [
+        "MONA-016",
+        "MONA-025",
+        "MONA-026"
+      ],
+      "completed_steps": [],
+      "remaining_steps": [],
+      "evidence": [],
+      "blocker_ids": []
+    },
+    "P21": {
+      "status": "pending",
+      "requirements": [
+        "MONA-004",
+        "MONA-027",
+        "MAC-001",
+        "MAC-004"
+      ],
+      "completed_steps": [],
+      "remaining_steps": [],
+      "evidence": [],
+      "blocker_ids": []
+    },
+    "P22": {
+      "status": "pending",
+      "requirements": [
+        "MONA-027",
+        "MAC-005"
+      ],
+      "completed_steps": [],
+      "remaining_steps": [],
+      "evidence": [],
+      "blocker_ids": []
+    },
+    "P23": {
+      "status": "pending",
+      "requirements": [
+        "MONA-025",
+        "MONA-027",
+        "MAC-006"
+      ],
+      "completed_steps": [],
+      "remaining_steps": [],
+      "evidence": [],
+      "blocker_ids": []
+    },
+    "P24": {
+      "status": "pending",
+      "requirements": [
+        "MONA-028",
+        "MAC-007"
+      ],
+      "completed_steps": [],
+      "remaining_steps": [],
+      "evidence": [],
+      "blocker_ids": []
+    },
+    "P25": {
+      "status": "pending",
+      "requirements": [
+        "MAC-008"
+      ],
+      "completed_steps": [],
+      "remaining_steps": [],
+      "evidence": [],
+      "blocker_ids": []
+    },
+    "P26": {
+      "status": "pending",
+      "requirements": [
+        "MONA-003",
+        "MONA-006",
+        "MONA-028",
+        "MONA-030",
+        "MAC-001",
+        "MAC-002",
+        "MAC-003",
+        "MAC-004",
+        "MAC-005",
+        "MAC-006",
+        "MAC-007",
+        "MAC-008"
+      ],
+      "completed_steps": [],
+      "remaining_steps": [],
+      "evidence": [],
+      "blocker_ids": []
+    },
+    "P27": {
+      "status": "pending",
+      "requirements": [
+        "MONA-027",
+        "MONA-028"
+      ],
+      "completed_steps": [],
+      "remaining_steps": [],
+      "evidence": [],
+      "blocker_ids": []
+    }
+  },
+  "next_eligible_prompts": [
+    "P00"
+  ],
+  "last_checkpoint_utc": "2026-11-12T00:33:17.362Z",
+  "environment": {
+    "host": {
+      "model_identifier": "Mac15,12",
+      "chip": "Apple M3",
+      "cpu_cores": 8,
+      "memory_bytes": 17179869184,
+      "macos_version": "26.5.1",
+      "macos_build": "25F80",
+      "kernel": "Darwin 25.5.0",
+      "arch": "arm64",
+      "process_translated": false,
+      "rosetta_installed": true,
+      "filesystem": "APFS",
+      "filesystem_case_sensitive": false,
+      "volume": "Macintosh HD (Data)",
+      "free_disk_bytes": 41875931136
+    },
+    "toolchain": {
+      "xcode_select_path": "/Library/Developer/CommandLineTools",
+      "full_xcode_installed": false,
+      "macos_sdk_version": "14.4",
+      "clang": "Apple clang 15.0.0",
+      "swift": "Apple Swift 5.10",
+      "node": "v26.13.0",
+      "npm": "11.20.0",
+      "git": "2.39.3 (Apple Git-146)",
+      "python3": "3.9.6",
+      "ruby": "2.6.10",
+      "homebrew": "7.0.12",
+      "make": "GNU Make 3.81",
+      "packaging_tools": [
+        "codesign",
+        "pkgbuild",
+        "productbuild",
+        "stapler",
+        "notarytool",
+        "spctl"
+      ]
+    },
+    "signing": {
+      "codesigning_identities": 0,
+      "developer_id_application": false,
+      "developer_id_installer": false,
+      "notary_credentials_checked": false,
+      "gatekeeper_assessments_enabled": true,
+      "note": "No Developer ID identities in the login keychain; signed/notarized release prerequisites are logged for P22, not a P00 blocker."
+    },
+    "engine": {
+      "name": "codewhale",
+      "version": "0.10.2",
+      "commit": "ff466b2ed0bf",
+      "install": "npm global (/opt/homebrew)",
+      "native_binary_arch": "arm64",
+      "native_binary_sha256": "da0229610647f1cc2dd14c4227b333a92ea276a49f5d4d79160fa19e515e590d",
+      "native_binary_signature": "adhoc (linker-signed, no TeamIdentifier)",
+      "configured_provider": "deepseek",
+      "configured_model": "deepseek-flash",
+      "resolved_model": "deepseek-flash",
+      "resolved_fallback": false
+    },
+    "captured_utc": "2026-11-12T00:33:09.865Z"
+  },
+  "notes": [
+    "P00 bootstrap only. No product UI, no runtime integration, and no model inference in this prompt."
+  ]
+}

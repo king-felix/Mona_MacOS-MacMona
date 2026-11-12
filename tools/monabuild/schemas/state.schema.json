@@ -1,0 +1,108 @@
+{
+  "$id": "mona/build-state@1",
+  "title": "Mona macOS build state",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "revision",
+    "project",
+    "spec_version",
+    "platform",
+    "spec_sha256",
+    "prompt_file_sha256",
+    "current_prompt",
+    "current_prompt_status",
+    "last_verified_commit",
+    "tasks",
+    "next_eligible_prompts",
+    "last_checkpoint_utc"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "revision": { "type": "integer", "minimum": 1 },
+    "project": { "const": "Mona" },
+    "spec_version": { "const": "macOS-1.0" },
+    "platform": { "const": "darwin-arm64" },
+    "spec_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "prompt_file_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "current_prompt": {
+      "type": ["string", "null"],
+      "pattern": "^P\\d{2}$"
+    },
+    "current_prompt_status": {
+      "enum": ["pending", "running", "verifying", "completed", "blocked", "interrupted", "skipped"]
+    },
+    "last_verified_commit": {
+      "type": ["string", "null"],
+      "pattern": "^[a-f0-9]{7,40}$"
+    },
+    "tasks": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 28,
+      "maxProperties": 28,
+      "patternProperties": {
+        "^P\\d{2}$": { "$ref": "#/definitions/task" }
+      }
+    },
+    "next_eligible_prompts": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^P\\d{2}$" }
+    },
+    "last_checkpoint_utc": { "type": "string", "minLength": 20 },
+    "environment": {
+      "type": "object",
+      "required": ["host", "captured_utc"],
+      "properties": {
+        "host": { "type": "object" },
+        "toolchain": { "type": "object" },
+        "signing": { "type": "object" },
+        "captured_utc": { "type": "string", "minLength": 20 }
+      },
+      "additionalProperties": true
+    },
+    "notes": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "definitions": {
+    "task": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "requirements", "completed_steps", "remaining_steps", "evidence", "blocker_ids"],
+      "properties": {
+        "status": {
+          "enum": ["pending", "running", "verifying", "completed", "blocked", "interrupted", "skipped"]
+        },
+        "requirements": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^(MONA|MAC)-\\d{3}$" }
+        },
+        "completed_steps": { "type": "array", "items": { "type": "string" } },
+        "remaining_steps": { "type": "array", "items": { "type": "string" } },
+        "evidence": { "type": "array", "items": { "$ref": "#/definitions/evidence" } },
+        "blocker_ids": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+        "started_utc": { "type": "string" },
+        "updated_utc": { "type": "string" },
+        "notes": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "sha256": {
+          "type": ["string", "null"],
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "note": { "type": "string" }
+      }
+    }
+  }
+}
