@@ -1,7 +1,7 @@
 import type { ProjectSummary } from "../../shared/contracts/project-bridge";
 import type { PolishDigestView, PolishScreen } from "../../shared/contracts/polish";
 
-export type ScreenId = "home" | "studio" | "board" | "changes" | "cost" | "settings";
+export type ScreenId = "home" | "studio" | "board" | "changes" | "cost" | "settings" | "agents";
 
 export interface HomeProps {
   catalog: ProjectSummary[];

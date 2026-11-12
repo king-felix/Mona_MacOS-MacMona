@@ -697,3 +697,70 @@ and deviations discovered while building.
   is a strict subset of receipts, so a UI must read `delivery` to describe the
   outcome. Keep-awake state reports `scopedToActiveWork` only while an assertion
   is actually held for observed work.
+
+## D-037 — One scheduler per task; native orchestration is read, not re-implemented
+
+- **Date:** 2026-11-12 (P15)
+- **Decision:** A task has exactly one execution owner (`tasks.execution_owner`).
+  The Mona queue starts only `mona_queue` tasks and a native fleet launch only
+  `native_workflow` tasks. `task_runs.upstream_kind/upstream_id` is unique, so an
+  engine run can belong to exactly one local task run; if the link cannot be
+  written the fleet run is stopped and the local run fails. Mona performs
+  `POST /v1/fleet/runs` + `/start` for a launch it initiated, then only reads
+  workers, receipts, evidence, and replay, and offers stop/stop-worker/restart.
+  A terminal fleet run settles the task run and moves the task to **verifying**
+  with a fresh fingerprint — never to `completed`.
+- **Why:** A fleet run is a second scheduler with its own driver. Two schedulers
+  starting one task would spend twice and mutate the workspace twice. Engine
+  completion says the worker stopped; it does not satisfy Mona's acceptance
+  criteria, so treating it as completion would be a fabricated success.
+- **Consequence:** `pause-after-task` does not gate a native workflow's own
+  scheduler, and the control now says so instead of implying otherwise. A
+  second launch for the same task is refused by the database, not convention.
+
+## D-038 — Parallel launch is refused because the engine accepted overlapping writers
+
+- **Date:** 2026-11-12 (P15)
+- **Decision:** `launchFleet` accepts only `parallelism: "serial"`, the IPC schema
+  rejects anything else, and `ParallelQualification` renders four failing checks
+  (isolated worktrees, branch ownership, aggregate limits, merge boundary). Mona
+  launches exactly one task per fleet run.
+- **Why:** A live probe (`p15-parallel-probe.json`) created a `parallel` workflow
+  with two builder tasks declaring `root: "."` and the pinned runtime returned
+  `201`. The documented "overlapping effective write roots are rejected" note did
+  not hold for that shape. Isolated worktrees, per-task branch ownership, an
+  aggregate budget, and a merge/review boundary are all absent, so no
+  qualification could be demonstrated.
+- **Consequence:** Parallel builders are impossible through Mona until every
+  check can be shown on a real run. Mona performs no merge, so it cannot delete a
+  branch or silently resolve a conflict.
+
+## D-039 — Unknown spend stays unknown, and no parent+child total exists
+
+- **Date:** 2026-11-12 (P15)
+- **Decision:** `SpendView` carries a confidence (`priced`, `unpriced`,
+  `unknown`, `not_reported`), an amount or null, and its source. Sub-agent usage
+  comes from the worker ledger verbatim (0.10.2 says `unknown`); fleet receipts
+  carry no totals (`not_reported`). The observatory view exposes no aggregate
+  amount, and `aggregateNote` states that parent and child are not additive. The
+  summary counts non-priced rows as `unknownSpend`.
+- **Why:** The parent thread total may already include the child's tokens, so any
+  sum would double-count. A locally derived balance or estimate without a
+  recorded rate card would be an invented number, which ADR-007 and spec §9.3
+  forbid.
+- **Consequence:** A screen cannot show a fleet's total cost as known. The cost
+  lens remains the only place a priced turn appears, and only from a stored rate
+  card.
+
+## D-040 — Fleet workers are one row, under their fleet
+
+- **Date:** 2026-11-12 (P15, review follow-up)
+- **Decision:** The engine lists fleet workers in the same `/v1/agent-runs`
+  ledger as sub-agents. The observatory deduplicates by real identity: a worker
+  shown under its fleet is removed from the standalone sub-agent list, and the
+  worker row inherits that ledger entry's spend, tools, and test evidence.
+- **Why:** A live run showed one worker appearing twice (once as a fleet worker,
+  once as a sub-agent) and inflating the summary counts and the unknown-spend
+  total. Two rows for one identity is the fake-swarm failure mode in miniature.
+- **Consequence:** Summary counts are per real identity. A worker with no ledger
+  entry keeps its own record's fields and shows spend as unknown.

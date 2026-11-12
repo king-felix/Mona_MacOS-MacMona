@@ -701,7 +701,7 @@
     {
       "id": "MONA-008",
       "track": "Core",
-      "title": "Explicit Plan/Work and effective permission display; Victor’s saved DS Full Access profile; no silent policy widening",
+      "title": "Explicit Plan/Work and effective permission display; Victor\u2019s saved DS Full Access profile; no silent policy widening",
       "prompts": [
         "P03",
         "P08",
@@ -1120,10 +1120,43 @@
       "prompts": [
         "P15"
       ],
-      "status": "pending",
+      "status": "satisfied",
       "acceptance": "pending",
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P15-agents.md",
+          "note": "P15 observatory, orchestration ownership, and controls"
+        },
+        {
+          "path": "docs/decisions/ADR-010-orchestration-ownership.md",
+          "note": "one scheduler per task, read-not-dispatch, per-identity spend"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p15-tests.txt",
+          "note": "461 tests in 50 files, including 10 adapter, 10 observatory, 4 renderer, and 4 orchestration IPC tests"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p15-agents-live.json",
+          "note": "one real serial fleet run on the pinned engine: run, worker, partial receipt, readable evidence, task moved to verification"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p15-agents-smoke.json",
+          "note": "fixtures: child failure, disconnect, unknown usage, blocked dependency, cancel, partial completion"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p15-shell-agents.json",
+          "note": "99 real-shell checks including the stored observatory, inspector fields, 7-item rail, and Command-7"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p15-agents-daybreak.png",
+          "note": "rendered observatory with the empty-but-connected engine and the serial qualification"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p15-ci.json",
+          "note": "local CI green: format, lint, typecheck, builds, 461 tests, five smokes"
+        }
+      ],
+      "notes": "P15: observatory over /v1/agent-runs and /v1/fleet/*. Expandable parent/child rows use real upstream identities (agent_8f9c0296, fleet-\u2026-local-1) with role, workspace, branch from a local Git read, lifecycle, last meaningful event, tool names from lifecycle events, test evidence (verified / self-reported / none), artifacts, and a spend confidence of priced, unpriced, unknown, or not_reported. A sub-agent whose ledger says usage is unknown shows unknown; a fleet receipt shows not_reported. Parent and child spend are separate rows and the view exposes no total, so a double count is not expressible. A fleet worker appears once, under its fleet, and inherits that sub-agent record's spend, tools, and tests. Disconnect falls back to a bounded local projection that says when it was observed, marks goals stale, and disables controls."
     },
     {
       "id": "MONA-019",
@@ -1132,10 +1165,31 @@
       "prompts": [
         "P15"
       ],
-      "status": "pending",
+      "status": "partial",
       "acceptance": "pending",
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P15-agents.md",
+          "note": "native goals and managed fleets with the unreachable workflow/lane surface named"
+        },
+        {
+          "path": "docs/decisions/ADR-010-orchestration-ownership.md",
+          "note": "serial launch, parallel refusal, goal controls without a fake pause"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p15-goal-probe.json",
+          "note": "real goal set/block/complete/clear and the 404 pause route on 0.10.2"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p15-parallel-probe.json",
+          "note": "engine accepted two parallel writers on one root; Mona refuses parallel launch"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p15-agents-live.json",
+          "note": "create \u2192 start (202) \u2192 terminal receipt \u2192 local task in verification, one owner"
+        }
+      ],
+      "notes": "P15 partial: goals (set, complete, block, clear), managed fleet runs (create, start, stop, worker stop/restart, receipts, receipt evidence, event replay), runs/history, and artifacts are surfaced natively. One scheduler per task is enforced by tasks.execution_owner plus a unique task_runs.upstream_id index; a terminal fleet run moves its task to verification, never to completed. Only one serial task launches per run: a live probe showed the engine accepting two parallel writer tasks on the same repository root, so parallel launch stays refused with four named qualification checks. Remaining gaps: `codewhale workflow` / `lane` (checked-in JS workflows through a Lane Runtime) have no /v1 route on 0.10.2, and goals have no HTTP pause route. P18 owns the first; pause is offered as block or clear."
     },
     {
       "id": "MONA-020",
@@ -1409,7 +1463,7 @@
           "note": "P14 contribution: close-versus-Quit, Dock/menu-bar attention, native shortcuts"
         }
       ],
-      "notes": "P06: native chrome, Command-key conventions, keyboard-reachable screens, visible focus, VoiceOver-readable labels. P07: native File → Open Project… dialog and real shell keyboard navigation. Finder selected-folder Service and file-URL dispatch remain P09; spoken walkthrough is P24/P26."
+      "notes": "P06: native chrome, Command-key conventions, keyboard-reachable screens, visible focus, VoiceOver-readable labels. P07: native File \u2192 Open Project\u2026 dialog and real shell keyboard navigation. Finder selected-folder Service and file-URL dispatch remain P09; spoken walkthrough is P24/P26."
     },
     {
       "id": "MAC-003",

@@ -383,3 +383,70 @@ describe("polish IPC validation", () => {
     expect(() => validateIpc("polish:quit", {})).toThrow();
   });
 });
+
+describe("P15 orchestration IPC validation", () => {
+  const projectId = "prj_0123456789abcdef";
+  const taskId = "tsk_0123456789abcdef";
+  const threadId = "thr_0123456789abcdef";
+
+  it("accepts read-only observatory calls and rejects unknown fields", () => {
+    expect(validateIpc("agents:observatory", { projectId })).toEqual({ projectId });
+    expect(validateIpc("agents:history", { projectId, limit: 20 })).toEqual({
+      projectId,
+      limit: 20,
+    });
+    expect(() => validateIpc("agents:observatory", { projectId, raw: true })).toThrow();
+  });
+
+  it("validates run and worker controls", () => {
+    expect(validateIpc("agents:run-cancel", { projectId, runId: "agent_1" })).toBeTruthy();
+    expect(() => validateIpc("agents:run-cancel", { projectId, runId: "" })).toThrow();
+    expect(
+      validateIpc("agents:worker-control", {
+        projectId,
+        workerId: "fleet-1-local-1",
+        action: "restart",
+      }),
+    ).toBeTruthy();
+    expect(() =>
+      validateIpc("agents:worker-control", {
+        projectId,
+        workerId: "fleet-1-local-1",
+        action: "delete",
+      }),
+    ).toThrow();
+    expect(
+      validateIpc("agents:fleet-control", { projectId, runId: "fleet-1", action: "stop" }),
+    ).toBeTruthy();
+  });
+
+  it("validates goal controls against a bounded engine thread id", () => {
+    expect(
+      validateIpc("agents:goal-set", { projectId, threadId, objective: "Ship it" }),
+    ).toBeTruthy();
+    expect(() =>
+      validateIpc("agents:goal-set", { projectId, threadId, objective: "   " }),
+    ).toThrow();
+    expect(() =>
+      validateIpc("agents:goal-set", { projectId, threadId: "not-a-thread", objective: "x" }),
+    ).toThrow();
+    expect(validateIpc("agents:goal-block", { projectId, threadId, reason: null })).toBeTruthy();
+  });
+
+  it("accepts only a serial fleet launch for a named native role", () => {
+    const input = {
+      projectId,
+      taskId,
+      name: "Native task",
+      role: "reviewer",
+      instructions: "Review it.",
+      parallelism: "serial",
+    };
+    expect(validateIpc("agents:launch-fleet", input)).toMatchObject({ parallelism: "serial" });
+    expect(() =>
+      validateIpc("agents:launch-fleet", { ...input, parallelism: "parallel" }),
+    ).toThrow();
+    expect(() => validateIpc("agents:launch-fleet", { ...input, role: "root" })).toThrow();
+    expect(() => validateIpc("agents:launch-fleet", { ...input, taskId: "task_1" })).toThrow();
+  });
+});

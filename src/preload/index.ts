@@ -10,6 +10,15 @@ import type {
   StateFacts,
 } from "../shared/contracts/project-bridge";
 import type {
+  FleetEvidenceView,
+  FleetLaunchResult,
+  FleetRunView,
+  NativeRole,
+  ObservatoryView,
+  OrchestrationActionReceipt,
+  OrchestrationEvent,
+} from "../shared/contracts/agents";
+import type {
   OpenFolderView,
   OpenResult,
   OpenStatusView,
@@ -307,6 +316,67 @@ const bridge: MonaBridge = {
     ipcRenderer.on("polish:toggle-focus", listener);
     return () => ipcRenderer.removeListener("polish:toggle-focus", listener);
   },
+
+  agentObservatory: (projectId: ProjectId): Promise<IpcResult<ObservatoryView>> =>
+    ipcRenderer.invoke("agents:observatory", { projectId }),
+  agentFleetDetail: (projectId: ProjectId, runId: string): Promise<IpcResult<FleetRunView>> =>
+    ipcRenderer.invoke("agents:fleet-detail", { projectId, runId }),
+  agentFleetEvidence: (
+    projectId: ProjectId,
+    runId: string,
+    taskId: string,
+  ): Promise<IpcResult<FleetEvidenceView>> =>
+    ipcRenderer.invoke("agents:fleet-evidence", { projectId, runId, taskId }),
+  agentHistory: (projectId: ProjectId, limit?: number): Promise<IpcResult<OrchestrationEvent[]>> =>
+    ipcRenderer.invoke("agents:history", { projectId, ...(limit === undefined ? {} : { limit }) }),
+  cancelAgentRun: (
+    projectId: ProjectId,
+    runId: string,
+  ): Promise<IpcResult<OrchestrationActionReceipt>> =>
+    ipcRenderer.invoke("agents:run-cancel", { projectId, runId }),
+  controlFleetRun: (
+    projectId: ProjectId,
+    runId: string,
+    action: "stop",
+  ): Promise<IpcResult<OrchestrationActionReceipt>> =>
+    ipcRenderer.invoke("agents:fleet-control", { projectId, runId, action }),
+  controlFleetWorker: (
+    projectId: ProjectId,
+    workerId: string,
+    action: "stop" | "restart",
+  ): Promise<IpcResult<OrchestrationActionReceipt>> =>
+    ipcRenderer.invoke("agents:worker-control", { projectId, workerId, action }),
+  setThreadGoal: (
+    projectId: ProjectId,
+    threadId: string,
+    objective: string,
+  ): Promise<IpcResult<OrchestrationActionReceipt>> =>
+    ipcRenderer.invoke("agents:goal-set", { projectId, threadId, objective }),
+  completeThreadGoal: (
+    projectId: ProjectId,
+    threadId: string,
+  ): Promise<IpcResult<OrchestrationActionReceipt>> =>
+    ipcRenderer.invoke("agents:goal-complete", { projectId, threadId }),
+  blockThreadGoal: (
+    projectId: ProjectId,
+    threadId: string,
+    reason?: string | null,
+  ): Promise<IpcResult<OrchestrationActionReceipt>> =>
+    ipcRenderer.invoke("agents:goal-block", { projectId, threadId, reason: reason ?? null }),
+  clearThreadGoal: (
+    projectId: ProjectId,
+    threadId: string,
+  ): Promise<IpcResult<OrchestrationActionReceipt>> =>
+    ipcRenderer.invoke("agents:goal-clear", { projectId, threadId }),
+  launchNativeFleet: (input: {
+    projectId: ProjectId;
+    taskId: never;
+    expectedRevision?: number;
+    name: string;
+    role: NativeRole;
+    instructions: string;
+  }): Promise<IpcResult<FleetLaunchResult>> =>
+    ipcRenderer.invoke("agents:launch-fleet", { ...input, parallelism: "serial" }),
 
   onStudioChanged: (callback: (push: StudioPush) => void): (() => void) => {
     const listener = (_event: unknown, payload: unknown) => {

@@ -1,0 +1,98 @@
+{
+  "thread_id": "thr_92e4080d54154c468b2d959a4ea193b5",
+  "calls": [
+    {
+      "method": "GET",
+      "path": "/v1/threads/thr_92e4080d54154c468b2d959a4ea193b5/goal",
+      "status": 404,
+      "body": {
+        "error": {
+          "message": "thread 'thr_92e4080d54154c468b2d959a4ea193b5' has no goal",
+          "status": 404
+        }
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/v1/threads/thr_92e4080d54154c468b2d959a4ea193b5/goal",
+      "status": 201,
+      "body": {
+        "thread_id": "thr_92e4080d54154c468b2d959a4ea193b5",
+        "goal_id": "goal-fc4bbcb4-d313-4ee7-96b8-3fb0364a20c4",
+        "objective": "Reply with exactly: ok",
+        "status": "active",
+        "tokens_used": 0,
+        "time_used_seconds": 0,
+        "continuation_count": 0,
+        "created_at": 1794470742,
+        "updated_at": 1794470742,
+        "repeated_gap_count": 0
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/v1/threads/thr_92e4080d54154c468b2d959a4ea193b5/goal/pause",
+      "status": 404,
+      "body": ""
+    },
+    {
+      "method": "POST",
+      "path": "/v1/threads/thr_92e4080d54154c468b2d959a4ea193b5/goal/block",
+      "status": 200,
+      "body": {
+        "thread_id": "thr_92e4080d54154c468b2d959a4ea193b5",
+        "goal_id": "goal-fc4bbcb4-d313-4ee7-96b8-3fb0364a20c4",
+        "objective": "Reply with exactly: ok",
+        "status": "blocked",
+        "tokens_used": 0,
+        "time_used_seconds": 0,
+        "continuation_count": 0,
+        "created_at": 1794470742,
+        "updated_at": 1794470742,
+        "repeated_gap_count": 0
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/v1/threads/thr_92e4080d54154c468b2d959a4ea193b5/goal/complete",
+      "status": 200,
+      "body": {
+        "thread_id": "thr_92e4080d54154c468b2d959a4ea193b5",
+        "goal_id": "goal-fc4bbcb4-d313-4ee7-96b8-3fb0364a20c4",
+        "objective": "Reply with exactly: ok",
+        "status": "complete",
+        "tokens_used": 0,
+        "time_used_seconds": 0,
+        "continuation_count": 0,
+        "created_at": 1794470742,
+        "updated_at": 1794470742,
+        "repeated_gap_count": 0
+      }
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/threads/thr_92e4080d54154c468b2d959a4ea193b5/goal",
+      "status": 204,
+      "body": ""
+    },
+    {
+      "method": "GET",
+      "path": "/v1/goals",
+      "status": 200,
+      "body": {
+        "goals": []
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/v1/goals?status=bogus",
+      "status": 400,
+      "body": {
+        "error": {
+          "message": "unknown goal status 'bogus'",
+          "status": 400
+        }
+      }
+    }
+  ]
+}

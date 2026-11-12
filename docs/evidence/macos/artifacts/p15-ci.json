@@ -1,0 +1,84 @@
+{
+  "ok": true,
+  "steps": [
+    {
+      "name": "format:check",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 2009
+    },
+    {
+      "name": "lint",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 1776
+    },
+    {
+      "name": "typecheck",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 2544
+    },
+    {
+      "name": "build:supervisor",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 2397
+    },
+    {
+      "name": "build:service",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 1990
+    },
+    {
+      "name": "test",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 6604
+    },
+    {
+      "name": "build",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 2015
+    },
+    {
+      "name": "smoke:board",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 1829
+    },
+    {
+      "name": "smoke:cost",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 1713
+    },
+    {
+      "name": "smoke:changes",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 2133
+    },
+    {
+      "name": "smoke:polish",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 1813
+    },
+    {
+      "name": "smoke:agents",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 4042
+    }
+  ],
+  "renderer_scan": {
+    "ok": true,
+    "files": 3,
+    "patterns": [],
+    "bytes": 611934
+  },
+  "dist_bytes": 611934
+}

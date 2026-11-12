@@ -5,6 +5,16 @@ import {
   POLISH_ACCENTS,
   PolishPreferencesPatchSchema,
 } from "../shared/contracts/polish";
+import {
+  AgentRunCancelSchema,
+  FleetEvidenceRequestSchema,
+  FleetLaunchSchema,
+  FleetRunControlSchema,
+  FleetWorkerControlSchema,
+  GoalBlockSchema,
+  GoalSetSchema,
+  GoalThreadSchema,
+} from "../shared/contracts/agents";
 
 /**
  * Narrow IPC contract. Every invoke is a strict object: unknown fields are
@@ -332,6 +342,28 @@ export const IpcRequests = {
   // Quit is explicit; the existing shutdown path interrupts active work and
   // stops only the runtime Mona owns.
   "polish:quit": z.strictObject({ interrupt: z.boolean() }),
+
+  // Native orchestration. Reads never start work; every control is explicit and
+  // scoped to this project's live runtime. Fleet launch requires a task that is
+  // already owned by native_workflow, so the Mona queue cannot double-dispatch.
+  "agents:observatory": z.strictObject({ projectId: ProjectId }),
+  "agents:fleet-detail": z.strictObject({
+    projectId: ProjectId,
+    runId: z.string().trim().min(1).max(200),
+  }),
+  "agents:fleet-evidence": FleetEvidenceRequestSchema,
+  "agents:history": z.strictObject({
+    projectId: ProjectId,
+    limit: z.number().int().min(1).max(200).optional(),
+  }),
+  "agents:run-cancel": AgentRunCancelSchema,
+  "agents:fleet-control": FleetRunControlSchema,
+  "agents:worker-control": FleetWorkerControlSchema,
+  "agents:goal-set": GoalSetSchema,
+  "agents:goal-complete": GoalThreadSchema,
+  "agents:goal-block": GoalBlockSchema,
+  "agents:goal-clear": GoalThreadSchema,
+  "agents:launch-fleet": FleetLaunchSchema,
 } as const;
 
 export type IpcChannel = keyof typeof IpcRequests;

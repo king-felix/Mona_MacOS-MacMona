@@ -23,6 +23,17 @@ import type {
   CapabilityInvocation,
   CapabilityResult,
   EngineAdapter,
+  EngineAgentRun,
+  EngineAgentRunList,
+  EngineAgentUsage,
+  EngineArtifactRef,
+  EngineControlReceipt,
+  EngineFleetReceipt,
+  EngineFleetRun,
+  EngineFleetRunDetail,
+  EngineFleetWorker,
+  EngineGoal,
+  EngineRunEvent,
   FileRevertReceipt,
   HistoryPage,
   InterruptReceipt,
@@ -46,8 +57,24 @@ import type {
   SubmitTurnInput,
   WorkspaceFileWindow,
   WorkspaceWriteReceipt,
+  FleetCreateSpec,
 } from "./types";
 import { HttpRuntimeTransport, type RuntimeTransport, type TransportResponse } from "./transport";
+import {
+  WireAgentRun,
+  WireAgentRunList,
+  WireFleetEventReplay,
+  WireFleetEvidence,
+  WireFleetReceipt,
+  WireFleetReceiptList,
+  WireFleetRun,
+  WireFleetRunCreate,
+  WireFleetRunList,
+  WireFleetWorker,
+  WireFleetWorkerList,
+  WireGoalList,
+  WireThreadGoal,
+} from "./wire";
 import { WireInterrupt, WireRuntimeInfo, WireThread, WireTurn, WireUsageResponse } from "./wire";
 
 export interface AdapterOptions {
@@ -160,6 +187,298 @@ function errorBody(response: TransportResponse): string {
   const body = objectValue(response.json);
   const message = body ? (stringValue(body.message) ?? stringValue(body.error)) : null;
   return (message ?? response.text).slice(0, 500);
+}
+
+// ------------------------------------------------------ P15 normalization
+
+function isoFromMs(value: number | null): string | null {
+  if (value === null || !Number.isFinite(value)) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date.toISOString();
+}
+
+function isoFromEpoch(value: number | null): string | null {
+  if (value === null || !Number.isFinite(value)) return null;
+  // Goal timestamps are unix seconds today; accept milliseconds defensively.
+  return isoFromMs(value >= 1_000_000_000_000 ? value : value * 1000);
+}
+
+function normalizeArtifact(value: unknown): EngineArtifactRef | null {
+  const record = objectValue(value);
+  if (!record) return null;
+  const path =
+    stringValue(record.path) ?? stringValue(record.target) ?? stringValue(record.name) ?? null;
+  if (!path) return null;
+  return {
+    kind: stringValue(record.kind) ?? "unknown",
+    path,
+    checksum: stringValue(record.checksum),
+    mimeType: stringValue(record.mime_type),
+    sizeBytes: numberValue(record.size_bytes),
+  };
+}
+
+function normalizeRunEvent(value: unknown): EngineRunEvent | null {
+  const record = objectValue(value);
+  if (!record) return null;
+  const status =
+    stringValue(record.status) ?? stringValue(record.state) ?? stringValue(record.label) ?? "event";
+  return {
+    seq: numberValue(record.seq),
+    at: stringValue(record.timestamp) ?? isoFromMs(numberValue(record.timestamp_ms)),
+    status,
+    message: stringValue(record.message) ?? stringValue(record.label),
+    kind: "lifecycle",
+    tool: stringValue(record.tool_name) ?? stringValue(record.tool),
+  };
+}
+
+function normalizeUsage(value: unknown): EngineAgentUsage {
+  const record = objectValue(value) ?? {};
+  const inputTokens = numberValue(record.input_tokens) ?? numberValue(record.inputTokens);
+  const outputTokens = numberValue(record.output_tokens) ?? numberValue(record.outputTokens);
+  const cachedTokens =
+    numberValue(record.cached_input_tokens) ??
+    numberValue(record.cachedTokens) ??
+    numberValue(record.cache_read_tokens);
+  const reasoningTokens =
+    numberValue(record.reasoning_tokens) ?? numberValue(record.reasoningTokens);
+  const costUsd = numberValue(record.cost_usd) ?? numberValue(record.costUsd);
+  const explicit = stringValue(record.status);
+  const hasNumbers = [inputTokens, outputTokens, cachedTokens, reasoningTokens, costUsd].some(
+    (candidate) => candidate !== null,
+  );
+  return {
+    status: explicit ?? (hasNumbers ? "reported" : "unknown"),
+    inputTokens,
+    outputTokens,
+    cachedTokens,
+    reasoningTokens,
+    costUsd,
+    note: stringValue(record.note),
+  };
+}
+
+function normalizeAgentRun(value: WireAgentRun): EngineAgentRun {
+  const record = value as unknown as Record<string, unknown>;
+  const spec = objectValue(record.spec) ?? {};
+  const runtimeProfile = objectValue(spec.runtime_profile) ?? {};
+  const runId =
+    stringValue(spec.run_id) ??
+    stringValue(spec.worker_id) ??
+    stringValue(record.run_id) ??
+    stringValue(record.worker_id);
+  if (!runId) {
+    throw new AdapterError("MALFORMED_RESPONSE", "agent run record has no identity");
+  }
+  const verification = objectValue(record.verification) ?? {};
+  const events = arrayValue(record.events)
+    .map(normalizeRunEvent)
+    .filter((event): event is EngineRunEvent => event !== null);
+  return {
+    runId,
+    workerId: stringValue(spec.worker_id) ?? stringValue(record.worker_id),
+    parentRunId:
+      stringValue(spec.parent_run_id) ??
+      stringValue(record.parent_run_id) ??
+      stringValue(record.parent_agent_id) ??
+      stringValue(spec.parent_agent_id) ??
+      stringValue(spec.parent_id),
+    actorKind: stringValue(record.actor_kind),
+    role: stringValue(spec.role) ?? stringValue(spec.agent_type),
+    objective: stringValue(spec.objective) ?? "",
+    status: stringValue(record.status) ?? "unknown",
+    model: stringValue(spec.model),
+    provider: stringValue(runtimeProfile.provider),
+    workspace: stringValue(spec.workspace),
+    ownerSessionId: stringValue(record.owner_session_id),
+    originTurnId: stringValue(record.runtime_origin_turn_id),
+    latestMessage: stringValue(record.latest_message),
+    stepsTaken: numberValue(record.steps_taken),
+    events,
+    artifacts: arrayValue(record.artifacts)
+      .map(normalizeArtifact)
+      .filter((artifact): artifact is EngineArtifactRef => artifact !== null),
+    usage: normalizeUsage(record.usage),
+    verification: {
+      status: stringValue(verification.status),
+      summary: stringValue(verification.summary),
+    },
+    createdAt: isoFromMs(numberValue(record.created_at_ms)),
+    updatedAt: isoFromMs(numberValue(record.updated_at_ms)),
+    startedAt: isoFromMs(numberValue(record.started_at_ms)),
+    completedAt: isoFromMs(numberValue(record.completed_at_ms)),
+    raw: record,
+  };
+}
+
+function normalizeGoal(value: WireThreadGoal): EngineGoal {
+  return {
+    threadId: value.thread_id,
+    goalId: value.goal_id ?? null,
+    objective: value.objective,
+    status: value.status,
+    tokensUsed: value.tokens_used ?? null,
+    timeUsedSeconds: value.time_used_seconds ?? null,
+    continuationCount: value.continuation_count ?? null,
+    repeatedGapCount: value.repeated_gap_count ?? null,
+    createdAt: isoFromEpoch(value.created_at ?? null),
+    updatedAt: isoFromEpoch(value.updated_at ?? null),
+  };
+}
+
+function normalizeFleetRun(value: WireFleetRun): EngineFleetRun {
+  const record = value as unknown as Record<string, unknown>;
+  const specs = new Map<string, { name: string | null; role: string | null }>();
+  for (const raw of arrayValue(record.task_specs)) {
+    const spec = objectValue(raw);
+    if (!spec) continue;
+    const id = stringValue(spec.id);
+    if (!id) continue;
+    const worker = objectValue(spec.worker) ?? {};
+    specs.set(id, {
+      name: stringValue(spec.name),
+      role: stringValue(worker.role),
+    });
+  }
+  const tasks = arrayValue(record.tasks).flatMap((raw) => {
+    const task = objectValue(raw);
+    const taskId = task ? stringValue(task.task_id) : null;
+    if (!task || !taskId) return [];
+    const spec = specs.get(taskId) ?? { name: null, role: null };
+    return [
+      {
+        taskId,
+        name: spec.name,
+        status: stringValue(task.status) ?? "unknown",
+        workerId: stringValue(task.leased_to),
+        attempts: numberValue(task.attempts) ?? 0,
+        role: spec.role,
+      },
+    ];
+  });
+  return {
+    runId: value.id,
+    name: value.name ?? null,
+    lifecycle: value.lifecycle_status,
+    target: value.target ?? null,
+    workflow: {
+      id: value.workflow?.id ?? null,
+      kind: value.workflow?.kind ?? null,
+    },
+    roles: value.roles ?? [],
+    taskCount: value.task_count ?? tasks.length,
+    workerCount: value.worker_count ?? arrayValue(record.worker_specs).length,
+    tasks,
+    createdAt: value.created_at ?? null,
+    updatedAt: value.updated_at ?? null,
+    completedAt: value.completed_at ?? null,
+    raw: record,
+  };
+}
+
+function normalizeFleetWorker(value: WireFleetWorker): EngineFleetWorker {
+  const record = value as unknown as Record<string, unknown>;
+  const latest = objectValue(record.latest_event);
+  const event = latest
+    ? {
+        seq: numberValue(latest.seq),
+        at: stringValue(latest.timestamp),
+        status:
+          stringValue(objectValue(latest.payload)?.state) ?? stringValue(latest.label) ?? "event",
+        message: stringValue(latest.label),
+        kind: "lifecycle" as const,
+        tool: stringValue(objectValue(latest.payload)?.tool_name),
+      }
+    : null;
+  return {
+    workerId: value.worker_id,
+    status: value.status,
+    taskId: value.task_id ?? null,
+    objective: value.objective ?? null,
+    role: value.role ?? null,
+    host: value.host ?? null,
+    lastEvent: event,
+    heartbeatAt: value.latest_heartbeat_at ?? null,
+    artifacts: arrayValue(record.artifacts)
+      .map(normalizeArtifact)
+      .filter((artifact): artifact is EngineArtifactRef => artifact !== null),
+    lastError: value.last_error ?? null,
+    raw: record,
+  };
+}
+
+function normalizeFleetReceipt(value: WireFleetReceipt): EngineFleetReceipt {
+  const record = value as unknown as Record<string, unknown>;
+  const score = objectValue(record.score);
+  return {
+    taskId: value.task_id,
+    workerId: value.worker_id ?? null,
+    attempt: value.attempt ?? null,
+    completedAt: value.completed_at ?? null,
+    result: value.result ?? null,
+    failureKind: value.failure_kind ?? null,
+    failureClass: value.failure_class ?? null,
+    retryEligible: value.retry_eligible ?? null,
+    score: score
+      ? {
+          value: numberValue(score.value),
+          max: numberValue(score.max),
+          notes: stringValue(score.notes),
+        }
+      : null,
+    artifacts: arrayValue(record.artifacts)
+      .map(normalizeArtifact)
+      .filter((artifact): artifact is EngineArtifactRef => artifact !== null),
+    evidenceAvailable: value.evidence_available === true,
+  };
+}
+
+function fleetEventSummary(event: string, payload: unknown): string {
+  const record = objectValue(payload);
+  if (!record) return event;
+  const state = stringValue(record.state) ?? stringValue(record.status);
+  const summary = stringValue(record.summary) ?? stringValue(record.message);
+  const base = state ? `${event} (${state})` : event;
+  return summary ? `${base}: ${summary.slice(0, 240)}` : base;
+}
+
+function controlReceipt(response: TransportResponse, context: string): EngineControlReceipt {
+  const body = objectValue(response.json);
+  if (response.status === 404) {
+    throw new AdapterError(
+      "OPERATION_ABSENT",
+      `${context}: the engine does not know this id`,
+      false,
+      {
+        status: 404,
+        body: errorBody(response),
+      },
+    );
+  }
+  if (response.status === 501) {
+    throw new UnsupportedCapabilityError(context, errorBody(response));
+  }
+  if (response.status < 200 || response.status >= 300) {
+    throw new AdapterError(
+      "CONTROL_REFUSED",
+      `${context}: the engine refused (${response.status}): ${errorBody(response)}`,
+      false,
+      { status: response.status },
+    );
+  }
+  const message =
+    stringValue(body?.message) ??
+    stringValue(body?.action) ??
+    (response.status === 202
+      ? "accepted; the engine has not recorded a terminal receipt yet"
+      : "accepted");
+  return {
+    status: response.status,
+    accepted: true,
+    message,
+    record: body,
+  };
 }
 
 export class CodewhaleAdapter implements EngineAdapter {
@@ -1102,6 +1421,360 @@ export class CodewhaleAdapter implements EngineAdapter {
       created: booleanValue(body.created) === true,
       writtenAt: stringValue(body.written_at),
     };
+  }
+
+  // ------------------------------------------------------- P15 orchestration
+
+  async listAgentRuns(input: { limit?: number } = {}): Promise<EngineAgentRunList> {
+    const caps = await this.discover();
+    if (caps.capabilities["worker_runtime"] !== true) {
+      throw new UnsupportedCapabilityError(
+        "agent-runs",
+        "this runtime does not advertise the sub-agent worker ledger",
+      );
+    }
+    const response = await this.request("GET", "/v1/agent-runs");
+    this.throwForAuth(response, "agent runs");
+    this.expectOk(response, "agent runs");
+    const parsed = parseWith(WireAgentRunList, response.json, "agent runs");
+    const limit = Math.min(Math.max(input.limit ?? 100, 1), 200);
+    return {
+      runs: parsed.runs.slice(0, limit).map(normalizeAgentRun),
+      governor: parsed.governor
+        ? {
+            launchSlots: parsed.governor.launch_slots ?? null,
+            maxLaunchSlots: parsed.governor.max_launch_slots ?? null,
+            paused: parsed.governor.paused ?? null,
+            recentRateLimits: parsed.governor.recent_rate_limits ?? null,
+          }
+        : null,
+    };
+  }
+
+  async readAgentRun(runId: string): Promise<EngineAgentRun> {
+    if (!runId || runId.length > 200) {
+      throw new AdapterError("MALFORMED_RESPONSE", "agent run id is not a bounded identifier");
+    }
+    const response = await this.request("GET", `/v1/agent-runs/${encodeURIComponent(runId)}`);
+    this.throwForAuth(response, "agent run");
+    if (response.status === 404) {
+      throw new AdapterError(
+        "OPERATION_ABSENT",
+        `agent run ${runId} is not on this runtime`,
+        false,
+        {
+          status: 404,
+        },
+      );
+    }
+    this.expectOk(response, "agent run");
+    return normalizeAgentRun(parseWith(WireAgentRun, response.json, "agent run"));
+  }
+
+  async cancelAgentRun(runId: string): Promise<EngineControlReceipt> {
+    if (!runId || runId.length > 200) {
+      throw new AdapterError("MALFORMED_RESPONSE", "agent run id is not a bounded identifier");
+    }
+    const response = await this.request(
+      "POST",
+      `/v1/agent-runs/${encodeURIComponent(runId)}/cancel`,
+      {},
+    );
+    this.throwForAuth(response, "agent run cancel");
+    return controlReceipt(response, `agent run ${runId}`);
+  }
+
+  async listGoals(input: { limit?: number; status?: string } = {}): Promise<EngineGoal[]> {
+    const caps = await this.discover();
+    if (caps.capabilities["thread_goals"] !== true) {
+      throw new UnsupportedCapabilityError("thread_goals", "this runtime does not advertise goals");
+    }
+    const params = new URLSearchParams();
+    params.set("limit", String(Math.min(Math.max(input.limit ?? 50, 1), 200)));
+    if (input.status) {
+      if (
+        !["active", "paused", "blocked", "usage_limited", "budget_limited", "complete"].includes(
+          input.status,
+        )
+      ) {
+        throw new AdapterError("MALFORMED_RESPONSE", `unknown goal status filter: ${input.status}`);
+      }
+      params.set("status", input.status);
+    }
+    const response = await this.request("GET", `/v1/goals?${params.toString()}`);
+    this.throwForAuth(response, "goals");
+    this.expectOk(response, "goals");
+    return parseWith(WireGoalList, response.json, "goals").goals.map(normalizeGoal);
+  }
+
+  async readThreadGoal(threadId: ThreadId): Promise<EngineGoal | null> {
+    const response = await this.request("GET", `/v1/threads/${encodeURIComponent(threadId)}/goal`);
+    this.throwForAuth(response, "thread goal");
+    if (response.status === 404) return null;
+    this.expectOk(response, "thread goal");
+    return normalizeGoal(parseWith(WireThreadGoal, response.json, "thread goal"));
+  }
+
+  async setThreadGoal(threadId: ThreadId, objective: string): Promise<EngineGoal> {
+    const trimmed = objective.trim();
+    if (trimmed.length === 0 || trimmed.length > 4000) {
+      throw new AdapterError("MALFORMED_RESPONSE", "goal objective must be 1-4000 characters");
+    }
+    const response = await this.request("PUT", `/v1/threads/${encodeURIComponent(threadId)}/goal`, {
+      objective: trimmed,
+    });
+    this.throwForAuth(response, "goal set");
+    if (response.status !== 200 && response.status !== 201) {
+      throw new AdapterError("CONTROL_REFUSED", `goal set returned ${response.status}`, false, {
+        body: response.text.slice(0, 500),
+      });
+    }
+    return normalizeGoal(parseWith(WireThreadGoal, response.json, "goal set"));
+  }
+
+  async completeThreadGoal(threadId: ThreadId): Promise<EngineGoal> {
+    return this.goalTransition(threadId, "complete");
+  }
+
+  async blockThreadGoal(threadId: ThreadId): Promise<EngineGoal> {
+    return this.goalTransition(threadId, "block");
+  }
+
+  async clearThreadGoal(threadId: ThreadId): Promise<boolean> {
+    const response = await this.request(
+      "DELETE",
+      `/v1/threads/${encodeURIComponent(threadId)}/goal`,
+    );
+    this.throwForAuth(response, "goal clear");
+    if (response.status === 404) return false;
+    if (response.status !== 204 && (response.status < 200 || response.status >= 300)) {
+      throw new AdapterError("CONTROL_REFUSED", `goal clear returned ${response.status}`, false, {
+        body: response.text.slice(0, 500),
+      });
+    }
+    return true;
+  }
+
+  async listFleetRuns(): Promise<{
+    runs: EngineFleetRun[];
+    status: Record<string, unknown> | null;
+  }> {
+    const caps = await this.discover();
+    if (
+      caps.capabilities["fleet_run_create"] !== true &&
+      caps.capabilities["fleet_event_stream"] !== true
+    ) {
+      throw new UnsupportedCapabilityError("fleet", "this runtime does not advertise fleet runs");
+    }
+    const response = await this.request("GET", "/v1/fleet/runs");
+    this.throwForAuth(response, "fleet runs");
+    this.expectOk(response, "fleet runs");
+    const parsed = parseWith(WireFleetRunList, response.json, "fleet runs");
+    return {
+      runs: parsed.runs.map(normalizeFleetRun),
+      status: (parsed.status as Record<string, unknown> | undefined) ?? null,
+    };
+  }
+
+  async readFleetRun(runId: string): Promise<EngineFleetRunDetail> {
+    if (!runId || runId.length > 200) {
+      throw new AdapterError("MALFORMED_RESPONSE", "fleet run id is not a bounded identifier");
+    }
+    const path = `/v1/fleet/runs/${encodeURIComponent(runId)}`;
+    const detail = await this.request("GET", path);
+    this.throwForAuth(detail, "fleet run");
+    if (detail.status === 404) {
+      throw new AdapterError(
+        "OPERATION_ABSENT",
+        `fleet run ${runId} is not on this runtime`,
+        false,
+        {
+          status: 404,
+        },
+      );
+    }
+    this.expectOk(detail, "fleet run");
+    const run = normalizeFleetRun(parseWith(WireFleetRun, detail.json, "fleet run"));
+
+    const workersResponse = await this.request("GET", `${path}/workers`);
+    this.throwForAuth(workersResponse, "fleet workers");
+    this.expectOk(workersResponse, "fleet workers");
+    const workers = parseWith(
+      WireFleetWorkerList,
+      workersResponse.json,
+      "fleet workers",
+    ).workers.map(normalizeFleetWorker);
+
+    const receiptsResponse = await this.request("GET", `${path}/receipts`);
+    this.throwForAuth(receiptsResponse, "fleet receipts");
+    this.expectOk(receiptsResponse, "fleet receipts");
+    const receipts = parseWith(
+      WireFleetReceiptList,
+      receiptsResponse.json,
+      "fleet receipts",
+    ).receipts.map(normalizeFleetReceipt);
+
+    // Replay is a bounded history read. A runtime that declines it leaves the
+    // run visible instead of failing the whole observatory row.
+    let events: EngineFleetRunDetail["events"] = [];
+    let historyTruncated = false;
+    const replay = await this.request("GET", `${path}/events/replay`);
+    if (replay.status >= 200 && replay.status < 300) {
+      const parsed = parseWith(WireFleetEventReplay, replay.json, "fleet replay");
+      historyTruncated = parsed.history_truncated === true;
+      events = parsed.events.map((event) => ({
+        cursor: event.cursor ?? null,
+        event: event.event,
+        taskId: event.task_id ?? null,
+        workerId: event.worker_id ?? null,
+        at: event.timestamp ?? null,
+        summary: fleetEventSummary(event.event, event.payload),
+      }));
+    } else {
+      this.throwForAuth(replay, "fleet replay");
+    }
+
+    return { run, workers, receipts, events, historyTruncated };
+  }
+
+  async createFleetRun(
+    spec: FleetCreateSpec,
+  ): Promise<{ run: EngineFleetRun; execution: string | null; warnings: string[] }> {
+    const caps = await this.discover();
+    if (caps.capabilities["fleet_run_create"] !== true) {
+      throw new UnsupportedCapabilityError(
+        "fleet_run_create",
+        "fleet run creation is not advertised",
+      );
+    }
+    const response = await this.request("POST", "/v1/fleet/runs", spec);
+    this.throwForAuth(response, "fleet create");
+    if (response.status !== 200 && response.status !== 201) {
+      throw new AdapterError(
+        "CONTROL_REFUSED",
+        `fleet create returned ${response.status}: ${response.text.slice(0, 500)}`,
+        false,
+        { status: response.status },
+      );
+    }
+    const parsed = parseWith(WireFleetRunCreate, response.json, "fleet create");
+    return {
+      run: normalizeFleetRun(parsed.run),
+      execution: parsed.execution ?? null,
+      warnings: parsed.warnings ?? [],
+    };
+  }
+
+  async startFleetRun(runId: string): Promise<EngineControlReceipt> {
+    return this.fleetPost(runId, "start");
+  }
+
+  async stopFleetRun(runId: string): Promise<EngineControlReceipt> {
+    return this.fleetPost(runId, "stop");
+  }
+
+  async stopFleetWorker(workerId: string): Promise<EngineControlReceipt> {
+    return this.workerPost(workerId, "stop");
+  }
+
+  async restartFleetWorker(workerId: string): Promise<EngineControlReceipt> {
+    return this.workerPost(workerId, "restart");
+  }
+
+  async readFleetReceipt(runId: string, taskId: string): Promise<EngineFleetReceipt> {
+    const response = await this.request(
+      "GET",
+      `/v1/fleet/runs/${encodeURIComponent(runId)}/receipts/${encodeURIComponent(taskId)}`,
+    );
+    this.throwForAuth(response, "fleet receipt");
+    if (response.status === 404) {
+      throw new AdapterError("OPERATION_ABSENT", `no receipt for ${runId}/${taskId}`, false, {
+        status: 404,
+      });
+    }
+    this.expectOk(response, "fleet receipt");
+    return normalizeFleetReceipt(parseWith(WireFleetReceipt, response.json, "fleet receipt"));
+  }
+
+  async readFleetReceiptEvidence(
+    runId: string,
+    taskId: string,
+  ): Promise<{
+    path: string | null;
+    checksum: string | null;
+    sizeBytes: number | null;
+    truncated: boolean;
+    content: unknown;
+  }> {
+    const response = await this.request(
+      "GET",
+      `/v1/fleet/runs/${encodeURIComponent(runId)}/receipts/${encodeURIComponent(taskId)}/evidence`,
+    );
+    this.throwForAuth(response, "fleet evidence");
+    if (response.status === 404) {
+      throw new AdapterError("OPERATION_ABSENT", `no evidence for ${runId}/${taskId}`, false, {
+        status: 404,
+      });
+    }
+    this.expectOk(response, "fleet evidence");
+    const parsed = parseWith(WireFleetEvidence, response.json, "fleet evidence");
+    return {
+      path: parsed.path ?? null,
+      checksum: parsed.checksum ?? null,
+      sizeBytes: parsed.size_bytes ?? null,
+      truncated: parsed.truncated === true,
+      content: parsed.content ?? null,
+    };
+  }
+
+  private async goalTransition(
+    threadId: ThreadId,
+    action: "complete" | "block",
+  ): Promise<EngineGoal> {
+    const response = await this.request(
+      "POST",
+      `/v1/threads/${encodeURIComponent(threadId)}/goal/${action}`,
+      {},
+    );
+    this.throwForAuth(response, `goal ${action}`);
+    if (response.status !== 200 && response.status !== 201) {
+      throw new AdapterError(
+        "CONTROL_REFUSED",
+        `goal ${action} returned ${response.status}: ${response.text.slice(0, 500)}`,
+        false,
+        { status: response.status },
+      );
+    }
+    return normalizeGoal(parseWith(WireThreadGoal, response.json, `goal ${action}`));
+  }
+
+  private async fleetPost(runId: string, action: "start" | "stop"): Promise<EngineControlReceipt> {
+    if (!runId || runId.length > 200) {
+      throw new AdapterError("MALFORMED_RESPONSE", "fleet run id is not a bounded identifier");
+    }
+    const response = await this.request(
+      "POST",
+      `/v1/fleet/runs/${encodeURIComponent(runId)}/${action}`,
+      {},
+    );
+    this.throwForAuth(response, `fleet ${action}`);
+    return controlReceipt(response, `fleet ${action}`);
+  }
+
+  private async workerPost(
+    workerId: string,
+    action: "stop" | "restart",
+  ): Promise<EngineControlReceipt> {
+    if (!workerId || workerId.length > 200) {
+      throw new AdapterError("MALFORMED_RESPONSE", "fleet worker id is not a bounded identifier");
+    }
+    const response = await this.request(
+      "POST",
+      `/v1/fleet/workers/${encodeURIComponent(workerId)}/${action}`,
+      {},
+    );
+    this.throwForAuth(response, `worker ${action}`);
+    return controlReceipt(response, `worker ${action}`);
   }
 
   private mapArtifactRef(value: unknown): TurnArtifactRef {

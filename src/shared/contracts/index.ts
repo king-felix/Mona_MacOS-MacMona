@@ -11,3 +11,4 @@ export * from "./bridge";
 export * from "./project-bridge";
 export * from "./board";
 export * from "./polish";
+export * from "./agents";

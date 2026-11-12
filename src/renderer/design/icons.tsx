@@ -224,6 +224,17 @@ export function HomeIcon(props: IconProps): JSX.Element {
   );
 }
 
+export function AgentsIcon(props: IconProps): JSX.Element {
+  return (
+    <svg {...iconProps(props)}>
+      <circle cx="12" cy="5.5" r="2.5" />
+      <circle cx="5.5" cy="18" r="2.5" />
+      <circle cx="18.5" cy="18" r="2.5" />
+      <path d="M12 8v4M5.5 15.5v-2h13v2" />
+    </svg>
+  );
+}
+
 export function TerminalIcon(props: IconProps): JSX.Element {
   return (
     <svg {...iconProps(props)}>

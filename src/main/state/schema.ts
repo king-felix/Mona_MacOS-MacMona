@@ -596,6 +596,68 @@ CREATE TABLE commit_receipts (
 CREATE INDEX commit_receipts_project ON commit_receipts (project_id, created_at);
 `;
 
+// v7 keeps the observatory honest across a disconnect and records which engine
+// run a native workflow started for a Mona task. Rows are bounded projections,
+// not a competing transcript: prompts, tool output, and artifacts stay with the
+// engine. `task_runs.upstream_id` is the one-scheduler link: a task run started
+// by a native fleet records the engine run that owns its dispatch.
+const V7 = `
+ALTER TABLE task_runs ADD COLUMN upstream_kind TEXT;
+ALTER TABLE task_runs ADD COLUMN upstream_id TEXT;
+CREATE UNIQUE INDEX task_runs_upstream
+  ON task_runs (upstream_kind, upstream_id) WHERE upstream_id IS NOT NULL;
+
+CREATE TABLE orchestration_runs (
+  project_id          TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  kind                TEXT NOT NULL
+                      CHECK (kind IN ('agent_run', 'fleet_run', 'fleet_worker')),
+  upstream_id         TEXT NOT NULL CHECK (length(upstream_id) BETWEEN 1 AND 200),
+  parent_upstream_id  TEXT,
+  label               TEXT NOT NULL CHECK (length(label) <= 300),
+  status              TEXT NOT NULL CHECK (length(status) <= 80),
+  workspace           TEXT,
+  branch              TEXT,
+  task_id             TEXT REFERENCES tasks(id) ON DELETE SET NULL,
+  started_at          TEXT,
+  updated_at          TEXT,
+  last_seen_at        TEXT NOT NULL,
+  terminal            INTEGER NOT NULL DEFAULT 0 CHECK (terminal IN (0, 1)),
+  detail_json         TEXT NOT NULL DEFAULT '{}',
+  PRIMARY KEY (project_id, kind, upstream_id)
+);
+CREATE INDEX orchestration_runs_project
+  ON orchestration_runs (project_id, last_seen_at DESC);
+
+CREATE TABLE goal_observations (
+  project_id          TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  thread_id           TEXT NOT NULL,
+  goal_id             TEXT,
+  objective           TEXT NOT NULL,
+  status              TEXT NOT NULL,
+  tokens_used         INTEGER,
+  time_used_seconds   INTEGER,
+  continuation_count  INTEGER,
+  repeated_gap_count  INTEGER,
+  engine_created_at   TEXT,
+  engine_updated_at   TEXT,
+  observed_at         TEXT NOT NULL,
+  PRIMARY KEY (project_id, thread_id)
+);
+
+CREATE TABLE orchestration_events (
+  id          TEXT PRIMARY KEY,
+  project_id  TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  action      TEXT NOT NULL,
+  upstream_id TEXT,
+  accepted    INTEGER NOT NULL CHECK (accepted IN (0, 1)),
+  status      INTEGER,
+  message     TEXT NOT NULL,
+  created_at  TEXT NOT NULL
+);
+CREATE INDEX orchestration_events_project
+  ON orchestration_events (project_id, created_at);
+`;
+
 export const MIGRATIONS: readonly Migration[] = [
   { version: 1, name: "core-project-state", sql: V1 },
   { version: 2, name: "project-identity-fields", sql: V2 },
@@ -603,6 +665,7 @@ export const MIGRATIONS: readonly Migration[] = [
   { version: 4, name: "attempt-ledger-and-boundaries", sql: V4 },
   { version: 5, name: "cost-ledger-rates-and-budgets", sql: V5 },
   { version: 6, name: "change-receipts-git-and-restore", sql: V6 },
+  { version: 7, name: "orchestration-observations-and-receipts", sql: V7 },
 ];
 
 export const CURRENT_SCHEMA_VERSION = MIGRATIONS[MIGRATIONS.length - 1]?.version ?? 0;
@@ -620,7 +683,10 @@ export const REQUIRED_TABLES: readonly string[] = [
   "drafts",
   "event_cursors",
   "events",
+  "goal_observations",
   "meta",
+  "orchestration_events",
+  "orchestration_runs",
   "problem_events",
   "problems",
   "project_paths",
@@ -653,10 +719,16 @@ const V6_TABLES: readonly string[] = [
   "commit_receipts",
   "restore_receipts",
 ];
+const V7_TABLES: readonly string[] = [
+  "goal_observations",
+  "orchestration_events",
+  "orchestration_runs",
+];
 
-/** Tables a database at `version` must have. Older targets predate v3–v6. */
+/** Tables a database at `version` must have. Older targets predate v3–v7. */
 export function requiredTablesFor(version: number): readonly string[] {
   let tables: readonly string[] = REQUIRED_TABLES;
+  if (version < 7) tables = tables.filter((t) => !V7_TABLES.includes(t));
   if (version < 6) tables = tables.filter((t) => !V6_TABLES.includes(t));
   if (version < 5) tables = tables.filter((t) => !V5_TABLES.includes(t));
   if (version < 4) tables = tables.filter((t) => !V4_TABLES.includes(t));

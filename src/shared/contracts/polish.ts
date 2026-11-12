@@ -12,7 +12,15 @@ import type { TaskState } from "./board";
 export const POLISH_ACCENTS = ["violet", "mint", "coral", "amber", "indigo"] as const;
 export type PolishAccent = (typeof POLISH_ACCENTS)[number];
 
-export const POLISH_SCREENS = ["home", "studio", "board", "changes", "cost", "settings"] as const;
+export const POLISH_SCREENS = [
+  "home",
+  "studio",
+  "board",
+  "changes",
+  "cost",
+  "agents",
+  "settings",
+] as const;
 export type PolishScreen = (typeof POLISH_SCREENS)[number];
 
 const Clock = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "expected a 24-hour HH:MM clock time");

@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "probe": "parallel writer acceptance on the pinned runtime",
+  "engine": {
+    "version": "0.10.2",
+    "commit": "ff466b2ed0bfb4ae5267d4d8d0ecb562cf46956e",
+    "binary": "/opt/homebrew/lib/node_modules/codewhale/bin/downloads/codewhale"
+  },
+  "observed_utc": "2026-11-12T08:05:00Z",
+  "method": "POST /v1/fleet/runs with one `parallel` workflow holding two builder-role tasks. The run was never started; it was stopped immediately after creation so no inference was spent.",
+  "cases": [
+    {
+      "id": "same-root",
+      "tasks": [
+        { "id": "a", "workspace": { "root": "." } },
+        { "id": "b", "workspace": { "root": "." } }
+      ],
+      "status": 201,
+      "lifecycle": "queued",
+      "run_id": "fleet-9d5ef0ce",
+      "verdict": "accepted"
+    },
+    {
+      "id": "distinct-roots",
+      "tasks": [
+        { "id": "a", "workspace": { "root": "src" } },
+        { "id": "b", "workspace": { "root": "docs" } }
+      ],
+      "status": 201,
+      "lifecycle": "queued",
+      "run_id": "fleet-00fe1e26",
+      "verdict": "accepted"
+    }
+  ],
+  "result": "The pinned runtime accepted two parallel write-capable tasks that declare the same repository root. It did not reject the overlapping write scope at creation time, contrary to the documented `overlapping effective write roots are rejected` note in docs/RUNTIME_API.md.",
+  "consequence": "Mona does not rely on the engine to prevent two builders sharing one mutable tree. Parallel launch stays refused in Mona (ADR-010) and every launch is one serial task.",
+  "cleanup": "Both probe runs were stopped with POST /v1/fleet/runs/{run_id}/stop before any worker was started; no task was ever leased."
+}

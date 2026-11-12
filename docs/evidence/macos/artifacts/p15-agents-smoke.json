@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "mode": "fixture",
+  "ok": true,
+  "started_utc": "2026-11-12T08:12:53.527Z",
+  "project": {
+    "id": "prj_ef63391d83345113",
+    "root": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p15-fixture-o16UXD/workspace"
+  },
+  "checks": {
+    "real-subagent-identity": {
+      "ok": true,
+      "detail": null
+    },
+    "unknown-subagent-spend": {
+      "ok": true,
+      "detail": null
+    },
+    "self-report-tests": {
+      "ok": true,
+      "detail": null
+    },
+    "partial-fleet-receipt": {
+      "ok": true,
+      "detail": null
+    },
+    "parent-child-not-additive": {
+      "ok": true,
+      "detail": null
+    },
+    "serial-only": {
+      "ok": true,
+      "detail": null
+    },
+    "child-failure-visible": {
+      "ok": true,
+      "detail": "failed"
+    },
+    "cancel-accepted-not-terminal": {
+      "ok": true,
+      "detail": null
+    },
+    "cancel-receipt-recorded": {
+      "ok": true,
+      "detail": null
+    },
+    "disconnect-stored": {
+      "ok": true,
+      "detail": null
+    },
+    "disconnect-unknown-spend": {
+      "ok": true,
+      "detail": null
+    },
+    "blocked-dependency-refused": {
+      "ok": true,
+      "detail": null
+    },
+    "fixture-suite": {
+      "ok": true,
+      "detail": null
+    }
+  },
+  "observations": [
+    {
+      "step": "live",
+      "source": "engine",
+      "runs": [
+        {
+          "runId": "agent_fixture",
+          "status": "running",
+          "spend": "unknown",
+          "tests": "self_reported",
+          "tools": [
+            "read_file"
+          ]
+        }
+      ],
+      "fleets": [
+        {
+          "runId": "fleet_fixture",
+          "lifecycle": "completed",
+          "receipts": [
+            "partial"
+          ],
+          "worker": "fleet_fixture-local-1"
+        }
+      ],
+      "summary": {
+        "runs": 2,
+        "running": 1,
+        "terminal": 1,
+        "failed": 0,
+        "interrupted": 0,
+        "unknownSpend": 2,
+        "goalsActive": 0,
+        "fleetRuns": 1,
+        "fleetWorkers": 1
+      }
+    }
+  ],
+  "live": null,
+  "error": null,
+  "finished_utc": "2026-11-12T08:12:53.558Z"
+}

@@ -347,4 +347,210 @@ export interface EngineAdapter {
     content: string;
     expectedRevision: string;
   }): Promise<WorkspaceWriteReceipt>;
+
+  // P15 orchestration. Reads never start work; each mutation is an explicit
+  // user action and is reported with the engine's own receipt.
+  listAgentRuns(input?: { limit?: number }): Promise<EngineAgentRunList>;
+  readAgentRun(runId: string): Promise<EngineAgentRun>;
+  cancelAgentRun(runId: string): Promise<EngineControlReceipt>;
+  listGoals(input?: { limit?: number; status?: string }): Promise<EngineGoal[]>;
+  readThreadGoal(threadId: ThreadId): Promise<EngineGoal | null>;
+  setThreadGoal(threadId: ThreadId, objective: string): Promise<EngineGoal>;
+  completeThreadGoal(threadId: ThreadId): Promise<EngineGoal>;
+  blockThreadGoal(threadId: ThreadId): Promise<EngineGoal>;
+  clearThreadGoal(threadId: ThreadId): Promise<boolean>;
+  listFleetRuns(): Promise<{ runs: EngineFleetRun[]; status: Record<string, unknown> | null }>;
+  readFleetRun(runId: string): Promise<EngineFleetRunDetail>;
+  createFleetRun(
+    spec: FleetCreateSpec,
+  ): Promise<{ run: EngineFleetRun; execution: string | null; warnings: string[] }>;
+  startFleetRun(runId: string): Promise<EngineControlReceipt>;
+  stopFleetRun(runId: string): Promise<EngineControlReceipt>;
+  stopFleetWorker(workerId: string): Promise<EngineControlReceipt>;
+  restartFleetWorker(workerId: string): Promise<EngineControlReceipt>;
+  readFleetReceipt(runId: string, taskId: string): Promise<EngineFleetReceipt>;
+  readFleetReceiptEvidence(
+    runId: string,
+    taskId: string,
+  ): Promise<{
+    path: string | null;
+    checksum: string | null;
+    sizeBytes: number | null;
+    truncated: boolean;
+    content: unknown;
+  }>;
+}
+
+// ------------------------------------------------------- P15 orchestration
+// Normalized at the adapter boundary so the observatory never re-parses raw
+// engine JSON. Unknown fields are dropped here; `raw` keeps the record only for
+// local diagnostics and is never rendered as a transcript.
+
+export interface EngineRunEvent {
+  seq: number | null;
+  at: string | null;
+  status: string;
+  message: string | null;
+  kind: "lifecycle" | "event" | "artifact";
+  /** Tool name when the engine event names one; null when it does not. */
+  tool: string | null;
+}
+
+export interface EngineArtifactRef {
+  kind: string;
+  path: string;
+  checksum: string | null;
+  mimeType: string | null;
+  sizeBytes: number | null;
+}
+
+export interface EngineAgentUsage {
+  /** `reported`, `unknown`, or an upstream word Mona passes through. */
+  status: string;
+  inputTokens: number | null;
+  outputTokens: number | null;
+  cachedTokens: number | null;
+  reasoningTokens: number | null;
+  costUsd: number | null;
+  note: string | null;
+}
+
+export interface EngineAgentRun {
+  runId: string;
+  workerId: string | null;
+  parentRunId: string | null;
+  actorKind: string | null;
+  role: string | null;
+  objective: string;
+  status: string;
+  model: string | null;
+  provider: string | null;
+  workspace: string | null;
+  ownerSessionId: string | null;
+  originTurnId: string | null;
+  latestMessage: string | null;
+  stepsTaken: number | null;
+  events: EngineRunEvent[];
+  artifacts: EngineArtifactRef[];
+  usage: EngineAgentUsage;
+  verification: { status: string | null; summary: string | null };
+  createdAt: string | null;
+  updatedAt: string | null;
+  startedAt: string | null;
+  completedAt: string | null;
+  raw: Record<string, unknown>;
+}
+
+export interface EngineAgentRunList {
+  runs: EngineAgentRun[];
+  governor: {
+    launchSlots: number | null;
+    maxLaunchSlots: number | null;
+    paused: boolean | null;
+    recentRateLimits: number | null;
+  } | null;
+}
+
+export interface EngineGoal {
+  threadId: string;
+  goalId: string | null;
+  objective: string;
+  status: string;
+  tokensUsed: number | null;
+  timeUsedSeconds: number | null;
+  continuationCount: number | null;
+  repeatedGapCount: number | null;
+  createdAt: string | null;
+  updatedAt: string | null;
+}
+
+export interface EngineFleetTask {
+  taskId: string;
+  name: string | null;
+  status: string;
+  workerId: string | null;
+  attempts: number;
+  role: string | null;
+}
+
+export interface EngineFleetWorker {
+  workerId: string;
+  status: string;
+  taskId: string | null;
+  objective: string | null;
+  role: string | null;
+  host: string | null;
+  lastEvent: EngineRunEvent | null;
+  heartbeatAt: string | null;
+  artifacts: EngineArtifactRef[];
+  lastError: string | null;
+  raw: Record<string, unknown>;
+}
+
+export interface EngineFleetReceipt {
+  taskId: string;
+  workerId: string | null;
+  attempt: number | null;
+  completedAt: string | null;
+  result: string | null;
+  failureKind: string | null;
+  failureClass: string | null;
+  retryEligible: boolean | null;
+  score: { value: number | null; max: number | null; notes: string | null } | null;
+  artifacts: EngineArtifactRef[];
+  evidenceAvailable: boolean;
+}
+
+export interface EngineFleetRun {
+  runId: string;
+  name: string | null;
+  lifecycle: string;
+  target: string | null;
+  workflow: { id: string | null; kind: string | null };
+  roles: string[];
+  taskCount: number;
+  workerCount: number;
+  tasks: EngineFleetTask[];
+  createdAt: string | null;
+  updatedAt: string | null;
+  completedAt: string | null;
+  raw: Record<string, unknown>;
+}
+
+export interface EngineFleetRunDetail {
+  run: EngineFleetRun;
+  workers: EngineFleetWorker[];
+  receipts: EngineFleetReceipt[];
+  events: Array<{
+    cursor: string | null;
+    event: string;
+    taskId: string | null;
+    workerId: string | null;
+    at: string | null;
+    summary: string | null;
+  }>;
+  historyTruncated: boolean;
+}
+
+export interface FleetCreateSpec {
+  target: "this_computer";
+  name: string;
+  roles: Array<{ name: string }>;
+  workflow: {
+    id: string;
+    kind: "parallel";
+    tasks: Array<{
+      id: string;
+      name: string;
+      instructions: string;
+      worker: { role: string };
+    }>;
+  };
+}
+
+export interface EngineControlReceipt {
+  status: number;
+  accepted: boolean;
+  message: string;
+  record: Record<string, unknown> | null;
 }

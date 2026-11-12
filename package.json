@@ -36,7 +36,9 @@
     "smoke:board": "npm run build:main && node scripts/board-smoke.mjs",
     "smoke:cost": "npm run build:main && node scripts/cost-smoke.mjs",
     "smoke:changes": "npm run build:main && node scripts/changes-smoke.mjs",
-    "smoke:polish": "npm run build:main && node scripts/polish-smoke.mjs"
+    "smoke:polish": "npm run build:main && node scripts/polish-smoke.mjs",
+    "smoke:agents": "npm run build:main && npm run build:supervisor && node scripts/agents-smoke.mjs",
+    "smoke:agents-live": "npm run build:main && npm run build:supervisor && node scripts/agents-smoke.mjs --live"
   },
   "dependencies": {
     "react": "19.3.1",

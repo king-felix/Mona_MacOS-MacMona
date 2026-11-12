@@ -29,6 +29,7 @@ import {
   VisuallyHidden,
 } from "../design/primitives";
 import {
+  AgentsIcon,
   BoardIcon,
   ChangesIcon,
   CostIcon,
@@ -53,6 +54,7 @@ import { BoardScreen } from "./Board";
 import { CostScreen } from "./Cost";
 import { ChangesScreen } from "./Changes";
 import { SettingsScreen } from "./Settings";
+import { AgentsScreen } from "./Agents";
 import type { ScreenId } from "./types";
 import { projectMonogram, projectAccent } from "./visual";
 
@@ -63,6 +65,7 @@ const SCREENS: Array<{ id: ScreenId; label: string; icon: JSX.Element }> = [
   { id: "changes", label: "Changes", icon: <ChangesIcon size={17} /> },
   { id: "cost", label: "Cost lens", icon: <CostIcon size={17} /> },
   { id: "settings", label: "Settings", icon: <SettingsIcon size={17} /> },
+  { id: "agents", label: "Agents", icon: <AgentsIcon size={17} /> },
 ];
 
 const SCREEN_IDS = SCREENS.map((screen) => screen.id);
@@ -109,6 +112,9 @@ export function Shell(): JSX.Element {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  // A notice is only "success" when the reported outcome actually succeeded. A
+  // refused notification is an attention state, not a green confirmation.
+  const [noticeTone, setNoticeTone] = useState<"success" | "attention">("success");
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [paletteQuery, setPaletteQuery] = useState("");
   const [dialog, setDialog] = useState<DialogState>(null);
@@ -910,7 +916,7 @@ export function Shell(): JSX.Element {
       }
       // Command-modified digits are never text input, so screen switching
       // stays available while the composer has focus.
-      if (event.metaKey && !event.shiftKey && /^[1-6]$/.test(event.key)) {
+      if (event.metaKey && !event.shiftKey && /^[1-7]$/.test(event.key)) {
         const next = SCREEN_IDS[Number(event.key) - 1];
         if (next) {
           event.preventDefault();
@@ -1089,7 +1095,7 @@ export function Shell(): JSX.Element {
           </Callout>
         ) : null}
         {notice ? (
-          <Notification tone="success" title={notice} onDismiss={() => setNotice(null)} />
+          <Notification tone={noticeTone} title={notice} onDismiss={() => setNotice(null)} />
         ) : null}
 
         <VisuallyHidden>
@@ -1193,6 +1199,16 @@ export function Shell(): JSX.Element {
         {screen === "cost" ? (
           <CostScreen detail={selected} onOpenFolder={() => void openFolder()} />
         ) : null}
+        {screen === "agents" ? (
+          selected ? (
+            <AgentsScreen
+              detail={selected}
+              engineThreadId={studio?.engineThreadId ?? null}
+              onOpenFolder={() => void openFolder()}
+              onShowStudio={() => setScreen("studio")}
+            />
+          ) : null
+        ) : null}
         {screen === "settings" ? (
           <SettingsScreen
             app={appInfo}
@@ -1223,6 +1239,7 @@ export function Shell(): JSX.Element {
               }
               const status = await window.mona.polishStatus();
               if (status.ok) setPolishStatus(status.value);
+              setNoticeTone(result.value.delivered ? "success" : "attention");
               setNotice(
                 result.value.delivered
                   ? "Test notification handed to macOS."
@@ -1375,9 +1392,9 @@ export function Shell(): JSX.Element {
         <dl className="shortcut-list" data-testid="shortcut-list">
           <div className="shortcut-row">
             <dt>
-              <KeyCap>⌘1</KeyCap>–<KeyCap>⌘6</KeyCap>
+              <KeyCap>⌘1</KeyCap>–<KeyCap>⌘7</KeyCap>
             </dt>
-            <dd>Home, Studio, Work board, Changes, Cost lens, Settings</dd>
+            <dd>Home, Studio, Work board, Changes, Cost lens, Settings, Agents</dd>
           </div>
           <div className="shortcut-row">
             <dt>

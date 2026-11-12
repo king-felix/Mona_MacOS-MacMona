@@ -10,6 +10,7 @@ import type { TaskBoard } from "./work/board";
 import type { CostLedger } from "./work/costs";
 import type { ChangeLedger } from "./work/changes";
 import type { PolishService } from "./work/polish";
+import type { AgentObservatory } from "./work/agents";
 import type { ProjectId } from "../shared/contracts/ids";
 import type { ImportPlanResult } from "../shared/contracts/board";
 import type { IpcResult, RuntimeStatusView, StateFacts } from "../shared/contracts/project-bridge";
@@ -43,6 +44,7 @@ export interface IpcDependencies {
   cost: CostLedger | null;
   changes: ChangeLedger | null;
   polish: PolishService | null;
+  agents: AgentObservatory | null;
   /** Explicit quit; the existing shutdown path interrupts and stops owned work. */
   quit: (interrupt: boolean) => Promise<{ requested: boolean; note: string }>;
   revealWorkspacePath: (projectId: ProjectId, path: string) => Promise<{ revealed: boolean }>;
@@ -711,6 +713,93 @@ export function registerIpc(rendererRoot: string, dependencies: IpcDependencies)
     envelope(() => requirePolish().removeFavorite((input as { id: string }).id)),
   );
   handle("polish:notification-test", () => envelope(() => requirePolish().notifyTest()));
+  const requireAgents = (): AgentObservatory => {
+    const agents = dependencies.agents;
+    if (!agents) {
+      throw Object.assign(
+        new Error("the agent observatory is unavailable because project state did not open"),
+        { code: "RUNTIME_UNAVAILABLE" },
+      );
+    }
+    return agents;
+  };
+  handle("agents:observatory", (input) =>
+    envelope(() => requireAgents().snapshot((input as { projectId: never }).projectId)),
+  );
+  handle("agents:fleet-detail", (input) => {
+    const value = input as { projectId: never; runId: string };
+    return envelope(() => requireAgents().fleetDetail(value.projectId, value.runId));
+  });
+  handle("agents:fleet-evidence", (input) => {
+    const value = input as { projectId: never; runId: string; taskId: string };
+    return envelope(() =>
+      requireAgents().fleetEvidence(value.projectId, value.runId, value.taskId),
+    );
+  });
+  handle("agents:history", (input) => {
+    const value = input as { projectId: never; limit?: number };
+    return envelope(() => requireAgents().history(value.projectId, value.limit ?? 50));
+  });
+  handle("agents:run-cancel", (input) => {
+    const value = input as { projectId: never; runId: string };
+    return envelope(() => requireAgents().cancelAgentRun(value.projectId, value.runId));
+  });
+  handle("agents:fleet-control", (input) => {
+    const value = input as { projectId: never; runId: string; action: "stop" };
+    return envelope(() =>
+      requireAgents().controlFleetRun(value.projectId, value.runId, value.action),
+    );
+  });
+  handle("agents:worker-control", (input) => {
+    const value = input as { projectId: never; workerId: string; action: "stop" | "restart" };
+    return envelope(() =>
+      requireAgents().controlWorker(value.projectId, value.workerId, value.action),
+    );
+  });
+  handle("agents:goal-set", (input) => {
+    const value = input as { projectId: never; threadId: string; objective: string };
+    return envelope(() =>
+      requireAgents().setGoal(value.projectId, value.threadId, value.objective),
+    );
+  });
+  handle("agents:goal-complete", (input) => {
+    const value = input as { projectId: never; threadId: string };
+    return envelope(() => requireAgents().completeGoal(value.projectId, value.threadId));
+  });
+  handle("agents:goal-block", (input) => {
+    const value = input as { projectId: never; threadId: string; reason?: string | null };
+    return envelope(() =>
+      requireAgents().blockGoal(value.projectId, value.threadId, value.reason ?? null),
+    );
+  });
+  handle("agents:goal-clear", (input) => {
+    const value = input as { projectId: never; threadId: string };
+    return envelope(() => requireAgents().clearGoal(value.projectId, value.threadId));
+  });
+  handle("agents:launch-fleet", (input) => {
+    const value = input as {
+      projectId: never;
+      taskId: never;
+      expectedRevision?: number;
+      name: string;
+      role:
+        | "manager"
+        | "operator"
+        | "scout"
+        | "builder"
+        | "reviewer"
+        | "verifier"
+        | "consultant"
+        | "synthesizer"
+        | "worker"
+        | "planner"
+        | "custom";
+      instructions: string;
+      parallelism: "serial";
+    };
+    return envelope(() => requireAgents().launchFleet(value.projectId, value as never));
+  });
+
   handle("polish:quit", (input) =>
     envelope(() => dependencies.quit((input as { interrupt: boolean }).interrupt)),
   );

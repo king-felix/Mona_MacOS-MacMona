@@ -11,6 +11,9 @@ import {
   type CostAllocation,
   type CostState,
   type CriterionKind,
+  type GoalObservation,
+  type OrchestrationEvent,
+  type OrchestrationRunRecord,
   type StepState,
   type SubmissionStatus,
   type TaskOwner,
@@ -695,6 +698,75 @@ function runFromRow(row: DbRow): TaskRunView {
     endedAt: asNullableString(row.ended_at),
     note: asNullableString(row.note),
   };
+}
+
+function orchestrationRunFromRow(row: DbRow): OrchestrationRunRecord {
+  let detail: Record<string, unknown> = {};
+  try {
+    const parsed: unknown = JSON.parse(asString(row.detail_json) || "{}");
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+      detail = parsed as Record<string, unknown>;
+    }
+  } catch {
+    detail = {};
+  }
+  return {
+    projectId: asString(row.project_id) as ProjectId,
+    kind: asString(row.kind) as OrchestrationRunRecord["kind"],
+    upstreamId: asString(row.upstream_id),
+    parentUpstreamId: asNullableString(row.parent_upstream_id),
+    label: asString(row.label),
+    status: asString(row.status),
+    workspace: asNullableString(row.workspace),
+    branch: asNullableString(row.branch),
+    taskId: asNullableString(row.task_id) as TaskId | null,
+    startedAt: asNullableString(row.started_at),
+    updatedAt: asNullableString(row.updated_at),
+    lastSeenAt: asString(row.last_seen_at),
+    terminal: Number(row.terminal) === 1,
+    detail,
+  };
+}
+
+function goalObservationFromRow(row: DbRow): GoalObservation {
+  return {
+    projectId: asString(row.project_id) as ProjectId,
+    threadId: asString(row.thread_id),
+    goalId: asNullableString(row.goal_id),
+    objective: asString(row.objective),
+    status: asString(row.status),
+    tokensUsed: asNumberOrNull(row.tokens_used),
+    timeUsedSeconds: asNumberOrNull(row.time_used_seconds),
+    continuationCount: asNumberOrNull(row.continuation_count),
+    repeatedGapCount: asNumberOrNull(row.repeated_gap_count),
+    engineCreatedAt: asNullableString(row.engine_created_at),
+    engineUpdatedAt: asNullableString(row.engine_updated_at),
+    observedAt: asString(row.observed_at),
+  };
+}
+
+function orchestrationEventFromRow(row: DbRow): OrchestrationEvent {
+  return {
+    id: asString(row.id),
+    projectId: asString(row.project_id) as ProjectId,
+    action: asString(row.action),
+    upstreamId: asNullableString(row.upstream_id),
+    accepted: Number(row.accepted) === 1,
+    status: asNumberOrNull(row.status),
+    message: asString(row.message),
+    createdAt: asString(row.created_at),
+  };
+}
+
+function boundedJson(value: Record<string, unknown>, limit: number): string {
+  let text = "{}";
+  try {
+    text = JSON.stringify(value);
+  } catch {
+    text = "{}";
+  }
+  if (text.length <= limit) return text;
+  return JSON.stringify({ truncated: true, note: "observation exceeded the local bound" });
 }
 
 function attemptFromRow(row: DbRow): AttemptRecord {
@@ -1865,6 +1937,257 @@ export class StateStore {
         .prepare("SELECT * FROM task_runs WHERE project_id = ? AND state = 'running'")
         .get(projectId) as DbRow | undefined;
       return row ? runFromRow(row) : null;
+    });
+  }
+
+  /** The task a live turn belongs to, used to attribute a sub-agent to board work. */
+  async taskByActiveTurn(projectId: ProjectId, turnId: string): Promise<StoredTask | null> {
+    return this.read((db) => {
+      const row = db
+        .prepare("SELECT * FROM tasks WHERE project_id = ? AND active_turn_id = ? LIMIT 1")
+        .get(projectId, turnId) as DbRow | undefined;
+      return row ? taskFromRow(row) : null;
+    });
+  }
+
+  async findTaskRunByUpstream(
+    projectId: ProjectId,
+    upstreamKind: string,
+    upstreamId: string,
+  ): Promise<{ id: string; taskId: TaskId; owner: TaskOwner; state: string } | null> {
+    return this.read((db) => {
+      const row = db
+        .prepare(
+          "SELECT id, task_id, owner, state FROM task_runs " +
+            "WHERE project_id = ? AND upstream_kind = ? AND upstream_id = ?",
+        )
+        .get(projectId, upstreamKind, upstreamId) as DbRow | undefined;
+      if (!row) return null;
+      return {
+        id: asString(row.id),
+        taskId: asString(row.task_id) as TaskId,
+        owner: asString(row.owner) as TaskOwner,
+        state: asString(row.state),
+      };
+    });
+  }
+
+  /**
+   * Bind a native fleet run to the local task run it dispatches. The unique
+   * index refuses a second task run claiming the same engine run, which is the
+   * database-level half of one scheduler per task.
+   */
+  async linkTaskRunUpstream(
+    runId: string,
+    upstreamKind: "fleet_run",
+    upstreamId: string,
+  ): Promise<void> {
+    return this.write((db) => {
+      const row = db.prepare("SELECT id FROM task_runs WHERE id = ?").get(runId) as
+        DbRow | undefined;
+      if (!row) throw new StateError("NOT_FOUND", `run ${runId} does not exist`);
+      try {
+        db.prepare("UPDATE task_runs SET upstream_kind = ?, upstream_id = ? WHERE id = ?").run(
+          upstreamKind,
+          upstreamId,
+          runId,
+        );
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        if (/UNIQUE|constraint/i.test(message)) {
+          throw new StateError(
+            "CONFLICT",
+            "this engine run is already linked to another task run",
+            {
+              run_id: upstreamId,
+            },
+          );
+        }
+        throw error;
+      }
+    });
+  }
+
+  // --------------------------------------------------- P15 orchestration
+
+  async listOrchestrationRuns(
+    projectId: ProjectId,
+    kind?: "agent_run" | "fleet_run" | "fleet_worker",
+  ): Promise<OrchestrationRunRecord[]> {
+    return this.read((db) => {
+      const rows = (
+        kind
+          ? db
+              .prepare(
+                "SELECT * FROM orchestration_runs WHERE project_id = ? AND kind = ? " +
+                  "ORDER BY last_seen_at DESC, upstream_id",
+              )
+              .all(projectId, kind)
+          : db
+              .prepare(
+                "SELECT * FROM orchestration_runs WHERE project_id = ? " +
+                  "ORDER BY last_seen_at DESC, upstream_id",
+              )
+              .all(projectId)
+      ) as DbRow[];
+      return rows.map(orchestrationRunFromRow);
+    });
+  }
+
+  /**
+   * A terminal observation never regresses to a running one: a stale list read
+   * after a terminal receipt cannot reopen a finished run in the local view.
+   */
+  async upsertOrchestrationRun(record: OrchestrationRunRecord): Promise<void> {
+    const detail = boundedJson(record.detail, 8_000);
+    return this.write((db) => {
+      const existing = db
+        .prepare(
+          "SELECT terminal FROM orchestration_runs WHERE project_id = ? AND kind = ? AND upstream_id = ?",
+        )
+        .get(record.projectId, record.kind, record.upstreamId) as DbRow | undefined;
+      const alreadyTerminal = existing ? Number(existing.terminal) === 1 : false;
+      if (alreadyTerminal && !record.terminal) {
+        db.prepare(
+          "UPDATE orchestration_runs SET last_seen_at = ?, workspace = ?, branch = ?, " +
+            "task_id = ?, detail_json = ? WHERE project_id = ? AND kind = ? AND upstream_id = ?",
+        ).run(
+          record.lastSeenAt,
+          record.workspace,
+          record.branch,
+          record.taskId,
+          detail,
+          record.projectId,
+          record.kind,
+          record.upstreamId,
+        );
+        return;
+      }
+      db.prepare(
+        "INSERT INTO orchestration_runs (project_id, kind, upstream_id, parent_upstream_id, label, " +
+          "status, workspace, branch, task_id, started_at, updated_at, last_seen_at, terminal, detail_json) " +
+          "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
+          "ON CONFLICT (project_id, kind, upstream_id) DO UPDATE SET " +
+          "parent_upstream_id = excluded.parent_upstream_id, label = excluded.label, " +
+          "status = excluded.status, workspace = excluded.workspace, branch = excluded.branch, " +
+          "task_id = excluded.task_id, started_at = excluded.started_at, " +
+          "updated_at = excluded.updated_at, last_seen_at = excluded.last_seen_at, " +
+          "terminal = excluded.terminal, detail_json = excluded.detail_json",
+      ).run(
+        record.projectId,
+        record.kind,
+        record.upstreamId,
+        record.parentUpstreamId,
+        record.label,
+        record.status,
+        record.workspace,
+        record.branch,
+        record.taskId,
+        record.startedAt,
+        record.updatedAt,
+        record.lastSeenAt,
+        record.terminal ? 1 : 0,
+        detail,
+      );
+    });
+  }
+
+  /**
+   * Drop local projections the engine no longer reports for this project. Only
+   * called after a successful live list read, so an offline view cannot be
+   * mistaken for a deletion.
+   */
+  async pruneOrchestrationRuns(
+    projectId: ProjectId,
+    kind: "agent_run" | "fleet_run" | "fleet_worker",
+    keepIds: string[],
+  ): Promise<void> {
+    return this.write((db) => {
+      const keep = [...new Set(keepIds)];
+      if (keep.length === 0) {
+        db.prepare("DELETE FROM orchestration_runs WHERE project_id = ? AND kind = ?").run(
+          projectId,
+          kind,
+        );
+        return;
+      }
+      const placeholders = keep.map(() => "?").join(",");
+      db.prepare(
+        `DELETE FROM orchestration_runs WHERE project_id = ? AND kind = ? ` +
+          `AND upstream_id NOT IN (${placeholders})`,
+      ).run(projectId, kind, ...keep);
+    });
+  }
+
+  async listGoalObservations(projectId: ProjectId): Promise<GoalObservation[]> {
+    return this.read((db) => {
+      const rows = db
+        .prepare(
+          "SELECT * FROM goal_observations WHERE project_id = ? ORDER BY observed_at DESC, thread_id",
+        )
+        .all(projectId) as DbRow[];
+      return rows.map(goalObservationFromRow);
+    });
+  }
+
+  async upsertGoalObservation(observation: GoalObservation): Promise<void> {
+    return this.write((db) => {
+      db.prepare(
+        "INSERT INTO goal_observations (project_id, thread_id, goal_id, objective, status, " +
+          "tokens_used, time_used_seconds, continuation_count, repeated_gap_count, " +
+          "engine_created_at, engine_updated_at, observed_at) " +
+          "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
+          "ON CONFLICT (project_id, thread_id) DO UPDATE SET goal_id = excluded.goal_id, " +
+          "objective = excluded.objective, status = excluded.status, " +
+          "tokens_used = excluded.tokens_used, time_used_seconds = excluded.time_used_seconds, " +
+          "continuation_count = excluded.continuation_count, " +
+          "repeated_gap_count = excluded.repeated_gap_count, " +
+          "engine_created_at = excluded.engine_created_at, " +
+          "engine_updated_at = excluded.engine_updated_at, observed_at = excluded.observed_at",
+      ).run(
+        observation.projectId,
+        observation.threadId,
+        observation.goalId,
+        observation.objective,
+        observation.status,
+        observation.tokensUsed,
+        observation.timeUsedSeconds,
+        observation.continuationCount,
+        observation.repeatedGapCount,
+        observation.engineCreatedAt,
+        observation.engineUpdatedAt,
+        observation.observedAt,
+      );
+    });
+  }
+
+  async recordOrchestrationEvent(event: OrchestrationEvent): Promise<void> {
+    return this.write((db) => {
+      db.prepare(
+        "INSERT INTO orchestration_events (id, project_id, action, upstream_id, accepted, status, message, created_at) " +
+          "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      ).run(
+        event.id,
+        event.projectId,
+        event.action,
+        event.upstreamId,
+        event.accepted ? 1 : 0,
+        event.status,
+        event.message.slice(0, 2000),
+        event.createdAt,
+      );
+    });
+  }
+
+  async listOrchestrationEvents(projectId: ProjectId, limit = 50): Promise<OrchestrationEvent[]> {
+    return this.read((db) => {
+      const rows = db
+        .prepare(
+          "SELECT * FROM orchestration_events WHERE project_id = ? " +
+            "ORDER BY created_at DESC, rowid DESC LIMIT ?",
+        )
+        .all(projectId, Math.min(Math.max(limit, 1), 200)) as DbRow[];
+      return rows.map(orchestrationEventFromRow);
     });
   }
 

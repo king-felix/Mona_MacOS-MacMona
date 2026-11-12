@@ -41,6 +41,7 @@ import { TaskBoard } from "./work/board";
 import { CostLedger } from "./work/costs";
 import { ChangeLedger } from "./work/changes";
 import { PolishService } from "./work/polish";
+import { AgentObservatory } from "./work/agents";
 import { PolishPreferencesStore } from "./work/preferences";
 import { PolishNotifier, type NotificationSources } from "./work/notifications";
 import { AttentionController, KeepAwake } from "./work/attention";
@@ -89,6 +90,7 @@ let taskBoard: TaskBoard | null = null;
 let costLedger: CostLedger | null = null;
 let changeLedger: ChangeLedger | null = null;
 let polishService: PolishService | null = null;
+let agentObservatory: AgentObservatory | null = null;
 let polishMenu: ApplicationMenuHandle | null = null;
 let keepAwake: KeepAwake | null = null;
 let activeProjectId: StudioProjectId | null = null;
@@ -952,6 +954,75 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
   const settingsShot = await window.webContents.capturePage();
   writeFileSync(join(outDir, "p07-shell-settings.png"), settingsShot.toPNG());
 
+  // P15: the agent observatory is reachable by keyboard and reports a detached
+  // studio honestly. No runtime is started here, so this proves the stored /
+  // disconnected path with an empty engine list rather than a simulated swarm.
+  window.webContents.sendInputEvent({ type: "keyDown", keyCode: "7", modifiers: ["meta"] });
+  window.webContents.sendInputEvent({ type: "keyUp", keyCode: "7", modifiers: ["meta"] });
+  const agentsReady = await waitFor("document.documentElement.dataset.screen === 'agents'");
+  await new Promise((resolve) => setTimeout(resolve, 350));
+  const agents = await window.webContents.executeJavaScript(`(() => {
+    const text = document.body.textContent ?? '';
+    return {
+      screen: document.documentElement.dataset.screen,
+      header: text.includes('Real engine identities'),
+      not_connected: text.includes('Not connected'),
+      detached_reason: text.includes('The live studio is not attached'),
+      stored_run: text.includes('fleet_shell_0001'),
+      stored_worker: text.includes('fleet_shell_0001-local-1'),
+      stored_agent: text.includes('agent_shell_0001'),
+      stored_spend_unknown: text.includes('No spend value is retained locally'),
+      serial_boundary: text.includes('Serial one-task launch is the only qualified mode.'),
+      gap_rows: Array.from(document.querySelectorAll('.agent-gaps li')).length,
+      parallel_checks: Array.from(document.querySelectorAll('.agent-check')).length,
+      launch_refused: text.includes('No eligible native task'),
+      stored_goal: text.includes('Finish the shell smoke goal'),
+      goal_control_locked: text.includes('This goal comes from a stored observation.'),
+      no_fake_percent: !/\b\d+%\b/.test(text),
+      horizontal_overflow:
+        document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+    };
+  })()`);
+  const agentsShot = await window.webContents.capturePage();
+  writeFileSync(join(outDir, "p15-agents-daybreak.png"), agentsShot.toPNG());
+
+  // Select the stored sub-agent so the inspector's real fields are captured:
+  // identity, task link, branch, last event, spend confidence, tools, tests.
+  await window.webContents.executeJavaScript(`(() => {
+    const summary = Array.from(document.querySelectorAll('summary')).find((node) =>
+      node.textContent?.includes('agent_shell_0001'),
+    );
+    if (summary instanceof HTMLElement) summary.click();
+    return Boolean(summary);
+  })()`);
+  const agentInspectorReady = await waitFor(
+    "document.querySelector('[aria-label=\"Sub-agent inspector\"]') !== null",
+  );
+  await new Promise((resolve) => setTimeout(resolve, 250));
+  const agentInspector = await window.webContents.executeJavaScript(`(() => {
+    const panel = document.querySelector('[aria-label="Sub-agent inspector"]');
+    const text = panel?.textContent ?? '';
+    return {
+      open: Boolean(panel),
+      identity: text.includes('agent_shell_0001'),
+      parent: text.includes('root (no parent reported)'),
+      spend: text.includes('Spend: Unknown'),
+      tests: text.includes('Self-reported only') || text.includes('No test evidence'),
+      tools: text.includes('Stored projection only'),
+      artifacts: text.includes('No artifacts were reported'),
+      cancel_disabled: Array.from(panel?.querySelectorAll('button') ?? []).some(
+        (button) => button.textContent?.includes('Cancel run') && button.disabled === true,
+      ),
+      no_additive_total: text.includes('never adds a parent and child total'),
+    };
+  })()`);
+  const agentInspectorShot = await window.webContents.capturePage();
+  writeFileSync(join(outDir, "p15-agents-inspector.png"), agentInspectorShot.toPNG());
+
+  window.webContents.sendInputEvent({ type: "keyDown", keyCode: "6", modifiers: ["meta"] });
+  window.webContents.sendInputEvent({ type: "keyUp", keyCode: "6", modifiers: ["meta"] });
+  const settingsReturned = await waitFor("document.documentElement.dataset.screen === 'settings'");
+
   window.webContents.sendInputEvent({ type: "keyDown", keyCode: "k", modifiers: ["meta"] });
   window.webContents.sendInputEvent({ type: "keyUp", keyCode: "k", modifiers: ["meta"] });
   const paletteReady = await waitFor("document.querySelector('[role=\"dialog\"]') !== null");
@@ -1064,6 +1135,16 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
     "document.documentElement.dataset.theme",
   );
 
+  // P15: the same observatory in Afterglow, so both themes carry evidence.
+  window.webContents.sendInputEvent({ type: "keyDown", keyCode: "7", modifiers: ["meta"] });
+  window.webContents.sendInputEvent({ type: "keyUp", keyCode: "7", modifiers: ["meta"] });
+  const agentsAfterglowReady = await waitFor(
+    "document.documentElement.dataset.screen === 'agents'",
+  );
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  const agentsAfterglowShot = await window.webContents.capturePage();
+  writeFileSync(join(outDir, "p15-agents-afterglow.png"), agentsAfterglowShot.toPNG());
+
   window.webContents.sendInputEvent({ type: "keyDown", keyCode: "2", modifiers: ["meta"] });
   window.webContents.sendInputEvent({ type: "keyUp", keyCode: "2", modifiers: ["meta"] });
   await waitFor("document.documentElement.dataset.screen === 'studio'");
@@ -1146,7 +1227,7 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
     ready,
     cards,
     home_screen: home.screen === "home",
-    nav_count: home.nav_count === 6,
+    nav_count: home.nav_count === 7,
     fixture_label_absent: home.fixture_label === false,
     home_theme_daybreak: home.theme === "daybreak",
     version_rendered: typeof home.version === "string" && home.version.startsWith("Mona "),
@@ -1243,6 +1324,30 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
     shortcuts_escape: shortcutsClosed,
     notification_click_focuses_project:
       notificationFocus && focusLanded.screen === "changes" && focusLanded.change_screen === true,
+    agents_screen: agentsReady && agents.screen === "agents",
+    agents_header: agents.header === true,
+    agents_disconnected_honest:
+      agents.not_connected === true &&
+      agents.detached_reason === true &&
+      agents.stored_run === true &&
+      agents.stored_worker === true,
+    agents_stored_agent_row: agents.stored_agent === true,
+    agents_stored_spend_unknown: agents.stored_spend_unknown === true,
+    agents_stored_goal_locked: agents.stored_goal === true && agents.goal_control_locked === true,
+    agents_serial_boundary: agents.serial_boundary === true && agents.parallel_checks === 4,
+    agents_gaps_visible: agents.gap_rows >= 5,
+    agents_launch_refused: agents.launch_refused === true,
+    agents_no_fake_percent: agents.no_fake_percent === true,
+    agents_no_horizontal_overflow: agents.horizontal_overflow === false,
+    agents_afterglow: agentsAfterglowReady,
+    agents_inspector_open: agentInspectorReady && agentInspector.open === true,
+    agents_inspector_identity: agentInspector.identity === true && agentInspector.parent === true,
+    agents_inspector_honest_spend:
+      agentInspector.spend === true && agentInspector.no_additive_total === true,
+    agents_inspector_tests_and_tools:
+      agentInspector.tests === true && agentInspector.tools === true,
+    agents_inspector_terminal_cancel_disabled: agentInspector.cancel_disabled === true,
+    settings_returned: settingsReturned,
   };
   const ok = Object.values(checks).every(Boolean);
   const report = {
@@ -1266,6 +1371,8 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
       notification,
       shortcuts,
       focusLanded,
+      agents,
+      agentInspector,
     },
     screenshots: [
       "docs/evidence/macos/artifacts/p07-shell-home.png",
@@ -1283,6 +1390,9 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
       "docs/evidence/macos/artifacts/p14-settings-attention-native.png",
       "docs/evidence/macos/artifacts/p14-settings-receipts.png",
       "docs/evidence/macos/artifacts/p14-studio-focus-afterglow.png",
+      "docs/evidence/macos/artifacts/p15-agents-daybreak.png",
+      "docs/evidence/macos/artifacts/p15-agents-afterglow.png",
+      "docs/evidence/macos/artifacts/p15-agents-inspector.png",
     ],
   };
   const out = process.env.MONA_SHELL_SMOKE_OUT;
@@ -2174,6 +2284,12 @@ if (!gotLock) {
           store: productState,
           engine: (projectId) => workStudio?.engineAccess(projectId) ?? null,
         });
+        // P15: native agents, goals, and fleet runs are read from the engine the
+        // studio owns. The observatory never starts a runtime or a turn.
+        agentObservatory = new AgentObservatory({
+          store: productState,
+          engine: (projectId) => workStudio?.engineAccess(projectId) ?? null,
+        });
       }
 
       // P14: deterministic polish. Attention, notifications, and the digest read
@@ -2378,6 +2494,71 @@ if (!gotLock) {
           limitUsd: 5,
           warnUsd: 1,
         });
+        // P15: a stored orchestration observation from a previous engine run, so
+        // the observatory renders its disconnected fallback with real rows and
+        // real unknowns instead of an empty list. No runtime is started.
+        await productState.upsertOrchestrationRun({
+          projectId: opened.project.id,
+          kind: "fleet_run",
+          upstreamId: "fleet_shell_0001",
+          parentUpstreamId: null,
+          label: "shell smoke workflow",
+          status: "completed",
+          workspace: null,
+          branch: null,
+          taskId: null,
+          startedAt: "2026-11-12T07:46:06.000Z",
+          updatedAt: "2026-11-12T07:46:08.000Z",
+          lastSeenAt: "2026-11-12T07:46:08.000Z",
+          terminal: true,
+          detail: { taskCount: 1, workerCount: 1, workflowKind: "parallel" },
+        });
+        await productState.upsertOrchestrationRun({
+          projectId: opened.project.id,
+          kind: "fleet_worker",
+          upstreamId: "fleet_shell_0001-local-1",
+          parentUpstreamId: "fleet_shell_0001",
+          label: "reviewer fleet_shell_0001-local-1",
+          status: "online",
+          workspace: null,
+          branch: null,
+          taskId: null,
+          startedAt: null,
+          updatedAt: "2026-11-12T07:46:08.000Z",
+          lastSeenAt: "2026-11-12T07:46:08.000Z",
+          terminal: false,
+          detail: { taskId: "answer", host: "local", lastError: null },
+        });
+        await productState.upsertOrchestrationRun({
+          projectId: opened.project.id,
+          kind: "agent_run",
+          upstreamId: "agent_shell_0001",
+          parentUpstreamId: null,
+          label: "explore · Count the files",
+          status: "interrupted",
+          workspace: shellRoot,
+          branch: "main",
+          taskId: null,
+          startedAt: "2026-11-12T07:45:30.000Z",
+          updatedAt: "2026-11-12T07:45:31.000Z",
+          lastSeenAt: "2026-11-12T07:45:31.000Z",
+          terminal: true,
+          detail: { role: "explore", usageStatus: "unknown", artifactCount: 0 },
+        });
+        await productState.upsertGoalObservation({
+          projectId: opened.project.id,
+          threadId: "thr_engine_shell_0001",
+          goalId: "goal_shell_0001",
+          objective: "Finish the shell smoke goal",
+          status: "blocked",
+          tokensUsed: 120,
+          timeUsedSeconds: 42,
+          continuationCount: 2,
+          repeatedGapCount: 1,
+          engineCreatedAt: "2026-11-12T07:40:00.000Z",
+          engineUpdatedAt: "2026-11-12T07:44:00.000Z",
+          observedAt: "2026-11-12T07:46:08.000Z",
+        });
         // P13: a settled engine receipt plus a stored tool item, so the changes
         // lens renders attribution from state rather than a fixture.
         const changesThread = thread?.id ?? detail.threads[0]?.id ?? "thr_shell000000001";
@@ -2574,6 +2755,7 @@ if (!gotLock) {
       cost: costLedger,
       changes: changeLedger,
       polish: polishService,
+      agents: agentObservatory,
       quit: requestQuit,
       revealWorkspacePath: async (projectId, path) => {
         const ledger = changeLedger;

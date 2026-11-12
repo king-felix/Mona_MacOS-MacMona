@@ -17,6 +17,15 @@
     "turn_interrupt": true,
     "turn_steer": true,
     "turn_image_inputs": true,
-    "mcp_server_management": true
+    "mcp_server_management": true,
+    "worker_runtime": true,
+    "fleet_run_create": true,
+    "fleet_run_start": true,
+    "fleet_event_replay": true,
+    "fleet_event_stream": true,
+    "fleet_local_target": true,
+    "thread_goals": true,
+    "agent_mail": true,
+    "event_stream_resume": true
   }
 }

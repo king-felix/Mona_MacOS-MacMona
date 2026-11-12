@@ -25,7 +25,8 @@ export type AdapterErrorCode =
   | "RESTORE_REFUSED"
   | "RESTORE_UNAVAILABLE"
   | "WRITE_CONFLICT"
-  | "WRITE_REFUSED";
+  | "WRITE_REFUSED"
+  | "CONTROL_REFUSED";
 
 export class AdapterError extends Error {
   constructor(

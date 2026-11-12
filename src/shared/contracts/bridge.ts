@@ -53,6 +53,15 @@ import type {
   ProjectIdentityInput,
   PromptFavorite,
 } from "./polish";
+import type {
+  FleetEvidenceView,
+  FleetLaunchResult,
+  FleetRunView,
+  NativeRole,
+  ObservatoryView,
+  OrchestrationActionReceipt,
+  OrchestrationEvent,
+} from "./agents";
 
 /** The complete, narrow surface the renderer may reach. Nothing else is exposed. */
 export interface MonaBridge {
@@ -345,6 +354,57 @@ export interface MonaBridge {
   onPolishFocus(callback: (target: PolishFocusTarget) => void): () => void;
   /** Native Work → Toggle Focus Mode menu item. */
   onToggleFocus(callback: () => void): () => void;
+
+  // Native orchestration. Reads are local or read-only engine routes; every
+  // control is an explicit action scoped to the project's live runtime.
+  agentObservatory(projectId: ProjectId): Promise<IpcResult<ObservatoryView>>;
+  agentFleetDetail(projectId: ProjectId, runId: string): Promise<IpcResult<FleetRunView>>;
+  agentFleetEvidence(
+    projectId: ProjectId,
+    runId: string,
+    taskId: string,
+  ): Promise<IpcResult<FleetEvidenceView>>;
+  agentHistory(projectId: ProjectId, limit?: number): Promise<IpcResult<OrchestrationEvent[]>>;
+  cancelAgentRun(
+    projectId: ProjectId,
+    runId: string,
+  ): Promise<IpcResult<OrchestrationActionReceipt>>;
+  controlFleetRun(
+    projectId: ProjectId,
+    runId: string,
+    action: "stop",
+  ): Promise<IpcResult<OrchestrationActionReceipt>>;
+  controlFleetWorker(
+    projectId: ProjectId,
+    workerId: string,
+    action: "stop" | "restart",
+  ): Promise<IpcResult<OrchestrationActionReceipt>>;
+  setThreadGoal(
+    projectId: ProjectId,
+    threadId: string,
+    objective: string,
+  ): Promise<IpcResult<OrchestrationActionReceipt>>;
+  completeThreadGoal(
+    projectId: ProjectId,
+    threadId: string,
+  ): Promise<IpcResult<OrchestrationActionReceipt>>;
+  blockThreadGoal(
+    projectId: ProjectId,
+    threadId: string,
+    reason?: string | null,
+  ): Promise<IpcResult<OrchestrationActionReceipt>>;
+  clearThreadGoal(
+    projectId: ProjectId,
+    threadId: string,
+  ): Promise<IpcResult<OrchestrationActionReceipt>>;
+  launchNativeFleet(input: {
+    projectId: ProjectId;
+    taskId: TaskId;
+    expectedRevision?: number;
+    name: string;
+    role: NativeRole;
+    instructions: string;
+  }): Promise<IpcResult<FleetLaunchResult>>;
 }
 
 export interface AppInfo {
