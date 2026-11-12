@@ -10,6 +10,6 @@ integrity: [{"integrity_check":"ok"}]
 foreign_key_check: []
 runtime_bindings columns: ["project_id","workspace","canonical_workspace","executable","engine_version","engine_commit","port","state","updated_at"]
 # file modes:
-drwx------ /Users/<user>/Library/Application Support/Mona/state
--rw------- /Users/<user>/Library/Application Support/Mona/state/mona.sqlite
-drwx------ /Users/<user>/Library/Application Support/Mona/state/backups
+drwx------ /Users/example/Library/Application Support/Mona/state
+-rw------- /Users/example/Library/Application Support/Mona/state/mona.sqlite
+drwx------ /Users/example/Library/Application Support/Mona/state/backups

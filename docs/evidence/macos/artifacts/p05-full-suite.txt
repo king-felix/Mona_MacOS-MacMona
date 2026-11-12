@@ -1,5 +1,5 @@
 
- RUN  v5.1.0 /Users/<user>/DS_Projects/Mona
+ RUN  v5.1.0 /Users/example/DS_Projects/Mona
 
  ✓ test/runtime-supervisor.test.ts (16 tests) 140ms
  ✓ test/engine-adapter.test.ts (16 tests) 26ms

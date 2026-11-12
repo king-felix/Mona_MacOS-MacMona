@@ -1,6 +1,6 @@
 # Handoff — Mona macOS build
 
-**Last checkpoint:** 2026-11-11 (P05, revision 58) · verified commit `a817fa5`
+**Last checkpoint:** 2026-11-11 (P05, revision 59) · verified commit `a817fa5`
 **Current prompt:** P06 — **pending, not started**
 
 ## Where the build stands
@@ -88,7 +88,7 @@ Do not start P07 until P06 is complete and checkpointed.
 
 ## Key files
 
-- `.mona/build-macos/state.json` — prompt status (revision 58).
+- `.mona/build-macos/state.json` — prompt status (revision 59).
 - `.mona/build-macos/attempts.jsonl` — empty; nothing failed three times.
 - `.mona/build-macos/DECISIONS.md` — D-001…D-015.
 - `.mona/build-macos/BLOCKERS.md` — external prerequisites only.

@@ -33,14 +33,14 @@
     "packaged": false
   },
   "paths": {
-    "support": "/Users/<user>/Library/Application Support/Mona",
-    "cache": "/Users/<user>/Library/Caches/Mona",
-    "logs": "/Users/<user>/Library/Logs/Mona",
-    "state": "/Users/<user>/Library/Application Support/Mona/state",
-    "database": "/Users/<user>/Library/Application Support/Mona/state/mona.sqlite",
-    "backups": "/Users/<user>/Library/Application Support/Mona/state/backups",
-    "artifacts": "/Users/<user>/Library/Application Support/Mona/artifacts",
-    "projects": "/Users/<user>/Library/Application Support/Mona/projects"
+    "support": "/Users/example/Library/Application Support/Mona",
+    "cache": "/Users/example/Library/Caches/Mona",
+    "logs": "/Users/example/Library/Logs/Mona",
+    "state": "/Users/example/Library/Application Support/Mona/state",
+    "database": "/Users/example/Library/Application Support/Mona/state/mona.sqlite",
+    "backups": "/Users/example/Library/Application Support/Mona/state/backups",
+    "artifacts": "/Users/example/Library/Application Support/Mona/artifacts",
+    "projects": "/Users/example/Library/Application Support/Mona/projects"
   },
   "state": {
     "open": true,

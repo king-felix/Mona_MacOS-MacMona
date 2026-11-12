@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-12T02:52:52.193Z",
+  "generated_utc": "2026-11-12T02:53:30.339Z",
   "git": {
     "available": true,
-    "commit": "a817fa5c07309dbdd37d2af1b1b9462c5ce6a54e",
+    "commit": "5218b5a6a8bf3f678108e96dd68666ede21ab602",
     "dirty": true
   },
-  "digest": "16a25fd6f18226866569bb1209408083ad2905c85ba32d0285d551d85c7bca6f",
+  "digest": "eb919832473d62ed96033e52e86d09e735165bfd44c016e22f633c8e28fad44f",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,7 +15,7 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "1588a6279ef820bd38158f19d7da1ce8f91da192d9431eb853f6cc5a60486346",
+      "sha256": "069f3bb752c219b4d13ca23303f4e8b2b75fc04e437b1b2f39109de29abcf750",
       "bytes": 45813
     },
     {
@@ -185,23 +185,23 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p05-full-suite.txt",
-      "sha256": "1b8f2997ee55b49c88a86fdc37329d14749116f98fa1392652dc092646418db2",
-      "bytes": 1368
+      "sha256": "59a58cfd527fa3497dd21bc86c8d3cad4d6483f603c14c56e48b3a83c825482f",
+      "bytes": 1367
     },
     {
       "path": "docs/evidence/macos/artifacts/p05-schema.txt",
-      "sha256": "e79011dae2b0d8230f2c5254443255888d3a782e08c6ae5bdf6b7ff018795f86",
-      "bytes": 1059
+      "sha256": "f2f39434485878f46a788b2c843f0dee1b81a311b3b748d5f45135c777df8df0",
+      "bytes": 1056
     },
     {
       "path": "docs/evidence/macos/artifacts/p05-state-smoke.json",
-      "sha256": "5fbc708aea436ceeb3046a4c2f6f6e1ecd0472e544d2fb9234dab6643c82f104",
-      "bytes": 1782
+      "sha256": "141a0f16ad3275c67911600bc361ddcfac72316ba300318d698dc56c23b806c4",
+      "bytes": 1774
     },
     {
       "path": "docs/evidence/macos/artifacts/p05-tests.txt",
-      "sha256": "78d213726c5258eb684a79638d95ebe4e1b2ba01295afd2adec0f4445dda3e47",
-      "bytes": 426
+      "sha256": "4a536fdfde6ee04a50d87561acab741f95c8e7b5b16ac2941168400f003c896b",
+      "bytes": 425
     },
     {
       "path": "docs/evidence/macos/artifacts/signing-inventory.txt",

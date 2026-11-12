@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 58,
+  "revision": 59,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -763,19 +763,19 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p05-tests.txt",
-          "sha256": "78d213726c5258eb684a79638d95ebe4e1b2ba01295afd2adec0f4445dda3e47"
+          "sha256": "4a536fdfde6ee04a50d87561acab741f95c8e7b5b16ac2941168400f003c896b"
         },
         {
           "path": "docs/evidence/macos/artifacts/p05-full-suite.txt",
-          "sha256": "1b8f2997ee55b49c88a86fdc37329d14749116f98fa1392652dc092646418db2"
+          "sha256": "59a58cfd527fa3497dd21bc86c8d3cad4d6483f603c14c56e48b3a83c825482f"
         },
         {
           "path": "docs/evidence/macos/artifacts/p05-schema.txt",
-          "sha256": "e79011dae2b0d8230f2c5254443255888d3a782e08c6ae5bdf6b7ff018795f86"
+          "sha256": "f2f39434485878f46a788b2c843f0dee1b81a311b3b748d5f45135c777df8df0"
         },
         {
           "path": "docs/evidence/macos/artifacts/p05-state-smoke.json",
-          "sha256": "5fbc708aea436ceeb3046a4c2f6f6e1ecd0472e544d2fb9234dab6643c82f104"
+          "sha256": "141a0f16ad3275c67911600bc361ddcfac72316ba300318d698dc56c23b806c4"
         }
       ],
       "blocker_ids": [],
@@ -1051,7 +1051,7 @@
   "next_eligible_prompts": [
     "P06"
   ],
-  "last_checkpoint_utc": "2026-11-12T02:52:52.109Z",
+  "last_checkpoint_utc": "2026-11-12T02:53:30.255Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",
