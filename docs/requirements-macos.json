@@ -954,7 +954,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p13-tests.txt",
-          "note": "382 tests in 41 files, including Git, change, adapter-route, and screen suites"
+          "note": "383 tests in 41 files, including Git, change, adapter-route, and screen suites"
         },
         {
           "path": "docs/evidence/macos/artifacts/p13-changes-sample.json",
@@ -978,7 +978,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p13-ci.txt",
-          "note": "local CI green: format, lint, typechecks, builds, 382 tests, board/cost/changes smoke"
+          "note": "local CI green: format, lint, typechecks, builds, 383 tests, board/cost/changes smoke"
         }
       ],
       "notes": "P13: completed the change-review surface. Engine turn receipts are stored as change sets with typed artifact references; per-call diffs are read lazily; text/diff windows are virtualized and bounded; binary, oversized, deleted, and missing content each render honestly; a missing snapshot is stored and shown as missing rather than an empty diff; tool output and media are readable through the engine artifact route; tool/test receipts carry the command and result, and a Mona commit that names the paths supplies commit evidence. P08 retains the live-studio half. Final VoiceOver and interactive QA are P24/P26."
@@ -1003,7 +1003,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p13-tests.txt",
-          "note": "382 tests in 41 files, including Git, change, adapter-route, and screen suites"
+          "note": "383 tests in 41 files, including Git, change, adapter-route, and screen suites"
         },
         {
           "path": "docs/evidence/macos/artifacts/p13-changes-sample.json",
@@ -1027,7 +1027,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p13-ci.txt",
-          "note": "local CI green: format, lint, typechecks, builds, 382 tests, board/cost/changes smoke"
+          "note": "local CI green: format, lint, typechecks, builds, 383 tests, board/cost/changes smoke"
         }
       ],
       "notes": "P13: Git status is read with porcelain v2 (branch, detached HEAD, linked worktree, upstream, ahead/behind, staged/unstaged/untracked/conflicted); selected staging and commits name only the chosen paths, so unrelated staged work survives; a non-Git folder is reported and never initialized; the module has no reset, clean, checkout, stash, or force command. Restore uses the engine's file-revert route with the recorded restore point and expected_hash, previews exact scope, exclusions, conflicts, and recovery, requires acknowledgement for later or unattributed edits, refuses a stale preview, and records every attempt. Whole-workspace restore and patch-undo remain a recorded capability gap. Final packaged-build behavior is P21/P22."

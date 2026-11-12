@@ -383,6 +383,88 @@ describe("restore preview and execution", () => {
     ).rejects.toMatchObject({ code: "STALE_PREVIEW" });
   });
 
+  it("stops on the first refusal and reports only genuinely unattempted files", async () => {
+    const { store, workspace, projectId } = await setup();
+    const content = "after turn\n";
+    writeFileSync(join(workspace, "a.txt"), content, "utf8");
+    writeFileSync(join(workspace, "b.txt"), content, "utf8");
+    const adapter = fakeEngine({
+      probeRestore: async () => ({ fileRevert: true, snapshots: true, reason: null }),
+      listSnapshots: async () => [],
+      readTurnArtifacts: async () => ({
+        turnId: "turn_partial",
+        workspace: {
+          state: "settled",
+          reason: null,
+          preSnapshotId: "tree_pre",
+          postSnapshotId: "tree_post",
+          truncated: false,
+          omitted: null,
+        },
+        artifacts: [
+          ref({
+            id: "file_a",
+            path: "a.txt",
+            revision: hash(content),
+            sizeBytes: content.length,
+            restoreSnapshotId: "tree_pre",
+          }),
+          ref({
+            id: "file_b",
+            path: "b.txt",
+            revision: hash(content),
+            sizeBytes: content.length,
+            restoreSnapshotId: "tree_pre",
+          }),
+        ],
+      }),
+      revertFile: async ({ path }) => {
+        if (path === "a.txt") {
+          writeFileSync(join(workspace, path), "before turn\n", "utf8");
+          return {
+            path,
+            action: "modified",
+            snapshotId: "tree_pre",
+            snapshotLabel: "pre-turn:1",
+          };
+        }
+        throw new AdapterError("RESTORE_REFUSED", "the engine refused b.txt");
+      },
+    });
+    const ledger = new ChangeLedger({
+      store,
+      engine: () => ({ adapter, workspace }),
+    });
+    await ledger.captureTurn({
+      projectId,
+      threadId: "thr_changestest001",
+      engineThreadId: "thr_engine_changes_1",
+      turnId: "turn_partial",
+      adapter,
+      payload: {},
+    });
+    const set = (await ledger.snapshot(projectId)).sets[0]!;
+    const preview = await ledger.restorePreview({
+      projectId,
+      changeSetId: set.id,
+      paths: ["a.txt", "b.txt"],
+    });
+    const result = await ledger.restore({
+      projectId,
+      changeSetId: set.id,
+      paths: ["a.txt", "b.txt"],
+      expected: preview.scope.map((entry) => ({
+        path: entry.path,
+        expectedHash: entry.expectedHash,
+      })),
+      acknowledge: [],
+    });
+    expect(result.ok).toBe(false);
+    expect(result.restored.map((entry) => entry.path)).toEqual(["a.txt"]);
+    expect(result.refused.map((entry) => entry.path)).toEqual(["b.txt"]);
+    expect(result.notAttempted).toEqual([]);
+  });
+
   it("explains paths with no restore point and artifacts that are not files", async () => {
     const { store, workspace, projectId } = await setup();
     const ledger = new ChangeLedger({ store });

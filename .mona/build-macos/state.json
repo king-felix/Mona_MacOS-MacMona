@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 191,
+  "revision": 192,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -1532,7 +1532,7 @@
       "evidence": [
         {
           "path": "docs/evidence/macos/P13-review.md",
-          "sha256": "85b10d02a894a89b6bc852c6a79740ef4762fe6c6f05af72e599740b9226de25"
+          "sha256": "72345220d795ab99c6a99e639fac96333545af4ebd93102916a9d23ab1507aee"
         },
         {
           "path": "docs/decisions/ADR-008-changes-git-and-restore.md",
@@ -1540,7 +1540,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p13-tests.txt",
-          "sha256": "6f72a88caa064ffce09e21d7c8d4d0f315468344a9ebbfe06f41621a690ce681"
+          "sha256": "62433c03cafc0e6f1ccca26edc66c2ed32ccfa2860e0f95ab4e9fb92ba889e75"
         },
         {
           "path": "docs/evidence/macos/artifacts/p13-changes-sample.json",
@@ -1564,7 +1564,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p13-ci.txt",
-          "sha256": "9ace6dc108dd34e0bea3f016d0c94f83f4b69cdc1d143bf22f7d9fd071ba82c1"
+          "sha256": "983f1287989d30286100a11091e266d47ea8c33d90571266026fac6684adf50b"
         }
       ],
       "blocker_ids": []
@@ -1741,7 +1741,7 @@
   "next_eligible_prompts": [
     "P14"
   ],
-  "last_checkpoint_utc": "2026-11-12T06:47:47.801Z",
+  "last_checkpoint_utc": "2026-11-12T06:49:03.538Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

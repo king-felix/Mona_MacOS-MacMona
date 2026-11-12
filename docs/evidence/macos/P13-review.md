@@ -50,7 +50,7 @@ Decision record: `docs/decisions/ADR-008-changes-git-and-restore.md`.
 
 ### Automated tests
 
-`docs/evidence/macos/artifacts/p13-tests.txt` — **382 tests in 41 files pass**,
+`docs/evidence/macos/artifacts/p13-tests.txt` — **383 tests in 41 files pass**,
 including:
 
 - `test/work-git.test.ts` (11): clean/dirty/conflict/worktree/subfolder status;
@@ -117,7 +117,7 @@ screenshot is committed from this run.
 ### Local CI
 
 `docs/evidence/macos/artifacts/p13-ci.txt` — format, lint, both typechecks,
-supervisor and service builds, 382 tests, renderer build, `smoke:board`,
+supervisor and service builds, 383 tests, renderer build, `smoke:board`,
 `smoke:cost`, and `smoke:changes` all pass; the renderer secret scan reports 0
 patterns in 3 files.
 

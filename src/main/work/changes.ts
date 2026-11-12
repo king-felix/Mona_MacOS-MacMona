@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import {
   closeSync,
   existsSync,
@@ -284,6 +284,33 @@ export function readLocalWindow(
         note: "the path resolves outside the project folder",
       };
     }
+    const info = lstatSync(absolute);
+    if (info.isSymbolicLink() || !info.isFile()) {
+      return {
+        availability: "unsupported",
+        content: null,
+        encoding: null,
+        offset,
+        sizeBytes: info.size,
+        revision: null,
+        truncated: false,
+        note: info.isSymbolicLink()
+          ? "the path is a symlink; Mona reads and writes regular files only"
+          : "the path is not a regular file",
+      };
+    }
+    if (info.size > ENGINE_READ_LIMIT) {
+      return {
+        availability: "oversized",
+        content: null,
+        encoding: null,
+        offset,
+        sizeBytes: info.size,
+        revision: null,
+        truncated: false,
+        note: "the file is larger than 16 MiB; open it in Finder instead",
+      };
+    }
     state = readLocalState(absolute);
   } catch {
     return {
@@ -398,7 +425,8 @@ export class ChangeLedger {
     this.engineAccess = options.engine ?? (() => null);
     this.git = options.git ?? new GitService();
     this.now = options.now ?? (() => new Date());
-    this.newId = options.newId ?? ((prefix) => `${prefix}_${Date.now().toString(16)}`);
+    this.newId =
+      options.newId ?? ((prefix) => `${prefix}_${randomUUID().replace(/-/g, "").slice(0, 16)}`);
   }
 
   // --------------------------------------------------------------- capture
@@ -1616,6 +1644,7 @@ export class ChangeLedger {
             note: message.slice(0, 2000),
           });
           refused.push({ path: entry.path, code, message });
+          remaining = remaining.filter((path) => path !== entry.path);
           break;
         }
       }

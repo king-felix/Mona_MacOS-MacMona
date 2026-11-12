@@ -41,7 +41,7 @@ All matched files use Prettier code style!
   "signature": "ad-hoc",
   "signed": true,
   "verified": true,
-  "built_at": "2026-11-12T06:46:07.013Z"
+  "built_at": "2026-11-12T06:48:45.067Z"
 }
 
 > mona@0.1.0-p02 build:service
@@ -76,7 +76,7 @@ All matched files use Prettier code style!
     ],
     "service": "Start new DS project with Mona"
   },
-  "built_at": "2026-11-12T06:46:08.950Z"
+  "built_at": "2026-11-12T06:48:47.062Z"
 }
 
 > mona@0.1.0-p02 pretest
@@ -95,7 +95,7 @@ All matched files use Prettier code style!
   "signature": "ad-hoc",
   "signed": true,
   "verified": true,
-  "built_at": "2026-11-12T06:46:10.977Z"
+  "built_at": "2026-11-12T06:48:49.096Z"
 }
 
 > mona@0.1.0-p02 test
@@ -106,67 +106,65 @@ All matched files use Prettier code style!
 
 Switched to a new branch 'left'
 Switched to branch 'main'
- [32m✓[39m test/work-attempts.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 760[2mms[22m[39m
- [32m✓[39m test/projects-service.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 847[2mms[22m[39m
- [32m✓[39m test/state-database.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 965[2mms[22m[39m
+ [32m✓[39m test/work-attempts.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 724[2mms[22m[39m
+ [32m✓[39m test/projects-service.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 799[2mms[22m[39m
+ [32m✓[39m test/state-database.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 877[2mms[22m[39m
 Preparing worktree (new branch 'linked-branch')
 Not implemented: HTMLCanvasElement's getContext() method: without installing the @napi-rs/canvas npm package
- [32m✓[39m test/work-costs.test.ts [2m([22m[2m19 tests[22m[2m)[22m[33m 418[2mms[22m[39m
- [32m✓[39m test/design-components.test.tsx [2m([22m[2m17 tests[22m[2m)[22m[33m 933[2mms[22m[39m
- [32m✓[39m test/work-studio.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 564[2mms[22m[39m
- [32m✓[39m test/work-changes.test.ts [2m([22m[2m16 tests[22m[2m)[22m[33m 1626[2mms[22m[39m
+ [32m✓[39m test/design-components.test.tsx [2m([22m[2m17 tests[22m[2m)[22m[33m 980[2mms[22m[39m
+ [32m✓[39m test/work-board.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 502[2mms[22m[39m
+ [32m✓[39m test/work-costs.test.ts [2m([22m[2m19 tests[22m[2m)[22m[33m 449[2mms[22m[39m
+ [32m✓[39m test/work-studio.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 585[2mms[22m[39m
+ [32m✓[39m test/work-changes.test.ts [2m([22m[2m17 tests[22m[2m)[22m[33m 1600[2mms[22m[39m
    [32m✓[39m stage and commit through the ledger [2m(2)[22m
-     [33m[2m✓[22m[39m keeps unrelated staged work and refuses mixed staging without an explicit choice[33m 640[2mms[22m[39m
- [32m✓[39m test/work-board.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 501[2mms[22m[39m
- [32m✓[39m test/runtime-process.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 370[2mms[22m[39m
- [32m✓[39m test/state-portable.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 389[2mms[22m[39m
- [32m✓[39m test/state-artifacts.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 245[2mms[22m[39m
- [32m✓[39m test/work-git.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 2070[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps unrelated staged work and refuses mixed staging without an explicit choice[33m 607[2mms[22m[39m
+ [32m✓[39m test/runtime-supervisor.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 129[2mms[22m[39m
+ [32m✓[39m test/state-portable.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 378[2mms[22m[39m
+ [32m✓[39m test/state-artifacts.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 235[2mms[22m[39m
+ [32m✓[39m test/work-git.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 2008[2mms[22m[39m
    [32m✓[39m GitService status [2m(6)[22m
-     [33m[2m✓[22m[39m reports a merge conflict honestly[33m 325[2mms[22m[39m
-   [32m✓[39m GitService staging and selected commits [2m(3)[22m
-     [33m[2m✓[22m[39m stages and commits only the selected path, preserving unrelated staged work[33m 313[2mms[22m[39m
- [32m✓[39m test/state-catalog.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 370[2mms[22m[39m
- [32m✓[39m test/cost-screen.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 105[2mms[22m[39m
- [32m✓[39m test/supervisor-native.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 2183[2mms[22m[39m
+     [33m[2m✓[22m[39m reports a merge conflict honestly[33m 347[2mms[22m[39m
+ [32m✓[39m test/runtime-process.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 378[2mms[22m[39m
+ [32m✓[39m test/state-catalog.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 360[2mms[22m[39m
+ [32m✓[39m test/boundary.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 34[2mms[22m[39m
+ [32m✓[39m test/work-profile.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 61[2mms[22m[39m
+ [32m✓[39m test/open-coordinator.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 71[2mms[22m[39m
+ [32m✓[39m test/supervisor-native.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 2335[2mms[22m[39m
    [32m✓[39m native supervisor [2m(8)[22m
-     [33m[2m✓[22m[39m stops the entire owned tree and leaves unrelated processes alone[33m 422[2mms[22m[39m
-     [33m[2m✓[22m[39m records the escaped process group and stops it by identity[33m 379[2mms[22m[39m
-     [33m[2m✓[22m[39m escalates a TERM-ignoring tree to a bounded SIGKILL[33m 790[2mms[22m[39m
- [32m✓[39m test/boundary.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 28[2mms[22m[39m
- [32m✓[39m test/open-coordinator.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 79[2mms[22m[39m
- [32m✓[39m test/work-profile.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 57[2mms[22m[39m
- [32m✓[39m test/runtime-supervisor.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 141[2mms[22m[39m
- [32m✓[39m test/engine-adapter.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 35[2mms[22m[39m
- [32m✓[39m test/engine-sse.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 6[2mms[22m[39m
- [32m✓[39m test/tool-discovery.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 11[2mms[22m[39m
- [32m✓[39m test/contracts.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 10[2mms[22m[39m
- [32m✓[39m test/state-paths.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 9[2mms[22m[39m
- [32m✓[39m test/ipc-contract.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 12[2mms[22m[39m
- [32m✓[39m test/supervisor-records.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+     [33m[2m✓[22m[39m stops the entire owned tree and leaves unrelated processes alone[33m 479[2mms[22m[39m
+     [33m[2m✓[22m[39m records the escaped process group and stops it by identity[33m 398[2mms[22m[39m
+     [33m[2m✓[22m[39m escalates a TERM-ignoring tree to a bounded SIGKILL[33m 834[2mms[22m[39m
+ [32m✓[39m test/studio-screen.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 91[2mms[22m[39m
+ [32m✓[39m test/cost-screen.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 110[2mms[22m[39m
  [32m✓[39m test/folder-request.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 7[2mms[22m[39m
- [32m✓[39m test/studio-render.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[32m 13[2mms[22m[39m
- [32m✓[39m test/studio-screen.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 120[2mms[22m[39m
- [32m✓[39m test/changes-screen.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 146[2mms[22m[39m
- [32m✓[39m test/engine-compat.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 6[2mms[22m[39m
- [32m✓[39m test/engine-artifacts.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m test/engine-adapter.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 58[2mms[22m[39m
+ [32m✓[39m test/ipc-contract.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m test/state-paths.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m test/supervisor-records.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m test/contracts.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m test/engine-sse.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m test/tool-discovery.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m test/changes-screen.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 160[2mms[22m[39m
+ [32m✓[39m test/studio-render.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m test/engine-artifacts.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m test/engine-compat.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m test/open-service-status.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 10[2mms[22m[39m
  [32m✓[39m test/design-no-network.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
- [32m✓[39m test/open-service-status.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 4[2mms[22m[39m
- [32m✓[39m test/work-control.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 5[2mms[22m[39m
- [32m✓[39m test/fixtures.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 5[2mms[22m[39m
- [32m✓[39m test/design-tokens.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m test/fixtures.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m test/work-control.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m test/design-tokens.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 4[2mms[22m[39m
  [32m✓[39m test/supervisor-identity.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 3[2mms[22m[39m
  [32m✓[39m test/supervisor-restart.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 2[2mms[22m[39m
- [32m✓[39m test/open-drop.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 2[2mms[22m[39m
  [32m✓[39m test/navigation.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m test/open-drop.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 2[2mms[22m[39m
 
 [2m Test Files [22m [1m[32m41 passed[39m[22m[90m (41)[39m
-[2m      Tests [22m [1m[32m382 passed[39m[22m[90m (382)[39m
-[2m   Start at [22m 23:46:11
-[2m   Duration [22m 3.02s[2m (tests 81%, import 9%, environment 8%, transform 2%, worker 1%)[22m
+[2m      Tests [22m [1m[32m383 passed[39m[22m[90m (383)[39m
+[2m   Start at [22m 23:48:49
+[2m   Duration [22m 2.98s[2m (tests 81%, import 9%, environment 7%, transform 2%, worker 1%)[22m
 
-[2m    Isolate [22m [33m41 workers spawned[39m[2m · ~137ms startup each (spawn + environment, per file)[22m
-[2m            [22m [2mat least ~664ms faster with [22m[33misolate: false[39m[2m — reuses workers across files instead of one per file[22m
+[2m    Isolate [22m [33m41 workers spawned[39m[2m · ~132ms startup each (spawn + environment, per file)[22m
+[2m            [22m [2mat least ~643ms faster with [22m[33misolate: false[39m[2m — reuses workers across files instead of one per file[22m
 
 
 > mona@0.1.0-p02 build
@@ -193,7 +191,7 @@ dist/renderer/index.html                   0.68 kB │ gzip:   0.38 kB
 dist/renderer/assets/index-C85RAE2a.css   45.89 kB │ gzip:   8.39 kB
 dist/renderer/assets/index-CmFT4zXq.js   422.37 kB │ gzip: 120.13 kB
 
-[32m✓ built in 87ms[39m
+[32m✓ built in 89ms[39m
 
 > mona@0.1.0-p02 smoke:board
 > npm run build:main && node scripts/board-smoke.mjs
@@ -364,7 +362,7 @@ P10/P11 sample run: PASS
   "stale": [
     {
       "taskId": "tsk_00000003",
-      "reason": "workspace changed after verification (8e106818 → 51330e4b)"
+      "reason": "workspace changed after verification (28a8c0e8 → af4b570a)"
     }
   ],
   "transitions": [
@@ -415,7 +413,7 @@ P10/P11 sample run: PASS
       "from": "completed",
       "to": "verifying",
       "actor": "reconciler",
-      "reason": "workspace changed after verification (8e106818 → 51330e4b)"
+      "reason": "workspace changed after verification (28a8c0e8 → af4b570a)"
     }
   ],
   "workspace_files": {
@@ -625,7 +623,7 @@ P13 changes sample: PASS
         "untracked": 3,
         "conflicted": 0
       },
-      "head": "562ca1e"
+      "head": "abad86e"
     },
     "restore_receipts": 1,
     "recovery": {
@@ -650,61 +648,61 @@ P13 changes sample: PASS
       "name": "format:check",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 1688
+      "elapsed_ms": 1702
     },
     {
       "name": "lint",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 1522
+      "elapsed_ms": 1540
     },
     {
       "name": "typecheck",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 2222
+      "elapsed_ms": 2238
     },
     {
       "name": "build:supervisor",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 2314
+      "elapsed_ms": 2422
     },
     {
       "name": "build:service",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 1940
+      "elapsed_ms": 1997
     },
     {
       "name": "test",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 5253
+      "elapsed_ms": 5177
     },
     {
       "name": "build",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 1742
+      "elapsed_ms": 1748
     },
     {
       "name": "smoke:board",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 1598
+      "elapsed_ms": 1588
     },
     {
       "name": "smoke:cost",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 1445
+      "elapsed_ms": 1426
     },
     {
       "name": "smoke:changes",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 1952
+      "elapsed_ms": 2018
     }
   ],
   "renderer_scan": {
