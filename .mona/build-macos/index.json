@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-12T01:07:22.286Z",
+  "generated_utc": "2026-11-12T01:16:15.960Z",
   "git": {
     "available": true,
-    "commit": "44ead627b312e53313bfe48641d0c8dc77c786da",
+    "commit": "948ebd687d61ecdc7b7b2130211a2c09a01eb454",
     "dirty": true
   },
-  "digest": "afebba123535389976262b10e8b1c9bbbc58c7b430331f6f20765931a508f288",
+  "digest": "147e1dda40ad666f6fe3b9eaa531a9a4efbdd6033bb3db78047f869938735e11",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,8 +15,8 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "8b28cda6c34cafa32d50ec6f0ac325c91473b725df2f6baf4a87a1c76ca0a8ac",
-      "bytes": 16360
+      "sha256": "355f0f5a2fad1807e9ee3c50f8e25033c56944b86cc9974034400ff6306f3003",
+      "bytes": 26196
     },
     {
       "path": "AGENTS.md",
@@ -90,8 +90,8 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p01-engine-surface.txt",
-      "sha256": "d685552eea8e11feeeba99e3fa1d8d4e41b1ab41d8f22826efadba283e61d668",
-      "bytes": 6561
+      "sha256": "cda7c0ba19a03c7cbfafc00688eeb012baeeef7fe0d9e3a9801c92971e0dda97",
+      "bytes": 6425
     },
     {
       "path": "docs/evidence/macos/artifacts/p01-finder-service.txt",
@@ -110,13 +110,33 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p01-probe.json",
-      "sha256": "f4177bc2ccfea5c60433dec05eafe86608edf93408093954de79cd4273a76543",
-      "bytes": 6271
+      "sha256": "3d1cdd4bc81e7a4abb6dfe7b813019c1a8be6c41a9512c5f74aa438475fbbf3f",
+      "bytes": 6267
     },
     {
       "path": "docs/evidence/macos/artifacts/p01-test-run.txt",
       "sha256": "9bf8096673f9319e905250dbd91b6086e8024c4f1a451449523fd72ba352ee24",
       "bytes": 924
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p02-bundle.txt",
+      "sha256": "f667e5bec8a0201efcf8e828ceb7c7f2b885181deae46edddce2b296f74f3297",
+      "bytes": 841
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p02-ci.txt",
+      "sha256": "a1a43b8dfb9895f3e24f0f5460483a691e87cae8d3ace73ce6c083a8b993d53c",
+      "bytes": 2572
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p02-clean-install.txt",
+      "sha256": "db246b28411a317b12be9c3e181c4f2af55717c018427b16c5ed699a56c237f8",
+      "bytes": 403
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p02-smoke.json",
+      "sha256": "fcc6e5ec4e4d04f38773a0b3e8511000bd1cc9bfea7054d128afc5a3ec3ddcf6",
+      "bytes": 3706
     },
     {
       "path": "docs/evidence/macos/artifacts/signing-inventory.txt",
@@ -147,6 +167,11 @@
       "path": "docs/evidence/macos/P01-feasibility.md",
       "sha256": "1d801dbabc951c36802cf78271c74cd44e780a44078a8d2a4cb86692990a28a3",
       "bytes": 10039
+    },
+    {
+      "path": "docs/evidence/macos/P02-foundation.md",
+      "sha256": "4652c1e65dfca473191bf4c8f781e81766afacc520802f4404d886713598eaf8",
+      "bytes": 6560
     },
     {
       "path": "docs/requirements-macos.json",

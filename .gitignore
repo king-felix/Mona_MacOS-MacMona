@@ -32,3 +32,8 @@ DerivedData/
 
 # P01 integration-spike scratch output (raw evidence is copied to docs/evidence)
 .p01/
+
+# TypeScript / Vite caches
+*.tsbuildinfo
+.vite/
+coverage/

@@ -72,7 +72,7 @@ Options:
 === doctor --json (first 120 lines) ===
 {
   "version": "0.10.2",
-  "config_path": "/Users/<user>/.codewhale/config.toml",
+  "config_path": "<USER_HOME>/.codewhale/config.toml",
   "config_present": true,
   "sessions": {
     "last_repair": {
@@ -92,33 +92,33 @@ Options:
     }
   },
   "paths": {
-    "home": "/Users/<user>/.codewhale",
-    "config": "/Users/<user>/.codewhale/config.toml",
-    "settings": "/Users/<user>/.codewhale/settings.toml",
-    "sessions": "/Users/<user>/.codewhale/sessions",
-    "logs": "/Users/<user>/.codewhale/logs",
-    "automations": "/Users/<user>/.codewhale/automations",
-    "task_manager_root": "/Users/<user>/.codewhale/tasks",
-    "task_manager_tasks": "/Users/<user>/.codewhale/tasks/tasks",
-    "task_manager_artifacts": "/Users/<user>/.codewhale/tasks/artifacts",
-    "runtime_store": "/Users/<user>/.codewhale/tasks/runtime",
-    "runtime_events": "/Users/<user>/.codewhale/tasks/runtime/events",
-    "personal_fleet_definitions": "/Users/<user>/.codewhale/fleets",
-    "personal_fleet_agents": "/Users/<user>/.codewhale/agents",
-    "secrets": "/Users/<user>/.codewhale/secrets/secrets.json"
+    "home": "<USER_HOME>/.codewhale",
+    "config": "<USER_HOME>/.codewhale/config.toml",
+    "settings": "<USER_HOME>/.codewhale/settings.toml",
+    "sessions": "<USER_HOME>/.codewhale/sessions",
+    "logs": "<USER_HOME>/.codewhale/logs",
+    "automations": "<USER_HOME>/.codewhale/automations",
+    "task_manager_root": "<USER_HOME>/.codewhale/tasks",
+    "task_manager_tasks": "<USER_HOME>/.codewhale/tasks/tasks",
+    "task_manager_artifacts": "<USER_HOME>/.codewhale/tasks/artifacts",
+    "runtime_store": "<USER_HOME>/.codewhale/tasks/runtime",
+    "runtime_events": "<USER_HOME>/.codewhale/tasks/runtime/events",
+    "personal_fleet_definitions": "<USER_HOME>/.codewhale/fleets",
+    "personal_fleet_agents": "<USER_HOME>/.codewhale/agents",
+    "secrets": "<USER_HOME>/.codewhale/secrets/secrets.json"
   },
   "secret_backend": {
     "backend": "file",
     "inspection": "metadata_only",
-    "path": "/Users/<user>/.codewhale/secrets/secrets.json",
+    "path": "<USER_HOME>/.codewhale/secrets/secrets.json",
     "presence": "present",
-    "legacy_path": "/Users/<user>/.deepseek/secrets/secrets.json",
+    "legacy_path": "<USER_HOME>/.deepseek/secrets/secrets.json",
     "legacy_presence": "absent"
   },
-  "workspace": "/Users/<user>/DS_Projects/Mona",
+  "workspace": "<USER_HOME>/DS_Projects/Mona",
   "legacy_state": {
-    "primary_root": "/Users/<user>/.codewhale",
-    "legacy_root": "/Users/<user>/.deepseek",
+    "primary_root": "<USER_HOME>/.codewhale",
+    "legacy_root": "<USER_HOME>/.deepseek",
     "needs_attention": false,
     "legacy_only_count": 0,
     "dual_present_count": 0,
@@ -131,8 +131,8 @@ Options:
       "session_descriptors_compared": false,
       "counterpart_check": "top_level_filename_and_regular_file_only",
       "codewhale_home_is_explicit": false,
-      "legacy_sessions_path": "/Users/<user>/.deepseek/sessions",
-      "primary_sessions_path": "/Users/<user>/.codewhale/sessions",
+      "legacy_sessions_path": "<USER_HOME>/.deepseek/sessions",
+      "primary_sessions_path": "<USER_HOME>/.codewhale/sessions",
       "legacy_session_file_count": 0,
       "already_present_file_count": 0,
       "recoverable_file_count": 0,
@@ -144,48 +144,48 @@ Options:
     "entries": [
       {
         "name": "sessions",
-        "primary_path": "/Users/<user>/.codewhale/sessions",
-        "legacy_path": "/Users/<user>/.deepseek/sessions",
+        "primary_path": "<USER_HOME>/.codewhale/sessions",
+        "legacy_path": "<USER_HOME>/.deepseek/sessions",
         "primary_present": true,
         "legacy_present": false,
         "status": "primary_only"
       },
       {
         "name": "tasks",
-        "primary_path": "/Users/<user>/.codewhale/tasks",
-        "legacy_path": "/Users/<user>/.deepseek/tasks",
+        "primary_path": "<USER_HOME>/.codewhale/tasks",
+        "legacy_path": "<USER_HOME>/.deepseek/tasks",
         "primary_present": true,
         "legacy_present": false,
         "status": "primary_only"
       },
       {
         "name": "skills",
-        "primary_path": "/Users/<user>/.codewhale/skills",
-        "legacy_path": "/Users/<user>/.deepseek/skills",
+        "primary_path": "<USER_HOME>/.codewhale/skills",
+        "legacy_path": "<USER_HOME>/.deepseek/skills",
         "primary_present": true,
         "legacy_present": false,
         "status": "primary_only"
       },
       {
         "name": "slop_ledger",
-        "primary_path": "/Users/<user>/.codewhale/slop_ledger",
-        "legacy_path": "/Users/<user>/.deepseek/slop_ledger",
+        "primary_path": "<USER_HOME>/.codewhale/slop_ledger",
+        "legacy_path": "<USER_HOME>/.deepseek/slop_ledger",
         "primary_present": false,
         "legacy_present": false,
         "status": "absent"
       },
       {
         "name": "trophies",
-        "primary_path": "/Users/<user>/.codewhale/trophies",
-        "legacy_path": "/Users/<user>/.deepseek/trophies",
+        "primary_path": "<USER_HOME>/.codewhale/trophies",
+        "legacy_path": "<USER_HOME>/.deepseek/trophies",
         "primary_present": false,
         "legacy_present": false,
         "status": "absent"
       },
       {
         "name": "catalog",
-        "primary_path": "/Users/<user>/.codewhale/catalog",
-        "legacy_path": "/Users/<user>/.deepseek/catalog",
+        "primary_path": "<USER_HOME>/.codewhale/catalog",
+        "legacy_path": "<USER_HOME>/.deepseek/catalog",
         "primary_present": true,
         "legacy_present": false,
         "status": "primary_only"

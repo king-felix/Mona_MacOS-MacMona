@@ -134,3 +134,21 @@ and deviations discovered while building.
   response. P03 builds the adapter against `/v1/*`. Parallel execution needs a
   future, tested compatibility decision or native engine support. Creating a
   separate `CODEWHALE_HOME` to force isolation is forbidden.
+
+## D-011 — Desktop stack and IPC boundary
+
+- **Date:** 2026-11-11 (P02)
+- **Decision:** Electron 45.3.0 + React 19 + TypeScript 5.9 + Vite 8 + Zod 4 +
+  Vitest 5, npm with a pinned lockfile; one narrow preload bridge with strict
+  Zod IPC, trusted-sender checks, renderer isolation and a `connect-src 'none'`
+  CSP. Details: `docs/decisions/ADR-001-desktop-stack.md` and
+  `docs/decisions/ADR-002-ipc-boundary.md`.
+- **Why:** P02 needs a real security boundary and a reproducible local build
+  before any engine work. The narrow bridge and strict schemas make malformed
+  IPC a test failure instead of a convention; the observed smoke run caught a
+  real no-payload defect. Vite's static `file://` build avoids shipping a dev
+  server or remote origin.
+- **Consequence:** Adding a renderer capability requires a deliberate schema,
+  handler, bridge method, and test. No raw Electron API, Node built-in, upstream
+  wire type, or secret may cross into the renderer. Electron upgrades re-run the
+  security smoke and bundle baseline.

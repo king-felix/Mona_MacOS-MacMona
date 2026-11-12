@@ -1,0 +1,45 @@
+{
+  "name": "mona",
+  "productName": "Mona",
+  "version": "0.1.0-p02",
+  "private": true,
+  "description": "Mona \u2014 a native Apple Silicon workbench for the Codewhale engine",
+  "license": "UNLICENSED",
+  "main": "dist/main/main/index.js",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "postinstall": "node node_modules/electron/install.js",
+    "clean": "rm -rf dist coverage",
+    "build:main": "tsc -p tsconfig.main.json",
+    "build:renderer": "vite build",
+    "build": "npm run clean && npm run build:main && npm run build:renderer",
+    "start": "electron .",
+    "smoke": "node scripts/smoke.mjs",
+    "typecheck": "tsc -p tsconfig.main.json --noEmit && tsc -p tsconfig.renderer.json --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "ci": "node scripts/ci.mjs"
+  },
+  "dependencies": {
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.6",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "electron": "45.3.0",
+    "eslint": "10.14.0",
+    "prettier": "3.10.0",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.72.2",
+    "vite": "8.3.8",
+    "vitest": "5.1.0"
+  }
+}

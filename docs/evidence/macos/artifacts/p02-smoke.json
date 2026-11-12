@@ -1,0 +1,166 @@
+{
+  "ok": true,
+  "checks": {
+    "exit_zero": true,
+    "ok": true,
+    "renderer_ready": true,
+    "bridge_present": true,
+    "version_rendered": true,
+    "node_globals_absent": true,
+    "bridge_is_narrow": true,
+    "context_isolation": true,
+    "node_integration_off": true,
+    "sandbox_on": true,
+    "web_security_on": true,
+    "window_open_denied": true,
+    "csp_connect_none": true,
+    "supports_paths": true,
+    "tool_found_without_shell_path": true,
+    "services_menu_present": true,
+    "quit_menu_present": true
+  },
+  "app": {
+    "name": "Mona",
+    "version": "0.1.0-p02",
+    "electron": "45.3.0",
+    "chrome": "156.0.8078.96",
+    "node": "24.22.2",
+    "platform": "darwin",
+    "arch": "arm64",
+    "packaged": false
+  },
+  "renderer": {
+    "ready": true,
+    "title": "Mona",
+    "hasBridge": true,
+    "navItems": [
+      "Projects",
+      "Work",
+      "Cost",
+      "Settings"
+    ],
+    "versionText": "Mona 0.1.0-p02",
+    "csp": "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'none'; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
+    "nodeGlobals": {
+      "require": "undefined",
+      "process": "undefined",
+      "module": "undefined",
+      "global": "object"
+    },
+    "bridgeKeys": [
+      "getAppInfo",
+      "getPaths",
+      "discoverTools"
+    ],
+    "windowOpenResult": "null"
+  },
+  "security": {
+    "configured": {
+      "contextIsolation": true,
+      "nodeIntegration": false,
+      "sandbox": true,
+      "webSecurity": true,
+      "webviewTag": false,
+      "devTools": false,
+      "windowOpen": "deny",
+      "navigation": "local-renderer-only",
+      "permissions": "deny-all"
+    },
+    "observed": {
+      "require": "undefined",
+      "process": "undefined",
+      "module": "undefined",
+      "bridgeKeys": [
+        "getAppInfo",
+        "getPaths",
+        "discoverTools"
+      ],
+      "windowOpenResult": "null"
+    }
+  },
+  "paths": {
+    "support": "/Users/<user>/Library/Application Support/Mona",
+    "cache": "/Users/<user>/Library/Caches/Mona",
+    "logs": "/Users/<user>/Library/Logs/Mona",
+    "state": "/Users/<user>/Library/Application Support/Mona/state",
+    "projects": "/Users/<user>/Library/Application Support/Mona/projects"
+  },
+  "tools": [
+    {
+      "name": "codewhale",
+      "path": "/opt/homebrew/bin/codewhale",
+      "source": "well_known"
+    },
+    {
+      "name": "git",
+      "path": "/usr/bin/git",
+      "source": "environment_path"
+    },
+    {
+      "name": "node",
+      "path": "/opt/homebrew/bin/node",
+      "source": "well_known"
+    }
+  ],
+  "menu_roles": [
+    "about",
+    "services",
+    "hide",
+    "hideothers",
+    "unhide",
+    "quit",
+    "close",
+    "undo",
+    "redo",
+    "cut",
+    "copy",
+    "paste",
+    "pasteandmatchstyle",
+    "delete",
+    "selectall",
+    "reload",
+    "forcereload",
+    "toggledevtools",
+    "resetzoom",
+    "zoomin",
+    "zoomout",
+    "togglefullscreen",
+    "minimize",
+    "zoom",
+    "front"
+  ],
+  "process": {
+    "metrics": [
+      {
+        "type": "Browser",
+        "pid": 16565,
+        "workingSetKb": 166928,
+        "cpuPercent": 0
+      },
+      {
+        "type": "GPU",
+        "pid": 16582,
+        "workingSetKb": 84864,
+        "cpuPercent": 0
+      },
+      {
+        "type": "Utility",
+        "pid": 16583,
+        "workingSetKb": 48352,
+        "cpuPercent": 0
+      },
+      {
+        "type": "Tab",
+        "pid": 16586,
+        "workingSetKb": 108048,
+        "cpuPercent": 0
+      }
+    ],
+    "total_working_set_kb": 408192
+  },
+  "electron": {
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+}

@@ -1,0 +1,36 @@
+=== dist tree ===
+680 dist/renderer/index.html
+2989 dist/renderer/assets/index-D3glu6h8.css
+222601 dist/renderer/assets/index-DEFk1pYs.js
+1127 dist/main/main/security.js
+1900 dist/main/main/ipc.js
+1751 dist/main/main/tool-discovery.js
+1478 dist/main/main/ipc-contract.js
+6280 dist/main/main/index.js
+1735 dist/main/main/window.js
+1095 dist/main/main/paths.js
+1268 dist/main/main/navigation.js
+1096 dist/main/main/menu.js
+595 dist/main/preload/index.js
+
+=== totals ===
+312	dist
+228	dist/renderer
+84	dist/main
+
+=== renderer bytes ===
+226270 bytes
+
+=== node/npm ===
+v26.13.0
+11.20.0
+
+=== package-lock sha256 ===
+161423d849eae34c5a71355b657afbed3a87859fc8bf5a01689473e1c035b1a4  package-lock.json
+
+=== process footprint (one smoke sample) ===
+Browser 16565 166928 KB
+GPU 16582 84864 KB
+Utility 16583 48352 KB
+Tab 16586 108048 KB
+total 408192 KB

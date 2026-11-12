@@ -95,7 +95,7 @@
    "/v1/sessions": {
     "status": 200,
     "bytes": 69750,
-    "sample": "{\"sessions\":[{\"id\":\"360a9a52-1121-474f-b221-0efc0bc86e01\",\"runtime_store\":{\"data_dir\":\"/Users/<user>/.codewhale/sessions/7da331b0-8f1c-43b6-87ec-3fada71fb224/runtime\",\"execution_scope\":\"b1ed581769cdbebaabb03783476bea20eb7b8286db0c4b6a9a89fbeadd49a234\"},\"title\":\"New Session\",\"created_at\":\"2026-11-1"
+    "sample": "{\"sessions\":[{\"id\":\"360a9a52-1121-474f-b221-0efc0bc86e01\",\"runtime_store\":{\"data_dir\":\"<USER_HOME>/.codewhale/sessions/7da331b0-8f1c-43b6-87ec-3fada71fb224/runtime\",\"execution_scope\":\"b1ed581769cdbebaabb03783476bea20eb7b8286db0c4b6a9a89fbeadd49a234\"},\"title\":\"New Session\",\"created_at\":\"2026-11-1"
    },
    "/v1/usage?group_by=thread": {
     "status": 200,

@@ -1,0 +1,17 @@
+dist/
+coverage/
+node_modules/
+package-lock.json
+docs/evidence/
+native/**/build/
+
+# Repository law and pre-product tooling: never reformatted by product tooling.
+AGENTS.md
+Mona_macOS_PROMPTS.md
+Mona_macOS_Project.md
+docs/requirements-macos.json
+docs/codewhale-capabilities-macos.json
+docs/discovery-macos.md
+.mona/
+tools/monabuild/
+tools/p01-spike/

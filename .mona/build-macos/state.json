@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "revision": 21,
+  "revision": 29,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
   "spec_sha256": "d1c02941151c71912bc3e9c8b2509612298d54e05e0bf16fe933b9bd93e3e028",
   "prompt_file_sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8",
-  "current_prompt": "P01",
+  "current_prompt": "P02",
   "current_prompt_status": "pending",
-  "last_verified_commit": "179254b",
+  "last_verified_commit": "948ebd6",
   "tasks": {
     "P00": {
       "status": "completed",
@@ -81,7 +81,7 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "a3b66efd5fe2d6eb078d9daeff65d0e977b555cb339e41e7cd1b98a645447400"
+          "sha256": "632268e55942242374a04af6dbfeb3fcf5a0c1427a672a2e74b0585e50a79e60"
         },
         {
           "path": "docs/evidence/macos/artifacts/p00-test-run.txt",
@@ -104,14 +104,23 @@
       ]
     },
     "P01": {
-      "status": "pending",
+      "status": "completed",
       "requirements": [
         "MONA-001",
         "MONA-002",
         "MONA-003",
         "MONA-030"
       ],
-      "completed_steps": [],
+      "completed_steps": [
+        "Inventoried the pinned engine's commands, config, transports, permission semantics, persistence, model resolution, and platform restrictions into 71 capability rows (28 verified, 42 routed-pending, 1 unavailable, 0 blocked gaps)",
+        "Wrote the stdlib-only P01 Runtime API spike with descendant-socket ownership verification, bounded SSE parsing, and process-tree cleanup; 13 tests pass",
+        "Ran a real tool-enabled Full Access turn: wrote hello.txt, ran node verify.mjs (PASS), observed 64 SSE events, effective deepseek/deepseek-flash, history, session export/resume 200, and a confirmed interrupt with no stray sleep process",
+        "Measured concurrent owned runtimes: the second listener was owned by the first runtime and the first token authenticated the second port; recorded single-owner serialization instead of fabricating isolation",
+        "Ran the paired cost pilot under the $2 ceiling: 3 tasks, all accepted, total-token deltas within +0.77%/-0.33%/-0.26%, adapter cost $0.012559; direct cost recorded unknown",
+        "Proved zero inference for startup, discovery, 2s idle, history reads, and empty-thread SSE reconnect",
+        "Proved packaged native execution with no Node on PATH and CLT Finder Service feasibility (compile, NSServices plist, ad-hoc sign, LaunchServices registration)",
+        "Wrote P01-feasibility.md with G0/G1/G2 verdicts, ADR-P01, and carried-forward gaps"
+      ],
       "remaining_steps": [],
       "evidence": [
         {
@@ -120,7 +129,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p01-probe.json",
-          "sha256": "f4177bc2ccfea5c60433dec05eafe86608edf93408093954de79cd4273a76543"
+          "sha256": "3d1cdd4bc81e7a4abb6dfe7b813019c1a8be6c41a9512c5f74aa438475fbbf3f"
         },
         {
           "path": "docs/evidence/macos/artifacts/p01-live.json",
@@ -132,7 +141,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p01-engine-surface.txt",
-          "sha256": "d685552eea8e11feeeba99e3fa1d8d4e41b1ab41d8f22826efadba283e61d668"
+          "sha256": "cda7c0ba19a03c7cbfafc00688eeb012baeeef7fe0d9e3a9801c92971e0dda97"
         },
         {
           "path": "docs/evidence/macos/artifacts/p01-native-binary.txt",
@@ -167,7 +176,15 @@
           "sha256": "dda157631415e659e9fbd324f62c74e8acc7780cfd8adee9aacdfef0b97a229c"
         }
       ],
-      "blocker_ids": []
+      "blocker_ids": [],
+      "notes": [
+        "G2-01: 42 rows are discovered/routed but remain unqualified until their named contract tests pass (P03 owns the adapter).",
+        "G1-01: direct `codewhale exec` agent mode omits usage/cost in its summary and records coverage_recorded=false; exact cost parity stays provisional.",
+        "G0-01: independent parallel runtimes are unsupported; serialize owned runtimes.",
+        "P02 input: the listener is a grandchild of the npm wrapper; supervision must track the process tree."
+      ],
+      "started_utc": "2026-11-12T00:46:02.862Z",
+      "updated_utc": "2026-11-12T01:08:00.000Z"
     },
     "P02": {
       "status": "pending",
@@ -177,7 +194,208 @@
       ],
       "completed_steps": [],
       "remaining_steps": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P02-foundation.md",
+          "sha256": "4652c1e65dfca473191bf4c8f781e81766afacc520802f4404d886713598eaf8"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p02-ci.txt",
+          "sha256": "a1a43b8dfb9895f3e24f0f5460483a691e87cae8d3ace73ce6c083a8b993d53c"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p02-smoke.json",
+          "sha256": "fcc6e5ec4e4d04f38773a0b3e8511000bd1cc9bfea7054d128afc5a3ec3ddcf6"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p02-bundle.txt",
+          "sha256": "f667e5bec8a0201efcf8e828ceb7c7f2b885181deae46edddce2b296f74f3297"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p02-clean-install.txt",
+          "sha256": "db246b28411a317b12be9c3e181c4f2af55717c018427b16c5ed699a56c237f8"
+        },
+        {
+          "path": "docs/decisions/ADR-001-desktop-stack.md",
+          "sha256": "37bc1ce40be8a3ab1f94ed69a491e1f452dc4153611a995853d1a1fe73f306dc"
+        },
+        {
+          "path": "docs/decisions/ADR-002-ipc-boundary.md",
+          "sha256": "522e0430c535d7e475e85946e71a32d11c52401171d95c286492aa8280aa0683"
+        },
+        {
+          "path": "package.json",
+          "sha256": "98bff803427f34394a9702d3c0b379325b42b69d7a019788ebf1ec8ae0f5955d"
+        },
+        {
+          "path": "package-lock.json",
+          "sha256": "161423d849eae34c5a71355b657afbed3a87859fc8bf5a01689473e1c035b1a4"
+        },
+        {
+          "path": "tsconfig.main.json",
+          "sha256": "4b54e27c83957975bc1bd340d6ecf967d6e2a7ab8d2f4bc0a1e2a6e5a150c5a7"
+        },
+        {
+          "path": "tsconfig.renderer.json",
+          "sha256": "3d42b06233f826333d3bbc9410791669cb9e67ef11f7bbce43978e191c0a42e8"
+        },
+        {
+          "path": "vite.config.mts",
+          "sha256": "75edeae49e7e0a6f2c085ab2d07a38a29813a72432333406b4b2ea7f5e679cb5"
+        },
+        {
+          "path": "vitest.config.mts",
+          "sha256": "75ab6fd9278aa3df5fede4b593ce69443e975fb218baab54a4fa73c9b560dd32"
+        },
+        {
+          "path": "eslint.config.mjs",
+          "sha256": "053da94a7944807842c26cbc41c4eb49e0b20e2444889d74e350f6507751764d"
+        },
+        {
+          "path": "scripts/ci.mjs",
+          "sha256": "c8778de838d320defe2c3491ba8f0a521661fd511ffcda5b95d43baa7edd3394"
+        },
+        {
+          "path": "scripts/smoke.mjs",
+          "sha256": "3407e7cb923b1d22ce05362e6ce7bc3be845803fd77c6dc93a02c8ed422f4acb"
+        },
+        {
+          "path": "native/macos-services/README.md",
+          "sha256": "96a1ed4d9b0d81276e2d731ac99f4d1414982959b7ea2fdaf31110bcba4324d7"
+        },
+        {
+          "path": "native/macos-supervisor/README.md",
+          "sha256": "d7138d8a35c4c9772f3adb226817c10b62fb81fb3c46b19cefaaa4b1acc4f52f"
+        },
+        {
+          "path": "packaging/macos/README.md",
+          "sha256": "fbabfd7545d4e3f4d4a0f1332f53abea4cd1e5342ed3f275314b542a1266b384"
+        },
+        {
+          "path": "src/main/index.ts",
+          "sha256": "51862769e6d1ad1f62aa3c60475aad7e17ede58313ce97b5ec3dc904da848b38"
+        },
+        {
+          "path": "src/main/ipc-contract.ts",
+          "sha256": "953df3bca4a9cff7a519098571fd330488468b2636ef29a7155618876f5dc1f6"
+        },
+        {
+          "path": "src/main/ipc.ts",
+          "sha256": "55d8a2d3c2ee8f07d1dde7f0c36f4bef0d37650cf2c6b6ef09656ea135882370"
+        },
+        {
+          "path": "src/main/menu.ts",
+          "sha256": "76dd1d124cb7a315d01ef0f6d6ee9705c89f69e6ccbf3a750dcf46ccd2d762ae"
+        },
+        {
+          "path": "src/main/navigation.ts",
+          "sha256": "07ccf361dbf2b577849ce3af9e0f385e2cbbdc0b944ce78114e46abaaa107b11"
+        },
+        {
+          "path": "src/main/paths.ts",
+          "sha256": "cf4c7b038e5c3638210a3b20ce84f63c8b0442c29a60a84b237e49e35096b08e"
+        },
+        {
+          "path": "src/main/security.ts",
+          "sha256": "cabdac8a898ed7ab2086ecffbf542318187696fa97677451db30f1e9e1afce3d"
+        },
+        {
+          "path": "src/main/tool-discovery.ts",
+          "sha256": "f02085ba606862e904cfd31dba549bfa794467a00018b8e9b52eddb03d2fb132"
+        },
+        {
+          "path": "src/main/window.ts",
+          "sha256": "c1a76470c03b77692f076d3d0ea7be5289d4fd554eb58df12a3eb4b7ce04765a"
+        },
+        {
+          "path": "src/preload/index.ts",
+          "sha256": "20bf7aeb41a0770bf1bb02c805fd14d68d56560f55231dae8250e52e6ee6c9ef"
+        },
+        {
+          "path": "src/renderer/App.tsx",
+          "sha256": "20971215fb2de34d121f75cd0fa06e90ad0f98c58b178b9b1cf458dd630d2cd9"
+        },
+        {
+          "path": "src/renderer/global.d.ts",
+          "sha256": "a9bfe1eeee791e1cd1dd196574f9c7c7a92207d4d457aa0f03e6a538c5c95cc6"
+        },
+        {
+          "path": "src/renderer/index.html",
+          "sha256": "258495f4db55cdcc5460260354e5ae3116615d258f629a4d03db5a39ac36bbe1"
+        },
+        {
+          "path": "src/renderer/main.tsx",
+          "sha256": "5985360923648abef8f70adcd408c472a11c12756cca1a122bfe8a4449732743"
+        },
+        {
+          "path": "src/renderer/styles.css",
+          "sha256": "457b87d7bcd965d1875732468e090849a1ac9ac9e7b36dde713071caaaa7a073"
+        },
+        {
+          "path": "src/shared/contracts/bridge.ts",
+          "sha256": "c2e8063da74a1fe5e49a68c76344fb3c61f82f5f656fbceca56053b7cc1cb62a"
+        },
+        {
+          "path": "src/shared/contracts/engine.ts",
+          "sha256": "6f998967fd531b5394a8d0eed3b28e848c527b520730efb8a65a261719cd9cdb"
+        },
+        {
+          "path": "src/shared/contracts/events.ts",
+          "sha256": "f406f2c22fe3657f6e906af40b8ffcd683976e0cd2b4ceacbddc8e8256412b4c"
+        },
+        {
+          "path": "src/shared/contracts/ids.ts",
+          "sha256": "638f0271bddbd1be0c2592413f0a133a251d12bbb4ade51afd527fcf85c116b2"
+        },
+        {
+          "path": "src/shared/contracts/index.ts",
+          "sha256": "d5eaf2424fb9f1521f632969769399834a0b4e53d5061b75fedea69995c25e7f"
+        },
+        {
+          "path": "src/shared/contracts/project.ts",
+          "sha256": "bb4da2ba16706bb7ac0a2ed665a335dd078d80cf5b0b8b315589945b9c81fbba"
+        },
+        {
+          "path": "src/shared/contracts/submission.ts",
+          "sha256": "22117e0163705a7f128bf247ff1cc04e1c43acb61f87178674d86c14f3cf1a2e"
+        },
+        {
+          "path": "src/shared/contracts/usage.ts",
+          "sha256": "42b61ca7d82dd26cb4ff7af00011674d001db2bcad383fdb163ea6d3e9837d91"
+        },
+        {
+          "path": "src/shared/engine-wire/runtime.ts",
+          "sha256": "62853c9646babcd61293ee1d679c27c54644adb336154794f6021081bad937c0"
+        },
+        {
+          "path": "src/shared/fixtures/index.ts",
+          "sha256": "1d062b4f8e281577ace4b068161ff4a17b37492aabc6563e0ba8058f7c709a82"
+        },
+        {
+          "path": "test/boundary.test.ts",
+          "sha256": "a4eb9edd50719b5dbc77873a88b08c8d21e80f382d4b19af0287bcc360a1f4a0"
+        },
+        {
+          "path": "test/contracts.test.ts",
+          "sha256": "1896a7d75bed995f67be948400a49d54a858991d2bc1f803a935cd5c19577698"
+        },
+        {
+          "path": "test/fixtures.test.ts",
+          "sha256": "d73f23d98f39ae5942871ec95009681014092ada9eed00742d12e9c248bea0f2"
+        },
+        {
+          "path": "test/ipc-contract.test.ts",
+          "sha256": "df139a5d8c2064c2d0cab6606ad5babd7dbb711cd1b90d55ab2aae97a3c8b994"
+        },
+        {
+          "path": "test/navigation.test.ts",
+          "sha256": "9dec6b385cc333db8a665d9c6c6c42ac96b74c2eac0281bc8475ea3888edbae0"
+        },
+        {
+          "path": "test/tool-discovery.test.ts",
+          "sha256": "e588cf48c9627d746c09f5c40ff2481fbc5f463e7541c39e240cf4db7e75fa2a"
+        }
+      ],
       "blocker_ids": []
     },
     "P03": {
@@ -483,9 +701,9 @@
     }
   },
   "next_eligible_prompts": [
-    "P01"
+    "P02"
   ],
-  "last_checkpoint_utc": "2026-11-12T01:07:14.113Z",
+  "last_checkpoint_utc": "2026-11-12T01:16:15.883Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",
