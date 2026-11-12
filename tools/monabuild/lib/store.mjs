@@ -2,7 +2,7 @@
 // One writer at a time; readers only ever see a complete revision.
 
 import { copyFileSync, existsSync, readFileSync, rmSync, statSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { validate, assertValid } from "./schema.mjs";
 import {
   acquireLock,

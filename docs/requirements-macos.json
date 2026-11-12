@@ -446,10 +446,15 @@
         "P01",
         "P03"
       ],
-      "status": "pending",
+      "status": "partial",
       "acceptance": "pending",
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P00-bootstrap.md",
+          "note": "P00 contribution; requirement not yet accepted."
+        }
+      ],
+      "notes": "P00 recorded installed Codewhale 0.10.2 identity, wrapper/native paths, arm64 binary digest, help surface, and redacted provider route. Live capability qualification and real execution remain P01."
     },
     {
       "id": "MONA-002",
@@ -568,10 +573,15 @@
         "P05",
         "P10"
       ],
-      "status": "pending",
+      "status": "partial",
       "acceptance": "pending",
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/artifacts/p00-recovery-simulation.txt",
+          "note": "P00 contribution; requirement not yet accepted."
+        }
+      ],
+      "notes": "Durable build ledger implemented: atomic revision-checked state, attempt ledger with enforced three-attempt limit, generated requirement traceability, decisions, blockers, and handoff. Product-level project state is P05."
     },
     {
       "id": "MONA-011",
@@ -842,10 +852,15 @@
         "P21",
         "P26"
       ],
-      "status": "pending",
+      "status": "partial",
       "acceptance": "pending",
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        {
+          "path": "docs/discovery-macos.md",
+          "note": "P00 contribution; requirement not yet accepted."
+        }
+      ],
+      "notes": "Native arm64 host and toolchain verified (Apple M3, proc_translated=0, CLT SDK 14.4, no Rosetta dependency). Minimum supported macOS matrix and Electron/engine coupling are chosen at P02/P21."
     },
     {
       "id": "MAC-002",
@@ -936,10 +951,15 @@
         "P25",
         "P26"
       ],
-      "status": "pending",
+      "status": "partial",
       "acceptance": "pending",
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        {
+          "path": "docs/requirements-macos.json",
+          "note": "P00 contribution; requirement not yet accepted."
+        }
+      ],
+      "notes": "Separate .mona/build-macos ledger, generated requirement registry, and pinned engine provenance established. Windows coordination, release BOM, and reproducible release commands remain P25."
     }
   ],
   "dependency_order": [

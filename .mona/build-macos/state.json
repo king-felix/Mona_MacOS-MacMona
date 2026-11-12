@@ -1,17 +1,17 @@
 {
   "schema_version": 1,
-  "revision": 2,
+  "revision": 5,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
   "spec_sha256": "d1c02941151c71912bc3e9c8b2509612298d54e05e0bf16fe933b9bd93e3e028",
   "prompt_file_sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8",
-  "current_prompt": "P00",
-  "current_prompt_status": "running",
-  "last_verified_commit": null,
+  "current_prompt": "P01",
+  "current_prompt_status": "pending",
+  "last_verified_commit": "179254b",
   "tasks": {
     "P00": {
-      "status": "running",
+      "status": "completed",
       "requirements": [
         "MONA-001",
         "MONA-010",
@@ -25,17 +25,48 @@
         "Built tools/monabuild: schema validation, atomic replacement, revision-conflict detection, interrupted-checkpoint recovery, attempt ledger, hash index, secret scan",
         "Initialized .mona/build-macos ledger with atomic revision 1"
       ],
-      "remaining_steps": [
-        "Write AGENTS.md operating contract",
-        "Write discovery report, capability inventory structure, and signing prerequisite record",
-        "Demonstrate interrupted-checkpoint recovery with recorded evidence",
-        "Create the initial local git commit",
-        "Update requirement traceability and handoff for P00 completion"
+      "remaining_steps": [],
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P00-bootstrap.md",
+          "sha256": "9ca786d32444cd04fce26ad31a14f863e0a3412d986aeb31734cf2f964e054ac"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p00-recovery-simulation.txt",
+          "sha256": "5af6d35d39234dd088285ce8cc3940dfc4f55e47533e614f794a276c1d8b5372"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/host-inventory.txt",
+          "sha256": "3a052fd5009c6649c16b0550c7e392d218c134a361e1c229821524e30cfd54d5"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/engine-inventory.txt",
+          "sha256": "3b957c90f6f510106ca69793819640aa76262da4eea02f896249456d6cd57796"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/signing-inventory.txt",
+          "sha256": "3e45104c0497ce03bcba731224d253e6003d8addfb46933fc778a3b79ae07d7c"
+        },
+        {
+          "path": "docs/discovery-macos.md",
+          "sha256": "7510f5770dea340e0230d7f3ff0c2081b800403adba99e9c31f43dd8496c8075"
+        },
+        {
+          "path": "docs/requirements-macos.json",
+          "sha256": "23f5712d5366c49138bb7c98a9bf3ad5262d2ca6736c9ceeded4561a30399df2"
+        },
+        {
+          "path": "docs/codewhale-capabilities-macos.json",
+          "sha256": "3b2950e6569e8fecce407ed570381fd0610f1bd4f388eab0a489eb0769d040bf"
+        },
+        {
+          "path": "AGENTS.md",
+          "sha256": "170d244fda5ea025b27115a8b68804caf969258e66f56493c1d3879e58963e59"
+        }
       ],
-      "evidence": [],
       "blocker_ids": [],
       "started_utc": "2026-11-12T00:33:09.865Z",
-      "updated_utc": "2026-11-12T00:33:09.865Z"
+      "updated_utc": "2026-11-12T00:40:00.000Z"
     },
     "P01": {
       "status": "pending",
@@ -364,9 +395,9 @@
     }
   },
   "next_eligible_prompts": [
-    "P00"
+    "P01"
   ],
-  "last_checkpoint_utc": "2026-11-12T00:33:17.362Z",
+  "last_checkpoint_utc": "2026-11-12T00:35:16.595Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",
@@ -430,6 +461,6 @@
     "captured_utc": "2026-11-12T00:33:09.865Z"
   },
   "notes": [
-    "P00 bootstrap only. No product UI, no runtime integration, and no model inference in this prompt."
+    "P00 completed: native Mac bootstrap, engine identity, requirement registry, durable ledger, and recovery evidence. No inference performed."
   ]
 }

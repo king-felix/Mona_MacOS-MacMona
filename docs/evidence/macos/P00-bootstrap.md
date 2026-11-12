@@ -1,6 +1,7 @@
 # P00 — Bootstrap the project and establish ground truth
 
 **Status:** completed
+**Checkpoint commit:** `179254b` — bootstrap content; this evidence file and the completed ledger state are recorded in the follow-up ledger commit.
 **Date:** 2026-11-11 (local) / 2026-11-12 UTC
 **Machine:** Victor's MacBook Air, Mac15,12 (Apple M3), macOS 26.5.1 (25F80), arm64
 **Specification:** `Mona_macOS_Project.md` SHA-256

@@ -1,7 +1,7 @@
 # Handoff — Mona macOS build
 
-**Last checkpoint:** 2026-11-11 (P00)
-**Current prompt:** P00 — completed (pending final evidence/commit checkpoint)
+**Last checkpoint:** 2026-11-11 (P00, revision 5) — checkpoint commit `179254b`
+**Current prompt:** P00 — completed
 **Next eligible prompt:** P01 — Prove headless integration and preserve the economics
 
 ## Where the build stands
