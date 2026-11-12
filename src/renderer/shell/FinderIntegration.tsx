@@ -74,7 +74,8 @@ export function FinderIntegration(): JSX.Element {
           <div className="detail-row">
             <dt>Installed</dt>
             <dd className="mono wrap">
-              {status?.installPath ?? "Not installed"} · {status?.scope ?? "unknown scope"}
+              {status?.installPathDisplay ?? status?.installPath ?? "Not installed"} ·{" "}
+              {status?.scope ?? "unknown scope"}
             </dd>
           </div>
           <div className="detail-row">

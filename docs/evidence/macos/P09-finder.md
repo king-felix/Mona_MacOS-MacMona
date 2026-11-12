@@ -23,9 +23,11 @@ Verification:
 - **21/21** native Service checks (`p09-service-smoke.json`), including discovery
   by macOS, exact-folder delivery proven by device/inode, folder-only eligibility,
   and refusals for files, empty selections, text selections, and multi-selection.
-- **16/16** application-handoff checks (`p09-app-handoff.json`): a real service
-  handoff into the built app bundle, project registered once, Studio selected,
-  composer focused, no runtime, no task, one window, second handoff reused.
+- **17/17** application-handoff checks (`p09-app-handoff.json`) plus the
+  application's own **17/17** report (`p09-app-run.json`): a real service handoff
+  into the built app bundle, project registered once, Studio selected, composer
+  focused, no runtime, no task, one window, second handoff reused, and the
+  Settings → Finder panel showing the measured state.
 - **274 tests in 33 files** (34 new P09 tests), local CI green
   (format, lint, typecheck, supervisor build, service build, tests, build,
   renderer secret scan). The Electron security smoke (20/20) and the shell smoke
@@ -72,9 +74,13 @@ The Service then hands it two real folders.
 | Work safety | engine state not `running`; 0 tasks; one window |
 | Idempotency | second handoff `created: false`, same project id, still 1 catalog entry |
 | Shutdown | app exited on its own; no orphaned Service process |
+| Finder panel | installed `/Users/.../Library/Services/Mona.service · user`, registration `registered`, enabled `unknown`, last handoff `forwarded`, development-build note |
 
 The screenshot `p09-open-handoff.png` is that live window: “Opened … from
 Finder. Runtime not started.” with a real **Start engine** action.
+`p09-finder-panel.png` is Settings → Finder during the same run: the Service,
+its path and scope, the registration source, the honest `enabled: unknown`
+(macOS records no toggle for it), the last handoff, and the recovery guidance.
 
 ## Architecture
 
@@ -154,6 +160,17 @@ Finder. Runtime not started.” with a real **Start engine** action.
    the Developer ID signature (D-020).
 3. **Interactive multi-selection choice** (the native alert) is exercised by CLI
    tests for the refusal path; clicking the alert is human QA (P24/P26).
+
+## Bug found and fixed by this proof
+
+The first version of the handoff smoke could not leave Studio after a Finder
+handoff: **Command-1…5 screen switching was disabled whenever a text field had
+focus** (`!typing` on the Meta-number branch). That is exactly the state a
+handoff creates — the composer is focused — so the shortcut was dead in the one
+moment a keyboard-first user needs it. A Command-modified digit is never text
+input, so the guard was removed; the smoke now switches screens with the
+composer focused, which is real keyboard-first evidence rather than a
+body-focus shortcut.
 
 ## Operational facts worth keeping
 

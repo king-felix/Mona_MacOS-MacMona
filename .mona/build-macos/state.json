@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 95,
+  "revision": 102,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -282,7 +282,7 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "7c12c228ded4b2432fd862367d7bfb66dcc86bd17c8b321bec41a779ea453b31"
+          "sha256": "14722259798561c11aefc3918d086ad4b2f960e1c43badcbec60729e541af0fd"
         },
         {
           "path": "src/main/ipc-contract.ts",
@@ -403,6 +403,10 @@
         {
           "path": "test/tool-discovery.test.ts",
           "sha256": "e588cf48c9627d746c09f5c40ff2481fbc5f463e7541c39e240cf4db7e75fa2a"
+        },
+        {
+          "path": "src/shared/contracts/open.ts",
+          "sha256": "5efd366793a5348a6e450d2d24d104b2a9148edc7c268e2ed7bc56002f39f268"
         }
       ],
       "blocker_ids": [],
@@ -669,7 +673,7 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "7c12c228ded4b2432fd862367d7bfb66dcc86bd17c8b321bec41a779ea453b31"
+          "sha256": "14722259798561c11aefc3918d086ad4b2f960e1c43badcbec60729e541af0fd"
         },
         {
           "path": "src/main/engine/runtime-process.ts",
@@ -1041,31 +1045,31 @@
       "evidence": [
         {
           "path": "docs/evidence/macos/P09-finder.md",
-          "sha256": "ad90e473dd5eb269746f69aa9a4905569fb957a445749206628b7ed5d38458f5"
+          "sha256": "3e34604d771d5aca72e96a0ca13962327d71bd8b6ec8f01b87bb80cb01d92a34"
         },
         {
           "path": "docs/evidence/macos/artifacts/p09-service-smoke.json",
-          "sha256": "dc38d9afcfc14be64b4efee79881d4ee54b533c4108bfd92286fb3449ab1c17e"
+          "sha256": "323af9b58f31a6bf0f6910571bfbd7df268a80e33d9364d86ee8ebfb60e1a4be"
         },
         {
           "path": "docs/evidence/macos/artifacts/p09-app-handoff.json",
-          "sha256": "5751d293da0d243d48b0f5a64980a70b4d675ffa2c3f01318b284a568d8fc4f8"
+          "sha256": "6a37b330ef9de4f66861740260b72b8eeb507108d56c82a44bf301e90975f639"
         },
         {
           "path": "docs/evidence/macos/artifacts/p09-app-run.json",
-          "sha256": "76157b87b251ee6c2e370b3a243bb8d117d13d2c965029645c57bb34f0ecbf6b"
+          "sha256": "41e94a73fc8da3375e09fe566c5a902aeaa357981c38a17a428df8a16e936fe0"
         },
         {
           "path": "docs/evidence/macos/artifacts/p09-open-handoff.png",
-          "sha256": "333d123f84bf4be025f3b11139515b98b2bbcc5168b61d42987979344e9d7b79"
+          "sha256": "858f0d8bf458a5adffbfc67e178d53ed5bde78bc07cd79bc456eb6105c419983"
         },
         {
           "path": "docs/evidence/macos/artifacts/p09-tests.txt",
-          "sha256": "7b3662fcb77a1f013d55e697f6164264c7d7ac6bd85476037e0160656b80cb60"
+          "sha256": "85ab1334020d8379ec27d4f92c2a4706539014869b0e0b50de3576aba928d1a2"
         },
         {
           "path": "docs/evidence/macos/artifacts/p09-ci.json",
-          "sha256": "94b8c10ad9c30cc264d5217a77c4a5c7a2e04f0c6bf3fd7f24d19e86c7d1e109"
+          "sha256": "8e6b2a38b4ee885b742c517783003e0b7d82b785eee9214c869e0dd26e989038"
         },
         {
           "path": "native/macos-services/main.swift",
@@ -1105,11 +1109,11 @@
         },
         {
           "path": "scripts/service-smoke.mjs",
-          "sha256": "dd218fe8f5e8fcc37bdce58dc6c49a22f46f3e8a7090c84bad648d5dbdac4a2f"
+          "sha256": "0f7b87be387fa736a82e8fc6d013a131c225f2f7985eb53e22bb677732856034"
         },
         {
           "path": "scripts/open-smoke.mjs",
-          "sha256": "fc4a634bf85a2c96f441c5996e94b3e8d16b6bcae247bb41b73d71fcc39bcc06"
+          "sha256": "ec83e9e4affeac3f2be4379640fe4ea2a5815865f5935f2a0798eb5e943094d9"
         },
         {
           "path": "scripts/smoke.mjs",
@@ -1133,11 +1137,11 @@
         },
         {
           "path": "src/main/open/service-status.ts",
-          "sha256": "9c8c165000811f5eb1a234571d4ecda34ed2ef86098954af12284fc1edbd285a"
+          "sha256": "8f1893c87c02f395b00b6f2bdce6583343f21ce85432fdb93ad180f828e0ea56"
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "7c12c228ded4b2432fd862367d7bfb66dcc86bd17c8b321bec41a779ea453b31"
+          "sha256": "14722259798561c11aefc3918d086ad4b2f960e1c43badcbec60729e541af0fd"
         },
         {
           "path": "src/main/desktop-lifecycle.ts",
@@ -1161,7 +1165,7 @@
         },
         {
           "path": "src/shared/contracts/open.ts",
-          "sha256": "41ecebe5cccac0232ba0ea1b22527f537c43615f8a2453961b4885e3fd6dabc7"
+          "sha256": "5efd366793a5348a6e450d2d24d104b2a9148edc7c268e2ed7bc56002f39f268"
         },
         {
           "path": "src/shared/contracts/bridge.ts",
@@ -1169,7 +1173,7 @@
         },
         {
           "path": "src/renderer/shell/Shell.tsx",
-          "sha256": "ccd4be4a4ca384067e1b9840bf9bcf90916ff01e3ac8b1b152eb5a2147c5089a"
+          "sha256": "60e45b45f60bbd8bac6cbcb4cdf6141eb87112561bf707648870f5237e795abf"
         },
         {
           "path": "src/renderer/shell/drop.ts",
@@ -1177,7 +1181,7 @@
         },
         {
           "path": "src/renderer/shell/FinderIntegration.tsx",
-          "sha256": "b5a6202756e85b2ade3533f295fe1a432544c0472b88add21985ac19d76fe380"
+          "sha256": "3a8ccf346b1ca845540251c55dde2bad377aed68d2865608bb86b25274f9986e"
         },
         {
           "path": "src/renderer/shell/Settings.tsx",
@@ -1210,6 +1214,10 @@
         {
           "path": ".mona/build-macos/DECISIONS.md",
           "sha256": "849e710125883de4324cec1f5655ee21becd03e8b8ac621eedbb8b2ba8ffb589"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p09-finder-panel.png",
+          "sha256": "fba5c3bcf288194934a5f5c06498fd1494c8efe0c5c1e8af6b496dcae81ffeb2"
         }
       ],
       "blocker_ids": [],
@@ -1440,7 +1448,7 @@
   "next_eligible_prompts": [
     "P08"
   ],
-  "last_checkpoint_utc": "2026-11-12T04:20:06.552Z",
+  "last_checkpoint_utc": "2026-11-12T04:24:53.330Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

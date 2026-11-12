@@ -1,24 +1,24 @@
 {
   "schema_version": 1,
   "label": "P09 REAL APPLICATION HANDOFF — built app, macOS-registered Service",
-  "captured_at": "2026-11-12T04:17:59.178Z",
+  "captured_at": "2026-11-12T04:24:16.952Z",
   "ok": true,
   "phases": [
     {
       "phase": "ready",
-      "at": "2026-11-12T04:17:56.565Z",
+      "at": "2026-11-12T04:24:13.231Z",
       "windows": 1
     },
     {
       "phase": "first_request",
-      "at": "2026-11-12T04:17:57.672Z",
+      "at": "2026-11-12T04:24:14.334Z",
       "source": "open_file",
       "ok": true,
-      "path": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona p09 project 18106"
+      "path": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona p09 project 29695"
     },
     {
       "phase": "first_observed",
-      "at": "2026-11-12T04:17:58.573Z",
+      "at": "2026-11-12T04:24:15.244Z",
       "selected": true,
       "projects": 1,
       "tasks": 0,
@@ -26,9 +26,9 @@
     },
     {
       "phase": "second_observed",
-      "at": "2026-11-12T04:17:59.177Z",
+      "at": "2026-11-12T04:24:16.952Z",
       "created": false,
-      "project_id": "prj_e7db3c81c9ebbf4c",
+      "project_id": "prj_9dc0c0b43024f8e5",
       "projects": 1
     }
   ],
@@ -45,36 +45,40 @@
     "catalog_single_entry": true,
     "second_open_reused": true,
     "same_project_selected": true,
-    "renderer_not_fixture": true
+    "renderer_not_fixture": true,
+    "finder_panel_installed": true,
+    "finder_panel_registered": true,
+    "finder_panel_menu_title": true,
+    "finder_panel_last_handoff": true
   },
   "requests": [
     {
       "ok": true,
       "source": "open_file",
-      "input": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona p09 project 18106",
-      "path": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona p09 project 18106",
-      "projectId": "prj_e7db3c81c9ebbf4c",
-      "projectName": "mona p09 project 18106",
+      "input": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona p09 project 29695",
+      "path": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona p09 project 29695",
+      "projectId": "prj_9dc0c0b43024f8e5",
+      "projectName": "mona p09 project 29695",
       "created": true,
       "code": null,
       "message": null,
       "notes": [],
-      "at": "2026-11-12T04:17:57.671Z",
+      "at": "2026-11-12T04:24:14.308Z",
       "runtimeStarted": false,
       "taskCreated": false
     },
     {
       "ok": true,
       "source": "open_file",
-      "input": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona p09 project 18106",
-      "path": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona p09 project 18106",
-      "projectId": "prj_e7db3c81c9ebbf4c",
-      "projectName": "mona p09 project 18106",
+      "input": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona p09 project 29695",
+      "path": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona p09 project 29695",
+      "projectId": "prj_9dc0c0b43024f8e5",
+      "projectName": "mona p09 project 29695",
       "created": false,
       "code": null,
       "message": null,
       "notes": [],
-      "at": "2026-11-12T04:17:58.486Z",
+      "at": "2026-11-12T04:24:15.150Z",
       "runtimeStarted": false,
       "taskCreated": false
     }
@@ -83,30 +87,30 @@
     "first": {
       "ok": true,
       "source": "open_file",
-      "input": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona p09 project 18106",
-      "path": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona p09 project 18106",
-      "projectId": "prj_e7db3c81c9ebbf4c",
-      "projectName": "mona p09 project 18106",
+      "input": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona p09 project 29695",
+      "path": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona p09 project 29695",
+      "projectId": "prj_9dc0c0b43024f8e5",
+      "projectName": "mona p09 project 29695",
       "created": true,
       "code": null,
       "message": null,
       "notes": [],
-      "at": "2026-11-12T04:17:57.671Z",
+      "at": "2026-11-12T04:24:14.308Z",
       "runtimeStarted": false,
       "taskCreated": false
     },
     "second": {
       "ok": true,
       "source": "open_file",
-      "input": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona p09 project 18106",
-      "path": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona p09 project 18106",
-      "projectId": "prj_e7db3c81c9ebbf4c",
-      "projectName": "mona p09 project 18106",
+      "input": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona p09 project 29695",
+      "path": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona p09 project 29695",
+      "projectId": "prj_9dc0c0b43024f8e5",
+      "projectName": "mona p09 project 29695",
       "created": false,
       "code": null,
       "message": null,
       "notes": [],
-      "at": "2026-11-12T04:17:58.486Z",
+      "at": "2026-11-12T04:24:15.150Z",
       "runtimeStarted": false,
       "taskCreated": false
     },
@@ -115,8 +119,15 @@
       "projects": 0,
       "composer_focused": true,
       "composer_text": "",
-      "title": "mona p09 project 18106",
+      "title": "mona p09 project 29695",
       "banner": false
+    },
+    "finderPanel": {
+      "installed": true,
+      "registered": true,
+      "menu_title": true,
+      "handoff": true,
+      "recovery": true
     },
     "tasks": 0,
     "projects": 1,
@@ -124,6 +135,7 @@
     "windows": 1
   },
   "screenshots": [
-    "/Users/<user>/Library/Application Support/Mona/p09-open-handoff.png"
+    "p09-open-handoff.png",
+    "p09-finder-panel.png"
   ]
 }

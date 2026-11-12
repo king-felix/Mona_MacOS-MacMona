@@ -27,6 +27,7 @@ const HARNESS = join(ROOT, "native/macos-services/build/P09Harness.app/Contents/
 const SUPPORT = join(HOME, "Library/Application Support/Mona");
 const APP_REPORT = join(SUPPORT, "open-smoke.json");
 const APP_SHOT = join(SUPPORT, "p09-open-handoff.png");
+const APP_PANEL_SHOT = join(SUPPORT, "p09-finder-panel.png");
 const SERVICE_RECEIPT = join(SUPPORT, "services/last-handoff.json");
 const SERVICE_TRACE = join(SUPPORT, "services/service-trace.json");
 const ARTIFACTS = join(ROOT, "docs/evidence/macos/artifacts");
@@ -59,6 +60,11 @@ function run(command, args, options = {}) {
     stdout: (result.stdout ?? "").trim(),
     stderr: (result.stderr ?? "").trim(),
   };
+}
+
+/** Evidence must never carry this machine's home path (D-009). */
+function redact(value) {
+  return JSON.parse(JSON.stringify(value).replaceAll(HOME, "~"));
 }
 
 function readJson(path) {
@@ -163,6 +169,7 @@ function performService(folder) {
 async function main() {
   rmSync(APP_REPORT, { force: true });
   rmSync(APP_SHOT, { force: true });
+  rmSync(APP_PANEL_SHOT, { force: true });
   kill("MonaDev.app/Contents/MacOS/Electron");
   kill("MonaProbe");
   kill("MonaService");
@@ -265,6 +272,7 @@ async function main() {
     same_project_selected: finalReport?.checks?.same_project_selected === true,
     renderer_not_fixture: finalReport?.checks?.renderer_not_fixture === true,
     app_exited_cleanly: exited,
+    app_report_ok: finalReport?.ok === true,
   };
   report.checks = checks;
   report.ok = Object.values(checks).every(Boolean);
@@ -273,6 +281,10 @@ async function main() {
   if (existsSync(APP_SHOT)) {
     cpSync(APP_SHOT, join(ARTIFACTS, "p09-open-handoff.png"));
     report.screenshots.push("docs/evidence/macos/artifacts/p09-open-handoff.png");
+  }
+  if (existsSync(APP_PANEL_SHOT)) {
+    cpSync(APP_PANEL_SHOT, join(ARTIFACTS, "p09-finder-panel.png"));
+    report.screenshots.push("docs/evidence/macos/artifacts/p09-finder-panel.png");
   }
   if (finalReport) {
     writeFileSync(join(ARTIFACTS, "p09-app-run.json"), `${JSON.stringify(finalReport, null, 2)}\n`);
@@ -302,7 +314,7 @@ try {
   rmSync("/tmp/mona-dev-info.json", { force: true });
   report.captured_at = new Date().toISOString();
   mkdirSync(ARTIFACTS, { recursive: true });
-  writeFileSync(EVIDENCE, `${JSON.stringify(report, null, 2)}\n`);
+  writeFileSync(EVIDENCE, `${JSON.stringify(redact(report), null, 2)}\n`);
 }
 
 console.log(JSON.stringify({ ok: report.ok, checks: report.checks, evidence: EVIDENCE }, null, 2));

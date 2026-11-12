@@ -68,6 +68,11 @@ function run(command, args, options = {}) {
   };
 }
 
+/** Evidence must never carry this machine's home path (D-009). */
+function redact(value) {
+  return JSON.parse(JSON.stringify(value).replaceAll(HOME, "~"));
+}
+
 function readJson(path) {
   try {
     return JSON.parse(readFileSync(path, "utf8"));
@@ -284,7 +289,7 @@ async function main() {
   if (process.platform !== "darwin" || process.arch !== "arm64") {
     report.ok = false;
     report.error = `the Finder Service proof requires macOS arm64; this host is ${process.platform}/${process.arch}`;
-    writeFileSync(EVIDENCE, `${JSON.stringify(report, null, 2)}\n`);
+    writeFileSync(EVIDENCE, `${JSON.stringify(redact(report), null, 2)}\n`);
     process.exit(1);
   }
 
@@ -537,6 +542,6 @@ report.cleanup = {
 };
 
 mkdirSync(join(ROOT, "docs/evidence/macos/artifacts"), { recursive: true });
-writeFileSync(EVIDENCE, `${JSON.stringify(report, null, 2)}\n`);
+writeFileSync(EVIDENCE, `${JSON.stringify(redact(report), null, 2)}\n`);
 console.log(JSON.stringify({ ok: report.ok, checks: report.checks, evidence: EVIDENCE }, null, 2));
 process.exit(report.ok ? 0 : 1);

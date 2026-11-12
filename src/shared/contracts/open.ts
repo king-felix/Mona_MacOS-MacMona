@@ -47,6 +47,8 @@ export interface ServiceStatus {
   supported: boolean;
   installed: boolean;
   installPath: string | null;
+  /** Tilde-abbreviated install path for display; never a home path in the UI. */
+  installPathDisplay: string | null;
   scope: "system" | "user" | "development" | null;
   registration: RegistrationState;
   enabled: EnabledState;

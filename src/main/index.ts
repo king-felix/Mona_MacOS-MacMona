@@ -1118,9 +1118,9 @@ async function runOpenSmoke(window: BrowserWindow): Promise<void> {
     }))()`);
 
     const image = await window.webContents.capturePage();
-    const shotPath = join(openSmokeDir(), "p09-open-handoff.png");
-    writeFileSync(shotPath, image.toPNG());
-    report.screenshots.push(shotPath);
+    // Evidence records names, never this machine's home path.
+    writeFileSync(join(openSmokeDir(), "p09-open-handoff.png"), image.toPNG());
+    report.screenshots.push("p09-open-handoff.png");
 
     const statsAfterFirst = await productState?.stats();
     const tasksAfterFirst = projectId ? await productState?.listTasks(projectId) : [];
@@ -1136,6 +1136,42 @@ async function runOpenSmoke(window: BrowserWindow): Promise<void> {
     const second = openRequests[1] as OpenResult;
     report.requests.push(second as unknown as Record<string, unknown>);
     await sleep(600);
+    // The Finder panel must show what macOS actually reports, not a claim.
+    window.webContents.sendInputEvent({ type: "keyDown", keyCode: "5", modifiers: ["meta"] });
+    window.webContents.sendInputEvent({ type: "keyUp", keyCode: "5", modifiers: ["meta"] });
+    await waitFor(
+      async () =>
+        (await evaluate<string>("document.documentElement.dataset.screen")) === "settings",
+      8_000,
+    );
+    await evaluate(`(() => {
+      const tab = Array.from(document.querySelectorAll('[role="tab"]')).find(
+        (node) => (node.textContent ?? '').trim() === 'Finder',
+      );
+      if (tab instanceof HTMLElement) tab.click();
+      return Boolean(tab);
+    })()`);
+    await sleep(900);
+    const finderPanel = await evaluate<{
+      installed: boolean;
+      registered: boolean;
+      menu_title: boolean;
+      handoff: boolean;
+      recovery: boolean;
+    }>(`(() => {
+      const text = document.body.textContent ?? '';
+      return {
+        installed: text.includes('Library/Services/Mona.service'),
+        registered: text.includes('registered'),
+        menu_title: text.includes('Start new DS project with Mona'),
+        handoff: text.includes('forwarded'),
+        recovery: text.includes('Finder handoff is not ready yet'),
+      };
+    })()`);
+    const panelShot = await window.webContents.capturePage();
+    writeFileSync(join(openSmokeDir(), "p09-finder-panel.png"), panelShot.toPNG());
+    report.screenshots.push("p09-finder-panel.png");
+
     const statsAfterSecond = await productState?.stats();
     const tasksAfterSecond = projectId ? await productState?.listTasks(projectId) : [];
     phase("second_observed", {
@@ -1160,12 +1196,17 @@ async function runOpenSmoke(window: BrowserWindow): Promise<void> {
       second_open_reused: second.ok === true && second.created === false,
       same_project_selected: second.projectId === first.projectId,
       renderer_not_fixture: dom.banner === false,
+      finder_panel_installed: finderPanel.installed === true,
+      finder_panel_registered: finderPanel.registered === true,
+      finder_panel_menu_title: finderPanel.menu_title === true,
+      finder_panel_last_handoff: finderPanel.handoff === true,
     };
     report.checks = checks;
     report.facts = {
       first,
       second,
       dom,
+      finderPanel,
       tasks: tasksAfterSecond?.length ?? null,
       projects: statsAfterSecond?.projects ?? null,
       engine: supervisor?.status().state ?? "unknown",

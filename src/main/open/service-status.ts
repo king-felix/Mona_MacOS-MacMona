@@ -220,10 +220,17 @@ export function inspectServiceStatus(options: ServiceStatusOptions): ServiceStat
     recovery.push(`Turn on “${SERVICE_MENU_TITLE}” again.`);
   }
 
+  const installPathDisplay = installPath
+    ? installPath.startsWith(`${options.home}/`)
+      ? `~${installPath.slice(options.home.length)}`
+      : installPath
+    : null;
+
   return {
     supported,
     installed: installPath !== null,
     installPath,
+    installPathDisplay,
     scope,
     registration,
     enabled,

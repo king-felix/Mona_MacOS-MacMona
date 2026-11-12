@@ -5,50 +5,50 @@
       "name": "format:check",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 1242
+      "elapsed_ms": 1265
     },
     {
       "name": "lint",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 1181
+      "elapsed_ms": 1199
     },
     {
       "name": "typecheck",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 1840
+      "elapsed_ms": 1878
     },
     {
       "name": "build:supervisor",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 1994
+      "elapsed_ms": 1983
     },
     {
       "name": "build:service",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 1813
+      "elapsed_ms": 1824
     },
     {
       "name": "test",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 4382
+      "elapsed_ms": 4407
     },
     {
       "name": "build",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 1501
+      "elapsed_ms": 1508
     }
   ],
   "renderer_scan": {
     "ok": true,
     "files": 3,
     "patterns": [],
-    "bytes": 399259
+    "bytes": 399141
   },
-  "dist_bytes": 399259
+  "dist_bytes": 399141
 }

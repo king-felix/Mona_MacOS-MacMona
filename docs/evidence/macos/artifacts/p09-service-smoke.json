@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "label": "P09 NATIVE FINDER SERVICE — macOS discovery and launch",
-  "captured_at": "2026-11-12T04:17:26.456Z",
+  "captured_at": "2026-11-12T04:23:20.364Z",
   "ok": true,
   "host": {
     "platform": "darwin",
@@ -17,15 +17,15 @@
     "size": 232272,
     "compiler": "Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)",
     "file": "native/macos-services/build/Mona.service/Contents/MacOS/MonaService: Mach-O 64-bit executable arm64",
-    "plist_lint": "/Users/<user>/DS_Projects/Mona/native/macos-services/build/Mona.service/Contents/Info.plist: OK",
+    "plist_lint": "~/DS_Projects/Mona/native/macos-services/build/Mona.service/Contents/Info.plist: OK",
     "signature": "ad-hoc",
     "signed": true,
     "verified": true,
     "descriptor": {
       "app_bundle_identifier": "com.mona.workbench",
       "bundle_identifier": "com.mona.workbench.service",
-      "bundle_path": "/Users/<user>/DS_Projects/Mona/native/macos-services/build/Mona.service",
-      "executable": "/Users/<user>/DS_Projects/Mona/native/macos-services/build/Mona.service/Contents/MacOS/MonaService",
+      "bundle_path": "~/DS_Projects/Mona/native/macos-services/build/Mona.service",
+      "executable": "~/DS_Projects/Mona/native/macos-services/build/Mona.service/Contents/MacOS/MonaService",
       "message": "startProject",
       "schema_version": 1,
       "send_file_types": [
@@ -36,13 +36,13 @@
       ],
       "service": "Start new DS project with Mona"
     },
-    "built_at": "2026-11-12T04:17:28.594Z"
+    "built_at": "2026-11-12T04:23:21.986Z"
   },
   "registration": {
     "discovered": true,
-    "record": "service id:                 Start new DS project with Mona (0x4b0)\nmenu:                       Start new DS project with Mona\nport:                       MonaService\nmessage:                    startProject\ntimeout:                    -1\n",
+    "record": "service id:                 Start new DS project with Mona (0x548)\nmenu:                       Start new DS project with Mona\nport:                       MonaService\nmessage:                    startProject\ntimeout:                    -1\n",
     "dump_status": 0,
-    "dump_bytes": 19757038,
+    "dump_bytes": 19756981,
     "vended": null,
     "declared": {
       "menu_item": "Start new DS project with Mona",
@@ -59,7 +59,7 @@
   "cases": [
     {
       "name": "folder",
-      "at": "2026-11-12T04:17:34.919Z",
+      "at": "2026-11-12T04:23:28.380Z",
       "attempts": [
         {
           "attempt": 1,
@@ -67,56 +67,113 @@
           "stdout": "performed",
           "service_receipt_written": true,
           "probe_received": true,
-          "elapsed_ms": 1285
+          "elapsed_ms": 1454
         }
       ],
       "performed": true,
       "service_receipt": {
         "action": "open_folder",
         "app_bundle_identifier": "com.mona.workbench",
-        "app_path": "/Users/<user>/DS_Projects/Mona/native/macos-services/build/MonaProbe.app",
+        "app_path": "~/DS_Projects/Mona/native/macos-services/build/MonaProbe.app",
         "app_signature": "adhoc:com.mona.workbench",
         "device": 16777232,
         "forwarded": true,
-        "inode": 33198569,
+        "inode": 33209836,
         "inputs": [
-          "file:///var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-GY1xOQ/plain%20folder/"
+          "file:///var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-TJqQTN/plain%20folder/"
         ],
         "invocation": "service",
         "notes": [
           "app: located by bundle identity com.mona.workbench"
         ],
         "ok": true,
-        "resolved_path": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-GY1xOQ/plain folder",
+        "resolved_path": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-TJqQTN/plain folder",
         "schema_version": 1,
         "strategy": "documents",
-        "timestamp": "2026-11-12T04:17:34.561Z"
+        "timestamp": "2026-11-12T04:23:27.884Z"
       },
       "probe": {
-        "delivered_after_ms": 13,
+        "delivered_after_ms": 8,
         "event": "open_urls",
         "paths": [
-          "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-GY1xOQ/plain folder"
+          "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-TJqQTN/plain folder"
         ],
-        "pid": 17924,
+        "pid": 29147,
         "schema_version": 1,
-        "timestamp": "2026-11-12T04:17:34Z",
+        "timestamp": "2026-11-12T04:23:28Z",
         "urls": [
-          "file:///private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-GY1xOQ/plain%20folder/"
+          "file:///private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-TJqQTN/plain%20folder/"
         ]
       },
       "expected_identity": {
         "device": 16777232,
-        "inode": 33198569
+        "inode": 33209836
       },
       "received_identity": {
         "device": 16777232,
-        "inode": 33198569
+        "inode": 33209836
       }
     },
     {
       "name": "awkward_characters",
-      "at": "2026-11-12T04:17:38.338Z",
+      "at": "2026-11-12T04:23:31.773Z",
+      "attempts": [
+        {
+          "attempt": 1,
+          "performed": true,
+          "stdout": "performed",
+          "service_receipt_written": true,
+          "probe_received": true,
+          "elapsed_ms": 721
+        }
+      ],
+      "performed": true,
+      "service_receipt": {
+        "action": "open_folder",
+        "app_bundle_identifier": "com.mona.workbench",
+        "app_path": "~/DS_Projects/Mona/native/macos-services/build/MonaProbe.app",
+        "app_signature": "adhoc:com.mona.workbench",
+        "device": 16777232,
+        "forwarded": true,
+        "inode": 33209837,
+        "inputs": [
+          "file:///var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-TJqQTN/space%20'quote'%20$dollar;%20semicolon/"
+        ],
+        "invocation": "service",
+        "notes": [
+          "app: located by bundle identity com.mona.workbench"
+        ],
+        "ok": true,
+        "resolved_path": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-TJqQTN/space 'quote' $dollar; semicolon",
+        "schema_version": 1,
+        "strategy": "documents",
+        "timestamp": "2026-11-12T04:23:31.589Z"
+      },
+      "probe": {
+        "delivered_after_ms": 12,
+        "event": "open_urls",
+        "paths": [
+          "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-TJqQTN/space 'quote' $dollar; semicolon"
+        ],
+        "pid": 29207,
+        "schema_version": 1,
+        "timestamp": "2026-11-12T04:23:31Z",
+        "urls": [
+          "file:///private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-TJqQTN/space%20'quote'%20$dollar%3B%20semicolon/"
+        ]
+      },
+      "expected_identity": {
+        "device": 16777232,
+        "inode": 33209837
+      },
+      "received_identity": {
+        "device": 16777232,
+        "inode": 33209837
+      }
+    },
+    {
+      "name": "newline_in_name",
+      "at": "2026-11-12T04:23:32.693Z",
       "attempts": [
         {
           "attempt": 1,
@@ -131,106 +188,49 @@
       "service_receipt": {
         "action": "open_folder",
         "app_bundle_identifier": "com.mona.workbench",
-        "app_path": "/Users/<user>/DS_Projects/Mona/native/macos-services/build/MonaProbe.app",
+        "app_path": "~/DS_Projects/Mona/native/macos-services/build/MonaProbe.app",
         "app_signature": "adhoc:com.mona.workbench",
         "device": 16777232,
         "forwarded": true,
-        "inode": 33198570,
+        "inode": 33209838,
         "inputs": [
-          "file:///var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-GY1xOQ/space%20'quote'%20$dollar;%20semicolon/"
+          "file:///var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-TJqQTN/line%0Abreak/"
         ],
         "invocation": "service",
         "notes": [
           "app: located by bundle identity com.mona.workbench"
         ],
         "ok": true,
-        "resolved_path": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-GY1xOQ/space 'quote' $dollar; semicolon",
+        "resolved_path": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-TJqQTN/line\nbreak",
         "schema_version": 1,
         "strategy": "documents",
-        "timestamp": "2026-11-12T04:17:38.150Z"
-      },
-      "probe": {
-        "delivered_after_ms": 12,
-        "event": "open_urls",
-        "paths": [
-          "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-GY1xOQ/space 'quote' $dollar; semicolon"
-        ],
-        "pid": 17952,
-        "schema_version": 1,
-        "timestamp": "2026-11-12T04:17:38Z",
-        "urls": [
-          "file:///private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-GY1xOQ/space%20'quote'%20$dollar%3B%20semicolon/"
-        ]
-      },
-      "expected_identity": {
-        "device": 16777232,
-        "inode": 33198570
-      },
-      "received_identity": {
-        "device": 16777232,
-        "inode": 33198570
-      }
-    },
-    {
-      "name": "newline_in_name",
-      "at": "2026-11-12T04:17:39.257Z",
-      "attempts": [
-        {
-          "attempt": 1,
-          "performed": true,
-          "stdout": "performed",
-          "service_receipt_written": true,
-          "probe_received": true,
-          "elapsed_ms": 726
-        }
-      ],
-      "performed": true,
-      "service_receipt": {
-        "action": "open_folder",
-        "app_bundle_identifier": "com.mona.workbench",
-        "app_path": "/Users/<user>/DS_Projects/Mona/native/macos-services/build/MonaProbe.app",
-        "app_signature": "adhoc:com.mona.workbench",
-        "device": 16777232,
-        "forwarded": true,
-        "inode": 33198571,
-        "inputs": [
-          "file:///var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-GY1xOQ/line%0Abreak/"
-        ],
-        "invocation": "service",
-        "notes": [
-          "app: located by bundle identity com.mona.workbench"
-        ],
-        "ok": true,
-        "resolved_path": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-GY1xOQ/line\nbreak",
-        "schema_version": 1,
-        "strategy": "documents",
-        "timestamp": "2026-11-12T04:17:39.047Z"
+        "timestamp": "2026-11-12T04:23:32.508Z"
       },
       "probe": {
         "delivered_after_ms": 7,
         "event": "open_urls",
         "paths": [
-          "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-GY1xOQ/line\nbreak"
+          "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-TJqQTN/line\nbreak"
         ],
-        "pid": 17972,
+        "pid": 29227,
         "schema_version": 1,
-        "timestamp": "2026-11-12T04:17:39Z",
+        "timestamp": "2026-11-12T04:23:32Z",
         "urls": [
-          "file:///private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-GY1xOQ/line%0Abreak/"
+          "file:///private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-TJqQTN/line%0Abreak/"
         ]
       },
       "expected_identity": {
         "device": 16777232,
-        "inode": 33198571
+        "inode": 33209838
       },
       "received_identity": {
         "device": 16777232,
-        "inode": 33198571
+        "inode": 33209838
       }
     },
     {
       "name": "unicode_decomposed",
-      "at": "2026-11-12T04:17:40.203Z",
+      "at": "2026-11-12T04:23:33.607Z",
       "attempts": [
         {
           "attempt": 1,
@@ -238,56 +238,56 @@
           "stdout": "performed",
           "service_receipt_written": true,
           "probe_received": true,
-          "elapsed_ms": 739
+          "elapsed_ms": 709
         }
       ],
       "performed": true,
       "service_receipt": {
         "action": "open_folder",
         "app_bundle_identifier": "com.mona.workbench",
-        "app_path": "/Users/<user>/DS_Projects/Mona/native/macos-services/build/MonaProbe.app",
+        "app_path": "~/DS_Projects/Mona/native/macos-services/build/MonaProbe.app",
         "app_signature": "adhoc:com.mona.workbench",
         "device": 16777232,
         "forwarded": true,
-        "inode": 33198572,
+        "inode": 33209839,
         "inputs": [
-          "file:///var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-GY1xOQ/cafe%CC%81-decomposed/"
+          "file:///var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-TJqQTN/cafe%CC%81-decomposed/"
         ],
         "invocation": "service",
         "notes": [
           "app: located by bundle identity com.mona.workbench"
         ],
         "ok": true,
-        "resolved_path": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-GY1xOQ/café-decomposed",
+        "resolved_path": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-TJqQTN/café-decomposed",
         "schema_version": 1,
         "strategy": "documents",
-        "timestamp": "2026-11-12T04:17:40.005Z"
+        "timestamp": "2026-11-12T04:23:33.395Z"
       },
       "probe": {
-        "delivered_after_ms": 12,
+        "delivered_after_ms": 13,
         "event": "open_urls",
         "paths": [
-          "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-GY1xOQ/café-decomposed"
+          "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-TJqQTN/café-decomposed"
         ],
-        "pid": 17992,
+        "pid": 29247,
         "schema_version": 1,
-        "timestamp": "2026-11-12T04:17:40Z",
+        "timestamp": "2026-11-12T04:23:33Z",
         "urls": [
-          "file:///private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-GY1xOQ/cafe%CC%81-decomposed/"
+          "file:///private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-TJqQTN/cafe%CC%81-decomposed/"
         ]
       },
       "expected_identity": {
         "device": 16777232,
-        "inode": 33198572
+        "inode": 33209839
       },
       "received_identity": {
         "device": 16777232,
-        "inode": 33198572
+        "inode": 33209839
       }
     },
     {
       "name": "file_selection",
-      "at": "2026-11-12T04:17:41.376Z",
+      "at": "2026-11-12T04:23:34.777Z",
       "harness_performed": true,
       "service_ran": true,
       "service_receipt": {
@@ -295,21 +295,21 @@
         "code": "NOT_A_DIRECTORY",
         "forwarded": false,
         "inputs": [
-          "file:///var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-GY1xOQ/a%20file.txt"
+          "file:///var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-TJqQTN/a%20file.txt"
         ],
         "invocation": "service",
         "notes": [],
         "ok": false,
-        "reason": "'/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-GY1xOQ/a file.txt' is a file, not a folder. Mona opens project folders.",
+        "reason": "'/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-TJqQTN/a file.txt' is a file, not a folder. Mona opens project folders.",
         "schema_version": 1,
-        "timestamp": "2026-11-12T04:17:40.999Z"
+        "timestamp": "2026-11-12T04:23:34.401Z"
       },
       "probe_received": false,
       "probe": null
     },
     {
       "name": "empty_selection",
-      "at": "2026-11-12T04:17:42.390Z",
+      "at": "2026-11-12T04:23:35.957Z",
       "harness_performed": true,
       "service_ran": true,
       "service_receipt": {
@@ -322,14 +322,14 @@
         "ok": false,
         "reason": "Mona needs one selected folder. Select a folder in Finder, then choose Services → Start new DS project with Mona.",
         "schema_version": 1,
-        "timestamp": "2026-11-12T04:17:42.167Z"
+        "timestamp": "2026-11-12T04:23:35.578Z"
       },
       "probe_received": false,
       "probe": null
     },
     {
       "name": "text_selection",
-      "at": "2026-11-12T04:17:43.405Z",
+      "at": "2026-11-12T04:23:37.125Z",
       "harness_performed": true,
       "service_ran": true,
       "service_receipt": {
@@ -342,38 +342,38 @@
         "ok": false,
         "reason": "Mona needs one selected folder. Select a folder in Finder, then choose Services → Start new DS project with Mona.",
         "schema_version": 1,
-        "timestamp": "2026-11-12T04:17:43.186Z"
+        "timestamp": "2026-11-12T04:23:36.753Z"
       },
       "probe_received": false,
       "probe": null
     },
     {
       "name": "multi_selection",
-      "at": "2026-11-12T04:17:43.463Z",
+      "at": "2026-11-12T04:23:37.170Z",
       "pick_first": {
         "status": 0,
         "receipt": {
           "action": "open_folder",
           "app_bundle_identifier": "com.mona.workbench",
-          "app_path": "/Users/<user>/DS_Projects/Mona/native/macos-services/build/MonaProbe.app",
+          "app_path": "~/DS_Projects/Mona/native/macos-services/build/MonaProbe.app",
           "app_signature": "adhoc:com.mona.workbench",
           "device": 16777232,
           "forwarded": false,
-          "inode": 33198569,
+          "inode": 33209836,
           "inputs": [
-            "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-GY1xOQ/plain folder"
+            "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-TJqQTN/plain folder"
           ],
           "invocation": "cli",
           "notes": [
-            "multi_selection: opened '/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-GY1xOQ/plain folder' by explicit choice",
+            "multi_selection: opened '/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-TJqQTN/plain folder' by explicit choice",
             "app: located by bundle identity com.mona.workbench",
             "dry_run: validated only; nothing was forwarded"
           ],
           "ok": true,
-          "resolved_path": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-GY1xOQ/plain folder",
+          "resolved_path": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-TJqQTN/plain folder",
           "schema_version": 1,
           "strategy": "documents",
-          "timestamp": "2026-11-12T04:17:43.436Z"
+          "timestamp": "2026-11-12T04:23:37.146Z"
         }
       },
       "refused": {
@@ -383,21 +383,21 @@
           "code": "MULTI_SELECTION",
           "forwarded": false,
           "inputs": [
-            "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-GY1xOQ/plain folder",
-            "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-GY1xOQ/space 'quote' $dollar; semicolon"
+            "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-TJqQTN/plain folder",
+            "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-TJqQTN/space 'quote' $dollar; semicolon"
           ],
           "invocation": "cli",
           "notes": [],
           "ok": false,
-          "reason": "Mona opens one project at a time; 2 folders were selected (/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-GY1xOQ/plain folder, /var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-GY1xOQ/space 'quote' $dollar; semicolon).",
+          "reason": "Mona opens one project at a time; 2 folders were selected (/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-TJqQTN/plain folder, /var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p09-service-TJqQTN/space 'quote' $dollar; semicolon).",
           "schema_version": 1,
-          "timestamp": "2026-11-12T04:17:43.461Z"
+          "timestamp": "2026-11-12T04:23:37.169Z"
         }
       }
     },
     {
       "name": "cli_refusals",
-      "at": "2026-11-12T04:17:43.485Z",
+      "at": "2026-11-12T04:23:37.192Z",
       "file": {
         "status": 2,
         "code": "NOT_A_DIRECTORY"
@@ -443,9 +443,9 @@
   "error": null,
   "registration_after_handoff": {
     "discovered": true,
-    "record": "service id:                 Start new DS project with Mona (0x4b0)\nmenu:                       Start new DS project with Mona\nport:                       MonaService\nmessage:                    startProject\ntimeout:                    -1\n",
+    "record": "service id:                 Start new DS project with Mona (0x548)\nmenu:                       Start new DS project with Mona\nport:                       MonaService\nmessage:                    startProject\ntimeout:                    -1\n",
     "dump_status": 0,
-    "dump_bytes": 19756701,
+    "dump_bytes": 19756926,
     "vended": null,
     "declared": {
       "menu_item": "Start new DS project with Mona",

@@ -674,12 +674,6 @@ export function Shell(): JSX.Element {
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null;
-      const typing =
-        target instanceof HTMLInputElement ||
-        target instanceof HTMLTextAreaElement ||
-        target instanceof HTMLSelectElement ||
-        target?.isContentEditable === true;
       if (event.metaKey && event.key.toLowerCase() === "k") {
         event.preventDefault();
         setPaletteOpen(true);
@@ -691,7 +685,9 @@ export function Shell(): JSX.Element {
         openFolderRef.current();
         return;
       }
-      if (!typing && event.metaKey && !event.shiftKey && /^[1-5]$/.test(event.key)) {
+      // Command-modified digits are never text input, so screen switching
+      // stays available while the composer has focus.
+      if (event.metaKey && !event.shiftKey && /^[1-5]$/.test(event.key)) {
         const next = SCREEN_IDS[Number(event.key) - 1];
         if (next) {
           event.preventDefault();
