@@ -23,12 +23,16 @@ const PATTERNS = [
 // YOUR_GATEWAY_API_KEY, or values wrapped in angle brackets.
 const PLACEHOLDER_VALUE = /^(YOUR[_-]|EXAMPLE|PLACEHOLDER|CHANGEME|REDACTED|<|\.\.\.)/;
 
+const ASSIGNMENT = /\b[\w.-]+\s*[:=]\s*["']([^"']*)["']/g;
+
 function hasPlaceholderValue(line) {
-  const quoted = line.match(/["']([^"']*)["']/);
-  const value = quoted?.[1] ?? "";
-  if (PLACEHOLDER_VALUE.test(value)) return true;
-  // A quoted value that is entirely SCREAMING_SNAKE_CASE is documentation.
-  return /^[A-Z][A-Z0-9_]*$/.test(value);
+  for (const match of line.matchAll(ASSIGNMENT)) {
+    const value = match[1];
+    if (PLACEHOLDER_VALUE.test(value)) return true;
+    // A quoted value that is entirely SCREAMING_SNAKE_CASE is documentation.
+    if (/^[A-Z][A-Z0-9_]*$/.test(value)) return true;
+  }
+  return false;
 }
 
 export function scanText(text, file = "<text>") {
