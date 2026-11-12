@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-12T20:08:44.664Z",
+  "generated_utc": "2026-11-12T20:52:35.769Z",
   "git": {
     "available": true,
-    "commit": "144b56739443107e723d214af9c6ef0519ccc324",
+    "commit": "4dfacc287dbf30f0fd4c4a110e01576eff2e6e90",
     "dirty": true
   },
-  "digest": "f403026a0c7759cdabbbbf51aea0a52c99143f61828dd3f0cd6474e999a56222",
+  "digest": "0b350643b34c839b5e365d9febd651fc62ada44f4955beea9b85e5a800e9e627",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,7 +15,7 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "431b1042195c4492928722672415001880bd1b2d6efac2a95481f0192913e1ed",
+      "sha256": "e2d42eabc26bbcaec6be8b47d5a3ba879d471621cb28d4d98d06c5726efcff2d",
       "bytes": 138744
     },
     {
@@ -645,12 +645,12 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p16-settings-smoke.json",
-      "sha256": "02fc0600645e62f4a3e1ccf7bde55612aa5ddcf76e364434b5b5bf0371d5ce7f",
+      "sha256": "c3d7f9d55b1e4fe27b87afd550139a09413e9ad84b4d1617a38a9ccf7ceb06b2",
       "bytes": 6634
     },
     {
       "path": "docs/evidence/macos/artifacts/p17-extensions-smoke.json",
-      "sha256": "e733103b79da2808e61fcaaa12951a3c8de10e8c62e1d1cb2d5f9dbf36e93c0a",
+      "sha256": "66dec06ccde1c745460665df918a3aa2b3df1e5441b6e4577e637a7d99062afc",
       "bytes": 13024
     },
     {
@@ -665,17 +665,17 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p18-capability-coverage.json",
-      "sha256": "dfcb0100c9139c1925237ae167459597eed8280daa9e4ee42843ed9b00c4a53b",
+      "sha256": "5f1e4ed715639658ef4f90766b8711a4d4c10ccd292438efde7214433a0b8805",
       "bytes": 93733
     },
     {
       "path": "docs/evidence/macos/artifacts/p18-capability-coverage.md",
-      "sha256": "8dcb0b8910d6740fca7394f2fab1744b4387d091a4a12f97d8d38c71ea704a08",
+      "sha256": "5ac4ce9af76e6d2b4107748bdcff8fd3e630dcda6bf1ddefb1441480dc709192",
       "bytes": 12046
     },
     {
       "path": "docs/evidence/macos/artifacts/p18-capability-smoke.json",
-      "sha256": "35fc1039f04c1c2249855be4046f5cb3073169b5f7c7e652292948a76027ceaf",
+      "sha256": "371737cd10e828b02a8be9fde05d9d0dff35593e0c120cd5a8f9a5f6236288e4",
       "bytes": 17432
     },
     {
@@ -690,7 +690,7 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p18-terminal-smoke.json",
-      "sha256": "853b346b9d0f6fd966e527627ebdb00302f47fa3e741930996bcefdfb1ff4a7a",
+      "sha256": "4f828fb070fe656bc83c67d3cffe3fe8640c2ce5ace79e218924c5785347b040",
       "bytes": 3905
     },
     {
@@ -720,7 +720,7 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p19-memory-smoke.json",
-      "sha256": "467b29572e967a470e71acf95b3fa4eccef199d6b534599c1338cb57f1c25148",
+      "sha256": "2cb5e2b8fad255fde91400ff829aee9849a70b0c4e7392560cdc7c8783da645c",
       "bytes": 19477
     },
     {
@@ -730,7 +730,7 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p20-failure-smoke.json",
-      "sha256": "b4ad174a10c8f82a188abe2042d1819a6cd1fa7b69406d8b12419d986ed8b6d0",
+      "sha256": "0bca143d324a27e33da44a0f37ea5e579b590990e805c76d71dc96167e1df585",
       "bytes": 2515
     },
     {
@@ -790,17 +790,17 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p23-ci.txt",
-      "sha256": "6d29aa0723031f0809ee4481ce9550494ca0bcd2a6992b4b87dbc00ee1e5a352",
-      "bytes": 74074
+      "sha256": "6adb364fcf538a43d73f589db8b1674991e3579ca68a8e689db6cebdd4508072",
+      "bytes": 74231
     },
     {
       "path": "docs/evidence/macos/artifacts/p23-lifecycle-smoke.json",
-      "sha256": "4aecbeec4da07f25b2c890a917ab999ee9f2ac02eb46e09f539b145d3006121e",
-      "bytes": 12361
+      "sha256": "dc558304cf1c508118842d55e1386f9e0c7c95665c400e403cac175b4e071660",
+      "bytes": 12362
     },
     {
       "path": "docs/evidence/macos/artifacts/p23-uninstall-rehearsal.json",
-      "sha256": "f1f5502e561f867119fc54a95def3d49c2a30f5f65fe751055f7b39e444bd354",
+      "sha256": "0793259ca00854e0ce75ad4406ee4bc4506bc1ae6c37a2c7bf62508f5f6926d7",
       "bytes": 3175
     },
     {
@@ -935,8 +935,8 @@
     },
     {
       "path": "docs/evidence/macos/P23-lifecycle.md",
-      "sha256": "5d2a0b0889d5803067dc87749fec6749fb7d1256de3d8d46b68e2d6e038d6bc3",
-      "bytes": 16641
+      "sha256": "aa52057717b0a523be2f8c5246a44a979e1e6ca7e276e3cb0f184fc4590828d2",
+      "bytes": 17552
     },
     {
       "path": "docs/requirements-macos.json",

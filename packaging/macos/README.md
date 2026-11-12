@@ -50,9 +50,12 @@ temporary directory — a build step must never resolve an empty
 - `Library/Application Support/Mona/uninstall-mona.sh` — the bounded removal
   utility (P23). It verifies each bundle's identifier, refuses an unrecognized
   path or a missing manifest, and preserves every user's state by default.
-- `Resources/update-metadata.json` — the installer's own version/build/channel
-  identity, read from a metadata-only `pkgutil --expand` when Mona verifies a
-  candidate package.
+  A candidate's identity is read from the package's own `PackageInfo` and
+  `Distribution` (a metadata-only `pkgutil --expand`), which carry the package
+  identifier, version, build counter, both bundle identifiers, the minimum macOS,
+  and the arm64 gate. No extra metadata file is shipped: `productbuild` embeds only
+  resources the Distribution references, so the build now reads the declared values
+  back out of the finished package and fails if any is missing.
 
 No ASAR archive, no native `.node` modules, no developer config, keys, state,
 sessions, source projects, or build-machine paths.

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 558,
+  "revision": 570,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -83,7 +83,7 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "9d80bea29c7b1f0ac98f49d371187db598e7c3a0a5dee45b64a4b9c8aaf39646",
+          "sha256": "294f6ca1d8b00a2d4cb66a6ecb8b4926eeeb052fb9ed29d96626acbb388d5db3",
           "note": "P15 appended D-037..D-041; earlier entries unchanged"
         },
         {
@@ -284,7 +284,7 @@
         },
         {
           "path": "packaging/macos/README.md",
-          "sha256": "09a3f805259d4e69e9deb3a8cb2e5a470c654dadc638f270cb74edc90dc3955f"
+          "sha256": "2491329235c6331e4c98f9006f1437a2907a1c3ed6c979efb272a33619c14e93"
         },
         {
           "path": "src/main/index.ts",
@@ -755,7 +755,7 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "9d80bea29c7b1f0ac98f49d371187db598e7c3a0a5dee45b64a4b9c8aaf39646",
+          "sha256": "294f6ca1d8b00a2d4cb66a6ecb8b4926eeeb052fb9ed29d96626acbb388d5db3",
           "note": "P15 appended D-037..D-041; earlier entries unchanged"
         }
       ],
@@ -1259,7 +1259,7 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "9d80bea29c7b1f0ac98f49d371187db598e7c3a0a5dee45b64a4b9c8aaf39646",
+          "sha256": "294f6ca1d8b00a2d4cb66a6ecb8b4926eeeb052fb9ed29d96626acbb388d5db3",
           "note": "P15 appended D-037..D-041; earlier entries unchanged"
         },
         {
@@ -1800,7 +1800,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p16-settings-smoke.json",
-          "sha256": "02fc0600645e62f4a3e1ccf7bde55612aa5ddcf76e364434b5b5bf0371d5ce7f"
+          "sha256": "c3d7f9d55b1e4fe27b87afd550139a09413e9ad84b4d1617a38a9ccf7ceb06b2"
         },
         {
           "path": "docs/evidence/macos/artifacts/p16-settings-route.png",
@@ -1841,7 +1841,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p17-extensions-smoke.json",
-          "sha256": "e733103b79da2808e61fcaaa12951a3c8de10e8c62e1d1cb2d5f9dbf36e93c0a"
+          "sha256": "66dec06ccde1c745460665df918a3aa2b3df1e5441b6e4577e637a7d99062afc"
         },
         {
           "path": "docs/evidence/macos/artifacts/p17-settings-extensions.png",
@@ -1887,19 +1887,19 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-terminal-smoke.json",
-          "sha256": "853b346b9d0f6fd966e527627ebdb00302f47fa3e741930996bcefdfb1ff4a7a"
+          "sha256": "4f828fb070fe656bc83c67d3cffe3fe8640c2ce5ace79e218924c5785347b040"
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capability-smoke.json",
-          "sha256": "35fc1039f04c1c2249855be4046f5cb3073169b5f7c7e652292948a76027ceaf"
+          "sha256": "371737cd10e828b02a8be9fde05d9d0dff35593e0c120cd5a8f9a5f6236288e4"
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capability-coverage.md",
-          "sha256": "8dcb0b8910d6740fca7394f2fab1744b4387d091a4a12f97d8d38c71ea704a08"
+          "sha256": "5ac4ce9af76e6d2b4107748bdcff8fd3e630dcda6bf1ddefb1441480dc709192"
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capability-coverage.json",
-          "sha256": "dfcb0100c9139c1925237ae167459597eed8280daa9e4ee42843ed9b00c4a53b"
+          "sha256": "5f1e4ed715639658ef4f90766b8711a4d4c10ccd292438efde7214433a0b8805"
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-shell-smoke.json",
@@ -2075,7 +2075,7 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "9d80bea29c7b1f0ac98f49d371187db598e7c3a0a5dee45b64a4b9c8aaf39646"
+          "sha256": "294f6ca1d8b00a2d4cb66a6ecb8b4926eeeb052fb9ed29d96626acbb388d5db3"
         }
       ],
       "blocker_ids": []
@@ -2109,7 +2109,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p19-memory-smoke.json",
-          "sha256": "467b29572e967a470e71acf95b3fa4eccef199d6b534599c1338cb57f1c25148"
+          "sha256": "2cb5e2b8fad255fde91400ff829aee9849a70b0c4e7392560cdc7c8783da645c"
         },
         {
           "path": "docs/evidence/macos/artifacts/p19-ci.txt",
@@ -2193,7 +2193,7 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "9d80bea29c7b1f0ac98f49d371187db598e7c3a0a5dee45b64a4b9c8aaf39646"
+          "sha256": "294f6ca1d8b00a2d4cb66a6ecb8b4926eeeb052fb9ed29d96626acbb388d5db3"
         },
         {
           "path": ".mona/build-macos/HANDOFF.md",
@@ -2236,7 +2236,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p20-failure-smoke.json",
-          "sha256": "b4ad174a10c8f82a188abe2042d1819a6cd1fa7b69406d8b12419d986ed8b6d0"
+          "sha256": "0bca143d324a27e33da44a0f37ea5e579b590990e805c76d71dc96167e1df585"
         },
         {
           "path": "docs/evidence/macos/artifacts/p20-lifecycle-crash.json",
@@ -2339,7 +2339,7 @@
         },
         {
           "path": "packaging/macos/build.mjs",
-          "sha256": "b28df91ff78d88e45ab4472e49eacfadc4874da98167ca2e9f18123886d62abc"
+          "sha256": "15a08f6a9fffa39ef8e1feee0b630aa775bbd0d78548b4395fe8ba4598061d5b"
         },
         {
           "path": "packaging/macos/doctor.mjs",
@@ -2371,7 +2371,7 @@
         },
         {
           "path": "packaging/macos/README.md",
-          "sha256": "09a3f805259d4e69e9deb3a8cb2e5a470c654dadc638f270cb74edc90dc3955f"
+          "sha256": "2491329235c6331e4c98f9006f1437a2907a1c3ed6c979efb272a33619c14e93"
         },
         {
           "path": "src/main/package-smoke.ts",
@@ -2411,7 +2411,7 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "9d80bea29c7b1f0ac98f49d371187db598e7c3a0a5dee45b64a4b9c8aaf39646"
+          "sha256": "294f6ca1d8b00a2d4cb66a6ecb8b4926eeeb052fb9ed29d96626acbb388d5db3"
         },
         {
           "path": ".mona/build-macos/HANDOFF.md",
@@ -2460,23 +2460,23 @@
       "evidence": [
         {
           "path": "docs/evidence/macos/P23-lifecycle.md",
-          "sha256": "5d2a0b0889d5803067dc87749fec6749fb7d1256de3d8d46b68e2d6e038d6bc3"
+          "sha256": "aa52057717b0a523be2f8c5246a44a979e1e6ca7e276e3cb0f184fc4590828d2"
         },
         {
           "path": "docs/evidence/macos/artifacts/p23-lifecycle-smoke.json",
-          "sha256": "4aecbeec4da07f25b2c890a917ab999ee9f2ac02eb46e09f539b145d3006121e"
+          "sha256": "dc558304cf1c508118842d55e1386f9e0c7c95665c400e403cac175b4e071660"
         },
         {
           "path": "docs/evidence/macos/artifacts/p23-uninstall-rehearsal.json",
-          "sha256": "f1f5502e561f867119fc54a95def3d49c2a30f5f65fe751055f7b39e444bd354"
+          "sha256": "0793259ca00854e0ce75ad4406ee4bc4506bc1ae6c37a2c7bf62508f5f6926d7"
         },
         {
           "path": "docs/evidence/macos/artifacts/p23-ci.txt",
-          "sha256": "6d29aa0723031f0809ee4481ce9550494ca0bcd2a6992b4b87dbc00ee1e5a352"
+          "sha256": "6adb364fcf538a43d73f589db8b1674991e3579ca68a8e689db6cebdd4508072"
         },
         {
           "path": "docs/decisions/ADR-016-update-and-lifecycle.md",
-          "sha256": "e33760b6bd0254520618b9e5a64d1717a3edee1eef9307514a291f31ef850d26"
+          "sha256": "44fd83a5edd70393fb8ca642354b9c66ee4641d189d41d8917f972ec77750944"
         }
       ],
       "blocker_ids": [
@@ -2540,7 +2540,7 @@
   "next_eligible_prompts": [
     "P14"
   ],
-  "last_checkpoint_utc": "2026-11-12T20:08:42.598Z",
+  "last_checkpoint_utc": "2026-11-12T20:52:35.670Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

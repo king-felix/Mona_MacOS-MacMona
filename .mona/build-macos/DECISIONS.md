@@ -1349,13 +1349,16 @@ outside the process's temporary directory (`/`, the temp root itself,
 `/Applications`, prefix lookalikes, empty). `lib/uninstall.mjs` additionally
 asserts the shipped script's bounds at build time. ADR-016 §5.
 
-## D-082 — The manifest's metadata is cross-checked, not trusted
+## D-082 — The artifact declares its own identity, and the build proves it
 
-`Resources/update-metadata.json` gives a candidate's version, build, channel, and
-identifiers without a 150 MiB payload expansion (a metadata-only
-`pkgutil --expand`). It is compared against `PackageInfo` and `Distribution`, and
-it is never an authentication credential: the signature and digest are.
-ADR-016 §6.
+A candidate's identity comes from the package's own `PackageInfo` and
+`Distribution` (metadata-only `pkgutil --expand`), not from a sidecar file. A
+`Resources/update-metadata.json` written at P23 was silently dropped by
+`productbuild`, which embeds only referenced resources — so the ADR claimed
+something the artifact did not contain. The file is removed and
+`verifyDeclaredMetadata` now expands the finished package and fails unless the
+identifier, version, build counter, both bundle identifiers, the arm64 gate, and
+the macOS floor are all declared. ADR-016 §6.
 
 ## D-083 — An update check is a local read with a literal zero
 
@@ -1424,3 +1427,23 @@ and is corrected rather than "fixed" in the script, because the allowlist is the
 stronger guarantee. In a rehearsal the `--remove-user-data` home must also be
 inside `MONA_UNINSTALL_ROOT`, so the destructive branch is bounded by the same
 guard as the payload. ADR-016 §5.
+
+## D-091 — A rehearsal cleans up after itself
+
+`rehearseInstall` and `rehearseUninstall` each copy the full ~390 MiB payload into
+a temporary root and never removed it. On a machine near capacity that leaked
+space every build until a build failed with `No space left on device` — which is
+what happened while producing the P23 test artifact. Both rehearsals now remove
+their root in a `finally`, so a failed rehearsal cannot poison the next build.
+The peak footprint is unchanged (the copy is sequential); the leak is gone.
+
+## D-092 — The build proves the metadata an update relies on
+
+`productbuild` embeds only resources the Distribution references, so a
+`Resources/update-metadata.json` staged at P23 was silently dropped while the ADR
+claimed it shipped. The file is removed, and `verifyDeclaredMetadata` expands the
+finished package and fails unless the identifier, version, build counter, both
+bundle identifiers, the arm64 gate, and the OS floor are all declared — the exact
+inputs `src/main/update/trust.ts` identifies a candidate by. It writes
+`out/declared-metadata.json` as it passes, so the evidence survives a later gate
+stopping the build. ADR-016 §6.

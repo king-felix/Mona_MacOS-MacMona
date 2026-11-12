@@ -822,33 +822,20 @@ Codewhale installations are never touched.</p>
 <p>${channel === "local" ? "This build is ad-hoc signed and intended for local development. It is not a shareable, signed release." : "This build is signed for release."}</p>
 </body></html>`;
   writeFileSync(join(resourcesDir, "readme.html"), html, "utf8");
-  // P23 reads this from the expanded (metadata-only) package before the bytes
-  // are trusted, so a candidate's identity is available without extracting a
-  // 154 MiB payload. It is package metadata, not an authentication credential.
-  writeFileSync(
-    join(resourcesDir, "update-metadata.json"),
-    JSON.stringify(
-      {
-        schema_version: 1,
-        product: "Mona",
-        version,
-        build,
-        channel,
-        bundle_id: APP_BUNDLE_ID,
-        service_bundle_id: SERVICE_BUNDLE_ID,
-        package_id: PACKAGE_ID,
-        minimum_macos: MINIMUM_MACOS,
-        architectures: ["arm64"],
-      },
-      null,
-      2,
-    ) + "\n",
-    "utf8",
-  );
 }
 
 function rehearseInstall(payloadDir, scriptsDir) {
   const rehearsal = mkdtempSync(join(tmpdir(), "mona-p21-install-"));
+  try {
+    return rehearseInstallIn(rehearsal, payloadDir, scriptsDir);
+  } finally {
+    // A rehearsal copies the whole payload; leaving it behind leaked ~390 MB per
+    // build and, on a nearly full disk, eventually stopped the build itself.
+    rmSync(rehearsal, { recursive: true, force: true });
+  }
+}
+
+function rehearseInstallIn(rehearsal, payloadDir, scriptsDir) {
   const root = guardRehearsalRoot(join(rehearsal, "root"), tmpdir());
   mkdirSync(join(root, "Applications"), { recursive: true });
   mkdirSync(join(root, "Library/Application Support"), { recursive: true });
@@ -906,6 +893,14 @@ function rehearseInstall(payloadDir, scriptsDir) {
  */
 function rehearseUninstall(payloadDir, scriptsDir) {
   const rehearsal = mkdtempSync(join(tmpdir(), "mona-p23-uninstall-"));
+  try {
+    return rehearseUninstallIn(rehearsal, payloadDir, scriptsDir);
+  } finally {
+    rmSync(rehearsal, { recursive: true, force: true });
+  }
+}
+
+function rehearseUninstallIn(rehearsal, payloadDir, scriptsDir) {
   const root = guardRehearsalRoot(join(rehearsal, "root"), tmpdir());
   const script = join(payloadDir, UNINSTALL_PATH);
   const env = { ...process.env, MONA_INSTALL_ROOT: root, MONA_UNINSTALL_ROOT: root };
@@ -1094,6 +1089,81 @@ function expandAndCompare(packageFile, payloadDir) {
     extras,
     link_mismatches: linkMismatches,
     expanded,
+  };
+}
+
+/**
+ * Read back what the built installer declares about itself.
+ *
+ * This is the exact input `src/main/update/trust.ts` uses to identify an update
+ * candidate, so a package that installs correctly but declares nothing usable
+ * would make every update refused (or worse, accepted as another product).
+ */
+function verifyDeclaredMetadata(packageFile, expected) {
+  const root = mkdtempSync(join(tmpdir(), "mona-p23-declared-"));
+  const expanded = join(root, "expanded");
+  const result = capture(TOOLS.pkgutil, ["--expand", packageFile, expanded]);
+  if (result.status !== 0) {
+    return { ok: false, problems: ["the package could not be expanded"], status: result.status };
+  }
+  const distribution = existsSync(join(expanded, "Distribution"))
+    ? readFileSync(join(expanded, "Distribution"), "utf8")
+    : "";
+  let packageInfo = "";
+  for (const entry of readdirSync(expanded)) {
+    if (entry.endsWith(".pkg")) {
+      const path = join(expanded, entry, "PackageInfo");
+      if (existsSync(path)) packageInfo += readFileSync(path, "utf8");
+    }
+  }
+  const problems = [];
+  if (!/hostArchitectures="arm64"/.test(distribution)) {
+    problems.push("Distribution does not restrict installation to arm64");
+  }
+  if (
+    !new RegExp(`<os-version\\s+min="${MINIMUM_MACOS.replace(/\./g, "\\.")}"`).test(distribution)
+  ) {
+    problems.push(`Distribution does not declare a minimum of macOS ${MINIMUM_MACOS}`);
+  }
+  if (!new RegExp(`<pkg-info[^>]*\\bidentifier="${PACKAGE_ID}"`).test(packageInfo)) {
+    problems.push(`PackageInfo does not declare the package identifier ${PACKAGE_ID}`);
+  }
+  if (
+    !new RegExp(`<pkg-info[^>]*\\bversion="${expected.version.replace(/\./g, "\\.")}"`).test(
+      packageInfo,
+    )
+  ) {
+    problems.push(`PackageInfo does not declare version ${expected.version}`);
+  }
+  for (const [bundlePath, identifier] of [
+    ["Applications/Mona.app", APP_BUNDLE_ID],
+    ["Library/Services/Mona.service", SERVICE_BUNDLE_ID],
+  ]) {
+    const pattern = new RegExp(
+      `<bundle\\b[^>]*\\bpath="\\.?/?${bundlePath.replace(/[.]/g, "\\.")}"[^>]*\\bid="${identifier}"`,
+    );
+    const reversed = new RegExp(
+      `<bundle\\b[^>]*\\bid="${identifier}"[^>]*\\bpath="\\.?/?${bundlePath.replace(/[.]/g, "\\.")}"`,
+    );
+    if (!pattern.test(packageInfo) && !reversed.test(packageInfo)) {
+      problems.push(`PackageInfo does not declare the ${identifier} bundle`);
+    }
+  }
+  const buildMatch = new RegExp(`CFBundleVersion="${expected.build}"`).test(packageInfo);
+  if (!buildMatch) problems.push(`PackageInfo does not declare build ${expected.build}`);
+  rmSync(root, { recursive: true, force: true });
+  if (problems.length > 0) return { ok: false, problems, declares: [] };
+  return {
+    ok: true,
+    problems: [],
+    declares: [
+      `package id ${PACKAGE_ID}`,
+      `version ${expected.version}`,
+      `build ${expected.build}`,
+      `bundles ${APP_BUNDLE_ID} + ${SERVICE_BUNDLE_ID}`,
+      "arm64 only",
+      `macOS ${MINIMUM_MACOS}+`,
+    ],
   };
 }
 
@@ -1603,6 +1673,30 @@ async function main() {
   log(`installer built: ${basename(packageFile)}`);
 
   const pkgSignature = packageSignature(packageFile);
+  // P23 verifies a candidate's identity from the package's *own* metadata (a
+  // metadata-only expand), so the artifact must actually declare what that
+  // reader depends on. A silently dropped resource taught this lesson: prove it.
+  const declared = verifyDeclaredMetadata(packageFile, { version, build });
+  // Persisted as it passes, so the evidence survives a later gate stopping the
+  // build (for example an install that needs administrator authorization).
+  mkdirSync(outDir, { recursive: true });
+  writeFileSync(
+    join(outDir, "declared-metadata.json"),
+    JSON.stringify(
+      {
+        schema_version: 1,
+        captured_at: new Date().toISOString(),
+        package: basename(packageFile),
+        ...declared,
+      },
+      null,
+      2,
+    ) + "\n",
+    "utf8",
+  );
+  if (!declared.ok)
+    fail("the built package does not declare the identities it is verified by", declared);
+  log(`declared metadata verified: ${declared.declares.join(", ")}`);
   const payloadFiles = capture(TOOLS.pkgutil, ["--payload-files", packageFile]);
   const payloadCount = payloadFiles.stdout
     .split("\n")
@@ -1687,6 +1781,7 @@ async function main() {
     app_signature: appSignature.signature,
     service_signature: serviceSignature,
     service_descriptor: descriptor,
+    declared_metadata: declared,
     package_signature: {
       signed: pkgSignature.signed,
       ad_hoc: false,

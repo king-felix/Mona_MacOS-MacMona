@@ -515,25 +515,6 @@ export function parsePackageSignature(text: string): PackageSignatureFacts {
   };
 }
 
-interface PackageMetadata {
-  version?: string;
-  build?: number;
-  channel?: string;
-  bundleId?: string;
-  serviceBundleId?: string;
-  minimumMacOS?: string;
-  architectures?: string[];
-  engine?: { version: string; commit: string };
-}
-
-function readMetadata(path: string): PackageMetadata | null {
-  try {
-    return JSON.parse(readFileSync(path, "utf8")) as PackageMetadata;
-  } catch {
-    return null;
-  }
-}
-
 /**
  * Inspect a package without executing it and without trusting its contents.
  * The metadata file is a convenience that must agree with `PackageInfo` and
@@ -566,18 +547,15 @@ export function inspectPackage(path: string, runner: CommandRunner = defaultRunn
     }
     let packageInfo = "";
     let distribution = "";
-    let metadata: PackageMetadata | null = null;
     for (const entry of readdirSafe(expanded)) {
       if (entry.endsWith(".pkg")) {
         packageInfo += readIfPresent(join(expanded, entry, "PackageInfo"));
       }
     }
     distribution = readIfPresent(join(expanded, "Distribution"));
-    metadata = readMetadata(join(expanded, "Resources", "update-metadata.json"));
 
     const identifier = /identifier="([^"]+)"/.exec(packageInfo)?.[1] ?? signature.identifier;
-    const version =
-      /<pkg-info[^>]*\bversion="([^"]+)"/.exec(packageInfo)?.[1] ?? metadata?.version ?? null;
+    const version = /<pkg-info[^>]*\bversion="([^"]+)"/.exec(packageInfo)?.[1] ?? null;
     const appBundleId =
       /<bundle\b[^>]*\bpath="\.?\/?Applications\/Mona\.app"[^>]*\bid="([^"]+)"/.exec(
         packageInfo,
@@ -585,7 +563,6 @@ export function inspectPackage(path: string, runner: CommandRunner = defaultRunn
       /<bundle\b[^>]*\bid="([^"]+)"[^>]*\bpath="\.?\/?Applications\/Mona\.app"/.exec(
         packageInfo,
       )?.[1] ??
-      metadata?.bundleId ??
       null;
     const serviceBundleId =
       /<bundle\b[^>]*\bpath="\.?\/?Library\/Services\/Mona\.service"[^>]*\bid="([^"]+)"/.exec(
@@ -594,20 +571,15 @@ export function inspectPackage(path: string, runner: CommandRunner = defaultRunn
       /<bundle\b[^>]*\bid="([^"]+)"[^>]*\bpath="\.?\/?Library\/Services\/Mona\.service"/.exec(
         packageInfo,
       )?.[1] ??
-      metadata?.serviceBundleId ??
       null;
-    const minimumMacOS =
-      /<os-version[^>]*\bmin="([^"]+)"/.exec(distribution)?.[1] ?? metadata?.minimumMacOS ?? null;
+    const minimumMacOS = /<os-version[^>]*\bmin="([^"]+)"/.exec(distribution)?.[1] ?? null;
     const hostArchitectures = /hostArchitectures="([^"]+)"/.exec(distribution)?.[1] ?? "";
-    const architectures =
-      metadata?.architectures && metadata.architectures.length > 0
-        ? metadata.architectures
-        : hostArchitectures
-            .split(",")
-            .map((entry) => entry.trim())
-            .filter((entry) => entry.length > 0);
+    const architectures = hostArchitectures
+      .split(",")
+      .map((entry) => entry.trim())
+      .filter((entry) => entry.length > 0);
     const buildMatch = /CFBundleVersion="(\d+)"/.exec(packageInfo)?.[1];
-    const build = buildMatch ? Number(buildMatch) : metadata?.build;
+    const build = buildMatch ? Number(buildMatch) : null;
 
     return {
       path,
@@ -624,7 +596,9 @@ export function inspectPackage(path: string, runner: CommandRunner = defaultRunn
       appBundleId,
       serviceBundleId,
       architectures,
-      engine: metadata?.engine ?? null,
+      // A locally chosen package does not declare its engine; the release path
+      // refuses an undeclared engine, and a local build tolerates it.
+      engine: null,
       source: "pkgutil",
     };
   } finally {

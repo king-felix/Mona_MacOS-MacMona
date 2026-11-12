@@ -137,18 +137,6 @@ function buildPackageFixture(dir, { version, build, adhoc = true }) {
     `<installer-gui-script><options hostArchitectures="arm64"/><allowed-os-versions><os-version min="14.0"/></allowed-os-versions></installer-gui-script>`,
     "utf8",
   );
-  writeFileSync(
-    join(expandedRoot, "Resources", "update-metadata.json"),
-    JSON.stringify({
-      schema_version: 1,
-      product: "Mona",
-      version,
-      build,
-      channel: "local",
-      engine: { version: "0.10.2", commit: "ff466b2ed0bfb4ae5267d4d8d0ecb562cf46956e" },
-    }),
-    "utf8",
-  );
   const runner = (command, args) => {
     if (args.includes("--check-signature")) {
       return {

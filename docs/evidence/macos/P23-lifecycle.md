@@ -243,6 +243,27 @@ places where a claim was wider than the evidence. Both are fixed:
   assertion read `dropped: 0` on a slow run. It now waits for the ring to stop
   growing. (Observed twice before the fix; three clean runs after.)
 
+## The test artifact
+
+`npm run mac:package:local` now passes every gate up to the administrator-only
+install gate:
+
+```
+Mona-0.1.0-macOS-arm64-local.pkg   154 MiB
+sha256 9dab34b62e4293ad6b5e37b88ac6a09e41feffefe511870b6dd3a72c6a8d1ef9
+payload 1,051 files · app signature verifies (ad-hoc) · declared metadata verified
+uninstall rehearsal 11/11 · install rehearsal and expand-compare green
+```
+
+A DMG wrapping the package (with an install/uninstall readme) was produced for a
+human test install and verified by mounting it and re-hashing the `.pkg` inside:
+identical digest. The DMG is a carrier, not a second artifact — a drag-install
+cannot place the Finder Service or the receipt the uninstaller depends on.
+
+Two build defects surfaced while producing it and are fixed: the metadata file
+`productbuild` silently dropped (D-092) and the rehearsal temp directories that
+leaked ~390 MiB per build (D-091).
+
 ## Artifacts
 
 - `docs/evidence/macos/artifacts/p23-lifecycle-smoke.json` — the 55 checks.

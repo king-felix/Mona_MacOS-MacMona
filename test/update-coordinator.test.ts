@@ -609,7 +609,9 @@ describe("package inspection parser", () => {
     expect(parsePackageSignature("").status).toBe("unknown");
   });
 
-  it("expands metadata without trusting it, and reports what it read", () => {
+  it("identifies a package from what the installer itself declares", () => {
+    // A real productbuild package ships no extra metadata file: identity comes
+    // from PackageInfo and Distribution, which are what this reader uses.
     const root = tempDir("mona-pkg-");
     const path = join(root, "Mona-test.pkg");
     writeFileSync(path, "not-a-real-package", "utf8");
@@ -631,11 +633,6 @@ describe("package inspection parser", () => {
       writeFileSync(
         join(expanded, "Distribution"),
         `<installer-gui-script><options hostArchitectures="arm64"/><allowed-os-versions><os-version min="14.0"/></allowed-os-versions></installer-gui-script>`,
-        "utf8",
-      );
-      writeFileSync(
-        join(expanded, "Resources", "update-metadata.json"),
-        JSON.stringify({ version: "0.2.0", build: 120, channel: "local" }),
         "utf8",
       );
       return { status: 0, stdout: "", stderr: "" };

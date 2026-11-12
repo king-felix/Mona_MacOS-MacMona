@@ -45,7 +45,7 @@ All matched files use Prettier code style!
   "signature": "ad-hoc",
   "signed": true,
   "verified": true,
-  "built_at": "2026-11-12T20:06:14.905Z"
+  "built_at": "2026-11-12T20:50:49.129Z"
 }
 
 > mona@0.1.0-p02 build:pty
@@ -64,7 +64,7 @@ All matched files use Prettier code style!
   "signature": "ad-hoc",
   "signed": true,
   "verified": true,
-  "built_at": "2026-11-12T20:06:15.994Z"
+  "built_at": "2026-11-12T20:50:50.404Z"
 }
 
 > mona@0.1.0-p02 build:service
@@ -99,7 +99,7 @@ All matched files use Prettier code style!
     ],
     "service": "Start new DS project with Mona"
   },
-  "built_at": "2026-11-12T20:06:17.956Z"
+  "built_at": "2026-11-12T20:50:52.342Z"
 }
 
 > mona@0.1.0-p02 pretest
@@ -118,7 +118,7 @@ All matched files use Prettier code style!
   "signature": "ad-hoc",
   "signed": true,
   "verified": true,
-  "built_at": "2026-11-12T20:06:20.011Z"
+  "built_at": "2026-11-12T20:50:54.491Z"
 }
 {
   "schema_version": 1,
@@ -133,7 +133,7 @@ All matched files use Prettier code style!
   "signature": "ad-hoc",
   "signed": true,
   "verified": true,
-  "built_at": "2026-11-12T20:06:20.992Z"
+  "built_at": "2026-11-12T20:50:55.538Z"
 }
 
 > mona@0.1.0-p02 test
@@ -144,106 +144,108 @@ All matched files use Prettier code style!
 
 Switched to a new branch 'left'
 Switched to branch 'main'
- [32m✓[39m test/work-agents.test.ts [2m([22m[2m17 tests[22m[2m)[22m[33m 1049[2mms[22m[39m
+ [32m✓[39m test/update-coordinator.test.ts [2m([22m[2m23 tests[22m[2m)[22m[33m 972[2mms[22m[39m
+ [32m✓[39m test/settings-workbench.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 1021[2mms[22m[39m
+ [32m✓[39m test/capability.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 1139[2mms[22m[39m
+   [32m✓[39m drift probe [2m(3)[22m
+     [33m[2m✓[22m[39m reports additions and removals instead of assuming a match[33m 331[2mms[22m[39m
 Preparing worktree (new branch 'linked-branch')
- [32m✓[39m test/work-studio.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 1164[2mms[22m[39m
- [32m✓[39m test/work-attempts.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 1251[2mms[22m[39m
- [32m✓[39m test/update-coordinator.test.ts [2m([22m[2m23 tests[22m[2m)[22m[33m 1455[2mms[22m[39m
- [32m✓[39m test/work-changes.test.ts [2m([22m[2m20 tests[22m[2m)[22m[33m 2156[2mms[22m[39m
-   [32m✓[39m stage and commit through the ledger [2m(2)[22m
-     [33m[2m✓[22m[39m keeps unrelated staged work and refuses mixed staging without an explicit choice[33m 728[2mms[22m[39m
- [32m✓[39m test/projects-service.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 829[2mms[22m[39m
- [32m✓[39m test/settings-workbench.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 1032[2mms[22m[39m
- [32m✓[39m test/memory-handoff.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 596[2mms[22m[39m
- [32m✓[39m test/state-database.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 931[2mms[22m[39m
- [32m✓[39m test/supervisor-native.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 2577[2mms[22m[39m
-   [32m✓[39m native supervisor [2m(9)[22m
-     [33m[2m✓[22m[39m stops the entire owned tree and leaves unrelated processes alone[33m 516[2mms[22m[39m
-     [33m[2m✓[22m[39m records the escaped process group and stops it by identity[33m 363[2mms[22m[39m
-     [33m[2m✓[22m[39m escalates a TERM-ignoring tree to a bounded SIGKILL[33m 826[2mms[22m[39m
- [32m✓[39m test/work-git.test.ts [2m([22m[2m17 tests[22m[2m)[22m[33m 2548[2mms[22m[39m
-   [32m✓[39m GitService status [2m(6)[22m
-     [33m[2m✓[22m[39m reports a merge conflict honestly[33m 346[2mms[22m[39m
-   [32m✓[39m GitService staging and selected commits [2m(5)[22m
-     [33m[2m✓[22m[39m stages and commits only the selected path, preserving unrelated staged work[33m 325[2mms[22m[39m
-     [33m[2m✓[22m[39m never hands Mona's provider secrets to a repository hook[33m 491[2mms[22m[39m
- [32m✓[39m test/state-portable.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 760[2mms[22m[39m
- [32m✓[39m test/state-catalog.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 808[2mms[22m[39m
- [32m✓[39m test/work-board.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 934[2mms[22m[39m
- [32m✓[39m test/update-recovery.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 842[2mms[22m[39m
- [32m✓[39m test/capability.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 932[2mms[22m[39m
-   [32m✓[39m CapabilityExplorer [2m(4)[22m
-     [33m[2m✓[22m[39m reuses a recent probe and forces a fresh one on refresh[33m 346[2mms[22m[39m
- [32m✓[39m test/memory-shelf.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 807[2mms[22m[39m
- [32m✓[39m test/work-costs.test.ts [2m([22m[2m19 tests[22m[2m)[22m[33m 530[2mms[22m[39m
- [32m✓[39m test/memory-search.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 507[2mms[22m[39m
- [32m✓[39m test/state-artifacts.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 362[2mms[22m[39m
- [32m✓[39m test/work-digest.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 571[2mms[22m[39m
- [32m✓[39m test/extensions-workbench.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 514[2mms[22m[39m
 Not implemented: HTMLCanvasElement's getContext() method: without installing the @napi-rs/canvas npm package
- [32m✓[39m test/design-components.test.tsx [2m([22m[2m17 tests[22m[2m)[22m[33m 888[2mms[22m[39m
- [32m✓[39m test/work-notifications.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 231[2mms[22m[39m
- [32m✓[39m test/terminal-manager.test.ts [2m([22m[2m16 tests[22m[2m)[22m[33m 693[2mms[22m[39m
+ [32m✓[39m test/design-components.test.tsx [2m([22m[2m17 tests[22m[2m)[22m[33m 995[2mms[22m[39m
+ [32m✓[39m test/memory-shelf.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 616[2mms[22m[39m
+ [32m✓[39m test/work-changes.test.ts [2m([22m[2m20 tests[22m[2m)[22m[33m 2037[2mms[22m[39m
+   [32m✓[39m stage and commit through the ledger [2m(2)[22m
+     [33m[2m✓[22m[39m keeps unrelated staged work and refuses mixed staging without an explicit choice[33m 753[2mms[22m[39m
+ [32m✓[39m test/state-database.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 1007[2mms[22m[39m
+   [32m✓[39m crash injection [2m(1)[22m
+     [33m[2m✓[22m[39m survives a crash before, during, and after a transaction[33m 351[2mms[22m[39m
+ [32m✓[39m test/work-studio.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 928[2mms[22m[39m
+ [32m✓[39m test/supervisor-native.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 2385[2mms[22m[39m
+   [32m✓[39m native supervisor [2m(9)[22m
+     [33m[2m✓[22m[39m stops the entire owned tree and leaves unrelated processes alone[33m 422[2mms[22m[39m
+     [33m[2m✓[22m[39m records the escaped process group and stops it by identity[33m 395[2mms[22m[39m
+     [33m[2m✓[22m[39m escalates a TERM-ignoring tree to a bounded SIGKILL[33m 819[2mms[22m[39m
+ [32m✓[39m test/state-portable.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 461[2mms[22m[39m
+ [32m✓[39m test/work-git.test.ts [2m([22m[2m17 tests[22m[2m)[22m[33m 2648[2mms[22m[39m
+   [32m✓[39m GitService status [2m(6)[22m
+     [33m[2m✓[22m[39m reports a merge conflict honestly[33m 390[2mms[22m[39m
+   [32m✓[39m GitService staging and selected commits [2m(5)[22m
+     [33m[2m✓[22m[39m stages and commits only the selected path, preserving unrelated staged work[33m 351[2mms[22m[39m
+     [33m[2m✓[22m[39m never hands Mona's provider secrets to a repository hook[33m 418[2mms[22m[39m
+ [32m✓[39m test/work-attempts.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 887[2mms[22m[39m
+ [32m✓[39m test/terminal-manager.test.ts [2m([22m[2m16 tests[22m[2m)[22m[33m 825[2mms[22m[39m
    [32m✓[39m native pty helper [2m(2)[22m
-     [33m[2m✓[22m[39m runs a real shell, honors resize, and reports the exit code[33m 444[2mms[22m[39m
- [32m✓[39m test/work-preferences.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 209[2mms[22m[39m
- [32m✓[39m test/settings-restore.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 200[2mms[22m[39m
- [32m✓[39m test/runtime-process.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 401[2mms[22m[39m
- [32m✓[39m test/work-polish-service.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 131[2mms[22m[39m
- [32m✓[39m test/agents-screen.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 118[2mms[22m[39m
- [32m✓[39m test/capability-screen.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[32m 144[2mms[22m[39m
- [32m✓[39m test/terminal-screen.test.tsx [2m([22m[2m10 tests[22m[2m)[22m[32m 175[2mms[22m[39m
- [32m✓[39m test/runtime-supervisor.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 134[2mms[22m[39m
- [32m✓[39m test/memory-screen.test.tsx [2m([22m[2m10 tests[22m[2m)[22m[33m 476[2mms[22m[39m
- [32m✓[39m test/p20-failure-matrix.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 82[2mms[22m[39m
+     [33m[2m✓[22m[39m runs a real shell, honors resize, and reports the exit code[33m 577[2mms[22m[39m
+ [32m✓[39m test/work-costs.test.ts [2m([22m[2m19 tests[22m[2m)[22m[33m 732[2mms[22m[39m
+ [32m✓[39m test/memory-handoff.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 908[2mms[22m[39m
+ [32m✓[39m test/memory-search.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 616[2mms[22m[39m
+ [32m✓[39m test/projects-service.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 881[2mms[22m[39m
+ [32m✓[39m test/work-digest.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 612[2mms[22m[39m
+ [32m✓[39m test/work-board.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 1061[2mms[22m[39m
+ [32m✓[39m test/work-agents.test.ts [2m([22m[2m17 tests[22m[2m)[22m[33m 1134[2mms[22m[39m
+ [32m✓[39m test/extensions-workbench.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 633[2mms[22m[39m
+ [32m✓[39m test/memory-screen.test.tsx [2m([22m[2m10 tests[22m[2m)[22m[33m 343[2mms[22m[39m
+ [32m✓[39m test/state-catalog.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 697[2mms[22m[39m
+ [32m✓[39m test/update-recovery.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 759[2mms[22m[39m
+ [32m✓[39m test/runtime-process.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 410[2mms[22m[39m
+ [32m✓[39m test/work-notifications.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 335[2mms[22m[39m
+ [32m✓[39m test/work-preferences.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 383[2mms[22m[39m
+ [32m✓[39m test/state-artifacts.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 307[2mms[22m[39m
+ [32m✓[39m test/settings-restore.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 280[2mms[22m[39m
+ [32m✓[39m test/runtime-supervisor.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 143[2mms[22m[39m
+ [32m✓[39m test/work-polish-service.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 214[2mms[22m[39m
+ [32m✓[39m test/agents-screen.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 247[2mms[22m[39m
+ [32m✓[39m test/terminal-screen.test.tsx [2m([22m[2m10 tests[22m[2m)[22m[32m 261[2mms[22m[39m
+ [32m✓[39m test/studio-screen.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 98[2mms[22m[39m
+ [32m✓[39m test/capability-screen.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[32m 198[2mms[22m[39m
+ [32m✓[39m test/p20-failure-matrix.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 83[2mms[22m[39m
+ [32m✓[39m test/update-screen.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[32m 222[2mms[22m[39m
+ [32m✓[39m test/polish-screen.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 138[2mms[22m[39m
  [32m✓[39m test/board-plan-status.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 68[2mms[22m[39m
- [32m✓[39m test/update-screen.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[32m 215[2mms[22m[39m
- [32m✓[39m test/cost-screen.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 88[2mms[22m[39m
- [32m✓[39m test/changes-screen.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 106[2mms[22m[39m
- [32m✓[39m test/studio-screen.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 70[2mms[22m[39m
- [32m✓[39m test/boundary.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 64[2mms[22m[39m
- [32m✓[39m test/open-coordinator.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 89[2mms[22m[39m
- [32m✓[39m test/work-profile.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 65[2mms[22m[39m
- [32m✓[39m test/polish-screen.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 127[2mms[22m[39m
- [32m✓[39m test/update-trust.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 15[2mms[22m[39m
- [32m✓[39m test/fixtures.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 5[2mms[22m[39m
- [32m✓[39m test/engine-orchestration.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 31[2mms[22m[39m
- [32m✓[39m test/supervisor-records.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 9[2mms[22m[39m
- [32m✓[39m test/engine-adapter.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 47[2mms[22m[39m
- [32m✓[39m test/ipc-contract.test.ts [2m([22m[2m33 tests[22m[2m)[22m[32m 25[2mms[22m[39m
- [32m✓[39m test/contracts.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 11[2mms[22m[39m
- [32m✓[39m test/tool-discovery.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 10[2mms[22m[39m
- [32m✓[39m test/folder-request.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 7[2mms[22m[39m
- [32m✓[39m test/studio-render.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m test/open-coordinator.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 86[2mms[22m[39m
+ [32m✓[39m test/cost-screen.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 93[2mms[22m[39m
+ [32m✓[39m test/changes-screen.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 149[2mms[22m[39m
+ [32m✓[39m test/work-profile.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 80[2mms[22m[39m
+ [32m✓[39m test/boundary.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 119[2mms[22m[39m
+ [32m✓[39m test/engine-adapter.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+ [32m✓[39m test/safe-archive.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32m✓[39m test/ipc-contract.test.ts [2m([22m[2m33 tests[22m[2m)[22m[32m 26[2mms[22m[39m
  [32m✓[39m test/state-paths.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 11[2mms[22m[39m
- [32m✓[39m test/open-service-status.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 9[2mms[22m[39m
- [32m✓[39m test/engine-artifacts.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 8[2mms[22m[39m
- [32m✓[39m test/work-attention.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 8[2mms[22m[39m
- [32m✓[39m test/update-uninstall.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 16[2mms[22m[39m
- [32m✓[39m test/work-control.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 3[2mms[22m[39m
- [32m✓[39m test/engine-sse.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 3[2mms[22m[39m
- [32m✓[39m test/palette.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 3[2mms[22m[39m
- [32m✓[39m test/safe-archive.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 14[2mms[22m[39m
- [32m✓[39m test/supervisor-restart.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m test/update-trust.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 17[2mms[22m[39m
  [32m✓[39m test/package-macos.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 5[2mms[22m[39m
- [32m✓[39m test/engine-compat.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 5[2mms[22m[39m
- [32m✓[39m test/design-no-network.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 7[2mms[22m[39m
- [32m✓[39m test/navigation.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m test/update-uninstall.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m test/engine-orchestration.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+ [32m✓[39m test/engine-artifacts.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m test/tool-discovery.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m test/work-attention.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m test/studio-render.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m test/engine-sse.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m test/supervisor-records.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m test/contracts.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m test/work-control.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m test/ansi.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m test/open-service-status.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m test/folder-request.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m test/supervisor-restart.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m test/fixtures.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m test/engine-compat.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m test/update-version.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m test/palette.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 5[2mms[22m[39m
  [32m✓[39m test/design-tokens.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 4[2mms[22m[39m
- [32m✓[39m test/update-version.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 4[2mms[22m[39m
  [32m✓[39m test/supervisor-identity.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 3[2mms[22m[39m
- [32m✓[39m test/ansi.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 4[2mms[22m[39m
  [32m✓[39m test/open-drop.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 2[2mms[22m[39m
- [32m✓[39m test/terminal-buffer.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m test/design-no-network.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m test/navigation.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m test/terminal-buffer.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 3[2mms[22m[39m
  [32m✓[39m test/install-location.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 1[2mms[22m[39m
 
 [2m Test Files [22m [1m[32m75 passed[39m[22m[90m (75)[39m
 [2m      Tests [22m [1m[32m748 passed[39m[22m[90m (748)[39m
-[2m   Start at [22m 13:06:21
-[2m   Duration [22m 6.34s[2m (tests 79%, import 10%, environment 8%, transform 2%, worker 1%)[22m
+[2m   Start at [22m 13:50:55
+[2m   Duration [22m 6.67s[2m (tests 77%, import 11%, environment 10%, transform 2%, worker 1%)[22m
 
-[2m    Isolate [22m [33m75 workers spawned[39m[2m · ~145ms startup each (spawn + environment, per file)[22m
-[2m            [22m [2mat least ~1.41s faster with [22m[33misolate: false[39m[2m — reuses workers across files instead of one per file[22m
+[2m    Isolate [22m [33m75 workers spawned[39m[2m · ~166ms startup each (spawn + environment, per file)[22m
+[2m            [22m [2mat least ~1.61s faster with [22m[33misolate: false[39m[2m — reuses workers across files instead of one per file[22m
 
 
 > mona@0.1.0-p02 build
@@ -270,7 +272,7 @@ dist/renderer/index.html                   0.68 kB │ gzip:   0.38 kB
 dist/renderer/assets/index-CfJQ3Aab.css   64.94 kB │ gzip:  11.12 kB
 dist/renderer/assets/index-Nj6uc5D_.js   698.76 kB │ gzip: 189.30 kB
 
-[32m✓ built in 111ms[39m
+[32m✓ built in 115ms[39m
 [33m[plugin builtin:vite-reporter] 
 (!) Some chunks are larger than 500 kB after minification. Consider:
 - Using dynamic import() to code-split the application
@@ -446,7 +448,7 @@ P10/P11 sample run: PASS
   "stale": [
     {
       "taskId": "tsk_00000003",
-      "reason": "workspace changed after verification (254c47e6 → 986786d1)"
+      "reason": "workspace changed after verification (584e22a8 → eda3df77)"
     }
   ],
   "transitions": [
@@ -497,7 +499,7 @@ P10/P11 sample run: PASS
       "from": "completed",
       "to": "verifying",
       "actor": "reconciler",
-      "reason": "workspace changed after verification (254c47e6 → 986786d1)"
+      "reason": "workspace changed after verification (584e22a8 → eda3df77)"
     }
   ],
   "workspace_files": {
@@ -707,7 +709,7 @@ P13 changes sample: PASS
         "untracked": 3,
         "conflicted": 0
       },
-      "head": "e487114"
+      "head": "2f81276"
     },
     "restore_receipts": 1,
     "recovery": {
@@ -736,7 +738,7 @@ P13 changes sample: PASS
 {
   "schema_version": 1,
   "label": "P14 DETERMINISTIC POLISH SAMPLE — no engine, no provider call",
-  "captured_at": "2026-11-12T20:06:39.217Z",
+  "captured_at": "2026-11-12T20:51:14.394Z",
   "ok": true,
   "checks": {
     "brief_matches_focus_task": true,
@@ -924,7 +926,7 @@ P13 changes sample: PASS
         "blocked": 1,
         "unseenCompletions": 1,
         "installed": true,
-        "updatedAt": "2026-11-12T20:06:39.212Z",
+        "updatedAt": "2026-11-12T20:51:14.388Z",
         "note": "sample host"
       },
       "clearedBadge": "2",
@@ -949,11 +951,11 @@ P13 changes sample: PASS
       }
     },
     "favorite": {
-      "id": "fav_ec5235608b4f494a",
+      "id": "fav_777a13a6a9914d64",
       "label": "Review the diff",
       "text": "Review the diff and record what changed.",
-      "createdAt": "2026-11-12T20:06:39.216Z",
-      "updatedAt": "2026-11-12T20:06:39.216Z"
+      "createdAt": "2026-11-12T20:51:14.393Z",
+      "updatedAt": "2026-11-12T20:51:14.393Z"
     },
     "identity": {
       "accent": "mint",
@@ -986,16 +988,16 @@ P13 changes sample: PASS
   "signature": "ad-hoc",
   "signed": true,
   "verified": true,
-  "built_at": "2026-11-12T20:06:43.258Z"
+  "built_at": "2026-11-12T20:51:18.505Z"
 }
 {
   "schema_version": 1,
   "mode": "fixture",
   "ok": true,
-  "started_utc": "2026-11-12T20:06:43.352Z",
+  "started_utc": "2026-11-12T20:51:18.597Z",
   "project": {
-    "id": "prj_62b376506c768502",
-    "root": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p15-fixture-YKaNTC/workspace"
+    "id": "prj_327e55dd24c9a52d",
+    "root": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p15-fixture-zJs2D4/workspace"
   },
   "checks": {
     "real-subagent-identity": {
@@ -1091,7 +1093,7 @@ P13 changes sample: PASS
   ],
   "live": null,
   "error": null,
-  "finished_utc": "2026-11-12T20:06:43.394Z"
+  "finished_utc": "2026-11-12T20:51:18.628Z"
 }
 
 > mona@0.1.0-p02 smoke:settings
@@ -1144,12 +1146,12 @@ P13 changes sample: PASS
   "signature": "ad-hoc",
   "signed": true,
   "verified": true,
-  "built_at": "2026-11-12T20:06:52.373Z"
+  "built_at": "2026-11-12T20:51:27.845Z"
 }
 {
   "schema_version": 1,
   "label": "P18 integrated terminal — real native pty",
-  "captured_at": "2026-11-12T20:07:00.413Z",
+  "captured_at": "2026-11-12T20:51:35.951Z",
   "ok": true,
   "checks": {
     "session_running": true,
@@ -1200,7 +1202,7 @@ P13 changes sample: PASS
         "signature": "ad-hoc",
         "signed": true,
         "verified": true,
-        "built_at": "2026-11-12T20:06:52.373Z"
+        "built_at": "2026-11-12T20:51:27.845Z"
       }
     },
     "tty": true,
@@ -1219,7 +1221,7 @@ P13 changes sample: PASS
       }
     ],
     "startup": {
-      "fake_home": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p18-terminal-Ubw1zI/home",
+      "fake_home": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p18-terminal-cbJZka/home",
       "marker_created": false
     },
     "engine_in_terminal": true,
@@ -1246,18 +1248,18 @@ P13 changes sample: PASS
     },
     "close": {
       "status": "exited",
-      "shell_pid": 91763,
+      "shell_pid": 33757,
       "alive_after_close": false
     },
     "session_cap": {
       "max": 3,
-      "replaced": "term_3eb2f495c3081c38",
+      "replaced": "term_f347cc75bce6c9c8",
       "sessions": 3,
       "refused_with_three_live": true
     },
     "log": {
       "available": true,
-      "path": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p18-terminal-Ubw1zI/logs/run.log",
+      "path": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p18-terminal-cbJZka/logs/run.log",
       "bytes": 120
     },
     "native": {
@@ -1284,7 +1286,7 @@ P13 changes sample: PASS
 {
   "schema_version": 1,
   "label": "P18 capability coverage — pinned 0.10.2",
-  "captured_at": "2026-11-12T20:07:06.202Z",
+  "captured_at": "2026-11-12T20:51:41.944Z",
   "ok": true,
   "checks": {
     "reconcile_in_sync": true,
@@ -1523,7 +1525,7 @@ P13 changes sample: PASS
     "dead_targets": [],
     "drift": {
       "checked": true,
-      "checkedAt": "2026-11-12T20:07:02.808Z",
+      "checkedAt": "2026-11-12T20:51:38.449Z",
       "error": null,
       "engineVersion": "0.10.2",
       "engineCommit": "ff466b2ed0bf",
@@ -2008,7 +2010,7 @@ dist/renderer/assets/index-Nj6uc5D_.js   698.76 kB │ gzip: 189.30 kB
 - Using dynamic import() to code-split the application
 - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
-[32m✓ built in 108ms[39m
+[32m✓ built in 112ms[39m
 {
   "ok": true,
   "checks": {
@@ -2042,9 +2044,9 @@ dist/renderer/assets/index-Nj6uc5D_.js   698.76 kB │ gzip: 189.30 kB
   },
   "error": null,
   "pids": [
-    93125,
-    93126,
-    93127
+    35149,
+    35150,
+    35151
   ],
   "alive_after_quit": [],
   "shutdown": {
@@ -2069,16 +2071,16 @@ dist/renderer/assets/index-Nj6uc5D_.js   698.76 kB │ gzip: 189.30 kB
         "phase": "started",
         "state": "running",
         "alive": [
-          93125,
-          93126,
-          93127
+          35149,
+          35150,
+          35151
         ],
         "runtime_status": {
           "state": "running",
           "reason": "started",
-          "since": "2026-11-12T20:07:20.022Z",
-          "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-lifecycle-work-X8SM2S",
-          "ownershipId": "rt_6d1496b8fac3",
+          "since": "2026-11-12T20:51:55.882Z",
+          "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-lifecycle-work-Ek8vha",
+          "ownershipId": "rt_1db2076a1f15",
           "port": 0,
           "engine": {
             "version": "smoke",
@@ -2109,9 +2111,9 @@ dist/renderer/assets/index-Nj6uc5D_.js   698.76 kB │ gzip: 189.30 kB
         "runtime_state": "running",
         "child_alive": true,
         "tree_alive": [
-          93125,
-          93126,
-          93127
+          35149,
+          35150,
+          35151
         ]
       },
       {
@@ -2120,9 +2122,9 @@ dist/renderer/assets/index-Nj6uc5D_.js   698.76 kB │ gzip: 189.30 kB
         "runtime_state": "running",
         "child_alive": true,
         "tree_alive": [
-          93125,
-          93126,
-          93127
+          35149,
+          35150,
+          35151
         ]
       },
       {
@@ -2134,11 +2136,11 @@ dist/renderer/assets/index-Nj6uc5D_.js   698.76 kB │ gzip: 189.30 kB
       },
       {
         "phase": "second_instance",
-        "expected": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-GqEJsp",
+        "expected": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-ZK1IfL",
         "received": {
-          "path": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-GqEJsp",
-          "input": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-GqEJsp",
-          "receivedAt": "2026-11-12T20:07:20.097Z",
+          "path": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-ZK1IfL",
+          "input": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-ZK1IfL",
+          "receivedAt": "2026-11-12T20:51:55.915Z",
           "source": "second_instance",
           "notes": [
             "resolved: symlink or alias resolved before registration"
@@ -2148,16 +2150,16 @@ dist/renderer/assets/index-Nj6uc5D_.js   698.76 kB │ gzip: 189.30 kB
       }
     ],
     "pids": {
-      "supervisor": 93124,
-      "child": 93125,
-      "pgid": 93125,
+      "supervisor": 35148,
+      "child": 35149,
+      "pgid": 35149,
       "tree": [
-        93125,
-        93126,
-        93127
+        35149,
+        35150,
+        35151
       ]
     },
-    "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-lifecycle-work-X8SM2S",
+    "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-lifecycle-work-Ek8vha",
     "polish": {
       "preferences": {
         "notifications": {
@@ -2186,7 +2188,7 @@ dist/renderer/assets/index-Nj6uc5D_.js   698.76 kB │ gzip: 189.30 kB
         "blocked": 0,
         "unseenCompletions": 0,
         "installed": true,
-        "updatedAt": "2026-11-12T20:07:19.959Z",
+        "updatedAt": "2026-11-12T20:51:55.771Z",
         "note": "menu-bar status is installed; the Dock badge is a native app badge"
       },
       "keepAwake": {
@@ -2221,7 +2223,7 @@ dist/renderer/assets/index-Nj6uc5D_.js   698.76 kB │ gzip: 189.30 kB
       "runtime": {
         "state": "disconnected",
         "reason": "never_started",
-        "since": "2026-11-12T20:07:19.777Z",
+        "since": "2026-11-12T20:51:55.567Z",
         "workspace": null,
         "ownershipId": null,
         "port": null,
@@ -2241,9 +2243,9 @@ dist/renderer/assets/index-Nj6uc5D_.js   698.76 kB │ gzip: 189.30 kB
     "runtime_before_quit": {
       "state": "running",
       "reason": "running_after_renderer_crash",
-      "since": "2026-11-12T20:07:20.437Z",
-      "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-lifecycle-work-X8SM2S",
-      "ownershipId": "rt_6d1496b8fac3",
+      "since": "2026-11-12T20:51:56.300Z",
+      "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-lifecycle-work-Ek8vha",
+      "ownershipId": "rt_1db2076a1f15",
       "port": 0,
       "engine": {
         "version": "smoke",
@@ -2261,9 +2263,9 @@ dist/renderer/assets/index-Nj6uc5D_.js   698.76 kB │ gzip: 189.30 kB
       "shutdownReceipt": null,
       "shutdownError": null,
       "lastOpenRequest": {
-        "path": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-GqEJsp",
-        "input": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-GqEJsp",
-        "receivedAt": "2026-11-12T20:07:20.097Z",
+        "path": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-ZK1IfL",
+        "input": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-ZK1IfL",
+        "receivedAt": "2026-11-12T20:51:55.915Z",
         "source": "second_instance",
         "notes": [
           "resolved: symlink or alias resolved before registration"
@@ -2274,9 +2276,9 @@ dist/renderer/assets/index-Nj6uc5D_.js   698.76 kB │ gzip: 189.30 kB
       "runtime": {
         "state": "running",
         "reason": "running_after_renderer_crash",
-        "since": "2026-11-12T20:07:20.437Z",
-        "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-lifecycle-work-X8SM2S",
-        "ownershipId": "rt_6d1496b8fac3",
+        "since": "2026-11-12T20:51:56.300Z",
+        "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-lifecycle-work-Ek8vha",
+        "ownershipId": "rt_1db2076a1f15",
         "port": 0,
         "engine": {
           "version": "smoke",
@@ -2314,9 +2316,9 @@ dist/renderer/assets/index-Nj6uc5D_.js   698.76 kB │ gzip: 189.30 kB
       },
       "shutdownError": null,
       "lastOpenRequest": {
-        "path": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-GqEJsp",
-        "input": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-GqEJsp",
-        "receivedAt": "2026-11-12T20:07:20.097Z",
+        "path": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-ZK1IfL",
+        "input": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-ZK1IfL",
+        "receivedAt": "2026-11-12T20:51:55.915Z",
         "source": "second_instance",
         "notes": [
           "resolved: symlink or alias resolved before registration"
@@ -2327,8 +2329,8 @@ dist/renderer/assets/index-Nj6uc5D_.js   698.76 kB │ gzip: 189.30 kB
       "runtime": {
         "state": "stopped",
         "reason": "stopped",
-        "since": "2026-11-12T20:07:46.960Z",
-        "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-lifecycle-work-X8SM2S",
+        "since": "2026-11-12T20:52:22.786Z",
+        "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-lifecycle-work-Ek8vha",
         "ownershipId": null,
         "port": null,
         "engine": null,
@@ -2355,13 +2357,13 @@ dist/renderer/assets/index-Nj6uc5D_.js   698.76 kB │ gzip: 189.30 kB
   },
   "crash": {
     "tree": [
-      92535,
-      92536,
-      92537
+      34542,
+      34543,
+      34544
     ],
     "alive": [],
     "supervisor_alive": false,
-    "checked_after_ms": 2121,
+    "checked_after_ms": 2112,
     "settled": true
   }
 }
@@ -2372,127 +2374,127 @@ dist/renderer/assets/index-Nj6uc5D_.js   698.76 kB │ gzip: 189.30 kB
       "name": "format:check",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 3518
+      "elapsed_ms": 3042
     },
     {
       "name": "lint",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 3534
+      "elapsed_ms": 2577
     },
     {
       "name": "typecheck",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 3448
+      "elapsed_ms": 3549
     },
     {
       "name": "build:supervisor",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 2400
+      "elapsed_ms": 2625
     },
     {
       "name": "build:pty",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 1088
+      "elapsed_ms": 1276
     },
     {
       "name": "build:service",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 1966
+      "elapsed_ms": 1942
     },
     {
       "name": "test",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 9589
+      "elapsed_ms": 10095
     },
     {
       "name": "build",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 2431
+      "elapsed_ms": 2532
     },
     {
       "name": "smoke:board",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 2263
+      "elapsed_ms": 2272
     },
     {
       "name": "smoke:cost",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 2098
+      "elapsed_ms": 2089
     },
     {
       "name": "smoke:changes",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 2593
+      "elapsed_ms": 2628
     },
     {
       "name": "smoke:polish",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 2284
+      "elapsed_ms": 2432
     },
     {
       "name": "smoke:agents",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 4178
+      "elapsed_ms": 4234
     },
     {
       "name": "smoke:settings",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 2981
+      "elapsed_ms": 3025
     },
     {
       "name": "smoke:extensions",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 2901
+      "elapsed_ms": 2932
     },
     {
       "name": "smoke:terminal",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 11148
+      "elapsed_ms": 11388
     },
     {
       "name": "smoke:capability",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 5777
+      "elapsed_ms": 5971
     },
     {
       "name": "smoke:memory",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 2250
+      "elapsed_ms": 2273
     },
     {
       "name": "smoke:failure",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 2815
+      "elapsed_ms": 2865
     },
     {
       "name": "smoke:p23",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 2505
+      "elapsed_ms": 2540
     },
     {
       "name": "smoke:lifecycle",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 33245
+      "elapsed_ms": 33255
     }
   ],
   "renderer_scan": {

@@ -121,13 +121,21 @@ present), but the attempt was one privileged session away from destroying the
 installed app. The fix is mechanism, not discipline: both root hooks are always
 set together, and a non-temporary root is a hard build failure.
 
-### 6. The manifest carries its own documentation
+### 6. The artifact declares its own identity, and the build proves it
 
-`Distribution`'s resources now include `update-metadata.json` (version, build,
-channel, bundle and package identifiers, minimum macOS, architectures). It is
-read from a metadata-only `pkgutil --expand`, which is fast, and it is
-cross-checked against `PackageInfo` and the `Distribution` rather than believed.
-It is package metadata, not an authentication credential.
+Everything a candidate needs is already inside the package Apple builds:
+`PackageInfo` carries the package identifier, version, and the two bundle
+identifiers with their build counter; `Distribution` carries the arm64 gate and
+the minimum macOS. Mona reads exactly those with a metadata-only
+`pkgutil --expand`, which is fast and does not extract the payload.
+
+An earlier revision also staged a `Resources/update-metadata.json`.
+`productbuild` embeds only resources the Distribution references, so that file
+was silently dropped — the artifact and its documentation disagreed. The file is
+gone, and the build now expands the finished package and **fails** unless it
+declares the identifier, version, build, both bundles, arm64, and the OS floor.
+A locally chosen package therefore declares no engine; only a release manifest
+does, and the release path refuses an undeclared engine.
 
 ## Consequences
 
