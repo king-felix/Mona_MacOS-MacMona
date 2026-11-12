@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 443,
+  "revision": 448,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -1800,7 +1800,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p16-settings-smoke.json",
-          "sha256": "c0c73ad78937f0e244cdedcdef6f021cda038e86d0a7f6f30f445145b6873c89"
+          "sha256": "770a052666aa2cc5858c94a7b9f57d7d0c4fd5f2a113c5d3bcf4f0b98ce1d910"
         },
         {
           "path": "docs/evidence/macos/artifacts/p16-settings-route.png",
@@ -1841,7 +1841,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p17-extensions-smoke.json",
-          "sha256": "8bdbe92922fbeddaa34331d88bd460180eed46e1a53c406e801b0aefa3ee9ee8"
+          "sha256": "193f652a16028751319ea770791a008e70d4a7810bd2ec543bff3d45a69b6c19"
         },
         {
           "path": "docs/evidence/macos/artifacts/p17-settings-extensions.png",
@@ -1887,19 +1887,19 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-terminal-smoke.json",
-          "sha256": "44a7f658c40071c4bb297014dc818356a66177169872d26addea330e999e9653"
+          "sha256": "dc8e501758919ebfcb561959e0980f49238f0e53b1ef24baa3e33d3117ef1eee"
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capability-smoke.json",
-          "sha256": "a4a657bfef10b317599b4ea5108ebe488bc8e90a66c39d43b9b3a3f99e9585ba"
+          "sha256": "ead3cab9b322a537a3a9734bf60cea83dce6c3091d716df117075e0b742ab4d8"
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capability-coverage.md",
-          "sha256": "4a24193f39f7094efa0178033718fbe5292a8219850041d60278bf63b4e5b1f9"
+          "sha256": "3fca85833e1a7851b368e56769a226f73a171171361b39ef5676ec99efa84751"
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capability-coverage.json",
-          "sha256": "b038c9e1d4bf70581f71eeba360c833212faa0a3cbc894d7e23f23d8116663ff"
+          "sha256": "8dbb3f260f097784c325986467b0b86f1df43ef15e67aa9c71757603afccbbc7"
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-shell-smoke.json",
@@ -2109,7 +2109,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p19-memory-smoke.json",
-          "sha256": "c62236b75a327f630413ed46df8afe05d5d55ad70323c4cb896d12a7c48a1830"
+          "sha256": "0236e4dc993b88625def26168d81fc3b016f5e587e0673eb2ed210779c5a76d2"
         },
         {
           "path": "docs/evidence/macos/artifacts/p19-ci.txt",
@@ -2197,7 +2197,7 @@
         },
         {
           "path": ".mona/build-macos/HANDOFF.md",
-          "sha256": "12c222978ebab483f0d49aad638a6a7326b44d61742285476038d1a7a3f32696"
+          "sha256": "26a395dcdc9cda6dc327ff1b9982a8ba4e314b9999ec238a32c4392cc8fbc5ec"
         }
       ],
       "blocker_ids": []
@@ -2231,11 +2231,11 @@
       "evidence": [
         {
           "path": "docs/evidence/macos/P20-failure-matrix.md",
-          "sha256": "2937deb4d4be5e26ab2e538fc0681a68090a7252339ae9b18ab3cc269bfa4a8c"
+          "sha256": "aacf03e34ffb4ba1c4768679b30ce2404c359850ee99cdbb34c4e19643b713d0"
         },
         {
           "path": "docs/evidence/macos/artifacts/p20-failure-smoke.json",
-          "sha256": "b1b05f14904180186669f8134d2074fc260ce06e92ddc2aaf730018053762fc2"
+          "sha256": "3f8afd6f525d09642b20e344effcb28a0dcf766422cbbb9492359058fa45f009"
         },
         {
           "path": "docs/evidence/macos/artifacts/p20-lifecycle-crash.json",
@@ -2243,11 +2243,11 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p20-ci.txt",
-          "sha256": "1220225c6d3839bc9c7df2908d3f00aea6ecf5ca91bc973e59b7d47f581cda0c"
+          "sha256": "a4104e16f7dabd1e6392aea0b85d014f72b931a78af802666b709d86cb46e1a7"
         },
         {
           "path": "docs/decisions/ADR-014-hardening-and-failure-boundaries.md",
-          "sha256": "1d332b678d386d2127cf57a7eabdc6a793879a6268729bfbc0a47709148f42ab"
+          "sha256": "7abb4b7c275cc29d1c8d0d1e633c50b8070efaeca17199d1c71b28a848ef0007"
         },
         {
           "path": "scripts/p20-failure-smoke.mjs",
@@ -2353,7 +2353,7 @@
   "next_eligible_prompts": [
     "P14"
   ],
-  "last_checkpoint_utc": "2026-11-12T17:10:02.639Z",
+  "last_checkpoint_utc": "2026-11-12T17:18:01.223Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

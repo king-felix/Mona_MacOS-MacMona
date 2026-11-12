@@ -52,16 +52,19 @@ silently lost an item. Now `WorkStudio.ingest` compares the incoming sequence to
 the stored cursor, records `sequence gap: <range>` in diagnostics, and asks the
 pump to reconnect **from the last contiguous sequence**, bypassing the
 instability counter because this is a deliberate replay, not a flapping stream.
-After two attempts it stops rewinding and keeps the gap recorded: the engine
-contract does not promise contiguous numbering, so looping would be a lie about
-what recovery can do.
+The budget is per turn — a terminal event resets it — so one lossy turn cannot
+disable recovery for the rest of a session. After two attempts _within a turn_
+it stops rewinding and keeps the gap recorded: the engine contract does not
+promise contiguous numbering, so looping would be a lie about what recovery can
+do.
 
 ### 3. Child processes get an allowlisted environment
 
-`buildGitEnvironment` passes PATH, HOME, USER, LOGNAME, TMPDIR, TZ-adjacent
-locale, SSH agent socket, Git identity variables, and `XDG_CONFIG_HOME`, then
-forces `GIT_TERMINAL_PROMPT=0`, `GIT_OPTIONAL_LOCKS=0`, `GIT_PAGER=cat`,
-`LC_ALL=C`. A secret-shaped name is dropped even if it appears in the allowlist.
+`buildGitEnvironment` passes PATH, HOME, USER, LOGNAME, TMPDIR, locale, Git
+identity variables, and `XDG_CONFIG_HOME`, then forces `GIT_TERMINAL_PROMPT=0`, `GIT_OPTIONAL_LOCKS=0`, `GIT_PAGER=cat`,
+`LC_ALL=C`. A secret-shaped name is dropped even if it appears in the allowlist. The SSH
+agent socket is not passed at all: no Git operation here reaches the network, so
+a repository hook must not be able to borrow the user's loaded keys.
 The proof is a repository hook that dumps its environment; a control run with
 plain Git shows the same hook _does_ see the variable, so the assertion is not
 vacuous.

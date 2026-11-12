@@ -762,6 +762,9 @@ export class WorkStudio {
     binding: ModeBinding,
     event: EventEnvelope,
   ): Promise<void> {
+    // Each turn owns its own bounded gap-recovery budget: a long session must
+    // keep the ability to replay a genuinely lost frame in a later turn.
+    session.gapRecoveries = 0;
     const status = terminalStatus(event.kind) ?? "failed";
     const turnId = event.turn_id ?? session.active?.turnId ?? null;
     let effective: StudioSnapshot["profile"]["effective"] = null;

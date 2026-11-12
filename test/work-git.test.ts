@@ -195,6 +195,8 @@ describe("GitService staging and selected commits", () => {
       DEEPSEEK_API_KEY: "secret",
       CODEWHALE_RUNTIME_TOKEN: "secret",
       GIT_AUTHOR_NAME: "Example",
+      SSH_AUTH_SOCK: "/tmp/agent.sock",
+      GIT_CONFIG_PARAMETERS: "-c hook=evil",
       UNRELATED: "dropped",
     });
     expect(environment.PATH).toBe("/usr/bin:/bin");
@@ -203,6 +205,10 @@ describe("GitService staging and selected commits", () => {
     expect(environment.DEEPSEEK_API_KEY).toBeUndefined();
     expect(environment.CODEWHALE_RUNTIME_TOKEN).toBeUndefined();
     expect(environment.UNRELATED).toBeUndefined();
+    // No network Git operation exists here, so the SSH agent is not inherited:
+    // a repository hook must not be able to borrow the user's loaded keys.
+    expect(environment.SSH_AUTH_SOCK).toBeUndefined();
+    expect(environment.GIT_CONFIG_PARAMETERS).toBeUndefined();
     expect(environment.LC_ALL).toBe("C");
   });
 });

@@ -725,3 +725,64 @@ describe("live studio: hostile and failing event streams", () => {
     expect(paths.filter((path) => path.includes("since_seq=2")).length).toBeLessThanOrEqual(2);
   });
 });
+
+describe("live studio: gap budget is per turn", () => {
+  it("recovers a second gap in a later turn after the first turn spent its budget", async () => {
+    const envelopes: Record<number, Array<ReturnType<typeof envelope>>> = {};
+    function envelope(seq: number, kind: string, payload: Record<string, unknown> = {}) {
+      return {
+        schema_version: 1,
+        seq,
+        event: kind,
+        kind,
+        thread_id: THREAD,
+        ...(kind.startsWith("turn.") ? { turn_id: TURN } : {}),
+        timestamp: `2026-11-11T00:00:0${Math.min(seq, 9)}.000Z`,
+        payload,
+      };
+    }
+    // Turn 1 loses seq 2; turn 2 loses seq 5. A *global* recovery budget would
+    // let turn 1 consume it and leave turn 2's loss permanently unreplayed.
+    envelopes[0] = [
+      envelope(1, "thread.started"),
+      envelope(3, "turn.completed", { status: "completed" }),
+    ];
+    envelopes[1] = [envelope(2, "stream.progress"), envelope(3, "turn.completed")];
+    envelopes[3] = [
+      envelope(4, "turn.started"),
+      envelope(6, "turn.completed", { status: "completed" }),
+    ];
+    envelopes[4] = [
+      envelope(4, "turn.started"),
+      envelope(5, "item.delta", { kind: "agent_message", delta: "x" }),
+      envelope(6, "turn.completed", { status: "completed" }),
+    ];
+
+    const harness = await setup({
+      events: [],
+      stream: (path) => {
+        const from = Number(/since_seq=(\d+)/.exec(path)?.[1] ?? "0");
+        return chunkText(sseFrames(envelopes[from] ?? [], { end: true }), 5);
+      },
+    });
+    const diagnostics = async () =>
+      (await harness.studio.snapshot(harness.project.id as ProjectId)).diagnostics.join("\n");
+
+    await harness.studio.start(harness.project.id as ProjectId);
+    await harness.studio.submit(harness.project.id as ProjectId, { prompt: "one", mode: "work" });
+    await waitFor(async () => (await diagnostics()).includes("sequence gap: 2"));
+
+    // Wait for the first turn to settle, then lose a frame in a second turn.
+    await waitFor(
+      async () =>
+        (await harness.studio.snapshot(harness.project.id as ProjectId)).activeTurnId === null,
+    );
+    await harness.studio.submit(harness.project.id as ProjectId, { prompt: "two", mode: "work" });
+    // The second gap is 5: seq 6 arrives, so 5 is the missing range.
+    await waitFor(async () => (await diagnostics()).includes("sequence gap: 5"), 8_000);
+
+    expect(await diagnostics()).toMatch(/sequence gap: 2/);
+    expect(await diagnostics()).toMatch(/sequence gap: 5/);
+    expect(harness.transport.count("POST", "/turns")).toBe(2);
+  }, 20_000);
+});

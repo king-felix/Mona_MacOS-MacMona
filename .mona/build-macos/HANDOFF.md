@@ -1,8 +1,10 @@
 # Handoff — Mona macOS build
 
 **Last checkpoint:** 2026-11-12 (P20) · `monabuild validate` clean
-**Current prompt:** P20 completed. Next eligible after P20: **P21** — not
-started, not authorized in this session.
+**Current prompt:** P20 completed. `monabuild next` reports two eligible
+prompts: **P21** (the packaging prompt, the natural next step) and **P25**
+(shared-core/Windows coordination audit, which depends only on P20). Neither is
+started or authorized in this session.
 
 ## Where the build stands
 
@@ -32,12 +34,13 @@ widened.**
 - **P20-01 (high)** — `src/main/work/git.ts`: `runGit` passed `process.env`, so a
   repository's own `pre-commit` hook could read `DEEPSEEK_API_KEY` and the
   runtime token. `buildGitEnvironment` is an explicit allowlist with a
-  whole-token secret filter; a plain-Git control run proves the leak was real.
+  whole-token secret filter (and no `SSH_AUTH_SOCK`, since nothing here reaches
+  the network); a plain-Git control run proves the leak was real.
 - **P20-02 (high)** — `src/main/work/studio.ts`: the pump resumed from the
   *highest* stored sequence, so a frame lost in transport vanished and the
   timeline claimed a complete turn. `ingest` now reports `sequence gap: <range>`
-  and replays once from the last contiguous sequence (bounded to 2), then keeps
-  the gap recorded.
+  and replays once from the last contiguous sequence (budget 2 per turn, reset
+  by a terminal event), then keeps the gap recorded.
 - **P20-03 (high)** — `src/main/state/safe-archive.ts`: extraction followed a
   symlinked parent out of its root. `prepareTarget` lstats every component,
   refuses symlinks, re-checks realpath containment, and writes `O_EXCL`/
@@ -53,11 +56,11 @@ widened.**
   instructions).
 - **New evidence paths** — `scripts/p20-failure-smoke.mjs`
   (`npm run smoke:failure`, 22 checks, in CI), `test/p20-failure-matrix.test.ts`
-  (12), `test/work-git.test.ts` +2, `test/work-studio.test.ts` +2,
+  (12), `test/work-git.test.ts` +2, `test/work-studio.test.ts` +3,
   `test/safe-archive.test.ts` +3, `test/supervisor-native.test.ts` +1,
   `test/engine-adapter.test.ts` +2, and the lifecycle smoke's main-crash phase.
-- **Verification** — 649 tests in 67 files; typecheck, lint, format clean;
-  `npm run ci` 21/21 steps including `smoke:failure` and `smoke:lifecycle`.
+- **Verification** — 650 tests in 67 files; typecheck, lint, format clean;
+  `npm run ci` 20/20 steps including `smoke:failure` and `smoke:lifecycle`.
   Evidence: `docs/evidence/macos/P20-failure-matrix.md`,
   `artifacts/p20-failure-smoke.json`, `artifacts/p20-lifecycle-crash.json`,
   `artifacts/p20-ci.txt`; `docs/decisions/ADR-014`, D-060…D-067.

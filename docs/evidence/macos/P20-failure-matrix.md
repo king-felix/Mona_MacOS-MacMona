@@ -28,9 +28,12 @@ by the opened repository, so any project could have written
   plain `git commit` under `DEEPSEEK_API_KEY=control-value` shows the hook *does*
   receive the variable (1 match), so the assertion is not vacuous.
 - **Repair:** `buildGitEnvironment` (`src/main/work/git.ts`) is an explicit
-  allowlist — PATH, HOME, USER, LOGNAME, TMPDIR, locale, `SSH_AUTH_SOCK`, Git
-  identity, `XDG_CONFIG_HOME` — with a whole-token secret-name filter and forced
+  allowlist — PATH, HOME, USER, LOGNAME, TMPDIR, locale, Git identity,
+  `XDG_CONFIG_HOME` — with a whole-token secret-name filter and forced
   `GIT_TERMINAL_PROMPT=0`, `GIT_OPTIONAL_LOCKS=0`, `GIT_PAGER=cat`, `LC_ALL=C`.
+  `SSH_AUTH_SOCK` is deliberately **not** passed: this service runs only local
+  subcommands and never pushes, fetches, or clones, so handing a repository hook
+  the user's loaded SSH keys would be needless authority (found in review).
 - **Proof:** `test/work-git.test.ts` → *never hands Mona's provider secrets to a
   repository hook*; smoke checks `git_hook_ran` and
   `git_hook_saw_no_provider_key`.
@@ -52,8 +55,10 @@ complete turn that had lost an item.
   reported, because the engine contract does not promise contiguous numbering.
 - **Proof:** `test/work-studio.test.ts` → *detects a sequence gap, replays it
   from the last contiguous event, and says so* (asserts `since_seq=2`, the
-  diagnostic text, and stored seqs `{1,2,4,5,6}`), and *records a gap instead of
-  looping when replay never fills it* (≤2 rewinds).
+  diagnostic text, and stored seqs `{1,2,4,5,6}`), *records a gap instead of
+  looping when replay never fills it* (≤2 rewinds), and *recovers a second gap
+  in a later turn after the first turn spent its budget* (proves the budget is
+  per turn, not per session).
 
 ### P20-03 — `extractArchive` followed a planted symlink out of its root (high)
 
@@ -253,7 +258,7 @@ induced by a stated seam, not by the product being replaced.
 npm run typecheck            # main + renderer, clean
 npx eslint src test scripts  # 0 errors (3 pre-existing warnings in older tests)
 npx prettier --check …       # clean
-npx vitest run               # 649 tests in 67 files
+npx vitest run               # 650 tests in 67 files
 npm run build                # main + renderer
 npm run smoke:failure        # 22/22
 npm run smoke:lifecycle      # 27/27, including the new main-crash checks
@@ -263,7 +268,7 @@ npm run ci                   # 20/20 steps, renderer secret scan clean
 Evidence artifacts: `docs/evidence/macos/artifacts/p20-failure-smoke.json`
 (22 checks), `docs/evidence/macos/artifacts/p20-lifecycle-crash.json` (27
 checks, including the real `SIGKILL` orphan proof), and
-`docs/evidence/macos/artifacts/p20-ci.txt` (21 green CI steps).
+`docs/evidence/macos/artifacts/p20-ci.txt` (20 green CI steps).
 
 ## What is not claimed
 

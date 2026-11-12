@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "label": "P18 integrated terminal — real native pty",
-  "captured_at": "2026-11-12T17:06:41.613Z",
+  "captured_at": "2026-11-12T17:17:05.186Z",
   "ok": true,
   "checks": {
     "session_running": true,
@@ -52,7 +52,7 @@
         "signature": "ad-hoc",
         "signed": true,
         "verified": true,
-        "built_at": "2026-11-12T17:06:33.789Z"
+        "built_at": "2026-11-12T17:16:57.451Z"
       }
     },
     "tty": true,
@@ -71,7 +71,7 @@
       }
     ],
     "startup": {
-      "fake_home": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p18-terminal-SGtpSU/home",
+      "fake_home": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p18-terminal-XYJx89/home",
       "marker_created": false
     },
     "engine_in_terminal": true,
@@ -98,18 +98,18 @@
     },
     "close": {
       "status": "exited",
-      "shell_pid": 89559,
+      "shell_pid": 5633,
       "alive_after_close": false
     },
     "session_cap": {
       "max": 3,
-      "replaced": "term_ee0171030a1fea34",
+      "replaced": "term_f5213012ffe6dee6",
       "sessions": 3,
       "refused_with_three_live": true
     },
     "log": {
       "available": true,
-      "path": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p18-terminal-SGtpSU/logs/run.log",
+      "path": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p18-terminal-XYJx89/logs/run.log",
       "bytes": 120
     },
     "native": {

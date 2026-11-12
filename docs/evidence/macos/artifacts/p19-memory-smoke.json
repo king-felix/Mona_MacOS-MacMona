@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "label": "P19 — project memory, portable handoff, and diagnostics",
-  "captured_at": "2026-11-12T17:06:49.310Z",
+  "captured_at": "2026-11-12T17:17:12.746Z",
   "ok": true,
   "isolated_home": true,
   "checks": {
@@ -663,7 +663,7 @@
         "prompts.json"
       ],
       "bytes": 7724,
-      "digest": "b875d79def1f67be9df614a3e5018867d9acb08b723fb4e9f4a988e7fe0e577f",
+      "digest": "ee724cf3ae8f4eb2bb4952c666e030af89a2896406c4854c180e99d4715f46f3",
       "redactions": 3,
       "counts": {
         "tasks": 2,

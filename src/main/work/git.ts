@@ -114,6 +114,12 @@ const SECRET_NAME = /(^|_)(API_?KEY|KEY|TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL)
  * otherwise be able to read them from its own pre-commit hook. Only variables
  * Git genuinely needs are inherited, and a secret-shaped name is withheld even
  * when it appears in the allowlist by accident.
+ *
+ * `SSH_AUTH_SOCK` is deliberately absent. This service runs only local
+ * subcommands (log, rev-parse, status, diff, add, commit) and never pushes,
+ * fetches, or clones, so Git needs no agent. Passing the socket would let a
+ * repository's hook or `core.fsmonitor` program authenticate to any host the
+ * user's loaded keys are authorized for.
  */
 export function buildGitEnvironment(source: NodeJS.ProcessEnv = process.env): NodeJS.ProcessEnv {
   const allowed = [
@@ -124,7 +130,6 @@ export function buildGitEnvironment(source: NodeJS.ProcessEnv = process.env): No
     "TMPDIR",
     "LANG",
     "LC_ALL",
-    "SSH_AUTH_SOCK",
     "GIT_AUTHOR_NAME",
     "GIT_AUTHOR_EMAIL",
     "GIT_COMMITTER_NAME",
