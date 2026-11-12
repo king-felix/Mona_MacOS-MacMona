@@ -57,6 +57,21 @@ export const IpcRequests = {
   }),
   "runtime:status": z.strictObject({}),
   "state:facts": z.strictObject({}),
+  // Live work studio. Every call is an explicit user action; reading state and
+  // rendering events never starts a runtime or spends inference.
+  "studio:state": z.strictObject({ projectId: ProjectId }),
+  "studio:start": z.strictObject({ projectId: ProjectId }),
+  "studio:submit": z.strictObject({
+    projectId: ProjectId,
+    prompt: z.string().min(1).max(100_000),
+    mode: z.enum(["plan", "work"]),
+  }),
+  "studio:interrupt": z.strictObject({ projectId: ProjectId }),
+  "studio:pause": z.strictObject({ projectId: ProjectId }),
+  "studio:resume-queue": z.strictObject({ projectId: ProjectId }),
+  "studio:cancel-queued": z.strictObject({ projectId: ProjectId }),
+  "studio:reconcile": z.strictObject({ projectId: ProjectId }),
+  "studio:stop": z.strictObject({ projectId: ProjectId }),
 } as const;
 
 export type IpcChannel = keyof typeof IpcRequests;

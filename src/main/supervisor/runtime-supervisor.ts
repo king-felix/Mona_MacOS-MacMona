@@ -42,6 +42,22 @@ export interface StartedRuntime {
   record: OwnershipRecord;
 }
 
+/**
+ * The loopback endpoint of the runtime this process owns. The bearer token is
+ * returned to trusted main-process callers only; it must never cross IPC.
+ */
+export interface OwnedEndpoint {
+  baseUrl: string;
+  port: number;
+  token: string;
+  engine: RuntimeIdentity;
+  workspace: string;
+  canonicalWorkspace: string;
+  executable: string;
+  executableSha256: string;
+  ownershipId: string;
+}
+
 /** The process layer, injectable so lifecycle policy is testable without a spawn. */
 export interface RuntimeDriver {
   start(workspace: string): Promise<StartedRuntime>;
@@ -151,6 +167,26 @@ export class RuntimeSupervisor {
   /** True when Mona owns and can stop the runtime process. */
   isOwned(): boolean {
     return this.current !== null && !this.statusValue.external;
+  }
+
+  /**
+   * The authenticated loopback endpoint for the owned runtime, or null when
+   * nothing is owned. An external attachment has no token and is not returned:
+   * Mona does not drive a runtime it did not start.
+   */
+  endpoint(): OwnedEndpoint | null {
+    if (!this.current || this.statusValue.external) return null;
+    return {
+      baseUrl: this.current.baseUrl,
+      port: this.current.port,
+      token: this.current.token,
+      engine: this.current.engine,
+      workspace: this.current.record.workspace,
+      canonicalWorkspace: this.current.record.canonicalWorkspace,
+      executable: this.current.record.executable,
+      executableSha256: this.current.record.executableSha256,
+      ownershipId: this.current.record.id,
+    };
   }
 
   async ensure(workspace: string): Promise<RuntimeStatus> {

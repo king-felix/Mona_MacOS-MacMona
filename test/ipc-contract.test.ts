@@ -93,3 +93,35 @@ describe("project IPC validation", () => {
     expect(validateIpc("state:facts", {})).toEqual({});
   });
 });
+
+describe("studio IPC validation", () => {
+  const projectId = "prj_0123456789abcdef";
+
+  it("accepts explicit studio actions and rejects smuggling", () => {
+    expect(validateIpc("studio:state", { projectId })).toEqual({ projectId });
+    expect(validateIpc("studio:start", { projectId })).toEqual({ projectId });
+    expect(
+      validateIpc("studio:submit", { projectId, prompt: "Do one thing", mode: "plan" }),
+    ).toEqual({ projectId, prompt: "Do one thing", mode: "plan" });
+    expect(() => validateIpc("studio:submit", { projectId, prompt: "x", mode: "root" })).toThrow();
+    expect(() => validateIpc("studio:submit", { projectId, prompt: "", mode: "work" })).toThrow();
+    expect(() =>
+      validateIpc("studio:submit", { projectId, prompt: "x", mode: "work", autoApprove: true }),
+    ).toThrow();
+    expect(() =>
+      validateIpc("studio:submit", { projectId, prompt: "x".repeat(100_001), mode: "work" }),
+    ).toThrow();
+    for (const channel of [
+      "studio:interrupt",
+      "studio:pause",
+      "studio:resume-queue",
+      "studio:cancel-queued",
+      "studio:reconcile",
+      "studio:stop",
+    ]) {
+      expect(validateIpc(channel, { projectId })).toEqual({ projectId });
+    }
+    expect(() => validateIpc("studio:interrupt", { projectId, turnId: "turn_1" })).toThrow();
+    expect(() => validateIpc("studio:start", { projectId: "thr_0123456789abcdef" })).toThrow();
+  });
+});

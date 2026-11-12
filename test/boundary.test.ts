@@ -57,3 +57,44 @@ describe("content security policy", () => {
     expect(CONTENT_SECURITY_POLICY).not.toContain("unsafe-eval");
   });
 });
+
+describe("engine ownership boundary", () => {
+  it("keeps the provider transport confined to the adapter transport module", async () => {
+    const files = await sourceFiles(join(ROOT, "src/main"));
+    const callers: string[] = [];
+    for (const file of files) {
+      const text = await readFile(file, "utf8");
+      if (/\bfetch\s*\(/.test(text)) callers.push(file.replace(ROOT + "/", ""));
+    }
+    expect(callers.sort()).toEqual([
+      "src/main/engine/runtime-process.ts",
+      "src/main/engine/transport.ts",
+      "src/main/supervisor/driver.ts",
+    ]);
+  });
+
+  it("never passes the runtime token, base URL, or executable across IPC", async () => {
+    const studio = await readFile(join(ROOT, "src/shared/contracts/studio.ts"), "utf8");
+    for (const forbidden of [
+      /\btoken\s*[:?]/,
+      /\bbaseUrl\s*[:?]/,
+      /\bexecutable\s*[:?]/,
+      /https?:\/\//,
+    ]) {
+      expect(studio, `studio contract must not carry ${forbidden}`).not.toMatch(forbidden);
+    }
+    const ipc = await readFile(join(ROOT, "src/main/ipc.ts"), "utf8");
+    expect(ipc).not.toContain("endpoint()");
+    expect(ipc).not.toMatch(/Bearer/);
+  });
+
+  it("does not let the studio submit without an explicit user call", async () => {
+    const studio = await readFile(join(ROOT, "src/main/work/studio.ts"), "utf8");
+    // Submission happens only inside submit(); nothing else calls it.
+    const calls = studio.match(/\.submitTurn\(/g) ?? [];
+    expect(calls).toHaveLength(1);
+    // Reconciliation is read-only: the only retry path is the lookup route.
+    const retries = studio.match(/reconcileSubmission\(/g) ?? [];
+    expect(retries.length).toBeLessThanOrEqual(2);
+  });
+});

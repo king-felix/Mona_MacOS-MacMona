@@ -8,6 +8,14 @@ import type {
   StateFacts,
 } from "./project-bridge";
 import type { UsageEvidence } from "./usage";
+import type {
+  StudioActionResult,
+  StudioMode,
+  StudioPush,
+  StudioReconcileResult,
+  StudioSnapshot,
+  StudioSubmitResult,
+} from "./studio";
 
 /** The complete, narrow surface the renderer may reach. Nothing else is exposed. */
 export interface MonaBridge {
@@ -53,6 +61,23 @@ export interface MonaBridge {
   stateFacts(): Promise<StateFacts>;
   /** Main-process catalog changes (menu open, Finder handoff, relocation). */
   onProjectsChanged(callback: (projectId?: string) => void): () => void;
+
+  // Live work studio. Reading state never starts a runtime or spends inference.
+  studioState(projectId: ProjectId): Promise<IpcResult<StudioSnapshot>>;
+  startStudio(projectId: ProjectId): Promise<IpcResult<StudioSnapshot>>;
+  submitTask(
+    projectId: ProjectId,
+    prompt: string,
+    mode: StudioMode,
+  ): Promise<IpcResult<StudioSubmitResult>>;
+  interruptNow(projectId: ProjectId): Promise<IpcResult<StudioActionResult>>;
+  pauseAfterTask(projectId: ProjectId): Promise<IpcResult<StudioActionResult>>;
+  resumeQueue(projectId: ProjectId): Promise<IpcResult<StudioActionResult>>;
+  cancelQueued(projectId: ProjectId): Promise<IpcResult<StudioActionResult>>;
+  reconcileSubmission(projectId: ProjectId): Promise<IpcResult<StudioReconcileResult>>;
+  stopStudio(projectId: ProjectId): Promise<IpcResult<StudioActionResult>>;
+  /** Live connection, event, submission, and control updates from main. */
+  onStudioChanged(callback: (push: StudioPush) => void): () => void;
 }
 
 export interface AppInfo {

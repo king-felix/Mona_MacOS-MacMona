@@ -14,7 +14,7 @@
         "sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8"
       }
     ],
-    "indexed_utc": "2026-11-12T03:20:30.155Z"
+    "indexed_utc": "2026-11-12T03:46:25.776Z"
   },
   "prompts": [
     {
@@ -627,10 +627,35 @@
         "P03",
         "P08"
       ],
-      "status": "pending",
+      "status": "partial",
       "acceptance": "pending",
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P08-studio.md",
+          "note": "P08 live studio verification"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p08-studio-smoke.json",
+          "note": "real pinned-engine run receipt, 22 checks"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p08-studio-live.png",
+          "note": "rendered completed turn with real output and cost"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p08-tests.txt",
+          "note": "236 tests including live-studio suite"
+        },
+        {
+          "path": "docs/decisions/ADR-005-live-studio.md",
+          "note": "ownership, submission, and event-authority decision"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p08-studio-run.png",
+          "note": "rendered active turn with user message and control strip"
+        }
+      ],
+      "notes": "P08: real streaming conversation over stored engine events with delta merging, duplicate suppression, safe Markdown and code rendering, tool/command cards, status and error cards, per-project drafts with recovery, and large output collapsed behind an explicit expand. Attachments are disabled with a stated reason because the pinned adapter has no attachment operation. Explicit @file references, transcript copy/export, and conversation search remain; P13/P14 own artifacts and daily-use polish."
     },
     {
       "id": "MONA-008",
@@ -641,10 +666,35 @@
         "P08",
         "P16"
       ],
-      "status": "pending",
+      "status": "partial",
       "acceptance": "pending",
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P08-studio.md",
+          "note": "P08 live studio verification"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p08-studio-smoke.json",
+          "note": "real pinned-engine run receipt, 22 checks"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p08-studio-live.png",
+          "note": "rendered completed turn with real output and cost"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p08-tests.txt",
+          "note": "236 tests including live-studio suite"
+        },
+        {
+          "path": "docs/decisions/ADR-005-live-studio.md",
+          "note": "ownership, submission, and event-authority decision"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p08-studio-run.png",
+          "note": "Plan/Work control and configured posture on a live turn"
+        }
+      ],
+      "notes": "P08: explicit Plan/Work control where Plan binds an ask posture with no auto-approval, no trust mode and no shell, and Work uses Victor's saved DS Full Access profile written once from the P01 measured route. Configured vs Observed route and permission are displayed separately, and a real turn reported deepseek/deepseek-flash with full_access. No renderer-settable policy field exists, so nothing can widen silently. Route/profile editing is P16."
     },
     {
       "id": "MONA-009",
@@ -710,10 +760,35 @@
         "P08",
         "P11"
       ],
-      "status": "pending",
+      "status": "partial",
       "acceptance": "pending",
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P08-studio.md",
+          "note": "P08 live studio verification"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p08-studio-smoke.json",
+          "note": "real pinned-engine run receipt, 22 checks"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p08-studio-live.png",
+          "note": "rendered completed turn with real output and cost"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p08-tests.txt",
+          "note": "236 tests including live-studio suite"
+        },
+        {
+          "path": "docs/decisions/ADR-005-live-studio.md",
+          "note": "ownership, submission, and event-authority decision"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p08-studio-offline.png",
+          "note": "runtime stopped with history intact, not a fake completion"
+        }
+      ],
+      "notes": "P08: the execution control strip wires Pause after task, Resume queue, Interrupt now, Cancel queued, and Stop engine to WorkController with distinct effects and receipts. A confirmed interrupt writes the submission as interrupted and reconciled; an unconfirmed one is reported uncertain with the engine note; stop is never reported as completion and never claims rollback. Queue starts and three-attempt enforcement are P11, so the requirement stays partial."
     },
     {
       "id": "MONA-013",
@@ -735,10 +810,35 @@
         "P08",
         "P13"
       ],
-      "status": "pending",
+      "status": "partial",
       "acceptance": "pending",
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P08-studio.md",
+          "note": "P08 live studio verification"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p08-studio-smoke.json",
+          "note": "real pinned-engine run receipt, 22 checks"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p08-studio-live.png",
+          "note": "rendered completed turn with real output and cost"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p08-tests.txt",
+          "note": "236 tests including live-studio suite"
+        },
+        {
+          "path": "docs/decisions/ADR-005-live-studio.md",
+          "note": "ownership, submission, and event-authority decision"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p08-ci.json",
+          "note": "local CI gate: format, lint, typecheck, tests, build, secret scan"
+        }
+      ],
+      "notes": "P08: every turn produces a stored submission receipt (operation key, turn id, reconciled flag), engine events are stored transactionally with cursors, and real usage and cost are recorded per turn with costComplete rather than a fabricated price. Tool output and large model output are rendered with explicit expansion. Diffs, artifacts, provenance, and virtualized diff review are P13."
     },
     {
       "id": "MONA-015",
@@ -1234,7 +1334,7 @@
     "ok": true,
     "errors": [],
     "warnings": [],
-    "validated_utc": "2026-11-12T03:20:30.155Z",
+    "validated_utc": "2026-11-12T03:46:25.776Z",
     "prompt_count": 28,
     "requirement_count": 38
   }

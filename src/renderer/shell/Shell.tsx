@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type JSX } from "react";
 import type { AppInfo, AppPathInfo, ToolDiscovery } from "../../shared/contracts/bridge";
 import type { ProjectId } from "../../shared/contracts/ids";
+import type { StudioActionResult, StudioMode, StudioSnapshot } from "../../shared/contracts/studio";
 import type {
   IpcResult,
   ProjectDetail,
@@ -101,6 +102,9 @@ export function Shell(): JSX.Element {
   const [dialog, setDialog] = useState<DialogState>(null);
   const [draft, setDraft] = useState("");
   const [draftStatus, setDraftStatus] = useState<DraftStatus>("idle");
+  const [studio, setStudio] = useState<StudioSnapshot | null>(null);
+  const [studioMode, setStudioMode] = useState<StudioMode>("work");
+  const [studioBusy, setStudioBusy] = useState(false);
 
   const queryRef = useRef(query);
   const archivedRef = useRef(showArchived);
@@ -111,6 +115,7 @@ export function Shell(): JSX.Element {
     text: "",
   });
   const draftTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const studioTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const openFolderRef = useRef<() => void>(() => undefined);
 
   queryRef.current = query;
@@ -190,7 +195,10 @@ export function Shell(): JSX.Element {
     async (project: ProjectSummary, target?: ScreenId): Promise<void> => {
       await flushDraft();
       setBusy(true);
-      const result = await window.mona.projectDetail(project.id);
+      const [result, studioResult] = await Promise.all([
+        window.mona.projectDetail(project.id),
+        window.mona.studioState(project.id),
+      ]);
       if (!result.ok) {
         setError(`${result.error.code}: ${result.error.message}`);
         setBusy(false);
@@ -198,6 +206,7 @@ export function Shell(): JSX.Element {
       }
       const detail = result.value;
       setSelected(detail);
+      setStudio(studioResult.ok ? studioResult.value : null);
       const text = detail.draft?.text ?? "";
       setDraft(text);
       draftRef.current = {
@@ -206,8 +215,13 @@ export function Shell(): JSX.Element {
         text,
       };
       setDraftStatus(text ? "saved" : "idle");
-      const view = detail.view as { screen?: unknown; inspectorTab?: unknown } | null;
+      const view = detail.view as {
+        screen?: unknown;
+        inspectorTab?: unknown;
+        studioMode?: unknown;
+      } | null;
       setInspectorTab(typeof view?.inspectorTab === "string" ? view.inspectorTab : "task");
+      setStudioMode(view?.studioMode === "plan" ? "plan" : "work");
       setScreen(target ?? (isScreen(view?.screen) ? view.screen : "studio"));
       localStorage.setItem("mona.lastProject", detail.project.id);
       setError(null);
@@ -215,6 +229,19 @@ export function Shell(): JSX.Element {
     },
     [flushDraft],
   );
+
+  const refreshSelected = useCallback(async (): Promise<void> => {
+    const current = selectedRef.current;
+    if (!current) return;
+    const [detailResult, studioResult] = await Promise.all([
+      window.mona.projectDetail(current.project.id),
+      window.mona.studioState(current.project.id),
+    ]);
+    if (detailResult.ok && selectedRef.current?.project.id === current.project.id) {
+      setSelected(detailResult.value);
+    }
+    if (studioResult.ok) setStudio(studioResult.value);
+  }, []);
 
   const boot = useCallback(async (): Promise<void> => {
     try {
@@ -260,19 +287,37 @@ export function Shell(): JSX.Element {
         }
       })();
     });
+    const offStudio = window.mona.onStudioChanged((push) => {
+      const current = selectedRef.current?.project.id;
+      if (!current || push.projectId !== current) return;
+      if (push.kind !== "event" && studioTimer.current) {
+        clearTimeout(studioTimer.current);
+        studioTimer.current = null;
+      }
+      if (studioTimer.current) return;
+      studioTimer.current = setTimeout(
+        () => {
+          studioTimer.current = null;
+          void refreshSelected();
+        },
+        push.kind === "event" ? 400 : 40,
+      );
+    });
     return () => {
       off();
+      offStudio();
       if (draftTimer.current) clearTimeout(draftTimer.current);
+      if (studioTimer.current) clearTimeout(studioTimer.current);
     };
-  }, [boot, refreshCatalog]);
+  }, [boot, refreshCatalog, refreshSelected, selectProject]);
 
   useEffect(() => {
     if (!selected) return;
     const timer = setTimeout(() => {
-      void window.mona.saveProjectView(selected.project.id, { screen, inspectorTab });
+      void window.mona.saveProjectView(selected.project.id, { screen, inspectorTab, studioMode });
     }, 300);
     return () => clearTimeout(timer);
-  }, [screen, inspectorTab, selected]);
+  }, [screen, inspectorTab, selected, studioMode]);
 
   const openFolder = useCallback(async (): Promise<void> => {
     setBusy(true);
@@ -400,6 +445,96 @@ export function Shell(): JSX.Element {
     setNotice("Removed from the catalog. The source folder was not touched.");
     await refreshCatalog();
   }, [dialog, refreshCatalog]);
+
+  const startStudio = useCallback(async (): Promise<void> => {
+    const project = selectedRef.current?.project.id;
+    if (!project) return;
+    setStudioBusy(true);
+    const result = await window.mona.startStudio(project);
+    setStudioBusy(false);
+    if (!result.ok) {
+      setError(`${result.error.code}: ${result.error.message}`);
+      return;
+    }
+    setStudio(result.value);
+    setNotice(
+      result.value.connection.state === "connected"
+        ? "Owned runtime connected to this workspace."
+        : result.value.connection.reason,
+    );
+    await refreshSelected();
+  }, [refreshSelected]);
+
+  const submitTask = useCallback(async (): Promise<void> => {
+    const current = selectedRef.current;
+    if (!current) return;
+    const prompt = draftRef.current.text;
+    if (prompt.trim().length === 0) {
+      setError("A task prompt must not be empty.");
+      return;
+    }
+    await flushDraft();
+    setStudioBusy(true);
+    const result = await window.mona.submitTask(current.project.id, prompt, studioMode);
+    setStudioBusy(false);
+    if (!result.ok) {
+      setError(`${result.error.code}: ${result.error.message}`);
+      return;
+    }
+    setStudio(result.value.snapshot);
+    if (result.value.outcome === "accepted") {
+      setDraft("");
+      draftRef.current = { ...draftRef.current, text: "" };
+      const threadId = draftRef.current.threadId ?? current.threads[0]?.id;
+      if (threadId) await window.mona.saveDraft(current.project.id, threadId, "");
+      setDraftStatus("idle");
+      setNotice(`Turn accepted${result.value.turnId ? `: ${result.value.turnId}` : ""}.`);
+    } else if (result.value.outcome === "outcome_unknown") {
+      setNotice(result.value.guidance ?? "Outcome unknown: reconcile the lookup before resending.");
+    } else {
+      setNotice(result.value.note ?? "The runtime did not accept the turn.");
+    }
+    await refreshSelected();
+  }, [flushDraft, refreshSelected, studioMode]);
+
+  const runStudioAction = useCallback(
+    async (
+      action: (projectId: ProjectId) => Promise<IpcResult<StudioActionResult>>,
+    ): Promise<void> => {
+      const project = selectedRef.current?.project.id;
+      if (!project) return;
+      setStudioBusy(true);
+      const result = await action(project);
+      setStudioBusy(false);
+      if (!result.ok) {
+        setError(`${result.error.code}: ${result.error.message}`);
+        return;
+      }
+      setStudio(result.value.snapshot);
+      setNotice(result.value.note);
+      await refreshSelected();
+    },
+    [refreshSelected],
+  );
+
+  const reconcileStudio = useCallback(async (): Promise<void> => {
+    const project = selectedRef.current?.project.id;
+    if (!project) return;
+    setStudioBusy(true);
+    const result = await window.mona.reconcileSubmission(project);
+    setStudioBusy(false);
+    if (!result.ok) {
+      setError(`${result.error.code}: ${result.error.message}`);
+      return;
+    }
+    setStudio(result.value.snapshot);
+    setNotice(
+      `Reconciliation: ${result.value.status}${
+        result.value.guidance ? ` · ${result.value.guidance}` : ""
+      }`,
+    );
+    await refreshSelected();
+  }, [refreshSelected]);
 
   const paletteActions = useMemo<PaletteAction[]>(() => {
     const actions: PaletteAction[] = SCREENS.map((entry) => ({
@@ -652,13 +787,25 @@ export function Shell(): JSX.Element {
         {screen === "studio" ? (
           <StudioScreen
             detail={selected}
+            studio={studio}
+            studioBusy={studioBusy}
+            mode={studioMode}
             draft={draft}
             draftStatus={draftStatus}
             inspectorTab={inspectorTab}
             onInspectorTab={setInspectorTab}
             onDraft={onDraft}
+            onMode={setStudioMode}
             onOpenFolder={() => void openFolder()}
             onShowBoard={() => setScreen("board")}
+            onStart={() => void startStudio()}
+            onSubmit={() => void submitTask()}
+            onInterrupt={() => void runStudioAction((id) => window.mona.interruptNow(id))}
+            onPause={() => void runStudioAction((id) => window.mona.pauseAfterTask(id))}
+            onResumeQueue={() => void runStudioAction((id) => window.mona.resumeQueue(id))}
+            onCancelQueued={() => void runStudioAction((id) => window.mona.cancelQueued(id))}
+            onStop={() => void runStudioAction((id) => window.mona.stopStudio(id))}
+            onReconcile={() => void reconcileStudio()}
           />
         ) : null}
         {screen === "board" ? (

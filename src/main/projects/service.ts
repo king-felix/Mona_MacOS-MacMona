@@ -208,7 +208,7 @@ export class ProjectService {
         this.store.getDraft(id, thread.id),
         this.store.getRuntimeBinding(id),
       ]);
-    const events = (await this.store.readEvents(thread.id, 0, 100)).map((event) => ({
+    const events = (await this.store.readProjectEvents(id, 200)).map((event) => ({
       threadId: event.threadId,
       seq: event.seq,
       kind: event.kind,

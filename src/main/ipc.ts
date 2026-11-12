@@ -5,6 +5,7 @@ import { validateIpc, type IpcChannel } from "./ipc-contract";
 import { isAllowedNavigation } from "./navigation";
 import { StateError } from "./state/errors";
 import type { ProjectService } from "./projects/service";
+import type { WorkStudio } from "./work/studio";
 import type { IpcResult, RuntimeStatusView, StateFacts } from "../shared/contracts/project-bridge";
 
 /**
@@ -25,6 +26,7 @@ export interface IpcDependencies {
   projects: ProjectService;
   runtimeStatus: () => RuntimeStatusView;
   stateFacts: () => Promise<StateFacts>;
+  studio: WorkStudio | null;
 }
 
 async function envelope<T>(work: () => Promise<T> | T): Promise<IpcResult<T>> {
@@ -147,4 +149,46 @@ export function registerIpc(rendererRoot: string, dependencies: IpcDependencies)
   });
   handle("runtime:status", () => dependencies.runtimeStatus());
   handle("state:facts", () => dependencies.stateFacts());
+
+  const requireStudio = (): WorkStudio => {
+    const studio = dependencies.studio;
+    if (!studio) {
+      throw Object.assign(
+        new Error("the live studio is unavailable because project state did not open"),
+        { code: "RUNTIME_UNAVAILABLE" },
+      );
+    }
+    return studio;
+  };
+
+  handle("studio:state", (input) =>
+    envelope(() => requireStudio().snapshot((input as { projectId: never }).projectId)),
+  );
+  handle("studio:start", (input) =>
+    envelope(() => requireStudio().start((input as { projectId: never }).projectId)),
+  );
+  handle("studio:submit", (input) => {
+    const value = input as { projectId: never; prompt: string; mode: "plan" | "work" };
+    return envelope(() =>
+      requireStudio().submit(value.projectId, { prompt: value.prompt, mode: value.mode }),
+    );
+  });
+  handle("studio:interrupt", (input) =>
+    envelope(() => requireStudio().interrupt((input as { projectId: never }).projectId)),
+  );
+  handle("studio:pause", (input) =>
+    envelope(() => requireStudio().pauseAfterTask((input as { projectId: never }).projectId)),
+  );
+  handle("studio:resume-queue", (input) =>
+    envelope(() => requireStudio().resumeQueue((input as { projectId: never }).projectId)),
+  );
+  handle("studio:cancel-queued", (input) =>
+    envelope(() => requireStudio().cancelQueued((input as { projectId: never }).projectId)),
+  );
+  handle("studio:reconcile", (input) =>
+    envelope(() => requireStudio().reconcile((input as { projectId: never }).projectId)),
+  );
+  handle("studio:stop", (input) =>
+    envelope(() => requireStudio().stop((input as { projectId: never }).projectId)),
+  );
 }

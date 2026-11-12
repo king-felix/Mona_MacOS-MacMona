@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "revision": 78,
+  "revision": 84,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
   "spec_sha256": "d1c02941151c71912bc3e9c8b2509612298d54e05e0bf16fe933b9bd93e3e028",
   "prompt_file_sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8",
-  "current_prompt": "P07",
-  "current_prompt_status": "completed",
+  "current_prompt": "P08",
+  "current_prompt_status": "verifying",
   "last_verified_commit": "a4b3cd7",
   "tasks": {
     "P00": {
@@ -53,7 +53,7 @@
         },
         {
           "path": "docs/requirements-macos.json",
-          "sha256": "5182df2be98b985415f534d7bfba22ed221056ca4e860a1cb9e6d43b66f40e51"
+          "sha256": "c027fb0466e37eee5699c5bf37fb3268fdb2211fe9e267d24d179b145eda937f"
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
@@ -234,7 +234,7 @@
         },
         {
           "path": "package.json",
-          "sha256": "c94f5a1ceee0aeaf2b70ee7a34a00fe23da1cfa2c3f307c46a761d4a9c18cb41"
+          "sha256": "5ae5f3ba5f470285a269a822b98909902b5d8ea74889dd6a1d4dbea80c358a17"
         },
         {
           "path": "package-lock.json",
@@ -282,15 +282,15 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "ce80f3dbf46c0e64b19e9107fdc33e3c1c47123c2a1bf6aa81f11484e49c6d22"
+          "sha256": "3562d7b098ab3b9e4bd4509bd0ad528a95aa42e0711226a0c80256ca0cca9841"
         },
         {
           "path": "src/main/ipc-contract.ts",
-          "sha256": "a65ace9616e596ef71d75d2f63dea9ffb8c20b4efceb835358ee46cdb19ec1cf"
+          "sha256": "fadca6e1b26e4f4dece63240e4865356b268f5e1cdd5c60fc3966cb6e498456d"
         },
         {
           "path": "src/main/ipc.ts",
-          "sha256": "839529bf8e39199242fe1412a2793480324a05c2ad93f6ac67a50a40d3b89d82"
+          "sha256": "83c40605b4cc5f37edbfa0f7fc1a48dc591f22ddd1b36a6b4011e3206f6eeae5"
         },
         {
           "path": "src/main/menu.ts",
@@ -318,7 +318,7 @@
         },
         {
           "path": "src/preload/index.ts",
-          "sha256": "84cb4ae1cd0de5128b9741fad27219e1348879b36be6353f1ef9554c36a77400"
+          "sha256": "5e574c525927764eabdac9ea6d139beab286b83742adff2145d8f02c27c6c356"
         },
         {
           "path": "src/renderer/App.tsx",
@@ -338,11 +338,11 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "c68b2eed431cad5f01ac3d88cd6612cd9e96cd70e354854046721780c05b7cb3"
+          "sha256": "6e2c682f5088d0d123a1f61d116862fa1b38d6a2ab2d80098503706c77040050"
         },
         {
           "path": "src/shared/contracts/bridge.ts",
-          "sha256": "01f6019dbadb53f40313a8bdd166f921e93810287671c61fef46ef808bee79d0"
+          "sha256": "1fc6129966d13bbe5e53c8b3562f2a53d1edf01bfe7ce56ddd4f7cbef3d76217"
         },
         {
           "path": "src/shared/contracts/engine.ts",
@@ -358,7 +358,7 @@
         },
         {
           "path": "src/shared/contracts/index.ts",
-          "sha256": "55315be2ee6efe8c990721801e82cacf992e1f4109403ba74d03e0a2b7678717"
+          "sha256": "fc48176e7963f960ff7355718227f02a51c9b80b8afe205eab8c24bf7d622f36"
         },
         {
           "path": "src/shared/contracts/project.ts",
@@ -382,7 +382,7 @@
         },
         {
           "path": "test/boundary.test.ts",
-          "sha256": "a4eb9edd50719b5dbc77873a88b08c8d21e80f382d4b19af0287bcc360a1f4a0"
+          "sha256": "ed8a64739e1b3d8f308ccd691adce8f5f0824b9fe56cd5f2fc15a10abd59837b"
         },
         {
           "path": "test/contracts.test.ts",
@@ -394,7 +394,7 @@
         },
         {
           "path": "test/ipc-contract.test.ts",
-          "sha256": "9b4caec68c7cf645b63fd1410d63c914bd77d6086babb900976d2b81f58ac582"
+          "sha256": "d81b4cf7d0690402f9dca1557e4b6c39aaa455b412f7fd1331fda1452dc03b71"
         },
         {
           "path": "test/navigation.test.ts",
@@ -543,7 +543,7 @@
         },
         {
           "path": "package.json",
-          "sha256": "c94f5a1ceee0aeaf2b70ee7a34a00fe23da1cfa2c3f307c46a761d4a9c18cb41"
+          "sha256": "5ae5f3ba5f470285a269a822b98909902b5d8ea74889dd6a1d4dbea80c358a17"
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
@@ -653,7 +653,7 @@
         },
         {
           "path": "src/main/supervisor/runtime-supervisor.ts",
-          "sha256": "76940624e32872bacce6d312a06272dbb0f56acb875fdfefccfb306b9e3aed5b"
+          "sha256": "f1aa1ab3b38617f6eff6c0d68cf34f7cab79cbaf4b162999aaae3189a4e99ceb"
         },
         {
           "path": "src/main/supervisor/errors.ts",
@@ -669,7 +669,7 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "ce80f3dbf46c0e64b19e9107fdc33e3c1c47123c2a1bf6aa81f11484e49c6d22"
+          "sha256": "3562d7b098ab3b9e4bd4509bd0ad528a95aa42e0711226a0c80256ca0cca9841"
         },
         {
           "path": "src/main/engine/runtime-process.ts",
@@ -717,7 +717,7 @@
         },
         {
           "path": "package.json",
-          "sha256": "c94f5a1ceee0aeaf2b70ee7a34a00fe23da1cfa2c3f307c46a761d4a9c18cb41"
+          "sha256": "5ae5f3ba5f470285a269a822b98909902b5d8ea74889dd6a1d4dbea80c358a17"
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
@@ -958,17 +958,68 @@
       ]
     },
     "P08": {
-      "status": "pending",
+      "status": "verifying",
       "requirements": [
         "MONA-007",
         "MONA-008",
         "MONA-012",
         "MONA-014"
       ],
-      "completed_steps": [],
+      "completed_steps": [
+        "Added WorkStudio: explicit start of the supervisor-owned runtime for the selected project, canonical-workspace verification, refusal of external runtimes, authenticated loopback adapter, and one mutating turn per workspace",
+        "Added the saved DS Full Access execution profile written once from the P01 measured route, with Plan as a genuinely narrower ask posture bound at thread creation and repeated on the turn",
+        "Persisted submission intent before sending through SqliteSubmissionStore; a lost response performs one read-only operation lookup and never resubmits, with honest outcome-unknown states",
+        "Stored engine events transactionally with insert-or-ignore dedupe and cursors, projected turns and per-turn usage, and added a project-wide event reader so the live thread sits beside the shell thread",
+        "Added 8 strict studio IPC channels plus a main-to-renderer push; the runtime token, port, and executable never cross the bridge",
+        "Rebuilt Studio: real timeline from engine events with delta merging and duplicate suppression, safe Markdown with no HTML surface, inert links, code blocks, tool cards, large-output expansion, auto-follow, and an activity counter instead of plumbing noise",
+        "Wired the execution control strip to WorkController: pause after task, resume queue, interrupt now with a receipt, cancel queued, stop engine, and quit-and-stop work, each with distinct honest effects",
+        "Wired the composer with Plan/Work, drafts, real cost, observed route and permission, and explicit disabled reasons for unsupported attachments",
+        "Verified: 236 tests in 29 files pass, local CI green, and a real pinned-engine Electron smoke passes 22/22 checks (file written, test run, replay dedupe, interrupt receipt, offline history) with three live screenshots"
+      ],
       "remaining_steps": [],
-      "evidence": [],
-      "blocker_ids": []
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P08-studio.md",
+          "sha256": "4090d50d4a8df77c80f0f5256b5e68e64b6406240f405c70106f25abe461c501"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p08-studio-smoke.json",
+          "sha256": "f8ff1c76c921265cfd958dd37bf3d8368b5879dedeac480f2886483cb699f3a9"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p08-studio-run.png",
+          "sha256": "42bf508bacaebf3442597806d2b59424fa3c651c0f2bbcde48524e0b2ceea823"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p08-studio-live.png",
+          "sha256": "b608d12aab2f7d3522af11ca74b12d040b9f99521547db7936b3a23e977633ec"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p08-studio-offline.png",
+          "sha256": "f52cec26a1948bc99204720ecf3569bec327d733977597a0a9d708c14586aa5e"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p08-tests.txt",
+          "sha256": "f883653da4e917bca3bd5bc07786cc6f9a3b72ec7ccc6dcee5e187d59847b282"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p08-ci.json",
+          "sha256": "e3acce8c5003480d4c7a7b80136f6faeebcaea0994f5be6158ade1a4f10917a3"
+        },
+        {
+          "path": "docs/decisions/ADR-005-live-studio.md",
+          "sha256": "f5be4f5645822c7b85287e6985df56cb1986b229809b05f37db37c712e71e24b"
+        }
+      ],
+      "blocker_ids": [],
+      "notes": [
+        "P08-01: attachments stay disabled with a stated reason; the pinned adapter has no attachment operation.",
+        "P08-02: prompt queueing and queue starts are P10/P11; Cancel queued is honest with an empty queue.",
+        "P08-03: approvals and clarifications are surfaced as a real wait; answering them is P11/P15.",
+        "P08-04: an unpriced turn stores costComplete=false and is shown as 'at least', never zero.",
+        "P08-05: a turn interrupted by an app crash stays non-terminal; restart reconciliation is P19/P20.",
+        "P08-06: one owned runtime per user store means parallel project execution stays disabled until upstream concurrency is proven."
+      ]
     },
     "P09": {
       "status": "pending",
@@ -1198,7 +1249,7 @@
   "next_eligible_prompts": [
     "P08"
   ],
-  "last_checkpoint_utc": "2026-11-12T03:22:07.197Z",
+  "last_checkpoint_utc": "2026-11-12T03:46:53.064Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

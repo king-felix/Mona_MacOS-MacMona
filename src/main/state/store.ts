@@ -1369,6 +1369,55 @@ export class StateStore {
     });
   }
 
+  /**
+   * Timeline projection across every thread of one project. Threads are
+   * projections; the project timeline must not fragment when a live engine
+   * thread is added beside the local shell thread.
+   */
+  async readProjectEvents(projectId: ProjectId, limit = 200): Promise<StoredEvent[]> {
+    const bounded = Math.min(Math.max(1, Math.trunc(limit)), 2000);
+    return this.read((db) => {
+      const rows = db
+        .prepare(
+          "SELECT e.* FROM events e JOIN threads t ON t.id = e.thread_id " +
+            "WHERE t.project_id = ? ORDER BY e.recorded_at ASC, e.seq ASC LIMIT ?",
+        )
+        .all(projectId, bounded) as DbRow[];
+      return rows.map((row) => ({
+        threadId: asString(row.thread_id),
+        seq: asNumber(row.seq),
+        kind: asString(row.kind),
+        payload: JSON.parse(asString(row.payload_json)),
+        timestamp: asString(row.timestamp),
+        recordedAt: asString(row.recorded_at),
+      }));
+    });
+  }
+
+  /** Most recent submissions for a project, newest first. Read-only. */
+  async listSubmissions(projectId: ProjectId, limit = 20): Promise<SubmissionState[]> {
+    const bounded = Math.min(Math.max(1, Math.trunc(limit)), 200);
+    return this.read((db) => {
+      const rows = db
+        .prepare(
+          "SELECT * FROM submissions WHERE project_id = ? ORDER BY submitted_at DESC LIMIT ?",
+        )
+        .all(projectId, bounded) as DbRow[];
+      return rows.map((row) => {
+        const value: Record<string, unknown> = {
+          operationKey: asString(row.operation_key),
+          threadId: asString(row.thread_id),
+          turnId: asNullableString(row.turn_id),
+          status: asString(row.status) as SubmissionStatus,
+          submittedAt: asString(row.submitted_at),
+          reconciled: Number(row.reconciled) === 1,
+        };
+        if (row.note !== null) value.note = asString(row.note);
+        return SubmissionState.parse(value);
+      });
+    });
+  }
+
   // ------------------------------------------------------------------ usage
 
   async recordUsage(

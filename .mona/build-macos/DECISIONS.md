@@ -301,3 +301,36 @@ and deviations discovered while building.
 - **Consequence:** P08 adds live submission behind the same engine snapshot and
   detail contract; P10 adds task creation; P16 adds route editing; P19 adds
   restore UI. The shell does not start a runtime on navigation.
+
+## D-018 — One live studio session owns the runtime; intent is durable; replay is display-only
+
+- **Date:** 2026-11-11 (P08)
+- **Decision:** `WorkStudio` holds one session per launch and refuses a second
+  project (`STUDIO_BUSY`) while the owned runtime is connecting, connected,
+  running, or reconnecting. It starts the engine only on an explicit user
+  action (`studio:start` or `studio:submit`), verifies the supervisor reports
+  the project's canonical workspace, refuses an externally started runtime, and
+  builds its adapter from `RuntimeSupervisor.endpoint()` — a token-bearing
+  accessor that never crosses IPC. Plan and Work are separate engine threads
+  with their posture bound at creation (`ask` + no auto-approve/trust/shell
+  versus the saved full-access profile), so a later turn cannot widen policy.
+  Submission intent is written before transmission; a lost response triggers one
+  read-only operation lookup, never a resend. Events are inserted with
+  `INSERT OR IGNORE` on `(thread_id, seq)` and the cursor advanced in the same
+  transaction; reconnect replays from that cursor and advances display state
+  only. Markdown is rendered with React text nodes, inert links, and no HTML
+  surface. Full rationale: `docs/decisions/ADR-005-live-studio.md`.
+- **Why:** P08 is where a plausible-looking fake becomes easy: a spinner that
+  never resolves, an "estimate" presented as cost, a percentage nobody measured,
+  a resubmitted turn after a lost response, a second owner on one user store.
+  Each of those is a product promise broken. Verifying the workspace, binding
+  posture at thread creation, persisting intent first, and storing events before
+  projecting them makes the honest behavior the only behavior the code can
+  produce.
+- **Consequence:** Parallel project execution stays disabled until upstream
+  concurrency is proven, and the second project receives a specific reason
+  instead of a silent queue. P10/P11 add queue starts and three-attempt
+  enforcement; P16 adds profile editing; P19/P20 own resume-after-crash for a
+  turn left non-terminal by a crash. The pinned engine emits plumbing events
+  (`item.started`, `turn.workspace_snapshot`, `model.tools.snapshot`, …); they are
+  stored and counted in the UI rather than dropped, so "unknown" stays visible.

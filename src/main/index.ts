@@ -1,5 +1,12 @@
 import { app, BrowserWindow, Menu, dialog, powerMonitor, session, shell } from "electron";
-import { mkdirSync, mkdtempSync, realpathSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  realpathSync,
+  writeFileSync,
+} from "node:fs";
 import { randomBytes } from "node:crypto";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -25,12 +32,14 @@ import {
   type RuntimeDriver,
   type StartedRuntime,
 } from "./supervisor/runtime-supervisor";
-import { startOwnedRuntime, stopRecordedRuntime } from "./engine/runtime-process";
+import { createProductionDriver } from "./supervisor/driver";
 import { WorkController } from "./work/control";
+import { WorkStudio } from "./work/studio";
 import { StateStore } from "./state/store";
 import { verifyPrivatePermissions } from "./state/paths";
 import { ProjectService, runtimeStatusView } from "./projects/service";
 import type { RuntimeStatus } from "./supervisor/runtime-supervisor";
+import type { ProjectId as StudioProjectId } from "../shared/contracts/ids";
 
 app.setName("Mona");
 
@@ -40,6 +49,7 @@ const IS_SMOKE = process.argv.includes("--smoke");
 const IS_LIFECYCLE_SMOKE = process.argv.includes("--lifecycle-smoke");
 const IS_DESIGN_SHOTS = process.argv.includes("--design-shots");
 const IS_SHELL_SMOKE = process.argv.includes("--shell-smoke");
+const IS_STUDIO_SMOKE = process.argv.includes("--studio-smoke");
 
 let mainWindow: BrowserWindow | null = null;
 let lifecycle: DesktopLifecycle | null = null;
@@ -50,6 +60,10 @@ let lifecycleSmokeStarted = false;
 let productState: StateStore | null = null;
 let productStateError: string | null = null;
 let projectService: ProjectService | null = null;
+let workController: WorkController | null = null;
+let workStudio: WorkStudio | null = null;
+let studioSmokeProjectId: string | null = null;
+let studioSmokeRoot: string | null = null;
 
 function hardenAllWebContents(): void {
   app.on("web-contents-created", (_event, contents) => {
@@ -87,6 +101,16 @@ function openWindow(): BrowserWindow {
       void runShellSmoke(window)
         .catch((error: unknown) => {
           process.stderr.write(`shell smoke failed: ${String(error)}\n`);
+          process.exitCode = 1;
+        })
+        .finally(() => app.quit());
+    });
+  }
+  if (IS_STUDIO_SMOKE) {
+    window.webContents.once("did-finish-load", () => {
+      void runStudioSmoke(window)
+        .catch((error: unknown) => {
+          process.stderr.write(`studio smoke failed: ${String(error)}\n`);
           process.exitCode = 1;
         })
         .finally(() => app.quit());
@@ -563,13 +587,34 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
     screen: document.documentElement.dataset.screen,
     title: document.querySelector('.context-bar__title')?.textContent ?? null,
     engine: document.querySelector('.context-bar')?.textContent?.includes('Disconnected') ?? false,
+    engine_not_started: document.querySelector('[data-testid="studio-connection"]')?.textContent?.includes('Not started') ?? false,
     draft_present: Boolean(document.querySelector('textarea')),
     draft_text: document.querySelector('textarea')?.value ?? null,
-    simulator_button_disabled: Array.from(document.querySelectorAll('button')).some((button) => button.textContent?.includes('Send to engine') && button.disabled),
+    send_enabled: Array.from(document.querySelectorAll('button')).some((button) => button.textContent?.includes('Send to engine') && !button.disabled),
+    mode_controls: document.querySelectorAll('.segmented__option').length === 2,
+    profile_reported: document.querySelector('[data-testid="studio-profile"]')?.textContent?.includes('deepseek / deepseek-flash') ?? false,
     event_present: document.body.textContent.includes('status.disconnected'),
     fake_percent: /\b\d+%\b/.test(document.body.textContent ?? ''),
     horizontal_overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1
   }))()`);
+  const composerFits = await window.webContents.executeJavaScript(`(() => {
+    window.scrollTo(0, document.documentElement.scrollHeight);
+    const send = document.querySelector('[data-testid="studio-send"]');
+    const strip = document.querySelector('.control-strip');
+    if (!send || !strip) return { ok: false, reason: 'missing send button or strip' };
+    const sendRect = send.getBoundingClientRect();
+    const stripRect = strip.getBoundingClientRect();
+    const covered = Array.from(document.elementsFromPoint(
+      sendRect.left + sendRect.width / 2,
+      sendRect.top + sendRect.height / 2,
+    )).some((node) => strip.contains(node));
+    return {
+      ok: !covered && sendRect.bottom <= stripRect.top + 1 && sendRect.width > 0,
+      send_bottom: Math.round(sendRect.bottom),
+      strip_top: Math.round(stripRect.top),
+      covered,
+    };
+  })()`);
   const studioShot = await window.webContents.capturePage();
   writeFileSync(join(outDir, "p07-shell-studio.png"), studioShot.toPNG());
 
@@ -635,12 +680,15 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
     home_returned: homeReturned,
     studio_ready: studioReady,
     studio_title: studio.title === "Shell smoke project",
-    engine_disconnected: studio.engine === true,
+    engine_state_reported: studio.engine === true || studio.engine_not_started === true,
     draft_present: studio.draft_present === true,
     draft_preserved: studio.draft_text?.includes("shell smoke project") === true,
-    send_disabled: studio.simulator_button_disabled === true,
+    send_enabled: studio.send_enabled === true,
+    mode_controls: studio.mode_controls === true,
+    profile_reported: studio.profile_reported === true,
     offline_event: studio.event_present === true,
     no_fake_percent: studio.fake_percent === false,
+    composer_above_strip: composerFits.ok === true,
     board_ready: boardReady && board.screen === "board",
     task_visible: board.task_present === true,
     board_lanes: board.lanes === 4,
@@ -666,7 +714,7 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
     captured_at: new Date().toISOString(),
     ok,
     checks,
-    facts: { home, studio, board, cost, settings, palette },
+    facts: { home, studio, board, cost, settings, palette, composerFits },
     screenshots: [
       "docs/evidence/macos/artifacts/p07-shell-home.png",
       "docs/evidence/macos/artifacts/p07-shell-studio.png",
@@ -677,6 +725,246 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
   const out = process.env.MONA_SHELL_SMOKE_OUT;
   if (out) writeFileSync(out, JSON.stringify(report, null, 2) + "\n");
   if (!ok) process.exitCode = 1;
+}
+
+// ------------------------------------------------------------- studio smoke
+
+const STUDIO_PROOF_TEST = `const { test } = require("node:test");
+const assert = require("node:assert");
+const { readFileSync } = require("node:fs");
+const { join } = require("node:path");
+
+test("hello.txt contains mona-p08", () => {
+  const text = readFileSync(join(__dirname, "..", "hello.txt"), "utf8");
+  assert.strictEqual(text.trim(), "mona-p08");
+});
+`;
+
+const STUDIO_TASK = [
+  "Work in the current workspace with the tools available.",
+  "1. Create a file named hello.txt whose exact contents are the single line: mona-p08",
+  "2. Run `node --test` in the workspace root.",
+  "3. Reply with the test result and the exact file contents.",
+  "Do not modify any other file.",
+].join("\n");
+
+const STUDIO_HOLD_TASK =
+  "Run the shell command `sleep 20` in the workspace and wait for it to finish. " +
+  "Then reply only with: done";
+
+async function runStudioSmoke(window: BrowserWindow): Promise<void> {
+  const outDir =
+    process.env.MONA_STUDIO_SMOKE_DIR ??
+    join(process.cwd(), "docs", "evidence", "macos", "artifacts");
+  mkdirSync(outDir, { recursive: true });
+  const studio = workStudio;
+  const state = productState;
+  const projects = projectService;
+  const projectId = studioSmokeProjectId;
+  const report: Record<string, unknown> = {
+    schema_version: 1,
+    label: "LIVE PINNED-ENGINE RUN — P08",
+    captured_at: new Date().toISOString(),
+    ok: false,
+    checks: {},
+    phases: [],
+    screenshots: [],
+  };
+  const phase = (name: string, value: Record<string, unknown>) => {
+    (report.phases as Array<Record<string, unknown>>).push({ phase: name, ...value });
+  };
+  const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+  const waitForDom = async (expression: string, timeoutMs = 20_000): Promise<boolean> => {
+    const deadline = Date.now() + timeoutMs;
+    while (Date.now() < deadline) {
+      if (await window.webContents.executeJavaScript(expression)) return true;
+      await sleep(100);
+    }
+    return false;
+  };
+  const domFacts = () =>
+    window.webContents.executeJavaScript(`(() => {
+      const strip = document.querySelector('.control-strip')?.textContent ?? '';
+      const context = document.querySelector('.context-bar')?.textContent ?? '';
+      return {
+        screen: document.documentElement.dataset.screen,
+        title: document.querySelector('.context-bar__title')?.textContent ?? null,
+        timeline_entries: document.querySelectorAll('.timeline-event').length,
+        connection: document.querySelector('[data-testid="studio-connection"]')?.textContent ?? null,
+        profile: document.querySelector('[data-testid="studio-profile"]')?.textContent ?? null,
+        cost: document.querySelector('[data-testid="studio-cost"]')?.textContent ?? null,
+        strip_percent: /\\b\\d+%\\b/.test(strip + context),
+        timeline_anchors: document.querySelectorAll('.timeline a[href], .studio a[href]').length,
+        injected_nodes: document.querySelectorAll('.timeline script, .timeline img').length,
+        ordered_list_marks: (() => {
+          const list = document.querySelector('.markdown ol');
+          return list ? getComputedStyle(list).listStyleType : null;
+        })(),
+      };
+    })()`);
+
+  try {
+    if (!studio || !state || !projects || !projectId) {
+      throw new Error("studio smoke was not wired with state, service, and project");
+    }
+    await waitForDom("document.body.dataset.ready === 'true'");
+    window.webContents.sendInputEvent({ type: "keyDown", keyCode: "2", modifiers: ["meta"] });
+    window.webContents.sendInputEvent({ type: "keyUp", keyCode: "2", modifiers: ["meta"] });
+    await waitForDom("document.documentElement.dataset.screen === 'studio'");
+
+    const started = await studio.start(projectId as StudioProjectId);
+    phase("start", {
+      connection: started.connection.state,
+      engine: started.connection.engine,
+      port: started.connection.port,
+      profile: started.profile,
+      can_submit: started.canSubmit,
+    });
+
+    const submitted = await studio.submit(projectId as StudioProjectId, {
+      prompt: STUDIO_TASK,
+      mode: "work",
+    });
+    phase("submit", {
+      outcome: submitted.outcome,
+      turn_id: submitted.turnId,
+      operation_key: submitted.operationKey,
+      guidance: submitted.guidance,
+    });
+    await sleep(1_500);
+    const runningSnapshot = await studio.snapshot(projectId as StudioProjectId);
+    phase("running", {
+      active_turn: runningSnapshot.activeTurnId,
+      connection: runningSnapshot.connection.state,
+    });
+    const runningShot = await window.webContents.capturePage();
+    const runningFile = "docs/evidence/macos/artifacts/p08-studio-run.png";
+    writeFileSync(join(outDir, "p08-studio-run.png"), runningShot.toPNG());
+    (report.screenshots as string[]).push(runningFile);
+
+    const deadline = Date.now() + 150_000;
+    let events: Awaited<ReturnType<typeof state.readProjectEvents>> = [];
+    while (Date.now() < deadline) {
+      events = await state.readProjectEvents(projectId as StudioProjectId, 500);
+      if (events.some((event) => event.kind === "turn.completed")) break;
+      if (events.some((event) => event.kind === "turn.failed" || event.kind === "turn.interrupted"))
+        break;
+      await sleep(700);
+    }
+    const completed = events.some((event) => event.kind === "turn.completed");
+    await waitForDom("document.querySelectorAll('.timeline-event').length > 0", 15_000);
+    await settle(window, 600);
+    const liveDom = await domFacts();
+    const liveShot = await window.webContents.capturePage();
+    const liveFile = "docs/evidence/macos/artifacts/p08-studio-live.png";
+    writeFileSync(join(outDir, "p08-studio-live.png"), liveShot.toPNG());
+    (report.screenshots as string[]).push(liveFile);
+
+    const helloPath = join(studioSmokeRoot ?? "", "hello.txt");
+    const hello = existsSync(helloPath) ? readFileSync(helloPath, "utf8") : null;
+    const eventText = JSON.stringify(events);
+    const snapshot = await studio.snapshot(projectId as StudioProjectId);
+
+    const beforeReplay = await state.readProjectEvents(projectId as StudioProjectId, 1000);
+    const replayFirst = await studio.replay(projectId as StudioProjectId);
+    const midReplay = await state.readProjectEvents(projectId as StudioProjectId, 1000);
+    const replaySecond = await studio.replay(projectId as StudioProjectId);
+    const afterReplay = await state.readProjectEvents(projectId as StudioProjectId, 1000);
+
+    const hold = await studio.submit(projectId as StudioProjectId, {
+      prompt: STUDIO_HOLD_TASK,
+      mode: "work",
+    });
+    await sleep(4_000);
+    const interrupt = await studio.interrupt(projectId as StudioProjectId);
+    const afterInterrupt = await studio.snapshot(projectId as StudioProjectId);
+    phase("interrupt", {
+      submit_outcome: hold.outcome,
+      confirmed: interrupt.confirmed,
+      uncertain: interrupt.uncertain,
+      note: interrupt.note,
+      submission: afterInterrupt.submission,
+    });
+
+    const stopped = await studio.stop(projectId as StudioProjectId);
+    await sleep(700);
+    const offlineShot = await window.webContents.capturePage();
+    const offlineFile = "docs/evidence/macos/artifacts/p08-studio-offline.png";
+    writeFileSync(join(outDir, "p08-studio-offline.png"), offlineShot.toPNG());
+    (report.screenshots as string[]).push(offlineFile);
+    const offlineDom = await domFacts();
+    const detail = await projects.detail(projectId as StudioProjectId);
+
+    const checks = {
+      runtime_connected: started.connection.state === "connected",
+      engine_identity_pinned: started.connection.engine?.version === "0.10.2",
+      profile_configured: started.profile.provider === "deepseek",
+      submission_accepted: submitted.outcome === "accepted",
+      turn_completed: completed,
+      file_changed: hello !== null && hello.trim() === "mona-p08",
+      test_command_observed: /node --test/.test(eventText),
+      tool_card_rendered: liveDom.timeline_entries > 0,
+      effective_route_observed: snapshot.profile.effective?.model === "deepseek-flash",
+      effective_permission_full_access:
+        snapshot.profile.effective?.permissionPosture === "full_access",
+      cost_observed: snapshot.cost.observed,
+      replay_duplicates_observed: replayFirst.duplicates > 0,
+      replay_no_duplicate_rows: afterReplay.length === midReplay.length,
+      replay_second_pass_ingests_nothing: replaySecond.ingested === 0,
+      interrupt_answered: interrupt.confirmed === true,
+      interrupt_submission_interrupted:
+        afterInterrupt.submission?.status === "interrupted" &&
+        afterInterrupt.submission.reconciled === true,
+      runtime_stopped: stopped.stopped === true,
+      offline_history_retained:
+        detail.events.length >= beforeReplay.length && offlineDom.timeline_entries > 0,
+      no_link_navigation: liveDom.timeline_anchors === 0 && offlineDom.timeline_anchors === 0,
+      no_injected_nodes: liveDom.injected_nodes === 0 && offlineDom.injected_nodes === 0,
+      no_fake_percent_in_chrome: liveDom.strip_percent === false,
+      ordered_list_rendered: liveDom.ordered_list_marks === "decimal",
+    };
+    const ok = Object.values(checks).every(Boolean);
+    report.checks = checks;
+    report.ok = ok;
+    report.engine = started.connection.engine;
+    report.submission = {
+      outcome: submitted.outcome,
+      turn_id: submitted.turnId,
+      operation_key: submitted.operationKey,
+      final_status: snapshot.submission?.status ?? null,
+    };
+    report.cost = snapshot.cost;
+    report.file = { path: helloPath, contents: hello };
+    report.events = {
+      count: events.length,
+      kinds: events.map((event) => event.kind),
+    };
+    report.replay = {
+      before: beforeReplay.length,
+      first: replayFirst,
+      mid: midReplay.length,
+      second: replaySecond,
+      after: afterReplay.length,
+    };
+    report.interrupt = {
+      confirmed: interrupt.confirmed,
+      uncertain: interrupt.uncertain,
+      note: interrupt.note,
+    };
+    report.offline = {
+      connection: stopped.snapshot.connection.state,
+      history: detail.events.length,
+    };
+    report.dom = { live: liveDom, offline: offlineDom };
+    report.hello_written_by_engine = hello;
+  } catch (error) {
+    const candidate = error as { message?: string; stack?: string };
+    report.ok = false;
+    report.error = { message: candidate.message ?? String(error), stack: candidate.stack ?? null };
+  }
+  const out = process.env.MONA_STUDIO_SMOKE_OUT;
+  if (out) writeFileSync(out, JSON.stringify(report, null, 2) + "\n");
+  if (report.ok !== true) process.exitCode = 1;
 }
 
 function writeSmoke(value: unknown): void {
@@ -897,41 +1185,11 @@ if (!gotLock) {
 } else {
   const paths = resolveAppPaths();
   const store = new OwnershipStore(join(paths.state, "runtime-ownership.json"));
-  const productionDriver: RuntimeDriver = {
-    start: async (workspace) => {
-      const owned = await startOwnedRuntime({
-        workspace,
-        stateDir: paths.state,
-        logDir: paths.logs,
-      });
-      return {
-        handle: owned.supervisor,
-        token: owned.token,
-        engine: owned.engine,
-        listenerPid: owned.listenerPid,
-        port: owned.runtime.port,
-        baseUrl: owned.runtime.baseUrl,
-        record: owned.record,
-      };
-    },
-    stop: (handle, options) => stopSupervisor(handle, options),
-    healthy: async (_handle, token, baseUrl) => {
-      try {
-        const health = await fetch(`${baseUrl}/health`, { signal: AbortSignal.timeout(1_500) });
-        if (!health.ok) return false;
-        const info = await fetch(`${baseUrl}/v1/runtime/info`, {
-          headers: { Authorization: `Bearer ${token}` },
-          signal: AbortSignal.timeout(1_500),
-        });
-        return info.status === 200;
-      } catch {
-        return false;
-      }
-    },
-    stopRecorded: (record) => stopRecordedRuntime(record),
-    lastStopReceipt,
-    markRecord: (record, patch) => store.put({ ...record, ...patch }),
-  };
+  const productionDriver: RuntimeDriver = createProductionDriver({
+    store,
+    stateDir: paths.state,
+    logDir: paths.logs,
+  });
 
   let runtimeSupervisor: RuntimeSupervisor;
   if (IS_LIFECYCLE_SMOKE) {
@@ -946,8 +1204,11 @@ if (!gotLock) {
   }
   supervisor = runtimeSupervisor;
   const work = new WorkController({
-    interrupt: async () => {
-      throw new Error("no engine adapter is attached before the project shell exists");
+    interrupt: async (input) => {
+      if (!workStudio) {
+        throw new Error("no live studio is attached to this workspace yet");
+      }
+      return workStudio.interruptTurn(input.task.workspace, input.turnId);
     },
     stopOwnedRuntime: (options) =>
       supervisor?.isOwned()
@@ -963,6 +1224,7 @@ if (!gotLock) {
             note: "no owned runtime",
           }),
   });
+  workController = work;
 
   lifecycle = new DesktopLifecycle({
     supervisor: runtimeSupervisor,
@@ -1058,7 +1320,7 @@ if (!gotLock) {
     hardenSession(session.defaultSession);
     try {
       const appPaths = resolveAppPaths();
-      const smokeState = IS_SMOKE || IS_LIFECYCLE_SMOKE || IS_SHELL_SMOKE;
+      const smokeState = IS_SMOKE || IS_LIFECYCLE_SMOKE || IS_SHELL_SMOKE || IS_STUDIO_SMOKE;
       const stateRoot = smokeState
         ? mkdtempSync(join(tmpdir(), "mona-product-state-"))
         : appPaths.state;
@@ -1073,6 +1335,18 @@ if (!gotLock) {
         chooseFolder: chooseProjectFolder,
         reveal: (path) => shell.showItemInFolder(path),
       });
+      if (workController && supervisor) {
+        workStudio = new WorkStudio({
+          store: productState,
+          supervisor,
+          work: workController,
+          notify: (push) => {
+            if (mainWindow && !mainWindow.isDestroyed()) {
+              mainWindow.webContents.send("studio:changed", push);
+            }
+          },
+        });
+      }
     } catch (error) {
       productStateError = error instanceof Error ? error.message : String(error);
       process.stderr.write(`Mona state unavailable: ${productStateError}\n`);
@@ -1119,11 +1393,23 @@ if (!gotLock) {
       }
     }
 
+    if (IS_STUDIO_SMOKE && projectService && productState) {
+      const base = mkdtempSync(join(tmpdir(), "mona-studio-smoke-project-"));
+      const root = join(base, "Studio smoke project");
+      mkdirSync(join(root, "test"), { recursive: true });
+      writeFileSync(join(root, "README.md"), "# Studio smoke\n", "utf8");
+      writeFileSync(join(root, "test", "proof.test.js"), STUDIO_PROOF_TEST, "utf8");
+      const opened = await projectService.open(root);
+      studioSmokeProjectId = opened?.project.id ?? null;
+      studioSmokeRoot = root;
+    }
+
     installApplicationMenu({ onOpenProject: () => void openProjectFromMenu() });
     registerIpc(RENDERER_ROOT, {
       projects: projectService,
       runtimeStatus: () => runtimeStatusView(supervisor?.status() ?? fallbackStatus),
       stateFacts,
+      studio: workStudio,
     });
     if (IS_LIFECYCLE_SMOKE) {
       // The smoke builds its own temporary supervisor; recover nothing from the
@@ -1142,6 +1428,7 @@ if (!gotLock) {
   });
 
   app.on("before-quit", () => {
+    void workStudio?.close();
     void productState?.close();
   });
 

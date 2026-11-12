@@ -9,6 +9,14 @@ import type {
   RuntimeStatusView,
   StateFacts,
 } from "../shared/contracts/project-bridge";
+import type {
+  StudioActionResult,
+  StudioMode,
+  StudioPush,
+  StudioReconcileResult,
+  StudioSnapshot,
+  StudioSubmitResult,
+} from "../shared/contracts/studio";
 
 /**
  * The only bridge the renderer gets. No raw ipcRenderer, no Node, no shell.
@@ -49,6 +57,39 @@ const bridge: MonaBridge = {
 
   runtimeStatus: (): Promise<RuntimeStatusView> => ipcRenderer.invoke("runtime:status", {}),
   stateFacts: (): Promise<StateFacts> => ipcRenderer.invoke("state:facts", {}),
+
+  studioState: (projectId: ProjectId): Promise<IpcResult<StudioSnapshot>> =>
+    ipcRenderer.invoke("studio:state", { projectId }),
+  startStudio: (projectId: ProjectId): Promise<IpcResult<StudioSnapshot>> =>
+    ipcRenderer.invoke("studio:start", { projectId }),
+  submitTask: (
+    projectId: ProjectId,
+    prompt: string,
+    mode: StudioMode,
+  ): Promise<IpcResult<StudioSubmitResult>> =>
+    ipcRenderer.invoke("studio:submit", { projectId, prompt, mode }),
+  interruptNow: (projectId: ProjectId): Promise<IpcResult<StudioActionResult>> =>
+    ipcRenderer.invoke("studio:interrupt", { projectId }),
+  pauseAfterTask: (projectId: ProjectId): Promise<IpcResult<StudioActionResult>> =>
+    ipcRenderer.invoke("studio:pause", { projectId }),
+  resumeQueue: (projectId: ProjectId): Promise<IpcResult<StudioActionResult>> =>
+    ipcRenderer.invoke("studio:resume-queue", { projectId }),
+  cancelQueued: (projectId: ProjectId): Promise<IpcResult<StudioActionResult>> =>
+    ipcRenderer.invoke("studio:cancel-queued", { projectId }),
+  reconcileSubmission: (projectId: ProjectId): Promise<IpcResult<StudioReconcileResult>> =>
+    ipcRenderer.invoke("studio:reconcile", { projectId }),
+  stopStudio: (projectId: ProjectId): Promise<IpcResult<StudioActionResult>> =>
+    ipcRenderer.invoke("studio:stop", { projectId }),
+  onStudioChanged: (callback: (push: StudioPush) => void): (() => void) => {
+    const listener = (_event: unknown, payload: unknown) => {
+      if (!payload || typeof payload !== "object") return;
+      const push = payload as Partial<StudioPush>;
+      if (typeof push.projectId !== "string" || typeof push.state !== "string") return;
+      callback(push as StudioPush);
+    };
+    ipcRenderer.on("studio:changed", listener);
+    return () => ipcRenderer.removeListener("studio:changed", listener);
+  },
   onProjectsChanged: (callback: (projectId?: string) => void): (() => void) => {
     const listener = (_event: unknown, payload: unknown) => {
       const projectId =

@@ -1,5 +1,6 @@
-import type { JSX } from "react";
+import { useEffect, useRef, useState, type JSX } from "react";
 import type { ProjectDetail } from "../../shared/contracts/project-bridge";
+import type { StudioMode, StudioSnapshot } from "../../shared/contracts/studio";
 import {
   Badge,
   Button,
@@ -7,6 +8,7 @@ import {
   Card,
   EmptyState,
   Inspector,
+  SegmentedControl,
   StatusBadge,
   TabPanel,
   Tabs,
@@ -29,48 +31,140 @@ import {
   WarningIcon,
 } from "../design/icons";
 import { engineBadge, formatTokens, projectAccent, projectMonogram, relativeTime } from "./visual";
+import { Markdown } from "./markdown";
+import { projectTimeline, type TimelineEntry } from "./timeline";
 
 export interface StudioProps {
   detail: ProjectDetail | null;
+  studio: StudioSnapshot | null;
+  studioBusy: boolean;
+  mode: StudioMode;
   draft: string;
   draftStatus: "idle" | "saving" | "saved" | "error";
   inspectorTab: string;
   onInspectorTab: (tab: string) => void;
   onDraft: (text: string) => void;
+  onMode: (mode: StudioMode) => void;
   onOpenFolder: () => void;
   onShowBoard: () => void;
+  onStart: () => void;
+  onSubmit: () => void;
+  onInterrupt: () => void;
+  onPause: () => void;
+  onResumeQueue: () => void;
+  onCancelQueued: () => void;
+  onStop: () => void;
+  onReconcile: () => void;
 }
 
-function eventText(payload: unknown): string | null {
-  if (payload === null || typeof payload !== "object") return null;
-  const record = payload as Record<string, unknown>;
-  for (const key of ["text", "message", "delta", "summary", "reason", "status"]) {
-    const value = record[key];
-    if (typeof value === "string" && value.trim()) return value;
+const TIMELINE_WINDOW = 60;
+const LONG_BODY = 4_000;
+
+function connectionLabel(studio: StudioSnapshot | null, detail: ProjectDetail): string {
+  if (!studio) return engineBadge(detail.engine).label;
+  switch (studio.connection.state) {
+    case "connected":
+      return "Connected";
+    case "running":
+      return "Turn running";
+    case "connecting":
+      return "Connecting";
+    case "reconnecting":
+      return "Reconnecting";
+    case "failed":
+      return "Failed";
+    case "stopped":
+      return "Stopped";
+    default:
+      return "Not started";
   }
-  return null;
 }
 
-const EVENT_ICON = {
-  user: <SparkIcon size={15} />,
-  assistant: <SparkIcon size={15} />,
-  tool: <TerminalIcon size={15} />,
-  test: <CheckIcon size={15} />,
-  status: <InfoIcon size={15} />,
-  error: <WarningIcon size={15} />,
-} as const;
+function connectionTone(
+  studio: StudioSnapshot | null,
+  detail: ProjectDetail,
+): "neutral" | "success" | "attention" | "danger" {
+  if (!studio) return engineBadge(detail.engine).tone === "danger" ? "danger" : "neutral";
+  if (studio.connection.state === "connected" || studio.connection.state === "running")
+    return "success";
+  if (studio.connection.state === "failed") return "danger";
+  if (
+    studio.connection.state === "connecting" ||
+    studio.connection.state === "reconnecting" ||
+    studio.connection.state === "stopped"
+  )
+    return "attention";
+  return "neutral";
+}
 
-function eventIcon(kind: string): JSX.Element {
-  if (kind.includes("error") || kind.includes("fail")) return EVENT_ICON.error;
-  if (kind.includes("tool")) return EVENT_ICON.tool;
-  if (kind.includes("test")) return EVENT_ICON.test;
-  if (kind.includes("status") || kind.includes("progress")) return EVENT_ICON.status;
-  if (kind.includes("user")) return EVENT_ICON.user;
-  return EVENT_ICON.assistant;
+function TimelineCard({ entry }: { entry: TimelineEntry }): JSX.Element {
+  const [expanded, setExpanded] = useState(false);
+  const tooLong = entry.body.length > LONG_BODY;
+  const body = tooLong && !expanded ? `${entry.body.slice(0, LONG_BODY)}\n…` : entry.body;
+  return (
+    <li className={`timeline-event timeline-event--${entry.kind}`}>
+      <span className="timeline-event__rail" aria-hidden="true">
+        <span className="timeline-event__icon">
+          {entry.kind === "tool" ? (
+            <TerminalIcon size={15} />
+          ) : entry.kind === "error" ? (
+            <WarningIcon size={15} />
+          ) : entry.kind === "status" ? (
+            <InfoIcon size={15} />
+          ) : entry.kind === "user" ? (
+            <SparkIcon size={15} />
+          ) : entry.kind === "reasoning" ? (
+            <ClockIcon size={15} />
+          ) : (
+            <CheckIcon size={15} />
+          )}
+        </span>
+      </span>
+      <div className="timeline-event__body">
+        <div className="timeline-event__head">
+          <span className="timeline-event__title">
+            {entry.title}
+            {entry.status ? <span className="timeline-event__badge">{entry.status}</span> : null}
+          </span>
+          <span className="timeline-event__time">
+            {new Date(entry.timestamp).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </span>
+        </div>
+        {body ? (
+          entry.kind === "assistant" || entry.kind === "user" ? (
+            <div className="timeline-event__prose">
+              <Markdown text={body} />
+            </div>
+          ) : (
+            <pre className="timeline-event__output">{body}</pre>
+          )
+        ) : null}
+        {tooLong ? (
+          <Button size="sm" variant="ghost" onClick={() => setExpanded(!expanded)}>
+            {expanded ? "Collapse long output" : `Show full output (${entry.body.length} chars)`}
+          </Button>
+        ) : null}
+      </div>
+    </li>
+  );
 }
 
 export function StudioScreen(props: StudioProps): JSX.Element {
-  const { detail, draft, draftStatus, inspectorTab } = props;
+  const [showAll, setShowAll] = useState(false);
+  const timelineRef = useRef<HTMLDivElement | null>(null);
+  const followRef = useRef(true);
+  const entryCount = props.detail?.events.length ?? 0;
+  const { detail, studio } = props;
+
+  // Follow new engine events, but never fight a reader who scrolled up.
+  useEffect(() => {
+    const node = timelineRef.current;
+    if (!node || !followRef.current) return;
+    node.scrollTop = node.scrollHeight;
+  }, [entryCount, detail?.events]);
   if (!detail) {
     return (
       <div className="screen">
@@ -95,13 +189,28 @@ export function StudioScreen(props: StudioProps): JSX.Element {
   }
 
   const { project, engine, usage } = detail;
-  const health = engineBadge(engine);
+  const health = { label: connectionLabel(studio, detail), tone: connectionTone(studio, detail) };
+  const { entries, internalActivity, unprojected } = projectTimeline(detail.events);
+  const visibleEntries = showAll ? entries : entries.slice(-TIMELINE_WINDOW);
+  const hidden = entries.length - visibleEntries.length;
   const blockedTasks = detail.tasks.filter((task) => task.status === "blocked");
   const currentTask =
     detail.tasks.find((task) => task.status === "running") ??
     detail.tasks.find((task) => task.status === "blocked") ??
     detail.tasks[0] ??
     null;
+  const profile = studio?.profile ?? null;
+  const effective = profile?.effective ?? null;
+  const sendBlocked = props.studioBusy || (studio !== null && !studio.canSubmit);
+  const sendReason =
+    studio?.cannotSubmitReason ??
+    (studio === null ? "Mona starts the engine when you submit an explicit task." : null);
+  const connectionState = studio?.connection.state ?? "not_started";
+  const canStart =
+    !props.studioBusy &&
+    (connectionState === "not_started" ||
+      connectionState === "stopped" ||
+      connectionState === "failed");
 
   return (
     <div className="screen screen--studio">
@@ -123,120 +232,259 @@ export function StudioScreen(props: StudioProps): JSX.Element {
             <span className="fact__label">Branch</span>
             <span className="fact__value">{detail.branch ?? "Not a Git repository"}</span>
           </span>
-          <span className="fact">
+          <span className="fact" data-testid="studio-connection">
             <span
-              className={`status-dot ${engine.canExecute ? "status-dot--success" : "status-dot--attention"}`}
+              className={`status-dot ${
+                health.tone === "success"
+                  ? "status-dot--success"
+                  : health.tone === "danger"
+                    ? "status-dot--danger"
+                    : "status-dot--attention"
+              }`}
               aria-hidden="true"
             />
             <span className="fact__label">Engine</span>
             <Badge tone={health.tone}>{health.label}</Badge>
           </span>
-          <span className="fact">
+          <span className="fact" data-testid="studio-profile">
             <SparkIcon size={14} />
             <span className="fact__label">Model</span>
-            <span className="fact__value">Not reported while disconnected</span>
+            <span className="fact__value">
+              {effective
+                ? `${effective.provider} / ${effective.model}`
+                : profile
+                  ? `${profile.provider} / ${profile.model}`
+                  : "Not reported until the studio reads its profile"}
+            </span>
+            {effective ? (
+              <Badge tone={effective.usedFallback ? "attention" : "neutral"}>Observed</Badge>
+            ) : profile ? (
+              <Badge tone="neutral">Configured</Badge>
+            ) : null}
           </span>
           <span className="fact">
             <LockIcon size={14} />
             <span className="fact__label">Permission</span>
-            <span className="fact__value">Unknown until a turn reports it</span>
+            <span className="fact__value">
+              {effective
+                ? effective.permissionPosture
+                : profile
+                  ? `${profile.permissionPosture} (configured)`
+                  : "Unknown"}
+            </span>
           </span>
-          <span className="fact">
+          <span className="fact" data-testid="studio-cost">
             <CostIcon size={14} />
             <span className="fact__label">Spend</span>
-            <span className={`fact__value ${usage.costComplete ? "" : "fact__value--unknown"}`}>
-              {usage.observed
-                ? usage.costComplete
-                  ? `$${usage.costUsd.toFixed(2)}`
-                  : `At least $${usage.costUsd.toFixed(2)}`
-                : "No usage recorded"}
+            <span className="fact__value">
+              {studio?.cost.label ??
+                (usage.observed
+                  ? usage.costComplete
+                    ? `$${usage.costUsd.toFixed(4)}`
+                    : `At least $${usage.costUsd.toFixed(4)}; some turns unpriced`
+                  : "No usage recorded")}
             </span>
           </span>
         </div>
       </div>
 
-      {engine.blockedReason ? (
-        <Callout tone="attention" title="Execution is not available for this project">
-          {engine.blockedReason} History and settings remain usable. Live execution and streaming
-          arrive in P08.
+      {connectionState === "failed" ? (
+        <Callout
+          tone="danger"
+          title="The live studio could not connect"
+          action={
+            canStart ? (
+              <Button size="sm" variant="secondary" onClick={props.onStart}>
+                Retry start
+              </Button>
+            ) : undefined
+          }
+        >
+          {studio?.connection.reason ?? "The engine is unavailable."} History and drafts remain
+          usable. Starting an engine is an explicit action, not a model call.
+        </Callout>
+      ) : connectionState === "not_started" ? (
+        <Callout
+          tone="attention"
+          title="Engine not started for this project"
+          action={
+            canStart ? (
+              <Button size="sm" variant="secondary" onClick={props.onStart}>
+                Start engine
+              </Button>
+            ) : undefined
+          }
+        >
+          {studio?.connection.reason ??
+            "Mona has not started its owned runtime in this launch. Starting it is separate from submitting a task; browsing and viewing history make no model call."}
+        </Callout>
+      ) : connectionState === "connecting" ? (
+        <Callout tone="neutral" title="Connecting to the owned runtime">
+          Waiting for a verified loopback listener and an authenticated health answer. No task is
+          sent yet.
+        </Callout>
+      ) : connectionState === "reconnecting" ? (
+        <Callout tone="attention" title="Reconnecting from the stored cursor">
+          {studio?.connection.reason ?? "The event stream ended while the turn is active."} Replay
+          advances display state only; it never re-runs a tool.
+        </Callout>
+      ) : connectionState === "stopped" ? (
+        <Callout
+          tone="attention"
+          title="Runtime stopped"
+          action={
+            canStart ? (
+              <Button size="sm" variant="secondary" onClick={props.onStart}>
+                Start engine
+              </Button>
+            ) : undefined
+          }
+        >
+          The owned runtime is stopped. Work was interrupted, not completed; starting again does not
+          resend it.
+        </Callout>
+      ) : connectionState === "running" ? (
+        <Callout tone="success" title="A turn is running">
+          {studio?.activeTurnId ? `Turn ${studio.activeTurnId}. ` : ""}Pause after task and
+          interrupt now stay visible in the control strip below the composer.
         </Callout>
       ) : (
         <Callout tone="success" title="Runtime connected to this workspace">
-          Mona will not start a turn until you explicitly submit one. Live submission arrives in
-          P08.
+          {studio?.connection.engine
+            ? `Codewhale ${studio.connection.engine.version} (${studio.connection.engine.commit.slice(0, 7)})`
+            : "The engine identity was verified."}
+          {studio?.connection.port ? ` · loopback port ${studio.connection.port}` : ""}. Nothing is
+          sent until you submit a task.
         </Callout>
       )}
 
+      {studio?.pendingInput ? (
+        <Callout tone="attention" title="The engine is waiting for input Mona cannot answer">
+          {studio.pendingInput}
+        </Callout>
+      ) : null}
+
+      {studio?.submission?.status === "outcome_unknown" ? (
+        <Callout
+          tone="attention"
+          title="Submission outcome unknown — reconcile required"
+          action={
+            <Button size="sm" variant="secondary" onClick={props.onReconcile}>
+              Reconcile lookup
+            </Button>
+          }
+        >
+          The response was lost after the write may have been accepted. Mona will not resend it.
+          {studio.submission.note ? ` ${studio.submission.note}` : ""}
+        </Callout>
+      ) : null}
+
       <div className="studio">
         <section className="studio__main" aria-label="Work timeline">
-          <div className="studio__timeline" tabIndex={0} aria-label="Work timeline, scrollable">
-            {detail.events.length === 0 ? (
+          <div
+            className="studio__timeline"
+            tabIndex={0}
+            aria-label="Work timeline, scrollable"
+            data-testid="studio-timeline"
+            ref={timelineRef}
+            onScroll={(event) => {
+              const node = event.currentTarget;
+              followRef.current = node.scrollHeight - node.scrollTop - node.clientHeight < 48;
+            }}
+          >
+            {entries.length === 0 ? (
               <EmptyState
                 icon={<ClockIcon size={26} />}
                 title="No engine history stored yet"
                 description="Mona stores thread, turn, and event projections only when the engine reports them. Nothing is simulated here."
               />
             ) : (
-              <ol className="timeline">
-                {detail.events.map((event) => {
-                  const text = eventText(event.payload);
-                  return (
-                    <li
-                      key={`${event.threadId}-${event.seq}`}
-                      className={`timeline-event timeline-event--${event.kind.split(".")[0] ?? "status"}`}
-                    >
-                      <span className="timeline-event__rail" aria-hidden="true">
-                        <span className="timeline-event__icon">{eventIcon(event.kind)}</span>
+              <>
+                {hidden > 0 ? (
+                  <div className="timeline__more">
+                    {hidden > 0 ? (
+                      <Button size="sm" variant="ghost" onClick={() => setShowAll(true)}>
+                        Show {hidden} earlier event{hidden === 1 ? "" : "s"}
+                      </Button>
+                    ) : null}
+                    {internalActivity > 0 || unprojected.length > 0 ? (
+                      <span className="hint-line" data-testid="studio-activity">
+                        {internalActivity} engine activity event
+                        {internalActivity === 1 ? "" : "s"} stored
+                        {unprojected.length > 0
+                          ? ` · unprojected kinds: ${unprojected.join(", ")}`
+                          : ""}
                       </span>
-                      <div className="timeline-event__body">
-                        <div className="timeline-event__head">
-                          <span className="timeline-event__title">{event.kind}</span>
-                          <span className="timeline-event__time">
-                            {new Date(event.timestamp).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                          </span>
-                        </div>
-                        {text ? <p className="timeline-event__text">{text}</p> : null}
-                        <p className="timeline-event__detail mono">
-                          seq {event.seq} · {event.threadId}
-                        </p>
-                      </div>
-                    </li>
-                  );
-                })}
-              </ol>
+                    ) : null}
+                  </div>
+                ) : null}
+                <ol className="timeline">
+                  {visibleEntries.map((entry) => (
+                    <TimelineCard key={entry.key} entry={entry} />
+                  ))}
+                </ol>
+              </>
             )}
           </div>
 
           <div className="composer">
+            <div className="composer__mode">
+              <SegmentedControl
+                label="Execution mode"
+                value={props.mode}
+                options={[
+                  { value: "plan", label: "Plan" },
+                  { value: "work", label: "Work" },
+                ]}
+                onChange={(value) => props.onMode(value === "plan" ? "plan" : "work")}
+              />
+              <span className="hint-line">
+                {props.mode === "plan"
+                  ? "Plan asks before shell or write actions; it cannot widen to Full Access."
+                  : profile
+                    ? `Work uses the saved Full Access profile: ${profile.provider} / ${profile.model}.`
+                    : "Work uses the saved Full Access profile."}
+              </span>
+            </div>
             <TextArea
-              label="Draft prompt"
-              hint="Saved locally for this project and thread. Sending is disabled until the live studio lands in P08 and a runtime is connected."
+              label="Task prompt"
+              hint="Saved locally for this project and thread. Rendering Markdown is safe: raw HTML never executes."
               placeholder="Describe one concrete outcome, its boundaries, and how to verify it…"
-              rows={4}
-              value={draft}
+              rows={3}
+              value={props.draft}
               onChange={(event) => props.onDraft(event.target.value)}
             />
             <div className="composer__actions">
               <div className="composer__left">
                 <span className="hint-line" aria-live="polite">
-                  {draftStatus === "saving"
+                  {props.draftStatus === "saving"
                     ? "Saving draft…"
-                    : draftStatus === "saved"
+                    : props.draftStatus === "saved"
                       ? "Draft saved locally"
-                      : draftStatus === "error"
+                      : props.draftStatus === "error"
                         ? "Draft could not be saved"
                         : "Draft is local to this project"}
+                  {sendReason && sendBlocked ? ` · ${sendReason}` : ""}
                 </span>
               </div>
               <div className="composer__right">
                 <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled
+                  title="The pinned adapter does not support attachments; Mona will not fabricate one"
+                >
+                  Attach file
+                </Button>
+                <Button
                   variant="primary"
                   icon={<PlayIcon size={15} />}
-                  disabled
-                  title="Live submission is implemented in P08"
+                  disabled={sendBlocked}
+                  title={
+                    sendBlocked ? (sendReason ?? "A turn is already active") : "Submit this task"
+                  }
+                  onClick={props.onSubmit}
+                  data-testid="studio-send"
                 >
                   Send to engine
                 </Button>
@@ -248,7 +496,7 @@ export function StudioScreen(props: StudioProps): JSX.Element {
         <aside className="studio__inspector" aria-label="Inspector">
           <Tabs
             label="Inspector sections"
-            value={inspectorTab}
+            value={props.inspectorTab}
             onChange={props.onInspectorTab}
             tabs={[
               { id: "task", label: "Task" },
@@ -256,7 +504,7 @@ export function StudioScreen(props: StudioProps): JSX.Element {
               { id: "context", label: "Context" },
             ]}
           />
-          <TabPanel id="task" active={inspectorTab === "task"}>
+          <TabPanel id="task" active={props.inspectorTab === "task"}>
             {currentTask ? (
               <Inspector
                 title="Current task"
@@ -296,7 +544,7 @@ export function StudioScreen(props: StudioProps): JSX.Element {
               />
             )}
           </TabPanel>
-          <TabPanel id="requirements" active={inspectorTab === "requirements"}>
+          <TabPanel id="requirements" active={props.inspectorTab === "requirements"}>
             {detail.evidence.length === 0 ? (
               <EmptyState
                 icon={<InfoIcon size={24} />}
@@ -314,9 +562,25 @@ export function StudioScreen(props: StudioProps): JSX.Element {
               </ul>
             )}
           </TabPanel>
-          <TabPanel id="context" active={inspectorTab === "context"}>
+          <TabPanel id="context" active={props.inspectorTab === "context"}>
             <Card title="Context" eyebrow="Real local state">
               <dl className="detail-list">
+                <div className="detail-row">
+                  <dt>Connection</dt>
+                  <dd>
+                    {studio
+                      ? `${studio.connection.state}: ${studio.connection.reason}`
+                      : "The studio has not started in this launch"}
+                  </dd>
+                </div>
+                <div className="detail-row">
+                  <dt>Submission</dt>
+                  <dd>
+                    {studio?.submission
+                      ? `${studio.submission.status} · ${studio.submission.reconciled ? "reconciled" : "not reconciled"}`
+                      : "No submission recorded"}
+                  </dd>
+                </div>
                 <div className="detail-row">
                   <dt>Repository</dt>
                   <dd>
@@ -335,7 +599,7 @@ export function StudioScreen(props: StudioProps): JSX.Element {
                 </div>
                 <div className="detail-row">
                   <dt>Runtime</dt>
-                  <dd>{engine.blockedReason ?? "Connected"}</dd>
+                  <dd>{engine.blockedReason ?? "Bound to this workspace"}</dd>
                 </div>
                 <div className="detail-row">
                   <dt>Binding</dt>
@@ -354,6 +618,16 @@ export function StudioScreen(props: StudioProps): JSX.Element {
                 </div>
               </dl>
             </Card>
+            {studio && studio.diagnostics.length > 0 ? (
+              <details className="diagnostics">
+                <summary>Diagnostics ({studio.diagnostics.length})</summary>
+                <ul>
+                  {studio.diagnostics.map((entry) => (
+                    <li key={entry}>{entry}</li>
+                  ))}
+                </ul>
+              </details>
+            ) : null}
           </TabPanel>
         </aside>
       </div>
@@ -361,34 +635,93 @@ export function StudioScreen(props: StudioProps): JSX.Element {
       <div className="control-strip" role="region" aria-label="Execution controls">
         <div className="control-strip__status">
           <span
-            className={`status-dot ${engine.canExecute ? "status-dot--success" : "status-dot--attention"}`}
+            className={`status-dot ${
+              health.tone === "success"
+                ? "status-dot--success"
+                : health.tone === "danger"
+                  ? "status-dot--danger"
+                  : "status-dot--attention"
+            }`}
             aria-hidden="true"
           />
           <span>
-            {engine.canExecute ? "Runtime connected · no active turn" : "No active run"}
+            {studio?.activeTurnId
+              ? `Turn active · ${studio.activeTurnId}`
+              : connectionState === "connected"
+                ? "Runtime connected · no active turn"
+                : `Studio ${connectionState.replace("_", " ")}`}
+            {studio?.pauseAfterTask ? " · paused after this task" : ""}
+            {studio && studio.queued > 0 ? ` · ${studio.queued} queued` : ""}
             {blockedTasks.length > 0
               ? ` · ${blockedTasks.length} blocked task${blockedTasks.length === 1 ? "" : "s"}`
               : ""}
           </span>
         </div>
         <div className="control-strip__actions">
-          <Button
-            size="sm"
-            variant="secondary"
-            icon={<PauseIcon size={14} />}
-            disabled
-            title="Wired in P08"
-          >
-            Pause after task
-          </Button>
+          {studio?.pauseAfterTask ? (
+            <Button
+              size="sm"
+              variant="secondary"
+              icon={<PlayIcon size={14} />}
+              onClick={props.onResumeQueue}
+            >
+              Resume queue
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              variant="secondary"
+              icon={<PauseIcon size={14} />}
+              disabled={!studio?.controls.canPause}
+              title={
+                studio?.controls.canPause
+                  ? "Finish the active task, then start nothing new"
+                  : "Pause is a queue boundary; start the engine first"
+              }
+              onClick={props.onPause}
+            >
+              Pause after task
+            </Button>
+          )}
           <Button
             size="sm"
             variant="danger"
             icon={<StopIcon size={14} />}
-            disabled
-            title="Wired in P08"
+            disabled={!studio?.controls.canInterrupt || props.studioBusy}
+            title={
+              studio?.controls.canInterrupt
+                ? "Ask the engine to interrupt the active turn; the receipt is shown"
+                : "No active turn to interrupt"
+            }
+            onClick={props.onInterrupt}
           >
             Interrupt now
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            disabled={!studio?.controls.canCancelQueued}
+            title={
+              studio?.controls.canCancelQueued
+                ? "Remove future starts; the active turn is untouched"
+                : "The queue is empty in P08; prompt queueing arrives with the work board"
+            }
+            onClick={props.onCancelQueued}
+          >
+            Cancel queued
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            disabled={!studio?.controls.canStop || props.studioBusy}
+            title={
+              studio?.controls.canStop
+                ? "Interrupt any active turn, then stop the owned process tree"
+                : "No owned runtime is running"
+            }
+            onClick={props.onStop}
+          >
+            Stop engine
           </Button>
           <Button
             size="sm"
