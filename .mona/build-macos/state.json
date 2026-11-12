@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "revision": 66,
+  "revision": 75,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
   "spec_sha256": "d1c02941151c71912bc3e9c8b2509612298d54e05e0bf16fe933b9bd93e3e028",
   "prompt_file_sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8",
-  "current_prompt": "P06",
+  "current_prompt": "P07",
   "current_prompt_status": "completed",
-  "last_verified_commit": "22391bd",
+  "last_verified_commit": "82e6329",
   "tasks": {
     "P00": {
       "status": "completed",
@@ -53,7 +53,7 @@
         },
         {
           "path": "docs/requirements-macos.json",
-          "sha256": "2efeb8e151b044c283071de218b6ac0ee6028cc0a831abccf2bae7c64888e15a"
+          "sha256": "5182df2be98b985415f534d7bfba22ed221056ca4e860a1cb9e6d43b66f40e51"
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
@@ -81,7 +81,7 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "e6d696fa05c3548f0683a80275d7d3f754bd590b1b3950a1b4a3812764fbc09f"
+          "sha256": "a209d27cc1aa8e6e3a5bbddf1b6c713d26152049db3b5398691c4a342860b934"
         },
         {
           "path": "docs/evidence/macos/artifacts/p00-test-run.txt",
@@ -234,7 +234,7 @@
         },
         {
           "path": "package.json",
-          "sha256": "6d4e60101dd206e92d9a4594cb4043e9bcb49c61f47904a9ccc64a3274ee6040"
+          "sha256": "c94f5a1ceee0aeaf2b70ee7a34a00fe23da1cfa2c3f307c46a761d4a9c18cb41"
         },
         {
           "path": "package-lock.json",
@@ -266,7 +266,7 @@
         },
         {
           "path": "scripts/smoke.mjs",
-          "sha256": "6155468c1694e3795e5173f63acd604a5ae72859eaa98e95076a4d639f38577d"
+          "sha256": "edfa0b1772715f8b817c03d215dfaef54e52c459fe25f592588d559721e107d2"
         },
         {
           "path": "native/macos-services/README.md",
@@ -282,19 +282,19 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "670cc41f933cd174696fa16dba100513c3cc638a8e4f788d53594302c7e87a15"
+          "sha256": "ce80f3dbf46c0e64b19e9107fdc33e3c1c47123c2a1bf6aa81f11484e49c6d22"
         },
         {
           "path": "src/main/ipc-contract.ts",
-          "sha256": "953df3bca4a9cff7a519098571fd330488468b2636ef29a7155618876f5dc1f6"
+          "sha256": "a65ace9616e596ef71d75d2f63dea9ffb8c20b4efceb835358ee46cdb19ec1cf"
         },
         {
           "path": "src/main/ipc.ts",
-          "sha256": "57e97f656459983d5af10e8eff53b017ecdd80223472df5f275501689c16ba06"
+          "sha256": "839529bf8e39199242fe1412a2793480324a05c2ad93f6ac67a50a40d3b89d82"
         },
         {
           "path": "src/main/menu.ts",
-          "sha256": "76dd1d124cb7a315d01ef0f6d6ee9705c89f69e6ccbf3a750dcf46ccd2d762ae"
+          "sha256": "3d23d62436396851c2c7774c17d4a95899050c6efe255be568c7c1b0b591d3e1"
         },
         {
           "path": "src/main/navigation.ts",
@@ -314,15 +314,15 @@
         },
         {
           "path": "src/main/window.ts",
-          "sha256": "145f93da3f5416465c5493dcd2be4bb8e434b6ce1bf740a998a26966ee305a2e"
+          "sha256": "7c6e1635001d6de3fd92a4d91eb6e9dc4668c222f4f7b1e91832752d6022b65f"
         },
         {
           "path": "src/preload/index.ts",
-          "sha256": "20bf7aeb41a0770bf1bb02c805fd14d68d56560f55231dae8250e52e6ee6c9ef"
+          "sha256": "84cb4ae1cd0de5128b9741fad27219e1348879b36be6353f1ef9554c36a77400"
         },
         {
           "path": "src/renderer/App.tsx",
-          "sha256": "fb297ac49b4af9125ef490e54f4d74f013cd5375a46729d3f87773511a0decc0"
+          "sha256": "9f9b19aa4dfe3b9b8881da39eb85c876603019fa0469c4974bc9d232b242c364"
         },
         {
           "path": "src/renderer/global.d.ts",
@@ -338,11 +338,11 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "6e63ddf983e7975aba492bcbde4d94799449a234692a85aa8f68499aa244afc8"
+          "sha256": "9a0a127f20a36702541b1104144ccc272f68e578c0767a12a0a6384e9aa45b02"
         },
         {
           "path": "src/shared/contracts/bridge.ts",
-          "sha256": "b898b1fd298ba5e1b1f14760c426deeed6a0e814b86c70ff1624377e2a6a1a64"
+          "sha256": "01f6019dbadb53f40313a8bdd166f921e93810287671c61fef46ef808bee79d0"
         },
         {
           "path": "src/shared/contracts/engine.ts",
@@ -358,7 +358,7 @@
         },
         {
           "path": "src/shared/contracts/index.ts",
-          "sha256": "d5eaf2424fb9f1521f632969769399834a0b4e53d5061b75fedea69995c25e7f"
+          "sha256": "55315be2ee6efe8c990721801e82cacf992e1f4109403ba74d03e0a2b7678717"
         },
         {
           "path": "src/shared/contracts/project.ts",
@@ -394,7 +394,7 @@
         },
         {
           "path": "test/ipc-contract.test.ts",
-          "sha256": "df139a5d8c2064c2d0cab6606ad5babd7dbb711cd1b90d55ab2aae97a3c8b994"
+          "sha256": "9b4caec68c7cf645b63fd1410d63c914bd77d6086babb900976d2b81f58ac582"
         },
         {
           "path": "test/navigation.test.ts",
@@ -543,7 +543,7 @@
         },
         {
           "path": "package.json",
-          "sha256": "6d4e60101dd206e92d9a4594cb4043e9bcb49c61f47904a9ccc64a3274ee6040"
+          "sha256": "c94f5a1ceee0aeaf2b70ee7a34a00fe23da1cfa2c3f307c46a761d4a9c18cb41"
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
@@ -669,7 +669,7 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "670cc41f933cd174696fa16dba100513c3cc638a8e4f788d53594302c7e87a15"
+          "sha256": "ce80f3dbf46c0e64b19e9107fdc33e3c1c47123c2a1bf6aa81f11484e49c6d22"
         },
         {
           "path": "src/main/engine/runtime-process.ts",
@@ -717,11 +717,11 @@
         },
         {
           "path": "package.json",
-          "sha256": "6d4e60101dd206e92d9a4594cb4043e9bcb49c61f47904a9ccc64a3274ee6040"
+          "sha256": "c94f5a1ceee0aeaf2b70ee7a34a00fe23da1cfa2c3f307c46a761d4a9c18cb41"
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "e6d696fa05c3548f0683a80275d7d3f754bd590b1b3950a1b4a3812764fbc09f"
+          "sha256": "a209d27cc1aa8e6e3a5bbddf1b6c713d26152049db3b5398691c4a342860b934"
         }
       ],
       "blocker_ids": [],
@@ -898,16 +898,64 @@
       ]
     },
     "P07": {
-      "status": "pending",
+      "status": "completed",
       "requirements": [
         "MONA-005",
         "MONA-006",
         "MONA-029"
       ],
-      "completed_steps": [],
+      "completed_steps": [
+        "Implemented ProjectService over the transactional store: list/search, open/import, detail, rename, pin, archive/restore, remove, relocate, reveal, view state, drafts, Git branch, usage summary, stored events, and real engine snapshot",
+        "Added strict IPC channels and a 17-method narrow bridge for catalog operations, runtime status, and state facts; expected failures cross as typed result envelopes and no channel deletes files",
+        "Added native File → Open Project… (Cmd+O) with the real folder dialog and project handoff to the renderer",
+        "Replaced the fixture harness with real Home, Studio, Work board, Cost lens, and Settings screens using the P06 design system; the harness remains reachable only through ?harness=1",
+        "Wired per-project drafts and view state; switching projects flushes and reloads drafts, and reopening a project creates at most one shell thread without resuming work",
+        "Displayed supervisor-driven engine state, branch, real usage, local data facts, and blocked reasons; model and permission stay 'not reported'/'unknown' until a live turn verifies them",
+        "Implemented the command palette over real projects/screens and Command-1-5 navigation; every major screen is reachable without a mouse",
+        "Verified: 205 tests in 25 files (10 project-service, 8 IPC), real shell smoke 29/29 checks, Electron smoke 21/21, four rendered shell screenshots, no fake percentage or hard-coded engine badge"
+      ],
       "remaining_steps": [],
-      "evidence": [],
-      "blocker_ids": []
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P07-projects.md",
+          "sha256": "a60c1a6fa496a4c4b42653e1bf84281dfb2861c040e28ef7df72b4fb52a15775"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p07-tests.txt",
+          "sha256": "635c0967e6ddb17216046bdf192a07c8cd6fd9d7ce254bbddcf99b54bdf8bdb3"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p07-full-suite.txt",
+          "sha256": "697295f618a16efddbec600085c662354caab5e7e980115ac51a104be715b009"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p07-shell-smoke.json",
+          "sha256": "abca430aea6c4f3ef985c50736a6aa6eb5448df87eab621b148bec805bb2170a"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p07-shell-home.png",
+          "sha256": "5ec54762c7e2492e957901759c75935d8a5b5a96d4377a560b3de1546939b941"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p07-shell-studio.png",
+          "sha256": "50dcf1ddb43a6f5079bbac3c2bf56d116c27ad0e28109f831d2408f05f66a78a"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p07-shell-board.png",
+          "sha256": "d58dad6b57edfb2288960008c3b511923a83cdf89871bb03d2da899883de073d"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p07-shell-settings.png",
+          "sha256": "4aba09d1cfbfdbfa164068afec7100d97f083e1e3d2afc5b0b7f8b9855f8d0fd"
+        }
+      ],
+      "blocker_ids": [],
+      "notes": [
+        "P07-01: live submission and execution controls are P08; the composer saves drafts and Send is disabled with the exact reason.",
+        "P07-02: task creation is P10, route editing P16, restore UI P19. The shell states those boundaries instead of simulating them.",
+        "P07-03: model and permission remain 'not reported'/'unknown' until a turn reports them; no remembered badge is displayed.",
+        "P07-04: the shell smoke seeds a project directly to avoid a modal dialog in automation; the folder picker is exercised through the service dialog seam in tests."
+      ]
     },
     "P08": {
       "status": "pending",
@@ -1148,9 +1196,9 @@
     }
   },
   "next_eligible_prompts": [
-    "P07"
+    "P08"
   ],
-  "last_checkpoint_utc": "2026-11-12T03:07:19.618Z",
+  "last_checkpoint_utc": "2026-11-12T03:20:39.046Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

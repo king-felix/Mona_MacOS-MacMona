@@ -1,101 +1,103 @@
 # Handoff — Mona macOS build
 
-**Last checkpoint:** 2026-11-11 (P06, revision 66) · verified commit `22391bd`
-**Current prompt:** P07 — **pending, not started**
+**Last checkpoint:** 2026-11-11 (P07, revision 74) · verified commit `82e6329`
+**Current prompt:** P07 completed. **Queue complete** (P05–P07). Next eligible:
+P08 — not started, not authorized in this session.
 
 ## Where the build stands
 
-P00–P06 are complete: qualified headless integration, a secure desktop shell, a
-contract-tested engine adapter, a native process supervisor with honest desktop
-lifecycle, a transactional per-user project database, and a measured design
-system with accessible fixture screens. P07 is the only eligible prompt: it
-replaces the fixture harness with the real project catalog and desktop shell.
+P00–P07 are complete: qualified headless integration, a secure shell, a
+contract-tested engine adapter, a native process supervisor, transactional
+per-user state, a measured design system, and a real multi-project catalog and
+desktop shell. The shell reads real state and the real supervisor status; it
+does not submit work or start an engine yet (P08).
 
-### P06 — design system (complete)
+### P07 — real catalog and shell (complete)
 
-- **Themes.** Daybreak and Afterglow tokens in
-  `src/renderer/design/tokens.ts`; 23 measured contrast pairs per theme (16 text
-  at 4.5:1, 7 UI at 3:1). Coral moved off normal text; interactive borders
-  strengthened after measurement. No assumption that the starting palette passed.
-- **Components.** Accessible button, icon button, field, input, textarea,
-  select, tabs (roving focus), dialog (focus trap, Escape, restore), menu
-  (keyboard), notification, callout, badge/status badge, card, inspector, empty
-  state, skeleton, error state, segmented control, switch, keycap.
-- **Screens.** Home, studio, work board, cost lens, blocker, settings; long
-  paths and names, 40-event timeline, unknown cost, disconnected, blocked, empty,
-  permission and credential states. Clearly labeled fixture harness.
-- **Scaling/motion.** 1280×800 and real 200% zoom (640×400 CSS), no horizontal
-  page overflow; density modes; 120–180 ms motion; reduced motion honored.
-- **Verification.** 26 design tests, 192 total, axe zero serious/critical across
-  13 renderings, keyboard receipt shows skip-link-first and a solid 2 px focus
-  ring, 15 Electron-rendered screenshots, no-network source scan, smoke 21/21.
-  Evidence: `docs/design-system.md`, `docs/evidence/macos/P06-design.md`,
-  `artifacts/p06-*`.
+- **ProjectService** over `StateStore`: list/search, open/import, detail, rename,
+  pin, archive/restore, remove, relocate, reveal, view state, drafts, Git branch,
+  usage, stored events, and a real engine snapshot. Removal never touches source
+  files. One shell thread per project; reopening never resumes work.
+- **IPC/bridge** — strict channels with typed result envelopes; project ids
+  branded; revisions required for mutations; no filesystem-delete channel. 17
+  named bridge methods; no raw ipcRenderer. Native File → Open Project… (`⌘O`)
+  opens the real folder dialog and selects the project.
+- **Shell** — real Home, Studio, Work board, Cost lens, Settings. Engine badge,
+  blocked reason, branch, usage, local paths, permissions, and integrity are
+  real. Model/permission say “not reported”/“unknown” until a live turn verifies
+  them. Drafts and view state are per project; command palette and `⌘1`–`⌘5`
+  reach every screen.
+- **Verification** — 205 tests in 25 files (10 service, 8 IPC), shell smoke 29/29
+  checks with four rendered screenshots, Electron smoke 21/21, lint 0 errors,
+  `monabuild validate` clean. Evidence: `docs/evidence/macos/P07-projects.md`,
+  `artifacts/p07-*`.
 
-## Next exact action (P07)
+## Next exact action (P08)
 
-Read spec §4.2, §4.3, §5, §7 (004–006, 029), §10.1; `src/main/state/store.ts`
-and `submission-store.ts`; `src/main/supervisor/runtime-supervisor.ts`; the P06
-design system and screens; this handoff. Then assemble the real shell:
+Read spec §4, §5.2, §6, §7 (007, 008, 012, 014), §13; the P03 adapter and
+`SqliteSubmissionStore`; P04 supervisor transition API; the P07
+`ProjectService` detail/engine snapshot; this handoff. Then deliver the live work
+studio:
 
-1. Main-process project service over `StateStore`: open/create/import existing
-   folder, recent/pinned, label rename, archive, local search, reveal folder,
-   relocation, catalog removal. Canonicalize paths, dedupe aliases, distinguish
-   nested repos/worktrees, and never delete source files when removing a
-   catalog entry.
-2. Add strict IPC channels and bridge methods for catalog operations, app/state
-   facts, reveal, and selected project view state. Validate every payload;
-   never expose the database or shell.
-3. Bind selection to the correct runtime binding and persisted view state;
-   preserve drafts per project/thread. Display actual engine connection, branch,
-   model, permission, and local availability. Missing credentials/runtime must
-   prevent execution while history and settings stay usable.
-4. Add the command palette shell and keyboard navigation; route actions safely.
-   No fake percentage complete and no hard-coded engine badge in production.
-5. Tests: catalog survives restart; relocation rebinds deliberately; archived
-   projects restore; dirty/non-Git folders open; path aliases deduplicate;
-   switching projects during a simulated run keeps drafts/turns/costs/permissions
-   isolated; offline history works. Verify every major screen is reachable
-   without a mouse.
-6. Evidence: `docs/evidence/macos/P07-projects.md`, plus screenshots of the real
-   shell. This is the last prompt in the authorized queue; report and pause.
+1. Wire the real adapter runtime to the selected project: start/attach through
+   `RuntimeSupervisor`, authenticate loopback, bind the project and thread, and
+   keep one mutating turn per workspace.
+2. Persist submission intent before sending; reconcile lost responses; never
+   blind-retry. Stream events into the store (transactional projections and
+   cursors), deduplicate replay, and render the timeline from real events.
+3. Enable the composer with Plan/Work and effective profile/permission display;
+   save drafts; show actual cost/usage, unknown when unpriced.
+4. Connect Pause after task, Interrupt now, cancel-queued, and quit-and-stop to
+   `WorkController`, with receipts and honest uncertainty. Do not hide controls.
+5. Handle connecting, running, reconnecting, disconnected, failed, missing
+   runtime, missing credentials, and unknown-cost states. No fake completion or
+   percentage.
+6. Tests and evidence: real pinned-engine smoke through the shell, submission
+   loss/reconcile, replay dedup, interrupt receipt, project isolation during a
+   live turn, offline history; `docs/evidence/macos/P08-studio.md`.
+
+The authorized queue was P05–P07; P08 is the next eligible prompt but waits for
+the next instruction.
 
 ## Nonblocking issues carried forward
 
-1. **Single-owner runtime** — enforced (`ALREADY_OWNED`); parallel ownership needs
-   a future tested engine decision.
-2. **Direct cost unknown** — `codewhale exec` agent mode omits the usage split and
-   price coverage.
+1. **Single-owner runtime** — enforced; parallel ownership needs a tested engine
+   decision.
+2. **Direct cost unknown** — `codewhale exec` agent mode omits the usage split
+   and price coverage.
 3. **Adapter gaps** — approvals, clarifications, steer, artifacts, workspace
-   search/restore, terminal, and fleet are not adapter operations yet.
+   search/restore, terminal, fleet are not adapter operations yet.
 4. **Usage cost completeness** — `costComplete: false` when unpriced turns exist.
 5. **Electron embedded Node is 24.22.2**, not the host 26.13.0.
-6. **No Developer ID signing** — P22 prerequisite.
-7. **Supervisor packaging** — compiled binary gitignored; P21/P22 must ship/sign.
+6. **No Developer ID signing** — P22 prerequisite; local/ad-hoc only.
+7. **Supervisor packaging** — compiled binary gitignored; P21/P22 ship and sign.
 8. **Physical sleep not performed** — manual lid-close test remains.
-9. **Harness is not live state** — P07 replaces it; P06 screenshots are renders of
-   fixture data.
-10. **Human aesthetic review and VoiceOver walkthrough** — P24/P26.
-11. **Second macOS account not exercised** — P24 owns literal multi-user denial.
-12. **Network filesystem check** — `/usr/bin/stat -f %T`; skipped if unavailable.
-13. **Artifact bytes are not portable** — import reports missing digests.
-14. **Adapter ingestion barrier** — available; P08 routes live ingestion through it.
+9. **Live studio not wired** — P08; composer disabled with reason, no fake run.
+10. **Task creation** — P10; board shows stored tasks only.
+11. **Route editing** — P16; Settings shows actual engine facts only.
+12. **Restore UI** — P19; recovery panel describes the mechanism.
+13. **Human aesthetic and VoiceOver QA** — P24/P26.
+14. **Second macOS account not exercised** — P24; path/mode/no-token verified.
+15. **Network filesystem check** — `/usr/bin/stat -f %T`; skipped if unavailable.
+16. **Artifact bytes are not portable** — import reports missing digests.
+17. **Native menu folder picker** — automation seeds the project; the dialog seam
+    is covered by service tests.
 
 ## Key files
 
-- `.mona/build-macos/state.json` — prompt status (revision 66).
+- `.mona/build-macos/state.json` — prompt status (revision 74).
 - `.mona/build-macos/attempts.jsonl` — empty; nothing failed three times.
-- `.mona/build-macos/DECISIONS.md` — D-001…D-016.
+- `.mona/build-macos/DECISIONS.md` — D-001…D-017.
 - `.mona/build-macos/BLOCKERS.md` — external prerequisites only.
-- `docs/requirements-macos.json` — generated traceability (never hand-edit structure).
+- `docs/requirements-macos.json` — generated traceability.
 - `docs/design-system.md`, `docs/decisions/ADR-001…004`.
-- `docs/evidence/macos/P00…P06-*.md` and `artifacts/p0*-*`.
-- `src/main/state/` — database, schema/migrations, barrier, store, identity,
-  artifacts, portable, paths, `SqliteSubmissionStore`.
-- `src/renderer/design/` — tokens, icons, primitives, fixtures, Harness, screens.
-- `src/main/supervisor/`, `src/main/engine/`, `src/main/work/`,
-  `src/main/desktop-lifecycle.ts`, `src/main/ipc-contract.ts`.
+- `docs/evidence/macos/P00…P07-*.md` and `artifacts/p0*-*`.
+- `src/main/state/`, `src/main/projects/service.ts`, `src/main/supervisor/`,
+  `src/main/engine/`, `src/main/work/`, `src/main/ipc.ts`,
+  `src/main/ipc-contract.ts`, `src/main/menu.ts`, `src/preload/index.ts`.
+- `src/renderer/shell/` — Shell, Home, Studio, Board, Cost, Settings, visual
+  helpers. `src/renderer/design/` — tokens, primitives, icons, harness.
+- `scripts/shell-smoke.mjs`, `scripts/smoke.mjs`, `scripts/ci.mjs`,
+  `scripts/lifecycle-smoke.mjs`, `scripts/engine-smoke.mjs`.
 - `native/macos-supervisor/`, `native/macos-services/`.
-- `scripts/build-supervisor.mjs`, `scripts/lifecycle-smoke.mjs`,
-  `scripts/engine-smoke.mjs`, `scripts/ci.mjs`, `scripts/smoke.mjs`.
 - `AGENTS.md` — operating contract and commands.
