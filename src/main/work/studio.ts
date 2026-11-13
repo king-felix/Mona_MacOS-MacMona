@@ -47,7 +47,11 @@ export interface WorkStudioOptions {
   supervisor: StudioSupervisor;
   work: WorkController;
   /** Test seam: build the adapter over an injected transport. */
-  newAdapter?: (transport: RuntimeTransport, projectId: ProjectId) => EngineAdapter;
+  newAdapter?: (
+    transport: RuntimeTransport,
+    projectId: ProjectId,
+    workspace: string,
+  ) => EngineAdapter;
   notify?: (push: StudioPush) => void;
   /**
    * Called when an engine turn reaches a terminal event. It is how the work
@@ -202,7 +206,11 @@ export class WorkStudio {
   private readonly store: StateStore;
   private readonly supervisor: StudioSupervisor;
   private readonly work: WorkController;
-  private readonly newAdapter: (transport: RuntimeTransport, projectId: ProjectId) => EngineAdapter;
+  private readonly newAdapter: (
+    transport: RuntimeTransport,
+    projectId: ProjectId,
+    workspace: string,
+  ) => EngineAdapter;
   private readonly notify: (push: StudioPush) => void;
   private readonly now: () => Date;
   private readonly reconnectAttempts: number;
@@ -225,10 +233,11 @@ export class WorkStudio {
     this.changes = options.changes ?? null;
     this.newAdapter =
       options.newAdapter ??
-      ((transport, projectId) =>
+      ((transport, projectId, workspace) =>
         new CodewhaleAdapter({
           transport,
           store: new SqliteSubmissionStore(options.store, projectId),
+          workspace,
         }));
     this.notify = options.notify ?? (() => undefined);
     this.onTurnFinished = options.onTurnFinished ?? null;
@@ -371,7 +380,10 @@ export class WorkStudio {
       this.fail(session, "endpoint_invalid", errorMessage(error));
       return this.snapshot(projectId);
     }
-    session.adapter = this.newAdapter(transport, projectId);
+    session.adapter = this.newAdapter(transport, projectId, project.canonicalPath);
+    // An injected adapter factory keeps its own construction, so bind the
+    // workspace fence here as well: engine reads must stay inside this project.
+    session.adapter.scopeToWorkspace?.(project.canonicalPath);
     session.owned = true;
     session.port = endpoint.port;
     try {

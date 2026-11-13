@@ -10,7 +10,7 @@ import {
   startOwnedRuntime,
   verifyListenerOwnership,
 } from "../src/main/engine/runtime-process";
-import { readExecutablePath, readProcessEntry } from "../src/main/supervisor/identity";
+import { listeningPids, readExecutablePath, readProcessEntry } from "../src/main/supervisor/identity";
 import { newRecordId, OwnershipStore } from "../src/main/supervisor/records";
 import { RuntimeLifecycleError } from "../src/main/supervisor/errors";
 import { existsSync } from "node:fs";
@@ -96,9 +96,44 @@ describe("runtime startup states are actionable", () => {
     await new Promise<void>((resolve) => server.listen(port, "127.0.0.1", () => resolve()));
     const unrelated = spawn("/bin/sleep", ["30"], { stdio: "ignore" });
     try {
-      expect(() => verifyListenerOwnership(port, unrelated.pid as number, "/bin/sh")).toThrowError(
-        /outside the supervised tree/,
-      );
+      // No Runtime-store owner in this probe: the generic diagnosis stands.
+      expect(() =>
+        verifyListenerOwnership(port, unrelated.pid as number, "/bin/sh", { owner: () => null }),
+      ).toThrowError(/outside the supervised tree/);
+    } finally {
+      unrelated.kill("SIGKILL");
+      await new Promise<void>((resolve) => server.close(() => resolve()));
+    }
+  });
+
+  it("names the Runtime-store owner instead of blaming the port", async () => {
+    const port = await findFreePort();
+    const server = createServer();
+    await new Promise<void>((resolve) => server.listen(port, "127.0.0.1", () => resolve()));
+    const unrelated = spawn("/bin/sleep", ["30"], { stdio: "ignore" });
+    try {
+      const [listenerPid] = listeningPids(port);
+      expect(listenerPid).toBeGreaterThan(0);
+      let error: unknown = null;
+      try {
+        verifyListenerOwnership(port, unrelated.pid as number, "/bin/sh", {
+          owner: () => ({
+            pid: listenerPid as number,
+            executable: "/bin/sleep",
+            command: "/bin/sleep 30",
+            home: "/tmp/engine-home",
+            lockPath: "/tmp/engine-home/tasks/runtime/runtime-process.owner.lock",
+          }),
+        });
+      } catch (caught) {
+        error = caught;
+      }
+      const lifecycle = error as RuntimeLifecycleError;
+      expect(lifecycle.code).toBe("OWNERSHIP_MISMATCH");
+      expect(lifecycle.message).toContain("another Codewhale runtime host already owns");
+      expect(lifecycle.message).toContain(`pid ${listenerPid}`);
+      expect(lifecycle.action).toContain("Mona does not attach to a runtime it did not start");
+      expect(lifecycle.details?.strangers).toEqual([listenerPid]);
     } finally {
       unrelated.kill("SIGKILL");
       await new Promise<void>((resolve) => server.close(() => resolve()));

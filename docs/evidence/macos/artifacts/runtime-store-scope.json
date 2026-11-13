@@ -1,0 +1,24 @@
+{
+  "wsA": "~tmp/mona-scope-A-84Ue49",
+  "wsB": "~tmp/mona-scope-B-5jd9tD",
+  "guestReady": true,
+  "foreignThread": "thr_07e85130406d479082dabec577157ca6",
+  "scopedRead": {
+    "accepted": false,
+    "code": "WRONG_THREAD",
+    "details": {
+      "thread_id": "thr_07e85130406d479082dabec577157ca6",
+      "expected_workspace": "~tmp/mona-scope-A-84Ue49",
+      "observed_workspace": "~tmp/mona-scope-B-5jd9tD"
+    }
+  },
+  "unscopedRead": {
+    "accepted": true,
+    "workspace": "~tmp/mona-scope-B-5jd9tD"
+  },
+  "scopedSessionResume": {
+    "accepted": false,
+    "code": "UNSUPPORTED_CAPABILITY",
+    "message": "unsupported capability: session.resume (a saved session id is not provably bound to this project's workspace, so Mona will not resume it while a project is attached)"
+  }
+}

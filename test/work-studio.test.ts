@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import type { EngineAdapter } from "../src/main/engine/types";
 import { CodewhaleAdapter } from "../src/main/engine/adapter";
+import { MemorySubmissionStore } from "../src/main/engine/submission-store";
 import { SqliteSubmissionStore } from "../src/main/state/submission-store";
 import type { StoredProject } from "../src/main/state/store";
 import type { SupervisorStopReceipt } from "../src/main/supervisor/native";
@@ -133,7 +134,7 @@ async function setup(
       body: unknown,
     ) => ReturnType<typeof jsonResponse> | Promise<ReturnType<typeof jsonResponse>>;
     stream?: (path: string) => AsyncIterable<string>;
-    adapter?: (transport: FixtureTransport) => EngineAdapter;
+    adapter?: (transport: FixtureTransport, projectId: ProjectId, workspace: string) => EngineAdapter;
     now?: () => Date;
     reconnect?: {
       attempts?: number;
@@ -152,6 +153,9 @@ async function setup(
 
   const info = await fixture<Record<string, unknown>>("runtime-info.json");
   const thread = await fixture<Record<string, unknown>>("thread.json");
+  // The engine reports the workspace it created the thread in. The fixture has
+  // to say the same, or the studio's workspace fence correctly refuses it.
+  thread.workspace = opened.project.canonicalPath;
   const accepted = await fixture<Record<string, unknown>>("turn-accepted.json");
   const usage = await fixture<Record<string, unknown>>("usage.json");
   const events = options.events ?? (await fixture<unknown[]>("events.json"));
@@ -209,6 +213,20 @@ async function setup(
     pushes,
   };
 }
+
+describe("live studio: engine reads stay inside the project", () => {
+  it("binds its adapter to the project workspace", async () => {
+    const scopes: string[] = [];
+    const harness = await setup({
+      adapter: (transport, _projectId, workspace) => {
+        scopes.push(workspace);
+        return new CodewhaleAdapter({ transport, store: new MemorySubmissionStore() });
+      },
+    });
+    await harness.studio.start(harness.project.id as ProjectId);
+    expect(scopes).toEqual([harness.project.canonicalPath]);
+  });
+});
 
 async function waitFor(predicate: () => Promise<boolean>, timeoutMs = 4_000): Promise<void> {
   const deadline = Date.now() + timeoutMs;

@@ -449,3 +449,106 @@ describe("revoked credentials", () => {
     expect(frames).toEqual([]);
   });
 });
+
+describe("workspace scoping", () => {
+  // The engine's store is shared per user home, so a thread id alone proves
+  // nothing. A scoped adapter trusts only threads the engine places in its own
+  // workspace.
+  const DEMO = "/Users/example/projects/demo";
+
+  it("refuses history for a thread the engine reports in another workspace", async () => {
+    const { adapter } = await makeAdapter();
+    adapter.scopeToWorkspace("/Users/example/projects/other");
+    await expect(adapter.readHistory({ threadId: THREAD })).rejects.toMatchObject({
+      code: "WRONG_THREAD",
+      details: { expected_workspace: "/Users/example/projects/other", observed_workspace: DEMO },
+    });
+  });
+
+  it("accepts history for its own workspace and while unscoped", async () => {
+    const { adapter } = await makeAdapter();
+    adapter.scopeToWorkspace(DEMO);
+    const page = await adapter.readHistory({ threadId: THREAD });
+    expect(page.workspace).toBe(DEMO);
+
+    const { adapter: unscoped } = await makeAdapter();
+    await expect(unscoped.readHistory({ threadId: THREAD })).resolves.toMatchObject({
+      threadId: THREAD,
+    });
+  });
+
+  it("accepts the workspace given to the constructor", async () => {
+    const info = await fixture<Json>("runtime-info.json");
+    const thread = await fixture<Json>("thread.json");
+    const transport = new FixtureTransport(
+      (method, path) => {
+        if (method === "GET" && path === "/v1/runtime/info") return jsonResponse(200, info);
+        if (method === "GET" && path.startsWith("/v1/threads/")) return jsonResponse(200, thread);
+        return jsonResponse(404, {});
+      },
+      () => chunkText("", 5),
+    );
+    const adapter = new CodewhaleAdapter({
+      transport,
+      store: new MemorySubmissionStore(),
+      workspace: DEMO,
+    });
+    await expect(adapter.readHistory({ threadId: THREAD })).resolves.toMatchObject({
+      workspace: DEMO,
+    });
+  });
+
+  it("refuses a saved-session resume while a project is attached", async () => {
+    const { adapter } = await makeAdapter();
+    adapter.scopeToWorkspace(DEMO);
+    await expect(
+      adapter.invokeCapability({ name: "session.resume", args: { sessionId: "sess-1" } }),
+    ).rejects.toBeInstanceOf(UnsupportedCapabilityError);
+  });
+
+  it("still resumes when no workspace is attached", async () => {
+    const { adapter } = await makeAdapter({
+      handler: (method, path) => {
+        if (path === "/v1/runtime/info") return jsonResponse(200, {});
+        if (method === "POST" && path.includes("/resume-thread"))
+          return jsonResponse(200, { thread_id: THREAD, message_count: 2 });
+        return jsonResponse(404, {});
+      },
+    });
+    const result = await adapter.invokeCapability({
+      name: "session.resume",
+      args: { sessionId: "sess-1" },
+    });
+    expect(result.status).toBe("ok");
+  });
+});
+
+describe("workspace scoping tolerates equivalent paths", () => {
+  it("accepts a symlinked spelling of the same workspace", async () => {
+    const { mkdtempSync, symlinkSync } = await import("node:fs");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+    const real = mkdtempSync(join(tmpdir(), "mona-scope-real-"));
+    const link = join(mkdtempSync(join(tmpdir(), "mona-scope-link-")), "alias");
+    symlinkSync(real, link);
+    const info = await fixture<Json>("runtime-info.json");
+    const thread = await fixture<Json>("thread.json");
+    thread.workspace = real;
+    const transport = new FixtureTransport(
+      (method, path) => {
+        if (path === "/v1/runtime/info") return jsonResponse(200, info);
+        if (path.startsWith("/v1/threads/")) return jsonResponse(200, thread);
+        return jsonResponse(404, {});
+      },
+      () => chunkText("", 5),
+    );
+    const adapter = new CodewhaleAdapter({
+      transport,
+      store: new MemorySubmissionStore(),
+      workspace: link,
+    });
+    await expect(adapter.readHistory({ threadId: THREAD })).resolves.toMatchObject({
+      workspace: real,
+    });
+  });
+});

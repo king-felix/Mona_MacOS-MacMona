@@ -43,6 +43,12 @@ import {
 } from "../supervisor/records";
 import { evaluateCompatibility } from "./compat";
 import { AdapterError } from "./errors";
+import {
+  describeRuntimeStoreOwner,
+  runtimeStoreOwner,
+  runtimeStorePaths,
+  type RuntimeStoreOwner,
+} from "./runtime-store";
 import type { RuntimeHandle, RuntimeStartInput } from "./types";
 import { WireRuntimeInfo } from "./wire";
 
@@ -219,6 +225,49 @@ async function assertPortAvailable(port: number): Promise<void> {
  * orphaned record for this workspace is reconciled first, and a record whose
  * pid cannot be proven ours blocks the start instead of being signalled.
  */
+/**
+ * The engine keeps one Runtime store per user home, so a second host in that
+ * home (another Codewhale window, `codewhale web`, `serve --http`, a second
+ * Mona) serves this runtime's port instead of this runtime. Detect that before
+ * spending a spawn on it, and say what actually happened.
+ *
+ * Probing never blocks a start it cannot explain: an unreadable lock or a
+ * missing `lsof` falls through to the listener check, which still refuses.
+ */
+export function assertRuntimeStoreAvailable(store: OwnershipStore): void {
+  let owner: RuntimeStoreOwner | null = null;
+  try {
+    owner = runtimeStoreOwner();
+  } catch {
+    return;
+  }
+  if (!owner) return;
+  const description = describeRuntimeStoreOwner(owner);
+  // A leftover of Mona's own making is a different answer from a stranger's
+  // host: the user can stop it from Mona, and the record already knows where.
+  const known = store
+    .list()
+    .find((record) => record.childPid === owner.pid || record.supervisorPid === owner.pid);
+  if (known) {
+    throw new RuntimeLifecycleError(
+      "ALREADY_OWNED",
+      `Mona's own runtime for ${known.workspace} still owns this user's Codewhale store (${description})`,
+      "stop that runtime from the Mona window that started it, then start this one; Mona will not share one store between two owners",
+      {
+        owner: { ...owner },
+        ownership: { id: known.id, workspace: known.workspace, state: known.state },
+        store: runtimeStorePaths(owner.home).directory,
+      },
+    );
+  }
+  throw new RuntimeLifecycleError(
+    "ALREADY_OWNED",
+    `another Codewhale runtime host already owns this user's Codewhale store (${description})`,
+    "quit that host — its Codewhale window, `codewhale web`, `codewhale serve --http`, or a second Mona — then start this runtime again; Mona does not attach to a runtime it did not start",
+    { owner: { ...owner }, store: runtimeStorePaths(owner.home).directory },
+  );
+}
+
 async function assertNoLiveOwner(store: OwnershipStore, canonical: string): Promise<void> {
   const existing = store.forWorkspace(canonical);
   if (!existing) return;
@@ -307,6 +356,7 @@ export async function startOwnedRuntime(input: RuntimeStartInput): Promise<Owned
   const stateDir = input.stateDir ?? defaultStateDir();
   const store = input.store ?? new OwnershipStore(join(stateDir, "runtime-ownership.json"));
   await assertNoLiveOwner(store, canonical);
+  assertRuntimeStoreAvailable(store);
   const port = input.port ?? (await allocatePort());
   if (input.port !== undefined) await assertPortAvailable(port);
 
@@ -588,10 +638,29 @@ async function awaitRuntimeReady(input: ReadyInput): Promise<WireRuntimeInfo> {
   );
 }
 
+export interface ListenerOwnershipOptions {
+  /** Test seam for the Runtime-store owner probe. */
+  owner?: () => RuntimeStoreOwner | null;
+}
+
+function ownerAmong(
+  strangers: number[],
+  probe: (() => RuntimeStoreOwner | null) | undefined,
+): RuntimeStoreOwner | null {
+  let owner: RuntimeStoreOwner | null = null;
+  try {
+    owner = (probe ?? runtimeStoreOwner)();
+  } catch {
+    return null;
+  }
+  return owner && strangers.includes(owner.pid) ? owner : null;
+}
+
 export function verifyListenerOwnership(
   port: number,
   childPid: number,
   expectedExecutable: string,
+  options: ListenerOwnershipOptions = {},
 ): number {
   const listeners = listeningPids(port);
   if (listeners.length === 0) {
@@ -606,6 +675,18 @@ export function verifyListenerOwnership(
   tree.add(childPid);
   const strangers = listeners.filter((pid) => !tree.has(pid));
   if (strangers.length > 0) {
+    const owner = ownerAmong(strangers, options.owner);
+    if (owner) {
+      // The port is not "occupied": the store already has an owner, and the
+      // engine handed this port to it. Say so, because the fix is to quit that
+      // host — not to hunt for a stray listener.
+      throw new RuntimeLifecycleError(
+        "OWNERSHIP_MISMATCH",
+        `another Codewhale runtime host already owns this user's Codewhale store and served 127.0.0.1:${port} instead of the runtime Mona started (${describeRuntimeStoreOwner(owner)})`,
+        "quit that host — its Codewhale window, `codewhale web`, `codewhale serve --http`, or a second Mona — then start this runtime again; Mona does not attach to a runtime it did not start",
+        { port, listeners, strangers, child_pid: childPid, owner: { ...owner } },
+      );
+    }
     throw new RuntimeLifecycleError(
       "OWNERSHIP_MISMATCH",
       `port ${port} is served by pid(s) outside the supervised tree`,

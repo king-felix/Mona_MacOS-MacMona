@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 702,
+  "revision": 711,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -83,7 +83,7 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "b171cefa0dfdc27dd1da67ff2b9c1d436219d0b19e083533cae5447ee2d72a3e",
+          "sha256": "5bb6abcccb99e133a1e5e57845404f4ae6751356f126cbd8d4c3c9e6ba1920af",
           "note": "P15 appended D-037..D-041; earlier entries unchanged"
         },
         {
@@ -478,7 +478,7 @@
         },
         {
           "path": "src/main/engine/adapter.ts",
-          "sha256": "9005457d83a47404bdd077b2931937beb33a1cb611c90b433f311b61f3d8dfd9",
+          "sha256": "33cf0ad381ea4c105b40336906a4a750c4c7aabcce4966260fd83e56c4fc675d",
           "note": "P15 extended the adapter with orchestration routes and real goal-transition statuses; earlier contracts unchanged and still tested"
         },
         {
@@ -500,7 +500,7 @@
         },
         {
           "path": "src/main/engine/runtime-process.ts",
-          "sha256": "7b4b9bedd121cc651caa0e6565e30e4214ee92efe421ed0eec307fe1571fd3a7"
+          "sha256": "7525c870f8c0184d11ffdec0b56a8af19368628e3241989ce1b2dc7a1efc11de"
         },
         {
           "path": "src/main/engine/sse.ts",
@@ -516,7 +516,7 @@
         },
         {
           "path": "src/main/engine/types.ts",
-          "sha256": "10a6b999f90e8a1cdba02b9a25350fc8c923549372e0f1a1f3dcde7083077705",
+          "sha256": "f4df1e6a68f358d593cf35d46416be96586822d7eb0a94ac5c9a9a316cd2145d",
           "note": "P15 extended the adapter with orchestration routes and real goal-transition statuses; earlier contracts unchanged and still tested"
         },
         {
@@ -555,7 +555,7 @@
         },
         {
           "path": "test/engine-adapter.test.ts",
-          "sha256": "05ebd38635880e0999b947810eb15f2a7dd6547f6766b19cf41dcf667e366bb3"
+          "sha256": "cedae904bf81a24abbe484615229d620f9ad39be29804b2a79fe840807685ffc"
         },
         {
           "path": "test/helpers/fixture-transport.ts",
@@ -703,16 +703,16 @@
         },
         {
           "path": "src/main/engine/runtime-process.ts",
-          "sha256": "7b4b9bedd121cc651caa0e6565e30e4214ee92efe421ed0eec307fe1571fd3a7"
+          "sha256": "7525c870f8c0184d11ffdec0b56a8af19368628e3241989ce1b2dc7a1efc11de"
         },
         {
           "path": "src/main/engine/types.ts",
-          "sha256": "10a6b999f90e8a1cdba02b9a25350fc8c923549372e0f1a1f3dcde7083077705",
+          "sha256": "f4df1e6a68f358d593cf35d46416be96586822d7eb0a94ac5c9a9a316cd2145d",
           "note": "P15 extended the adapter types and shell smoke driver; supervisor behaviour unchanged and still tested"
         },
         {
           "path": "src/main/engine/adapter.ts",
-          "sha256": "9005457d83a47404bdd077b2931937beb33a1cb611c90b433f311b61f3d8dfd9",
+          "sha256": "33cf0ad381ea4c105b40336906a4a750c4c7aabcce4966260fd83e56c4fc675d",
           "note": "P15 extended the adapter types and shell smoke driver; supervisor behaviour unchanged and still tested"
         },
         {
@@ -742,7 +742,7 @@
         },
         {
           "path": "test/runtime-process.test.ts",
-          "sha256": "390332b1260c8531a7522874c662bd4cd337d1192374d4f154c4a507657ce33f"
+          "sha256": "4a42b740a17569d12529606c1e6ae4d0661943c110688db391fee9ad556eab19"
         },
         {
           "path": "test/work-control.test.ts",
@@ -755,7 +755,7 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "b171cefa0dfdc27dd1da67ff2b9c1d436219d0b19e083533cae5447ee2d72a3e",
+          "sha256": "5bb6abcccb99e133a1e5e57845404f4ae6751356f126cbd8d4c3c9e6ba1920af",
           "note": "P15 appended D-037..D-041; earlier entries unchanged"
         }
       ],
@@ -1267,7 +1267,7 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "b171cefa0dfdc27dd1da67ff2b9c1d436219d0b19e083533cae5447ee2d72a3e",
+          "sha256": "5bb6abcccb99e133a1e5e57845404f4ae6751356f126cbd8d4c3c9e6ba1920af",
           "note": "P15 appended D-037..D-041; earlier entries unchanged"
         },
         {
@@ -2083,7 +2083,7 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "b171cefa0dfdc27dd1da67ff2b9c1d436219d0b19e083533cae5447ee2d72a3e"
+          "sha256": "5bb6abcccb99e133a1e5e57845404f4ae6751356f126cbd8d4c3c9e6ba1920af"
         }
       ],
       "blocker_ids": []
@@ -2201,11 +2201,11 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "b171cefa0dfdc27dd1da67ff2b9c1d436219d0b19e083533cae5447ee2d72a3e"
+          "sha256": "5bb6abcccb99e133a1e5e57845404f4ae6751356f126cbd8d4c3c9e6ba1920af"
         },
         {
           "path": ".mona/build-macos/HANDOFF.md",
-          "sha256": "092a361a83515876eff3206d61d7d48413cd5084669d3cdddf781a51f68ea675"
+          "sha256": "f471b5b071572330996bd5d8d1b532f8e556e06e57b4712abb79b4cb711910c6"
         }
       ],
       "blocker_ids": []
@@ -2391,7 +2391,7 @@
         },
         {
           "path": "src/main/engine/runtime-process.ts",
-          "sha256": "7b4b9bedd121cc651caa0e6565e30e4214ee92efe421ed0eec307fe1571fd3a7"
+          "sha256": "7525c870f8c0184d11ffdec0b56a8af19368628e3241989ce1b2dc7a1efc11de"
         },
         {
           "path": "src/main/work/git.ts",
@@ -2419,11 +2419,11 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "b171cefa0dfdc27dd1da67ff2b9c1d436219d0b19e083533cae5447ee2d72a3e"
+          "sha256": "5bb6abcccb99e133a1e5e57845404f4ae6751356f126cbd8d4c3c9e6ba1920af"
         },
         {
           "path": ".mona/build-macos/HANDOFF.md",
-          "sha256": "092a361a83515876eff3206d61d7d48413cd5084669d3cdddf781a51f68ea675"
+          "sha256": "f471b5b071572330996bd5d8d1b532f8e556e06e57b4712abb79b4cb711910c6"
         },
         {
           "path": "test/work-git.test.ts",
@@ -2548,7 +2548,7 @@
   "next_eligible_prompts": [
     "P14"
   ],
-  "last_checkpoint_utc": "2026-11-13T00:29:52.931Z",
+  "last_checkpoint_utc": "2026-11-13T15:31:47.340Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

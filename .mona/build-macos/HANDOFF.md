@@ -7,6 +7,38 @@ revision 508 · verified commit `f755d8a`
 coordination) as eligible. P24 and P26–P27 wait on P22. P22 needs the Developer
 ID prerequisite (EXT-SIGNING) from `BLOCKERS.md`; P25 is fully independent.
 
+### Operator-requested repair — 2026-11-13 (D-098)
+
+Not a prompt. Victor asked whether Mona tracks only the Codewhale instances it
+starts, suspecting that his independent Codewhale window was interfering with
+testing. Measured answer: Mona's threads, events, submissions, and cost rows are
+its own, and a plain Codewhale TUI coexists — but the engine keeps **one Runtime
+store per user home**, so a second *runtime host* serves Mona's port and Mona's
+start failed with a misleading "port is occupied" message.
+
+- **`src/main/engine/runtime-store.ts`** (new) — observes the store owner via the
+  lock it holds open (`tasks/runtime/runtime-process.owner.lock`). `owner.json`
+  is not a liveness signal; it survives its owner.
+- **`src/main/engine/runtime-process.ts`** — `assertRuntimeStoreAvailable`
+  refuses *before* a spawn, naming pid/executable/command and distinguishing
+  Mona's own leftover workspace from another host. The listener check upgrades
+  its message when the stranger is the store owner.
+- **`src/main/engine/adapter.ts`** — engine reads are fenced to the project's
+  workspace (realpath-compared, so a symlinked spelling is not a false
+  positive); `session.resume` is refused while a project is attached. The studio
+  constructs and scopes its adapter with `project.canonicalPath`.
+- **Rejected, with reasons (D-098):** an isolated `CODEWHALE_HOME` (it would
+  remove the engine's credentials and route — no provider, no useful Mona) and
+  wiring `attachExternal` to a screen (read-only *and* tokenless, so it cannot
+  drive work).
+- **Verified:** 786 tests in 79 files; typecheck and lint clean; live probes for
+  the refusal, the workspace fence (scoped refused / unscoped allowed), and
+  coexistence with the TUI and a foreign workspace lock.
+  Evidence: `docs/evidence/macos/runtime-store-coexistence.md` and
+  `docs/evidence/macos/artifacts/runtime-store-*.json`.
+- **Build:** packaged and installed over `/Applications/Mona.app` at Victor's
+  request so he can see the new diagnosis.
+
 ### P23 — Update, migration, rollback, and uninstall lifecycle
 
 An installed Mona is now maintainable: replaceable without losing work,

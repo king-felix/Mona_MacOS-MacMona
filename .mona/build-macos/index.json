@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-13T00:29:53.027Z",
+  "generated_utc": "2026-11-13T15:31:47.431Z",
   "git": {
     "available": true,
-    "commit": "7ea26e45dfa865e4d35444e8afcede20af7fe0f6",
+    "commit": "88baffa14d0c360f256c5dc524dba39c410843f4",
     "dirty": true
   },
-  "digest": "cdfd68f462cebb844d6a8d2bd860302a722681a13193b3173d02b42b6df4f916",
+  "digest": "0fe78ec24ee34dc0d0534dc5c763ee475c17ae549bd92a43230c0c9e644e4f81",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,7 +15,7 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "5b149f30742e401cfc3e7155426ca71837e8de35a20de6b98345df1e799e3ad7",
+      "sha256": "22d387d6b62b5f324c51e28be3712b7d8d91b2210ec79c1f60a6f7f0d1159eac",
       "bytes": 139111
     },
     {
@@ -819,6 +819,21 @@
       "bytes": 3175
     },
     {
+      "path": "docs/evidence/macos/artifacts/runtime-store-coexistence.json",
+      "sha256": "a912b5e19fd0c76992d1131834a19ee2e32bade63c6366905f86466e26a1e811",
+      "bytes": 904
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/runtime-store-conflict.json",
+      "sha256": "de9670b5704b7de262354683417aa71626e5304afb2199856d5295ee785e1fa9",
+      "bytes": 1358
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/runtime-store-scope.json",
+      "sha256": "edb9abf2d2db56118d4de151195b813c08c3a9ca2d14307c5daaec8d7444fb9e",
+      "bytes": 792
+    },
+    {
       "path": "docs/evidence/macos/artifacts/signing-inventory.txt",
       "sha256": "3e45104c0497ce03bcba731224d253e6003d8addfb46933fc778a3b79ae07d7c",
       "bytes": 397
@@ -952,6 +967,11 @@
       "path": "docs/evidence/macos/P23-lifecycle.md",
       "sha256": "77e55eeb6225eeed62530da4fca70445d1d3af7ce1bb9e6e7ce3b790463a29d1",
       "bytes": 19499
+    },
+    {
+      "path": "docs/evidence/macos/runtime-store-coexistence.md",
+      "sha256": "a93f3ea0068c438e47d90ae034d29ea813d4109c50d93465a5850693fdcb5a3e",
+      "bytes": 8242
     },
     {
       "path": "docs/requirements-macos.json",

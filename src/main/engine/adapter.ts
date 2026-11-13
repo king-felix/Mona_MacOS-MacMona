@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { realpathSync } from "node:fs";
+import { resolve } from "node:path";
 import {
   EffectiveProfile,
   EventEnvelope,
@@ -119,6 +121,26 @@ export interface AdapterOptions {
   transport?: RuntimeTransport;
   store: SubmissionStore;
   now?: () => Date;
+  /**
+   * The workspace this adapter works for. When set, an engine read that names a
+   * thread from another workspace is refused: the engine's store is shared by
+   * every host in this user home, so ids alone do not prove ownership.
+   */
+  workspace?: string | null;
+}
+
+/**
+ * Two spellings of one folder must compare equal. A project reached through a
+ * symlink (/var → /private/var on macOS) would otherwise be refused as another
+ * workspace, which is the one false positive this fence must not produce.
+ */
+function workspaceKey(path: string): string {
+  const resolved = resolve(path);
+  try {
+    return realpathSync(resolved);
+  } catch {
+    return resolved;
+  }
 }
 
 const TERMINAL = new Set(["completed", "failed", "interrupted", "canceled"]);
@@ -621,11 +643,36 @@ export class CodewhaleAdapter implements EngineAdapter {
   private capabilities: EngineCapabilities | null = null;
   private owned: OwnedRuntime | null = null;
   private readonly projectors = new Map<string, EventProjector>();
+  private scope: string | null;
 
   constructor(options: AdapterOptions) {
     this.transport = options.transport ?? null;
     this.store = options.store;
     this.now = options.now ?? (() => new Date());
+    this.scope = options.workspace ?? null;
+  }
+
+  /**
+   * Bind engine reads to one workspace. Set here rather than only in options so
+   * a caller that injects its own adapter factory still gets the fence.
+   */
+  scopeToWorkspace(workspace: string | null): void {
+    this.scope = workspace;
+  }
+
+  /**
+   * A thread read is only trusted when the engine reports our workspace. A
+   * null workspace is not evidence of drift, so it is allowed; a different one
+   * is a real refusal.
+   */
+  private assertOwnWorkspace(observed: string | null, context: string, threadId: string): void {
+    if (!this.scope || !observed) return;
+    if (workspaceKey(observed) === workspaceKey(this.scope)) return;
+    throw new AdapterError("WRONG_THREAD", `${context} returned a thread for another workspace`, false, {
+      thread_id: threadId,
+      expected_workspace: this.scope,
+      observed_workspace: observed,
+    });
   }
 
   // ---------------------------------------------------------------- discovery
@@ -1117,6 +1164,7 @@ export class CodewhaleAdapter implements EngineAdapter {
         observed: thread.id,
       });
     }
+    this.assertOwnWorkspace(thread.workspace ?? null, "thread history", thread.id);
     const turnsValue =
       body && typeof body === "object" && "turns" in body ? body.turns : thread.turns;
     const turns = Array.isArray(turnsValue)
@@ -2571,6 +2619,18 @@ export class CodewhaleAdapter implements EngineAdapter {
         const sessionId = input.args?.sessionId;
         if (typeof sessionId !== "string" || sessionId.length === 0) {
           throw new AdapterError("MALFORMED_RESPONSE", "session.resume requires a session id");
+        }
+        if (this.scope) {
+          // Saved sessions live in the engine's per-user store, which every
+          // Codewhale host in this home shares. A resume by id would open a
+          // conversation Mona cannot prove belongs to this project, so it is
+          // refused while a project is attached. Pass no workspace to use it
+          // from verified tooling that owns the id itself.
+          throw new UnsupportedCapabilityError(
+            "session.resume",
+            "a saved session id is not provably bound to this project's workspace, so Mona will not resume it while a project is attached",
+            { workspace: this.scope },
+          );
         }
         const response = await this.request(
           "POST",

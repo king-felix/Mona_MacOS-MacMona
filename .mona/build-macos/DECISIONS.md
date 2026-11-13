@@ -1619,3 +1619,46 @@ typecheck and lint clean.
 are unchanged. At 150% on a 1180-wide window the rail becomes the horizontal
 strip the narrow layout already defines; that is a reflow, not a broken paint,
 and the smoke measures it rather than asserting it is pretty.
+
+## D-098 — One shared Runtime store per user home; Mona refuses rather than shares
+
+- **Date:** 2026-11-13 (operator-requested verification)
+- **Observation:** The engine keeps one Runtime store per user home with one
+  live owner. A second host in that home — another Codewhale window,
+  `codewhale web`, `serve --http`, or a second Mona — does not get its own store:
+  the existing owner serves the new process's port (`lsof` on the requested port
+  names the *first* pid), and `/v1/sessions` and `/v1/usage` answer with
+  home-wide data. Mona's listener check therefore refused with
+  `OWNERSHIP_MISMATCH` and the misleading advice to stop "a process Mona did not
+  start", although the runtime it started was healthy and merely unneeded. The
+  operator's independent Codewhale window was the suspected cause; measurement
+  showed a plain TUI coexists, while a second *runtime host* does not.
+- **Decision:** Keep the store shared and keep the refusal, but make both ends
+  truthful:
+  1. A preflight observes the store's owner lock (`tasks/runtime/
+     runtime-process.owner.lock`, held open by the owner) and refuses before
+     spawning, naming the pid, executable, and command line, and distinguishing
+     a leftover of Mona's own making from another host.
+  2. The listener check names the store owner when the stranger *is* the owner.
+  3. Engine reads are fenced to the project's workspace; `session.resume` is
+     refused while a project is attached, because a saved-session id in a shared
+     store cannot be proven to belong to this project.
+  4. `CODEWHALE_HOME` stays the user's real engine home. **Isolation is
+     rejected:** credentials and route configuration (`secrets/secrets.json`,
+     `config.toml`, catalogs) live there, so an isolated store means no provider
+     and no useful Mona — and spec §650 forbids rewriting the runtime home for
+     packaging convenience. Isolation is a compatibility decision that needs its
+     own engine-compatibility evidence, not a bug fix.
+  5. `attachExternal` is not wired to a screen. It is read-only *and* tokenless
+     (`RuntimeSupervisor.endpoint()` returns `null`), so it can show status but
+     never drive work; the accurate refusal is more useful than a screen with no
+     capability behind it.
+- **Why not work around it:** sharing the store would mean Mona driving a
+  runtime it did not start, and inventing isolation would silently rebuild the
+  user's credential resolution. Both are worse than an honest refusal that names
+  the other host.
+- **Consequence:** Mona and one Codewhale runtime host cannot run at the same
+  time under one user account; the failure now says exactly that, before a
+  process is spawned. A plain Codewhale TUI, a foreign workspace lock, and
+  coordination state remain compatible (verified). Evidence:
+  `docs/evidence/macos/runtime-store-coexistence.md`.

@@ -1,0 +1,39 @@
+{
+  "scenarios": {
+    "tuiOnly": {
+      "started": true,
+      "port": 54753,
+      "childPid": 93960,
+      "threadId": "thr_747885396a5141bf95834f50168c3ab6"
+    },
+    "workspaceLockHeld": {
+      "lockHolderPid": 94005,
+      "started": true,
+      "port": 54756,
+      "childPid": 94015,
+      "threadId": "thr_f7bcd7cbccd5447f89da16bfc50bcaf1"
+    },
+    "monaOwnsStore": {
+      "started": true,
+      "port": 54759,
+      "childPid": 94069,
+      "threadId": "thr_221c198482e14448b80463fb05bc78f2",
+      "guestReady": true,
+      "guestThreadId": "thr_3e0bb64d7ec64b9ea96bfb9bed13e830",
+      "guestCreated": 201,
+      "monaReadsGuestThread": {
+        "accepted": true,
+        "turns": 0
+      },
+      "guestReadsMonaThread": {
+        "status": 200
+      },
+      "usage": {
+        "bucketCount": 47,
+        "hasMona": false,
+        "hasGuest": false
+      }
+    }
+  },
+  "ok": true
+}

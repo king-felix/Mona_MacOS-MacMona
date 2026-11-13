@@ -1,0 +1,30 @@
+{
+  "foreignPort": 54742,
+  "foreignPid": 93821,
+  "start": {
+    "ok": false,
+    "code": "ALREADY_OWNED",
+    "message": "another Codewhale runtime host already owns this user's Codewhale store (pid 93821, /opt/homebrew/lib/node_modules/codewhale/bin/downloads/codewhale \u2014 /opt/homebrew/lib/node_modules/codewhale/bin/downloads/codewhale app-server --http --host 127.0.0.1 --port 54742)",
+    "details": {
+      "owner": {
+        "pid": 93821,
+        "executable": "/opt/homebrew/lib/node_modules/codewhale/bin/downloads/codewhale",
+        "command": "/opt/homebrew/lib/node_modules/codewhale/bin/downloads/codewhale app-server --http --host 127.0.0.1 --port 54742",
+        "home": "~/.codewhale",
+        "lockPath": "~/.codewhale/tasks/runtime/runtime-process.owner.lock"
+      },
+      "store": "~/.codewhale/tasks/runtime",
+      "action": "quit that host \u2014 its Codewhale window, `codewhale web`, `codewhale serve --http`, or a second Mona \u2014 then start this runtime again; Mona does not attach to a runtime it did not start"
+    }
+  },
+  "childLog": {},
+  "childStderr": null,
+  "owners": {
+    "lockHolders": [
+      "codewhale 93821"
+    ],
+    "stateJson": "{\n  \"schema_version\": 2,\n  \"next_seq\": 4097\n}",
+    "ownerJson": "{\n  \"owner_id\": \"owner_8a9915363d304c018b1261c8a297642c\"\n}"
+  },
+  "foreignStderrTail": ""
+}

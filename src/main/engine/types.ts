@@ -305,6 +305,11 @@ export interface CapabilityResult {
 
 /** The versioned boundary the rest of Mona is allowed to see. */
 export interface EngineAdapter {
+  /**
+   * Bind reads to one workspace. Optional so a test double need not implement
+   * it; the shipped adapter always does.
+   */
+  scopeToWorkspace?(workspace: string | null): void;
   discover(): Promise<EngineCapabilities>;
   startOwnedRuntime(input: RuntimeStartInput): Promise<RuntimeHandle>;
   shutdownOwnedRuntime(handle: RuntimeHandle): Promise<{ stopped: boolean }>;
