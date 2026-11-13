@@ -905,3 +905,24 @@ currently covered by the rehearsal and the unit/smoke suite instead.
      typecheck and lint clean. `docs/evidence/macos/artifacts/p08-console-window.json`.
      The 200-event detail window remains the bound, so one long turn may fill it;
      earlier history needs a paginated event route, which this repair does not add.
+
+126. **The interface scales with ⌘+ / ⌘− (D-097).** The View menu used Electron's
+     `viewMenu` role, whose Zoom In registers only `CommandOrControl+Plus` — on a
+     US layout that is ⇧⌘=, so plain ⌘= was unbound. The menu is now explicit:
+     Actual Size ⌘0, Zoom In ⌘+ with a hidden ⌘= alias, Zoom Out ⌘−, Full Screen;
+     Developer Tools appears only with `MONA_DEVTOOLS=1`. Scale is page zoom owned
+     by main (`src/main/zoom.ts` + `src/shared/zoom.ts`, ladder 80%–200%),
+     persisted in the `app:zoom` settings scope and applied to every window at
+     creation. The renderer mirrors it in Settings → Appearance (a Scale row) and
+     in the palette and ⌘/ list. Verified: 3 new shell-smoke checks (127/127),
+     `p07-interface-scale.json` (four rungs, no horizontal overflow, 1180→590 CSS
+     px), 15 new tests, 770 total, typecheck and lint clean. At 150%+ the existing
+     940 px breakpoint turns the rail into its compact horizontal strip; that is
+     the narrow layout, not a new defect.
+127. **`terminal_output` in the shell smoke failed once and passed on re-run.**
+     Observed during the D-097 work: one run reported `terminal_output: false`
+     with every other check green, and an immediate re-run was 127/127. The
+     terminal pane's first bytes are read as soon as they appear, so a loaded
+     host can observe the pane before the child's output lands — the same class
+     as the P18 eviction race fixed at P23 (item 118). Not fixed here; the
+     assertion is unchanged and the flake is recorded rather than papered over.

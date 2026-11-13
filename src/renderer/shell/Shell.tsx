@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent, type JSX } from "react";
-import type { AppInfo, AppPathInfo, ToolDiscovery } from "../../shared/contracts/bridge";
+import type { AppInfo, AppPathInfo, ToolDiscovery, ZoomView } from "../../shared/contracts/bridge";
 import type { ProjectId, TaskId } from "../../shared/contracts/ids";
 import type { StudioActionResult, StudioMode, StudioSnapshot } from "../../shared/contracts/studio";
 import type {
@@ -10,6 +10,7 @@ import type {
   StateFacts,
 } from "../../shared/contracts/project-bridge";
 import type { OpenResult } from "../../shared/contracts/open";
+import { stepZoom } from "../../shared/zoom";
 import type { CapabilitySnapshot } from "../../shared/contracts/capability";
 import type { TaskView } from "../../shared/contracts/board";
 import {
@@ -127,6 +128,9 @@ export function Shell(): JSX.Element {
     const stored = localStorage.getItem("mona.density");
     return stored === "dense" ? "dense" : "comfortable";
   });
+  // Interface scale is owned by main (it persists in the settings table); the
+  // shell mirrors it so Settings can show the exact percentage.
+  const [zoom, setZoom] = useState<ZoomView | null>(null);
   const [query, setQuery] = useState("");
   const [showArchived, setShowArchived] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -345,6 +349,24 @@ export function Shell(): JSX.Element {
     });
   }, []);
 
+  /** Step or set the interface scale; main applies and persists it. */
+  const applyZoom = useCallback(async (factor: number): Promise<void> => {
+    try {
+      const next = await window.mona.setZoom(factor);
+      setZoom(next);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : String(caught));
+    }
+  }, []);
+  const stepZoomBy = useCallback(
+    (direction: "in" | "out"): void => {
+      const current = zoom?.factor ?? 1;
+      const next = stepZoom(current, direction);
+      if (next !== current) void applyZoom(next);
+    },
+    [applyZoom, zoom],
+  );
+
   const refreshFavorites = useCallback(async (): Promise<void> => {
     const result = await window.mona.promptFavorites();
     if (result.ok) setFavorites(result.value);
@@ -465,7 +487,7 @@ export function Shell(): JSX.Element {
 
   const boot = useCallback(async (): Promise<void> => {
     try {
-      const [app, appPaths, list, status, stateFacts, discovered, favoriteList, polish] =
+      const [app, appPaths, list, status, stateFacts, discovered, favoriteList, polish, zoomState] =
         await Promise.all([
           window.mona.getAppInfo(),
           window.mona.getPaths(),
@@ -475,9 +497,11 @@ export function Shell(): JSX.Element {
           window.mona.discoverTools(["codewhale", "git", "node"]),
           window.mona.promptFavorites(),
           window.mona.polishStatus(),
+          window.mona.zoom(),
         ]);
       setAppInfo(app);
       setPaths(appPaths);
+      setZoom(zoomState);
       setRuntime(status);
       setFacts(stateFacts);
       setTools(discovered);
@@ -1036,6 +1060,36 @@ export function Shell(): JSX.Element {
           }),
       });
     }
+    // Scale actions go last: they are utilities, and inserting them earlier
+    // would push projects and capabilities out of the first visible page of an
+    // empty query.
+    actions.push({
+      id: "zoom-in",
+      kind: "action",
+      label: "Zoom in",
+      hint: `Interface scale · ⇧⌘= or ⌘+ · now ${zoom?.percent ?? "100%"}`,
+      keywords: ["bigger", "scale", "text size", "magnify"],
+      icon: <SearchIcon size={16} />,
+      run: () => stepZoomBy("in"),
+    });
+    actions.push({
+      id: "zoom-out",
+      kind: "action",
+      label: "Zoom out",
+      hint: `Interface scale · ⌘− · now ${zoom?.percent ?? "100%"}`,
+      keywords: ["smaller", "scale", "text size"],
+      icon: <SearchIcon size={16} />,
+      run: () => stepZoomBy("out"),
+    });
+    actions.push({
+      id: "zoom-reset",
+      kind: "action",
+      label: "Actual size",
+      hint: "Interface scale · ⌘0 · back to 100%",
+      keywords: ["reset", "100%", "default size"],
+      icon: <SearchIcon size={16} />,
+      run: () => void applyZoom(1),
+    });
     return actions;
   }, [
     catalog,
@@ -1414,8 +1468,10 @@ export function Shell(): JSX.Element {
             tools={tools}
             theme={theme}
             density={density}
+            zoom={zoom}
             onTheme={setTheme}
             onDensity={setDensity}
+            onZoom={(factor) => void applyZoom(factor)}
             polish={polishStatus}
             onPatchPreferences={async (patch) => {
               const result = await window.mona.setPolishPreferences(patch);
@@ -1676,6 +1732,12 @@ export function Shell(): JSX.Element {
               <KeyCap>⌘O</KeyCap>
             </dt>
             <dd>Open a project folder</dd>
+          </div>
+          <div className="shortcut-row">
+            <dt>
+              <KeyCap>⌘+</KeyCap> / <KeyCap>⌘−</KeyCap>
+            </dt>
+            <dd>Scale the whole interface up or down; ⌘0 returns to 100%</dd>
           </div>
           <div className="shortcut-row">
             <dt>

@@ -1,10 +1,14 @@
 import { app, Menu, type MenuItemConstructorOptions } from "electron";
+import { applicationMenuTemplate } from "./menu-template";
 
 /**
  * Native application menu with a real Services submenu. Closing the last
  * window keeps the app alive on macOS; Quit is the explicit stop. Interrupt is
  * a deliberate Command-period, never a single keystroke that could fire while
  * typing.
+ *
+ * The template itself lives in `menu-template.ts` so its accelerators are
+ * asserted in a plain Node test without an Electron runtime.
  */
 export interface ApplicationMenuOptions {
   onOpenProject?: () => void;
@@ -12,6 +16,9 @@ export interface ApplicationMenuOptions {
   onShowBlockers?: () => void;
   onToggleFocus?: () => void;
   onQuit?: () => void;
+  onZoomIn?: () => void;
+  onZoomOut?: () => void;
+  onZoomReset?: () => void;
 }
 
 export interface ApplicationMenuHandle {
@@ -22,68 +29,11 @@ export interface ApplicationMenuHandle {
 export function installApplicationMenu(
   options: ApplicationMenuOptions = {},
 ): ApplicationMenuHandle {
-  const template: MenuItemConstructorOptions[] = [
-    {
-      label: app.getName(),
-      submenu: [
-        { role: "about" },
-        { type: "separator" },
-        { role: "services" },
-        { type: "separator" },
-        { role: "hide" },
-        { role: "hideOthers" },
-        { role: "unhide" },
-        { type: "separator" },
-        // An explicit handler interrupts work before quitting. Without one the
-        // standard role keeps Command-Q functional rather than dead.
-        options.onQuit
-          ? {
-              label: "Quit Mona",
-              accelerator: "Command+Q",
-              click: () => options.onQuit?.(),
-            }
-          : { role: "quit" },
-      ],
-    },
-    {
-      label: "File",
-      submenu: [
-        {
-          label: "Open Project…",
-          accelerator: "CmdOrCtrl+O",
-          click: () => options.onOpenProject?.(),
-        },
-        { type: "separator" },
-        { role: "close" },
-      ],
-    },
-    { role: "editMenu" },
-    {
-      label: "Work",
-      submenu: [
-        {
-          id: "interrupt-work",
-          label: "Interrupt Current Work",
-          accelerator: "CmdOrCtrl+.",
-          enabled: false,
-          click: () => options.onInterrupt?.(),
-        },
-        {
-          label: "Show Blockers",
-          accelerator: "CmdOrCtrl+Shift+B",
-          click: () => options.onShowBlockers?.(),
-        },
-        { type: "separator" },
-        {
-          label: "Toggle Focus Mode",
-          accelerator: "CmdOrCtrl+Shift+F",
-          click: () => options.onToggleFocus?.(),
-        },
-      ],
-    },
-    { role: "viewMenu" },
-    { role: "windowMenu" },
-  ];
+  const template: MenuItemConstructorOptions[] = applicationMenuTemplate({
+    appName: app.getName(),
+    developerTools: process.env.MONA_DEVTOOLS === "1",
+    ...options,
+  });
   const menu = Menu.buildFromTemplate(template);
   Menu.setApplicationMenu(menu);
   return {

@@ -1574,3 +1574,48 @@ pre-existing `no-explicit-any` warnings in test files).
 so it may cover one long turn rather than the whole conversation. That is the
 pre-existing bound and the reason the screen offers "Show earlier"; reading
 further back needs a paginated event route, which this repair does not add.
+
+## D-097 — Scale is page zoom owned by main, not a per-panel size
+
+An operator request: hold Command and press plus or minus to resize the
+interface. Measuring the existing build first was the whole decision.
+
+**What already worked, and why it did not feel like it.** The View menu used
+Electron's `viewMenu` role. Its Zoom In registers only
+`CommandOrControl+Plus`; on a US layout "+" is Shift-equals, so the plain
+Command-equals most people press was unbound — while the generic role also
+listed a Developer Tools item that can never do anything here because devtools
+are disabled. Zoom Out (⌘−) and Actual Size (⌘0) did work, and Chromium already
+persisted the factor per origin: a probe set 1.5, quit, and read 1.5 back on
+relaunch.
+
+**The mechanism.** `webContents.setZoomFactor` scales the renderer uniformly —
+CSS pixels, images, and scrollbars together. That is why a stylesheet full of
+`px` (860 values, only 21 `rem`) is not a problem: no token rewrite, no
+`rem` migration, no per-component multiplier. The same fact rules out reading
+this as element sizing; density stays the setting for panel-level sizing.
+
+**The ladder, and why it is discrete.** `src/shared/zoom.ts` holds
+`0.8, 0.9, 1, 1.1, 1.25, 1.5, 1.75, 2`, shared by main and renderer so the
+displayed percentage is always the applied one. Free-form zoom drifts to
+unusable factors (Chromium permits 25%–500%) and fractional factors blur
+pixel-aligned edges. `normalizeZoom` snaps any stored or requested value onto
+the ladder; impossible input (NaN, a string, an extreme) becomes 100%.
+
+**Ownership and failure.** Main owns the factor and persists it in the
+`app:zoom` settings scope, and applies it to every window at creation — a Dock
+reopen comes back at the same size. `ZoomController` treats an unreadable or
+unwritable store as a warning and keeps working at 100%: a broken settings row
+must not make the app unusable, and the same rule already governs the other
+projections.
+
+**Verified.** 127 shell-smoke checks (three new: menu registered, the menu item
+moves 1.0→1.1, the write persists), `p07-interface-scale.json` measuring four
+rungs through the real menu items with no horizontal overflow (1180, 944, 786,
+and 590 CSS px viewports), 15 new unit/screen tests, 770 tests in 78 files,
+typecheck and lint clean.
+
+**Limit, stated.** The 200-event Studio window and the compact-rail breakpoint
+are unchanged. At 150% on a 1180-wide window the rail becomes the horizontal
+strip the narrow layout already defines; that is a reflow, not a broken paint,
+and the smoke measures it rather than asserting it is pretty.

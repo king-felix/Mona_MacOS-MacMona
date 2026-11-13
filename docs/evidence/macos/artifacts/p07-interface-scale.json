@@ -1,0 +1,100 @@
+{
+  "stored": {
+    "value": {
+      "factor": 1
+    },
+    "version": 9
+  },
+  "accelerators": [
+    {
+      "label": "Reload",
+      "accelerator": "CmdOrCtrl+R",
+      "visible": true
+    },
+    {
+      "label": "Actual Size",
+      "accelerator": "CmdOrCtrl+0",
+      "visible": true
+    },
+    {
+      "label": "Zoom In",
+      "accelerator": "CmdOrCtrl+Plus",
+      "visible": true
+    },
+    {
+      "label": "Zoom In",
+      "accelerator": "CmdOrCtrl+=",
+      "visible": false
+    },
+    {
+      "label": "Zoom Out",
+      "accelerator": "CmdOrCtrl+-",
+      "visible": true
+    },
+    {
+      "label": "Toggle Full Screen",
+      "accelerator": "Control+Command+F",
+      "visible": true
+    }
+  ],
+  "observed": [
+    {
+      "id": "zoom-in-equals",
+      "applied": 1.1,
+      "view": "110%"
+    },
+    {
+      "id": "zoom-in-equals",
+      "applied": 1.25,
+      "view": "125%"
+    },
+    {
+      "id": "zoom-out",
+      "applied": 1.1,
+      "view": "110%"
+    },
+    {
+      "id": "zoom-reset",
+      "applied": 1,
+      "view": "100%"
+    }
+  ],
+  "layout": [
+    {
+      "factor": 1,
+      "viewport": {
+        "width": 1180,
+        "height": 748
+      },
+      "horizontal_overflow": false,
+      "rail_full_width": false
+    },
+    {
+      "factor": 1.25,
+      "viewport": {
+        "width": 944,
+        "height": 598
+      },
+      "horizontal_overflow": false,
+      "rail_full_width": false
+    },
+    {
+      "factor": 1.5,
+      "viewport": {
+        "width": 786,
+        "height": 498
+      },
+      "horizontal_overflow": false,
+      "rail_full_width": false
+    },
+    {
+      "factor": 2,
+      "viewport": {
+        "width": 590,
+        "height": 374
+      },
+      "horizontal_overflow": false,
+      "rail_full_width": false
+    }
+  ]
+}

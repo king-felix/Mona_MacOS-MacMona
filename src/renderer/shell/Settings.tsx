@@ -1,5 +1,6 @@
 import { useEffect, useState, type JSX } from "react";
-import type { AppInfo, AppPathInfo, ToolDiscovery } from "../../shared/contracts/bridge";
+import { stepZoom } from "../../shared/zoom";
+import type { AppInfo, AppPathInfo, ToolDiscovery, ZoomView } from "../../shared/contracts/bridge";
 import type {
   ProjectDetail,
   RuntimeStatusView,
@@ -49,8 +50,10 @@ export function SettingsScreen({
   tools,
   theme,
   density,
+  zoom,
   onTheme,
   onDensity,
+  onZoom,
   polish,
   onPatchPreferences,
   onTestNotification,
@@ -66,8 +69,11 @@ export function SettingsScreen({
   tools: ToolDiscovery[];
   theme: ThemeName;
   density: Density;
+  /** Null until the main process reports; a caller may omit it entirely. */
+  zoom?: ZoomView | null;
   onTheme: (theme: ThemeName) => void;
   onDensity: (density: Density) => void;
+  onZoom: (factor: number) => void;
   polish: PolishStatusView | null;
   onPatchPreferences: (patch: PolishPreferencesPatch) => void;
   onTestNotification: () => void;
@@ -175,9 +181,39 @@ export function SettingsScreen({
                 ]}
               />
             </div>
+            <div className="inline-facts" data-testid="settings-scale">
+              <span className="harness-controls__label">Scale</span>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => onZoom(stepZoom(zoom?.factor ?? 1, "out"))}
+                disabled={zoom ? zoom.factor <= zoom.min : false}
+                title="Scale down (Command-minus)"
+              >
+                −
+              </Button>
+              <span className="fact__value mono" aria-live="polite">
+                {zoom?.percent ?? "100%"}
+              </span>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => onZoom(stepZoom(zoom?.factor ?? 1, "in"))}
+                disabled={zoom ? zoom.factor >= zoom.max : false}
+                title="Scale up (Command-plus)"
+              >
+                +
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => onZoom(1)}>
+                Actual size
+              </Button>
+            </div>
             <p className="hint-line">
-              Both themes meet the measured contrast pairs in `docs/design-system.md`; reduced
-              motion follows the macOS accessibility setting.
+              Scale enlarges every element through the page zoom, so layout, icons, and text move
+              together. Command-plus, Command-minus, and Command-0 work on every screen; the
+              setting is saved and applied at the next launch. Both themes meet the measured
+              contrast pairs in `docs/design-system.md`; reduced motion follows the macOS
+              accessibility setting.
             </p>
           </Card>
           <Card title="Keyboard" eyebrow="Every screen reachable without a mouse">

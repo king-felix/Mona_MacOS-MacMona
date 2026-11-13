@@ -127,6 +127,10 @@ import type {
 export interface MonaBridge {
   getAppInfo(): Promise<AppInfo>;
   getPaths(): Promise<AppPathInfo>;
+  /** Current interface scale, read from the main process that owns it. */
+  zoom(): Promise<ZoomView>;
+  /** Set an exact factor from the build's ladder; returns what was applied. */
+  setZoom(factor: number): Promise<ZoomView>;
   discoverTools(names?: string[]): Promise<ToolDiscovery[]>;
 
   listProjects(query?: string, includeArchived?: boolean): Promise<IpcResult<ProjectSummary[]>>;
@@ -696,6 +700,17 @@ export interface AppInfo {
   platform: string;
   arch: string;
   packaged: boolean;
+}
+
+export interface ZoomView {
+  /** The applied page-zoom factor (1 = 100%). */
+  factor: number;
+  /** The same value as a display string, e.g. "125%". */
+  percent: string;
+  /** The ladder this build steps through, ascending. */
+  steps: number[];
+  min: number;
+  max: number;
 }
 
 export interface AppPathInfo {

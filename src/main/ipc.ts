@@ -25,6 +25,7 @@ import type {
   PromptPack,
 } from "../shared/contracts/memory";
 import type { ImportPlanResult } from "../shared/contracts/board";
+import type { ZoomView } from "../shared/contracts/bridge";
 import type { IpcResult, RuntimeStatusView, StateFacts } from "../shared/contracts/project-bridge";
 import type {
   FolderRequestSource,
@@ -55,6 +56,11 @@ export interface IpcDependencies {
   shelf: PromptShelf | null;
   handoff: ProjectHandoff | null;
   update: UpdateCoordinator | null;
+  /** Interface scale. Main owns the factor; the renderer only reads and asks. */
+  zoom: {
+    view: () => ZoomView;
+    set: (factor: number) => Promise<ZoomView>;
+  };
   /** Read-only recovery facts, plus one explicit verified-snapshot restore. */
   recovery: () => RecoveryView;
   restoreRecoverySnapshot: (input: {
@@ -167,6 +173,11 @@ export function registerIpc(rendererRoot: string, dependencies: IpcDependencies)
     arch: process.arch,
     packaged: app.isPackaged,
   }));
+
+  handle("app:zoom", () => dependencies.zoom.view());
+  handle("app:zoom:set", (input) =>
+    dependencies.zoom.set((input as { factor: number }).factor),
+  );
 
   handle("app:paths", () => {
     const paths = resolveAppPaths();

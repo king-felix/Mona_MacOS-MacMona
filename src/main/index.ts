@@ -15,6 +15,7 @@ import { join, resolve } from "node:path";
 import { createMainWindow } from "./window";
 import { hardenSession } from "./security";
 import { installApplicationMenu, type ApplicationMenuHandle } from "./menu";
+import { ZoomController, zoomStore } from "./zoom";
 import { registerIpc } from "./ipc";
 import { discoverTools } from "./tool-discovery";
 import { resolveAppPaths } from "./paths";
@@ -124,6 +125,8 @@ let promptShelf: PromptShelf | null = null;
 let projectHandoff: ProjectHandoff | null = null;
 let updateCoordinator: UpdateCoordinator | null = null;
 let polishMenu: ApplicationMenuHandle | null = null;
+/** Interface scale survives relaunch through the settings table. */
+let zoomController: ZoomController | null = null;
 let keepAwake: KeepAwake | null = null;
 let activeProjectId: StudioProjectId | null = null;
 let studioSmokeProjectId: string | null = null;
@@ -245,6 +248,9 @@ function openWindow(): BrowserWindow {
     harness: IS_DESIGN_SHOTS,
   });
   mainWindow = window;
+  // The saved scale is applied to every window this launch creates, including a
+  // Dock reopen, so the interface never comes back at a different size.
+  zoomController?.apply(window);
   window.on("closed", () => {
     if (mainWindow === window) mainWindow = null;
   });
@@ -1916,6 +1922,42 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
   const handoffShot = await window.webContents.capturePage();
   writeFileSync(join(outDir, "p19-memory-handoff.png"), handoffShot.toPNG());
 
+  // Interface scale. Drive the real menu items — the path a key press takes —
+  // then restore 100% so nothing after this observation sees a scaled window.
+  const zoomMenu = (() => {
+    const menu = Menu.getApplicationMenu();
+    const item = (id: string) => menu?.getMenuItemById(id) ?? null;
+    const inItem = item("zoom-in");
+    const alias = item("zoom-in-equals");
+    return {
+      registered:
+        Boolean(item("zoom-in")) &&
+        Boolean(alias) &&
+        Boolean(item("zoom-out")) &&
+        Boolean(item("zoom-reset")),
+      plus: inItem?.accelerator ?? null,
+      equals: alias?.accelerator ?? null,
+      alias_hidden: alias ? alias.visible === false : false,
+      out: item("zoom-out")?.accelerator ?? null,
+      reset: item("zoom-reset")?.accelerator ?? null,
+    };
+  })();
+  const zoomBaseline = window.webContents.getZoomFactor();
+  if (zoomMenu.registered) {
+    Menu.getApplicationMenu()?.getMenuItemById("zoom-in-equals")?.click();
+  }
+  await new Promise((resolve) => setTimeout(resolve, 120));
+  const zoomAfterClick = window.webContents.getZoomFactor();
+  const zoomStored = productState
+    ? ((await productState.getSettings("app:zoom"))?.value as { factor?: number } | undefined)
+    : undefined;
+  const zoomStoredFactor = zoomStored?.factor ?? null;
+  // Restore the baseline immediately: the scale check must not leak into any
+  // later observation or capture in this run.
+  if (Math.abs(window.webContents.getZoomFactor() - zoomBaseline) > 0.001) {
+    await zoomController?.reset();
+  }
+
   const checks: Record<string, boolean> = {
     ready,
     cards,
@@ -1936,6 +1978,15 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
     profile_reported: studio.profile_reported === true,
     offline_event: studio.event_present === true,
     no_fake_percent: studio.fake_percent === false,
+    zoom_menu_registered:
+      zoomMenu.registered &&
+      zoomMenu.plus === "CmdOrCtrl+Plus" &&
+      zoomMenu.equals === "CmdOrCtrl+=" &&
+      zoomMenu.alias_hidden === true &&
+      zoomMenu.out === "CmdOrCtrl+-" &&
+      zoomMenu.reset === "CmdOrCtrl+0",
+    zoom_applies_through_menu: Math.abs(zoomAfterClick - 1.1) < 0.001,
+    zoom_persisted: zoomStoredFactor === 1.1,
     composer_above_strip: composerFits.ok === true,
     board_ready: boardReady && board.screen === "board",
     task_visible: board.task_present === true,
@@ -3033,6 +3084,12 @@ if (!gotLock) {
         backupDir: smokeState ? join(stateRoot, "backups") : appPaths.backups,
         artifactRoot: smokeState ? join(stateRoot, "artifacts") : appPaths.artifacts,
       });
+      zoomController = new ZoomController({
+        store: zoomStore(productState),
+        window: () => (mainWindow && !mainWindow.isDestroyed() ? mainWindow : null),
+        warn: (message) => process.stderr.write(`zoom: ${message}\n`),
+      });
+      await zoomController.load();
       projectService = new ProjectService({
         store: productState,
         status: () => supervisor?.status() ?? fallbackStatus,
@@ -3661,6 +3718,9 @@ if (!gotLock) {
         const window = showMainWindow();
         window.webContents.send("polish:toggle-focus");
       },
+      onZoomIn: () => void zoomController?.step("in"),
+      onZoomOut: () => void zoomController?.step("out"),
+      onZoomReset: () => void zoomController?.reset(),
       onQuit: () => void requestQuit(true),
     });
 
@@ -3733,6 +3793,11 @@ if (!gotLock) {
       projects: projectService,
       runtimeStatus: () => runtimeStatusView(supervisor?.status() ?? fallbackStatus),
       stateFacts,
+      zoom: {
+        view: () => (zoomController ?? new ZoomController()).view(),
+        set: async (factor: number) =>
+          zoomController ? zoomController.set(factor) : new ZoomController().view(),
+      },
       studio: workStudio,
       board: taskBoard,
       cost: costLedger,

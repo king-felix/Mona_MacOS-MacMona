@@ -131,3 +131,58 @@ npm run build && npm run smoke      # 21/21 checks
 node scripts/shell-smoke.mjs        # 29/29 checks, 4 screenshots
 npm run lint                        # 0 errors
 ```
+
+## Operator request — the interface scales (post-P23)
+
+Asked for Command-plus / Command-minus to resize everything. Measured first:
+the menu already used Electron's `viewMenu` role, which registers Zoom In as
+`CommandOrControl+Plus` only. On a US layout "+" needs Shift, so the plain
+Command-equals most people press was unbound, and the role also offered a
+Developer Tools item that does nothing in a build with devtools disabled.
+
+**What changed**
+
+- `src/shared/zoom.ts` — the ladder (80% … 200%), snap-to-rung, step, percent.
+  Pure, shared by main and renderer so both agree on the value.
+- `src/main/zoom.ts` — `ZoomController`: applies `setZoomFactor`, clamps to the
+  ladder, persists to the `app:zoom` settings scope, and never throws when the
+  store is unreadable or unwritable.
+- `src/main/menu-template.ts` + `menu.ts` — an explicit View menu: Actual Size
+  (⌘0), Zoom In (⌘+ and a hidden ⌘= alias), Zoom Out (⌘−), Full Screen.
+  Developer Tools appears only when `MONA_DEVTOOLS=1`.
+- `src/main/index.ts` — the saved factor is applied to every window at creation,
+  including a Dock reopen; IPC `app:zoom` / `app:zoom:set`.
+- `src/renderer/shell/Settings.tsx` — a Scale row in the appearance card with
+  −, the current percentage, +, and Actual size.
+- `src/renderer/shell/Shell.tsx` — mirror of the scale for the palette
+  ("Zoom in", "Zoom out", "Actual size"), plus a ⌘+/⌘−/⌘0 row in the shortcut
+  list.
+
+**Verified**
+
+- `test/zoom.test.ts` (8) — ladder shape, snapping, end stops, persistence,
+  and survival of an unreadable/unwritable store.
+- `test/menu-template.test.ts` (4) — both zoom-in accelerators, the hidden
+  alias, the handlers, and the devtools condition.
+- `test/settings-screen.test.tsx` (3) — percentage rendered, +/−/actual-size
+  call the ladder, end stops disabled.
+- Shell smoke **127/127**, including three new checks: `zoom_menu_registered`,
+  `zoom_applies_through_menu` (1.0 → 1.1 through the real menu item),
+  `zoom_persisted`.
+- `docs/evidence/macos/artifacts/p07-interface-scale.json` — the menus as the
+  real build registers them, four rungs driven through the menu items, and the
+  layout at each: 1180×748, 944×598, 786×498, and 590×374 CSS px with **no
+  horizontal overflow** at any rung.
+- Scale survives a relaunch: set to 150%, quit, relaunch on the same profile →
+  loaded 1.5 and applied on the new window.
+
+**Honest limits**
+
+- This is page zoom, not a per-panel size. Every element scales uniformly by
+  design; element-level sizing is the density setting.
+- At 150% and above the narrow-window breakpoint (940 px) turns the rail into a
+  horizontal strip. That is the existing compact layout, not a new failure; the
+  smoke measures it and finds no overflow.
+- macOS dispatches the accelerators; the smoke drives the same menu items a key
+  press reaches (`click()` on the registered item) rather than synthesising a
+  native keystroke.

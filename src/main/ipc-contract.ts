@@ -54,6 +54,10 @@ import {
 export const IpcRequests = {
   "app:info": z.strictObject({}),
   "app:paths": z.strictObject({}),
+  // Interface scale. The value is snapped onto this build's ladder in main, so
+  // an arbitrary factor from a caller is normalized rather than trusted.
+  "app:zoom": z.strictObject({}),
+  "app:zoom:set": z.strictObject({ factor: z.number().finite().min(0.5).max(3) }),
   "tools:discover": z.strictObject({
     names: z
       .array(z.string().regex(/^[a-z0-9][a-z0-9.-]{0,63}$/))
