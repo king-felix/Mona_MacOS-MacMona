@@ -1534,3 +1534,43 @@ and then never ends or closes (the test hangs without the watchdog), a hole that
 must be filled by resuming from the hole rather than the cursor, and a hole the
 engine refuses to replay (asked once, recorded, visible in `missing`).
 `test/studio-screen.test.tsx` gains three that pin the banners.
+
+## D-096 — The agent console reads the live edge of the event log
+
+An operator report: the Studio's agent console "broke and is still not working"
+and "remains hung in the exact same location". The earlier stream repair (D-095)
+was real, but it addressed a different layer: the live thread was ingesting
+events normally (cursor 4076, turns completing) while the screen showed only its
+first turn.
+
+**Root cause.** `StateStore.readProjectEvents` selected
+`ORDER BY recorded_at ASC, seq ASC LIMIT 200`: the *oldest* 200 events. That is
+the query `ProjectService.detail` feeds to the Studio. While a project had fewer
+than 200 stored events the window covered the whole thread and the console
+followed. Once the thread grew past 200 events, the window froze on its first
+page forever. The renderer refreshed every 400 ms, but every refresh returned the
+same first 200 rows; ingestion was healthy and invisible.
+
+**Fix.** Select the newest `limit` rows in a subquery ordered
+`recorded_at DESC, rowid DESC`, then re-order them oldest-first for the timeline.
+`rowid` is the tiebreaker so events recorded in the same millisecond keep
+insertion order. The window stays bounded (200 events, safe to refresh while a
+turn streams); it now selects the live edge instead of the first page.
+
+**Measured on the user's live state** (`prj_b66fc315c2eae670`, 2,120 stored
+events, sequences 1690–4076, one known gap 3172–3439):
+
+- before: window seq 1690–1889, last recorded event 21:30:41Z — the first turn;
+- after: window seq 3877–4076, last recorded event 23:56:55Z — the newest turn,
+  ending in `turn.completed` for `turn_10c0c1f74f6542eca2afb35df1e09b05`.
+
+**Test.** `test/projects-service.test.ts` inserts 250 events and asserts the
+detail window starts at 51, ends at 250, excludes seq 1, and advances to 251
+after one more event. It failed on the old query (`expected 1 to be 51`) and
+passes with the fix. 755 tests in 75 files; typecheck and lint clean (three
+pre-existing `no-explicit-any` warnings in test files).
+
+**Limit, stated rather than hidden.** The detail window remains 200 raw events,
+so it may cover one long turn rather than the whole conversation. That is the
+pre-existing bound and the reason the screen offers "Show earlier"; reading
+further back needs a paginated event route, which this repair does not add.

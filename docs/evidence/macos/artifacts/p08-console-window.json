@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "purpose": "Before/after measurement of the Studio console event window against the operator's live state. Read-only queries; no event was rewritten.",
+  "captured_at": "2026-11-13T00:03:14Z",
+  "project_id": "prj_b66fc315c2eae670",
+  "thread_id": "thr_2e0303d546909547",
+  "live_state": {
+    "stored_events": 2120,
+    "stored_seq_min": 1690,
+    "stored_seq_max": 4076,
+    "cursor": 4076,
+    "latest_event_kind": "turn.completed",
+    "latest_event_recorded_at": "2026-11-12T23:56:55.881Z",
+    "latest_turn_id": "turn_10c0c1f74f6542eca2afb35df1e09b05",
+    "known_gap": [3172, 3439]
+  },
+  "before_fix": {
+    "query": "ORDER BY e.recorded_at ASC, e.seq ASC LIMIT 200",
+    "count": 200,
+    "min_seq": 1690,
+    "max_seq": 1889,
+    "first_recorded_at": "2026-11-12T21:30:18.761Z",
+    "last_recorded_at": "2026-11-12T21:30:41.098Z",
+    "contains_latest_turn": false
+  },
+  "after_fix": {
+    "query": "newest 200 by recorded_at DESC, rowid DESC, then re-ordered oldest-first",
+    "count": 200,
+    "min_seq": 3877,
+    "max_seq": 4076,
+    "first_recorded_at": "2026-11-12T23:55:35.046Z",
+    "last_recorded_at": "2026-11-12T23:56:55.881Z",
+    "contains_latest_turn": true,
+    "last_kind": "turn.completed"
+  },
+  "reproduction": {
+    "test": "test/projects-service.test.ts",
+    "case": "keeps the newest event window so a long thread keeps following the turn",
+    "old_query_result": "window started at seq 1 (expected 51)",
+    "new_query_result": "200 events, seq 51-250, then 251 after the next event"
+  }
+}

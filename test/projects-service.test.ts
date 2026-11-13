@@ -269,6 +269,42 @@ describe("project catalog service", () => {
     expect(third.threads).toHaveLength(1);
   });
 
+  it("keeps the newest event window so a long thread keeps following the turn", async () => {
+    const { service, store, dir } = await setup();
+    const opened = await service.open(makeProjectFolder(dir));
+    if (!opened) throw new Error("project did not open");
+    const first = await service.detail(opened.project.id as ProjectId);
+    const threadId = first.threads[0]!.id;
+    const base = Date.parse("2026-11-11T00:00:00.000Z");
+    for (let seq = 1; seq <= 250; seq += 1) {
+      await store.recordEvent({
+        threadId,
+        seq,
+        kind: "item.delta",
+        payload: { delta: `chunk ${seq}` },
+        timestamp: new Date(base + seq * 1_000).toISOString(),
+      });
+    }
+    // The detail window is bounded, but it must be the live edge of the thread.
+    // Returning the oldest page freezes the Studio console forever once a
+    // thread has more than 200 events.
+    const long = await service.detail(opened.project.id as ProjectId);
+    expect(long.events).toHaveLength(200);
+    expect(long.events[0]?.seq).toBe(51);
+    expect(long.events[long.events.length - 1]?.seq).toBe(250);
+    expect(long.events.some((event) => event.seq === 1)).toBe(false);
+
+    await store.recordEvent({
+      threadId,
+      seq: 251,
+      kind: "turn.completed",
+      payload: {},
+      timestamp: new Date(base + 251 * 1_000).toISOString(),
+    });
+    const next = await service.detail(opened.project.id as ProjectId);
+    expect(next.events[next.events.length - 1]?.seq).toBe(251);
+  });
+
   it("does not resume or duplicate work when an existing project is reopened", async () => {
     const { service, store, dir } = await setup();
     const folder = makeProjectFolder(dir);

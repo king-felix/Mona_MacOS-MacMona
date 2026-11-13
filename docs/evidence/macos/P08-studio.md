@@ -240,3 +240,35 @@ the watchdog, three new screen tests); `npm run ci` 21/21; shell smoke 124/124.
 The existing hole in this user's state is repaired on the next attach if the
 engine still holds those events (the pump now asks from 3172); otherwise it is
 shown as a gap rather than silently skipped.
+
+## Post-P23 defect — the console was frozen on its first 200 events
+
+**Reported:** "The agent feedback area broke and is still not working. It
+remains hung in the exact same location." The live thread was healthy — cursor
+4076, turns completing — so this was not the D-095 stream stall.
+
+**Root cause:** `StateStore.readProjectEvents` returned the **oldest** 200 rows
+(`ORDER BY recorded_at ASC LIMIT 200`), and `ProjectService.detail` feeds that
+list to the Studio. Below 200 events the window covered the whole thread, so the
+console followed. Once the thread passed 200 events, every refresh returned the
+same first page: the screen froze on the first turn while new frames were stored
+and never read.
+
+**Fix:** select the newest `limit` rows (`recorded_at DESC, rowid DESC`) inside a
+subquery, then re-order oldest-first for display. The window stays bounded at
+200 events, which is what makes it safe to refresh during streaming; it just
+points at the live edge now.
+
+**Measured** (`docs/evidence/macos/artifacts/p08-console-window.json`):
+
+```
+project prj_b66fc315c2eae670, 2120 stored events, seq 1690-4076
+before: seq 1690-1889, last recorded 21:30:41Z  (first turn)
+after:  seq 3877-4076, last recorded 23:56:55Z  (latest turn.completed)
+```
+
+**Verification:** the new case in `test/projects-service.test.ts` failed on the
+old query (`expected 1 to be 51`) and passes with the fix; 755 tests in 75 files;
+`npm run typecheck` and `npm run lint` clean (three pre-existing test-file
+warnings). The remaining gap `3172-3439` is unchanged and still reported; no
+event content was rewritten or invented.

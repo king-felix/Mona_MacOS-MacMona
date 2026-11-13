@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-12T22:15:58.467Z",
+  "generated_utc": "2026-11-13T00:03:39.380Z",
   "git": {
     "available": true,
-    "commit": "01144cef99cfdd37a6a68d21a6fba0d66c489e89",
+    "commit": "a60333e75f8417a940b23f5c6903766cb809a37b",
     "dirty": true
   },
-  "digest": "66bf754334eb2d82e5ac10a91d0835f94a470ae6f1bf7f6673a64cec2efc485a",
+  "digest": "aac1542f303b94cb2629e0aae2730e258280b0055d0e6a629f6304bcb244f61b",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,8 +15,8 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "85468a5c783bb41098d8f531e14d59a3007465a715ad4d6a31713b9094458a03",
-      "bytes": 138744
+      "sha256": "13de13b7623395e70c7a3b04e3d836c0b4849ea1410107e0fba5c72049025a3b",
+      "bytes": 138927
     },
     {
       "path": "AGENTS.md",
@@ -337,6 +337,11 @@
       "path": "docs/evidence/macos/artifacts/p08-ci.json",
       "sha256": "8e75c2965dcfe5456a3929df30d9ac224754a26c4ffce7a23e9a765a1ea83497",
       "bytes": 7234
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p08-console-window.json",
+      "sha256": "67f4c2ee55a7d9af486342bda74ce6395c8fee72973d51983d021786e689bdc2",
+      "bytes": 1554
     },
     {
       "path": "docs/evidence/macos/artifacts/p08-studio-live.png",
@@ -870,8 +875,8 @@
     },
     {
       "path": "docs/evidence/macos/P08-studio.md",
-      "sha256": "92cb6e254dd1af0233353b9805ac235b38e10cc01b279698416368316ff1e263",
-      "bytes": 13728
+      "sha256": "db92c2a8ba03f0cbf920b46db607277b4382ba3138500895e2aeb078d35dcb95",
+      "bytes": 15342
     },
     {
       "path": "docs/evidence/macos/P09-finder.md",

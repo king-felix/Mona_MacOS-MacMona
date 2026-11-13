@@ -3640,14 +3640,23 @@ export class StateStore {
    * Timeline projection across every thread of one project. Threads are
    * projections; the project timeline must not fragment when a live engine
    * thread is added beside the local shell thread.
+   *
+   * The window is the NEWEST `limit` events, returned oldest-first so the
+   * timeline can render in order. Selecting the oldest page instead freezes a
+   * long thread's console at its first events: new frames are stored but never
+   * read, so the surface looks hung while ingestion is healthy.
    */
   async readProjectEvents(projectId: ProjectId, limit = 200): Promise<StoredEvent[]> {
     const bounded = Math.min(Math.max(1, Math.trunc(limit)), 2000);
     return this.read((db) => {
       const rows = db
         .prepare(
-          "SELECT e.* FROM events e JOIN threads t ON t.id = e.thread_id " +
-            "WHERE t.project_id = ? ORDER BY e.recorded_at ASC, e.seq ASC LIMIT ?",
+          "SELECT * FROM (" +
+            "SELECT e.*, e.rowid AS insertion_order FROM events e " +
+            "JOIN threads t ON t.id = e.thread_id " +
+            "WHERE t.project_id = ? " +
+            "ORDER BY e.recorded_at DESC, e.rowid DESC LIMIT ?" +
+            ") ORDER BY recorded_at ASC, insertion_order ASC",
         )
         .all(projectId, bounded) as DbRow[];
       return rows.map((row) => ({

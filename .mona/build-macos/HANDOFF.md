@@ -888,3 +888,20 @@ currently covered by the rehearsal and the unit/smoke suite instead.
      next attach asks from sequence 3172; if the engine still holds those events
      the hole heals, otherwise the Studio lists the range as never received. It
      is deliberately not rewritten or filled with invented content.
+
+125. **The agent console was frozen on its first 200 events (fixed).** An operator
+     report said the feedback area "broke and is still not working" and stayed
+     "hung in the exact same location". The live thread was healthy — cursor
+     4076, turns completing — so this was not D-095's stream stall.
+     `StateStore.readProjectEvents` returned the **oldest** 200 events
+     (`ORDER BY recorded_at ASC LIMIT 200`), and that list is what
+     `ProjectService.detail` gives the Studio. A project below 200 events showed
+     the whole thread and followed; once it passed 200, every 400 ms refresh
+     returned the same first page. The window is now the newest 200 events
+     (`recorded_at DESC, rowid DESC`) re-ordered oldest-first for display. On the
+     user's live project the window moved from seq 1690–1889 (ended 21:30:41Z) to
+     seq 3877–4076 (ended 23:56:55Z, the latest `turn.completed`). Regression:
+     `test/projects-service.test.ts` (250 events → window 51–250). 755 tests pass;
+     typecheck and lint clean. `docs/evidence/macos/artifacts/p08-console-window.json`.
+     The 200-event detail window remains the bound, so one long turn may fill it;
+     earlier history needs a paginated event route, which this repair does not add.
