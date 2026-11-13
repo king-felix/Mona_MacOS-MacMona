@@ -84,7 +84,23 @@ and a development-labelled installer are all possible on this host. Release mode
 is P22's, and needs the credentials described above. Do not block P21's local
 work on the signing prerequisite.
 
-### EXT-DISK — the install-side package gates need about 2 GB free
+### ~~EXT-DISK~~ — RESOLVED 2026-11-13: the install-side gates ran
+
+- **How it was closed:** the volume had 10 GiB free; `npm run mac:package:local`
+  then passed every gate — `architecture`, `dependencies`, `secrets`, `expand`,
+  `rehearsal`, `uninstall_rehearsal`, `package_smoke`, and `gui_launch` — and
+  printed `"ok": true` with `package-report.json` written for build 104. The
+  earlier failure was disk space, exactly as recorded below.
+- **Also closed:** the `installed_copy` comparison. Build 104 was installed over
+  `/Applications/Mona.app` with administrator authorization
+  (`installer -pkg … -target /`), and the re-run matched the installed copy to
+  the build in hand. `defaults read` reports `CFBundleVersion` 104 and
+  `codesign --verify --deep --strict` passes.
+- **Still true:** a later build will stop at `installed_copy` until it is
+  installed, because that gate compares the installed copy with the build in
+  hand. That is the gate working, not a missing prerequisite.
+
+### EXT-DISK (original measurement, kept for history)
 
 - **What is needed:** free space on the boot volume to rehearse an install.
 - **Measured 2026-11-13T00:30Z:** 327 MiB free of 228 GiB (98% used). The

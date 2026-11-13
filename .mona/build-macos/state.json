@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 711,
+  "revision": 712,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -555,7 +555,7 @@
         },
         {
           "path": "test/engine-adapter.test.ts",
-          "sha256": "cedae904bf81a24abbe484615229d620f9ad39be29804b2a79fe840807685ffc"
+          "sha256": "6d7e08e417fab41b3513e94fff90567149c2872956fa564dfb08f6a7a5323d48"
         },
         {
           "path": "test/helpers/fixture-transport.ts",
@@ -2548,7 +2548,7 @@
   "next_eligible_prompts": [
     "P14"
   ],
-  "last_checkpoint_utc": "2026-11-13T15:31:47.340Z",
+  "last_checkpoint_utc": "2026-11-13T15:35:03.856Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",
