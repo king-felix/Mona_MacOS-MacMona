@@ -926,3 +926,14 @@ currently covered by the rehearsal and the unit/smoke suite instead.
      host can observe the pane before the child's output lands — the same class
      as the P18 eviction race fixed at P23 (item 118). Not fixed here; the
      assertion is unchanged and the flake is recorded rather than papered over.
+
+128. **The build-102 installer exists but its install-side gates did not run.**
+     The volume was at 98% (327 MiB free) and `ditto` could not copy the ~390 MiB
+     rehearsal payload. Package-level gates passed, the staged app verifies with
+     `codesign --verify --deep --strict`, and the package contains both the
+     console-window fix and the scale feature (`shared/zoom.js`, `menu-template.js`,
+     `app:zoom` in the preload bundle). Install rehearsal, package smoke,
+     LaunchServices launch, and `installed_copy` are pending; free ~2 GB and re-run
+     `npm run mac:package:local`. See EXT-DISK. The stale P21 `.dmg` and the run's
+     `out/stage` were removed to buy space; both are regenerable and neither was
+     referenced as evidence.

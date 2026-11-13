@@ -84,6 +84,28 @@ and a development-labelled installer are all possible on this host. Release mode
 is P22's, and needs the credentials described above. Do not block P21's local
 work on the signing prerequisite.
 
+### EXT-DISK — the install-side package gates need about 2 GB free
+
+- **What is needed:** free space on the boot volume to rehearse an install.
+- **Measured 2026-11-13T00:30Z:** 327 MiB free of 228 GiB (98% used). The
+  packaging run builds and metadata-verifies the installer, then fails at
+  `rehearseInstall` because `/usr/bin/ditto` cannot copy the ~390 MiB payload
+  into its temporary root: `No space left on device`.
+- **What did run:** declared metadata, native architecture, dependency,
+  secret, and payload-expansion gates; the app is ad-hoc signed and
+  `codesign --verify --deep --strict` passes. The package at
+  `packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg` (build 102, sha256
+  `79731342…`) contains both fixes.
+- **What did not run:** install rehearsal, in-app package smoke, LaunchServices
+  launch, and the `installed_copy` comparison. `package-report.json` is absent
+  rather than stale, which is D-093 working.
+- **Help needed:** free roughly 2 GB (the build consumes ~1 GB before the
+  rehearsal), then `npm run mac:package:local` completes the record. Nothing is
+  lowered or skipped to work around it.
+- **Cleaned while investigating:** the stale `Mona-0.1.0-macOS-arm64-local.dmg`
+  (P21 leftover, not referenced by any evidence entry) and the packaging run's
+  `out/stage`, both regenerable.
+
 ### EXT-XCODE — full Xcode only if a later step requires it
 
 - **Measured 2026-11-11:** only Command Line Tools are installed; `xcodebuild`
