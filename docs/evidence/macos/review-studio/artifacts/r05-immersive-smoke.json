@@ -1,0 +1,837 @@
+{
+  "schema_version": 1,
+  "label": "R05 FOCUS STUDIO AND NATIVE FULL SCREEN — no engine, no model request",
+  "captured_at": "2026-11-14T07:40:16.849Z",
+  "ok": true,
+  "checks": {
+    "catalog_rendered": true,
+    "studio_opened": true,
+    "normal_layout_is_windowed": true,
+    "normal_has_no_dashboard": true,
+    "focus_control_clicked": true,
+    "focus_layout_entered": true,
+    "focus_dashboard_present": true,
+    "focus_dashboard_is_slim": true,
+    "focus_rail_hidden": true,
+    "focus_topbar_hidden": true,
+    "focus_timeline_fills_viewport": true,
+    "focus_composer_bounded": true,
+    "focus_keeps_essentials": true,
+    "focus_no_page_overflow": true,
+    "draft_preserved_into_focus": true,
+    "focus_did_not_remount": true,
+    "stored_view_recorded_focus_on": true,
+    "stored_view_carries_no_fullscreen_key": true,
+    "focus_reports_no_runtime": true,
+    "focus_command_menu_opens": true,
+    "focus_command_menu_readable": true,
+    "focus_command_menu_not_clipped": true,
+    "focus_escape_closes_menu_first": true,
+    "focus_escape_keeps_focus_layout": true,
+    "focus_command_menu_closed": true,
+    "focus_drawer_opens": true,
+    "focus_drawer_shows_values": true,
+    "focus_drawer_visible": true,
+    "focus_drawer_escape_closes_only_drawer": true,
+    "composer_grip_present": true,
+    "composer_grows_on_arrow": true,
+    "timeline_survives_resize": true,
+    "composer_max_keeps_timeline": true,
+    "fullscreen_control_clicked": true,
+    "fullscreen_event_recorded": true,
+    "fullscreen_observed_by_macos": true,
+    "fullscreen_reported_to_ui": true,
+    "fullscreen_keeps_focus_layout": true,
+    "fullscreen_timeline_still_fills": true,
+    "fullscreen_preserved_draft": true,
+    "fullscreen_did_not_remount": true,
+    "fullscreen_renderer_saw_observed_view": true,
+    "zoom_200_dashboard_reachable": true,
+    "zoom_200_composer_reachable": true,
+    "zoom_200_no_page_overflow": true,
+    "zoom_200_timeline_kept_share": true,
+    "fullscreen_exit_control_clicked": true,
+    "fullscreen_exit_event_recorded": true,
+    "fullscreen_exit_observed_by_macos": true,
+    "exit_reported_to_ui": true,
+    "focus_survives_fullscreen_exit": true,
+    "window_bounds_restored": true,
+    "escape_in_composer_keeps_focus": true,
+    "escape_in_timeline_leaves_focus": true,
+    "focus_layout_left": true,
+    "rail_restored": true,
+    "draft_survives_layout_exit": true,
+    "stored_view_keeps_focus_preference": true,
+    "stored_view_has_no_fullscreen_binding": true,
+    "no_runtime_or_model": true
+  },
+  "facts": {
+    "normal": {
+      "screen": "studio",
+      "fullscreen": "off",
+      "focus": "off",
+      "shell_focus": false,
+      "rail_display": "flex",
+      "topbar_display": "flex",
+      "stage": {
+        "x": 260,
+        "y": 330.59375,
+        "width": 996,
+        "height": 726,
+        "bottom": 1056.59375,
+        "right": 1256
+      },
+      "timeline": {
+        "x": 260,
+        "y": 371.59375,
+        "width": 996,
+        "height": 352,
+        "bottom": 723.59375,
+        "right": 1256
+      },
+      "composer": {
+        "x": 260,
+        "y": 737.59375,
+        "width": 632,
+        "height": 319,
+        "bottom": 1056.59375,
+        "right": 892
+      },
+      "bar": null,
+      "textarea": {
+        "x": 275,
+        "y": 876.59375,
+        "width": 602,
+        "height": 96,
+        "bottom": 972.59375,
+        "right": 877
+      },
+      "bar_height": null,
+      "timeline_share": 0.48484848484848486,
+      "composer_share": 0.4393939393939394,
+      "textarea_value": "",
+      "selection": [
+        0,
+        0
+      ],
+      "same_studio": true,
+      "same_textarea": true,
+      "overflow": false,
+      "connection": "EngineNot started",
+      "reachable": {
+        "send": false,
+        "fullscreen": true,
+        "grip": false,
+        "exit": false,
+        "interrupt": false,
+        "timeline": true
+      },
+      "scroll_y": 0,
+      "views": [],
+      "active_element": "BODY."
+    },
+    "focus": {
+      "screen": "studio",
+      "fullscreen": "off",
+      "focus": "on",
+      "shell_focus": true,
+      "rail_display": "none",
+      "topbar_display": "none",
+      "stage": {
+        "x": 14,
+        "y": 106,
+        "width": 1252,
+        "height": 682,
+        "bottom": 788,
+        "right": 1266
+      },
+      "timeline": {
+        "x": 14,
+        "y": 141,
+        "width": 1252,
+        "height": 379,
+        "bottom": 520,
+        "right": 1266
+      },
+      "composer": {
+        "x": 14,
+        "y": 540,
+        "width": 1252,
+        "height": 248,
+        "bottom": 788,
+        "right": 1266
+      },
+      "bar": {
+        "x": 14,
+        "y": 46,
+        "width": 1252,
+        "height": 52,
+        "bottom": 98,
+        "right": 1266
+      },
+      "textarea": {
+        "x": 27,
+        "y": 614,
+        "width": 1226,
+        "height": 96,
+        "bottom": 710,
+        "right": 1253
+      },
+      "bar_height": 52,
+      "timeline_share": 0.5557184750733137,
+      "composer_share": 0.36363636363636365,
+      "textarea_value": "Refactor the retry path and keep the draft intact",
+      "selection": [
+        6,
+        19
+      ],
+      "same_studio": true,
+      "same_textarea": true,
+      "overflow": false,
+      "connection": "EngineNot started",
+      "reachable": {
+        "send": true,
+        "fullscreen": true,
+        "grip": true,
+        "exit": true,
+        "interrupt": true,
+        "timeline": true
+      },
+      "scroll_y": 0,
+      "views": [],
+      "active_element": "TEXTAREA#field-_r_g_.input input--area"
+    },
+    "stored_view_in_focus": {
+      "screen": "studio",
+      "inspectorTab": "task",
+      "studioMode": "work",
+      "focusMode": true
+    },
+    "focus_command_menu": {
+      "height": 520,
+      "top": 63,
+      "bottom": 583,
+      "inside_viewport": true,
+      "hit_is_menu": true,
+      "clipped_by": [
+        " hidden auto/auto"
+      ]
+    },
+    "focus_drawer": {
+      "text": "Cancel queuedStop engineBlockersModeldeepseek / deepseek-flashSpendnot recordedTokensno usage recordedFull screenwindowedLayoutFocus Studio preference on; stored with the project view and restored as a layout, never as full screenScopeSpend and tokens are project totals from stored turn receipts.",
+      "visible": true,
+      "inside_viewport": true
+    },
+    "focus_drawer_escape": {
+      "prevented": true,
+      "open": false,
+      "focus_mode": "on"
+    },
+    "composer_resize": {
+      "before": 248,
+      "after": 272,
+      "timeline_after": 355
+    },
+    "composer_max": {
+      "screen": "studio",
+      "fullscreen": "off",
+      "focus": "on",
+      "shell_focus": true,
+      "rail_display": "none",
+      "topbar_display": "none",
+      "stage": {
+        "x": 14,
+        "y": 106,
+        "width": 1252,
+        "height": 682,
+        "bottom": 788,
+        "right": 1266
+      },
+      "timeline": {
+        "x": 14,
+        "y": 141,
+        "width": 1252,
+        "height": 341,
+        "bottom": 482,
+        "right": 1266
+      },
+      "composer": {
+        "x": 14,
+        "y": 502,
+        "width": 1252,
+        "height": 286,
+        "bottom": 788,
+        "right": 1266
+      },
+      "bar": {
+        "x": 14,
+        "y": 46,
+        "width": 1252,
+        "height": 52,
+        "bottom": 98,
+        "right": 1266
+      },
+      "textarea": {
+        "x": 27,
+        "y": 576,
+        "width": 1226,
+        "height": 134,
+        "bottom": 710,
+        "right": 1253
+      },
+      "bar_height": 52,
+      "timeline_share": 0.5,
+      "composer_share": 0.41935483870967744,
+      "textarea_value": "Refactor the retry path and keep the draft intact",
+      "selection": [
+        6,
+        19
+      ],
+      "same_studio": true,
+      "same_textarea": true,
+      "overflow": false,
+      "connection": "EngineNot started",
+      "reachable": {
+        "send": true,
+        "fullscreen": true,
+        "grip": true,
+        "exit": true,
+        "interrupt": true,
+        "timeline": true
+      },
+      "scroll_y": 0,
+      "views": [],
+      "active_element": "DIV.composer-grip"
+    },
+    "fullscreen_activation": {
+      "attempts": 0,
+      "focused": true,
+      "visible": true
+    },
+    "fullscreen_preconditions": {
+      "visible": true,
+      "focused": true
+    },
+    "fullscreen_pending_view": {
+      "busy": "true",
+      "pressed": "false",
+      "disabled": true,
+      "fullscreen_dataset": "off"
+    },
+    "fullscreen_attempts": [
+      {
+        "attempt": 1,
+        "at": "2026-11-14T07:40:19.235Z",
+        "focused": true
+      },
+      {
+        "attempt": 1,
+        "settled": true,
+        "entered": true,
+        "is_fullscreen": true
+      }
+    ],
+    "fullscreen": {
+      "screen": "studio",
+      "fullscreen": "on",
+      "focus": "on",
+      "shell_focus": true,
+      "rail_display": "none",
+      "topbar_display": "none",
+      "stage": {
+        "x": 14,
+        "y": 106,
+        "width": 1442,
+        "height": 805,
+        "bottom": 911,
+        "right": 1456
+      },
+      "timeline": {
+        "x": 14,
+        "y": 141,
+        "width": 1442,
+        "height": 464,
+        "bottom": 605,
+        "right": 1456
+      },
+      "composer": {
+        "x": 14,
+        "y": 625,
+        "width": 1442,
+        "height": 286,
+        "bottom": 911,
+        "right": 1456
+      },
+      "bar": {
+        "x": 14,
+        "y": 46,
+        "width": 1442,
+        "height": 52,
+        "bottom": 98,
+        "right": 1456
+      },
+      "textarea": {
+        "x": 27,
+        "y": 699,
+        "width": 1416,
+        "height": 134,
+        "bottom": 833,
+        "right": 1443
+      },
+      "bar_height": 52,
+      "timeline_share": 0.5763975155279503,
+      "composer_share": 0.3552795031055901,
+      "textarea_value": "Refactor the retry path and keep the draft intact",
+      "selection": [
+        6,
+        19
+      ],
+      "same_studio": true,
+      "same_textarea": true,
+      "overflow": false,
+      "connection": "EngineNot started",
+      "reachable": {
+        "send": true,
+        "fullscreen": true,
+        "grip": true,
+        "exit": true,
+        "interrupt": true,
+        "timeline": true
+      },
+      "scroll_y": 0,
+      "views": [
+        {
+          "fullscreen": false,
+          "pending": true,
+          "available": true,
+          "epoch": 0
+        },
+        {
+          "fullscreen": true,
+          "pending": false,
+          "available": true,
+          "epoch": 1
+        }
+      ],
+      "active_element": "DIV.composer-grip"
+    },
+    "zoom_200_scroll": {
+      "top": 0,
+      "bottom": 153.75
+    },
+    "zoom_200": {
+      "top": {
+        "screen": "studio",
+        "fullscreen": "on",
+        "focus": "on",
+        "shell_focus": true,
+        "rail_display": "none",
+        "topbar_display": "none",
+        "stage": {
+          "x": 14,
+          "y": 106,
+          "width": 707,
+          "height": 497.25,
+          "bottom": 603.25,
+          "right": 721
+        },
+        "timeline": {
+          "x": 14,
+          "y": 141.25,
+          "width": 707,
+          "height": 226,
+          "bottom": 367.25,
+          "right": 721
+        },
+        "composer": {
+          "x": 14,
+          "y": 387.25,
+          "width": 707,
+          "height": 216,
+          "bottom": 603.25,
+          "right": 721
+        },
+        "bar": {
+          "x": 14,
+          "y": 46,
+          "width": 707,
+          "height": 52,
+          "bottom": 98,
+          "right": 721
+        },
+        "textarea": {
+          "x": 25,
+          "y": 457.25,
+          "width": 685,
+          "height": 72,
+          "bottom": 529.25,
+          "right": 710
+        },
+        "bar_height": 52,
+        "timeline_share": 0.45449974861739567,
+        "composer_share": 0.4343891402714932,
+        "textarea_value": "Refactor the retry path and keep the draft intact",
+        "selection": [
+          6,
+          19
+        ],
+        "same_studio": true,
+        "same_textarea": true,
+        "overflow": false,
+        "connection": "EngineNot started",
+        "reachable": {
+          "send": false,
+          "fullscreen": true,
+          "grip": true,
+          "exit": true,
+          "interrupt": true,
+          "timeline": true
+        },
+        "scroll_y": 0,
+        "views": [
+          {
+            "fullscreen": false,
+            "pending": true,
+            "available": true,
+            "epoch": 0
+          },
+          {
+            "fullscreen": true,
+            "pending": false,
+            "available": true,
+            "epoch": 1
+          }
+        ],
+        "active_element": "DIV.composer-grip"
+      },
+      "bottom": {
+        "screen": "studio",
+        "fullscreen": "on",
+        "focus": "on",
+        "shell_focus": true,
+        "rail_display": "none",
+        "topbar_display": "none",
+        "stage": {
+          "x": 14,
+          "y": -47.75,
+          "width": 707,
+          "height": 497.25,
+          "bottom": 449.5,
+          "right": 721
+        },
+        "timeline": {
+          "x": 14,
+          "y": -12.5,
+          "width": 707,
+          "height": 226,
+          "bottom": 213.5,
+          "right": 721
+        },
+        "composer": {
+          "x": 14,
+          "y": 233.5,
+          "width": 707,
+          "height": 216,
+          "bottom": 449.5,
+          "right": 721
+        },
+        "bar": {
+          "x": 14,
+          "y": -107.75,
+          "width": 707,
+          "height": 52,
+          "bottom": -55.75,
+          "right": 721
+        },
+        "textarea": {
+          "x": 25,
+          "y": 303.5,
+          "width": 685,
+          "height": 72,
+          "bottom": 375.5,
+          "right": 710
+        },
+        "bar_height": 52,
+        "timeline_share": 0.45449974861739567,
+        "composer_share": 0.4343891402714932,
+        "textarea_value": "Refactor the retry path and keep the draft intact",
+        "selection": [
+          6,
+          19
+        ],
+        "same_studio": true,
+        "same_textarea": true,
+        "overflow": false,
+        "connection": "EngineNot started",
+        "reachable": {
+          "send": true,
+          "fullscreen": true,
+          "grip": true,
+          "exit": true,
+          "interrupt": true,
+          "timeline": true
+        },
+        "scroll_y": 153.75,
+        "views": [
+          {
+            "fullscreen": false,
+            "pending": true,
+            "available": true,
+            "epoch": 0
+          },
+          {
+            "fullscreen": true,
+            "pending": false,
+            "available": true,
+            "epoch": 1
+          }
+        ],
+        "active_element": "DIV.composer-grip"
+      }
+    },
+    "after_exit": {
+      "screen": "studio",
+      "fullscreen": "off",
+      "focus": "on",
+      "shell_focus": true,
+      "rail_display": "none",
+      "topbar_display": "none",
+      "stage": {
+        "x": 14,
+        "y": 106,
+        "width": 1252,
+        "height": 682,
+        "bottom": 788,
+        "right": 1266
+      },
+      "timeline": {
+        "x": 14,
+        "y": 141,
+        "width": 1252,
+        "height": 379,
+        "bottom": 520,
+        "right": 1266
+      },
+      "composer": {
+        "x": 14,
+        "y": 540,
+        "width": 1252,
+        "height": 248,
+        "bottom": 788,
+        "right": 1266
+      },
+      "bar": {
+        "x": 14,
+        "y": 46,
+        "width": 1252,
+        "height": 52,
+        "bottom": 98,
+        "right": 1266
+      },
+      "textarea": {
+        "x": 27,
+        "y": 614,
+        "width": 1226,
+        "height": 96,
+        "bottom": 710,
+        "right": 1253
+      },
+      "bar_height": 52,
+      "timeline_share": 0.5557184750733137,
+      "composer_share": 0.36363636363636365,
+      "textarea_value": "Refactor the retry path and keep the draft intact",
+      "selection": [
+        6,
+        19
+      ],
+      "same_studio": true,
+      "same_textarea": true,
+      "overflow": false,
+      "connection": "EngineNot started",
+      "reachable": {
+        "send": true,
+        "fullscreen": true,
+        "grip": true,
+        "exit": true,
+        "interrupt": true,
+        "timeline": true
+      },
+      "scroll_y": 0,
+      "views": [
+        {
+          "fullscreen": false,
+          "pending": true,
+          "available": true,
+          "epoch": 0
+        },
+        {
+          "fullscreen": true,
+          "pending": false,
+          "available": true,
+          "epoch": 1
+        },
+        {
+          "fullscreen": true,
+          "pending": true,
+          "available": true,
+          "epoch": 1
+        },
+        {
+          "fullscreen": false,
+          "pending": false,
+          "available": true,
+          "epoch": 2
+        }
+      ],
+      "active_element": "DIV.composer-grip"
+    },
+    "bounds": {
+      "before": {
+        "x": 145,
+        "y": 33,
+        "width": 1280,
+        "height": 800
+      },
+      "after": {
+        "x": 145,
+        "y": 33,
+        "width": 1280,
+        "height": 800
+      }
+    },
+    "after_escape": {
+      "screen": "studio",
+      "fullscreen": "off",
+      "focus": "off",
+      "shell_focus": false,
+      "rail_display": "flex",
+      "topbar_display": "flex",
+      "stage": {
+        "x": 260,
+        "y": 330.59375,
+        "width": 996,
+        "height": 726,
+        "bottom": 1056.59375,
+        "right": 1256
+      },
+      "timeline": {
+        "x": 260,
+        "y": 371.59375,
+        "width": 996,
+        "height": 352,
+        "bottom": 723.59375,
+        "right": 1256
+      },
+      "composer": {
+        "x": 260,
+        "y": 737.59375,
+        "width": 632,
+        "height": 319,
+        "bottom": 1056.59375,
+        "right": 892
+      },
+      "bar": null,
+      "textarea": {
+        "x": 275,
+        "y": 876.59375,
+        "width": 602,
+        "height": 96,
+        "bottom": 972.59375,
+        "right": 877
+      },
+      "bar_height": null,
+      "timeline_share": 0.48484848484848486,
+      "composer_share": 0.4393939393939394,
+      "textarea_value": "Refactor the retry path and keep the draft intact",
+      "selection": [
+        6,
+        19
+      ],
+      "same_studio": true,
+      "same_textarea": true,
+      "overflow": false,
+      "connection": "EngineNot started",
+      "reachable": {
+        "send": false,
+        "fullscreen": true,
+        "grip": false,
+        "exit": false,
+        "interrupt": false,
+        "timeline": true
+      },
+      "scroll_y": 0,
+      "views": [
+        {
+          "fullscreen": false,
+          "pending": true,
+          "available": true,
+          "epoch": 0
+        },
+        {
+          "fullscreen": true,
+          "pending": false,
+          "available": true,
+          "epoch": 1
+        },
+        {
+          "fullscreen": true,
+          "pending": true,
+          "available": true,
+          "epoch": 1
+        },
+        {
+          "fullscreen": false,
+          "pending": false,
+          "available": true,
+          "epoch": 2
+        }
+      ],
+      "active_element": "SECTION.studio__timeline"
+    },
+    "stored_view": {
+      "screen": "studio",
+      "inspectorTab": "task",
+      "studioMode": "work",
+      "focusMode": false
+    },
+    "engine_state": "disconnected"
+  },
+  "native_events": [
+    {
+      "event": "enter-full-screen",
+      "at": "2026-11-14T07:40:19.564Z",
+      "is_fullscreen": true,
+      "bounds": {
+        "x": 0,
+        "y": 33,
+        "width": 1470,
+        "height": 923
+      }
+    },
+    {
+      "event": "leave-full-screen",
+      "at": "2026-11-14T07:40:22.958Z",
+      "is_fullscreen": false,
+      "bounds": {
+        "x": 145,
+        "y": 33,
+        "width": 1280,
+        "height": 800
+      }
+    }
+  ],
+  "screenshots": [
+    "r05-studio-normal.png",
+    "r05-focus-windowed.png",
+    "r05-focus-command-menu.png",
+    "r05-focus-drawer.png",
+    "r05-native-fullscreen.png",
+    "r05-focus-200.png"
+  ],
+  "project": "prj_92443409800f5364",
+  "electron": {
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+}

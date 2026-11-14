@@ -1,0 +1,21 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.1.0 [39m[90m~/DS_Projects/Mona[39m
+
+ [32m✓[39m test/command-execution-plan.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m test/ipc-contract.test.ts [2m([22m[2m40 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m test/command-dispatch.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m test/studio-new-thread.test.ts [2m([22m[2m18 tests[22m[2m)[22m[33m 639[2mms[22m[39m
+ [32m✓[39m test/shell-races.test.tsx [2m([22m[2m29 tests[22m[2m)[22m[33m 4487[2mms[22m[39m
+   [32m✓[39m shell submission identity [2m(4)[22m
+     [33m[2m✓[22m[39m keeps text typed during a send and sends exactly the claimed bytes[33m 677[2mms[22m[39m
+   [32m✓[39m shell draft saving [2m(3)[22m
+     [33m[2m✓[22m[39m never reports newer text saved when an older acknowledgement arrives late[33m 1260[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps the text and says so when a save is rejected[33m 683[2mms[22m[39m
+   [32m✓[39m R04 commands dispatch through the typed IPC route [2m(13)[22m
+     [33m[2m✓[22m[39m keys the draft to the new conversation after /new[33m 656[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m5 passed[39m[22m[90m (5)[39m
+[2m      Tests [22m [1m[32m109 passed[39m[22m[90m (109)[39m
+[2m   Start at [22m 23:58:37
+[2m   Duration [22m 4.86s[2m (tests 90%, import 5%, environment 3%, transform 2%)[22m
+

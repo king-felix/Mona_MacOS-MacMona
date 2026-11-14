@@ -1,0 +1,438 @@
+{
+  "task": "R04",
+  "captured_at": "2026-11-14T06:59:27.606Z",
+  "platform": "darwin-arm64",
+  "engine": {
+    "version": "0.10.2",
+    "commit": "ff466b2ed0bfb4ae5267d4d8d0ecb562cf46956e"
+  },
+  "isolated": "temporary HOME, CODEWHALE_HOME, workspace, product state",
+  "model_requests": 0,
+  "note": "No turn was submitted. /new creates engine threads; it never calls a provider.",
+  "steps": [
+    {
+      "name": "engine_ready",
+      "service": "codewhale-runtime-api",
+      "version": "0.10.2",
+      "commit": "ff466b2ed0bfb4ae5267d4d8d0ecb562cf46956e",
+      "capabilities": {
+        "thread_create_idempotency": true,
+        "turns": true
+      }
+    },
+    {
+      "name": "studio_started",
+      "connection": "connected",
+      "engine": {
+        "version": "0.10.2",
+        "commit": "ff466b2ed0bfb4ae5267d4d8d0ecb562cf46956e"
+      }
+    },
+    {
+      "name": "dispatch_new",
+      "spelling": "new",
+      "arguments": "",
+      "route": "native",
+      "status": "completed",
+      "cost": "none",
+      "side_effects": [
+        "session-state"
+      ],
+      "note": "New work conversation created: local thr_471525ccfafe650f, engine thr_b122034d33a142e1b9d4c3d4cc4e874a. The earlier conversation, its events, drafts and usage are unchanged.",
+      "target": {
+        "screen": null,
+        "settingsTab": null,
+        "invocation": null
+      },
+      "thread": {
+        "mode": "work",
+        "generation": 0,
+        "localThreadId": "thr_471525ccfafe650f",
+        "engineThreadId": "thr_b122034d33a142e1b9d4c3d4cc4e874a",
+        "previousLocalThreadId": null,
+        "previousEngineThreadId": null,
+        "preserved": {
+          "draft": true,
+          "history": true,
+          "usage": true
+        }
+      },
+      "duplicate": false,
+      "detail": [
+        "Earlier conversations stay readable in the thread selector.",
+        "The engine thread is created with a deterministic operation key, so a retry cannot duplicate it."
+      ],
+      "active_turn": null,
+      "cost_label": "No usage recorded"
+    },
+    {
+      "name": "dispatch_new",
+      "spelling": "new",
+      "arguments": "",
+      "route": "native",
+      "status": "completed",
+      "cost": "none",
+      "side_effects": [
+        "session-state"
+      ],
+      "note": "New work conversation created: local thr_ab61da9fdb651fb5, engine thr_99ba4926edfa4aae9592dd0ebdf5db10. The earlier conversation, its events, drafts and usage are unchanged.",
+      "target": {
+        "screen": null,
+        "settingsTab": null,
+        "invocation": null
+      },
+      "thread": {
+        "mode": "work",
+        "generation": 1,
+        "localThreadId": "thr_ab61da9fdb651fb5",
+        "engineThreadId": "thr_99ba4926edfa4aae9592dd0ebdf5db10",
+        "previousLocalThreadId": "thr_471525ccfafe650f",
+        "previousEngineThreadId": "thr_b122034d33a142e1b9d4c3d4cc4e874a",
+        "preserved": {
+          "draft": true,
+          "history": true,
+          "usage": true
+        }
+      },
+      "duplicate": false,
+      "detail": [
+        "Earlier conversations stay readable in the thread selector.",
+        "The engine thread is created with a deterministic operation key, so a retry cannot duplicate it."
+      ],
+      "active_turn": null,
+      "cost_label": "No usage recorded"
+    },
+    {
+      "name": "dispatch_new",
+      "spelling": "new",
+      "arguments": "--force",
+      "route": "native",
+      "status": "completed",
+      "cost": "none",
+      "side_effects": [
+        "session-state"
+      ],
+      "note": "New work conversation created: local thr_b212722e4f81f302, engine thr_ff2b223c78704a33bbd69dace5feb012. The earlier conversation, its events, drafts and usage are unchanged.",
+      "target": {
+        "screen": null,
+        "settingsTab": null,
+        "invocation": null
+      },
+      "thread": {
+        "mode": "work",
+        "generation": 2,
+        "localThreadId": "thr_b212722e4f81f302",
+        "engineThreadId": "thr_ff2b223c78704a33bbd69dace5feb012",
+        "previousLocalThreadId": "thr_ab61da9fdb651fb5",
+        "previousEngineThreadId": "thr_99ba4926edfa4aae9592dd0ebdf5db10",
+        "preserved": {
+          "draft": true,
+          "history": true,
+          "usage": true
+        }
+      },
+      "duplicate": false,
+      "detail": [
+        "Earlier conversations stay readable in the thread selector.",
+        "The engine thread is created with a deterministic operation key, so a retry cannot duplicate it."
+      ],
+      "active_turn": null,
+      "cost_label": "No usage recorded"
+    },
+    {
+      "name": "dispatch_new",
+      "spelling": "new",
+      "arguments": "",
+      "route": "native",
+      "status": "completed",
+      "cost": "none",
+      "side_effects": [
+        "session-state"
+      ],
+      "note": "New work conversation created: local thr_ab61da9fdb651fb5, engine thr_99ba4926edfa4aae9592dd0ebdf5db10. The earlier conversation, its events, drafts and usage are unchanged.",
+      "target": {
+        "screen": null,
+        "settingsTab": null,
+        "invocation": null
+      },
+      "thread": {
+        "mode": "work",
+        "generation": 1,
+        "localThreadId": "thr_ab61da9fdb651fb5",
+        "engineThreadId": "thr_99ba4926edfa4aae9592dd0ebdf5db10",
+        "previousLocalThreadId": "thr_471525ccfafe650f",
+        "previousEngineThreadId": "thr_b122034d33a142e1b9d4c3d4cc4e874a",
+        "preserved": {
+          "draft": true,
+          "history": true,
+          "usage": true
+        }
+      },
+      "duplicate": true,
+      "detail": [
+        "Earlier conversations stay readable in the thread selector.",
+        "The engine thread is created with a deterministic operation key, so a retry cannot duplicate it."
+      ],
+      "active_turn": null,
+      "cost_label": "No usage recorded"
+    },
+    {
+      "name": "dispatch_rename",
+      "spelling": "rename",
+      "arguments": "Live smoke title",
+      "route": "native",
+      "status": "completed",
+      "cost": "none",
+      "side_effects": [
+        "session-state"
+      ],
+      "note": "Renamed this conversation to “Live smoke title”.",
+      "target": {
+        "screen": null,
+        "settingsTab": null,
+        "invocation": null
+      },
+      "thread": {
+        "mode": "work",
+        "generation": 1,
+        "localThreadId": "thr_ab61da9fdb651fb5",
+        "engineThreadId": "thr_99ba4926edfa4aae9592dd0ebdf5db10",
+        "previousLocalThreadId": "thr_ab61da9fdb651fb5",
+        "previousEngineThreadId": "thr_99ba4926edfa4aae9592dd0ebdf5db10",
+        "preserved": {
+          "draft": true,
+          "history": true,
+          "usage": true
+        }
+      },
+      "duplicate": false,
+      "detail": [],
+      "active_turn": null,
+      "cost_label": "No usage recorded"
+    },
+    {
+      "name": "dispatch_cost",
+      "spelling": "cost",
+      "arguments": "",
+      "route": "view",
+      "status": "completed",
+      "cost": "none",
+      "side_effects": [
+        "none"
+      ],
+      "note": "The Cost lens owns thread and project usage, with unknown and partial totals kept distinct. Mona opened the surface; it did not run /cost for you.",
+      "target": {
+        "screen": "cost",
+        "settingsTab": null,
+        "invocation": null
+      },
+      "thread": null,
+      "duplicate": false,
+      "detail": [],
+      "active_turn": null,
+      "cost_label": null
+    },
+    {
+      "name": "dispatch_theme",
+      "spelling": "theme",
+      "arguments": "",
+      "route": "terminal",
+      "status": "deferred",
+      "cost": "none",
+      "side_effects": [
+        "ui-only"
+      ],
+      "note": "The TUI theme is not Mona's. Appearance in Settings controls Mona's own theme. Nothing was run. The terminal pane is prefilled with the command above and waits for you to launch it.",
+      "target": {
+        "screen": null,
+        "settingsTab": null,
+        "invocation": "codewhale"
+      },
+      "thread": null,
+      "duplicate": false,
+      "detail": [],
+      "active_turn": null,
+      "cost_label": null
+    },
+    {
+      "name": "dispatch_workflow",
+      "spelling": "workflow",
+      "arguments": "",
+      "route": "unavailable",
+      "status": "not-executable",
+      "cost": "may-spend",
+      "side_effects": [
+        "spend",
+        "process-spawn"
+      ],
+      "note": "Checked-in workflows run through a Lane Runtime and have no /v1 route on 0.10.2.",
+      "target": {
+        "screen": null,
+        "settingsTab": null,
+        "invocation": null
+      },
+      "thread": null,
+      "duplicate": false,
+      "detail": [
+        "This engine version exposes no route for it. Nothing was run."
+      ],
+      "active_turn": null,
+      "cost_label": null
+    },
+    {
+      "name": "dispatch_compact",
+      "spelling": "compact",
+      "arguments": "",
+      "route": "native",
+      "status": "confirmation-required",
+      "cost": "may-spend",
+      "side_effects": [
+        "thread-state",
+        "spend"
+      ],
+      "note": "Compacts the current conversation in the engine. It may call the model, so Mona asks first. Confirm to run /compact.",
+      "target": {
+        "screen": null,
+        "settingsTab": null,
+        "invocation": null
+      },
+      "thread": null,
+      "duplicate": false,
+      "detail": [
+        "Cost class: may-spend.",
+        "Effect: thread-state.",
+        "Effect: spend.",
+        "Nothing has been sent yet."
+      ],
+      "active_turn": null,
+      "cost_label": null
+    },
+    {
+      "name": "dispatch_new",
+      "spelling": "new",
+      "arguments": "; rm -rf /",
+      "route": "native",
+      "status": "invalid-argument",
+      "cost": "none",
+      "side_effects": [
+        "session-state"
+      ],
+      "note": "/new takes no argument except --force.",
+      "target": {
+        "screen": null,
+        "settingsTab": null,
+        "invocation": null
+      },
+      "thread": null,
+      "duplicate": false,
+      "detail": [],
+      "active_turn": null,
+      "cost_label": null
+    }
+  ],
+  "threads": {
+    "local": [
+      {
+        "local_thread_id": "thr_b212722e4f81f302",
+        "engine_thread_id": "thr_ff2b223c78704a33bbd69dace5feb012",
+        "title": "ws — work 3",
+        "mode": "work",
+        "generation": 2
+      },
+      {
+        "local_thread_id": "thr_ab61da9fdb651fb5",
+        "engine_thread_id": "thr_99ba4926edfa4aae9592dd0ebdf5db10",
+        "title": "Live smoke title",
+        "mode": "work",
+        "generation": 1
+      },
+      {
+        "local_thread_id": "thr_471525ccfafe650f",
+        "engine_thread_id": "thr_b122034d33a142e1b9d4c3d4cc4e874a",
+        "title": "ws — work",
+        "mode": "work",
+        "generation": 0
+      }
+    ],
+    "engine": [
+      {
+        "id": "thr_99ba4926edfa4aae9592dd0ebdf5db10",
+        "workspace": "/private~r04-smoke/ws",
+        "title": "Live smoke title",
+        "archived": false
+      },
+      {
+        "id": "thr_ff2b223c78704a33bbd69dace5feb012",
+        "workspace": "/private~r04-smoke/ws",
+        "title": null,
+        "archived": false
+      },
+      {
+        "id": "thr_b122034d33a142e1b9d4c3d4cc4e874a",
+        "workspace": "/private~r04-smoke/ws",
+        "title": null,
+        "archived": false
+      }
+    ],
+    "distinct_engine_ids": 3,
+    "earlier_rows_present": true,
+    "rename_confirmed_by_engine": true,
+    "engine_threads_found": 3
+  },
+  "cost": {
+    "label": "No usage recorded",
+    "observed": false,
+    "turns": 0
+  },
+  "cleanup": {
+    "server": {
+      "code": 143,
+      "signal": null,
+      "within_ms": 5000
+    },
+    "note": "the isolated runtime was stopped; no user store was touched"
+  },
+  "engine_usage": {
+    "status": 200,
+    "turns": 0,
+    "cost_complete": true
+  },
+  "rename_engine_response": {
+    "status": 200,
+    "keys": [
+      "thread",
+      "turns",
+      "items",
+      "latest_seq",
+      "pending_approvals",
+      "pending_user_inputs",
+      "pending_dynamic_tool_calls",
+      "approval_grants"
+    ],
+    "id": "thr_99ba4926edfa4aae9592dd0ebdf5db10",
+    "title": "Live smoke title",
+    "local_engine_thread_id": "thr_99ba4926edfa4aae9592dd0ebdf5db10"
+  },
+  "engine_list_status": 200,
+  "assertions": {
+    "three_generations": true,
+    "distinct_engine_threads": true,
+    "duplicate_returns_same_thread": true,
+    "rename_route_completed": true,
+    "rename_confirmed_by_engine": true,
+    "view_route": true,
+    "terminal_route": true,
+    "unavailable_route": true,
+    "spend_needs_confirmation": true,
+    "injection_refused": true,
+    "no_provider_usage": true,
+    "no_model_request": true
+  },
+  "server_log_tail": [
+    "Usage reporting is on by default: Codewhale and PostHog process aggregate version/platform, session, feature and error counts when delivery is configured. No content or IP. Turn off: codewhale config set telemetry false. Details: codewhale config telemetry",
+    "Runtime API listening on http://127.0.0.1:7965",
+    "Runtime API auth: bearer token required for /v1/* routes.",
+    "Security: this server is local-first. Do not expose it to untrusted networks.",
+    "\u001b[<1u\u001b[?1007l\u001b[?1004l\u001b[?2004l\u001b[?1006l\u001b[?1015l\u001b[?1003l\u001b[?1002l\u001b[?1000l\u001b[?1049l"
+  ]
+}
