@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "revision": 1069,
+  "revision": 1120,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
   "spec_sha256": "d1c02941151c71912bc3e9c8b2509612298d54e05e0bf16fe933b9bd93e3e028",
   "prompt_file_sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8",
-  "current_prompt": "P22",
-  "current_prompt_status": "blocked",
+  "current_prompt": "P25",
+  "current_prompt_status": "completed",
   "last_verified_commit": "f7b744a",
   "tasks": {
     "P00": {
@@ -53,8 +53,8 @@
         },
         {
           "path": "docs/requirements-macos.json",
-          "sha256": "364efcf88ce3240f9ee17deed9e1462ec581ad733b7407a6d5dea982d20cbc87",
-          "note": "Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue changed shared artifacts afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "0d285f12d21a93b185eed8745cd62db59db943dab75cc1cc90f0c87a59c2800f",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
@@ -83,8 +83,8 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "e07c660eac56dba6d53c8c751f914259cc3f9fed0b700f93ac6e81b3224b73f0",
-          "note": "R00 review adoption updated this ledger document (D-103 and the studio-v2 review pointer); hash re-recorded at the R00 checkpoint, nothing removed"
+          "sha256": "03cadb0f2469bcf421f19c8c88fae8797d89de35c8e96fff43dbfe77201dda72",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "docs/evidence/macos/artifacts/p00-test-run.txt",
@@ -238,8 +238,8 @@
         },
         {
           "path": "package.json",
-          "sha256": "2e95b29e569793f7d179eeaa373ac7dbfe2134e30bdf08ffc906841c585d04f6",
-          "note": "MidnightMona.png is now the app icon: the packaging sources (icon.mjs, build.mjs) and the renderer brand mark changed, and this is the state after that change. The previous hash described the bytes at this prompt's verification; no requirement status was lowered and no assertion removed. | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "33c0cea5790af25adb3fbdf3b1e1164333337547a9a34bfeae12c1f21c7a1511",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "package-lock.json",
@@ -289,18 +289,18 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "66f29c5920a55c16197b7d747642e9e83288764e23ab4392a48b7588d66a370e",
-          "note": "MidnightMona.png is now the app icon: the packaging sources (icon.mjs, build.mjs) and the renderer brand mark changed, and this is the state after that change. The previous hash described the bytes at this prompt's verification; no requirement status was lowered and no assertion removed. | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "75e009be8895d1504234a35c91e1324ba501c6161f920521223dd36e5bf48c52",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/ipc-contract.ts",
-          "sha256": "6479a25ffa07faf2c1fb6442e509a4c61a1271b12e2ae20f5723f5bb0f7358c1",
-          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent). | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "94dae8b540ab02d4ab75652933ef5e9cf825f0215cd05d46b5f0b155eede5698",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/ipc.ts",
-          "sha256": "2fa5883aa0248f90c2fdd7166e45db04c62b80c362d71a24548a6bfe0f56318e",
-          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent). | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "94fb20bb8c3000f7ef03be4c6f87397e33cbd28ae3e55876f872023130e6215d",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/menu.ts",
@@ -329,8 +329,8 @@
         },
         {
           "path": "src/preload/index.ts",
-          "sha256": "5aebacdc833c6a2888b0c732d2dc3694dbfe77649c277efcc815570e2749946e",
-          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent). | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "e210a862a9933516d3b4421a3c524a87788293514ea473bd18bd5890247b2b84",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/renderer/App.tsx",
@@ -351,13 +351,13 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "d374f0d6a60a87aa23fb89fcab5bdb74d9a13eca3efe8459d4bbfc2a77bdaab3",
-          "note": "MidnightMona.png is now the app icon: the packaging sources (icon.mjs, build.mjs) and the renderer brand mark changed, and this is the state after that change. The previous hash described the bytes at this prompt's verification; no requirement status was lowered and no assertion removed. | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "7b3df0d2216f43f8b5d27a719a487e8a669f2440320b086fad9df14675ca7c1f",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/shared/contracts/bridge.ts",
-          "sha256": "42d6ad3feb0820af2def603efa3c9ce6873af13b0b09b27656f9db4ea20b3a69",
-          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent). | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "1da9e8b9adbd286426631cbb120c9a15f3c500c7dd9d822fd96e0e5593923bfa",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/shared/contracts/engine.ts",
@@ -374,8 +374,8 @@
         },
         {
           "path": "src/shared/contracts/index.ts",
-          "sha256": "3427c322e8dbe1713d868cf36666c9e3205421b0007555c2fc62f076a8cc02ab",
-          "note": "R04 changed this shared file (typed command execution IPC, thread generations, command operations) after the earlier verification. Re-recorded after the full 935-test suite and the isolated live command smoke passed. No assertion was removed and no requirement status was lowered. | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "222616f31e91095b249ec7c394b4699699fb802870ba5255f28e0e828eab77df",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/shared/contracts/project.ts",
@@ -570,8 +570,8 @@
         },
         {
           "path": "package.json",
-          "sha256": "2e95b29e569793f7d179eeaa373ac7dbfe2134e30bdf08ffc906841c585d04f6",
-          "note": "MidnightMona.png is now the app icon: the packaging sources (icon.mjs, build.mjs) and the renderer brand mark changed, and this is the state after that change. The previous hash described the bytes at this prompt's verification; no requirement status was lowered and no assertion removed. | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "33c0cea5790af25adb3fbdf3b1e1164333337547a9a34bfeae12c1f21c7a1511",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
@@ -701,8 +701,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "66f29c5920a55c16197b7d747642e9e83288764e23ab4392a48b7588d66a370e",
-          "note": "MidnightMona.png is now the app icon: the packaging sources (icon.mjs, build.mjs) and the renderer brand mark changed, and this is the state after that change. The previous hash described the bytes at this prompt's verification; no requirement status was lowered and no assertion removed. | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "75e009be8895d1504234a35c91e1324ba501c6161f920521223dd36e5bf48c52",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/engine/runtime-process.ts",
@@ -753,13 +753,13 @@
         },
         {
           "path": "package.json",
-          "sha256": "2e95b29e569793f7d179eeaa373ac7dbfe2134e30bdf08ffc906841c585d04f6",
-          "note": "MidnightMona.png is now the app icon: the packaging sources (icon.mjs, build.mjs) and the renderer brand mark changed, and this is the state after that change. The previous hash described the bytes at this prompt's verification; no requirement status was lowered and no assertion removed. | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "33c0cea5790af25adb3fbdf3b1e1164333337547a9a34bfeae12c1f21c7a1511",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "e07c660eac56dba6d53c8c751f914259cc3f9fed0b700f93ac6e81b3224b73f0",
-          "note": "R00 review adoption updated this ledger document (D-103 and the studio-v2 review pointer); hash re-recorded at the R00 checkpoint, nothing removed"
+          "sha256": "03cadb0f2469bcf421f19c8c88fae8797d89de35c8e96fff43dbfe77201dda72",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         }
       ],
       "blocker_ids": [],
@@ -1177,8 +1177,8 @@
         },
         {
           "path": "package.json",
-          "sha256": "2e95b29e569793f7d179eeaa373ac7dbfe2134e30bdf08ffc906841c585d04f6",
-          "note": "MidnightMona.png is now the app icon: the packaging sources (icon.mjs, build.mjs) and the renderer brand mark changed, and this is the state after that change. The previous hash described the bytes at this prompt's verification; no requirement status was lowered and no assertion removed. | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "33c0cea5790af25adb3fbdf3b1e1164333337547a9a34bfeae12c1f21c7a1511",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/open/folder-request.ts",
@@ -1194,8 +1194,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "66f29c5920a55c16197b7d747642e9e83288764e23ab4392a48b7588d66a370e",
-          "note": "MidnightMona.png is now the app icon: the packaging sources (icon.mjs, build.mjs) and the renderer brand mark changed, and this is the state after that change. The previous hash described the bytes at this prompt's verification; no requirement status was lowered and no assertion removed. | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "75e009be8895d1504234a35c91e1324ba501c6161f920521223dd36e5bf48c52",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/desktop-lifecycle.ts",
@@ -1203,13 +1203,13 @@
         },
         {
           "path": "src/main/ipc.ts",
-          "sha256": "2fa5883aa0248f90c2fdd7166e45db04c62b80c362d71a24548a6bfe0f56318e",
-          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent). | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "94fb20bb8c3000f7ef03be4c6f87397e33cbd28ae3e55876f872023130e6215d",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/ipc-contract.ts",
-          "sha256": "6479a25ffa07faf2c1fb6442e509a4c61a1271b12e2ae20f5723f5bb0f7358c1",
-          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent). | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "94dae8b540ab02d4ab75652933ef5e9cf825f0215cd05d46b5f0b155eede5698",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/projects/service.ts",
@@ -1218,8 +1218,8 @@
         },
         {
           "path": "src/preload/index.ts",
-          "sha256": "5aebacdc833c6a2888b0c732d2dc3694dbfe77649c277efcc815570e2749946e",
-          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent). | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "e210a862a9933516d3b4421a3c524a87788293514ea473bd18bd5890247b2b84",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/shared/contracts/open.ts",
@@ -1227,13 +1227,13 @@
         },
         {
           "path": "src/shared/contracts/bridge.ts",
-          "sha256": "42d6ad3feb0820af2def603efa3c9ce6873af13b0b09b27656f9db4ea20b3a69",
-          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent). | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "1da9e8b9adbd286426631cbb120c9a15f3c500c7dd9d822fd96e0e5593923bfa",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/renderer/shell/Shell.tsx",
-          "sha256": "77c5e6fcfe1d82f8072695ed6288eb5504ee4a96bfe720853907e49fe570f79a",
-          "note": "MidnightMona.png is now the app icon: the packaging sources (icon.mjs, build.mjs) and the renderer brand mark changed, and this is the state after that change. The previous hash described the bytes at this prompt's verification; no requirement status was lowered and no assertion removed. | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "e85d851434393cb57c7b236df285baa6610ec426f8a48df7599df3bcb9ed4614",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/renderer/shell/drop.ts",
@@ -1250,8 +1250,8 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "d374f0d6a60a87aa23fb89fcab5bdb74d9a13eca3efe8459d4bbfc2a77bdaab3",
-          "note": "MidnightMona.png is now the app icon: the packaging sources (icon.mjs, build.mjs) and the renderer brand mark changed, and this is the state after that change. The previous hash described the bytes at this prompt's verification; no requirement status was lowered and no assertion removed. | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "7b3df0d2216f43f8b5d27a719a487e8a669f2440320b086fad9df14675ca7c1f",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "test/folder-request.test.ts",
@@ -1276,8 +1276,8 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "e07c660eac56dba6d53c8c751f914259cc3f9fed0b700f93ac6e81b3224b73f0",
-          "note": "R00 review adoption updated this ledger document (D-103 and the studio-v2 review pointer); hash re-recorded at the R00 checkpoint, nothing removed"
+          "sha256": "03cadb0f2469bcf421f19c8c88fae8797d89de35c8e96fff43dbfe77201dda72",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "docs/evidence/macos/artifacts/p09-finder-panel.png",
@@ -1344,13 +1344,13 @@
         },
         {
           "path": "src/main/state/schema.ts",
-          "sha256": "cb78757039556e861a70c63c88c60af96e9df6e140f09d26a85804bb96c0c647",
-          "note": "R04 changed this shared file (typed command execution IPC, thread generations, command operations) after the earlier verification. Re-recorded after the full 935-test suite and the isolated live command smoke passed. No assertion was removed and no requirement status was lowered. | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "bb865ef027bdd449806320652c3f908e984eadac1e3cec8bed6d6949f93c0d4c",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/state/store.ts",
-          "sha256": "0808a384ef4db1ba2e5282f541eaa7e66a56fb0228182c24213a44a4c4bd0ad8",
-          "note": "R04's independent-review fixes changed this shared file after the earlier verification (draft identity claimed before dispatch; insert-or-update command operations). Re-recorded after the 944-test suite, typecheck/lint/format and the isolated live command smoke all passed. No assertion was removed and no requirement status was lowered. | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "df1cf28549bd696d68e6ec618868974096e7b2f67e0a5e54219fdc841087ab7f",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/state/portable.ts",
@@ -1367,28 +1367,28 @@
         },
         {
           "path": "src/shared/contracts/bridge.ts",
-          "sha256": "42d6ad3feb0820af2def603efa3c9ce6873af13b0b09b27656f9db4ea20b3a69",
-          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent). | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "1da9e8b9adbd286426631cbb120c9a15f3c500c7dd9d822fd96e0e5593923bfa",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/ipc-contract.ts",
-          "sha256": "6479a25ffa07faf2c1fb6442e509a4c61a1271b12e2ae20f5723f5bb0f7358c1",
-          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent). | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "94dae8b540ab02d4ab75652933ef5e9cf825f0215cd05d46b5f0b155eede5698",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/ipc.ts",
-          "sha256": "2fa5883aa0248f90c2fdd7166e45db04c62b80c362d71a24548a6bfe0f56318e",
-          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent). | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "94fb20bb8c3000f7ef03be4c6f87397e33cbd28ae3e55876f872023130e6215d",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "66f29c5920a55c16197b7d747642e9e83288764e23ab4392a48b7588d66a370e",
-          "note": "MidnightMona.png is now the app icon: the packaging sources (icon.mjs, build.mjs) and the renderer brand mark changed, and this is the state after that change. The previous hash described the bytes at this prompt's verification; no requirement status was lowered and no assertion removed. | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "75e009be8895d1504234a35c91e1324ba501c6161f920521223dd36e5bf48c52",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/preload/index.ts",
-          "sha256": "5aebacdc833c6a2888b0c732d2dc3694dbfe77649c277efcc815570e2749946e",
-          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent). | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "e210a862a9933516d3b4421a3c524a87788293514ea473bd18bd5890247b2b84",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/renderer/shell/Board.tsx",
@@ -1402,8 +1402,8 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "d374f0d6a60a87aa23fb89fcab5bdb74d9a13eca3efe8459d4bbfc2a77bdaab3",
-          "note": "MidnightMona.png is now the app icon: the packaging sources (icon.mjs, build.mjs) and the renderer brand mark changed, and this is the state after that change. The previous hash described the bytes at this prompt's verification; no requirement status was lowered and no assertion removed. | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "7b3df0d2216f43f8b5d27a719a487e8a669f2440320b086fad9df14675ca7c1f",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "test/work-board.test.ts",
@@ -2019,38 +2019,38 @@
         },
         {
           "path": "src/main/ipc.ts",
-          "sha256": "2fa5883aa0248f90c2fdd7166e45db04c62b80c362d71a24548a6bfe0f56318e",
-          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent). | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "94fb20bb8c3000f7ef03be4c6f87397e33cbd28ae3e55876f872023130e6215d",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/ipc-contract.ts",
-          "sha256": "6479a25ffa07faf2c1fb6442e509a4c61a1271b12e2ae20f5723f5bb0f7358c1",
-          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent). | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "94dae8b540ab02d4ab75652933ef5e9cf825f0215cd05d46b5f0b155eede5698",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/preload/index.ts",
-          "sha256": "5aebacdc833c6a2888b0c732d2dc3694dbfe77649c277efcc815570e2749946e",
-          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent). | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "e210a862a9933516d3b4421a3c524a87788293514ea473bd18bd5890247b2b84",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/shared/contracts/bridge.ts",
-          "sha256": "42d6ad3feb0820af2def603efa3c9ce6873af13b0b09b27656f9db4ea20b3a69",
-          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent). | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "1da9e8b9adbd286426631cbb120c9a15f3c500c7dd9d822fd96e0e5593923bfa",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/shared/contracts/index.ts",
-          "sha256": "3427c322e8dbe1713d868cf36666c9e3205421b0007555c2fc62f076a8cc02ab",
-          "note": "R04 changed this shared file (typed command execution IPC, thread generations, command operations) after the earlier verification. Re-recorded after the full 935-test suite and the isolated live command smoke passed. No assertion was removed and no requirement status was lowered. | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "222616f31e91095b249ec7c394b4699699fb802870ba5255f28e0e828eab77df",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "66f29c5920a55c16197b7d747642e9e83288764e23ab4392a48b7588d66a370e",
-          "note": "MidnightMona.png is now the app icon: the packaging sources (icon.mjs, build.mjs) and the renderer brand mark changed, and this is the state after that change. The previous hash described the bytes at this prompt's verification; no requirement status was lowered and no assertion removed. | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "75e009be8895d1504234a35c91e1324ba501c6161f920521223dd36e5bf48c52",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/renderer/shell/Shell.tsx",
-          "sha256": "77c5e6fcfe1d82f8072695ed6288eb5504ee4a96bfe720853907e49fe570f79a",
-          "note": "MidnightMona.png is now the app icon: the packaging sources (icon.mjs, build.mjs) and the renderer brand mark changed, and this is the state after that change. The previous hash described the bytes at this prompt's verification; no requirement status was lowered and no assertion removed. | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "e85d851434393cb57c7b236df285baa6610ec426f8a48df7599df3bcb9ed4614",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/renderer/shell/Settings.tsx",
@@ -2063,8 +2063,8 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "d374f0d6a60a87aa23fb89fcab5bdb74d9a13eca3efe8459d4bbfc2a77bdaab3",
-          "note": "MidnightMona.png is now the app icon: the packaging sources (icon.mjs, build.mjs) and the renderer brand mark changed, and this is the state after that change. The previous hash described the bytes at this prompt's verification; no requirement status was lowered and no assertion removed. | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "7b3df0d2216f43f8b5d27a719a487e8a669f2440320b086fad9df14675ca7c1f",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "test/terminal-buffer.test.ts",
@@ -2106,8 +2106,8 @@
         },
         {
           "path": "package.json",
-          "sha256": "2e95b29e569793f7d179eeaa373ac7dbfe2134e30bdf08ffc906841c585d04f6",
-          "note": "MidnightMona.png is now the app icon: the packaging sources (icon.mjs, build.mjs) and the renderer brand mark changed, and this is the state after that change. The previous hash described the bytes at this prompt's verification; no requirement status was lowered and no assertion removed. | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "33c0cea5790af25adb3fbdf3b1e1164333337547a9a34bfeae12c1f21c7a1511",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
@@ -2116,8 +2116,8 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "e07c660eac56dba6d53c8c751f914259cc3f9fed0b700f93ac6e81b3224b73f0",
-          "note": "R00 review adoption updated this ledger document (D-103 and the studio-v2 review pointer); hash re-recorded at the R00 checkpoint, nothing removed"
+          "sha256": "03cadb0f2469bcf421f19c8c88fae8797d89de35c8e96fff43dbfe77201dda72",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         }
       ],
       "blocker_ids": []
@@ -2194,8 +2194,8 @@
         },
         {
           "path": "src/main/state/store.ts",
-          "sha256": "0808a384ef4db1ba2e5282f541eaa7e66a56fb0228182c24213a44a4c4bd0ad8",
-          "note": "R04's independent-review fixes changed this shared file after the earlier verification (draft identity claimed before dispatch; insert-or-update command operations). Re-recorded after the 944-test suite, typecheck/lint/format and the isolated live command smoke all passed. No assertion was removed and no requirement status was lowered. | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "df1cf28549bd696d68e6ec618868974096e7b2f67e0a5e54219fdc841087ab7f",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/renderer/shell/Memory.tsx",
@@ -2235,13 +2235,13 @@
         },
         {
           "path": "docs/requirements-macos.json",
-          "sha256": "364efcf88ce3240f9ee17deed9e1462ec581ad733b7407a6d5dea982d20cbc87",
-          "note": "Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue changed shared artifacts afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "0d285f12d21a93b185eed8745cd62db59db943dab75cc1cc90f0c87a59c2800f",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "e07c660eac56dba6d53c8c751f914259cc3f9fed0b700f93ac6e81b3224b73f0",
-          "note": "R00 review adoption updated this ledger document (D-103 and the studio-v2 review pointer); hash re-recorded at the R00 checkpoint, nothing removed"
+          "sha256": "03cadb0f2469bcf421f19c8c88fae8797d89de35c8e96fff43dbfe77201dda72",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": ".mona/build-macos/HANDOFF.md",
@@ -2310,8 +2310,8 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "e07c660eac56dba6d53c8c751f914259cc3f9fed0b700f93ac6e81b3224b73f0",
-          "note": "R00 review adoption updated this ledger document (D-103 and the studio-v2 review pointer); hash re-recorded at the R00 checkpoint, nothing removed"
+          "sha256": "03cadb0f2469bcf421f19c8c88fae8797d89de35c8e96fff43dbfe77201dda72",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         }
       ],
       "blocker_ids": []
@@ -2394,12 +2394,13 @@
         },
         {
           "path": "packaging/macos/build.mjs",
-          "sha256": "7aa67e5f5079de50af412625fbc1102c6dd16a4551a285aacba82ac86399f07d",
-          "note": "MidnightMona.png is now the app icon: the packaging sources (icon.mjs, build.mjs) and the renderer brand mark changed, and this is the state after that change. The previous hash described the bytes at this prompt's verification; no requirement status was lowered and no assertion removed."
+          "sha256": "0388f30772520cb2f2ff9eb507460b96560fadcfe4970362b573557687621869",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "packaging/macos/doctor.mjs",
-          "sha256": "528df1cb864c8be2a913f18d6350a94ea4d5db807ac001afc668887cb49e12c6"
+          "sha256": "248c09cbceb5744ec675ee7350c9f9b2379ff8365a2ec165e59e7343241d9710",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "packaging/macos/icon.mjs",
@@ -2464,13 +2465,13 @@
         },
         {
           "path": "docs/requirements-macos.json",
-          "sha256": "364efcf88ce3240f9ee17deed9e1462ec581ad733b7407a6d5dea982d20cbc87",
-          "note": "Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue changed shared artifacts afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "0d285f12d21a93b185eed8745cd62db59db943dab75cc1cc90f0c87a59c2800f",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "e07c660eac56dba6d53c8c751f914259cc3f9fed0b700f93ac6e81b3224b73f0",
-          "note": "R00 review adoption updated this ledger document (D-103 and the studio-v2 review pointer); hash re-recorded at the R00 checkpoint, nothing removed"
+          "sha256": "03cadb0f2469bcf421f19c8c88fae8797d89de35c8e96fff43dbfe77201dda72",
+          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": ".mona/build-macos/HANDOFF.md",
@@ -2604,14 +2605,43 @@
       "blocker_ids": []
     },
     "P25": {
-      "status": "pending",
+      "status": "completed",
       "requirements": [
         "MAC-008"
       ],
-      "completed_steps": [],
+      "completed_steps": [
+        "Confirmed the available source: this Mac checkout only; no Windows/common checkout and no .mona/build ledger exist in the workspace",
+        "Wrote tools/p25-audit.mjs: scans src/shared for Node builtins, platform branches, macOS paths and tool invocations; classifies every main module as portable or macOS-bound with the reason",
+        "Audited the shared core: 31 files, 0 violations, 2 reviewed mentions (a Finder comment and the pkgutil provenance label)",
+        "Classified 76 of 90 main modules as portable and named the 14 macOS-bound modules and why",
+        "Documented the five platform seams (runtime ownership, shell launch, storage, credentials, installation/update/removal), the portable data formats, migration compatibility rules, and what must stay platform-specific",
+        "Wrote the change list a Windows core would take and the reconciliation procedure for when a counterpart source appears",
+        "Added test/shared-core.test.ts (2 tests) so platform-freedom and the classification are checked, not prose"
+      ],
       "remaining_steps": [],
-      "evidence": [],
-      "blocker_ids": []
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P25-shared-core.md",
+          "sha256": "14f61a001909e2299991c795f53e68dda3e2e6418263d453921828401e6540f4"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p25-audit.json",
+          "sha256": "9542f6d367075fc1b942598bf86a99a13a83eaccadb649f8663a2fb30868bc20"
+        },
+        {
+          "path": "tools/p25-audit.mjs",
+          "sha256": "dd5db3290f71fc509cb9204fec6b66c6ff5dcdebb49caa243a643141b8c74885"
+        },
+        {
+          "path": "test/shared-core.test.ts",
+          "sha256": "e53f967ba97f151e6e60b85f6176a4740ef32a5083a9091cc484796355251768"
+        }
+      ],
+      "blocker_ids": [],
+      "notes": [
+        "No merge or comparison is claimed: no Windows source was available. MAC-008 stays partial; this is the interface handoff the prompt allows in that case.",
+        "1,076 tests in 97 files; typecheck, lint and format clean."
+      ]
     },
     "P26": {
       "status": "pending",
@@ -2650,7 +2680,7 @@
     "P22",
     "P25"
   ],
-  "last_checkpoint_utc": "2026-11-14T10:02:33.757Z",
+  "last_checkpoint_utc": "2026-11-14T10:04:44.977Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

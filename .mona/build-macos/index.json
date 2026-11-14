@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-14T09:39:19.529Z",
+  "generated_utc": "2026-11-14T10:04:50.847Z",
   "git": {
     "available": true,
-    "commit": "efd64c5f1d965e52939ac5ec8e47c370c9707f55",
+    "commit": "db18592064ebf8b801987fceeb825c9e04b1a965",
     "dirty": true
   },
-  "digest": "5748ad4e4573fb02e4a5c10d7d20f7f822ff98d52c1787def6681ffd06c0334b",
+  "digest": "8c0493266ea8eb5cfbb499530bfafbb91218f94d03e6397338bec35b0d050b5f",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,8 +15,8 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "c04cb7c1f833673faf8e4eef279b999ecb1bfc56d694b43c8595b2016142db10",
-      "bytes": 184620
+      "sha256": "0fe89d8a6049ab4d614ad672ea8a9f1466f5842c50680174f0500c61f3331976",
+      "bytes": 178665
     },
     {
       "path": "AGENTS.md",
@@ -57,6 +57,11 @@
       "path": "docs/evidence/macos/artifacts/host-inventory.txt",
       "sha256": "16e876d9784073a61ccea287726827619430e0d08a6cd6a0f56d2fbea022ea5c",
       "bytes": 1642
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p-r08-activity.png",
+      "sha256": "4c700e479a9058df381e13b260dab0b6592175b42f9dc324c22c091807df8d66",
+      "bytes": 276041
     },
     {
       "path": "docs/evidence/macos/artifacts/p00-adversarial-probes.txt",
@@ -799,6 +804,16 @@
       "bytes": 6633
     },
     {
+      "path": "docs/evidence/macos/artifacts/p22-preflight.json",
+      "sha256": "96210158fb4e15ff84b7d083f5978ccce578a01c953ea12bc529c6a0410a7c31",
+      "bytes": 2725
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p22-release-refusal.json",
+      "sha256": "160289dae8f40cf7d2ea6a6bd3d80518f43ace4be561eb31fe05528514a0e246",
+      "bytes": 385
+    },
+    {
       "path": "docs/evidence/macos/artifacts/p23-ci.txt",
       "sha256": "cf03d7a20f4cfe83f99027414497c545460910d19a7c4a4c0dd022a5ed999861",
       "bytes": 73958
@@ -817,6 +832,11 @@
       "path": "docs/evidence/macos/artifacts/p23-uninstall-rehearsal.json",
       "sha256": "a32600128f40b311451dc3b42eb9218224a6292543f7af315a13067f50d6aa8d",
       "bytes": 3175
+    },
+    {
+      "path": "docs/evidence/macos/artifacts/p25-audit.json",
+      "sha256": "9542f6d367075fc1b942598bf86a99a13a83eaccadb649f8663a2fb30868bc20",
+      "bytes": 4543
     },
     {
       "path": "docs/evidence/macos/artifacts/runtime-store-coexistence.json",
@@ -974,9 +994,19 @@
       "bytes": 8817
     },
     {
+      "path": "docs/evidence/macos/P22-trust.md",
+      "sha256": "d82be73753b30c10744f543621b32cd64d9fbac8a2d31c85a9ae3e80386a003a",
+      "bytes": 6838
+    },
+    {
       "path": "docs/evidence/macos/P23-lifecycle.md",
       "sha256": "77e55eeb6225eeed62530da4fca70445d1d3af7ce1bb9e6e7ce3b790463a29d1",
       "bytes": 19499
+    },
+    {
+      "path": "docs/evidence/macos/P25-shared-core.md",
+      "sha256": "14f61a001909e2299991c795f53e68dda3e2e6418263d453921828401e6540f4",
+      "bytes": 8713
     },
     {
       "path": "docs/evidence/macos/review-studio/artifacts/r00-baseline-host.txt",
@@ -1289,6 +1319,11 @@
       "bytes": 10810
     },
     {
+      "path": "docs/evidence/macos/review-studio/R08-follow-ups-and-activity.md",
+      "sha256": "3a2d469982797e7fc41aec1bbe427d282a9d6db046780b201e33716c6bd47b31",
+      "bytes": 8000
+    },
+    {
       "path": "docs/evidence/macos/review-studio/R10-composition-and-review.md",
       "sha256": "ab9ded2f2a22297f29607bc6c7ebc45edd71bd82d39d23910de024d060a70af9",
       "bytes": 8189
@@ -1340,13 +1375,13 @@
     },
     {
       "path": "docs/requirements-macos.json",
-      "sha256": "364efcf88ce3240f9ee17deed9e1462ec581ad733b7407a6d5dea982d20cbc87",
-      "bytes": 83533
+      "sha256": "ab53ebae5c87e01160a47181f6fc27a8667fb03b5a241f728317e6b82394e988",
+      "bytes": 85820
     },
     {
       "path": "docs/requirements-macos.json",
-      "sha256": "364efcf88ce3240f9ee17deed9e1462ec581ad733b7407a6d5dea982d20cbc87",
-      "bytes": 83533
+      "sha256": "ab53ebae5c87e01160a47181f6fc27a8667fb03b5a241f728317e6b82394e988",
+      "bytes": 85820
     },
     {
       "path": "Mona_macOS_Project.md",

@@ -1,0 +1,201 @@
+{
+  "schema_version": 1,
+  "prompt": "P25",
+  "generated_utc": "2026-11-14T10:04:19.673Z",
+  "baseline": {
+    "commit": "db18592064ebf8b801987fceeb825c9e04b1a965",
+    "branch": "main",
+    "dirty": false,
+    "schema": {
+      "latest": {
+        "version": 13,
+        "name": "queued-follow-ups"
+      },
+      "count": 13,
+      "migrations": [
+        {
+          "version": 1,
+          "name": "core-project-state"
+        },
+        {
+          "version": 2,
+          "name": "project-identity-fields"
+        },
+        {
+          "version": 3,
+          "name": "task-board-and-continuity"
+        },
+        {
+          "version": 4,
+          "name": "attempt-ledger-and-boundaries"
+        },
+        {
+          "version": 5,
+          "name": "cost-ledger-rates-and-budgets"
+        },
+        {
+          "version": 6,
+          "name": "change-receipts-git-and-restore"
+        },
+        {
+          "version": 7,
+          "name": "orchestration-observations-and-receipts"
+        },
+        {
+          "version": 8,
+          "name": "installer-update-intents"
+        },
+        {
+          "version": 9,
+          "name": "engine-event-gaps"
+        },
+        {
+          "version": 10,
+          "name": "event-item-identity"
+        },
+        {
+          "version": 11,
+          "name": "thread-generations-and-command-operations"
+        },
+        {
+          "version": 12,
+          "name": "pending-engine-requests"
+        },
+        {
+          "version": 13,
+          "name": "queued-follow-ups"
+        }
+      ]
+    },
+    "counters": {
+      "contracts": 26,
+      "work_modules": 25,
+      "engine_modules": 12
+    }
+  },
+  "shared": {
+    "files": 31,
+    "platform_free": true,
+    "violations": [],
+    "mentions": [
+      {
+        "path": "src/shared/contracts/bridge.ts",
+        "kind": "finder",
+        "detail": "shared module"
+      },
+      {
+        "path": "src/shared/contracts/update.ts",
+        "kind": "macos-command",
+        "detail": "shared module"
+      }
+    ],
+    "mentions_note": "Labels, not behaviour: a Windows core maps them (for example the update provenance value `pkgutil` becomes that platform's installer tool). No shared module imports a Node builtin or branches on the platform."
+  },
+  "main": {
+    "files": 90,
+    "portable": 76,
+    "macos_bound": 14,
+    "bound_modules": [
+      {
+        "path": "src/main/index.ts",
+        "reasons": [
+          "platform-check",
+          "macos-command",
+          "finder"
+        ]
+      },
+      {
+        "path": "src/main/install-location.ts",
+        "reasons": [
+          "applications-path"
+        ]
+      },
+      {
+        "path": "src/main/ipc.ts",
+        "reasons": [
+          "platform-check",
+          "finder"
+        ]
+      },
+      {
+        "path": "src/main/navigation.ts",
+        "reasons": [
+          "darwin-literal"
+        ]
+      },
+      {
+        "path": "src/main/open/coordinator.ts",
+        "reasons": [
+          "finder"
+        ]
+      },
+      {
+        "path": "src/main/open/folder-request.ts",
+        "reasons": [
+          "finder"
+        ]
+      },
+      {
+        "path": "src/main/open/service-status.ts",
+        "reasons": [
+          "darwin-literal",
+          "library-path",
+          "finder"
+        ]
+      },
+      {
+        "path": "src/main/package-smoke.ts",
+        "reasons": [
+          "platform-check",
+          "applications-path"
+        ]
+      },
+      {
+        "path": "src/main/tool-discovery.ts",
+        "reasons": [
+          "finder"
+        ]
+      },
+      {
+        "path": "src/main/update/trust.ts",
+        "reasons": [
+          "macos-command",
+          "finder"
+        ]
+      },
+      {
+        "path": "src/main/update/uninstall.ts",
+        "reasons": [
+          "applications-path",
+          "library-path",
+          "finder"
+        ]
+      },
+      {
+        "path": "src/main/window-fullscreen.ts",
+        "reasons": [
+          "platform-check",
+          "darwin-literal"
+        ]
+      },
+      {
+        "path": "src/main/work/changes.ts",
+        "reasons": [
+          "finder"
+        ]
+      },
+      {
+        "path": "src/main/work/git.ts",
+        "reasons": [
+          "applications-path"
+        ]
+      }
+    ]
+  },
+  "counterpart": {
+    "windows_checkout": null,
+    "windows_ledger": null,
+    "note": "No Windows/common source tree and no .mona/build ledger exist in this workspace. The audit is an interface handoff, not a comparison."
+  },
+  "verdict": "shared-contracts-platform-free"
+}

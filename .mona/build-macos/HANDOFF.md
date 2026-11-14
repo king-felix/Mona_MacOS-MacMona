@@ -1,13 +1,45 @@
 # Handoff — Mona macOS build
 
-**Last checkpoint:** 2026-11-12 (P23) · `monabuild validate` clean ·
-revision 745 · code tip `5b15c66`, ledger commit `df1aeac`
-**History rewritten 2026-11-13 (D-101)** — old SHAs are gone. This section's
-original `f755d8a` is now `6a492d0`; the full mapping is in D-101.
-**Current prompt:** P23 completed. `monabuild next` now reports **P22**
-(signing/notarization/release automation) and **P25** (shared-core/Windows
-coordination) as eligible. P24 and P26–P27 wait on P22. P22 needs the Developer
-ID prerequisite (EXT-SIGNING) from `BLOCKERS.md`; P25 is fully independent.
+**Last checkpoint:** 2026-11-14 (P25) · `monabuild validate` clean ·
+code tip `db18592`
+**History rewritten 2026-11-13 (D-101)** — old SHAs are gone; the mapping is in
+D-101.
+**Current state:** 25 of 28 prompts are finished — P23 completed, **P22 blocked
+on EXT-SIGNING**, **P25 completed**. `monabuild next` now reports **no eligible
+prompt**: P24 needs P22's signed artifact, P26 needs P24+P25, and P27 needs P26.
+The Studio review queue is at **R08 completed**; **R09 is the only eligible
+review task**.
+**Next exact action:** R09 (slim usage dashboard) can start now. P22 resumes the
+moment Victor provides the two Developer ID identities and a notary credential —
+`npm run mac:release:preflight` names the gap exactly; see BLOCKERS.md.
+
+### P22, P25 and R08 — the 2026-11-14 queue
+
+- **R08 (review ledger, revision 72).** Schema v13 `follow_ups` with immutable
+  target identity and a compare-and-set claim; one dispatch boundary (the end of
+  a turn) sharing the composer's `transmit()` path; paused, budget-stop, stale
+  and uncertain rows all leave a truthful status; a restart sends nothing.
+  `STEERING_CAPABILITY` reports the missing route and names the after-turn
+  option, and no steer control is rendered. The activity strip derives frames
+  span, last-event age, tool rows with measured durations and Needs-you from
+  stored events only. 17 new tests, shell smoke 133/133 with six new checks.
+- **P22 (blocked on EXT-SIGNING).** `mac:release:preflight`, `mac:release` and
+  `mac:verify-release` share one gate. Without both Developer ID identities and
+  a notary credential the pipeline exits 3 at preflight and produces no
+  artifact. Inside-out signing with Hardened Runtime, timestamps and
+  per-component entitlements (never `--deep`), `productsign` for the package,
+  `notarytool` submit/log, stapler, spctl, and a digest-bound receipt. Local
+  packaging was re-verified (build 139) after the refactor.
+- **P25 (completed).** No Windows checkout or `.mona/build` ledger exists, so the
+  deliverable is an interface audit and handoff, not a merge.
+  `tools/p25-audit.mjs` proves the shared core is platform-free (31 files, 0
+  violations), classifies the 14 macOS-bound main modules, and records the
+  baseline. MAC-008 stays `partial`.
+- **Ledger hygiene:** 49 evidence hashes across P00/P02/P03/P04/P09/P10/P18/P19/
+  P20/P21 were re-recorded after the suite passed on the new shared bytes, with
+  a note on each entry; no status was lowered and no assertion removed. The 24
+  hash-pinned shell captures were restored to their committed bytes — R12 owns
+  that reconciliation.
 
 ### Studio review queue — R06, R07 and R10 completed (2026-11-14)
 

@@ -3,7 +3,7 @@
 **Status:** interface audit complete; **no counterpart source was available**, so
 no merge is claimed.
 **Requirement:** MAC-008 (partial contribution).
-**Baseline:** commit `1ea6fb5` (`main`), schema v13 (`queued-follow-ups`),
+**Baseline:** commit `db18592` (`main`), schema v13 (`queued-follow-ups`),
 31 shared contract/command modules, 90 main-process modules, 43 renderer
 modules.
 

@@ -1975,9 +1975,13 @@
         {
           "path": "docs/evidence/macos/P00-bootstrap.md",
           "note": "provenance and separation evidence"
+        },
+        {
+          "path": "docs/evidence/macos/P25-shared-core.md",
+          "note": "P25 shared-core audit and integration handoff"
         }
       ],
-      "notes": "P00: separate .mona/build-macos ledger, generated requirement registry, pinned engine provenance (tag v0.10.2 = commit ff466b2ed0bf), and a local-only Git history with no invented remote. Windows coordination, release BOM, and reproducible release commands remain P25."
+      "notes": "P00: separate .mona/build-macos ledger, generated requirement registry, pinned engine provenance (tag v0.10.2 = commit ff466b2ed0bf), and a local-only Git history with no invented remote. Windows coordination, release BOM, and reproducible release commands remain P25. P25 (2026-11-14) audited the shared core against baseline db18592: 31 shared files are platform-free (0 violations), 76 of 90 main modules are portable, and the 14 macOS-bound modules are named with their reason. The five platform seams, portable data formats, migration rules and the counterpart change list are documented in docs/evidence/macos/P25-shared-core.md. No Windows source was available, so no comparison or merge is claimed."
     }
   ],
   "dependency_order": [
