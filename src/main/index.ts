@@ -3750,15 +3750,30 @@ async function runCommandSmoke(window: BrowserWindow): Promise<void> {
     await new Promise((resolve) => setTimeout(resolve, 200));
     await typeText("/");
     // The list is laid out from the composer's position, so its rectangle moves
-    // for a few frames after the zoom. Measure once it has stopped moving; the
-    // assertion itself is unchanged.
+    // for a few frames after the zoom, and its *body* can settle a frame later
+    // again (the detail pane opening changes it). Both are therefore part of the
+    // settle signature: measuring on the outer rectangle alone read the body at
+    // 0 px on the installed build while the menu itself was already placed.
     await (async () => {
       const deadline = Date.now() + 10_000;
       let previous = "";
       while (Date.now() < deadline) {
         const current = await evaluate<string>(`(() => {
-          const rect = document.querySelector(".command-menu")?.getBoundingClientRect();
-          return rect ? [rect.left, rect.top, rect.width, rect.height].map(Math.round).join(",") : "none";
+          const menu = document.querySelector(".command-menu");
+          const body = document.querySelector(".command-menu__body");
+          if (!menu) return "none";
+          const rect = menu.getBoundingClientRect();
+          const bodyRect = body?.getBoundingClientRect();
+          return [
+            rect.left,
+            rect.top,
+            rect.width,
+            rect.height,
+            bodyRect?.height ?? -1,
+            body ? body.scrollHeight : -1,
+          ]
+            .map(Math.round)
+            .join(",");
         })()`);
         if (current !== "none" && current === previous) return;
         previous = current;

@@ -99,6 +99,16 @@ export function checkpoint(statePath, { expectRevision, patch, now = new Date().
   }
 }
 
+/**
+ * A prerequisite is satisfied when it is `completed`, or when it was deliberately
+ * `skipped` — a scope decision is a decision, and leaving a dependent prompt
+ * permanently ineligible would read as "still blocked" long after the owner
+ * settled it. A `blocked` or unfinished prerequisite still holds.
+ */
+function prerequisiteSatisfied(task) {
+  return task?.status === "completed" || task?.status === "skipped";
+}
+
 export function computeNextEligible(state, prompts) {
   const tasks = state.tasks ?? {};
   const prereqsById = new Map((prompts ?? []).map((prompt) => [prompt.id, prompt.prerequisites]));
@@ -106,7 +116,7 @@ export function computeNextEligible(state, prompts) {
   for (const [id, task] of Object.entries(tasks)) {
     if (task.status !== "pending") continue;
     const prereqs = prereqsById.get(id) ?? [];
-    const ready = prereqs.every((dep) => tasks[dep]?.status === "completed");
+    const ready = prereqs.every((dep) => prerequisiteSatisfied(tasks[dep]));
     if (ready) eligible.push(id);
   }
   return eligible.sort();

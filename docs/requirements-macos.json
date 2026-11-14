@@ -14,7 +14,7 @@
         "sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8"
       }
     ],
-    "indexed_utc": "2026-11-14T17:02:32.115Z"
+    "indexed_utc": "2026-11-14T19:47:16.683Z"
   },
   "prompts": [
     {
@@ -1582,7 +1582,7 @@
           "note": "P22: release automation and the EXT-SIGNING blocker"
         }
       ],
-      "notes": "P21 builds and installs the self-contained arm64 app and offline .pkg with the native Service, component/BOM manifest, notices, ownership receipt, non-relocatable idempotent scripts, and a real Installer receipt. The artifact is ad-hoc and visibly local; Developer ID signing, notarization/stapling, updates, and uninstall remain P22/P23/P27. P23 adds the update-compatibility and clean-uninstall halves: a verified, deferred, installer-mediated update; a bounded ownership-verified removal utility that preserves projects, user state, credentials, and any external Codewhale installation. MONA-027 stays partial for P22 (signed/notarized/stapled artifact) and P27 (final acceptance). P22 adds the signed/notarized pipeline and its fail-closed preflight; the release artifact itself remains blocked on EXT-SIGNING."
+      "notes": "Local arm64 .pkg and .dmg exist, both ad-hoc signed and labelled local, with the Finder Service installed by the package. The signed/notarized/stapled half is blocked by owner decision (D-103) and is not claimed anywhere in the product, the packaging output or the guides."
     },
     {
       "id": "MONA-028",
@@ -1725,7 +1725,7 @@
           "note": "payload ownership, local/release split, installer scripts, Git guard, determinism limits"
         }
       ],
-      "notes": "P00 measured the arm64 host and pinned engine. P21 chooses macOS 14.0 as the product floor (native helpers target arm64-apple-macos14.0; Electron 45.3.0 is 13.0, engine 0.10.2 is 11.0), verifies every shipped Mach-O is arm64, records Electron ABI 150, and installs/launches the artifact. The 14.0 floor and other OS versions remain P26’s tested matrix."
+      "notes": "Native arm64 and the engine floor are proven; the OS claim is 'requires macOS 14.0 or later, tested on macOS 26.5.1' by owner decision (D-104). The 14.0 floor is declared in the payload, the Distribution and the preinstall script and enforced by the installer, but no 14.x host has executed it. No requirement is raised to satisfied on a version that never ran."
     },
     {
       "id": "MAC-002",
@@ -1849,7 +1849,7 @@
           "note": "payload ownership, local/release split, installer scripts, Git guard, determinism limits"
         }
       ],
-      "notes": "P21 produces a real offline package (154.4 MiB) with a runtime component manifest, architecture/dependency/secret gates, non-relocatable app/service, ownership and install receipts, an installed-app acceptance sample, and a packaged-Service proof. Open for P26: Git on a clean recipient needs Command Line Tools or another Git (Mona refuses to execute Apple’s stub and reports the feature unavailable), and the declared 14.0 floor is untested on a 14.x host."
+      "notes": "Offline payload manifest and no-mandatory-dev-tools hold for core work: launch, edit, terminal, engine turns and the acceptance sample need no developer tools, and packaged Mona refuses Apple's /usr/bin/git CLT stub rather than triggering the installer. Git FEATURES require CLT or another Git and say so; Git is not bundled, by owner decision (D-105), because that would carry a GPL source-offer obligation. The split is stated in the owner guide."
     },
     {
       "id": "MAC-005",
@@ -1859,7 +1859,7 @@
         "P22",
         "P26"
       ],
-      "status": "partial",
+      "status": "blocked",
       "acceptance": "pending",
       "evidence": [
         {
@@ -1883,7 +1883,7 @@
           "note": "17 tests: identity/team selection, component classes, inside-out order, no --deep, verdicts, receipt, refusal"
         }
       ],
-      "notes": "P22 implements the whole signing/notarization surface: inside-out Developer ID signing with Hardened Runtime, timestamps and minimal per-component entitlements; productsign for the flat package; notarytool submit/log; stapler staple/validate; spctl assessment; and a release receipt bound to an immutable digest. mac:release fails closed without both identities and a notary credential, so no signed/stapled artifact exists yet. Open prerequisite: EXT-SIGNING (0 Developer ID identities on this host). Notarization, stapling and Gatekeeper acceptance are unverified until a credential exists."
+      "notes": "Not pursued by owner decision (D-103): there is no Apple Developer account and none will be obtained, so no Developer ID signature, notarization ticket or stapling will be produced. The pipeline that would do it is implemented and tested (17 checks) and fails closed; it was not weakened, renamed or repurposed. Distribution is local (mac:package:local, mac:package:dmg) and build-it-yourself."
     },
     {
       "id": "MAC-006",
@@ -1951,10 +1951,10 @@
         "P24",
         "P26"
       ],
-      "status": "pending",
+      "status": "blocked",
       "acceptance": "pending",
       "evidence": [],
-      "notes": ""
+      "notes": "Skipped by owner decision (D-103): with no shareable artifact there is no recipient matrix to qualify. P24 nevertheless delivered a repeatable harness (npm run mac:recipient) that reads the package itself, quarantines a copy and reports every row as passed/failed/recorded/untested; it settled 9 rows on this host and named the 11 only a real recipient could settle. Anyone who hands a build to another machine can re-run it."
     },
     {
       "id": "MAC-008",
@@ -2018,7 +2018,7 @@
     "ok": true,
     "errors": [],
     "warnings": [],
-    "validated_utc": "2026-11-14T17:02:32.115Z",
+    "validated_utc": "2026-11-14T19:47:16.683Z",
     "prompt_count": 28,
     "requirement_count": 38
   }

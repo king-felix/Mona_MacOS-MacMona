@@ -1,14 +1,16 @@
 {
   "schema_version": 1,
   "label": "R13 candidate verification",
-  "captured_at": "2026-11-14T18:00:49.392Z",
+  "captured_at": "2026-11-14T19:32:46.988Z",
   "host": {
     "macos": "26.5.1",
     "architecture": "arm64"
   },
   "app": "/Applications/Mona.app",
-  "ok": true,
-  "failed": [],
+  "ok": false,
+  "failed": [
+    "artifact_names_its_source"
+  ],
   "checks": {
     "app_present": {
       "ok": true,
@@ -19,7 +21,7 @@
       "detail": {
         "bundle_id": "com.mona.workbench",
         "version": "0.1.0",
-        "build": "151",
+        "build": "161",
         "channel": "local",
         "minimum_macos": "14.0",
         "executable": "Mona"
@@ -32,16 +34,16 @@
     "manifest_matches_bundle": {
       "ok": true,
       "detail": {
-        "manifest_build": "151",
-        "app_build": "151"
+        "manifest_build": "161",
+        "app_build": "161"
       }
     },
     "artifact_names_its_source": {
-      "ok": true,
+      "ok": false,
       "detail": {
-        "app_build": "151",
-        "artifact_commit": "26c38c5770d4039972811427b23b056a469985d1",
-        "artifact_tree_dirty": false,
+        "app_build": "161",
+        "artifact_commit": "8891f2233818e8b16b5059bc0baeeca60b5b8d12",
+        "artifact_tree_dirty": true,
         "commits_since": 0,
         "commits_since_examples": [],
         "build_number_gap": 0,
@@ -176,8 +178,8 @@
     "launchservices_launch": {
       "ok": true,
       "detail": {
-        "main_pid": 53472,
-        "renderer_pid": 53481,
+        "main_pid": 17582,
+        "renderer_pid": 17590,
         "state_initialized": true,
         "duplicate_copy": false
       }
@@ -194,18 +196,18 @@
     "identity": {
       "bundle_id": "com.mona.workbench",
       "version": "0.1.0",
-      "build": "151",
+      "build": "161",
       "channel": "local",
       "minimum_macos": "14.0",
       "executable": "Mona"
     },
     "source": {
-      "commit": "26c38c5",
-      "build_number": "151",
-      "tree_clean": true
+      "commit": "8891f22",
+      "build_number": "161",
+      "tree_clean": false
     },
     "manifest": {
-      "build": "151",
+      "build": "161",
       "channel": "local",
       "minimum_macos": "14.0",
       "engine": {
@@ -306,8 +308,8 @@
       "modal_notice_observed": null,
       "open_exit": 0,
       "open_stderr": "",
-      "main_pid": 53472,
-      "renderer_pid": 53481,
+      "main_pid": 17582,
+      "renderer_pid": 17590,
       "state_initialized": true,
       "exited_on_term": true,
       "leftover_helpers": []

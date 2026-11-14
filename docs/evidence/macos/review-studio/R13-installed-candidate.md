@@ -1,8 +1,10 @@
 # R13 — Native installed-artifact qualification
 
-**Prompt:** R13 · **Status:** blocked at the install gate for build **152** — the
-installed build **151** was qualified end to end and exposed one defect, which is
-fixed and verified on the candidate and on the development tree
+**Prompt:** R13 · **Status:** see §11 for the closing record — the installed
+build was qualified end to end and the defect it exposed is fixed
+**Earlier state, kept for the record:** blocked at the install gate for build
+**152** — the installed build **151** was qualified end to end and exposed one
+defect, which is fixed and verified on the candidate and on the development tree
 **Platform:** darwin-arm64 · **Host:** macOS 26.5.1, Apple silicon, node 26.13.0,
 Electron 45.3.0
 **Installed:** `/Applications/Mona.app`, build **151**, source `26c38c5`, clean

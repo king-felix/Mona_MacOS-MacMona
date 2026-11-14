@@ -4,170 +4,81 @@ Open problems that stop a requirement, with the three-attempt count preserved.
 Attempt records live in `attempts.jsonl`; this file is the human-readable view
 and the place that says exactly what help is needed.
 
-Status: **no blocked problems** as of the P21 checkpoint. P20's six defects were
-all reproduced, root-caused, fixed, and regression-tested inside one prompt, so
-none became an open problem and no attempt count was consumed. P21 produced a
-real installed local package and added one open release-scope decision (Git on a
-clean recipient, below); it is not attempt-counted because no attempt failed.
+Status: **no blocked problems, and no open external prerequisites** as of
+2026-11-14. `attempts.jsonl` is empty: nothing reached three attempts, and no
+problem was ever reset. The four external prerequisites this build carried
+(signing, a recipient host, the OS floor, and Git on a clean Mac) were closed by
+an owner decision recorded in `DECISIONS.md` — D-103 (distribution is local),
+D-104 (14.0 declared, 26.x tested), D-105 (Git is a documented dependency).
+Each closure says what is *not* proven; none of them raised a requirement.
 
-## External prerequisites (not blocked work, not attempt-counted)
+## External prerequisites — all closed by owner decision (2026-11-14)
 
-### ~~EXT-INSTALL~~ — RESOLVED 2026-11-12: the package was installed
+There is **no open blocker**. Four prerequisites were closed by decision rather
+than by work, and one by the work itself. Nothing was closed by lowering a
+requirement: each entry says what is not proven and where that is stated.
 
-- **What was needed:** administrator authorization to install the P23 package.
-- **How it was closed:** the package was opened in Apple Installer by a human with
-  authorization. The install replaced build 81 with **build 89** at
-  `2026-11-12T21:08:18Z`.
-- **Verified afterwards:** the receipt's `manifest_sha256`
-  (`3a3af793…`) equals the digest of the installed
-  `Contents/Resources/component-manifest.json`, and equals the digest of the same
-  file inside the package; the app signature verifies; the P23 update modules and
-  the removal utility are present under the installed paths. Record:
-  `packaging/macos/out/verification.json`.
-- **Not a blocker:** `mac:package:local` still stops at its `installed_copy` gate
-  on any later build, because the gate compares the installed copy to the build
-  in hand. That is the gate working, not a missing prerequisite.
+### ~~EXT-SIGNING~~ — CLOSED: there is no Apple Developer account (D-103)
 
-### EXT-RECIPIENT-HOST — no second Mac or clean VM for P24
+- **What was needed:** a Developer ID Application and Installer identity from one
+  team, plus a notary credential. Measured repeatedly: `security find-identity -v
+  -p codesigning` → **0 valid identities**.
+- **How it closed:** the owner decided there is no Apple Developer account and
+  none will be obtained. Mona is not distributed; it is built and used on the
+  machine that builds it, and anyone else builds from source.
+- **What is still true:** `mac:release:preflight` exits 3 naming all three gaps,
+  `mac:release` exits 3 without producing an artifact, `mac:verify-release` exits
+  2 rather than accepting the ad-hoc build, and 17 release-trust tests pass. The
+  pipeline stays implemented and fail-closed. It was not renamed, repurposed or
+  weakened to yield a file called "release".
+- **What replaces it:** `npm run mac:package:dmg` — a local, ad-hoc-signed disk
+  image, verified from its own bytes, whose README says in plain text that macOS
+  refuses it on any other Mac.
 
-- **What is needed:** a separate Apple silicon Mac (or a clean supported macOS VM,
-  14.x and 26.x) to run the exact installer through quarantine. A second local
-  user is additional evidence, never proof that a recipient has no Xcode,
-  Homebrew or cached engine.
-- **Measured 2026-11-14:** the P24 harness settled every row this host can settle
-  — 9 settled, 7 pass, 2 fail (both the unsigned package being rejected by
-  Gatekeeper), 11 rows named untested with reasons. `npm run mac:recipient`.
-- **Also needs EXT-SIGNING:** an unsigned installer is refused by Gatekeeper on
-  any other Mac, so the recipient run cannot begin until R14 produces a signed,
-  notarized, stapled artifact.
-- **Rule:** this blocks MAC-007 and P26's recipient matrix only. It does not block
-  local work or the release pipeline's own checks.
+### ~~EXT-RECIPIENT-HOST~~ — CLOSED: no recipient matrix to run (D-103)
 
-### EXT-SIGNING — Developer ID credentials (P22 blocked here)
+- **What was needed:** a second Apple silicon Mac or a clean VM to run the
+  installer through quarantine.
+- **Why it closed:** with no shareable artifact there is nothing to hand to a
+  recipient. P24 delivered the repeatable harness anyway (`npm run
+  mac:recipient`); it settled 9 rows on this host and names the 11 only a real
+  recipient could settle, and it stays re-runnable for anyone who does hand a
+  build to another machine.
 
-- **Measured 2026-11-14, again:** `security find-identity -v -p codesigning`
-  returns **0 valid identities**. `npm run mac:release:preflight` therefore exits
-  3 naming both identities and the missing notary credential; see
-  `docs/evidence/macos/artifacts/p22-preflight.json`.
-- **Implemented and waiting:** `mac:release:preflight`, `mac:release`,
-  `mac:verify-release`, inside-out Developer ID signing with Hardened Runtime,
-  timestamps and minimal per-component entitlements, `productsign` for the flat
-  package, `notarytool submit --wait` + log retrieval, `stapler staple/validate`,
-  `spctl` assessment, and the immutable release receipt. All of it fails closed.
-- **Help needed (do not paste keys or certificates into chat):**
-  1. a Developer ID **Application** identity and a Developer ID **Installer**
-     identity from the same team, in the login Keychain;
-  2. `xcrun notarytool store-credentials mona-release` (Apple ID, app-specific
-     password, team id), or `MONA_NOTARY_API_KEY` / `MONA_NOTARY_KEY_ID` /
-     `MONA_NOTARY_ISSUER` in the release shell.
-- **Then:** `npm run mac:release:preflight`, `npm run mac:release --
-  --keychain-profile mona-release`, `npm run mac:verify-release`.
-- **Rule:** this blocks P22's notarized artifact and all of P24. It does not
-  block P25 or any local work.
+### ~~OPEN-GIT~~ — CLOSED: documented dependency, not a bundled payload (D-105)
 
-### EXT-SIGNING — Apple Developer ID credentials for P22
+- **Measured:** `/usr/bin/git` on a machine without Command Line Tools is Apple's
+  118,928-byte stub. Packaged Mona refuses that stub rather than executing it, so
+  it never triggers the developer-tools installer.
+- **Decision:** Git is not bundled. Core features (launch, edit, terminal, engine
+  turns, acceptance sample) need no developer tools; Git **features** require CLT
+  or another Git and report themselves unavailable with that reason.
+- **Why:** bundling a relocatable Git carries a GPL source-offer obligation the
+  owner declined. MAC-004 stays `partial` and the owner guide says which half is
+  which.
 
-- **Needed for:** MAC-005 (Developer ID signatures, notarization, stapling),
-  MONA-027, and the shareable-release tier.
-- **Measured 2026-11-11:** `security find-identity -v -p codesigning` returns
-  **0 valid identities**. `notarytool` and `stapler` are installed; Gatekeeper
-  assessments are enabled; nothing was disabled.
-- **Impact now:** none. Local development, native arm64 builds, ad-hoc signing,
-  and unsigned local `.pkg` packaging remain possible.
-- **Help needed from Victor at P22:** an Apple Developer Program membership with
-  a **Developer ID Application** identity, a **Developer ID Installer** identity,
-  and notarization credentials stored in the login Keychain (for example a
-  `notarytool` keychain profile). Do not paste keys or certificates into chat.
-- **Rule:** this must not block independent local work before P22.
+### ~~OPEN-OSFLOOR~~ — CLOSED: declared at 14.0, tested on 26.5.1 (D-104)
 
-### OPEN-GIT — Git features on a clean recipient without developer tools
+- **Measured:** the payload, the `Distribution` and the preinstall script declare
+  and enforce macOS 14.0; the only host that has executed it is 26.5.1.
+- **Decision:** the claim is "requires macOS 14.0 or later; tested on macOS
+  26.5.1". No 14.x host has run it and nothing claims otherwise.
+- **Why this is honest:** asserting a tested 14.0 would be inventing a fact. A
+  later 14.x run would upgrade the claim; nothing forbids adding one.
 
-- **Needed for:** MAC-004 “no mandatory consumer development tools”, MONA-027,
-  and the P26 recipient matrix.
-- **Measured 2026-11-12:** `/usr/bin/git` is a 118,928-byte universal (x86_64 +
-  arm64e) **Command Line Tools stub**; no `/opt/homebrew/bin/git` exists on this
-  host; this host has CLT installed, which is why Git features work here.
-- **Current behavior:** packaged Mona detects that only the stub exists and
-  refuses to execute it, so it never triggers Apple's developer-tools install.
-  Git features report unavailable with the reason. Development builds are
-  unchanged.
-- **Decision needed from Victor at P26/P27:** either (a) bundle a relocatable
-  Git with its GPL source-distribution obligation and notices, or (b) accept
-  that Git features require CLT/another Git and state it in the release scope.
-  P21 does not improvise a GPL payload.
-- **Rule:** this does not block P22 signing or P25 coordination.
+### ~~OPEN-LOCAL-TRUST~~ — CLOSED: the local package is *meant* to be ad-hoc (D-103)
 
-### OPEN-OSFLOOR — the 14.0 floor is declared, not yet executed
+- **Measured:** `security find-identity` → 0 identities; the app and package are
+  ad-hoc; Gatekeeper rejects them on another Mac (`spctl`: "rejected, source=no
+  usable signature").
+- **Decision:** that is the intended tier, not a defect pending signature. It is
+  labelled local in the bundle (`MonaBuildChannel`), in the package name, in the
+  DMG volume name, in the DMG's README and in the owner guide.
 
-- **Needed for:** MAC-001/ MAC-004's explicit tested version matrix.
-- **Measured:** native helpers target `arm64-apple-macos14.0`; Electron 45
-  reports 13.0; the engine reports 11.0. The installer enforces 14.0.
-- **Help needed:** P26 runs the recipient matrix on an actual 14.x host (or a
-  supported VM). No local workaround is warranted.
+### EXT-DISK — remains operational, not a blocker
 
-### OPEN-LOCAL-TRUST — the installed package is ad-hoc
-
-- **Needed for:** the shareable-release tier (MAC-005/MONA-027).
-- **Measured:** `security find-identity` still returns 0 identities; the local
-  package is unsigned and the app/service are ad-hoc. It installed and ran on
-  this Mac, which is the intended local milestone, but it is not a
-  Gatekeeper-acceptable shareable artifact.
-- **Help needed:** the Developer ID/notary setup in EXT-SIGNING, then P22.
-
-### EXT-SIGNING remains the P21/P22 gate
-
-P21's **local** package mode does not need it: ad-hoc signing, a local `.pkg`,
-and a development-labelled installer are all possible on this host. Release mode
-is P22's, and needs the credentials described above. Do not block P21's local
-work on the signing prerequisite.
-
-### ~~EXT-DISK~~ — RESOLVED 2026-11-13: the install-side gates ran
-
-- **How it was closed:** the volume had 10 GiB free; `npm run mac:package:local`
-  then passed every gate — `architecture`, `dependencies`, `secrets`, `expand`,
-  `rehearsal`, `uninstall_rehearsal`, `package_smoke`, and `gui_launch` — and
-  printed `"ok": true` with `package-report.json` written for build 104. The
-  earlier failure was disk space, exactly as recorded below.
-- **Also closed:** the `installed_copy` comparison. Build 104 was installed over
-  `/Applications/Mona.app` with administrator authorization
-  (`installer -pkg … -target /`), and the re-run matched the installed copy to
-  the build in hand. `defaults read` reports `CFBundleVersion` 104 and
-  `codesign --verify --deep --strict` passes.
-- **Still true:** a later build will stop at `installed_copy` until it is
-  installed, because that gate compares the installed copy with the build in
-  hand. That is the gate working, not a missing prerequisite.
-
-### EXT-DISK (original measurement, kept for history)
-
-- **What is needed:** free space on the boot volume to rehearse an install.
-- **Measured 2026-11-13T00:30Z:** 327 MiB free of 228 GiB (98% used). The
-  packaging run builds and metadata-verifies the installer, then fails at
-  `rehearseInstall` because `/usr/bin/ditto` cannot copy the ~390 MiB payload
-  into its temporary root: `No space left on device`.
-- **What did run:** declared metadata, native architecture, dependency,
-  secret, and payload-expansion gates; the app is ad-hoc signed and
-  `codesign --verify --deep --strict` passes. The package at
-  `packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg` (build 102, sha256
-  `79731342…`) contains both fixes.
-- **What did not run:** install rehearsal, in-app package smoke, LaunchServices
-  launch, and the `installed_copy` comparison. `package-report.json` is absent
-  rather than stale, which is D-093 working.
-- **Help needed:** free roughly 2 GB (the build consumes ~1 GB before the
-  rehearsal), then `npm run mac:package:local` completes the record. Nothing is
-  lowered or skipped to work around it.
-- **Cleaned while investigating:** the stale `Mona-0.1.0-macOS-arm64-local.dmg`
-  (P21 leftover, not referenced by any evidence entry) and the packaging run's
-  `out/stage`, both regenerable.
-
-### EXT-XCODE — full Xcode only if a later step requires it
-
-- **Measured 2026-11-11:** only Command Line Tools are installed; `xcodebuild`
-  requires Xcode.
-- **Impact now:** none. CLT provides `swiftc`, `codesign`, `pkgbuild`,
-  `productbuild`, and `stapler`.
-- **Trigger:** if P02/P09 packaging or the Services helper genuinely requires an
-  `.xcodeproj`/`xcodebuild` workflow, record it here and install Xcode under the
-  existing authorization rather than substituting a different architecture.
+- The volume needs roughly 2 GiB free for a package + DMG build; both write to
+  `packaging/macos/out/` (gitignored). Last measured: 23 GiB free.
 
 ## Closed problems
 

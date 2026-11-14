@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "label": "R13 installed-artifact pass",
-  "captured_at": "2026-11-14T18:20:57.414Z",
+  "captured_at": "2026-11-14T19:33:55.375Z",
   "app": "/Applications/Mona.app",
-  "build": "151",
+  "build": "161",
   "channel": "local",
   "host": {
     "macos": "26.5.1",
@@ -18,7 +18,7 @@
       "exit": 0,
       "signal": null,
       "timed_out": false,
-      "elapsed_ms": 15560,
+      "elapsed_ms": 15816,
       "report_present": true,
       "report_ok": true,
       "checks_total": 137,
@@ -26,14 +26,14 @@
       "captures": [
         {
           "name": "r13-p-r08-activity.png",
-          "bytes": 464787
+          "bytes": 265507
         },
         {
           "name": "r13-p-r09-usage.png",
-          "bytes": 464787
+          "bytes": 265507
         }
       ],
-      "capture_dir": "~tmp/mona-r13-shell-cC1UCk/captures",
+      "capture_dir": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-r13-shell-JDOVbG/captures",
       "stderr": "",
       "stdout": "",
       "process_gone": true,
@@ -46,22 +46,24 @@
       "exit": 0,
       "signal": null,
       "timed_out": false,
-      "elapsed_ms": 1819,
+      "elapsed_ms": 1652,
       "report_present": true,
-      "report_ok": true,
-      "checks_total": 26,
-      "checks_failed": [],
+      "report_ok": false,
+      "checks_total": 28,
+      "checks_failed": [
+        "zoom_200_list_usable"
+      ],
       "captures": [
         {
           "name": "r13-r03-command-menu-200.png",
-          "bytes": 251305
+          "bytes": 303312
         },
         {
           "name": "r13-r03-command-menu.png",
           "bytes": 382540
         }
       ],
-      "capture_dir": "~tmp/mona-r13-command-bnLLLY/captures",
+      "capture_dir": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-r13-command-3gnR0b/captures",
       "stderr": "",
       "stdout": "",
       "process_gone": true,
@@ -74,7 +76,7 @@
       "exit": 0,
       "signal": null,
       "timed_out": false,
-      "elapsed_ms": 7969,
+      "elapsed_ms": 8034,
       "report_present": true,
       "report_ok": true,
       "checks_total": 60,
@@ -86,22 +88,22 @@
         },
         {
           "name": "r13-r05-focus-command-menu.png",
-          "bytes": 314810
+          "bytes": 314802
         },
         {
           "name": "r13-r05-focus-drawer.png",
-          "bytes": 300396
+          "bytes": 300573
         },
         {
           "name": "r13-r05-focus-windowed.png",
-          "bytes": 229995
+          "bytes": 230170
         },
         {
           "name": "r13-r05-studio-normal.png",
-          "bytes": 435004
+          "bytes": 436343
         }
       ],
-      "capture_dir": "~tmp/mona-r13-immersive-qTjcyb/captures",
+      "capture_dir": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-r13-immersive-G9Zwnr/captures",
       "stderr": "",
       "stdout": "",
       "process_gone": true,
@@ -114,21 +116,18 @@
       "exit": 0,
       "signal": null,
       "timed_out": false,
-      "elapsed_ms": 33075,
+      "elapsed_ms": 3929,
       "report_present": true,
-      "report_ok": false,
-      "checks_total": 18,
-      "checks_failed": [
-        "scroll_anchor_held",
-        "second_older_page_loaded"
-      ],
+      "report_ok": true,
+      "checks_total": 21,
+      "checks_failed": [],
       "captures": [
         {
           "name": "r13-r02-history-long-session.png",
-          "bytes": 447909
+          "bytes": 443384
         }
       ],
-      "capture_dir": "~tmp/mona-r13-history-Hx7V08/captures",
+      "capture_dir": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-r13-history-9dYUTL/captures",
       "stderr": "",
       "stdout": "",
       "process_gone": true,

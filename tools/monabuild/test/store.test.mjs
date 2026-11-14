@@ -96,6 +96,30 @@ test("eligibility follows registry prerequisites, not a guessed percentage", () 
   assert.equal(summary.prompts.by_status.running, 1);
 });
 
+test("a prerequisite settled by decision satisfies its dependants, a blocked one does not", () => {
+  // A scope decision is a decision: skipping a prompt must not leave everything
+  // behind it looking permanently blocked (and must not look completed either).
+  const prompts = [
+    { id: "P00", prerequisites: [] },
+    { id: "P24", prerequisites: ["P22"] },
+    { id: "P26", prerequisites: ["P24"] },
+    { id: "P27", prerequisites: ["P26"] },
+  ];
+  const build = (p22, p24) => ({
+    tasks: {
+      P22: { status: p22, prerequisites: [], acceptance_remaining: [], completed_steps: [] },
+      P24: { status: p24, prerequisites: ["P22"], acceptance_remaining: [], completed_steps: ["skipped"] },
+      P26: { status: "pending", prerequisites: ["P24"], acceptance_remaining: [], completed_steps: [] },
+      P27: { status: "pending", prerequisites: ["P26"], acceptance_remaining: [], completed_steps: [] },
+    },
+  });
+
+  assert.deepEqual(computeNextEligible(build("skipped", "skipped"), prompts), ["P26"]);
+  // `completed` still works, and `blocked` still holds the queue.
+  assert.deepEqual(computeNextEligible(build("completed", "completed"), prompts), ["P26"]);
+  assert.deepEqual(computeNextEligible(build("blocked", "pending"), prompts), []);
+});
+
 test("a recorded evidence hash that no longer matches its file is reported", async () => {
   const { validateEverything } = await import("../lib/validate.mjs");
   const { addEvidence } = await import("../lib/store.mjs");

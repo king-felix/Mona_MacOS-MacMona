@@ -171,6 +171,25 @@ function gitBuildNumber() {
   return /^\d+$/.test(count) ? count : "1";
 }
 
+/**
+ * Paths this build never reads: the evidence tree and the build ledgers. They
+ * are outputs of verification, not inputs to the payload, so a run that writes
+ * them must not make the artifact it just checked unverifiable (R13).
+ */
+function isBuildOutput(path) {
+  return path.startsWith("docs/evidence/") || path.startsWith(".mona/");
+}
+
+function changedPaths() {
+  const result = capture("/usr/bin/git", ["status", "--porcelain", "--untracked-files=normal"]);
+  if (result.status !== 0) return [];
+  return result.stdout
+    .split("\n")
+    .filter(Boolean)
+    .map((line) => line.slice(3).trim())
+    .filter(Boolean);
+}
+
 function walk(dir, options = {}) {
   const entries = [];
   const visit = (current) => {
@@ -743,6 +762,9 @@ function componentList(resources, engine) {
 }
 
 function writeComponentManifest(resources, engine, components, licenses) {
+  // `dirtyPaths` is read once, here, so `dirty` and `source_dirty` describe the
+  // same instant.
+  const dirtyPaths = changedPaths();
   const manifest = {
     schema_version: 1,
     product: "Mona",
@@ -757,7 +779,16 @@ function writeComponentManifest(resources, engine, components, licenses) {
     // commit" instead of "these bytes are that number" (R13).
     source: {
       commit: git(["rev-parse", "HEAD"]) || null,
-      dirty: git(["status", "--porcelain"]).length > 0,
+      dirty: dirtyPaths.length > 0,
+      // R13: `dirty` is every change in the tree, and it stays that way. But a
+      // verification run rewrites its own evidence, so "dirty" alone cannot
+      // answer the question a recipient of these bytes actually has: is the
+      // *code* in this artifact the code of that commit? `source_dirty` answers
+      // it — it counts only paths the build reads. Evidence run records and the
+      // ledger are never inputs, so rewriting them changes nothing here; a
+      // changed `src/`, `native/`, `packaging/` or bundled doc does.
+      source_dirty: dirtyPaths.some((path) => !isBuildOutput(path)),
+      dirty_paths: dirtyPaths.slice(0, 40),
     },
     engine: {
       version: engine.version,

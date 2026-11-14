@@ -7,6 +7,25 @@ is not, so nothing here has to be taken on trust.
 
 ## Install and launch
 
+- **There is no shareable release, by decision.** Mona is built and used on the
+  machine that builds it. There is no Developer ID signature and no notarization
+  ticket (`mac:release` refuses without them, and stays that way), so macOS
+  refuses this build on any other Mac. Anyone else who wants Mona builds it from
+  source: `npm install && npm run mac:package:local` for the installer, or
+  `npm run mac:package:dmg` for a disk image you can drag to Applications.
+- **The disk image** is `packaging/macos/out/Mona-0.1.0-macOS-arm64-local.dmg`.
+  It contains the app, a pointer to Applications, this guide, and a README that
+  states the local-only signing tier. Mount it, drag Mona to Applications, open
+  it. The image is verified from its own bytes after it is written (`npm run
+mac:package:dmg` prints `ok: true` only when the app inside is byte-identical
+  to the app that went in).
+- **The installer package** is `packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg`.
+  It does more than the image — it also installs the Finder Service to
+  `/Library/Services/Mona.service` — so it needs administrator authorization:
+  `sudo installer -pkg packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg -target /`.
+- **Requires macOS 14.0 or later; tested on macOS 26.5.1.** The floor is declared
+  and enforced by the installer. It has not been executed on a 14.x host, and
+  this guide does not claim it has.
 - **Location.** The app lives at `/Applications/Mona.app`. A copy anywhere else
   runs, but the packaged build shows a notice and will not pretend to be the
   installed application while the installed one exists.
@@ -123,10 +142,15 @@ and stops the runtime).
 - **Workflows and lanes** are unavailable: the pinned engine exposes no `/v1`
   route for them.
 - **Git is local only** — no remote operations, history rewriting or conflict
-  automation. On a Mac without Xcode Command Line Tools or another Git, Git
-  features report unavailable rather than triggering Apple's installer.
+  automation. Git is **not bundled**: on a Mac without Xcode Command Line Tools
+  or another Git, Git features report themselves unavailable with that reason,
+  and nothing triggers Apple's developer-tools installer. Everything else —
+  launch, edit, terminal, engine turns, the acceptance sample — needs no
+  developer tools. This is a documented dependency, not a defect.
 - **A package capability change is drift**, not silent support: the explorer
   re-qualifies against the pinned version.
 - **Sub-agent/fleet spend** is unknown when the engine does not report it.
-- **This build is not a shareable release.** The release pipeline exists and
-  fails closed without Developer ID and notarization credentials.
+- **This build is not a shareable release, and will not become one.** The
+  release pipeline exists, is tested (17 checks), and fails closed without
+  Developer ID and notarization credentials. Distribution here is
+  build-it-yourself (D-103).

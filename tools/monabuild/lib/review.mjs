@@ -166,7 +166,12 @@ export function eligibleTasks(state) {
   return REVIEW_IDS.filter((id) => {
     const task = state.tasks[id];
     if (!task || task.status !== "pending") return false;
-    return task.prerequisites.every((prerequisite) => state.tasks[prerequisite]?.status === "completed");
+    // Same rule as the product ledger: a prerequisite settled by decision
+    // (`skipped`) satisfies a dependent task; one that is blocked does not.
+    return task.prerequisites.every((prerequisite) => {
+      const status = state.tasks[prerequisite]?.status;
+      return status === "completed" || status === "skipped";
+    });
   });
 }
 

@@ -9,12 +9,23 @@ uninstall lifetime are P23 (see `docs/decisions/ADR-016-update-and-lifecycle.md`
 ```sh
 npm run mac:doctor            # host, tools, artifacts, engine, identities (read-only)
 npm run mac:package:local     # build, sign ad-hoc, package, verify, install receipt
-npm run mac:package:release   # fails closed until P22 signing/notarization exists
+npm run mac:package:dmg       # local disk image of the same app, verified from its own bytes
+npm run mac:package:release   # fails closed: there is no Developer ID identity here
 ```
+
+**Distribution is local (D-103).** There is no Apple Developer account for this
+project and none will be obtained, so there is no signed, notarized, shareable
+release and `mac:package:release` correctly refuses to make one. `mac:package:local`
+and `mac:package:dmg` are the artifacts this build has; the image contains a
+notice saying so, and anyone else builds from source.
 
 `mac:package:local` writes to `packaging/macos/out/` (gitignored):
 
 - `Mona-<version>-macOS-arm64-local.pkg` — the flat installer.
+- `Mona-<version>-macOS-arm64-local.dmg` — a local disk image: the app, a pointer
+  to `/Applications`, the owner guide, and a README stating the local signing
+  tier. `dmg-report.json` records its digest, the app content digest and every
+  verification check, including the honest `gatekeeper_would_accept: false`.
 - `manifest.json` — components, hashes, architecture/min-OS scan, dependency
   and secret scan, package digest, install checks.
 - `install-receipt.json` — the build/install receipt.

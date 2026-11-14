@@ -1925,3 +1925,68 @@ and the smoke measures it rather than asserting it is pretty.
   re-runnable harness; when a signed artifact and a second host exist, the same
   command either goes green or names exactly which row fails. No attempt is
   counted, and moving the matrix to another host later cannot reset the count.
+
+## D-103 — There is no shareable release; the deliverable is a local build
+
+- **Date:** 2026-11-14 (owner decision, closing P22/R14)
+- **Context:** P22 and R14 were blocked on Developer ID credentials. The owner
+  has decided there is **no Apple Developer account and none will be obtained**.
+  Mona is not published: the owner runs it on the machine that builds it, and
+  anyone else builds it from source.
+- **Decision:** the distribution tier is **local**. `npm run mac:package:local`
+  produces an ad-hoc-signed `.pkg`, and `npm run mac:package:dmg` produces a
+  local disk image of the same ad-hoc-signed app, labelled as a local build, with
+  a notice in the image stating that Gatekeeper refuses it on any other Mac and
+  that other people build their own. `npm run mac:release` remains implemented
+  and **still fails closed** — it is not repurposed, renamed, or weakened to
+  produce something that looks shareable.
+- **Why not delete the release pipeline:** it is the mechanism that keeps the
+  claim honest. If credentials ever appear, it produces a real artifact; until
+  then it refuses. Its 17 trust tests stay in the suite.
+- **Consequence:** P22, P24 and R14 are recorded as `skipped` by owner decision
+  (scaffolding plus independent work retained, artifact never produced), RV-12 is
+  `wontfix` (a local package is not meant to be friend-ready here), and MAC-005 /
+  MAC-007 stay unsatisfied with that reason. No requirement is marked satisfied
+  to make the matrix look complete.
+
+## D-104 — The OS floor is declared at 14.0 and tested on 26.x
+
+- **Date:** 2026-11-14 (owner decision, resolving OPEN-OSFLOOR's claim question)
+- **Decision:** the release claim is "requires macOS 14.0 or later; tested on
+  macOS 26.5.1". The 14.0 floor is declared in the payload, the `Distribution`
+  and the preinstall script, and is enforced by the installer; no 14.x host has
+  executed it, and the owner accepts that.
+- **Why this is not a lowering:** the claim now states exactly what was measured.
+  The alternative — asserting "tested on 14.0" — would be a fabricated fact.
+- **Consequence:** `r13`/P24 evidence names the tested host and the declared
+  floor separately; P26 records the same. A 14.x run would upgrade the claim, and
+  nothing forbids adding it later.
+
+## D-105 — Git is a documented dependency, not a bundled payload
+
+- **Date:** 2026-11-14 (owner decision, resolving OPEN-GIT)
+- **Decision:** Mona does **not** bundle Git. Core features (launch, edit,
+  terminal, engine turns, the acceptance sample) need no developer tools, and
+  packaged Mona refuses Apple's `/usr/bin/git` CLT stub rather than triggering
+  the developer-tools installer. Git **features** therefore require Xcode Command
+  Line Tools or another Git, and report themselves unavailable with that reason
+  when neither exists.
+- **Why:** bundling a relocatable Git carries a GPL source-offer obligation the
+  owner has declined; documenting the dependency is the honest alternative.
+- **Consequence:** MAC-004 stays `partial` — "no mandatory consumer development
+  tools" is true for core work and false for Git features, and the docs say which
+  is which. No installer is silently triggered, and no bypass is offered.
+
+## D-106 — A skipped prerequisite satisfies its dependants
+
+- **Date:** 2026-11-14 (P22/P24 decisions, above)
+- **Context:** eligibility required every prerequisite to be `completed`, so
+  skipping P22/P24 would leave P26/P27 permanently ineligible — the ledger would
+  keep saying "blocked" about a question the owner had already answered.
+- **Decision:** `computeNextEligible` (product ledger) and `eligibleTasks` (review
+  ledger) treat `skipped` as satisfying a prerequisite. `blocked` and unfinished
+  states still hold the queue. Covered by
+  `tools/monabuild/test/store.test.mjs` ("a prerequisite settled by decision
+  satisfies its dependants, a blocked one does not").
+- **Why:** `skipped` means "decided not to do this", which is a settled outcome;
+  conflating it with "not done yet" would misreport what is actionable.

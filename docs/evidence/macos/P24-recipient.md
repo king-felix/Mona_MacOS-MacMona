@@ -1,21 +1,23 @@
 # P24 — Clean-recipient install qualification
 
-**Prompt:** P24 · **Status:** blocked on external prerequisites — the repeatable
-harness and the full matrix are finished; the qualification itself needs a signed
-installer and a second Mac
-**Platform:** darwin-arm64 · host macOS 26.5.1 · Electron 45.3.0 · engine 0.10.2
-**Artifact under test:** `Mona-0.1.0-macOS-arm64-local.pkg`, build 152, source
-`c9745dc`, sha256 `e4ffe0e0308866e2bf7185e24701b82a599dc49591f99aba83ef2592308c777d`,
-163,802,705 bytes, **unsigned (ad-hoc)**
-**Harness:** `scripts/p24-recipient.mjs` (`npm run mac:recipient`) →
-`docs/evidence/macos/artifacts/p24-recipient.json`
+**Prompt:** P24 · **Status:** **skipped by owner decision** (D-103) — there is no
+shareable artifact and there will be none, so there is no recipient matrix to
+qualify. Mona is built and used on the machine that builds it; anyone else builds
+it from source.
 
-The prompt allows exactly this outcome: *"If no clean test host or signing
+**What is kept:** `scripts/p24-recipient.mjs` (`npm run mac:recipient`) is the
+repeatable harness this prompt produced. It is not dead code — it is how anyone
+who *does* want to hand a build to another machine would find out whether it
+works, and it is how the "build it yourself" answer stays checkable.
+**What is not claimed:** no clean-recipient row was executed. The harness's own
+verdict below says so, and its `qualification` field reads `blocked`.
+**Platform:** darwin-arm64 · host macOS 26.5.1 · build 152 package
+(`e4ffe0e0…`), unsigned.
+
+The prompt's own text allows exactly this: *"If no clean test host or signing
 identity exists, finish the repeatable test harness/checklist and keep recipient
-qualification blocked."* Both prerequisites are absent. The harness therefore
-settles every matrix row that is a fact about the artifact or this host, and
-marks the rest `untested` with the reason — it does **not** score them as passes,
-and it exits non-zero while any row is unsettled.
+qualification blocked."* The owner has since made the underlying question
+moot — there is no distribution — so the prompt is `skipped`, not completed.
 
 ## 1. The verdict, as the harness computes it
 
@@ -126,15 +128,15 @@ into a pass.
 
 ## 6. Blockers, exactly
 
-- **EXT-SIGNING** — Developer ID Application + Developer ID Installer from one
-  team, plus a notary credential. Without them the artifact is rejected by
-  Gatekeeper on any other Mac, which is measured above rather than assumed.
-  R14 owns the pipeline; P22 records the same prerequisite.
-- **A second host** — a separate Apple silicon Mac or a clean supported VM. This
-  repository has neither, and a second local user is explicitly not proof.
+- **No Developer ID identity** — decided against (D-103). An ad-hoc build is
+  rejected by Gatekeeper on another Mac, which is measured above rather than
+  assumed, and that is now the accepted state rather than a gap to close.
+- **No second host** — this project has neither a second Mac nor a VM. With
+  distribution out of scope, a recipient matrix would test a delivery route that
+  does not exist.
 
-Neither is attempt-counted: no hypothesis failed. The three-attempt ledger stays
-empty, and moving this matrix to a different VM later will not reset it.
+Neither is attempt-counted: no hypothesis failed and none was reset. The
+three-attempt ledger stays empty.
 
 ## 7. Evidence
 

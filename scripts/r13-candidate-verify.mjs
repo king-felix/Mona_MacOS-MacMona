@@ -146,6 +146,16 @@ record(
 // commit count and drifts as the ledger grows, so it is reported, not asserted.
 const artifactCommit = manifest?.source?.commit ?? null;
 const artifactDirty = manifest?.source?.dirty ?? null;
+// R13: a manifest written since the review carries `source_dirty`, which counts
+// only the paths the build reads. That is the fact a recipient needs — did any
+// *code* differ from the commit — and it is not defeated by the evidence a
+// verification run writes. Manifests without the field fall back to `dirty`,
+// so nothing older is retroactively excused.
+const artifactSourceDirty =
+  manifest?.source?.source_dirty === undefined ? artifactDirty : manifest.source.source_dirty;
+const artifactDirtyPaths = Array.isArray(manifest?.source?.dirty_paths)
+  ? manifest.source.dirty_paths
+  : [];
 const descendants =
   artifactCommit === null
     ? []
@@ -158,7 +168,7 @@ const ledgerOnly =
 record(
   "artifact_names_its_source",
   artifactCommit !== null &&
-    artifactDirty === false &&
+    artifactSourceDirty === false &&
     capture("/usr/bin/git", ["-C", ROOT, "cat-file", "-e", `${artifactCommit}^{commit}`]).status ===
       0 &&
     ledgerOnly,
@@ -166,6 +176,8 @@ record(
     app_build: identity.build,
     artifact_commit: artifactCommit,
     artifact_tree_dirty: artifactDirty,
+    artifact_source_dirty: artifactSourceDirty,
+    artifact_dirty_paths: artifactDirtyPaths,
     commits_since: descendants.length,
     commits_since_examples: descendants.slice(0, 5),
     build_number_gap: sourceBuild === null ? null : Number(sourceBuild) - Number(identity.build),

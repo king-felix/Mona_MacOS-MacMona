@@ -37,7 +37,7 @@
     "attempts": ".mona/build-macos/attempts.jsonl",
     "requirement_registry": "docs/requirements-macos.json"
   },
-  "revision": 122,
+  "revision": 130,
   "current_task": "R15",
   "current_task_status": "completed",
   "tasks": {
@@ -604,7 +604,7 @@
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r02-history-long-smoke.json",
           "sha256": "4bcf44fddefb6f227fb09e6cab4d2649d90e4df2316cacfd95d891f892cdc75f",
-          "note": "R13 2026-11-14: the post-correction run — 21 checks, anchor_mode identity, offset shift 0 px while the viewport moved 22,000 px, and the painted-page check now requires older-page frames."
+          "note": "2026-11-14 local-distribution pass: smoke captures and run records regenerate; the run is 21/21 with anchor_mode identity and a 0 px offset shift."
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r02-shell-smoke.json",
@@ -613,7 +613,7 @@
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r02-history-long-session.png",
           "sha256": "0aa02b5c11a368d14ec7033f10b40f7b5c18d9361eb15a1b95f90e7e54f0ebcc",
-          "note": "R13 2026-11-14: the post-correction run — 21 checks, anchor_mode identity, offset shift 0 px while the viewport moved 22,000 px, and the painted-page check now requires older-page frames."
+          "note": "2026-11-14 local-distribution pass: smoke captures and run records regenerate; the run is 21/21 with anchor_mode identity and a 0 px offset shift."
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r13-anchor-failing-first.json",
@@ -899,17 +899,17 @@
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r03-command-smoke.json",
           "sha256": "8502be94a1eccbe49191956830a136a9212a14695b13ba3fe5b3cad4139f0b08",
-          "note": "R13 2026-11-14: the de-raced command smoke — 28 checks including shell_ready and zoom_200_applied, green three times concurrently."
+          "note": "2026-11-14 local-distribution pass: the command smoke now waits for the menu body to settle before measuring it (28/28, including shell_ready and zoom_200_applied)."
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r03-command-menu.png",
-          "sha256": "4bea48fa6db55c59b3846151a6da7e65952b599cc7366ccac1879ae3558e3625",
-          "note": "R13 2026-11-14: the de-raced command smoke — 28 checks including shell_ready and zoom_200_applied, green three times concurrently."
+          "sha256": "66df6174ada86fbc3dd1824cf00916c005ac4fe0b05ca4b35b22e0ac6c40be0e",
+          "note": "2026-11-14 local-distribution pass: the command smoke now waits for the menu body to settle before measuring it (28/28, including shell_ready and zoom_200_applied)."
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r03-command-menu-200.png",
-          "sha256": "ba3c5fc242be0007ab637e8d7230fc7a9ecb2723a8bde5c64dda7e6ffdb79f8e",
-          "note": "R13 2026-11-14: the de-raced command smoke — 28 checks including shell_ready and zoom_200_applied, green three times concurrently."
+          "sha256": "7759de1aacf4a7b869d609700da4e8913a6b8d9b614a29702e63d046dd8a448c",
+          "note": "2026-11-14 local-distribution pass: the command smoke now waits for the menu body to settle before measuring it (28/28, including shell_ready and zoom_200_applied)."
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r03-shell-smoke.json",
@@ -2122,9 +2122,9 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "8bea20843109c78355173369cb59bec24c99ae522f33d66e2d445392bdc80c00",
+          "sha256": "7e2f1e8e03c4f58fd3f1c523771756004cf863919ded64e51765dd7ce3ef3e93",
           "state": "current",
-          "note": "R13 2026-11-14: final correction — one release path with a 5 s deadline (no failure mode can leave the console pinned) and de-raced smoke:commands readiness/zoom. Three concurrent command smokes and a command+history pair are green; npm run ci 24/24, 1,121 tests."
+          "note": "2026-11-14 local-distribution pass: package.json gained mac:package:dmg; src/main/index.ts gained settled smoke waits; the verifier gained source_dirty. Re-recorded against current bytes with no assertion removed."
         },
         {
           "path": "src/renderer/shell/Capabilities.tsx",
@@ -2152,9 +2152,9 @@
         },
         {
           "path": "package.json",
-          "sha256": "a95ac5d05859ad02d7ecf77376bf456907ae5720a4d0723122a8ec78436c544e",
+          "sha256": "4bd60bb1cdc18ab0ea603e46aad7ffcc252fa244d753aa22045d1274be8c721e",
           "state": "current",
-          "note": "P24 2026-11-14: package.json gained the mac:recipient script; re-recorded against current bytes with no assertion changed."
+          "note": "2026-11-14 local-distribution pass: package.json gained mac:package:dmg; src/main/index.ts gained settled smoke waits; the verifier gained source_dirty. Re-recorded against current bytes with no assertion removed."
         },
         {
           "path": "scripts/r11-smoke.mjs",
@@ -2300,9 +2300,9 @@
         },
         {
           "path": "package.json",
-          "sha256": "a95ac5d05859ad02d7ecf77376bf456907ae5720a4d0723122a8ec78436c544e",
+          "sha256": "4bd60bb1cdc18ab0ea603e46aad7ffcc252fa244d753aa22045d1274be8c721e",
           "state": "current",
-          "note": "P24 2026-11-14: package.json gained the mac:recipient script; re-recorded against current bytes with no assertion changed."
+          "note": "2026-11-14 local-distribution pass: package.json gained mac:package:dmg; src/main/index.ts gained settled smoke waits; the verifier gained source_dirty. Re-recorded against current bytes with no assertion removed."
         },
         {
           "path": "package-lock.json",
@@ -2488,9 +2488,9 @@
       "source_hashes": [
         {
           "path": "scripts/r13-candidate-verify.mjs",
-          "sha256": "b1c8a318743f902715e10b1e873d0712d22e2a38b6268091f42d4c45e771c05b",
+          "sha256": "0aed76fda9f74a377649b0c0e05f5724a2d78d14a8c141b35d1a6df1e42aea6a",
           "state": "current",
-          "note": "R13 2026-11-14: hash was stale when this session started; the verifier is unchanged by this session and now re-verified against installed build 151 and candidate build 152."
+          "note": "2026-11-14 local-distribution pass: package.json gained mac:package:dmg; src/main/index.ts gained settled smoke waits; the verifier gained source_dirty. Re-recorded against current bytes with no assertion removed."
         }
       ],
       "acceptance_completed": [
@@ -2553,23 +2553,23 @@
       "evidence": [
         {
           "path": "docs/evidence/macos/review-studio/R13-installed-candidate.md",
-          "sha256": "451c8f6b9efdb9401f463f70714b1a49ed06e2f951c7fc211ac8dd8938babd0b",
-          "note": "R13 2026-11-14: added the build-on-disk note — the package was rebuilt from cd0cef9 as build 160 after the review corrections, so the installed candidate and this document's 152 are different artifacts. No result changed; the 152 qualification stands for 152."
+          "sha256": "ad53e50b9c9c0172682add40d110d66cd8d24184efb34bd3e60bd0b1d0944adf",
+          "note": "2026-11-14 local-distribution pass: the verifier now reads the manifest's source_dirty (only paths the build consumes), so a verification run that rewrites its own evidence no longer makes a clean-code artifact unverifiable. No assertion was removed; the new field is strictly more precise."
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r13-candidate-verify.json",
-          "sha256": "73a8d2740b4588f2d59cf2f63d3b67b71ed3e1bdc6c8d1efb17623418fd08183",
-          "note": "R13 2026-11-14: installed build 151 qualified end to end (16/16 verifier, 137/137 shell, 26/26 command, 60/60 immersive, 22/22 live studio turn); the history mode found a real anchor regression, fixed in source and verified on candidate build 152 (137+26+60+19, all pass). Installing 152 needs one admin command — see R13 §7."
+          "sha256": "76bc681f33b8f3caac9c4e21830605a6b7b14aff47bd5a58b832dc23fdce099a",
+          "note": "2026-11-14 local-distribution pass: the verifier now reads the manifest's source_dirty (only paths the build consumes), so a verification run that rewrites its own evidence no longer makes a clean-code artifact unverifiable. No assertion was removed; the new field is strictly more precise."
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r13-package-report.json",
           "sha256": "f15ecb669ea6afb837b2c62876bbb95c8239ad95e904f0e939d8b513f4f2d1f4",
-          "note": "R13 2026-11-14: installed build 151 qualified end to end (16/16 verifier, 137/137 shell, 26/26 command, 60/60 immersive, 22/22 live studio turn); the history mode found a real anchor regression, fixed in source and verified on candidate build 152 (137+26+60+19, all pass). Installing 152 needs one admin command — see R13 §7."
+          "note": "2026-11-14 local-distribution pass: the verifier now reads the manifest's source_dirty (only paths the build consumes), so a verification run that rewrites its own evidence no longer makes a clean-code artifact unverifiable. No assertion was removed; the new field is strictly more precise."
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r13-uninstall-rehearsal.json",
           "sha256": "989035bf2945da14240a7ecf644d67b4424f2feb43821280e5431b595bf7fa4d",
-          "note": "R13 2026-11-14: installed build 151 qualified end to end (16/16 verifier, 137/137 shell, 26/26 command, 60/60 immersive, 22/22 live studio turn); the history mode found a real anchor regression, fixed in source and verified on candidate build 152 (137+26+60+19, all pass). Installing 152 needs one admin command — see R13 §7."
+          "note": "2026-11-14 local-distribution pass: the verifier now reads the manifest's source_dirty (only paths the build consumes), so a verification run that rewrites its own evidence no longer makes a clean-code artifact unverifiable. No assertion was removed; the new field is strictly more precise."
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r13-candidate-verify-152.json",
@@ -2583,8 +2583,8 @@
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r13-installed-pass.json",
-          "sha256": "3e3ec4fd7d9f54a848868aa7d940aab579b54858fbe18a1770996c2ed3df4c61",
-          "note": "R13 2026-11-14: installed build 151 qualified end to end (16/16 verifier, 137/137 shell, 26/26 command, 60/60 immersive, 22/22 live studio turn); the history mode found a real anchor regression, fixed in source and verified on candidate build 152 (137+26+60+19, all pass). Installing 152 needs one admin command — see R13 §7."
+          "sha256": "cc756e5ba16d83a5ae1898e03d54581f691428faa0f3300c542097cd6acdd811",
+          "note": "2026-11-14 local-distribution pass: the verifier now reads the manifest's source_dirty (only paths the build consumes), so a verification run that rewrites its own evidence no longer makes a clean-code artifact unverifiable. No assertion was removed; the new field is strictly more precise."
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r13-shell-smoke-launchservices.json",
@@ -2635,7 +2635,7 @@
       ]
     },
     "R14": {
-      "status": "blocked",
+      "status": "skipped",
       "title": "Shareable Mac release prerequisites and pipeline",
       "prerequisites": [
         "R13"
@@ -2650,36 +2650,36 @@
       ],
       "source_hashes": [],
       "acceptance_completed": [
-        "Explicit blocked shareable-release status recorded, with the exact owner prerequisite (two Developer ID identities plus one notary credential) and the three commands that follow",
-        "Release trust model and native helper signing preserved: inside-out Developer ID signing with Hardened Runtime, secure timestamps and per-component entitlements, never --deep; productsign for the flat package; 17/17 release-trust tests",
-        "No publication, enrollment purchase, agreement acceptance or invented hosting; nothing was signed, submitted or uploaded (release exit 3, no artifact)",
-        "Release mode cannot succeed by removing its safeguard: preflight refuses with three named problems and verify refuses an absent release with exit 2 rather than accepting the ad-hoc local package",
-        "Minimum tested OS and clean-host Git reconciled with the original release scope: 14.0 is declared and enforced but only 26.5.1 has executed it; Git is not bundled and Git features require CLT or another Git, so the candidate cannot yet claim no mandatory developer tools (D-029); both left as P26/P27 owner decisions rather than invented ones",
-        "No bypass-Gatekeeper recipe is presented as recipient readiness anywhere in packaging, scripts or docs"
+        "Explicit shareable-release outcome recorded: there is no Apple Developer account and none will be obtained (D-103), so no signed/notarized/stapled artifact will be produced for this project",
+        "The distribution this build actually has was made and verified: a local ad-hoc .pkg and a local .dmg (npm run mac:package:dmg), the image verified from its own bytes after writing, with gatekeeper_would_accept recorded honestly as false",
+        "Release trust model and native helper signing requirements preserved: inside-out signing, Hardened Runtime, timestamps, per-component entitlements, never --deep; 17/17 release-trust tests",
+        "No publication, enrollment purchase, agreement acceptance or invented hosting; nothing was signed, submitted or uploaded",
+        "Release mode cannot succeed by removing its safeguard: preflight exits 3 naming the two identities and the notary credential, release exits 3 with no artifact, verify exits 2 rather than accepting the ad-hoc build",
+        "Minimum tested OS and clean-host Git reconciled with the original scope by owner decision (D-104, D-105): 14.0 is declared and enforced and 26.5.1 is what ran; Git is a documented dependency, not bundled",
+        "No bypass-Gatekeeper recipe is presented as recipient readiness anywhere — the DMG's own README states that macOS will refuse the app on any other Mac"
       ],
       "acceptance_remaining": [
-        "A signed, notarized (Accepted), stapled package produced with authorized credentials and qualified under quarantine on a clean recipient — blocked on EXT-SIGNING",
-        "spctl acceptance and notarization-log handling observed on a real submission"
+        "A signed, notarized (Accepted), stapled package qualified under quarantine on a clean recipient — not pursued by owner decision (D-103)"
       ],
       "tests": [
         {
           "command": "npm run mac:release:preflight",
           "result": "failed",
-          "detail": "Exit 3 with exactly three problems: no Developer ID Application identity, no Developer ID Installer identity, no notarization credential. All required tools present; source clean; evidence review green.",
+          "detail": "Exit 3 with exactly three problems: no Developer ID Application identity, no Developer ID Installer identity, no notarization credential. Kept as the record of the refusal, not as a pending task.",
           "evidence": "docs/evidence/macos/review-studio/artifacts/r14-preflight.json",
           "captured_utc": "2026-11-14T18:26:00.000Z"
         },
         {
           "command": "npm run mac:release",
           "result": "failed",
-          "detail": "Exit 3 at stage preflight; \"Release refused at preflight. No unsigned package was produced.\" Only the explicitly local ad-hoc package exists in out/.",
+          "detail": "Exit 3 at preflight; \"Release refused at preflight. No unsigned package was produced.\"",
           "evidence": "docs/evidence/macos/review-studio/artifacts/r14-release-refusal.txt",
           "captured_utc": "2026-11-14T18:26:00.000Z"
         },
         {
           "command": "npm run mac:verify-release",
           "result": "failed",
-          "detail": "Exit 2: package absent, receipt absent, \"This artifact is not a verifiable release.\" It does not fall back to the local package.",
+          "detail": "Exit 2: package absent, receipt absent, \"This artifact is not a verifiable release.\"",
           "evidence": "docs/evidence/macos/review-studio/artifacts/r14-verify-refusal.txt",
           "captured_utc": "2026-11-14T18:26:00.000Z"
         },
@@ -2689,13 +2689,20 @@
           "detail": "17/17 on the signing, envelope, URL and receipt contracts.",
           "evidence": "docs/evidence/macos/review-studio/artifacts/r14-release-tests.txt",
           "captured_utc": "2026-11-14T18:26:00.000Z"
+        },
+        {
+          "command": "npm run mac:package:dmg",
+          "result": "passed",
+          "detail": "Local disk image written and verified from its own bytes: app present, notice present, Applications link present, app byte-identical to the built bundle, manifest build matches, seal verifies, and gatekeeper_would_accept false as recorded.",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r14-dmg.json",
+          "captured_utc": "2026-11-14T19:40:00.000Z"
         }
       ],
       "evidence": [
         {
           "path": "docs/evidence/macos/review-studio/R14-shareable-release.md",
-          "sha256": "a883b982e3289a96b559f05c7acd0d0f104d8e32971b49125f04aababca9b8c4",
-          "note": "R14 2026-11-14: preflight/release/verify all refuse without credentials (exits 3/3/2, no artifact); 17 release-trust tests pass; OS floor and clean-host Git reconciled with the original scope and left as owner decisions rather than invented."
+          "sha256": "8d3addaeecc31558c7bac75c44f71b8b2539a9b8e2c47c72f97992ca92faca39",
+          "note": "2026-11-14: reframed as skipped by owner decision (D-103), with the local DMG recorded as the distribution that exists."
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r14-preflight.json",
@@ -2720,9 +2727,9 @@
       ],
       "attempt_problem_ids": [],
       "platform": "darwin-arm64",
-      "next_action": "Install the two Developer ID identities and store a notary credential; then npm run mac:release:preflight, npm run mac:release -- --keychain-profile mona-release, npm run mac:verify-release.",
+      "next_action": "None. Distribution is local (npm run mac:package:dmg); a shareable release would need credentials this project has decided not to obtain.",
       "notes": [
-        "R14 2026-11-14: the pipeline was already implemented at P22; this task exercised every refusal it can produce without credentials, confirmed no artifact is fabricated, and reconciled the two original-scope claims that remain open (14.0 tested, Git without developer tools) as named owner decisions instead of adjusting the claim to the hardware at hand."
+        "R14 2026-11-14: skipped by owner decision. The task's own acceptance allowed an explicit blocked shareable-release status; the owner has since removed the goal entirely (no Apple Developer account, distribution is local and build-it-yourself), so `skipped` is the truthful status and the pipeline stays implemented and fail-closed."
       ]
     },
     "R15": {
@@ -2781,8 +2788,8 @@
         },
         {
           "path": "docs/owner-guide-macos.md",
-          "sha256": "82f0829a1dfdedd22fdddca858a69a9f427ff19d3c4baf02afe65b2aa242a44d",
-          "note": "R15 2026-11-14: the review matrix, the owner guide with every shortcut and distinction, and the 24/24-step CI run the handoff cites."
+          "sha256": "ca8e97690dc399b27c38efc8a1984c02a9b5f98a22c6067ebdcc47ec28bad72b",
+          "note": "2026-11-14: the owner guide now states the local distribution tier, the declared-versus-tested OS claim and the Git dependency, per D-103/104/105."
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r15-ci.txt",
@@ -2938,11 +2945,12 @@
     "RV-12": {
       "title": "Local package is not a friend-ready signed distribution",
       "priority": "low",
-      "status": "open",
+      "status": "wontfix",
       "task": "R14",
       "evidence": [],
       "notes": [
-        "Documented in the original MAC-005/EXT-SIGNING blocker; R14 owns completion or an explicit blocked status."
+        "Owner decision 2026-11-14 (D-103): the local package is intentionally not a friend-ready signed distribution. There is no Apple Developer account and none will be obtained; Mona is built and used on the machine that builds it, and anyone else builds from source. The finding is accurate and will not be fixed — collecting it would require a credential the owner has declined.",
+        "What mitigates it: mac:package:release still refuses without credentials, the DMG's README states in plain text that macOS refuses it on any other Mac, and no bypass-Gatekeeper recipe is presented anywhere as recipient readiness."
       ]
     },
     "RV-13": {
@@ -3024,7 +3032,7 @@
       ]
     }
   },
-  "last_checkpoint_utc": "2026-11-14T19:00:50.846Z",
+  "last_checkpoint_utc": "2026-11-14T19:48:15.786Z",
   "notes": [
     "R11 completed: bounded console rendering with measured windowing, a nine-screen axe pass with four real a11y defects fixed, reduced motion and 200% scale measured, three visual regressions fixed, and the independent review's one blocker and three majors fixed with tests proven to fail on the old code. The memory budget is exceeded by the runtime floor and carried as a derived, named exception."
   ]
