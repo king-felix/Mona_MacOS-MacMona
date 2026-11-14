@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-14T10:09:55.074Z",
+  "generated_utc": "2026-11-14T16:50:26.731Z",
   "git": {
     "available": true,
-    "commit": "843f803e7d766ae68af84d1796bdee0fe1c7afa1",
+    "commit": "47b418d9d216f945d40441dbeee68efc7e62159c",
     "dirty": true
   },
-  "digest": "72b3b38b7e6bdcb1a69e6b36d4338971617f0672a97edefd526fcd662cb84904",
+  "digest": "685e9df937fc0dc8cacec5f02e3a2c9a3b6100ea1335c5f1305f93513388ce8a",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,8 +15,8 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "077c53e6864999245d4881ac5e87917d35e2bc4822fd245cc4cbd315d65862f0",
-      "bytes": 176057
+      "sha256": "a680cfce750833ed245fdd4fd706f3876099f9ea982dc26d2242aed26747d3f1",
+      "bytes": 180524
     },
     {
       "path": "AGENTS.md",
@@ -1284,6 +1284,26 @@
       "bytes": 3926
     },
     {
+      "path": "docs/evidence/macos/review-studio/artifacts/r11-afterglow-vivid-100.png",
+      "sha256": "b629c846ff2c54ed9220bdaa78f7828e170bc669fa470a47f6f09b0cb4f06e2b",
+      "bytes": 326323
+    },
+    {
+      "path": "docs/evidence/macos/review-studio/artifacts/r11-perf.json",
+      "sha256": "1fcdb292008c0afbcd0851d9b5114d91a3dd1c902d09ef5b28c01bd774e47139",
+      "bytes": 20684
+    },
+    {
+      "path": "docs/evidence/macos/review-studio/artifacts/r11-studio-200.png",
+      "sha256": "754b0462b40169f41d3eaba301f1579dc4c812933bc6372f216ce375d0b974e7",
+      "bytes": 252963
+    },
+    {
+      "path": "docs/evidence/macos/review-studio/artifacts/r11-studio-long-100.png",
+      "sha256": "c38596004f15708fd2a3297e7d13a681e285f0ecf2b5cb717f5248b7ff016900",
+      "bytes": 315881
+    },
+    {
       "path": "docs/evidence/macos/review-studio/R00-baseline.md",
       "sha256": "c24beb7cad48b16cdae7d1affda47e71a8b8eccabdbcab03f495e8923d39a32c",
       "bytes": 9604
@@ -1337,6 +1357,11 @@
       "path": "docs/evidence/macos/review-studio/R10-composition-and-review.md",
       "sha256": "ab9ded2f2a22297f29607bc6c7ebc45edd71bd82d39d23910de024d060a70af9",
       "bytes": 8189
+    },
+    {
+      "path": "docs/evidence/macos/review-studio/R11-performance-and-accessibility.md",
+      "sha256": "ed264a3beb3479e9f0b28824c32debe2b3cca56d5a754bee0df6a39632178054",
+      "bytes": 17089
     },
     {
       "path": "docs/evidence/macos/runtime-store-coexistence.md",

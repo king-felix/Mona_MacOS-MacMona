@@ -319,7 +319,7 @@ function SearchTab({ projectId, active }: { projectId: string; active: boolean }
                 <p className="memory-meta">
                   {`${index.totalRecords} record(s) · ${index.totalRedactions} redaction(s) · generated ${index.generatedAt}`}
                 </p>
-                <ul className="memory-list">
+                <ul className="memory-list" tabIndex={0} aria-label="Stored record counts">
                   {index.counts.map((count) => (
                     <li key={count.source} className="memory-slot">
                       <span>{MEMORY_SOURCE_LABELS[count.source]}</span>
@@ -329,7 +329,7 @@ function SearchTab({ projectId, active }: { projectId: string; active: boolean }
                     </li>
                   ))}
                 </ul>
-                <ul className="memory-list">
+                <ul className="memory-list" tabIndex={0} aria-label="What the index does not hold">
                   <li>{"Credentials are never indexed."}</li>
                   <li>
                     {"Repository contents are searched on demand, never copied into the database."}
@@ -339,7 +339,11 @@ function SearchTab({ projectId, active }: { projectId: string; active: boolean }
                 {index.excluded.length > 0 ? (
                   <>
                     <h3 className="section__title">Not indexed</h3>
-                    <ul className="memory-list">
+                    <ul
+                      className="memory-list"
+                      tabIndex={0}
+                      aria-label="Sources excluded from the index"
+                    >
                       {index.excluded.map((entry) => (
                         <li key={entry.what} className="memory-list__item">
                           <span>{entry.what}</span>
@@ -399,7 +403,7 @@ function RecordResults({
           }
         />
       ) : (
-        <div className="memory-list">
+        <div className="memory-list" tabIndex={0} role="region" aria-label="Search results">
           {result.hits.map((hit) => (
             <article key={hit.id} className="memory-hit" data-testid="memory-hit">
               <h3 className="memory-hit__title">

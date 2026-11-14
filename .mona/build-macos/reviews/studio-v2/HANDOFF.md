@@ -1,7 +1,7 @@
 # Handoff — Studio review (studio-v2)
 
-**Registry:** `.mona/build-macos/reviews/studio-v2/state.json` (revision 77, after R09)
-**Current task:** R09 — completed · **Next eligible:** R11 (needs R06, R08, R09, R10 — all done)
+**Registry:** `.mona/build-macos/reviews/studio-v2/state.json` (revision 79, after R11)
+**Current task:** R11 — completed · **Next eligible:** R12 (needs R11)
 **Review document:** `MacMona_Studio_Review_PROMPTS.md` (sha256
 `7e1e16d1…`) · **Hotfix:** `MacMona_Review_Hotfix.patch` (sha256
 `a253a05e…`, applied unmodified)
@@ -9,6 +9,59 @@
 `.mona/build-macos/state.json` is at P23 completed; P22/P25 remain its eligible
 prompts. Nothing in this review queue resets P00–P27 or the attempt counts
 (`attempts.jsonl` is still empty; no problem consumed an attempt).
+
+## R11 — performance, accessibility and visual regression (2026-11-14)
+
+- **The console is bounded by measurement.** `virtual-window.ts` (pure arithmetic) +
+  `timeline-window.ts` (ResizeObserver + coalesced scroll) + a memoized projection and
+  memoized cards. On a real 10,203-event conversation with **601 cards loaded**, 10–16
+  nodes mount and a 69,273 px spacer accounts for the rest. Keystroke p95 **16.9 ms**,
+  scroll p95 **18.1 ms** — inside two 60 Hz frames. A pane with no height renders every
+  card, so a host without layout cannot hide content behind a guessed viewport.
+- **Startup and idle meet their budgets.** Interactive in **1.28 s cold / 1.26 s warm**
+  (targets 5 s / 2 s). Idle **0.05 % average CPU** over 60 s (target < 1 %).
+- **Memory does not, and the exception is derived, not asserted.** 568.7 MiB peak
+  against a 350 MiB target; bare Electron 45.3.0 with a blank page measures **356 MiB**
+  on this host, so `scripts/r11-smoke.mjs` attaches an exception naming only
+  `idle_memory_under_350_mb` and reporting Mona's own share (212.7 MiB) as a
+  difference. A run that writes no report, or exits non-zero, fails its own check —
+  the first harness version printed `"passed"` for a killed cold run.
+- **Accessibility: four real defects, all found by auditing all nine screens.**
+  A dialog lost the caret on every parent render (effect keyed on an inline `onClose`)
+  and focused its Close button; a modal did not block the window accelerators (⌘1–⌘9
+  navigated behind a confirm dialog); the composer claimed `role="combobox"` on a
+  `<textarea>`, which ARIA prohibits; and the command detail panel was a live region
+  duplicating `aria-activedescendant`. Also fixed: two `heading-order` and two
+  `scrollable-region-focusable` violations. Final: **9 screens, 0 violations**.
+- **Reduced motion and 200 % scale measured, not assumed.** The product had been
+  pinning `data-reduced-motion="false"`; that is gone and the media query is the
+  mechanism. Under Chromium's own emulation: media query matches, **0** animations,
+  pulse collapsed to `1e-06s`. At 200 %: no horizontal overflow, console intact.
+- **Three visual regressions fixed from the captures:** a transparent fixed title bar
+  with content bleeding through it; "Jump to latest" landing 59 px short and un-arming
+  itself; and the composer-below-the-fold layout, which is a *fact* of a scrolling
+  document and is now reported with the guarantee that scrolled-to it is fully visible
+  and uncovered. A measured `maxHeight` clamp on the console was **tried and
+  reverted** — it ratcheted the console to its floor and still did not fit.
+- **Independent review: 1 blocker + 3 majors, all fixed with failing-first tests.**
+  The blocker was a `useMemo` after `if (!detail) return` — a real crash from the empty
+  state's own Open folder button, invisible to a lint config that has **no
+  `react-hooks` plugin** and to tests that never rendered `detail: null → project`.
+  The majors: the height correction used `start` instead of `visibleStart` (it scrolled
+  the reader for cards in the overscan band); a forced search anchor stretched the
+  window to the live edge, mounting hundreds of cards; and one check was vacuous and
+  was removed.
+- Evidence: `docs/evidence/macos/review-studio/R11-performance-and-accessibility.md`,
+  `artifacts/r11-perf.json` (37 cold + 35 warm checks + the runtime baseline), and
+  `r11-studio-long-100.png`, `r11-studio-200.png`, `r11-afterglow-vivid-100.png`.
+- Gates: **1,118 tests in 100 files**, typecheck clean, lint 0 errors (3 pre-existing
+  warnings), format clean, `smoke:shell` 137/137, `monabuild validate` green at
+  revision 1148, secrets 693 files / 0 findings.
+- **Not verified:** VoiceOver (no screen reader driven), multiple monitors, a live IME,
+  localization-sized labels. Stated in §9 of the evidence, not glossed.
+- Ledger hygiene: R03's `primitives.tsx` and `CommandMenu.tsx` source hashes are marked
+  **historical**; R11's are current. The 36 hash-pinned product captures that
+  `smoke:shell` rewrote were restored to their committed bytes — R12 owns them.
 
 ## R09 — slim usage HUD (2026-11-14)
 
@@ -418,28 +471,22 @@ pass that failed the first versions and was fixed before checkpointing.
 
 ## Exact next action
 
-Three tasks are eligible now:
+**R12 — reconcile regression checks and build evidence.** Next actions, in order:
 
-- **R06 — Aurora Studio visual identity.** Read `design/tokens.ts`, the
-  production `Studio.tsx`/`Shell.tsx`/`styles.css`, and the contrast tests
-  before touching paint. R06 restyles the R05 surface: the focus dashboard, the
-  composer grip, the drawer and the focus-only rules. Its acceptance requires
-  production-shell captures in both themes and intensities, so it must also
-  reconcile the 36 hash-pinned product captures it will change — or state
-  explicitly which ones it left to R12.
-- **R07 — in-app pending input and approvals.** Read `work/studio.ts`
-  `pendingInputFor`/`ingest`/`snapshot` and probe the pinned engine's
-  request/reply endpoints.
-- **R10 — everyday composition and review conveniences.** Eligible since R05
-  landed; it needs R03, R04 and R05.
+1. `npm run ci` on this Mac and fix genuine failures only; keep formatting-only edits
+   separate from behaviour.
+2. Re-run `npm run smoke:shell` and this time **keep** the 36 product captures,
+   re-recording their hashes through `monabuild evidence` with a note saying the
+   previous hash described the pre-R11 shell (precedent: items 33/51/63/83/95/112).
+   R11 deliberately restored them so that reconciliation happens in one place.
+3. Reconcile the product ledger's stale-evidence class and refresh
+   `docs/requirements-macos.json` through `monabuild requirements sync`.
+4. Consider adding `eslint-plugin-react-hooks` with `rules-of-hooks: error` — the R11
+   review's blocker would have been caught by it and was not, because the plugin is
+   absent (RD-023).
 
-```sh
-node tools/monabuild/cli.mjs review status   # next_eligible: R06, R07, R10
-```
-
-Do not start R08 (needs R07) or R09/R11–R15 (each needs a task that is still
-pending). Note for R06 and R12: `smoke:shell` was deliberately not re-run at
-R05 (see above), so the product captures still show the pre-R05 Studio chrome.
+**R13–R15 follow.** R14 can remain externally blocked on EXT-SIGNING; nothing in this
+queue invents credentials.
 
 ## Rules that still bind
 

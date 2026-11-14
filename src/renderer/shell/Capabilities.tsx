@@ -270,7 +270,12 @@ export function CapabilitiesScreen({
             {snapshot.features.length === 0 ? (
               <p className="muted">Feature flags were not read in this snapshot.</p>
             ) : (
-              <ul className="feature-flags" data-testid="feature-flags">
+              <ul
+                className="feature-flags"
+                data-testid="feature-flags"
+                tabIndex={0}
+                aria-label="Feature flags reported by the engine"
+              >
                 {snapshot.features.map((feature) => (
                   <li key={feature.name}>
                     <Badge tone={feature.enabled ? "success" : "neutral"}>

@@ -540,6 +540,19 @@ a {
   text-transform: uppercase;
   pointer-events: none;
   z-index: 30;
+  /* R11 — the bar is fixed, so content scrolls underneath it. Without an opaque
+     background the scrolled document showed through the window title: the Usage
+     strip and the title printed on top of each other whenever the Studio was
+     scrolled, which every capture below the fold showed. The gradient uses the
+     rail's own surface over the rail's width so the bar continues both columns
+     instead of drawing a canvas-coloured seam across the navigation. */
+  background: linear-gradient(
+    to right,
+    var(--surface) 0,
+    var(--surface) var(--rail-width),
+    var(--canvas) var(--rail-width),
+    var(--canvas) 100%
+  );
 }
 
 .titlebar__title {
@@ -1863,6 +1876,22 @@ a {
 .timeline {
   display: flex;
   flex-direction: column;
+  /* The console paints a measured slice of a long conversation. The spacers are
+     the part that is not mounted; they carry the exact height of the cards they
+     stand in for, so the scrollbar and every scroll offset stay truthful. */
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.timeline__spacer {
+  flex: 0 0 auto;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  /* Nothing is painted here, and nothing inside it should be hit-testable. */
+  pointer-events: none;
+  contain: strict;
 }
 
 .timeline-event {
@@ -2665,6 +2694,13 @@ a {
 @media (max-width: 940px) {
   .harness {
     grid-template-columns: 1fr;
+  }
+
+  /* The rail becomes a full-width strip at this width (which includes 200 %
+     interface scale), so the title bar's two-column gradient no longer matches
+     what is underneath it. */
+  .titlebar {
+    background: var(--surface);
   }
 
   .rail {

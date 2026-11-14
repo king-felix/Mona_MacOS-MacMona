@@ -1,7 +1,10 @@
 # Blockers — Studio review (studio-v2)
 
 **Status: no blocked review problem.** `attempts.jsonl` is empty; no review
-task has consumed an attempt. R00's four behavioral fixes were reproduced,
+task has consumed an attempt. R11 measured every budget it could and recorded the
+one it could not meet (idle memory) as a derived, named exception rather than a
+blocker — the runtime's own floor is 356 MiB against a 350 MiB target, so no
+application code can satisfy it on this host. R00's four behavioral fixes were reproduced,
 fixed and regression-tested inside one task, so no problem became open.
 
 ## External prerequisites carried from the product ledger
@@ -34,8 +37,13 @@ tasks that consume them.
   probe uses the existing authorized Flash route and its cost controls; no
   automatic provider switch, no paid reviewer.
 - **Native fullscreen, VoiceOver and physical display scaling cannot be proven
-  from jsdom.** R05/R11 must either observe them on this Mac or record them as
-  pending human checks.
+  from jsdom.** R05 observed native fullscreen (AppKit reported both transitions).
+  **R11 observed 200 % interface scale and reduced motion** through a real window and
+  Chromium's own media emulation, and **records VoiceOver, multiple monitors, a live
+  IME and localization-sized labels as pending human checks** — axe over nine screens
+  and programmatic focus assertions are not a spoken walkthrough. These stay open for
+  R13 (installed candidate) and P24/P26, and they are not attempt-counted because no
+  attempt failed: the limitation is the host, not a hypothesis that did not work.
 
 - **R03 route claims are not execution.** R03 proves the catalog and the
   autocomplete; `support=runtime-api` names a documented operation R04 may call,

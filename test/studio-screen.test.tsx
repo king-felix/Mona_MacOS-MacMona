@@ -853,8 +853,15 @@ describe("R03 descriptive command autocomplete", () => {
     const listbox = container!.querySelector('[role="listbox"]');
     expect(listbox?.getAttribute("aria-label")).toBe("Codewhale commands");
     expect(container!.querySelectorAll('[role="option"]').length).toBeGreaterThan(0);
-    expect(composer().getAttribute("role")).toBe("combobox");
-    expect(composer().getAttribute("aria-expanded")).toBe("true");
+    // R11: `role="combobox"` is not permitted on a `<textarea>` (ARIA in HTML
+    // allows only `textbox`), so the composer keeps the implicit textbox role and
+    // expresses the popup through attributes that role does support. The
+    // suggestion announcement itself is unchanged and asserted below.
+    expect(composer().getAttribute("role")).toBeNull();
+    expect(composer().getAttribute("aria-haspopup")).toBe("listbox");
+    expect(composer().getAttribute("aria-autocomplete")).toBe("list");
+    expect(composer().getAttribute("aria-controls")).toBe("composer-command-menu");
+    expect(composer().getAttribute("aria-activedescendant")).toMatch(/^composer-command-option-/);
     expect(composer().getAttribute("aria-activedescendant")).toMatch(/^composer-command-option-/);
     const text = container!.textContent ?? "";
     expect(text).toContain("/help");
@@ -923,8 +930,12 @@ describe("R03 descriptive command autocomplete", () => {
   it("does not reference a listbox that has no rows, and announces the empty filter", () => {
     renderHarness({ initial: "/zzzzz" });
     const element = composer();
-    expect(element.getAttribute("aria-expanded")).toBe("false");
+    // R11: no `aria-expanded` — it is a combobox-only attribute and the composer
+    // is a valid textbox now. The dangling-reference claim is what this case is
+    // about, and it is asserted directly: no `aria-controls` target and no active
+    // option while there is nothing to choose.
     expect(element.getAttribute("aria-controls")).toBeNull();
+    expect(element.getAttribute("aria-activedescendant")).toBeNull();
     const status = container!.querySelector('.command-menu__head [role="status"]');
     expect(status?.textContent).toContain("No catalogued command matches");
     // Arrow keys still move the caret when there is nothing to choose.

@@ -131,7 +131,12 @@ export function CommandMenu({
         </div>
       ) : null}
       {current && !compact ? (
-        <div className="command-menu__detail" aria-live="polite">
+        /* R11 — not a live region. The combobox already announces the highlighted
+           option through aria-activedescendant, and every option's accessible
+           name carries its description and route class. A polite region here
+           made a screen reader say each command twice on every arrow press. The
+           panel stays as supplementary visual detail. */
+        <div className="command-menu__detail">
           <p className="command-menu__detail-head">
             <code>/{current.name}</code>
             <span>{current.summary}</span>

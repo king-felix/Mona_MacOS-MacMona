@@ -64,7 +64,6 @@ import {
 } from "../design/icons";
 import {
   applyDensity,
-  applyReducedMotion,
   applyIntensity,
   applyTheme,
   type Density,
@@ -74,6 +73,7 @@ import {
 import monaMark from "../assets/mona-mark.png";
 import { HomeScreen } from "./Home";
 import { StudioScreen } from "./Studio";
+import { acceleratorAllowed, acceleratorScope } from "./keyboard";
 import { BoardScreen } from "./Board";
 import { CostScreen } from "./Cost";
 import { ChangesScreen } from "./Changes";
@@ -354,9 +354,12 @@ export function Shell(): JSX.Element {
     applyIntensity(intensity);
     localStorage.setItem("mona.intensity", intensity);
   }, [intensity]);
-  useEffect(() => {
-    applyReducedMotion(false);
-  }, []);
+  // Reduced motion is the operating system's setting, and the mechanism is the
+  // `prefers-reduced-motion` media query in styles.css — Chromium maps macOS
+  // "Reduce motion" straight onto it. The window deliberately does not pin the
+  // `data-reduced-motion` attribute here: that attribute is the design harness's
+  // switch, and a hardcoded `false` in the product read as though production had
+  // decided to ignore the setting. R11 measures the media-query path.
   // Decoration must not run in a window nobody is looking at. Electron keeps a
   // hidden window's compositor alive, so the pulse is switched off at the source
   // rather than left to the compositor's own throttling.
@@ -777,6 +780,12 @@ export function Shell(): JSX.Element {
       setError(caught instanceof Error ? caught.message : String(caught));
     } finally {
       document.body.dataset.ready = "true";
+      // R11 — when the window actually became interactive, on the same clock as
+      // `Date.now()` in the main process. The flag alone says "done"; the
+      // startup budget is a statement about time, so it needs a timestamp.
+      document.body.dataset.readyAt = String(
+        Math.round(performance.timeOrigin + performance.now()),
+      );
     }
   }, [selectProject]);
 
@@ -1906,6 +1915,12 @@ export function Shell(): JSX.Element {
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
+      // R11 — the window listener acts only when no IME composition and no modal
+      // dialog owns the keyboard. Without this, ⌘1–⌘9 navigated the shell behind
+      // an open confirm dialog and ⌘J hid the terminal under one — visible state
+      // changing while the reader is answering a question about it. Escape is not
+      // affected: a dialog handles it first and stops propagation.
+      if (!acceleratorAllowed(event, acceleratorScope(document))) return;
       if (event.metaKey && event.key.toLowerCase() === "k") {
         event.preventDefault();
         setPaletteOpen(true);

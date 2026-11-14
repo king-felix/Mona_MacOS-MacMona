@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 1140,
+  "revision": 1154,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -238,8 +238,8 @@
         },
         {
           "path": "package.json",
-          "sha256": "33c0cea5790af25adb3fbdf3b1e1164333337547a9a34bfeae12c1f21c7a1511",
-          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "d7c209054c2f24cac7f784dd3d09ff2895749ee6a698cfde5c6d8a4cf4a13f41",
+          "note": "Re-recorded after R11 (performance and accessibility) changed these shared bytes: the windowed console, the dialog focus lifecycle, the window-accelerator policy, the title bar's opaque background, and the heading/scroll-region accessibility fixes. The full suite (1,115 tests in 100 files), the shell smoke (137/137) and the R11 measurement harness passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "package-lock.json",
@@ -289,8 +289,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "49b22cb873438209398e0e510b14877148b48d42b47dbb28784479261ab6c4de",
-          "note": "Re-recorded after R09 (usage HUD) changed these shared bytes. The full suite (1,089 tests) and the shell smoke (137/137) passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "556e33ce112c92c02d70300568af8f0647dcda0d6ebcef5defc885feb2006767",
+          "note": "Re-recorded after R11 (performance and accessibility) changed these shared bytes: the windowed console, the dialog focus lifecycle, the window-accelerator policy, the title bar's opaque background, the heading/scroll-region accessibility fixes and the R11 measurement runner. The full suite (1,118 tests in 100 files), the shell smoke (137/137) and the R11 measurement harness passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/ipc-contract.ts",
@@ -351,8 +351,8 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "06a4c15da73923dc53f80da4f1a922b7ee578499a77ec3fffa408addc9fd1f3e",
-          "note": "Re-recorded after R09 (usage HUD) changed these shared bytes. The full suite (1,089 tests) and the shell smoke (137/137) passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "8dc2d4884a572a3e20acd5e52e9b5cb3f94df3865bd4c2dde536ca1afa1f7412",
+          "note": "Re-recorded after R11 (performance and accessibility) changed these shared bytes: the windowed console, the dialog focus lifecycle, the window-accelerator policy, the title bar's opaque background, and the heading/scroll-region accessibility fixes. The full suite (1,115 tests in 100 files), the shell smoke (137/137) and the R11 measurement harness passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/shared/contracts/bridge.ts",
@@ -570,8 +570,8 @@
         },
         {
           "path": "package.json",
-          "sha256": "33c0cea5790af25adb3fbdf3b1e1164333337547a9a34bfeae12c1f21c7a1511",
-          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "d7c209054c2f24cac7f784dd3d09ff2895749ee6a698cfde5c6d8a4cf4a13f41",
+          "note": "Re-recorded after R11 (performance and accessibility) changed these shared bytes: the windowed console, the dialog focus lifecycle, the window-accelerator policy, the title bar's opaque background, and the heading/scroll-region accessibility fixes. The full suite (1,115 tests in 100 files), the shell smoke (137/137) and the R11 measurement harness passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
@@ -701,8 +701,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "49b22cb873438209398e0e510b14877148b48d42b47dbb28784479261ab6c4de",
-          "note": "Re-recorded after R09 (usage HUD) changed these shared bytes. The full suite (1,089 tests) and the shell smoke (137/137) passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "556e33ce112c92c02d70300568af8f0647dcda0d6ebcef5defc885feb2006767",
+          "note": "Re-recorded after R11 (performance and accessibility) changed these shared bytes: the windowed console, the dialog focus lifecycle, the window-accelerator policy, the title bar's opaque background, the heading/scroll-region accessibility fixes and the R11 measurement runner. The full suite (1,118 tests in 100 files), the shell smoke (137/137) and the R11 measurement harness passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/engine/runtime-process.ts",
@@ -753,8 +753,8 @@
         },
         {
           "path": "package.json",
-          "sha256": "33c0cea5790af25adb3fbdf3b1e1164333337547a9a34bfeae12c1f21c7a1511",
-          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "d7c209054c2f24cac7f784dd3d09ff2895749ee6a698cfde5c6d8a4cf4a13f41",
+          "note": "Re-recorded after R11 (performance and accessibility) changed these shared bytes: the windowed console, the dialog focus lifecycle, the window-accelerator policy, the title bar's opaque background, and the heading/scroll-region accessibility fixes. The full suite (1,115 tests in 100 files), the shell smoke (137/137) and the R11 measurement harness passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
@@ -1177,8 +1177,8 @@
         },
         {
           "path": "package.json",
-          "sha256": "33c0cea5790af25adb3fbdf3b1e1164333337547a9a34bfeae12c1f21c7a1511",
-          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "d7c209054c2f24cac7f784dd3d09ff2895749ee6a698cfde5c6d8a4cf4a13f41",
+          "note": "Re-recorded after R11 (performance and accessibility) changed these shared bytes: the windowed console, the dialog focus lifecycle, the window-accelerator policy, the title bar's opaque background, and the heading/scroll-region accessibility fixes. The full suite (1,115 tests in 100 files), the shell smoke (137/137) and the R11 measurement harness passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/open/folder-request.ts",
@@ -1194,8 +1194,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "49b22cb873438209398e0e510b14877148b48d42b47dbb28784479261ab6c4de",
-          "note": "Re-recorded after R09 (usage HUD) changed these shared bytes. The full suite (1,089 tests) and the shell smoke (137/137) passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "556e33ce112c92c02d70300568af8f0647dcda0d6ebcef5defc885feb2006767",
+          "note": "Re-recorded after R11 (performance and accessibility) changed these shared bytes: the windowed console, the dialog focus lifecycle, the window-accelerator policy, the title bar's opaque background, the heading/scroll-region accessibility fixes and the R11 measurement runner. The full suite (1,118 tests in 100 files), the shell smoke (137/137) and the R11 measurement harness passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/desktop-lifecycle.ts",
@@ -1232,8 +1232,8 @@
         },
         {
           "path": "src/renderer/shell/Shell.tsx",
-          "sha256": "e85d851434393cb57c7b236df285baa6610ec426f8a48df7599df3bcb9ed4614",
-          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "7e1088fded11b33a32be75297f0c558433a269d453d310d575dcfa8b393c18ab",
+          "note": "Re-recorded after R11 (performance and accessibility) changed these shared bytes: the windowed console, the dialog focus lifecycle, the window-accelerator policy, the title bar's opaque background, and the heading/scroll-region accessibility fixes. The full suite (1,115 tests in 100 files), the shell smoke (137/137) and the R11 measurement harness passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/renderer/shell/drop.ts",
@@ -1250,8 +1250,8 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "06a4c15da73923dc53f80da4f1a922b7ee578499a77ec3fffa408addc9fd1f3e",
-          "note": "Re-recorded after R09 (usage HUD) changed these shared bytes. The full suite (1,089 tests) and the shell smoke (137/137) passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "8dc2d4884a572a3e20acd5e52e9b5cb3f94df3865bd4c2dde536ca1afa1f7412",
+          "note": "Re-recorded after R11 (performance and accessibility) changed these shared bytes: the windowed console, the dialog focus lifecycle, the window-accelerator policy, the title bar's opaque background, and the heading/scroll-region accessibility fixes. The full suite (1,115 tests in 100 files), the shell smoke (137/137) and the R11 measurement harness passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "test/folder-request.test.ts",
@@ -1382,8 +1382,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "49b22cb873438209398e0e510b14877148b48d42b47dbb28784479261ab6c4de",
-          "note": "Re-recorded after R09 (usage HUD) changed these shared bytes. The full suite (1,089 tests) and the shell smoke (137/137) passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "556e33ce112c92c02d70300568af8f0647dcda0d6ebcef5defc885feb2006767",
+          "note": "Re-recorded after R11 (performance and accessibility) changed these shared bytes: the windowed console, the dialog focus lifecycle, the window-accelerator policy, the title bar's opaque background, the heading/scroll-region accessibility fixes and the R11 measurement runner. The full suite (1,118 tests in 100 files), the shell smoke (137/137) and the R11 measurement harness passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/preload/index.ts",
@@ -1397,13 +1397,13 @@
         },
         {
           "path": "src/renderer/design/primitives.tsx",
-          "sha256": "aa3d0dba4ee7f0595363b0301a48820e096777c1e35eebaa87aa921286362917",
-          "note": "Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
+          "sha256": "36dfa9126d5e1605c41ab06e78f1083dc2d69b703edd713e213dbaef3f8e7a1e",
+          "note": "Re-recorded after R11 (performance and accessibility) changed these shared bytes: the windowed console, the dialog focus lifecycle, the window-accelerator policy, the title bar's opaque background, and the heading/scroll-region accessibility fixes. The full suite (1,115 tests in 100 files), the shell smoke (137/137) and the R11 measurement harness passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "06a4c15da73923dc53f80da4f1a922b7ee578499a77ec3fffa408addc9fd1f3e",
-          "note": "Re-recorded after R09 (usage HUD) changed these shared bytes. The full suite (1,089 tests) and the shell smoke (137/137) passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "8dc2d4884a572a3e20acd5e52e9b5cb3f94df3865bd4c2dde536ca1afa1f7412",
+          "note": "Re-recorded after R11 (performance and accessibility) changed these shared bytes: the windowed console, the dialog focus lifecycle, the window-accelerator policy, the title bar's opaque background, and the heading/scroll-region accessibility fixes. The full suite (1,115 tests in 100 files), the shell smoke (137/137) and the R11 measurement harness passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "test/work-board.test.ts",
@@ -2015,7 +2015,8 @@
         },
         {
           "path": "src/renderer/shell/Capabilities.tsx",
-          "sha256": "929587c3b12b748845748c683d25fb598533b16f24ddb22795ae97f103e60b73"
+          "sha256": "65f1fec32592209bbf5fa835c8a2982001f70216ad9696df2d9f24bd6ceeda16",
+          "note": "Re-recorded after R11 (performance and accessibility) changed these shared bytes: the windowed console, the dialog focus lifecycle, the window-accelerator policy, the title bar's opaque background, and the heading/scroll-region accessibility fixes. The full suite (1,115 tests in 100 files), the shell smoke (137/137) and the R11 measurement harness passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/ipc.ts",
@@ -2044,13 +2045,13 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "49b22cb873438209398e0e510b14877148b48d42b47dbb28784479261ab6c4de",
-          "note": "Re-recorded after R09 (usage HUD) changed these shared bytes. The full suite (1,089 tests) and the shell smoke (137/137) passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "556e33ce112c92c02d70300568af8f0647dcda0d6ebcef5defc885feb2006767",
+          "note": "Re-recorded after R11 (performance and accessibility) changed these shared bytes: the windowed console, the dialog focus lifecycle, the window-accelerator policy, the title bar's opaque background, the heading/scroll-region accessibility fixes and the R11 measurement runner. The full suite (1,118 tests in 100 files), the shell smoke (137/137) and the R11 measurement harness passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/renderer/shell/Shell.tsx",
-          "sha256": "e85d851434393cb57c7b236df285baa6610ec426f8a48df7599df3bcb9ed4614",
-          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "7e1088fded11b33a32be75297f0c558433a269d453d310d575dcfa8b393c18ab",
+          "note": "Re-recorded after R11 (performance and accessibility) changed these shared bytes: the windowed console, the dialog focus lifecycle, the window-accelerator policy, the title bar's opaque background, and the heading/scroll-region accessibility fixes. The full suite (1,115 tests in 100 files), the shell smoke (137/137) and the R11 measurement harness passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/renderer/shell/Settings.tsx",
@@ -2063,8 +2064,8 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "06a4c15da73923dc53f80da4f1a922b7ee578499a77ec3fffa408addc9fd1f3e",
-          "note": "Re-recorded after R09 (usage HUD) changed these shared bytes. The full suite (1,089 tests) and the shell smoke (137/137) passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "8dc2d4884a572a3e20acd5e52e9b5cb3f94df3865bd4c2dde536ca1afa1f7412",
+          "note": "Re-recorded after R11 (performance and accessibility) changed these shared bytes: the windowed console, the dialog focus lifecycle, the window-accelerator policy, the title bar's opaque background, and the heading/scroll-region accessibility fixes. The full suite (1,115 tests in 100 files), the shell smoke (137/137) and the R11 measurement harness passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "test/terminal-buffer.test.ts",
@@ -2106,8 +2107,8 @@
         },
         {
           "path": "package.json",
-          "sha256": "33c0cea5790af25adb3fbdf3b1e1164333337547a9a34bfeae12c1f21c7a1511",
-          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "d7c209054c2f24cac7f784dd3d09ff2895749ee6a698cfde5c6d8a4cf4a13f41",
+          "note": "Re-recorded after R11 (performance and accessibility) changed these shared bytes: the windowed console, the dialog focus lifecycle, the window-accelerator policy, the title bar's opaque background, and the heading/scroll-region accessibility fixes. The full suite (1,115 tests in 100 files), the shell smoke (137/137) and the R11 measurement harness passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
@@ -2199,7 +2200,8 @@
         },
         {
           "path": "src/renderer/shell/Memory.tsx",
-          "sha256": "a4b2b0997cd14ac14964adcafd45c4ccb5aade063fa83f6f915fde0d6fdeb90c"
+          "sha256": "a7dc581ca1bfb0fa7d98d6fdd8198bc4a9f709a0b6212529852183e694a7778c",
+          "note": "Re-recorded after R11 (performance and accessibility) changed these shared bytes: the windowed console, the dialog focus lifecycle, the window-accelerator policy, the title bar's opaque background, the heading/scroll-region accessibility fixes and the R11 measurement runner. The full suite (1,118 tests in 100 files), the shell smoke (137/137) and the R11 measurement harness passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "scripts/memory-smoke.mjs",
@@ -2680,7 +2682,7 @@
     "P22",
     "P25"
   ],
-  "last_checkpoint_utc": "2026-11-14T10:09:54.982Z",
+  "last_checkpoint_utc": "2026-11-14T16:50:23.697Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

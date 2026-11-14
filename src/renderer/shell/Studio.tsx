@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type JSX } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, memo, type JSX } from "react";
 import type {
   ProjectDetail,
   StoredEventSummary,
@@ -46,6 +46,7 @@ import {
 import { engineBadge, formatTokens, projectAccent, projectMonogram, relativeTime } from "./visual";
 import { Markdown } from "./markdown";
 import { projectTimeline, type TimelineEntry } from "./timeline";
+import { useTimelineWindow } from "./timeline-window";
 import { projectActivity } from "./activity";
 import { UsageHud } from "./UsageHud";
 import { CommandMenu } from "./CommandMenu";
@@ -467,22 +468,35 @@ function PendingRequestCard({
   );
 }
 
-function TimelineCard({
-  entry,
-  truncated,
-  onLoadItem,
-  onCopy,
-  onShowChanges,
-  anchored,
-}: {
+/**
+ * R11 — a card's handlers, read through a stable ref.
+ *
+ * The callbacks are rebuilt on every shell render (they close over current
+ * state), so passing them as props would make every card re-render on every
+ * keystroke. The ref keeps the behaviour current while the card's identity stays
+ * bound to its entry.
+ */
+export interface TimelineCardHandlers {
+  onCopy?: (text: string, label: "message" | "code" | "prompt") => void;
+  onLoadItem?: (threadId: string, itemId: string) => void;
+  onShowChanges?: () => void;
+}
+
+export interface TimelineCardProps {
   entry: TimelineEntry;
   truncated?: { returned: number; stored: number } | null;
-  onLoadItem?: (threadId: string, itemId: string) => void;
-  onCopy?: (text: string, label: "message" | "code" | "prompt") => void;
-  onShowChanges?: () => void;
   /** True when this card is the result the reader jumped to. */
   anchored?: boolean;
-}): JSX.Element {
+  handlers: { current: TimelineCardHandlers };
+}
+
+function TimelineCardImpl({
+  entry,
+  truncated,
+  anchored,
+  handlers,
+}: TimelineCardProps): JSX.Element {
+  const { onCopy, onLoadItem, onShowChanges } = handlers.current;
   const [expanded, setExpanded] = useState(false);
   const tooLong = entry.body.length > LONG_BODY;
   const body = tooLong && !expanded ? `${entry.body.slice(0, LONG_BODY)}\n…` : entry.body;
@@ -491,6 +505,7 @@ function TimelineCard({
       className={`timeline-event timeline-event--${entry.kind}${
         anchored ? " timeline-event--anchored" : ""
       }`}
+      data-card-key={entry.key}
       data-item-id={entry.itemId ?? undefined}
       data-seq={entry.seq}
       data-anchored={anchored ? "true" : undefined}
@@ -599,6 +614,13 @@ function TimelineCard({
     </li>
   );
 }
+
+/**
+ * R11 — memoized on purpose. `entry` is an object from the memoized projection,
+ * so a card re-renders only when its own entry, its truncation state or its
+ * anchor state changes. Handlers arrive through a stable ref.
+ */
+const TimelineCard = memo(TimelineCardImpl);
 
 /** How long the stream has been silent, or null when it is not stalled. */
 function stallSeconds(studio: StudioSnapshot): number | null {
@@ -1315,11 +1337,86 @@ export function StudioScreen(props: StudioProps): JSX.Element {
   const eventCount = events.length;
   const historyComplete = history ? !history.hasMore : detail?.history.hasMore === false;
 
+  // R11 — the projection is a pure function of the event list, the paging state
+  // and the reloaded item ids, so it is memoized on exactly those. Before this,
+  // a keystroke in the composer re-projected the whole loaded transcript,
+  // because the draft lives in the same shell state as the console.
+  //
+  // `completeItems` is flattened to a stable string inside the memo: a fresh
+  // `Set` in the argument list would be a new object on every render and defeat
+  // the cache entirely.
+  const completeItemKey = useMemo(
+    () =>
+      Object.keys(history?.completeItems ?? {})
+        .sort()
+        .join("|"),
+    [history?.completeItems],
+  );
+  const { entries, internalActivity, unprojected } = useMemo(
+    () =>
+      projectTimeline(events, {
+        historyComplete,
+        completeItems: new Set(completeItemKey === "" ? [] : completeItemKey.split("|")),
+      }),
+    [events, historyComplete, completeItemKey],
+  );
+
+  // R08: the strip is a read over the same stored frames the console shows.
+  // Computed from events and the live snapshot; no timer and no engine call sits
+  // behind it.
+  //
+  // R11 memoizes it, and `now` is therefore the clock of the last recomputation
+  // rather than of the last paint. The consequence is stated rather than hidden:
+  // while a turn is live the snapshot pushes twice a second, so the age is fresh;
+  // when the project is completely idle nothing recomputes it and the reported
+  // age stops advancing. That was already true before this change — R08 has no
+  // timer on purpose — and a keystroke used to refresh it by accident. A timer
+  // here would be a per-second render of the whole screen to move one label.
+  const activity = useMemo(
+    () =>
+      projectActivity({
+        studio,
+        events,
+        filterThreadId: history?.threadId ?? null,
+        now: Date.now(),
+      }),
+    [studio, events, history?.threadId],
+  );
+
   // The hit the reader jumped to. Scrolling happens after the card exists: a hit
   // in an older page is found by loading pages, never by pretending it is here.
   const searchAnchor = props.search?.anchor ?? null;
   const anchorKey =
     searchAnchor === null ? null : `${searchAnchor.itemId ?? ""}:${searchAnchor.seq}`;
+  // R11 — the card the window must keep mounted. A search hit outside the
+  // rendered slice would otherwise be scrolled to as a hole.
+  const anchorCardKey = useMemo(() => {
+    if (searchAnchor === null) return null;
+    const found = entries.find((entry) =>
+      searchAnchor.itemId !== null
+        ? entry.itemId === searchAnchor.itemId
+        : entry.seq === searchAnchor.seq,
+    );
+    return found?.key ?? null;
+  }, [entries, searchAnchor]);
+
+  // R11 — bounded rendering. `keys` changes only when the projected order does,
+  // so the window arithmetic is not repeated on a keystroke.
+  const cardKeys = useMemo(() => entries.map((entry) => entry.key), [entries]);
+  const timelineWindow = useTimelineWindow({
+    keys: cardKeys,
+    containerRef: timelineRef,
+    includeKey: anchorCardKey,
+    followRef: followRef,
+  });
+  // Cards read their handlers through this ref, so a new closure in the shell
+  // does not re-render every mounted card.
+  const cardHandlers = useRef<TimelineCardHandlers>({});
+  cardHandlers.current = {
+    onCopy: props.onCopy,
+    onLoadItem: history?.onLoadItem,
+    onShowChanges: props.onShowChanges,
+  };
   // The load callback is read through a ref: `history` is rebuilt on every Shell
   // render, and an effect keyed on the object would ask for another page on each
   // one. Only a completed page read (the event count or `hasMore`) retries.
@@ -1433,7 +1530,18 @@ export function StudioScreen(props: StudioProps): JSX.Element {
     setAtLatest(true);
     setUnread(0);
     const node = timelineRef.current;
-    if (node) node.scrollTop = node.scrollHeight;
+    if (!node) return;
+    node.scrollTop = node.scrollHeight;
+    // The window re-measures as the slice changes, which moves the list's height
+    // under the viewport. Re-pin after layout settles; without this the jump lands
+    // a few dozen pixels short, and the pane's own scroll handler reads that as
+    // "the reader scrolled away" and turns follow back off.
+    const pin = (): void => {
+      if (followRef.current && timelineRef.current) {
+        timelineRef.current.scrollTop = timelineRef.current.scrollHeight;
+      }
+    };
+    requestAnimationFrame(() => requestAnimationFrame(pin));
   };
 
   // R10 unread count. The reader scrolled back deliberately, so new frames are
@@ -1572,6 +1680,7 @@ export function StudioScreen(props: StudioProps): JSX.Element {
       <div className="screen">
         <Card>
           <EmptyState
+            headingLevel={2}
             icon={<FolderIcon size={30} />}
             title="Choose a project"
             description="Open a folder or select a project from Home. Mona reads local state only; it does not start an engine or resume work automatically."
@@ -1592,20 +1701,7 @@ export function StudioScreen(props: StudioProps): JSX.Element {
 
   const { project, engine, usage } = detail;
   const health = { label: connectionLabel(studio, detail), tone: connectionTone(studio, detail) };
-  const { entries, internalActivity, unprojected } = projectTimeline(events, {
-    historyComplete,
-    completeItems: new Set(Object.keys(history?.completeItems ?? {})),
-  });
   const scope = history?.storedTotal ?? detail.history.storedTotal;
-  // R08: the strip is a read over the same stored frames the console shows.
-  // Computed on each render from events and the live snapshot; no timer and no
-  // engine call sits behind it.
-  const activity = projectActivity({
-    studio,
-    events,
-    filterThreadId: history?.threadId ?? null,
-    now: Date.now(),
-  });
   const followUps = studio?.followUps ?? [];
   // A settled request is history, not a waiting prompt. Only open asks render as
   // an interruption; the rest stay in the stored record and the diagnostics.
@@ -2005,6 +2101,10 @@ export function StudioScreen(props: StudioProps): JSX.Element {
           <span className="hint-line" data-testid="studio-history-scope">
             {entries.length} shown · {scope} stored
             {history?.hasMore ? " · older pages available" : " · earliest stored event loaded"}
+            {/* R11: when the console windows a long conversation, say how many
+                cards are actually painted. Every loaded card is still reachable
+                by scrolling; this reports the bound, not a loss. */}
+            {timelineWindow.virtualized ? ` · ${timelineWindow.rendered} painted` : ""}
           </span>
           <span className="timeline__toolbar-actions">
             {history?.hasMore ? (
@@ -2059,6 +2159,7 @@ export function StudioScreen(props: StudioProps): JSX.Element {
         >
           {entries.length === 0 ? (
             <EmptyState
+              headingLevel={2}
               icon={<ClockIcon size={26} />}
               title="No engine history stored yet"
               description="Mona stores thread, turn, and event projections only when the engine reports them. Nothing is simulated here."
@@ -2076,8 +2177,21 @@ export function StudioScreen(props: StudioProps): JSX.Element {
                   </span>
                 </div>
               ) : null}
-              <ol className="timeline">
-                {entries.map((entry) => (
+              <ol
+                className="timeline"
+                data-windowed={timelineWindow.virtualized ? "true" : "false"}
+                data-rendered={timelineWindow.rendered}
+                data-cards={entries.length}
+              >
+                {timelineWindow.top > 0 ? (
+                  <li
+                    className="timeline__spacer"
+                    aria-hidden="true"
+                    style={{ height: `${timelineWindow.top}px` }}
+                    data-testid="timeline-spacer-top"
+                  />
+                ) : null}
+                {entries.slice(timelineWindow.start, timelineWindow.end).map((entry) => (
                   <TimelineCard
                     key={entry.key}
                     entry={entry}
@@ -2086,9 +2200,7 @@ export function StudioScreen(props: StudioProps): JSX.Element {
                         ? (history?.truncatedItems[`${entry.threadId}:${entry.itemId}`] ?? null)
                         : null
                     }
-                    onLoadItem={history?.onLoadItem}
-                    onCopy={props.onCopy}
-                    onShowChanges={props.onShowChanges}
+                    handlers={cardHandlers}
                     anchored={
                       searchAnchor !== null &&
                       (searchAnchor.itemId !== null
@@ -2097,6 +2209,14 @@ export function StudioScreen(props: StudioProps): JSX.Element {
                     }
                   />
                 ))}
+                {timelineWindow.bottom > 0 ? (
+                  <li
+                    className="timeline__spacer"
+                    aria-hidden="true"
+                    style={{ height: `${timelineWindow.bottom}px` }}
+                    data-testid="timeline-spacer-bottom"
+                  />
+                ) : null}
               </ol>
             </>
           )}
@@ -2235,6 +2355,16 @@ export function StudioScreen(props: StudioProps): JSX.Element {
                 </Button>
               </div>
               <div className="composer__input" ref={composerBoxRef}>
+                {/* R11 — the composer carries no `role="combobox"`. ARIA in HTML
+                    permits only `textbox` on a `<textarea>`, so the combobox role
+                    made the element invalid (axe: aria-allowed-role). The
+                    autocomplete relationship is carried instead by attributes the
+                    textbox role does support: the kind of popup it opens, the list
+                    it controls, and the active option. `aria-expanded` is also a
+                    combobox-only attribute, so the open state is carried by the
+                    listbox existing in the document and by `aria-activedescendant`
+                    naming its highlighted option — which is what a screen reader
+                    announces on each arrow press. */}
                 <TextArea
                   ref={composerRef}
                   label="Task prompt"
@@ -2243,10 +2373,8 @@ export function StudioScreen(props: StudioProps): JSX.Element {
                   rows={3}
                   style={composerHeight === null ? undefined : { height: `${composerHeight}px` }}
                   value={props.draft}
-                  role="combobox"
                   aria-haspopup="listbox"
                   aria-autocomplete="list"
-                  aria-expanded={commandListOpen}
                   aria-controls={commandListOpen ? "composer-command-menu" : undefined}
                   aria-activedescendant={
                     commandListOpen
@@ -2463,6 +2591,7 @@ export function StudioScreen(props: StudioProps): JSX.Element {
                   </Inspector>
                 ) : (
                   <EmptyState
+                    headingLevel={2}
                     icon={<ClockIcon size={24} />}
                     title="No tasks yet"
                     description="Tasks are created explicitly. Mona does not infer a task or a percentage from project activity."
@@ -2472,6 +2601,7 @@ export function StudioScreen(props: StudioProps): JSX.Element {
               <TabPanel id="requirements" active={props.inspectorTab === "requirements"}>
                 {detail.evidence.length === 0 ? (
                   <EmptyState
+                    headingLevel={2}
                     icon={<InfoIcon size={24} />}
                     title="No requirement evidence"
                     description="Evidence appears here when a task records it. Completion is never inferred from a checked box."

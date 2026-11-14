@@ -976,6 +976,7 @@ export function ChangesScreen({
 
       {!detail ? (
         <EmptyState
+          headingLevel={2}
           icon={<ChangesIcon size={28} />}
           title="No project selected"
           description="Open a project folder to review its engine receipts, Git state, and restore points."
@@ -1028,6 +1029,7 @@ export function ChangesScreen({
                 {busy && !snapshot ? <p className="muted">Reading stored receipts…</p> : null}
                 {!busy && sets.length === 0 ? (
                   <EmptyState
+                    headingLevel={2}
                     icon={<ChangesIcon size={28} />}
                     title="No change receipts yet"
                     description="The engine records a change set when a turn finishes. Start a turn in the studio, then return here."

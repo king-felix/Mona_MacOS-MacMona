@@ -338,21 +338,44 @@ export function Dialog({
   const titleId = useId();
   const descriptionId = useId();
   const panelRef = useRef<HTMLDivElement | null>(null);
+  // R11 — the close handler is read through a ref. Callers pass an inline arrow,
+  // so a `[open, onClose]` dependency made this effect re-run on every parent
+  // render: it restored focus to the pre-dialog element and then focused the
+  // header's close button, which is what stole the caret out of a dialog field
+  // after the first keystroke.
+  const closeRef = useRef(onClose);
+  closeRef.current = onClose;
 
   useEffect(() => {
     if (!open) return;
     const previous = document.activeElement as HTMLElement | null;
     const panel = panelRef.current;
-    const focusables = () =>
-      Array.from(panel?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? []).filter(
+    const focusables = (root: HTMLElement | null = panel) =>
+      Array.from(root?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? []).filter(
         (element) => element.getClientRects().length > 0 || element === document.activeElement,
       );
-    const first = focusables()[0] ?? panel;
-    first?.focus();
+    // Focus the dialog's own content, not its close button: the header action is
+    // the last thing a reader wants to land on. An explicit marker wins, then the
+    // first control in the body, then the panel itself (which is focusable, so a
+    // dialog with no controls still takes focus and can be read).
+    //
+    // Deliberately not the visibility-filtered list: a body control *is* the
+    // visible thing the dialog exists to show, and a host with no layout engine
+    // reports zero rects for every element and would land on the panel instead.
+    const body = panel?.querySelector<HTMLElement>(".dialog__body") ?? null;
+    const marked = body?.querySelector<HTMLElement>("[data-autofocus]") ?? null;
+    const firstControl = body?.querySelector<HTMLElement>(
+      'button:not([disabled]), [href], input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    );
+    const target = marked ?? firstControl ?? panel;
+    target?.focus();
     const onKey = (event: KeyboardEvent) => {
+      // A composition keystroke belongs to the IME, never to this dialog.
+      if (event.isComposing) return;
       if (event.key === "Escape") {
         event.preventDefault();
-        onClose();
+        event.stopPropagation();
+        closeRef.current();
         return;
       }
       if (event.key !== "Tab") return;
@@ -376,7 +399,7 @@ export function Dialog({
       document.removeEventListener("keydown", onKey);
       previous?.focus();
     };
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open) return null;
   return (
@@ -714,12 +737,20 @@ export function EmptyState({
   title,
   description,
   action,
+  headingLevel = 3,
 }: {
   icon?: ReactNode;
   title: string;
   description: string;
   action?: ReactNode;
+  /**
+   * R11 — the empty state's own heading level. Inside a screen whose only other
+   * heading is an `h1`, an `h3` skips a level and axe reports heading-order; the
+   * screen passes 2. The default keeps every existing embedder unchanged.
+   */
+  headingLevel?: 2 | 3 | 4;
 }): JSX.Element {
+  const Heading = `h${headingLevel}` as "h2" | "h3" | "h4";
   return (
     <div className="empty-state">
       {icon ? (
@@ -727,7 +758,7 @@ export function EmptyState({
           {icon}
         </span>
       ) : null}
-      <h3 className="empty-state__title">{title}</h3>
+      <Heading className="empty-state__title">{title}</Heading>
       <p className="empty-state__description">{description}</p>
       {action ? <div className="empty-state__action">{action}</div> : null}
     </div>

@@ -196,6 +196,7 @@ export function CostScreen({
       <div className="screen">
         <Card>
           <EmptyState
+            headingLevel={2}
             icon={<FolderIcon size={30} />}
             title="Choose a project"
             description="The cost ledger is stored per project from engine usage. Mona adds no inference of its own."
@@ -294,6 +295,7 @@ export function CostScreen({
       ) : ledger.totals.turns === 0 ? (
         <Card>
           <EmptyState
+            headingLevel={2}
             icon={<CostIcon size={30} />}
             title="No usage recorded for this project"
             description="Browsing, navigation, status, and the shell make no model calls. A row appears only after the engine reports a completed or interrupted turn."

@@ -497,3 +497,105 @@ D-001…D-103) and never replace them.
   The regexes are anchored and srgb is parsed explicitly.
 - **Consequence:** the R06 artifact now carries real ratios, and the two
   measurement bugs are recorded rather than quietly corrected.
+
+## RD-020 — Render a measured slice, and never hide a card behind a guess
+
+- **Context:** the console mounted every loaded card. `PAGE_LIMIT = 200` bounded
+  a page, not the accumulated view; the projection ran in the render body with a
+  fresh `Set` in its argument list, so a keystroke in the composer re-projected and
+  re-rendered the whole conversation.
+- **Decision — the window is decided by measurement, and the fallback is
+  "render everything".** `computeWindow` is pure arithmetic over ordered keys,
+  measured heights and the scroll position; `useTimelineWindow` supplies the
+  measurements from `ResizeObserver`. When the pane has no height (server render,
+  jsdom, a hidden screen, a collapsed split) the hook reports `complete: true` and
+  every card renders. A window built on a guessed viewport would hide content from a
+  reader who cannot scroll it, which is worse than a slow render.
+- **Decision — a short list is not windowed at all** (below 80 cards), so ordinary
+  conversations keep exactly the DOM they had.
+- **Decision — a correction never moves what you are reading.** A measured height
+  shifts the viewport only when it belongs to a card above **`visibleStart`**, the
+  first card actually on screen. The first implementation used the rendered start
+  and was wrong for the leading overscan band; the range type now carries
+  `visibleStart` so the mistake cannot be re-made silently.
+- **Consequence:** 601 projected cards mount 10–16 nodes, keystroke and scroll p95
+  stay inside two 60 Hz frames, and the console reports `10 painted` rather than
+  implying it is showing 601 cards.
+
+## RD-021 — A budget the runtime alone exceeds is an exception with a measurement
+
+- **Context:** the specification asks for "initial idle total Mona processes under
+  350 MiB". Measured: 568.7 MiB peak. Measured again on this host with a window
+  whose whole content is an `<h1>`: **356 MiB** for bare Electron 45.3.0.
+- **Decision — the target is measured exactly as written and reported as missed.**
+  No process is trimmed, no forced GC is added, no feature removed, and the target is
+  not reformulated. `scripts/r11-smoke.mjs` runs the baseline itself and attaches an
+  exception only when `baseline.total_mb_max >= 350`, naming the single check it
+  covers and stating Mona's own share as a difference (212.7 MiB here).
+- **Decision — absence is failure.** A run that writes no report, or exits non-zero,
+  fails its own check (`run_produced_a_report`, `electron_exited_zero`). The first
+  version of the harness printed `"passed"` for a cold run that had been killed
+  before writing anything; that is exactly the "no failing checks" fallacy a
+  measurement tool must not commit.
+- **Consequence:** `status: "passed_with_exception"` is a real verdict, distinguishable
+  from `passed`, and no other check can hide behind the exception.
+
+## RD-022 — Accessibility is asserted by mechanism, not by label
+
+- **Context:** the shell was carefully labelled — landmarks, `aria-modal` dialogs,
+  a real listbox for suggestions, IME guards on the composer — and still had four
+  real defects, all found by running axe over all nine screens rather than the Studio.
+- **Decision — fix the mechanism and prove the property failed before it passed.**
+  The `Dialog` focus effect is keyed on `[open]` with the close handler behind a ref,
+  so an unrelated parent render cannot move focus; two tests cover it and both were
+  proven to fail on the pre-R11 code. The window listener asks
+  `acceleratorAllowed(event, acceleratorScope(document))` instead of open-coding two
+  `if`s. The composer dropped `role="combobox"` and `aria-expanded` — both invalid on
+  a `<textarea>` — and keeps the popup relationship in attributes the textbox role
+  does support.
+- **Decision — no live region may wrap streaming content.** The console contains no
+  `aria-live`, `role="log"` or `role="status"`; the command detail panel stopped being
+  a live region because `aria-activedescendant` already announces the option, and the
+  duplicate made a screen reader say each command twice.
+- **Consequence:** 9 screens, 0 violations, 0 serious or critical. VoiceOver itself
+  remains unproven and is stated as such: axe and programmatic focus are not a
+  spoken walkthrough.
+
+## RD-023 — The empty→loaded transition is a hook boundary
+
+- **Context:** an independent review found a BLOCKER the whole gate had missed: the
+  `activity` memo sat after `if (!detail) return <EmptyState "Choose a project">`, so
+  opening a project from that very empty state changed the hook count and React threw
+  "Rendered more hooks than during the previous render". Reachable from the empty
+  state's own **Open folder** button, from ⌘O and from drag-and-drop.
+- **Why the gate could not see it:** `eslint.config.mjs` has **no `react-hooks`
+  plugin**, so `rules-of-hooks` is never evaluated — "lint 0 errors" was not evidence
+  for this class of bug — and no test rendered `detail: null` and then a project.
+- **Decision — the memo moved above the return, and a test now mounts empty, loads,
+  and returns to empty.** The test was proven to fail when the memo is put back in the
+  old position. Adding `eslint-plugin-react-hooks` is recorded as R12 work: this prompt
+  fixes the defect and its regression test, and does not silently add a plugin that
+  would change the lint result for files it did not touch.
+- **Consequence:** the transition is covered, and the limits of the lint gate are
+  written down instead of assumed.
+
+## RD-024 — Three visual regressions, and one attempted fix that was reverted
+
+- **Context:** reading the captures found what the suite could not: a transparent
+  fixed title bar with scrolled content bleeding through it; a composer below the fold
+  at the 1280×800 reference window; and "Jump to latest" landing 59 px short and
+  un-arming itself.
+- **Decision — fix the two that are defects; report the one that is a layout fact.**
+  The title bar now paints the rail's surface across the rail's width and the canvas
+  beyond (with a narrow-layout override), asserted while scrolled. The jump re-pins
+  while following, in the window hook and after two frames in `jumpToLatest`, asserted
+  at `distance: 0` with the newest frame on screen. The composer's position is a
+  consequence of a scrolling document with 549 px of chrome above the console: the
+  console keeps 350 px and, scrolled to, the composer is fully visible and uncovered —
+  which is measured and asserted, not described.
+- **Rejected fix, recorded:** a measured `maxHeight` clamp on the console. Its reserve
+  calculation picked up a 421 px element, it ratcheted the console down to its 180 px
+  floor, and the composer still did not fit. It was reverted rather than shipped as
+  decorative arithmetic.
+- **Consequence:** the two defects have checks that fail without the fix; the layout
+  fact has a check that states what is actually guaranteed.
