@@ -37,7 +37,7 @@
     "attempts": ".mona/build-macos/attempts.jsonl",
     "requirement_registry": "docs/requirements-macos.json"
   },
-  "revision": 5,
+  "revision": 6,
   "current_task": "R00",
   "current_task_status": "completed",
   "tasks": {
@@ -207,7 +207,8 @@
         "Hotfix applied unmodified (git apply); no adaptation was needed because the six files were unchanged since the reviewed baseline.",
         "Formatting cleanup for the four CI-blocking files was already closed at 4411ef1 and kept separate from this behavioral patch; format:check is green.",
         "P10/P19 store.ts evidence hashes were re-recorded only after the full suite passed on the new bytes; the original reports still describe the pre-review bytes.",
-        "19 shell captures rewritten by the R00 shell-smoke run; hashes re-recorded per task (P07/P11/P12/P13/P14/P15/P18/P19) with notes."
+        "19 shell captures rewritten by the R00 shell-smoke run; hashes re-recorded per task (P07/P11/P12/P13/P14/P15/P18/P19) with notes.",
+        "Verified and committed at 8ff89c0; working tree clean, both ledgers validate, secret scan clean (564 files, 0 findings)."
       ],
       "updated_utc": "2026-11-14T04:30:00.000Z"
     },
@@ -891,7 +892,7 @@
       "notes": []
     }
   },
-  "last_checkpoint_utc": "2026-11-14T04:25:06.899Z",
+  "last_checkpoint_utc": "2026-11-14T04:25:24.075Z",
   "notes": [
     "Subordinate ledger. The P00–P27 registry remains authoritative for product requirements; this registry tracks review tasks and findings only.",
     "Attempts continue in the shared attempts.jsonl; a review task ID never resets a count."
