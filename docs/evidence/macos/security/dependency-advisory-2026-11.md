@@ -143,3 +143,17 @@ described the bytes at that prompt's verification. No requirement status was
 lowered and no assertion was removed. `monabuild validate` is green afterwards;
 the review ledger records this as RD-012 and flags it to R12, which owns the
 final dependency and reconciliation sweep.
+
+## Closed, as GitHub now reports it
+
+Both alerts were closed by Dependabot's own re-scan of the pushed lockfile —
+`state: fixed`, not `dismissed`:
+
+```
+alert 1  glob       13.0.7   state=fixed  fixed_at=2026-11-14T08:25:42Z
+alert 2  minimatch  10.2.6   state=fixed  fixed_at=2026-11-14T08:25:43Z
+```
+
+The push that carried the fix printed "1 vulnerability" in its remote banner;
+that banner is generated before the scan runs, so the alert API is the
+authority. Raw payload: `artifacts/dependabot-alerts-after.json`.

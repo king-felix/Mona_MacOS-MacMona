@@ -37,7 +37,7 @@
     "attempts": ".mona/build-macos/attempts.jsonl",
     "requirement_registry": "docs/requirements-macos.json"
   },
-  "revision": 60,
+  "revision": 61,
   "current_task": "R05",
   "current_task_status": "completed",
   "tasks": {
@@ -1632,7 +1632,48 @@
         "No forced-green hash refresh, removed assertion or hidden skip"
       ],
       "tests": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/security/dependency-advisory-2026-11.md",
+          "sha256": "d41ef458182ebed9d67e00c5c824224f2d281cfc94241b3a0fe64d2318e6b1a4",
+          "note": "Pre-work evidence for the dependency-advisory fix (RD-012): audit before/after, the resolved tree, asar filter parity old vs new, the green CI run, the packaging run up to the admin gate, and Dependabot's own fixed state."
+        },
+        {
+          "path": "docs/evidence/macos/security/artifacts/npm-audit-before.txt",
+          "sha256": "e1c706a23a46bb524243b7fbea4239a786aa070fbbfc44b8b05211257adae67e",
+          "note": "Pre-work evidence for the dependency-advisory fix (RD-012): audit before/after, the resolved tree, asar filter parity old vs new, the green CI run, the packaging run up to the admin gate, and Dependabot's own fixed state."
+        },
+        {
+          "path": "docs/evidence/macos/security/artifacts/npm-audit-after.txt",
+          "sha256": "6d8c5c8f3d7684adb070417bd608d01ae90aa3dc26a65af03ffda4955f38d9a3",
+          "note": "Pre-work evidence for the dependency-advisory fix (RD-012): audit before/after, the resolved tree, asar filter parity old vs new, the green CI run, the packaging run up to the admin gate, and Dependabot's own fixed state."
+        },
+        {
+          "path": "docs/evidence/macos/security/artifacts/dependency-tree-after.txt",
+          "sha256": "008a766205ccdd1752f92d142b257133cd313f4c850e2c6e6fa05189af064081",
+          "note": "Pre-work evidence for the dependency-advisory fix (RD-012): audit before/after, the resolved tree, asar filter parity old vs new, the green CI run, the packaging run up to the admin gate, and Dependabot's own fixed state."
+        },
+        {
+          "path": "docs/evidence/macos/security/artifacts/asar-filter-parity.txt",
+          "sha256": "67c40f68f38514b56a89630790c2f77dbf23a18000e9e6e5314e1bccc9be832f",
+          "note": "Pre-work evidence for the dependency-advisory fix (RD-012): audit before/after, the resolved tree, asar filter parity old vs new, the green CI run, the packaging run up to the admin gate, and Dependabot's own fixed state."
+        },
+        {
+          "path": "docs/evidence/macos/security/artifacts/ci.txt",
+          "sha256": "454e3e9a03be8b5c02a7717838414364e207f55737a37cc0b7a3c3c272911bf5",
+          "note": "Pre-work evidence for the dependency-advisory fix (RD-012): audit before/after, the resolved tree, asar filter parity old vs new, the green CI run, the packaging run up to the admin gate, and Dependabot's own fixed state."
+        },
+        {
+          "path": "docs/evidence/macos/security/artifacts/package-local.txt",
+          "sha256": "848df32532ff72a3ac4168fba979a4e3f4072e6ddaf5474840606e5a6e99b46f",
+          "note": "Pre-work evidence for the dependency-advisory fix (RD-012): audit before/after, the resolved tree, asar filter parity old vs new, the green CI run, the packaging run up to the admin gate, and Dependabot's own fixed state."
+        },
+        {
+          "path": "docs/evidence/macos/security/artifacts/dependabot-alerts-after.json",
+          "sha256": "8d0a30cc8707c8d8fae6d399157ced3f7192e5511e95f7beba07bf69d67fc0bc",
+          "note": "Pre-work evidence for the dependency-advisory fix (RD-012): audit before/after, the resolved tree, asar filter parity old vs new, the green CI run, the packaging run up to the admin gate, and Dependabot's own fixed state."
+        }
+      ],
       "attempt_problem_ids": [],
       "platform": "darwin-arm64",
       "next_action": "Run the full gate and reconcile evidence only for files the review actually changed.",
@@ -1943,7 +1984,7 @@
       "notes": []
     }
   },
-  "last_checkpoint_utc": "2026-11-14T08:25:15.734Z",
+  "last_checkpoint_utc": "2026-11-14T08:26:16.293Z",
   "notes": [
     "Subordinate ledger. The P00–P27 registry remains authoritative for product requirements; this registry tracks review tasks and findings only.",
     "Attempts continue in the shared attempts.jsonl; a review task ID never resets a count."
