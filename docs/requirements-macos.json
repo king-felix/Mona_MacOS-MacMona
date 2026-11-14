@@ -1576,9 +1576,13 @@
         {
           "path": "packaging/macos/scripts/uninstall-mona.sh",
           "note": "the shipped removal utility"
+        },
+        {
+          "path": "docs/evidence/macos/P22-trust.md",
+          "note": "P22: release automation and the EXT-SIGNING blocker"
         }
       ],
-      "notes": "P21 builds and installs the self-contained arm64 app and offline .pkg with the native Service, component/BOM manifest, notices, ownership receipt, non-relocatable idempotent scripts, and a real Installer receipt. The artifact is ad-hoc and visibly local; Developer ID signing, notarization/stapling, updates, and uninstall remain P22/P23/P27. P23 adds the update-compatibility and clean-uninstall halves: a verified, deferred, installer-mediated update; a bounded ownership-verified removal utility that preserves projects, user state, credentials, and any external Codewhale installation. MONA-027 stays partial for P22 (signed/notarized/stapled artifact) and P27 (final acceptance)."
+      "notes": "P21 builds and installs the self-contained arm64 app and offline .pkg with the native Service, component/BOM manifest, notices, ownership receipt, non-relocatable idempotent scripts, and a real Installer receipt. The artifact is ad-hoc and visibly local; Developer ID signing, notarization/stapling, updates, and uninstall remain P22/P23/P27. P23 adds the update-compatibility and clean-uninstall halves: a verified, deferred, installer-mediated update; a bounded ownership-verified removal utility that preserves projects, user state, credentials, and any external Codewhale installation. MONA-027 stays partial for P22 (signed/notarized/stapled artifact) and P27 (final acceptance). P22 adds the signed/notarized pipeline and its fail-closed preflight; the release artifact itself remains blocked on EXT-SIGNING."
     },
     {
       "id": "MONA-028",
@@ -1855,10 +1859,31 @@
         "P22",
         "P26"
       ],
-      "status": "pending",
+      "status": "partial",
       "acceptance": "pending",
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P22-trust.md",
+          "note": "P22 implementation, tests, and the exact missing prerequisite"
+        },
+        {
+          "path": "packaging/macos/release.mjs",
+          "note": "preflight/release/verify; every path fails closed"
+        },
+        {
+          "path": "packaging/macos/lib/signing.mjs",
+          "note": "identity, component, entitlement and notary policy with no tool execution"
+        },
+        {
+          "path": "packaging/macos/resources/entitlements/README.md",
+          "note": "why each entitlement is granted, and what gets none"
+        },
+        {
+          "path": "test/release-trust.test.ts",
+          "note": "17 tests: identity/team selection, component classes, inside-out order, no --deep, verdicts, receipt, refusal"
+        }
+      ],
+      "notes": "P22 implements the whole signing/notarization surface: inside-out Developer ID signing with Hardened Runtime, timestamps and minimal per-component entitlements; productsign for the flat package; notarytool submit/log; stapler staple/validate; spctl assessment; and a release receipt bound to an immutable digest. mac:release fails closed without both identities and a notary credential, so no signed/stapled artifact exists yet. Open prerequisite: EXT-SIGNING (0 Developer ID identities on this host). Notarization, stapling and Gatekeeper acceptance are unverified until a credential exists."
     },
     {
       "id": "MAC-006",

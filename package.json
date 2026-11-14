@@ -58,8 +58,11 @@
     "smoke:p23": "npm run build:main && node scripts/p23-lifecycle-smoke.mjs",
     "mac:doctor": "node packaging/macos/doctor.mjs",
     "mac:package:local": "node packaging/macos/build.mjs --mode local",
-    "mac:package:release": "node packaging/macos/build.mjs --mode release",
-    "smoke:agents-live": "npm run build:main && npm run build:supervisor && node scripts/agents-smoke.mjs --live"
+    "mac:package:release": "node packaging/macos/release.mjs release",
+    "smoke:agents-live": "npm run build:main && npm run build:supervisor && node scripts/agents-smoke.mjs --live",
+    "mac:release:preflight": "node packaging/macos/release.mjs preflight",
+    "mac:release": "node packaging/macos/release.mjs release",
+    "mac:verify-release": "node packaging/macos/release.mjs verify"
   },
   "dependencies": {
     "react": "19.3.1",

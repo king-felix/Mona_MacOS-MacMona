@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "revision": 1067,
+  "revision": 1068,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
   "spec_sha256": "d1c02941151c71912bc3e9c8b2509612298d54e05e0bf16fe933b9bd93e3e028",
   "prompt_file_sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8",
-  "current_prompt": "P23",
-  "current_prompt_status": "completed",
+  "current_prompt": "P22",
+  "current_prompt_status": "blocked",
   "last_verified_commit": "f7b744a",
   "tasks": {
     "P00": {
@@ -2500,15 +2500,34 @@
       "blocker_ids": []
     },
     "P22": {
-      "status": "pending",
+      "status": "blocked",
       "requirements": [
         "MONA-027",
         "MAC-005"
       ],
-      "completed_steps": [],
-      "remaining_steps": [],
+      "completed_steps": [
+        "Implemented mac:release:preflight, mac:release and mac:verify-release in packaging/macos/release.mjs; mac:package:release now points at the same command so no unsigned path can use the release name",
+        "Implemented the pure signing policy in packaging/macos/lib/signing.mjs: identity parsing/selection with team-mismatch refusal, component classification by path, inside-out ordering, Hardened Runtime/timestamp/entitlement arguments with no --deep, productsign arguments, notary verdicts, and the release receipt",
+        "Added minimal per-component Hardened Runtime entitlements (main, helper, empty service) with a README stating what gets none and why",
+        "Wired release signing into packaging/macos/build.mjs: inside-out Developer ID signing of 25 components, app and Service sealing, and productsign of the flat package; local mode unchanged",
+        "Implemented notarytool submit/log, stapler staple/validate, pkgutil and spctl assessments, a redacted diagnostics preview, and the immutable release receipt",
+        "Verified the refusal: preflight exits 3 naming both missing identities and the missing notary credential; release stops at preflight and produces no artifact",
+        "Re-verified local packaging after the refactor (build 139: 25 components signed inside-out, 17 Mach-O files and 8 nested bundles) and stopped at the documented installed_copy gate",
+        "Added 17 tests in test/release-trust.test.ts covering identity/team selection, component classes, entitlement mapping, ordering, arguments, verdicts, receipt shape, redaction and the real preflight refusal"
+      ],
+      "remaining_steps": [
+        "Victor installs a Developer ID Application and Developer ID Installer identity from one team in the login keychain (EXT-SIGNING)",
+        "Victor stores notarization credentials: xcrun notarytool store-credentials mona-release, or exports MONA_NOTARY_API_KEY/KEY_ID/ISSUER",
+        "Run npm run mac:release:preflight, then npm run mac:release -- --keychain-profile mona-release, then npm run mac:verify-release",
+        "Record the accepted submission id, the notary log, the stapled ticket, spctl acceptance and the installed nested execution path as P22 evidence"
+      ],
       "evidence": [],
-      "blocker_ids": []
+      "blocker_ids": [
+        "EXT-SIGNING"
+      ],
+      "notes": [
+        "Blocked on EXT-SIGNING: no Developer ID identity exists on this host. Exact setup is in BLOCKERS.md; the pipeline itself is complete and fails closed."
+      ]
     },
     "P23": {
       "status": "completed",
@@ -2618,7 +2637,7 @@
     "P22",
     "P25"
   ],
-  "last_checkpoint_utc": "2026-11-14T09:39:16.282Z",
+  "last_checkpoint_utc": "2026-11-14T10:01:43.080Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

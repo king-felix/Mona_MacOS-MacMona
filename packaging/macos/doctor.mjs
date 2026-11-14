@@ -95,7 +95,7 @@ const report = {
     developer_id_installer: identityNames.some((name) =>
       name.startsWith("Developer ID Installer:"),
     ),
-    note: "P22 owns signed release qualification. Local packaging works without an identity.",
+    note: "Local packaging works without an identity. A shareable release needs both identities plus a notary credential; run `npm run mac:release:preflight` for the exact missing prerequisite.",
   },
   artifacts: appBuilds,
   product_version: String(packageJson.version).replace(/-p\d+$/, ""),

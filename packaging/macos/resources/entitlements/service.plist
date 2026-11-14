@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!-- The Finder Service launches the app and exits. It needs no JIT, no
+       library-validation exception, and no sandbox inheritance: granting any
+       of them here would widen permissions for a component that runs for
+       milliseconds and executes no model or shell work itself. -->
+</dict>
+</plist>

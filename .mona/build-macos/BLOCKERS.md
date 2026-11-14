@@ -28,6 +28,28 @@ clean recipient, below); it is not attempt-counted because no attempt failed.
   on any later build, because the gate compares the installed copy to the build
   in hand. That is the gate working, not a missing prerequisite.
 
+### EXT-SIGNING — Developer ID credentials (P22 blocked here)
+
+- **Measured 2026-11-14, again:** `security find-identity -v -p codesigning`
+  returns **0 valid identities**. `npm run mac:release:preflight` therefore exits
+  3 naming both identities and the missing notary credential; see
+  `docs/evidence/macos/artifacts/p22-preflight.json`.
+- **Implemented and waiting:** `mac:release:preflight`, `mac:release`,
+  `mac:verify-release`, inside-out Developer ID signing with Hardened Runtime,
+  timestamps and minimal per-component entitlements, `productsign` for the flat
+  package, `notarytool submit --wait` + log retrieval, `stapler staple/validate`,
+  `spctl` assessment, and the immutable release receipt. All of it fails closed.
+- **Help needed (do not paste keys or certificates into chat):**
+  1. a Developer ID **Application** identity and a Developer ID **Installer**
+     identity from the same team, in the login Keychain;
+  2. `xcrun notarytool store-credentials mona-release` (Apple ID, app-specific
+     password, team id), or `MONA_NOTARY_API_KEY` / `MONA_NOTARY_KEY_ID` /
+     `MONA_NOTARY_ISSUER` in the release shell.
+- **Then:** `npm run mac:release:preflight`, `npm run mac:release --
+  --keychain-profile mona-release`, `npm run mac:verify-release`.
+- **Rule:** this blocks P22's notarized artifact and all of P24. It does not
+  block P25 or any local work.
+
 ### EXT-SIGNING — Apple Developer ID credentials for P22
 
 - **Needed for:** MAC-005 (Developer ID signatures, notarization, stapling),

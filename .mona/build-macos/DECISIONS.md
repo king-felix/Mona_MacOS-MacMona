@@ -1864,3 +1864,35 @@ and the smoke measures it rather than asserting it is pretty.
   (R06), approvals (R07), follow-ups/steering (R08), HUD (R09), conveniences
   (R10), accessibility/perf matrix (R11), installed artifact (R13), signed
   release (R14). `--mode release` still fails closed.
+
+## D-104 — The release pipeline refuses rather than substituting (P22)
+
+- **One command family, one rule.** `mac:release:preflight`, `mac:release` and
+  `mac:verify-release` all live in `packaging/macos/release.mjs`.
+  `mac:package:release` was repointed at `mac:release`, so no second path can
+  produce a signed-but-unnotarized package under a release name.
+- **Refusal is a receipt, not a sentence.** Preflight writes
+  `out/release-preflight.json` with `ok: false` and every missing prerequisite,
+  then exits 3. `release` runs the same gate first and, when it fails, writes
+  `{ stage: "preflight" }` and produces no artifact. The refusal is machine
+  readable, so "no package" is verifiable rather than promised.
+- **Only `Accepted` passes.** `notaryVerdict()` maps `In Progress` to a resumable
+  pending job and every other value to a refusal. A 200 from `notarytool submit`
+  is not evidence of notarization; the status string is.
+- **Inside-out, never `--deep`.** `signingOrder()` enumerates every Mach-O file
+  and nested bundle and orders them deepest-first, with a helper's executable
+  before its bundle and the outer app last. `codesignArgs()` has no code path
+  that emits `--deep`. A blanket deep signature would hide precisely the missed
+  component the audit exists to find.
+- **Entitlements are earned per class.** Main app and Electron helpers get the
+  three documented Electron entitlements; helpers additionally get `inherit`;
+  the Service gets an empty file. Frameworks, dylibs, native helpers and the
+  engine get none. The mapping is a pure function with a test per class.
+- **Local mode is unchanged.** `--options runtime` with an ad-hoc signature is
+  not a release shape, so local packaging stays exactly as P21 left it. Build
+  139 re-verified the refactor: 25 components signed inside-out, 17 Mach-O files
+  and 8 nested bundles sealed, then the documented `installed_copy` gate stopped
+  the run.
+- **Not claimed:** notarization, stapling, Gatekeeper acceptance, offline launch
+  after stapling, and the installed nested execution path. None of them ran
+  because EXT-SIGNING has no credential on this host.

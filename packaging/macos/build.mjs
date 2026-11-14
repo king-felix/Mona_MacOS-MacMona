@@ -25,7 +25,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { basename, dirname, join, relative, resolve, sep } from "node:path";
+import { basename, dirname, join, relative, resolve } from "node:path";
 import { buildIconSet, renderInstallerBackground } from "./icon.mjs";
 import {
   APP_BUNDLE_ID,
@@ -44,6 +44,13 @@ import {
   renderOwnedPaths,
 } from "./lib/distribution.mjs";
 import { readMachO } from "./lib/macho.mjs";
+import {
+  codesignArgs,
+  entitlementKindFor,
+  entitlementKindForService,
+  productsignArgs,
+  signingOrder,
+} from "./lib/signing.mjs";
 import { reviewUninstallScript } from "./lib/uninstall.mjs";
 import { assertRehearsalRoot as guardRehearsalRoot } from "./lib/rehearsal.mjs";
 import {
@@ -570,34 +577,77 @@ function addPayloadResources(appBundle, engine, licenses) {
   return resources;
 }
 
-function signNested(appBundle, identity) {
+function entitlementPath(kind) {
+  if (!kind) return null;
+  const path = join(PACKAGING, "resources/entitlements", kind);
+  if (!existsSync(path)) fail(`missing entitlement file: ${path}`);
+  return path;
+}
+
+/**
+ * Inside-out signing, driven by the shared policy in `lib/signing.mjs`.
+ *
+ * Local mode keeps the ad-hoc behaviour (identity "-", no Hardened Runtime:
+ * `--options runtime` with an ad-hoc signature is not a valid release shape).
+ * Release mode signs every Mach-O file and every nested bundle with the
+ * Developer ID identity, Hardened Runtime, a secure timestamp, and the
+ * entitlement file that the component class earns — never a blanket set.
+ */
+function signNested(appBundle, identity, { hardened = false } = {}) {
   const entries = walk(appBundle, { base: appBundle });
   const macho = entries
     .filter((entry) => entry.kind === "file" && machOInfo(entry.path))
-    .map((entry) => entry.path)
-    .sort((a, b) => b.split(sep).length - a.split(sep).length);
-  log(`signing ${macho.length} nested Mach-O files`);
-  for (const path of macho) {
-    run(TOOLS.codesign, ["--force", "--sign", identity, path]);
-  }
+    .map((entry) => entry.path);
   const bundles = entries
     .filter((entry) => entry.kind === "directory" && /\.(app|framework|xpc)$/.test(entry.path))
     .map((entry) => entry.path)
-    .filter((path) => path !== appBundle)
-    .sort((a, b) => b.split(sep).length - a.split(sep).length);
-  for (const path of bundles) {
-    run(TOOLS.codesign, ["--force", "--sign", identity, path]);
+    .filter((path) => path !== appBundle);
+  const plan = signingOrder(
+    [...macho, ...bundles].map((path) => ({ relativePath: relative(appBundle, path), path })),
+    { appBundleName: basename(appBundle) },
+  );
+  log(`signing ${plan.ordered.length} nested components inside-out`);
+  const counts = { signed_components: 0, nested_bundles: 0 };
+  for (const item of plan.ordered) {
+    const entitlements = hardened ? entitlementPath(item.entitlements) : null;
+    run(
+      TOOLS.codesign,
+      codesignArgs({
+        identity,
+        path: item.path,
+        entitlements,
+        options: { runtime: hardened, timestamp: hardened },
+      }),
+    );
+    if (/(^|\/)[^/]+\.(app|framework|xpc)$/.test(item.relativePath)) counts.nested_bundles += 1;
+    else counts.signed_components += 1;
   }
-  return { signed_components: macho.length, nested_bundles: bundles.length };
+  return counts;
 }
 
 /** The outer signature must come last: it seals every resource, including the manifest. */
-function signOuter(appBundle, identity) {
-  run(TOOLS.codesign, ["--force", "--sign", identity, appBundle]);
+function signOuter(appBundle, identity, { hardened = false } = {}) {
+  run(
+    TOOLS.codesign,
+    codesignArgs({
+      identity,
+      path: appBundle,
+      entitlements: hardened ? entitlementPath(entitlementKindFor("app")) : null,
+      options: { runtime: hardened, timestamp: hardened },
+    }),
+  );
   const verify = run(TOOLS.codesign, ["--verify", "--deep", "--strict", appBundle], {
     allowFailure: true,
   });
   if (verify.status !== 0) fail("the signed app failed codesign verification", verify.stderr);
+  if (hardened) {
+    // A Hardened Runtime signature that silently lost the runtime flag is the
+    // failure this check exists for.
+    const described = describeSignature(appBundle);
+    if (described.runtime !== true) {
+      fail("the app signature does not carry the Hardened Runtime flag", described);
+    }
+  }
   return describeSignature(appBundle);
 }
 
@@ -610,6 +660,7 @@ function describeSignature(path) {
     authority,
     team_identifier: team,
     ad_hoc: /Signature=adhoc/.test(text) || /flags=.*adhoc/.test(text),
+    runtime: /flags=.*runtime/.test(text),
     verified: true,
   };
 }
@@ -636,10 +687,20 @@ function buildServiceBundle(payloadDir) {
   return destination;
 }
 
-function signService(serviceBundle, identity) {
+function signService(serviceBundle, identity, { hardened = false } = {}) {
+  const entitlements = hardened ? entitlementPath(entitlementKindForService()) : null;
   const executable = join(serviceBundle, "Contents/MacOS/MonaService");
-  run(TOOLS.codesign, ["--force", "--sign", identity, executable]);
-  run(TOOLS.codesign, ["--force", "--sign", identity, serviceBundle]);
+  for (const path of [executable, serviceBundle]) {
+    run(
+      TOOLS.codesign,
+      codesignArgs({
+        identity,
+        path,
+        entitlements,
+        options: { runtime: hardened, timestamp: hardened },
+      }),
+    );
+  }
   const verify = run(TOOLS.codesign, ["--verify", "--deep", "--strict", serviceBundle], {
     allowFailure: true,
   });
@@ -1551,6 +1612,13 @@ function directorySize(dir) {
 async function main() {
   assertArm64Host();
   const tools = checkTools();
+  // Release mode signs with real Developer ID identities, Hardened Runtime,
+  // per-component entitlements, and a secure timestamp; the flat package is
+  // signed with the Installer identity. It still does NOT notarize: that is
+  // `npm run mac:release`, which also staples, assesses, and writes the receipt.
+  // A signed package without a notarization ticket is not a release, and this
+  // script never writes a receipt that would say otherwise.
+  let signing = null;
   if (mode === "release") {
     const identities = signingIdentities();
     const application = identities.find((identity) =>
@@ -1561,15 +1629,13 @@ async function main() {
     );
     if (!application || !installer) {
       fail(
-        "release mode requires Developer ID Application and Developer ID Installer identities; " +
-          "P22 owns signed release qualification. Use --mode local for an ad-hoc development package.",
+        "release mode requires Developer ID Application and Developer ID Installer identities. " +
+          "Run `npm run mac:release:preflight` for the exact missing prerequisite, or use --mode local " +
+          "for an ad-hoc development package.",
         { identities_found: identities.length },
       );
     }
-    fail(
-      "release packaging is not enabled yet: P22 adds notarization, stapling, and release verification. " +
-        "Use --mode local for this milestone.",
-    );
+    signing = { application, installer, hardened: true };
   }
   log(`mode=${mode} version=${version} build=${build} electron=${readElectronVersion()}`);
   ensureInputs();
@@ -1600,7 +1666,9 @@ async function main() {
   normalizeMtimes(appBundle);
   // Sign the payload components first, then seal them (and the manifest that
   // records their final bytes) with the outer app signature.
-  const nested = signNested(appBundle, "-");
+  const signingIdentity = signing?.application.name ?? "-";
+  const hardened = signing?.hardened === true;
+  const nested = signNested(appBundle, signingIdentity, { hardened });
   log(
     `signed ${nested.signed_components} Mach-O files and ${nested.nested_bundles} nested bundles`,
   );
@@ -1612,15 +1680,19 @@ async function main() {
     licenses,
   );
   normalizeMtimes(appBundle);
-  const appSignature = signOuter(appBundle, "-");
+  const appSignature = signOuter(appBundle, signingIdentity, { hardened });
   appSignature.signed_components = nested.signed_components;
-  log("app signed ad-hoc and sealed");
+  log(
+    hardened
+      ? `app signed with ${signingIdentity} (Hardened Runtime, timestamped) and sealed`
+      : "app signed ad-hoc and sealed",
+  );
 
   const payloadDir = join(stageDir, "payload");
   mkdirSync(join(payloadDir, "Applications"), { recursive: true });
   run(TOOLS.ditto, [appBundle, join(payloadDir, APP_PATH)]);
   const serviceBundle = buildServiceBundle(payloadDir);
-  const serviceSignature = signService(serviceBundle, "-");
+  const serviceSignature = signService(serviceBundle, signingIdentity, { hardened });
   const descriptor = serviceDescriptor(serviceBundle);
   const ownedPaths = renderOwnedPaths({
     version,
@@ -1693,6 +1765,25 @@ async function main() {
     packageFile,
   ]);
   log(`installer built: ${basename(packageFile)}`);
+  if (signing) {
+    // The flat package is a separate signature from the payload: Developer ID
+    // Installer, timestamped, applied with productsign. The signed copy
+    // replaces the unsigned one; an unsigned package is never left behind under
+    // the release name.
+    const signedPackage = join(stageDir, "signed.pkg");
+    rmSync(signedPackage, { force: true });
+    run(
+      TOOLS.productsign,
+      productsignArgs({
+        identity: signing.installer.name,
+        input: packageFile,
+        output: signedPackage,
+      }),
+    );
+    rmSync(packageFile, { force: true });
+    copyFileSync(signedPackage, packageFile);
+    log(`package signed with ${signing.installer.name}`);
+  }
 
   const pkgSignature = packageSignature(packageFile);
   // P23 verifies a candidate's identity from the package's *own* metadata (a
