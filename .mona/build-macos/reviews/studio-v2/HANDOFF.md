@@ -1,7 +1,7 @@
 # Handoff — Studio review (studio-v2)
 
-**Registry:** `.mona/build-macos/reviews/studio-v2/state.json` (revision 67, after R06/R07/R10)
-**Current task:** R10 — completed · **Next eligible:** R08 (needs R04+R07, both done)
+**Registry:** `.mona/build-macos/reviews/studio-v2/state.json` (revision 72, after R08)
+**Current task:** R08 — completed · **Next eligible:** R09 (needs R05+R08, both done)
 **Review document:** `MacMona_Studio_Review_PROMPTS.md` (sha256
 `7e1e16d1…`) · **Hotfix:** `MacMona_Review_Hotfix.patch` (sha256
 `a253a05e…`, applied unmodified)
@@ -9,6 +9,34 @@
 `.mona/build-macos/state.json` is at P23 completed; P22/P25 remain its eligible
 prompts. Nothing in this review queue resets P00–P27 or the attempt counts
 (`attempts.jsonl` is still empty; no problem consumed an attempt).
+
+## R08 — follow-ups, qualified steering, current activity (2026-11-14)
+
+- **Schema v13 `follow_ups`** stores a queued follow-up with the conversation it
+  was written for (`thread_id` + `engine_thread_id`), captured once and never
+  re-derived. `queued → dispatching` is one compare-and-set statement, so two
+  dispatchers cannot both win.
+- **One dispatch boundary: the end of a turn.** `transmit()` is shared with the
+  composer, so acceptance, reconciliation and activation cannot diverge. A
+  paused queue and a budget stop both leave the row queued with the reason; a
+  replaced conversation settles it `stale` with both ids; an uncertain send is
+  reconciled once and never resent; a restart keeps rows queued and sends
+  nothing.
+- **Steering is absent, and says so.** The pinned engine exposes no steer route,
+  so the snapshot carries `available: false`, the missing route, and the
+  supported after-turn alternative. No steer control is rendered and the smoke
+  asserts that.
+- **Activity strip** derives from stored frames only: frames span, last event
+  age, tool rows keyed by `item_id` with measured durations, Needs-you from the
+  engine's pending list, and `unknown` on a failed connection. No timer, no
+  narration, no inference.
+- **Verified:** 9 queue tests + 8 activity tests; full suite 1,057 in 95 files;
+  typecheck/lint/format clean; shell smoke 133/133 with six new checks and
+  `p-r08-activity.png`.
+- **Not verified:** a live engine turn carrying a dispatched follow-up (needs
+  inference), and live steering (no route). Both are stated in the evidence.
+- R06/R07/R10 source hashes superseded by these changes are marked historical,
+  not refreshed; the 24 rewritten pinned captures were restored for R12.
 
 ## Where R06, R07 and R10 landed (2026-11-14)
 

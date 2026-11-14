@@ -65,6 +65,7 @@ import type {
   PendingResponseInput,
   StudioFilePreview,
   StudioActionResult,
+  StudioFollowUpResult,
   StudioMode,
   StudioPendingResult,
   StudioPush,
@@ -277,6 +278,28 @@ const bridge: MonaBridge = {
     ipcRenderer.invoke("studio:reconcile", { projectId }),
   stopStudio: (projectId: ProjectId): Promise<IpcResult<StudioActionResult>> =>
     ipcRenderer.invoke("studio:stop", { projectId }),
+  enqueueFollowUp: (
+    projectId: ProjectId,
+    input: { prompt: string; mode: StudioMode },
+  ): Promise<IpcResult<StudioFollowUpResult>> =>
+    ipcRenderer.invoke("studio:follow-up-add", {
+      projectId,
+      prompt: input.prompt,
+      mode: input.mode,
+    }),
+  editFollowUp: (
+    projectId: ProjectId,
+    followUpId: string,
+    prompt: string,
+  ): Promise<IpcResult<StudioFollowUpResult>> =>
+    ipcRenderer.invoke("studio:follow-up-edit", { projectId, followUpId, prompt }),
+  cancelFollowUp: (
+    projectId: ProjectId,
+    followUpId: string,
+  ): Promise<IpcResult<StudioFollowUpResult>> =>
+    ipcRenderer.invoke("studio:follow-up-cancel", { projectId, followUpId }),
+  dispatchFollowUps: (projectId: ProjectId): Promise<IpcResult<StudioFollowUpResult>> =>
+    ipcRenderer.invoke("studio:follow-up-dispatch", { projectId }),
   answerPendingRequest: (
     projectId: ProjectId,
     requestId: string,

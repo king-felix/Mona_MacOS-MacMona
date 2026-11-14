@@ -22,6 +22,7 @@ import {
   type TaskStatus,
   type TokenSemantics,
   type UpdateIntentRecord,
+  FollowUpRecord,
 } from "../../shared/contracts";
 import type { PendingRequestKind, PendingRequestStatus } from "../../shared/contracts/pending";
 import {
@@ -603,6 +604,23 @@ function asNumber(value: unknown): number {
 
 function asNumberOrNull(value: unknown): number | null {
   return value === null || value === undefined ? null : Number(value);
+}
+
+function followUpFromRow(row: DbRow): FollowUpRecord {
+  return FollowUpRecord.parse({
+    id: asString(row.id),
+    projectId: asString(row.project_id),
+    threadId: asString(row.thread_id),
+    engineThreadId: asString(row.engine_thread_id),
+    mode: asString(row.mode),
+    prompt: asString(row.prompt),
+    status: asString(row.status),
+    operationKey: asNullableString(row.operation_key),
+    turnId: asNullableString(row.turn_id),
+    note: asNullableString(row.note),
+    queuedAt: asString(row.queued_at),
+    updatedAt: asString(row.updated_at),
+  });
 }
 
 function usageFromRow(row: DbRow): UsageRecord {
@@ -2052,6 +2070,123 @@ export class StateStore {
       };
       if (row.note !== null) value.note = asString(row.note);
       return SubmissionState.parse(value);
+    });
+  }
+
+  // ------------------------------------------------------------- follow-ups
+
+  /** Persist a queued follow-up before anything can be dispatched. */
+  async createFollowUp(record: FollowUpRecord): Promise<FollowUpRecord> {
+    const parsed = FollowUpRecord.parse(record);
+    return this.write((db) => {
+      db.prepare(
+        "INSERT INTO follow_ups (id, project_id, thread_id, engine_thread_id, mode, prompt, status, " +
+          "operation_key, turn_id, note, queued_at, updated_at) " +
+          "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      ).run(
+        parsed.id,
+        parsed.projectId,
+        parsed.threadId,
+        parsed.engineThreadId,
+        parsed.mode,
+        parsed.prompt,
+        parsed.status,
+        parsed.operationKey,
+        parsed.turnId,
+        parsed.note,
+        parsed.queuedAt,
+        parsed.updatedAt,
+      );
+      return parsed;
+    });
+  }
+
+  async listFollowUps(projectId: ProjectId): Promise<FollowUpRecord[]> {
+    return this.read((db) => {
+      const rows = db
+        .prepare("SELECT * FROM follow_ups WHERE project_id = ? ORDER BY queued_at ASC, rowid ASC")
+        .all(projectId) as DbRow[];
+      return rows.map(followUpFromRow);
+    });
+  }
+
+  async getFollowUp(id: string): Promise<FollowUpRecord | null> {
+    return this.read((db) => {
+      const row = db.prepare("SELECT * FROM follow_ups WHERE id = ?").get(id) as DbRow | undefined;
+      return row ? followUpFromRow(row) : null;
+    });
+  }
+
+  /** Edit is only possible while the row is still waiting for a boundary. */
+  async updateFollowUpPrompt(
+    id: string,
+    prompt: string,
+    now: string,
+  ): Promise<FollowUpRecord | null> {
+    return this.write((db) => {
+      const result = db
+        .prepare(
+          "UPDATE follow_ups SET prompt = ?, updated_at = ? WHERE id = ? AND status = 'queued'",
+        )
+        .run(prompt, now, id);
+      if (Number(result.changes) === 0) return null;
+      const row = db.prepare("SELECT * FROM follow_ups WHERE id = ?").get(id) as DbRow | undefined;
+      return row ? followUpFromRow(row) : null;
+    });
+  }
+
+  /** Cancel removes a future start only; it never touches a dispatched turn. */
+  async cancelFollowUp(id: string, now: string): Promise<FollowUpRecord | null> {
+    return this.write((db) => {
+      const result = db
+        .prepare(
+          "UPDATE follow_ups SET status = 'canceled', note = ?, updated_at = ? " +
+            "WHERE id = ? AND status = 'queued'",
+        )
+        .run("canceled before dispatch", now, id);
+      if (Number(result.changes) === 0) return null;
+      const row = db.prepare("SELECT * FROM follow_ups WHERE id = ?").get(id) as DbRow | undefined;
+      return row ? followUpFromRow(row) : null;
+    });
+  }
+
+  /**
+   * The single claim. `queued → dispatching` is one statement, so two callers
+   * cannot both dispatch the same row: exactly one observes a change.
+   */
+  async claimFollowUp(
+    id: string,
+    operationKey: string,
+    now: string,
+  ): Promise<FollowUpRecord | null> {
+    return this.write((db) => {
+      const result = db
+        .prepare(
+          "UPDATE follow_ups SET status = 'dispatching', operation_key = ?, updated_at = ? " +
+            "WHERE id = ? AND status = 'queued'",
+        )
+        .run(operationKey, now, id);
+      if (Number(result.changes) === 0) return null;
+      const row = db.prepare("SELECT * FROM follow_ups WHERE id = ?").get(id) as DbRow | undefined;
+      return row ? followUpFromRow(row) : null;
+    });
+  }
+
+  async settleFollowUp(
+    id: string,
+    input: {
+      status: FollowUpRecord["status"];
+      turnId: string | null;
+      note: string | null;
+      now: string;
+    },
+  ): Promise<FollowUpRecord | null> {
+    return this.write((db) => {
+      db.prepare(
+        "UPDATE follow_ups SET status = ?, turn_id = ?, note = ?, updated_at = ? WHERE id = ?",
+      ).run(input.status, input.turnId, input.note, input.now, id);
+      const row = db.prepare("SELECT * FROM follow_ups WHERE id = ?").get(id) as DbRow | undefined;
+      return row ? followUpFromRow(row) : null;
     });
   }
 
@@ -6419,6 +6554,7 @@ export class StateStore {
   }
 
   private deleteProjectContents(db: DatabaseSync, projectId: string): void {
+    db.prepare("DELETE FROM follow_ups WHERE project_id = ?").run(projectId);
     db.prepare("DELETE FROM submissions WHERE project_id = ?").run(projectId);
     db.prepare("DELETE FROM artifacts WHERE project_id = ?").run(projectId);
     db.prepare("DELETE FROM drafts WHERE project_id = ?").run(projectId);

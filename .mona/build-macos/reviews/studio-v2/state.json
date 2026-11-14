@@ -37,8 +37,8 @@
     "attempts": ".mona/build-macos/attempts.jsonl",
     "requirement_registry": "docs/requirements-macos.json"
   },
-  "revision": 67,
-  "current_task": "R10",
+  "revision": 72,
+  "current_task": "R08",
   "current_task_status": "completed",
   "tasks": {
     "R00": {
@@ -1421,14 +1421,14 @@
         {
           "path": "src/renderer/styles.css",
           "sha256": "d374f0d6a60a87aa23fb89fcab5bdb74d9a13eca3efe8459d4bbfc2a77bdaab3",
-          "state": "current",
-          "note": "R06 verified bytes."
+          "state": "historical",
+          "note": "R06 verified bytes. | R08 (follow-up queue, activity strip, steering statement) changed these bytes after this task verified them. The recorded hash describes the bytes at that verification; no assertion was removed and no status was lowered."
         },
         {
           "path": "src/renderer/shell/Shell.tsx",
           "sha256": "77c5e6fcfe1d82f8072695ed6288eb5504ee4a96bfe720853907e49fe570f79a",
-          "state": "current",
-          "note": "R06 verified bytes."
+          "state": "historical",
+          "note": "R06 verified bytes. | R08 (follow-up queue, activity strip, steering statement) changed these bytes after this task verified them. The recorded hash describes the bytes at that verification; no assertion was removed and no status was lowered."
         },
         {
           "path": "src/renderer/shell/Settings.tsx",
@@ -1439,14 +1439,14 @@
         {
           "path": "src/renderer/shell/Studio.tsx",
           "sha256": "8c71d3a6fb84c2ba6e49e729985eac2025ec2984bd355c3f1ea284f6bccba3de",
-          "state": "current",
-          "note": "R06 verified bytes."
+          "state": "historical",
+          "note": "R06 verified bytes. | R08 (follow-up queue, activity strip, steering statement) changed these bytes after this task verified them. The recorded hash describes the bytes at that verification; no assertion was removed and no status was lowered."
         },
         {
           "path": "src/main/index.ts",
           "sha256": "66f29c5920a55c16197b7d747642e9e83288764e23ab4392a48b7588d66a370e",
-          "state": "current",
-          "note": "R06 verified bytes."
+          "state": "historical",
+          "note": "R06 verified bytes. | R08 (follow-up queue, activity strip, steering statement) changed these bytes after this task verified them. The recorded hash describes the bytes at that verification; no assertion was removed and no status was lowered."
         },
         {
           "path": "scripts/aurora-smoke.mjs",
@@ -1588,26 +1588,26 @@
         {
           "path": "src/shared/contracts/studio.ts",
           "sha256": "9707a57935fc7188db8aa6bb701a5c61a55bacd178fc6934cc6c294939c50e42",
-          "state": "current",
-          "note": "R07 verified bytes."
+          "state": "historical",
+          "note": "R07 verified bytes. | R08 (follow-up queue, activity strip, steering statement) changed these bytes after this task verified them. The recorded hash describes the bytes at that verification; no assertion was removed and no status was lowered."
         },
         {
           "path": "src/main/state/schema.ts",
           "sha256": "cb78757039556e861a70c63c88c60af96e9df6e140f09d26a85804bb96c0c647",
-          "state": "current",
-          "note": "R07 verified bytes."
+          "state": "historical",
+          "note": "R07 verified bytes. | R08 (follow-up queue, activity strip, steering statement) changed these bytes after this task verified them. The recorded hash describes the bytes at that verification; no assertion was removed and no status was lowered."
         },
         {
           "path": "src/main/state/store.ts",
           "sha256": "0808a384ef4db1ba2e5282f541eaa7e66a56fb0228182c24213a44a4c4bd0ad8",
-          "state": "current",
-          "note": "R07 verified bytes."
+          "state": "historical",
+          "note": "R07 verified bytes. | R08 (follow-up queue, activity strip, steering statement) changed these bytes after this task verified them. The recorded hash describes the bytes at that verification; no assertion was removed and no status was lowered."
         },
         {
           "path": "src/main/work/studio.ts",
           "sha256": "bbc04d9c5444a33405849a6c0286e5466445cde92d69e7aee712df92f44dbb36",
-          "state": "current",
-          "note": "R07 verified bytes."
+          "state": "historical",
+          "note": "R07 verified bytes. | R08 (follow-up queue, activity strip, steering statement) changed these bytes after this task verified them. The recorded hash describes the bytes at that verification; no assertion was removed and no status was lowered."
         },
         {
           "path": "src/main/engine/adapter.ts",
@@ -1624,38 +1624,38 @@
         {
           "path": "src/main/ipc.ts",
           "sha256": "2fa5883aa0248f90c2fdd7166e45db04c62b80c362d71a24548a6bfe0f56318e",
-          "state": "current",
-          "note": "R07 verified bytes."
+          "state": "historical",
+          "note": "R07 verified bytes. | R08 (follow-up queue, activity strip, steering statement) changed these bytes after this task verified them. The recorded hash describes the bytes at that verification; no assertion was removed and no status was lowered."
         },
         {
           "path": "src/main/ipc-contract.ts",
           "sha256": "6479a25ffa07faf2c1fb6442e509a4c61a1271b12e2ae20f5723f5bb0f7358c1",
-          "state": "current",
-          "note": "R07 verified bytes."
+          "state": "historical",
+          "note": "R07 verified bytes. | R08 (follow-up queue, activity strip, steering statement) changed these bytes after this task verified them. The recorded hash describes the bytes at that verification; no assertion was removed and no status was lowered."
         },
         {
           "path": "src/preload/index.ts",
           "sha256": "5aebacdc833c6a2888b0c732d2dc3694dbfe77649c277efcc815570e2749946e",
-          "state": "current",
-          "note": "R07 verified bytes."
+          "state": "historical",
+          "note": "R07 verified bytes. | R08 (follow-up queue, activity strip, steering statement) changed these bytes after this task verified them. The recorded hash describes the bytes at that verification; no assertion was removed and no status was lowered."
         },
         {
           "path": "src/renderer/shell/Studio.tsx",
           "sha256": "8c71d3a6fb84c2ba6e49e729985eac2025ec2984bd355c3f1ea284f6bccba3de",
-          "state": "current",
-          "note": "R07 verified bytes."
+          "state": "historical",
+          "note": "R07 verified bytes. | R08 (follow-up queue, activity strip, steering statement) changed these bytes after this task verified them. The recorded hash describes the bytes at that verification; no assertion was removed and no status was lowered."
         },
         {
           "path": "src/renderer/shell/Shell.tsx",
           "sha256": "77c5e6fcfe1d82f8072695ed6288eb5504ee4a96bfe720853907e49fe570f79a",
-          "state": "current",
-          "note": "R07 verified bytes."
+          "state": "historical",
+          "note": "R07 verified bytes. | R08 (follow-up queue, activity strip, steering statement) changed these bytes after this task verified them. The recorded hash describes the bytes at that verification; no assertion was removed and no status was lowered."
         },
         {
           "path": "src/renderer/styles.css",
           "sha256": "d374f0d6a60a87aa23fb89fcab5bdb74d9a13eca3efe8459d4bbfc2a77bdaab3",
-          "state": "current",
-          "note": "R07 verified bytes."
+          "state": "historical",
+          "note": "R07 verified bytes. | R08 (follow-up queue, activity strip, steering statement) changed these bytes after this task verified them. The recorded hash describes the bytes at that verification; no assertion was removed and no status was lowered."
         },
         {
           "path": "scripts/pending-smoke.mjs",
@@ -1672,8 +1672,8 @@
         {
           "path": "test/studio-screen.test.tsx",
           "sha256": "dda580e5d46e103ca74e22dd7b031b04620c6e0ea003580502fae8f8e6f138ef",
-          "state": "current",
-          "note": "R07 verified bytes."
+          "state": "historical",
+          "note": "R07 verified bytes. | R08 (follow-up queue, activity strip, steering statement) changed these bytes after this task verified them. The recorded hash describes the bytes at that verification; no assertion was removed and no status was lowered."
         }
       ],
       "acceptance_completed": [
@@ -1722,7 +1722,7 @@
       ]
     },
     "R08": {
-      "status": "pending",
+      "status": "completed",
       "title": "Follow-ups, qualified steering and agent activity view",
       "prerequisites": [
         "R04",
@@ -1736,8 +1736,7 @@
         "UX-AGENT-COMMS"
       ],
       "source_hashes": [],
-      "acceptance_completed": [],
-      "acceptance_remaining": [
+      "acceptance_completed": [
         "Follow-ups are explicitly queued for after the current turn with immutable target identity and edit/cancel",
         "Nothing auto-sends a half-written draft on completion; only the authorized queue dispatches under existing budget/attempt controls",
         "No second scheduler competing with native agents or board tasks",
@@ -1746,12 +1745,58 @@
         "Queued and delivered remain distinct; no fabricated thoughts, progress or background narration calls",
         "Tests cover completing-while-composing, cancel-before-dispatch, switch/new thread, pause/budget stop, uncertain send, restart and child agents"
       ],
-      "tests": [],
-      "evidence": [],
+      "acceptance_remaining": [],
+      "tests": [
+        {
+          "command": "npx vitest run test/studio-follow-up.test.ts",
+          "result": "passed",
+          "detail": "9 tests: dispatch exactly once after the turn ends; cancel before the boundary; stale when the conversation was replaced; paused queue does not dispatch; budget stop leaves the row queued with the reason; uncertain send settled and never resent; restart keeps the row queued and starts nothing; the store claim admits exactly one dispatcher; no fleet route is touched.",
+          "captured_utc": "2026-11-14T10:05:00Z"
+        },
+        {
+          "command": "npx vitest run test/studio-activity.test.ts",
+          "result": "passed",
+          "detail": "8 tests: real frames span and measured tool duration; cross-turn frames cannot inflate the span; failed vs open tool rows; a completion older than the window reports a null start; waiting on a person; idle with the real age of the last frame; a failed connection is never idle; bounded tool rows with a count of what was not shown.",
+          "captured_utc": "2026-11-14T10:05:00Z"
+        },
+        {
+          "command": "npx vitest run",
+          "result": "passed",
+          "detail": "1,057 tests in 95 files passed (was 1,040 in 93).",
+          "captured_utc": "2026-11-14T10:05:00Z"
+        },
+        {
+          "command": "npm run typecheck && npm run lint && npm run format:check",
+          "result": "passed",
+          "detail": "Typecheck clean; lint 0 errors (3 pre-existing test-file warnings); Prettier clean.",
+          "captured_utc": "2026-11-14T10:05:00Z"
+        },
+        {
+          "command": "npm run smoke:shell",
+          "result": "passed",
+          "detail": "133/133 in the real Electron shell, including six new checks (activity strip present and idle with a named scope, queue control and queue present, steering not offered). The 24 rewritten pinned captures were restored to their committed bytes afterwards; R12 owns that reconciliation.",
+          "captured_utc": "2026-11-14T10:05:00Z"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/review-studio/R08-follow-ups-and-activity.md",
+          "sha256": "3a2d469982797e7fc41aec1bbe427d282a9d6db046780b201e33716c6bd47b31",
+          "note": "R08: the explicit follow-up queue (schema v13, compare-and-set claim, one dispatch boundary), the derived activity strip, and the qualified steering absence."
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p-r08-activity.png",
+          "sha256": "4c700e479a9058df381e13b260dab0b6592175b42f9dc324c22c091807df8d66",
+          "note": "The real Electron shell: activity strip Idle and the empty follow-up queue; no steer control."
+        }
+      ],
       "attempt_problem_ids": [],
       "platform": "darwin-arm64",
-      "next_action": "Read R01/R02/R04/R07 outcomes plus the work controller and agent observatory.",
-      "notes": []
+      "next_action": "R09 (slim usage dashboard) or R11 (performance and accessibility).",
+      "notes": [
+        "Steering is reported unavailable with the missing route and the supported after-turn option named; no steer control is rendered.",
+        "Schema v13 adds follow_ups; the dispatch claim is a compare-and-set and a restart keeps rows queued without starting them."
+      ]
     },
     "R09": {
       "status": "pending",
@@ -1806,14 +1851,14 @@
         {
           "path": "src/renderer/shell/Studio.tsx",
           "sha256": "8c71d3a6fb84c2ba6e49e729985eac2025ec2984bd355c3f1ea284f6bccba3de",
-          "state": "current",
-          "note": "R10 verified bytes."
+          "state": "historical",
+          "note": "R10 verified bytes. | R08 (follow-up queue, activity strip, steering statement) changed these bytes after this task verified them. The recorded hash describes the bytes at that verification; no assertion was removed and no status was lowered."
         },
         {
           "path": "src/renderer/shell/Shell.tsx",
           "sha256": "77c5e6fcfe1d82f8072695ed6288eb5504ee4a96bfe720853907e49fe570f79a",
-          "state": "current",
-          "note": "R10 verified bytes."
+          "state": "historical",
+          "note": "R10 verified bytes. | R08 (follow-up queue, activity strip, steering statement) changed these bytes after this task verified them. The recorded hash describes the bytes at that verification; no assertion was removed and no status was lowered."
         },
         {
           "path": "src/renderer/shell/markdown.tsx",
@@ -1830,20 +1875,20 @@
         {
           "path": "src/renderer/styles.css",
           "sha256": "d374f0d6a60a87aa23fb89fcab5bdb74d9a13eca3efe8459d4bbfc2a77bdaab3",
-          "state": "current",
-          "note": "R10 verified bytes."
+          "state": "historical",
+          "note": "R10 verified bytes. | R08 (follow-up queue, activity strip, steering statement) changed these bytes after this task verified them. The recorded hash describes the bytes at that verification; no assertion was removed and no status was lowered."
         },
         {
           "path": "src/main/ipc.ts",
           "sha256": "2fa5883aa0248f90c2fdd7166e45db04c62b80c362d71a24548a6bfe0f56318e",
-          "state": "current",
-          "note": "R10 verified bytes."
+          "state": "historical",
+          "note": "R10 verified bytes. | R08 (follow-up queue, activity strip, steering statement) changed these bytes after this task verified them. The recorded hash describes the bytes at that verification; no assertion was removed and no status was lowered."
         },
         {
           "path": "src/main/ipc-contract.ts",
           "sha256": "6479a25ffa07faf2c1fb6442e509a4c61a1271b12e2ae20f5723f5bb0f7358c1",
-          "state": "current",
-          "note": "R10 verified bytes."
+          "state": "historical",
+          "note": "R10 verified bytes. | R08 (follow-up queue, activity strip, steering statement) changed these bytes after this task verified them. The recorded hash describes the bytes at that verification; no assertion was removed and no status was lowered."
         },
         {
           "path": "src/main/projects/service.ts",
@@ -1854,14 +1899,14 @@
         {
           "path": "src/main/state/store.ts",
           "sha256": "0808a384ef4db1ba2e5282f541eaa7e66a56fb0228182c24213a44a4c4bd0ad8",
-          "state": "current",
-          "note": "R10 verified bytes."
+          "state": "historical",
+          "note": "R10 verified bytes. | R08 (follow-up queue, activity strip, steering statement) changed these bytes after this task verified them. The recorded hash describes the bytes at that verification; no assertion was removed and no status was lowered."
         },
         {
           "path": "src/main/work/studio.ts",
           "sha256": "bbc04d9c5444a33405849a6c0286e5466445cde92d69e7aee712df92f44dbb36",
-          "state": "current",
-          "note": "R10 verified bytes."
+          "state": "historical",
+          "note": "R10 verified bytes. | R08 (follow-up queue, activity strip, steering statement) changed these bytes after this task verified them. The recorded hash describes the bytes at that verification; no assertion was removed and no status was lowered."
         },
         {
           "path": "src/shared/contracts/project-bridge.ts",
@@ -1872,20 +1917,20 @@
         {
           "path": "src/shared/contracts/studio.ts",
           "sha256": "9707a57935fc7188db8aa6bb701a5c61a55bacd178fc6934cc6c294939c50e42",
-          "state": "current",
-          "note": "R10 verified bytes."
+          "state": "historical",
+          "note": "R10 verified bytes. | R08 (follow-up queue, activity strip, steering statement) changed these bytes after this task verified them. The recorded hash describes the bytes at that verification; no assertion was removed and no status was lowered."
         },
         {
           "path": "src/shared/contracts/bridge.ts",
           "sha256": "42d6ad3feb0820af2def603efa3c9ce6873af13b0b09b27656f9db4ea20b3a69",
-          "state": "current",
-          "note": "R10 verified bytes."
+          "state": "historical",
+          "note": "R10 verified bytes. | R08 (follow-up queue, activity strip, steering statement) changed these bytes after this task verified them. The recorded hash describes the bytes at that verification; no assertion was removed and no status was lowered."
         },
         {
           "path": "src/preload/index.ts",
           "sha256": "5aebacdc833c6a2888b0c732d2dc3694dbfe77649c277efcc815570e2749946e",
-          "state": "current",
-          "note": "R10 verified bytes."
+          "state": "historical",
+          "note": "R10 verified bytes. | R08 (follow-up queue, activity strip, steering statement) changed these bytes after this task verified them. The recorded hash describes the bytes at that verification; no assertion was removed and no status was lowered."
         },
         {
           "path": "test/r10-conveniences.test.ts",
@@ -1896,20 +1941,20 @@
         {
           "path": "test/studio-screen.test.tsx",
           "sha256": "dda580e5d46e103ca74e22dd7b031b04620c6e0ea003580502fae8f8e6f138ef",
-          "state": "current",
-          "note": "R10 verified bytes."
+          "state": "historical",
+          "note": "R10 verified bytes. | R08 (follow-up queue, activity strip, steering statement) changed these bytes after this task verified them. The recorded hash describes the bytes at that verification; no assertion was removed and no status was lowered."
         },
         {
           "path": "test/shell-races.test.tsx",
           "sha256": "ad811935e4999f2c9c3fdbc613efc30ba14b190e2bf6f617f6bd81b51adfe21e",
-          "state": "current",
-          "note": "R10 verified bytes."
+          "state": "historical",
+          "note": "R10 verified bytes. | R08 (follow-up queue, activity strip, steering statement) changed these bytes after this task verified them. The recorded hash describes the bytes at that verification; no assertion was removed and no status was lowered."
         },
         {
           "path": "test/studio-focus.test.tsx",
           "sha256": "7291f950ef2516cb62f39941ba787ae010edc5ea35f9a7efb9b294f0ed7b8ede",
-          "state": "current",
-          "note": "R10 verified bytes."
+          "state": "historical",
+          "note": "R10 verified bytes. | R08 (follow-up queue, activity strip, steering statement) changed these bytes after this task verified them. The recorded hash describes the bytes at that verification; no assertion was removed and no status was lowered."
         }
       ],
       "acceptance_completed": [
@@ -2394,17 +2439,18 @@
     "UX-AGENT-COMMS": {
       "title": "Watch and talk to agents: pending replies, follow-ups, steering, activity",
       "priority": "user-request",
-      "status": "open",
+      "status": "verified",
       "task": "R08",
       "evidence": [
-        "docs/evidence/macos/review-studio/R07-pending-input-and-approvals.md"
+        "docs/evidence/macos/review-studio/R07-pending-input-and-approvals.md",
+        "docs/evidence/macos/review-studio/R08-follow-ups-and-activity.md"
       ],
       "notes": [
-        "R07 delivered the pending-reply half. Follow-ups, qualified steering and the activity strip remain R08."
+        "R07 delivered pending replies. R08 delivers the explicit follow-up queue, the activity strip and the qualified steering statement; live steering remains unavailable because the pinned engine exposes no route."
       ]
     }
   },
-  "last_checkpoint_utc": "2026-11-14T09:37:07.679Z",
+  "last_checkpoint_utc": "2026-11-14T09:57:21.792Z",
   "notes": [
     "Subordinate ledger. The P00–P27 registry remains authoritative for product requirements; this registry tracks review tasks and findings only.",
     "Attempts continue in the shared attempts.jsonl; a review task ID never resets a count."

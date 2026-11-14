@@ -5,6 +5,7 @@ import type {
   ThreadSummary,
 } from "../../shared/contracts/project-bridge";
 import type { StudioMode, StudioSnapshot } from "../../shared/contracts/studio";
+import type { FollowUpView, StudioActivityView } from "../../shared/contracts/follow-up";
 import type { WindowFullscreenView } from "../../shared/contracts/bridge";
 import type { CommandCatalogEntry, CommandCatalogSnapshot } from "../../shared/contracts/commands";
 import type { HistorySearchHit } from "../../shared/contracts/project-bridge";
@@ -45,6 +46,7 @@ import {
 import { engineBadge, formatTokens, projectAccent, projectMonogram, relativeTime } from "./visual";
 import { Markdown } from "./markdown";
 import { projectTimeline, type TimelineEntry } from "./timeline";
+import { projectActivity } from "./activity";
 import { CommandMenu } from "./CommandMenu";
 import {
   acceptCommand,
@@ -113,6 +115,16 @@ export interface StudioProps {
   onCancelQueued: () => void;
   onStop: () => void;
   onReconcile: () => void;
+  /**
+   * R08. Queue the composer's text for after the current turn. Nothing is sent
+   * by this call; main writes the row and returns the queue snapshot.
+   */
+  onQueueFollowUp?: (prompt: string, mode: StudioMode) => void;
+  onEditFollowUp?: (id: string, prompt: string) => void;
+  onCancelFollowUp?: (id: string) => void;
+  /** Explicit send-now while idle; refused by main while a turn is active. */
+  onDispatchFollowUps?: () => void;
+  followUpBusy?: boolean;
   /**
    * R07. Answer one engine approval or question. The reply is acknowledged by
    * the Runtime, so the card only says "sent" after `acknowledged`.
@@ -669,6 +681,283 @@ interface FocusBarProps {
  * else moves into the popover, which is opened by a real button rather than a
  * hover, so keyboard and screen-reader users reach it too.
  */
+function formatSpan(ms: number | null): string {
+  if (ms === null) return "—";
+  const seconds = Math.max(0, Math.round(ms / 1000));
+  if (seconds < 60) return `${seconds}s`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ${seconds % 60}s`;
+  const hours = Math.floor(minutes / 60);
+  return `${hours}h ${minutes % 60}m`;
+}
+
+/**
+ * R08. One line of real state, derived from stored events. The strip never
+ * says "thinking": it says which turn is open, how long its frames span, and
+ * what the last stored event's age is. Tool names expand in place.
+ */
+function ActivityStrip({
+  activity,
+  filterThreadId,
+}: {
+  activity: StudioActivityView;
+  filterThreadId: string | null;
+}): JSX.Element {
+  const [openTool, setOpenTool] = useState<string | null>(null);
+  const scope =
+    filterThreadId === null
+      ? activity.threadId === null
+        ? "this project"
+        : "current conversation"
+      : "selected conversation";
+  const label =
+    activity.status === "running"
+      ? "Running"
+      : activity.status === "waiting"
+        ? "Waiting for you"
+        : activity.status === "idle"
+          ? "Idle"
+          : "Unknown";
+  return (
+    <section className="activity-strip" aria-label="Current activity" data-testid="activity-strip">
+      <span
+        className={statusDotClass(
+          activity.status === "running"
+            ? "success"
+            : activity.status === "waiting"
+              ? "attention"
+              : "neutral",
+          activity.status === "running",
+        )}
+        aria-hidden="true"
+      />
+      <span className="activity-strip__status" data-testid="activity-status">
+        {label}
+      </span>
+      <span className="hint-line" data-testid="activity-scope">
+        {scope}
+        {activity.mode ? ` · ${activity.mode}` : ""}
+      </span>
+      {activity.turnId ? (
+        <span className="hint-line">turn {activity.turnId.slice(0, 13)}</span>
+      ) : null}
+      {activity.durationMs !== null ? (
+        <span className="hint-line" data-testid="activity-span">
+          frames span {formatSpan(activity.durationMs)}
+        </span>
+      ) : null}
+      {activity.idleMs !== null ? (
+        <span className="hint-line" data-testid="activity-idle">
+          last event {formatSpan(activity.idleMs)} ago
+        </span>
+      ) : null}
+      {activity.needsYouReason ? <Badge tone="attention">{activity.needsYouReason}</Badge> : null}
+      {activity.tools.length > 0 ? (
+        <span className="activity-strip__tools">
+          {activity.tools.map((tool) => (
+            <button
+              type="button"
+              key={tool.id}
+              className="activity-chip"
+              aria-expanded={openTool === tool.id}
+              onClick={() => setOpenTool(openTool === tool.id ? null : tool.id)}
+              title={tool.summary}
+              data-testid="activity-tool"
+            >
+              <TerminalIcon size={12} />
+              <span>{tool.name}</span>
+              <span className="activity-chip__status">{tool.status ?? "open"}</span>
+            </button>
+          ))}
+          {activity.toolsNotInWindow > 0 ? (
+            <span className="hint-line">
+              +{activity.toolsNotInWindow} not shown (older than the loaded window)
+            </span>
+          ) : null}
+        </span>
+      ) : null}
+      {openTool !== null
+        ? (() => {
+            const tool = activity.tools.find((candidate) => candidate.id === openTool);
+            if (!tool) return null;
+            return (
+              <div className="activity-strip__detail" data-testid="activity-tool-detail">
+                <span className="hint-line">
+                  {tool.name} · {tool.status ?? "no terminal frame yet"}
+                  {tool.durationMs !== null
+                    ? ` · ${formatSpan(tool.durationMs)}`
+                    : " · duration unavailable"}
+                </span>
+                <span className="hint-line" data-testid="activity-tool-identity">
+                  item {tool.id}
+                </span>
+              </div>
+            );
+          })()
+        : null}
+    </section>
+  );
+}
+
+const FOLLOW_UP_LABEL: Record<FollowUpView["status"], string> = {
+  queued: "Queued",
+  dispatching: "Sending",
+  accepted: "Sent",
+  rejected: "Refused",
+  canceled: "Canceled",
+  unknown: "Outcome unknown",
+  stale: "Not sent",
+};
+
+const FOLLOW_UP_TONE: Record<
+  FollowUpView["status"],
+  "neutral" | "attention" | "success" | "danger"
+> = {
+  queued: "neutral",
+  dispatching: "attention",
+  accepted: "success",
+  rejected: "danger",
+  canceled: "neutral",
+  unknown: "attention",
+  stale: "attention",
+};
+
+/**
+ * R08. The follow-up queue. Only `queued` rows offer edit, cancel, and Run now;
+ * every other state is a record of what happened, not a control.
+ */
+function FollowUpQueue({
+  items,
+  busy,
+  steering,
+  turnActive,
+  onEdit,
+  onCancel,
+  onDispatch,
+}: {
+  items: FollowUpView[];
+  busy: boolean;
+  steering: StudioSnapshot["steering"] | undefined;
+  turnActive: boolean;
+  onEdit?: (id: string, prompt: string) => void;
+  onCancel?: (id: string) => void;
+  onDispatch?: () => void;
+}): JSX.Element {
+  const [editing, setEditing] = useState<{ id: string; text: string } | null>(null);
+  const queued = items.filter((item) => item.status === "queued");
+  const recentlySettled = items
+    .filter((item) => item.status !== "queued")
+    .slice(-3)
+    .reverse();
+  const canRunNow = queued.some((item) => item.canDispatchNow) && !turnActive;
+  return (
+    <section className="follow-ups" aria-label="Queued follow-ups" data-testid="follow-up-queue">
+      <div className="follow-ups__head">
+        <span className="follow-ups__title">Follow-ups</span>
+        <span className="hint-line" data-testid="follow-up-count">
+          {queued.length === 0
+            ? "Nothing queued"
+            : `${queued.length} queued for after the current turn`}
+        </span>
+        {canRunNow && onDispatch ? (
+          <Button
+            size="sm"
+            variant="secondary"
+            disabled={busy}
+            onClick={onDispatch}
+            title="Send the oldest queued follow-up now. Main refuses while a turn is active."
+            data-testid="follow-up-run-now"
+          >
+            Run now
+          </Button>
+        ) : null}
+      </div>
+      {turnActive ? (
+        <p className="hint-line" data-testid="steer-availability">
+          {steering && !steering.available
+            ? steering.reason
+            : "Steering this run is not offered: no verified native route."}
+        </p>
+      ) : null}
+      {queued.length === 0 ? null : (
+        <ul className="follow-ups__list">
+          {queued.map((item) => (
+            <li key={item.id} className="follow-up" data-testid="follow-up-item">
+              {editing?.id === item.id ? (
+                <TextArea
+                  label="Edit queued follow-up"
+                  rows={2}
+                  value={editing.text}
+                  onChange={(event) => setEditing({ id: item.id, text: event.target.value })}
+                />
+              ) : (
+                <span className="follow-up__text">{item.prompt}</span>
+              )}
+              <span className="follow-up__meta hint-line">
+                {item.mode} · queued {relativeTime(item.queuedAt)}
+                {item.note ? ` · ${item.note}` : ""}
+              </span>
+              <span className="follow-up__actions">
+                {editing?.id === item.id ? (
+                  <>
+                    <Button
+                      size="sm"
+                      variant="primary"
+                      disabled={busy || editing.text.trim().length === 0}
+                      onClick={() => {
+                        onEdit?.(item.id, editing.text);
+                        setEditing(null);
+                      }}
+                    >
+                      Save
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={() => setEditing(null)}>
+                      Discard
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      disabled={busy}
+                      onClick={() => setEditing({ id: item.id, text: item.prompt })}
+                      data-testid="follow-up-edit"
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      disabled={busy}
+                      onClick={() => onCancel?.(item.id)}
+                      data-testid="follow-up-cancel"
+                    >
+                      Cancel
+                    </Button>
+                  </>
+                )}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+      {recentlySettled.length > 0 ? (
+        <ul className="follow-ups__settled" aria-label="Recently handled follow-ups">
+          {recentlySettled.map((item) => (
+            <li key={item.id} className="hint-line" data-testid="follow-up-settled">
+              <Badge tone={FOLLOW_UP_TONE[item.status]}>{FOLLOW_UP_LABEL[item.status]}</Badge>{" "}
+              {item.prompt.slice(0, 90)}
+              {item.turnId ? ` · turn ${item.turnId.slice(0, 13)}` : ""}
+              {item.note ? ` · ${item.note}` : ""}
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </section>
+  );
+}
+
 function FocusBar(props: FocusBarProps): JSX.Element {
   const drawerRef = useRef<HTMLDetailsElement | null>(null);
   const { detail, studio, health, fullscreen } = props;
@@ -1307,6 +1596,16 @@ export function StudioScreen(props: StudioProps): JSX.Element {
     completeItems: new Set(Object.keys(history?.completeItems ?? {})),
   });
   const scope = history?.storedTotal ?? detail.history.storedTotal;
+  // R08: the strip is a read over the same stored frames the console shows.
+  // Computed on each render from events and the live snapshot; no timer and no
+  // engine call sits behind it.
+  const activity = projectActivity({
+    studio,
+    events,
+    filterThreadId: history?.threadId ?? null,
+    now: Date.now(),
+  });
+  const followUps = studio?.followUps ?? [];
   // A settled request is history, not a waiting prompt. Only open asks render as
   // an interruption; the rest stay in the stored record and the diagnostics.
   // An `unknown` row is still an ask the engine may be waiting on, so it stays on
@@ -1616,6 +1915,8 @@ export function StudioScreen(props: StudioProps): JSX.Element {
           recorded the gap rather than inventing content.
         </Callout>
       ) : null}
+
+      <ActivityStrip activity={activity} filterThreadId={history?.threadId ?? null} />
 
       <div className="studio" ref={stageRef}>
         {/* Paging controls stay outside the scrolling console, so Jump to
@@ -2058,6 +2359,26 @@ export function StudioScreen(props: StudioProps): JSX.Element {
                     Attach binary
                   </Button>
                   <Button
+                    variant="ghost"
+                    size="sm"
+                    disabled={
+                      props.followUpBusy === true ||
+                      props.draft.trim().length === 0 ||
+                      viewingArchivedThread
+                    }
+                    title={
+                      viewingArchivedThread
+                        ? "This is an archived conversation; a follow-up must target the current one"
+                        : props.draft.trim().length === 0
+                          ? "Write the follow-up first"
+                          : "Queue this text for after the current turn. It is stored, not sent; main dispatches it at the next turn boundary."
+                    }
+                    onClick={() => props.onQueueFollowUp?.(props.draft, props.mode)}
+                    data-testid="queue-follow-up"
+                  >
+                    Queue after turn
+                  </Button>
+                  <Button
                     variant="primary"
                     icon={<PlayIcon size={15} />}
                     disabled={sendDisabled}
@@ -2070,6 +2391,15 @@ export function StudioScreen(props: StudioProps): JSX.Element {
                 </div>
               </div>
             </div>
+            <FollowUpQueue
+              items={followUps}
+              busy={props.followUpBusy === true}
+              steering={studio?.steering}
+              turnActive={studio?.activeTurnId != null}
+              onEdit={props.onEditFollowUp}
+              onCancel={props.onCancelFollowUp}
+              onDispatch={props.onDispatchFollowUps}
+            />
           </section>
 
           {props.focusMode ? null : (

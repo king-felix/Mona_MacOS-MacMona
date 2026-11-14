@@ -791,6 +791,34 @@ CREATE UNIQUE INDEX pending_requests_identity
 CREATE INDEX pending_requests_project ON pending_requests (project_id, status, created_at);
 `;
 
+// v13 records a follow-up a person queued for after the current turn.
+//
+// The row is the authorization, not a scheduler: it exists because the person
+// asked for it, it names the conversation it was written for, and it is claimed
+// with a compare-and-set before anything is dispatched. `queued` and `accepted`
+// are deliberately different facts — a row only becomes `accepted` when the
+// Runtime reported a turn id. A restart keeps the row; it does not start it.
+const V13 = `
+CREATE TABLE follow_ups (
+  id                TEXT PRIMARY KEY,
+  project_id        TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  thread_id         TEXT NOT NULL,
+  engine_thread_id  TEXT NOT NULL,
+  mode              TEXT NOT NULL CHECK (mode IN ('plan', 'work')),
+  prompt            TEXT NOT NULL CHECK (length(prompt) BETWEEN 1 AND 100000),
+  status            TEXT NOT NULL
+                    CHECK (status IN ('queued', 'dispatching', 'accepted', 'rejected',
+                                      'canceled', 'unknown', 'stale')),
+  operation_key     TEXT,
+  turn_id           TEXT,
+  note              TEXT,
+  queued_at         TEXT NOT NULL,
+  updated_at        TEXT NOT NULL
+);
+CREATE INDEX follow_ups_project ON follow_ups (project_id, status, queued_at);
+CREATE INDEX follow_ups_target ON follow_ups (engine_thread_id, status);
+`;
+
 export const MIGRATIONS: readonly Migration[] = [
   { version: 1, name: "core-project-state", sql: V1 },
   { version: 2, name: "project-identity-fields", sql: V2 },
@@ -804,6 +832,7 @@ export const MIGRATIONS: readonly Migration[] = [
   { version: 10, name: "event-item-identity", sql: V10 },
   { version: 11, name: "thread-generations-and-command-operations", sql: V11 },
   { version: 12, name: "pending-engine-requests", sql: V12 },
+  { version: 13, name: "queued-follow-ups", sql: V13 },
 ];
 
 export const CURRENT_SCHEMA_VERSION = MIGRATIONS[MIGRATIONS.length - 1]?.version ?? 0;
@@ -823,6 +852,7 @@ export const REQUIRED_TABLES: readonly string[] = [
   "event_cursors",
   "event_gaps",
   "events",
+  "follow_ups",
   "goal_observations",
   "meta",
   "orchestration_events",
@@ -870,10 +900,12 @@ const V8_TABLES: readonly string[] = ["update_intents"];
 const V9_TABLES: readonly string[] = ["event_gaps"];
 const V11_TABLES: readonly string[] = ["command_operations"];
 const V12_TABLES: readonly string[] = ["pending_requests"];
+const V13_TABLES: readonly string[] = ["follow_ups"];
 
 /** Tables a database at `version` must have. Older targets predate v3–v7. */
 export function requiredTablesFor(version: number): readonly string[] {
   let tables: readonly string[] = REQUIRED_TABLES;
+  if (version < 13) tables = tables.filter((t) => !V13_TABLES.includes(t));
   if (version < 12) tables = tables.filter((t) => !V12_TABLES.includes(t));
   if (version < 11) tables = tables.filter((t) => !V11_TABLES.includes(t));
   if (version < 9) tables = tables.filter((t) => !V9_TABLES.includes(t));

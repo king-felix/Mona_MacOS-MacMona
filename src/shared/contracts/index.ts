@@ -7,6 +7,7 @@ export * from "./usage";
 export * from "./cost";
 export * from "./changes";
 export * from "./studio";
+export * from "./follow-up";
 export * from "./pending";
 export * from "./bridge";
 export * from "./project-bridge";

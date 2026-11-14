@@ -1031,6 +1031,14 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
     profile_reported: document.querySelector('[data-testid="studio-profile"]')?.textContent?.includes('deepseek / deepseek-flash') ?? false,
     event_present: document.body.textContent.includes('status.disconnected'),
     fake_percent: /\b\d+%\b/.test(document.body.textContent ?? ''),
+    // R08: the current-activity strip and the follow-up queue render from stored
+    // state, and steering is not offered because no native route exists.
+    activity_strip: Boolean(document.querySelector('[data-testid="activity-strip"]')),
+    activity_status: document.querySelector('[data-testid="activity-status"]')?.textContent ?? null,
+    activity_scope: document.querySelector('[data-testid="activity-scope"]')?.textContent ?? null,
+    queue_control: Boolean(document.querySelector('[data-testid="queue-follow-up"]')),
+    follow_up_queue: Boolean(document.querySelector('[data-testid="follow-up-queue"]')),
+    steer_absent: !document.body.textContent.includes('Steer this run'),
     horizontal_overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
     // P23 polish: the agent console is the wide surface, and the task /
     // requirements / context inspector sits beside the prompt box, not beside
@@ -1086,6 +1094,10 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
   })()`);
   const studioShot = await window.webContents.capturePage();
   writeFileSync(join(outDir, "p07-shell-studio.png"), studioShot.toPNG());
+  // R08: the activity strip and the follow-up queue in the real shell, with the
+  // engine not started. The strip reports Idle from stored state; the queue is
+  // empty and says so rather than showing a placeholder row.
+  writeFileSync(join(outDir, "p-r08-activity.png"), studioShot.toPNG());
 
   window.webContents.sendInputEvent({ type: "keyDown", keyCode: "3", modifiers: ["meta"] });
   window.webContents.sendInputEvent({ type: "keyUp", keyCode: "3", modifiers: ["meta"] });
@@ -2068,6 +2080,13 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
     profile_reported: studio.profile_reported === true,
     offline_event: studio.event_present === true,
     no_fake_percent: studio.fake_percent === false,
+    activity_strip_present: studio.activity_strip === true,
+    activity_reports_idle: studio.activity_status === "Idle",
+    activity_names_scope:
+      typeof studio.activity_scope === "string" && studio.activity_scope.length > 0,
+    queue_control_present: studio.queue_control === true,
+    follow_up_queue_present: studio.follow_up_queue === true,
+    steer_not_offered: studio.steer_absent === true,
     zoom_menu_registered:
       zoomMenu.registered &&
       zoomMenu.plus === "CmdOrCtrl+Plus" &&

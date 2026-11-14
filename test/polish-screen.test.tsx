@@ -231,6 +231,8 @@ function studio(overrides: Partial<StudioSnapshot> = {}): StudioSnapshot {
     cost: { observed: true, costUsd: 0.0042, costComplete: true, turns: 1, label: "$0.0042" },
     submission: null,
     diagnostics: [],
+    followUps: [],
+    steering: { available: false, reason: "test fixture: no steer route", requiredRoute: null },
     pendingRequests: [],
     canSubmit: true,
     cannotSubmitReason: null,

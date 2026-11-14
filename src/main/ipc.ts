@@ -435,6 +435,28 @@ export function registerIpc(rendererRoot: string, dependencies: IpcDependencies)
   handle("studio:stop", (input) =>
     envelope(() => requireStudio().stop((input as { projectId: never }).projectId)),
   );
+  handle("studio:follow-up-add", (input) => {
+    const value = input as { projectId: never; prompt: string; mode: "plan" | "work" };
+    return envelope(() =>
+      requireStudio().enqueueFollowUp(value.projectId, {
+        prompt: value.prompt,
+        mode: value.mode,
+      }),
+    );
+  });
+  handle("studio:follow-up-edit", (input) => {
+    const value = input as { projectId: never; followUpId: string; prompt: string };
+    return envelope(() =>
+      requireStudio().editFollowUp(value.projectId, value.followUpId, value.prompt),
+    );
+  });
+  handle("studio:follow-up-cancel", (input) => {
+    const value = input as { projectId: never; followUpId: string };
+    return envelope(() => requireStudio().cancelFollowUp(value.projectId, value.followUpId));
+  });
+  handle("studio:follow-up-dispatch", (input) =>
+    envelope(() => requireStudio().dispatchFollowUps((input as { projectId: never }).projectId)),
+  );
   handle("studio:file-preview", (input) => {
     const value = input as { projectId: never; path: string };
     return envelope(() => requireStudio().previewFile(value.projectId, value.path));

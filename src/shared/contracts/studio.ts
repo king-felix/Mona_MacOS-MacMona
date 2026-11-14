@@ -4,6 +4,7 @@
  */
 
 import type { PendingQuestion, PendingRequestKind, PendingRequestStatus } from "./pending";
+import type { FollowUpView, SteerCapabilityView } from "./follow-up";
 
 export type StudioMode = "plan" | "work";
 
@@ -164,6 +165,16 @@ export interface StudioSnapshot {
    * screen renders nothing rather than a placeholder prompt.
    */
   pendingRequests: PendingRequestView[];
+  /**
+   * R08. Follow-ups a person explicitly queued. Only `queued` rows can still
+   * change; every later status is a delivered or refused fact.
+   */
+  followUps: FollowUpView[];
+  /**
+   * R08. Whether a live turn can be steered, as discovered from the pinned
+   * engine. When unavailable the reason names the supported after-turn option.
+   */
+  steering: SteerCapabilityView;
   canSubmit: boolean;
   cannotSubmitReason: string | null;
   controls: StudioControls;
@@ -196,6 +207,14 @@ export interface StudioActionResult {
   stopped: boolean | null;
   survivors: number[];
   rollback: "not_promised";
+  snapshot: StudioSnapshot;
+}
+
+export interface StudioFollowUpResult {
+  /** The row this call touched, or null when no row changed. */
+  item: FollowUpView | null;
+  /** What happened, in plain words; never a claim the store cannot support. */
+  note: string;
   snapshot: StudioSnapshot;
 }
 

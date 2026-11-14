@@ -5927,3 +5927,131 @@ a {
   color: var(--muted);
   font-size: 0.8125rem;
 }
+
+/* R08 — current activity, and the follow-up queue.
+
+   The strip is one line of measured state above the console: which turn is
+   open, how far its stored frames span, and how old the newest one is. It is
+   deliberately quiet — no spinner, no "thinking", no progress bar. The queue
+   sits under the composer because that is where the person wrote the text that
+   became a queued item. */
+.activity-strip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken, var(--surface));
+  font-size: var(--text-xs);
+}
+
+.activity-strip__status {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.activity-strip__tools {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.activity-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--text-xs);
+  cursor: pointer;
+}
+
+.activity-chip:hover,
+.activity-chip:focus-visible {
+  border-color: var(--focus, var(--accent));
+}
+
+.activity-chip__status {
+  color: var(--muted);
+}
+
+.activity-strip__detail {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  padding-top: 4px;
+  border-top: 1px dashed var(--border);
+}
+
+.follow-ups {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+.follow-ups__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.follow-ups__title {
+  font-weight: 600;
+  font-size: var(--text-sm);
+}
+
+.follow-ups__head button {
+  margin-left: auto;
+}
+
+.follow-ups__list,
+.follow-ups__settled {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.follow-up {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-raised, var(--surface));
+}
+
+.follow-up__text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: var(--text-sm);
+}
+
+.follow-up__actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.follow-ups__settled li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}

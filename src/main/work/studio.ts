@@ -9,12 +9,18 @@ import {
   type PendingSignal,
 } from "../../shared/contracts/pending";
 import type {
+  FollowUpRecord,
+  FollowUpView,
+  SteerCapabilityView,
+} from "../../shared/contracts/follow-up";
+import type {
   PendingAnswerInput,
   PendingRequestView,
   StudioFilePreview,
   PendingResponseInput,
   StudioActionResult,
   StudioConnectionState,
+  StudioFollowUpResult,
   StudioMode,
   StudioPendingResult,
   StudioPush,
@@ -190,6 +196,24 @@ interface StudioSession {
 
 const MAX_DIAGNOSTICS = 12;
 const MAX_PROMPT = 100_000;
+/** A queued follow-up is bounded exactly like the composer that produced it. */
+const MAX_FOLLOW_UPS = 20;
+
+/**
+ * R08. What this build discovered about steering a live turn.
+ *
+ * The pinned 0.10.2 adapter exposes no route that appends to a running turn
+ * (submit, interrupt, approvals, goals, fleet — and nothing else). Mona does not
+ * render a steer control, because a button that silently degraded into "send
+ * later" would claim semantics the engine does not have. The reason names the
+ * option that is actually supported.
+ */
+export const STEERING_CAPABILITY: SteerCapabilityView = {
+  available: false,
+  reason:
+    "The pinned engine exposes no route that appends to a running turn. Queue the text as a follow-up and Mona sends it after this turn ends, in this conversation. That is not the same as steering.",
+  requiredRoute: "POST /v1/threads/{thread}/turns/{turn}/steer",
+};
 
 function rangeLabel(gap: { from: number; to: number }): string {
   return gap.from === gap.to ? String(gap.from) : `${gap.from}–${gap.to}`;
@@ -330,6 +354,23 @@ function pendingView(row: PendingRequestRecord, session: StudioSession | null): 
       const reason = cannotAnswerReason(row, session);
       return { canAnswer: reason === null, cannotAnswerReason: reason };
     })(),
+  };
+}
+
+function followUpView(record: FollowUpRecord, context: { canDispatchNow: boolean }): FollowUpView {
+  return {
+    id: record.id,
+    mode: record.mode,
+    prompt: record.prompt,
+    status: record.status,
+    threadId: record.threadId,
+    engineThreadId: record.engineThreadId,
+    turnId: record.turnId,
+    note: record.note,
+    queuedAt: record.queuedAt,
+    updatedAt: record.updatedAt,
+    editable: record.status === "queued",
+    canDispatchNow: record.status === "queued" && context.canDispatchNow,
   };
 }
 
@@ -720,85 +761,110 @@ export class WorkStudio {
     if (!engineThreadId) {
       throw new StudioError("RUNTIME_UNAVAILABLE", "the engine thread could not be created");
     }
-    const posture = postureFor(input.mode, session.profile);
     const operationKey = `op-${randomUUID()}`;
     session.submitting = true;
     session.lastMode = input.mode;
     this.push(session, "submission", "sending");
     try {
-      const receipt = await session.adapter.submitTurn({
-        threadId: engineThreadId,
-        prompt,
-        operationKey,
-        requested: {
-          provider: session.profile.provider,
-          exactId: session.profile.exactId,
-          model: session.profile.model,
-          ...(session.profile.reasoningEffort
-            ? { reasoningEffort: session.profile.reasoningEffort }
-            : {}),
-          permissionPosture: posture.permissionPosture,
-        },
-        autoApprove: posture.autoApprove,
-        allowShell: posture.allowShell,
-        trustMode: posture.trustMode,
-      });
-      session.lastSubmissionKey = operationKey;
-
-      let outcome: StudioSubmitOutcome = "rejected";
-      let reconciliation: StudioSubmitResult["reconciliation"] = null;
-      let turnId = receipt.turnId;
-      let guidance = receipt.guidance;
-
-      if (receipt.accepted && receipt.turnId) {
-        outcome = "accepted";
-        this.activate(session, binding, receipt.turnId, receipt.submission.status, operationKey);
-        await this.startPump(session, binding);
-      } else if (receipt.outcomeUnknown) {
-        outcome = "outcome_unknown";
-        // Read-only lookup only. A possibly accepted write is never resent.
-        try {
-          const resolved = await session.adapter.reconcileSubmission({
-            submission: receipt.submission,
-          });
-          reconciliation = {
-            status: resolved.status,
-            turnId: resolved.turnId,
-            evidence: resolved.evidence,
-            guidance: resolved.guidance,
-          };
-          guidance = resolved.guidance ?? guidance;
-          if (resolved.turnId && resolved.status !== "outcome_unknown") {
-            outcome = "accepted";
-            turnId = resolved.turnId;
-            this.activate(session, binding, resolved.turnId, resolved.status, operationKey);
-            await this.startPump(session, binding);
-          }
-        } catch (error) {
-          this.diagnose(session, `reconciliation did not answer: ${errorMessage(error)}`);
-        }
-      } else {
-        this.diagnose(
-          session,
-          `the runtime rejected the turn (${receipt.submission.status})${
-            receipt.submission.note ? `: ${receipt.submission.note}` : ""
-          }`,
-        );
-      }
-
-      this.push(session, "submission", outcome);
+      const result = await this.transmit(session, binding, prompt, input.mode, operationKey);
+      this.push(session, "submission", result.outcome);
       return {
-        outcome,
+        outcome: result.outcome,
         operationKey,
-        turnId,
-        note: receipt.submission.note ?? null,
-        guidance,
-        reconciliation,
+        turnId: result.turnId,
+        note: result.note,
+        guidance: result.guidance,
+        reconciliation: result.reconciliation,
         snapshot: await this.snapshot(projectId),
       };
     } finally {
       session.submitting = false;
     }
+  }
+
+  /**
+   * The one transmit path, shared by the composer and a queued follow-up, so
+   * the two can never disagree about acceptance, reconciliation, or which
+   * binding became active.
+   */
+  private async transmit(
+    session: StudioSession,
+    binding: ModeBinding,
+    prompt: string,
+    mode: StudioMode,
+    operationKey: string,
+  ): Promise<{
+    outcome: StudioSubmitOutcome;
+    turnId: string | null;
+    note: string | null;
+    guidance: string | null;
+    reconciliation: StudioSubmitResult["reconciliation"];
+  }> {
+    const engineThreadId = binding.engineThreadId;
+    if (!engineThreadId) {
+      throw new StudioError("RUNTIME_UNAVAILABLE", "the engine thread could not be created");
+    }
+    const posture = postureFor(mode, session.profile);
+    const receipt = await session.adapter.submitTurn({
+      threadId: engineThreadId,
+      prompt,
+      operationKey,
+      requested: {
+        provider: session.profile.provider,
+        exactId: session.profile.exactId,
+        model: session.profile.model,
+        ...(session.profile.reasoningEffort
+          ? { reasoningEffort: session.profile.reasoningEffort }
+          : {}),
+        permissionPosture: posture.permissionPosture,
+      },
+      autoApprove: posture.autoApprove,
+      allowShell: posture.allowShell,
+      trustMode: posture.trustMode,
+    });
+    session.lastSubmissionKey = operationKey;
+
+    let outcome: StudioSubmitOutcome = "rejected";
+    let reconciliation: StudioSubmitResult["reconciliation"] = null;
+    let turnId = receipt.turnId;
+    let guidance = receipt.guidance;
+
+    if (receipt.accepted && receipt.turnId) {
+      outcome = "accepted";
+      this.activate(session, binding, receipt.turnId, receipt.submission.status, operationKey);
+      await this.startPump(session, binding);
+    } else if (receipt.outcomeUnknown) {
+      outcome = "outcome_unknown";
+      // Read-only lookup only. A possibly accepted write is never resent.
+      try {
+        const resolved = await session.adapter.reconcileSubmission({
+          submission: receipt.submission,
+        });
+        reconciliation = {
+          status: resolved.status,
+          turnId: resolved.turnId,
+          evidence: resolved.evidence,
+          guidance: resolved.guidance,
+        };
+        guidance = resolved.guidance ?? guidance;
+        if (resolved.turnId && resolved.status !== "outcome_unknown") {
+          outcome = "accepted";
+          turnId = resolved.turnId;
+          this.activate(session, binding, resolved.turnId, resolved.status, operationKey);
+          await this.startPump(session, binding);
+        }
+      } catch (error) {
+        this.diagnose(session, `reconciliation did not answer: ${errorMessage(error)}`);
+      }
+    } else {
+      this.diagnose(
+        session,
+        `the runtime rejected the turn (${receipt.submission.status})${
+          receipt.submission.note ? `: ${receipt.submission.note}` : ""
+        }`,
+      );
+    }
+    return { outcome, turnId, note: receipt.submission.note ?? null, guidance, reconciliation };
   }
 
   private activate(
@@ -1561,6 +1627,21 @@ export class WorkStudio {
       eventKind: event.kind,
       turnId: turnRecord?.id ?? turnId ?? null,
     });
+    // R08: the end of a turn is the one automatic dispatch boundary. It is
+    // deferred past this ingest iteration because a follow-up in another
+    // conversation re-attaches the pump, and awaiting the pump that is carrying
+    // this very event would deadlock the reader.
+    this.dispatchAfterTurn(session);
+  }
+
+  private dispatchAfterTurn(session: StudioSession): void {
+    if (this.closed) return;
+    const timer = setTimeout(() => {
+      void this.dispatchNextFollowUp(session).catch((error: unknown) =>
+        this.diagnose(session, `the queued follow-up was not sent: ${errorMessage(error)}`),
+      );
+    }, 0);
+    (timer as { unref?: () => void }).unref?.();
   }
 
   private async recordUsage(
@@ -1710,6 +1791,241 @@ export class WorkStudio {
       rollback: "not_promised",
       snapshot: await this.snapshot(projectId),
     };
+  }
+
+  /**
+   * R08. Queue a follow-up for this conversation. Nothing is sent here: the row
+   * is the authorization, and a dispatch boundary (the end of the current turn,
+   * or an explicit send-now while idle) is what turns it into a turn.
+   */
+  async enqueueFollowUp(
+    projectId: ProjectId,
+    input: { prompt: string; mode: StudioMode },
+  ): Promise<StudioFollowUpResult> {
+    const prompt = input.prompt.trim();
+    if (prompt.length === 0) {
+      throw new StudioError("INVALID_INPUT", "a follow-up must not be empty");
+    }
+    if (prompt.length > MAX_PROMPT) {
+      throw new StudioError("INVALID_INPUT", `a follow-up is limited to ${MAX_PROMPT} characters`);
+    }
+    if (input.mode !== "plan" && input.mode !== "work") {
+      throw new StudioError("INVALID_INPUT", "mode must be plan or work");
+    }
+    const session =
+      this.active && this.active.projectId === projectId && !this.active.stopped
+        ? this.active
+        : null;
+    if (!session) {
+      throw new StudioError(
+        "NOT_CONNECTED",
+        "start the studio first: a follow-up targets the conversation that is open now, so it cannot be queued before one exists",
+      );
+    }
+    const binding = session.bindings[input.mode];
+    const engineThreadId = binding?.engineThreadId ?? null;
+    if (!binding || !engineThreadId) {
+      throw new StudioError(
+        "NOT_CONNECTED",
+        "this conversation has no engine thread yet; send one task here before queueing a follow-up",
+      );
+    }
+    const rows = await this.store.listFollowUps(projectId);
+    if (rows.filter((row) => row.status === "queued").length >= MAX_FOLLOW_UPS) {
+      throw new StudioError(
+        "INVALID_INPUT",
+        `at most ${MAX_FOLLOW_UPS} follow-ups can wait at once; cancel one first`,
+      );
+    }
+    const now = this.now().toISOString();
+    const record: FollowUpRecord = {
+      id: `fup_${randomUUID().replace(/-/g, "")}`,
+      projectId,
+      // Both identities are captured now and never re-derived later.
+      threadId: binding.localThreadId as ThreadId,
+      engineThreadId,
+      mode: input.mode,
+      prompt,
+      status: "queued",
+      operationKey: null,
+      turnId: null,
+      note: null,
+      queuedAt: now,
+      updatedAt: now,
+    };
+    const stored = await this.store.createFollowUp(record);
+    this.push(session, "submission", "follow_up_queued");
+    return {
+      item: followUpView(stored, { canDispatchNow: this.canDispatchFollowUps(session) }),
+      note: session.active
+        ? "Queued for after the current turn. Nothing was sent now."
+        : "Queued. Nothing is running; send it with Run now or by submitting any other task.",
+      snapshot: await this.snapshot(projectId),
+    };
+  }
+
+  /** Editing is refused once a row has been claimed; the note says why. */
+  async editFollowUp(
+    projectId: ProjectId,
+    id: string,
+    prompt: string,
+  ): Promise<StudioFollowUpResult> {
+    const text = prompt.trim();
+    if (text.length === 0) throw new StudioError("INVALID_INPUT", "a follow-up must not be empty");
+    if (text.length > MAX_PROMPT) {
+      throw new StudioError("INVALID_INPUT", `a follow-up is limited to ${MAX_PROMPT} characters`);
+    }
+    const row = await this.store.getFollowUp(id);
+    if (!row || row.projectId !== projectId) {
+      throw new StudioError("NOT_FOUND", "that follow-up is not in this project", { id });
+    }
+    const updated = await this.store.updateFollowUpPrompt(id, text, this.now().toISOString());
+    const session = this.active?.projectId === projectId ? this.active : null;
+    return {
+      item: updated
+        ? followUpView(updated, { canDispatchNow: this.canDispatchFollowUps(session) })
+        : null,
+      note: updated
+        ? "Follow-up edited. It is still waiting for a dispatch boundary."
+        : `Nothing changed: a follow-up is editable only while it is queued (this one is ${row.status}).`,
+      snapshot: await this.snapshot(projectId),
+    };
+  }
+
+  async cancelFollowUp(projectId: ProjectId, id: string): Promise<StudioFollowUpResult> {
+    const row = await this.store.getFollowUp(id);
+    if (!row || row.projectId !== projectId) {
+      throw new StudioError("NOT_FOUND", "that follow-up is not in this project", { id });
+    }
+    const updated = await this.store.cancelFollowUp(id, this.now().toISOString());
+    const session = this.active?.projectId === projectId ? this.active : null;
+    return {
+      item: updated
+        ? followUpView(updated, { canDispatchNow: this.canDispatchFollowUps(session) })
+        : null,
+      note: updated
+        ? "Canceled before dispatch. Nothing was sent."
+        : `Nothing was canceled: a row is cancellable only while it is queued (this one is ${row.status}).`,
+      snapshot: await this.snapshot(projectId),
+    };
+  }
+
+  /**
+   * R08. Explicit send-now. Refused while a turn is active: the only automatic
+   * boundary is the end of that turn, so a person cannot make two turns race.
+   */
+  async dispatchFollowUps(projectId: ProjectId): Promise<StudioFollowUpResult> {
+    if (!this.active || this.active.projectId !== projectId || this.active.stopped) {
+      await this.start(projectId);
+    }
+    const session = this.requireSession(projectId);
+    if (session.active) {
+      return {
+        item: null,
+        note: "A turn is active. The queued follow-up starts when it ends; steering is unavailable in this build.",
+        snapshot: await this.snapshot(projectId),
+      };
+    }
+    if (this.work.snapshot().pauseAfterTask) {
+      return {
+        item: null,
+        note: "The Mona queue is paused after the current task. Resume the queue before sending a follow-up.",
+        snapshot: await this.snapshot(projectId),
+      };
+    }
+    const dispatched = await this.dispatchNextFollowUp(session);
+    return {
+      item: dispatched ? followUpView(dispatched, { canDispatchNow: false }) : null,
+      note: dispatched
+        ? dispatched.status === "accepted"
+          ? `Sent as turn ${dispatched.turnId ?? "accepted"}.`
+          : (dispatched.note ?? `The engine did not accept it (${dispatched.status}).`)
+        : "No queued follow-up was waiting, or the queue is not ready to send one.",
+      snapshot: await this.snapshot(projectId),
+    };
+  }
+
+  private canDispatchFollowUps(session: StudioSession | null): boolean {
+    if (!session || session.stopped || session.active || session.submitting) return false;
+    if (this.work.snapshot().pauseAfterTask) return false;
+    return session.connection === "connected";
+  }
+
+  /**
+   * R08. The single dispatch owner.
+   *
+   * Called only from the end of a turn (and from an explicit send-now). The
+   * claim is a compare-and-set in SQLite, so even if two callers arrive, one
+   * wins and the other observes no change. Nothing here starts a scheduler:
+   * there is no timer, no background loop, and no competing queue.
+   */
+  private async dispatchNextFollowUp(session: StudioSession): Promise<FollowUpRecord | null> {
+    if (this.closed || session.active || session.submitting || session.stopped) return null;
+    if (this.work.snapshot().pauseAfterTask) return null;
+    if (session.connection !== "connected") return null;
+    const rows = await this.store.listFollowUps(session.projectId);
+    const next = rows.find((row) => row.status === "queued");
+    if (!next) return null;
+    const now = this.now().toISOString();
+    const binding = session.bindings[next.mode];
+    if (!binding || binding.engineThreadId !== next.engineThreadId) {
+      const settled = await this.store.settleFollowUp(next.id, {
+        status: "stale",
+        turnId: null,
+        note: `the conversation this was queued for is no longer current (${next.engineThreadId} → ${binding?.engineThreadId ?? "none"}); it was not sent`,
+        now,
+      });
+      this.push(session, "submission", "follow_up_stale");
+      return settled;
+    }
+    const gate = await this.ledger.dispatchGate(session.projectId, now, { activeTurn: false });
+    if (!gate.allowed) {
+      // A budget stop is a fact about now, not about the row: it stays queued
+      // with the reason, and no retry loop is started on its behalf.
+      await this.store.settleFollowUp(next.id, {
+        status: "queued",
+        turnId: null,
+        note: `blocked by budget: ${gate.reasons.join(" ")}`,
+        now,
+      });
+      return null;
+    }
+    const operationKey = `fup-op-${randomUUID()}`;
+    const claimed = await this.store.claimFollowUp(next.id, operationKey, now);
+    if (!claimed) return null;
+    session.submitting = true;
+    session.lastMode = next.mode;
+    this.push(session, "submission", "follow_up_sending");
+    try {
+      const result = await this.transmit(session, binding, next.prompt, next.mode, operationKey);
+      const settled = await this.store.settleFollowUp(next.id, {
+        status:
+          result.outcome === "accepted"
+            ? "accepted"
+            : result.outcome === "outcome_unknown"
+              ? "unknown"
+              : "rejected",
+        turnId: result.turnId,
+        note:
+          result.outcome === "accepted"
+            ? null
+            : (result.note ?? "the engine did not accept the turn"),
+        now: this.now().toISOString(),
+      });
+      this.push(session, "submission", result.outcome);
+      return settled;
+    } catch (error) {
+      const message = errorMessage(error);
+      this.diagnose(session, `the queued follow-up was not sent: ${message}`);
+      return this.store.settleFollowUp(next.id, {
+        status: "unknown",
+        turnId: null,
+        note: `the transport failed before an answer was observed: ${message}. It was not resent.`,
+        now: this.now().toISOString(),
+      });
+    } finally {
+      session.submitting = false;
+    }
   }
 
   /**
@@ -2030,6 +2346,10 @@ export class WorkStudio {
       pendingRequests: (await this.store.listPendingRequests(projectId, { limit: 20 })).map((row) =>
         pendingView(row, session),
       ),
+      followUps: (await this.store.listFollowUps(projectId).catch(() => [])).map((row) =>
+        followUpView(row, { canDispatchNow: this.canDispatchFollowUps(session) }),
+      ),
+      steering: STEERING_CAPABILITY,
       canSubmit: block === null,
       cannotSubmitReason: block,
       controls: {

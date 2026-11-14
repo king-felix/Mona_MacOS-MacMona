@@ -155,6 +155,8 @@ function studio(overrides: Partial<StudioSnapshot> = {}): StudioSnapshot {
     },
     submission: null,
     diagnostics: [],
+    followUps: [],
+    steering: { available: false, reason: "test fixture: no steer route", requiredRoute: null },
     pendingRequests: [],
     canSubmit: true,
     cannotSubmitReason: null,

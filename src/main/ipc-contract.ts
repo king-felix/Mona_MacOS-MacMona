@@ -174,6 +174,24 @@ export const IpcRequests = {
   "studio:cancel-queued": z.strictObject({ projectId: ProjectId }),
   "studio:reconcile": z.strictObject({ projectId: ProjectId }),
   "studio:stop": z.strictObject({ projectId: ProjectId }),
+  // R08. A follow-up is a person's explicit queue entry. `add` writes the row
+  // before anything is dispatched; `dispatch` is an explicit send-now while
+  // idle. Neither is reachable from a timer or a render effect.
+  "studio:follow-up-add": z.strictObject({
+    projectId: ProjectId,
+    prompt: z.string().trim().min(1).max(100_000),
+    mode: z.enum(["plan", "work"]),
+  }),
+  "studio:follow-up-edit": z.strictObject({
+    projectId: ProjectId,
+    followUpId: z.string().regex(/^fup_[a-z0-9]{8,64}$/),
+    prompt: z.string().trim().min(1).max(100_000),
+  }),
+  "studio:follow-up-cancel": z.strictObject({
+    projectId: ProjectId,
+    followUpId: z.string().regex(/^fup_[a-z0-9]{8,64}$/),
+  }),
+  "studio:follow-up-dispatch": z.strictObject({ projectId: ProjectId }),
   // R07. One answer to one engine request. The capability stays in main: the
   // renderer names Mona's own row, and main echoes the engine's own id.
   // R10. A workspace-relative file read through the engine's contained route.

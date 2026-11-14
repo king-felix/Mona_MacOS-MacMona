@@ -88,6 +88,7 @@ import type {
   PendingResponseInput,
   StudioFilePreview,
   StudioActionResult,
+  StudioFollowUpResult,
   StudioMode,
   StudioPendingResult,
   StudioPush,
@@ -252,6 +253,25 @@ export interface MonaBridge {
   cancelQueued(projectId: ProjectId): Promise<IpcResult<StudioActionResult>>;
   reconcileSubmission(projectId: ProjectId): Promise<IpcResult<StudioReconcileResult>>;
   stopStudio(projectId: ProjectId): Promise<IpcResult<StudioActionResult>>;
+  /**
+   * R08. Queue a follow-up for after the current turn. This writes the row and
+   * sends nothing; dispatch happens at the next turn boundary or on an explicit
+   * `dispatchFollowUps` while idle.
+   */
+  enqueueFollowUp(
+    projectId: ProjectId,
+    input: { prompt: string; mode: StudioMode },
+  ): Promise<IpcResult<StudioFollowUpResult>>;
+  editFollowUp(
+    projectId: ProjectId,
+    followUpId: string,
+    prompt: string,
+  ): Promise<IpcResult<StudioFollowUpResult>>;
+  cancelFollowUp(
+    projectId: ProjectId,
+    followUpId: string,
+  ): Promise<IpcResult<StudioFollowUpResult>>;
+  dispatchFollowUps(projectId: ProjectId): Promise<IpcResult<StudioFollowUpResult>>;
   /**
    * R07. Answer one engine approval or question. `requestId` is Mona's own row;
    * the engine's single-use capability never reaches the renderer. The result

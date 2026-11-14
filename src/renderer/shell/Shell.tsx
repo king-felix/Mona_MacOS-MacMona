@@ -11,6 +11,7 @@ import type {
   PendingResponseInput,
   StudioActionResult,
   StudioFilePreview,
+  StudioFollowUpResult,
   StudioMode,
   StudioSnapshot,
 } from "../../shared/contracts/studio";
@@ -230,6 +231,7 @@ export function Shell(): JSX.Element {
   // R07: the engine request whose answer is in flight, so one card cannot be
   // clicked twice while the Runtime decides.
   const [pendingAnswerId, setPendingAnswerId] = useState<string | null>(null);
+  const [followUpBusy, setFollowUpBusy] = useState(false);
   const [dropActive, setDropActive] = useState(false);
   const [digest, setDigest] = useState<PolishDigestView | null>(null);
   const [polishStatus, setPolishStatus] = useState<PolishStatusView | null>(null);
@@ -1441,6 +1443,66 @@ export function Shell(): JSX.Element {
   }, [epoch, refreshSelected, reportError, reportNotice]);
 
   /**
+   * R08. Follow-up queue actions. Each one is an explicit person action; the
+   * snapshot main returns is the only source for what the queue holds, so the
+   * screen cannot show a row that was not stored.
+   */
+  const followUpAction = useCallback(
+    async (
+      run: (
+        projectId: ProjectId,
+      ) => Promise<
+        | { ok: true; value: StudioFollowUpResult }
+        | { ok: false; error: { code: string; message: string } }
+      >,
+    ): Promise<void> => {
+      const current = selectedRef.current;
+      if (!current) return;
+      const token = epoch.current();
+      const name = current.project.name;
+      setFollowUpBusy(true);
+      try {
+        const result = await run(current.project.id);
+        if (!result.ok) {
+          reportError(token, name, result.error);
+          return;
+        }
+        if (epoch.isCurrent(token)) setStudio(result.value.snapshot);
+        reportNotice(token, name, result.value.note);
+        await refreshSelected();
+      } finally {
+        setFollowUpBusy(false);
+      }
+    },
+    [epoch, refreshSelected, reportError, reportNotice],
+  );
+
+  const queueFollowUp = useCallback(
+    (prompt: string, mode: StudioMode): void => {
+      void followUpAction((projectId) => window.mona.enqueueFollowUp(projectId, { prompt, mode }));
+    },
+    [followUpAction],
+  );
+
+  const editFollowUp = useCallback(
+    (id: string, prompt: string): void => {
+      void followUpAction((projectId) => window.mona.editFollowUp(projectId, id, prompt));
+    },
+    [followUpAction],
+  );
+
+  const cancelFollowUp = useCallback(
+    (id: string): void => {
+      void followUpAction((projectId) => window.mona.cancelFollowUp(projectId, id));
+    },
+    [followUpAction],
+  );
+
+  const dispatchFollowUps = useCallback((): void => {
+    void followUpAction((projectId) => window.mona.dispatchFollowUps(projectId));
+  }, [followUpAction]);
+
+  /**
    * R07. Answer one engine request. The row is claimed in main before the reply
    * leaves, and "answered" is reported only for the Runtime's own 2xx — so the
    * notice here says what the engine did, not that a button was pressed.
@@ -2185,6 +2247,11 @@ export function Shell(): JSX.Element {
             }}
             onShowChanges={() => setScreen("changes")}
             onMentionFile={() => setMention({ path: "", busy: false, preview: null, error: null })}
+            onQueueFollowUp={queueFollowUp}
+            onEditFollowUp={editFollowUp}
+            onCancelFollowUp={cancelFollowUp}
+            onDispatchFollowUps={dispatchFollowUps}
+            followUpBusy={followUpBusy}
             focusMode={focusLayout}
             focusPreference={focusMode}
             windowFullscreen={windowFullscreen}

@@ -215,6 +215,8 @@ function studioSnapshot(route: {
     cost: { observed: false, costUsd: 0, costComplete: false, turns: 0, label: "unknown" },
     submission: null,
     diagnostics: [],
+    followUps: [],
+    steering: { available: false, reason: "test fixture: no steer route", requiredRoute: null },
     pendingRequests: [],
     canSubmit: true,
     cannotSubmitReason: null,
