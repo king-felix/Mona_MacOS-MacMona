@@ -1,0 +1,220 @@
+{
+  "schema_version": 1,
+  "label": "LIVE PINNED-ENGINE RUN — P08",
+  "captured_at": "2026-11-14T18:01:31.495Z",
+  "ok": true,
+  "checks": {
+    "runtime_connected": true,
+    "engine_identity_pinned": true,
+    "profile_configured": true,
+    "submission_accepted": true,
+    "turn_completed": true,
+    "file_changed": true,
+    "test_command_observed": true,
+    "tool_card_rendered": true,
+    "effective_route_observed": true,
+    "effective_permission_full_access": true,
+    "cost_observed": true,
+    "replay_duplicates_observed": true,
+    "replay_no_duplicate_rows": true,
+    "replay_second_pass_ingests_nothing": true,
+    "interrupt_answered": true,
+    "interrupt_submission_interrupted": true,
+    "runtime_stopped": true,
+    "offline_history_retained": true,
+    "no_link_navigation": true,
+    "no_injected_nodes": true,
+    "no_fake_percent_in_chrome": true,
+    "ordered_list_rendered": true
+  },
+  "phases": [
+    {
+      "phase": "start",
+      "connection": "connected",
+      "engine": {
+        "version": "0.10.2",
+        "commit": "ff466b2ed0bfb4ae5267d4d8d0ecb562cf46956e"
+      },
+      "port": 59765,
+      "profile": {
+        "provider": "deepseek",
+        "exactId": null,
+        "model": "deepseek-flash",
+        "reasoningEffort": null,
+        "permissionPosture": "full_access",
+        "autoApprove": true,
+        "trustMode": true,
+        "allowShell": true,
+        "source": "configured",
+        "effective": null,
+        "effectiveTurnId": null
+      },
+      "can_submit": true
+    },
+    {
+      "phase": "submit",
+      "outcome": "accepted",
+      "turn_id": "turn_c7672be380c14f16a6b125d408b8a7dd",
+      "operation_key": "op-cc5c47b6-5049-427a-931b-e98d9db99189",
+      "guidance": null
+    },
+    {
+      "phase": "running",
+      "active_turn": "turn_c7672be380c14f16a6b125d408b8a7dd",
+      "connection": "running"
+    },
+    {
+      "phase": "interrupt",
+      "submit_outcome": "accepted",
+      "confirmed": true,
+      "uncertain": false,
+      "note": "interrupt confirmed by terminal turn state",
+      "submission": {
+        "operationKey": "op-e6ecf4c2-5a72-4ae7-b397-d7c9b0203e2b",
+        "status": "interrupted",
+        "turnId": "turn_1b306a8c8fcf4190a9614e5de58d2c69",
+        "reconciled": true,
+        "note": "interrupt confirmed by terminal turn state",
+        "submittedAt": "2026-11-14T18:05:04.849Z"
+      }
+    }
+  ],
+  "screenshots": [
+    "docs/evidence/macos/artifacts/p08-studio-run.png",
+    "docs/evidence/macos/artifacts/p08-studio-live.png",
+    "docs/evidence/macos/artifacts/p08-studio-offline.png"
+  ],
+  "engine": {
+    "version": "0.10.2",
+    "commit": "ff466b2ed0bfb4ae5267d4d8d0ecb562cf46956e"
+  },
+  "submission": {
+    "outcome": "accepted",
+    "turn_id": "turn_c7672be380c14f16a6b125d408b8a7dd",
+    "operation_key": "op-cc5c47b6-5049-427a-931b-e98d9db99189",
+    "final_status": "completed"
+  },
+  "cost": {
+    "observed": true,
+    "costUsd": 0.000409752,
+    "costComplete": true,
+    "turns": 1,
+    "label": "$0.0004 across 1 turn"
+  },
+  "file": {
+    "path": "~tmp/mona-studio-smoke-project-pRdQjK/Studio smoke project/hello.txt",
+    "contents": "mona-p08\n"
+  },
+  "events": {
+    "count": 56,
+    "kinds": [
+      "thread.started",
+      "turn.started",
+      "item.started",
+      "item.completed",
+      "turn.lifecycle",
+      "turn.workspace_snapshot",
+      "model.tools.snapshot",
+      "item.started",
+      "item.delta",
+      "turn.provider_request",
+      "turn.usage",
+      "item.started",
+      "item.started",
+      "item.completed",
+      "item.completed",
+      "turn.workspace_snapshot",
+      "operation.activity_started",
+      "operation.activity_completed",
+      "turn.workspace_snapshot",
+      "item.completed",
+      "turn.workspace_snapshot",
+      "operation.activity_started",
+      "operation.activity_completed",
+      "turn.workspace_snapshot",
+      "item.completed",
+      "item.completed",
+      "model.tools.snapshot",
+      "item.started",
+      "item.delta",
+      "item.delta",
+      "item.completed",
+      "turn.provider_request",
+      "turn.usage",
+      "item.started",
+      "turn.workspace_snapshot",
+      "operation.activity_started",
+      "operation.activity_completed",
+      "turn.workspace_snapshot",
+      "item.completed",
+      "item.completed",
+      "model.tools.snapshot",
+      "item.started",
+      "item.delta",
+      "item.delta",
+      "item.delta",
+      "item.delta",
+      "item.delta",
+      "item.delta",
+      "item.delta",
+      "item.delta",
+      "turn.provider_request",
+      "turn.usage",
+      "item.completed",
+      "model.tools.snapshot",
+      "turn.workspace_snapshot",
+      "turn.completed"
+    ]
+  },
+  "replay": {
+    "before": 56,
+    "first": {
+      "ingested": 1,
+      "duplicates": 56,
+      "cursor": 11376
+    },
+    "mid": 57,
+    "second": {
+      "ingested": 0,
+      "duplicates": 57,
+      "cursor": 11376
+    },
+    "after": 57
+  },
+  "interrupt": {
+    "confirmed": true,
+    "uncertain": false,
+    "note": "interrupt confirmed by terminal turn state"
+  },
+  "offline": {
+    "connection": "stopped",
+    "history": 84
+  },
+  "dom": {
+    "live": {
+      "screen": "studio",
+      "title": "Studio smoke project",
+      "timeline_entries": 13,
+      "connection": "EngineConnected",
+      "profile": "Modeldeepseek / deepseek-flashObserved",
+      "cost": "Spend$0.0004 across 1 turn",
+      "strip_percent": false,
+      "timeline_anchors": 0,
+      "injected_nodes": 0,
+      "ordered_list_marks": "decimal"
+    },
+    "offline": {
+      "screen": "studio",
+      "title": "Studio smoke project",
+      "timeline_entries": 22,
+      "connection": "EngineStopped",
+      "profile": "Modeldeepseek / deepseek-flashObserved",
+      "cost": "Spend$0.0006 across 2 turns",
+      "strip_percent": false,
+      "timeline_anchors": 0,
+      "injected_nodes": 0,
+      "ordered_list_marks": "decimal"
+    }
+  },
+  "hello_written_by_engine": "mona-p08\n"
+}

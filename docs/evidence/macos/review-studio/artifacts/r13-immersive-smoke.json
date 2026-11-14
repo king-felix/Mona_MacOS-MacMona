@@ -1,0 +1,2336 @@
+{
+  "schema_version": 1,
+  "label": "R05 FOCUS STUDIO AND NATIVE FULL SCREEN — no engine, no model request",
+  "captured_at": "2026-11-14T18:07:45.719Z",
+  "ok": true,
+  "checks": {
+    "catalog_rendered": true,
+    "studio_opened": true,
+    "normal_layout_is_windowed": true,
+    "normal_has_no_dashboard": true,
+    "focus_control_clicked": true,
+    "focus_layout_entered": true,
+    "focus_dashboard_present": true,
+    "focus_dashboard_is_slim": true,
+    "focus_rail_hidden": true,
+    "focus_topbar_hidden": true,
+    "focus_timeline_fills_viewport": true,
+    "focus_composer_bounded": true,
+    "focus_keeps_essentials": true,
+    "focus_no_page_overflow": true,
+    "draft_preserved_into_focus": true,
+    "focus_did_not_remount": true,
+    "stored_view_recorded_focus_on": true,
+    "stored_view_carries_no_fullscreen_key": true,
+    "focus_reports_no_runtime": true,
+    "focus_command_menu_opens": true,
+    "focus_command_menu_readable": true,
+    "focus_command_menu_not_clipped": true,
+    "focus_escape_closes_menu_first": true,
+    "focus_escape_keeps_focus_layout": true,
+    "focus_command_menu_closed": true,
+    "focus_drawer_opens": true,
+    "focus_drawer_shows_values": true,
+    "focus_drawer_visible": true,
+    "focus_drawer_escape_closes_only_drawer": true,
+    "composer_grip_present": true,
+    "composer_grows_on_arrow": true,
+    "timeline_survives_resize": true,
+    "composer_max_keeps_timeline": true,
+    "fullscreen_control_clicked": true,
+    "fullscreen_event_recorded": true,
+    "fullscreen_observed_by_macos": true,
+    "fullscreen_reported_to_ui": true,
+    "fullscreen_keeps_focus_layout": true,
+    "fullscreen_timeline_still_fills": true,
+    "fullscreen_preserved_draft": true,
+    "fullscreen_did_not_remount": true,
+    "fullscreen_renderer_saw_observed_view": true,
+    "zoom_200_dashboard_reachable": true,
+    "zoom_200_composer_reachable": true,
+    "zoom_200_no_page_overflow": true,
+    "zoom_200_timeline_kept_share": true,
+    "fullscreen_exit_control_clicked": true,
+    "fullscreen_exit_event_recorded": true,
+    "fullscreen_exit_observed_by_macos": true,
+    "exit_reported_to_ui": true,
+    "focus_survives_fullscreen_exit": true,
+    "window_bounds_restored": true,
+    "escape_in_composer_keeps_focus": true,
+    "escape_in_timeline_leaves_focus": true,
+    "focus_layout_left": true,
+    "rail_restored": true,
+    "draft_survives_layout_exit": true,
+    "stored_view_keeps_focus_preference": true,
+    "stored_view_has_no_fullscreen_binding": true,
+    "no_runtime_or_model": true
+  },
+  "facts": {
+    "normal": {
+      "screen": "studio",
+      "fullscreen": "off",
+      "focus": "off",
+      "shell_focus": false,
+      "rail_display": "flex",
+      "topbar_display": "flex",
+      "stage": {
+        "x": 260,
+        "y": 440.59375,
+        "width": 996,
+        "height": 892,
+        "bottom": 1332.59375,
+        "right": 1256
+      },
+      "timeline": {
+        "x": 260,
+        "y": 546.09375,
+        "width": 996,
+        "height": 352,
+        "bottom": 898.09375,
+        "right": 1256
+      },
+      "composer": {
+        "x": 260,
+        "y": 936.09375,
+        "width": 632,
+        "height": 347,
+        "bottom": 1283.09375,
+        "right": 892
+      },
+      "bar": null,
+      "textarea": {
+        "x": 275,
+        "y": 1075.09375,
+        "width": 602,
+        "height": 96,
+        "bottom": 1171.09375,
+        "right": 877
+      },
+      "bar_height": null,
+      "timeline_share": 0.39461883408071746,
+      "composer_share": 0.3890134529147982,
+      "textarea_value": "",
+      "selection": [
+        0,
+        0
+      ],
+      "same_studio": true,
+      "same_textarea": true,
+      "overflow": false,
+      "connection": "EngineNot started",
+      "reachable": {
+        "send": false,
+        "fullscreen": true,
+        "grip": false,
+        "exit": false,
+        "interrupt": false,
+        "timeline": false
+      },
+      "chain": [
+        {
+          "selector": ".harness__main",
+          "present": true,
+          "parent": "div.harness shell  ",
+          "parent_display": "grid",
+          "height": 1581.59375,
+          "clientHeight": 1582,
+          "scrollHeight": 1582,
+          "css_height": "1581.59px",
+          "css_min_height": "auto",
+          "css_max_height": "none",
+          "flex": "0 1 auto",
+          "flex_grow": "0",
+          "flex_basis": "auto",
+          "display": "block",
+          "overflow_y": "visible"
+        },
+        {
+          "selector": ".screen--studio-focus",
+          "present": false
+        },
+        {
+          "selector": ".studio",
+          "present": true,
+          "parent": "div.screen screen--studio ",
+          "parent_display": "flex",
+          "height": 892,
+          "clientHeight": 892,
+          "scrollHeight": 892,
+          "css_height": "892px",
+          "css_min_height": "auto",
+          "css_max_height": "none",
+          "flex": "0 1 auto",
+          "flex_grow": "0",
+          "flex_basis": "auto",
+          "display": "flex",
+          "overflow_y": "visible"
+        },
+        {
+          "selector": ".studio__timeline",
+          "present": true,
+          "parent": "div.studio",
+          "parent_display": "flex",
+          "height": 352,
+          "clientHeight": 350,
+          "scrollHeight": 350,
+          "css_height": "352px",
+          "css_min_height": "auto",
+          "css_max_height": "none",
+          "flex": "0 1 auto",
+          "flex_grow": "0",
+          "flex_basis": "auto",
+          "display": "block",
+          "overflow_y": "auto"
+        },
+        {
+          "selector": ".composer",
+          "present": true,
+          "parent": "section.studio__main",
+          "parent_display": "flex",
+          "height": 347,
+          "clientHeight": 345,
+          "scrollHeight": 345,
+          "css_height": "347px",
+          "css_min_height": "auto",
+          "css_max_height": "none",
+          "flex": "0 1 auto",
+          "flex_grow": "0",
+          "flex_basis": "auto",
+          "display": "flex",
+          "overflow_y": "visible"
+        }
+      ],
+      "children": [
+        {
+          "selector": ".screen--studio-focus",
+          "children": []
+        },
+        {
+          "selector": ".studio",
+          "children": [
+            {
+              "tag": "div",
+              "className": "history-search",
+              "height": 50.5,
+              "display": "flex",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "div",
+              "className": "timeline__toolbar",
+              "height": 27,
+              "display": "flex",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "section",
+              "className": "studio__timeline",
+              "height": 352,
+              "display": "block",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "div",
+              "className": "studio__work",
+              "height": 420.5,
+              "display": "grid",
+              "flex": "0 1 auto"
+            }
+          ]
+        },
+        {
+          "selector": ".composer",
+          "children": [
+            {
+              "tag": "div",
+              "className": "composer__mode",
+              "height": 32,
+              "display": "flex",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "div",
+              "className": "favorites",
+              "height": 43,
+              "display": "flex",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "div",
+              "className": "composer__input",
+              "height": 142,
+              "display": "block",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "div",
+              "className": "composer__actions",
+              "height": 64,
+              "display": "flex",
+              "flex": "0 1 auto"
+            }
+          ]
+        }
+      ],
+      "scroll_y": 0,
+      "views": [],
+      "active_element": "BODY."
+    },
+    "focus": {
+      "screen": "studio",
+      "fullscreen": "off",
+      "focus": "on",
+      "shell_focus": true,
+      "rail_display": "none",
+      "topbar_display": "none",
+      "stage": {
+        "x": 14,
+        "y": 163,
+        "width": 1252,
+        "height": 625,
+        "bottom": 788,
+        "right": 1266
+      },
+      "timeline": {
+        "x": 14,
+        "y": 256.5,
+        "width": 1252,
+        "height": 226,
+        "bottom": 482.5,
+        "right": 1266
+      },
+      "composer": {
+        "x": 14,
+        "y": 502.5,
+        "width": 1252,
+        "height": 248,
+        "bottom": 750.5,
+        "right": 1266
+      },
+      "bar": {
+        "x": 14,
+        "y": 17,
+        "width": 1252,
+        "height": 52,
+        "bottom": 69,
+        "right": 1266
+      },
+      "textarea": {
+        "x": 27,
+        "y": 576.5,
+        "width": 1226,
+        "height": 96,
+        "bottom": 672.5,
+        "right": 1253
+      },
+      "bar_height": 52,
+      "timeline_share": 0.3616,
+      "composer_share": 0.3968,
+      "textarea_value": "Refactor the retry path and keep the draft intact",
+      "selection": [
+        6,
+        19
+      ],
+      "same_studio": true,
+      "same_textarea": true,
+      "overflow": false,
+      "connection": "EngineNot started",
+      "reachable": {
+        "send": true,
+        "fullscreen": true,
+        "grip": true,
+        "exit": true,
+        "interrupt": true,
+        "timeline": true
+      },
+      "chain": [
+        {
+          "selector": ".harness__main",
+          "present": true,
+          "parent": "div.harness shell shell--focus ",
+          "parent_display": "grid",
+          "height": 829,
+          "clientHeight": 829,
+          "scrollHeight": 829,
+          "css_height": "829px",
+          "css_min_height": "800px",
+          "css_max_height": "none",
+          "flex": "0 1 auto",
+          "flex_grow": "0",
+          "flex_basis": "auto",
+          "display": "flex",
+          "overflow_y": "visible"
+        },
+        {
+          "selector": ".screen--studio-focus",
+          "present": true,
+          "parent": "main.harness__main shell__main",
+          "parent_display": "flex",
+          "height": 771,
+          "clientHeight": 771,
+          "scrollHeight": 771,
+          "css_height": "771px",
+          "css_min_height": "0px",
+          "css_max_height": "none",
+          "flex": "1 1 auto",
+          "flex_grow": "1",
+          "flex_basis": "auto",
+          "display": "flex",
+          "overflow_y": "visible"
+        },
+        {
+          "selector": ".studio",
+          "present": true,
+          "parent": "div.screen screen--studio screen--studio-focus",
+          "parent_display": "flex",
+          "height": 625,
+          "clientHeight": 625,
+          "scrollHeight": 625,
+          "css_height": "625px",
+          "css_min_height": "0px",
+          "css_max_height": "none",
+          "flex": "1 1 auto",
+          "flex_grow": "1",
+          "flex_basis": "auto",
+          "display": "flex",
+          "overflow_y": "visible"
+        },
+        {
+          "selector": ".studio__timeline",
+          "present": true,
+          "parent": "div.studio",
+          "parent_display": "flex",
+          "height": 226,
+          "clientHeight": 224,
+          "scrollHeight": 224,
+          "css_height": "226px",
+          "css_min_height": "160px",
+          "css_max_height": "none",
+          "flex": "1 1 auto",
+          "flex_grow": "1",
+          "flex_basis": "auto",
+          "display": "block",
+          "overflow_y": "auto"
+        },
+        {
+          "selector": ".composer",
+          "present": true,
+          "parent": "section.studio__main",
+          "parent_display": "flex",
+          "height": 248,
+          "clientHeight": 246,
+          "scrollHeight": 246,
+          "css_height": "248px",
+          "css_min_height": "auto",
+          "css_max_height": "none",
+          "flex": "0 1 auto",
+          "flex_grow": "0",
+          "flex_basis": "auto",
+          "display": "flex",
+          "overflow_y": "visible"
+        }
+      ],
+      "children": [
+        {
+          "selector": ".screen--studio-focus",
+          "children": [
+            {
+              "tag": "header",
+              "className": "focus-bar",
+              "height": 52,
+              "display": "flex",
+              "flex": "0 0 auto"
+            },
+            {
+              "tag": "div",
+              "className": "context-bar",
+              "height": 0,
+              "display": "none",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "section",
+              "className": "activity-strip",
+              "height": 32,
+              "display": "flex",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "section",
+              "className": "usage-hud",
+              "height": 38,
+              "display": "flex",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "div",
+              "className": "studio",
+              "height": 625,
+              "display": "flex",
+              "flex": "1 1 auto"
+            },
+            {
+              "tag": "div",
+              "className": "control-strip",
+              "height": 0,
+              "display": "none",
+              "flex": "0 1 auto"
+            }
+          ]
+        },
+        {
+          "selector": ".studio",
+          "children": [
+            {
+              "tag": "div",
+              "className": "history-search",
+              "height": 50.5,
+              "display": "flex",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "div",
+              "className": "timeline__toolbar",
+              "height": 27,
+              "display": "flex",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "section",
+              "className": "studio__timeline",
+              "height": 226,
+              "display": "block",
+              "flex": "1 1 auto"
+            },
+            {
+              "tag": "div",
+              "className": "studio__work",
+              "height": 297.5,
+              "display": "grid",
+              "flex": "0 0 auto"
+            }
+          ]
+        },
+        {
+          "selector": ".composer",
+          "children": [
+            {
+              "tag": "div",
+              "className": "composer__mode",
+              "height": 32,
+              "display": "flex",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "div",
+              "className": "favorites",
+              "height": 0,
+              "display": "none",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "div",
+              "className": "composer__input",
+              "height": 142,
+              "display": "block",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "div",
+              "className": "composer__actions",
+              "height": 36,
+              "display": "flex",
+              "flex": "0 1 auto"
+            }
+          ]
+        }
+      ],
+      "scroll_y": 29,
+      "views": [],
+      "active_element": "TEXTAREA#field-_r_i_.input input--area"
+    },
+    "stored_view_in_focus": {
+      "screen": "studio",
+      "inspectorTab": "task",
+      "studioMode": "work",
+      "focusMode": true
+    },
+    "focus_command_menu": {
+      "height": 520,
+      "top": 25.5,
+      "bottom": 545.5,
+      "inside_viewport": true,
+      "hit_is_menu": true,
+      "clipped_by": [
+        " hidden auto/auto"
+      ]
+    },
+    "focus_drawer": {
+      "text": "Cancel queuedStop engineBlockersModeldeepseek / deepseek-flashSpendnot recordedTokensno usage recordedFull screenwindowedLayoutFocus Studio preference on; stored with the project view and restored as a layout, never as full screenScopeSpend and tokens are project totals from stored turn receipts.",
+      "visible": true,
+      "inside_viewport": true
+    },
+    "focus_drawer_escape": {
+      "prevented": true,
+      "open": false,
+      "focus_mode": "on"
+    },
+    "composer_resize": {
+      "before": 248,
+      "after": 263,
+      "timeline_after": 226
+    },
+    "composer_max": {
+      "screen": "studio",
+      "fullscreen": "off",
+      "focus": "on",
+      "shell_focus": true,
+      "rail_display": "none",
+      "topbar_display": "none",
+      "stage": {
+        "x": 14,
+        "y": 163,
+        "width": 1252,
+        "height": 646,
+        "bottom": 809,
+        "right": 1266
+      },
+      "timeline": {
+        "x": 14,
+        "y": 256.5,
+        "width": 1252,
+        "height": 226,
+        "bottom": 482.5,
+        "right": 1266
+      },
+      "composer": {
+        "x": 14,
+        "y": 502.5,
+        "width": 1252,
+        "height": 269,
+        "bottom": 771.5,
+        "right": 1266
+      },
+      "bar": {
+        "x": 14,
+        "y": 17,
+        "width": 1252,
+        "height": 52,
+        "bottom": 69,
+        "right": 1266
+      },
+      "textarea": {
+        "x": 27,
+        "y": 576.5,
+        "width": 1226,
+        "height": 117,
+        "bottom": 693.5,
+        "right": 1253
+      },
+      "bar_height": 52,
+      "timeline_share": 0.3498452012383901,
+      "composer_share": 0.41640866873065013,
+      "textarea_value": "Refactor the retry path and keep the draft intact",
+      "selection": [
+        6,
+        19
+      ],
+      "same_studio": true,
+      "same_textarea": true,
+      "overflow": false,
+      "connection": "EngineNot started",
+      "reachable": {
+        "send": true,
+        "fullscreen": true,
+        "grip": true,
+        "exit": true,
+        "interrupt": true,
+        "timeline": true
+      },
+      "chain": [
+        {
+          "selector": ".harness__main",
+          "present": true,
+          "parent": "div.harness shell shell--focus ",
+          "parent_display": "grid",
+          "height": 850,
+          "clientHeight": 850,
+          "scrollHeight": 850,
+          "css_height": "850px",
+          "css_min_height": "800px",
+          "css_max_height": "none",
+          "flex": "0 1 auto",
+          "flex_grow": "0",
+          "flex_basis": "auto",
+          "display": "flex",
+          "overflow_y": "visible"
+        },
+        {
+          "selector": ".screen--studio-focus",
+          "present": true,
+          "parent": "main.harness__main shell__main",
+          "parent_display": "flex",
+          "height": 792,
+          "clientHeight": 792,
+          "scrollHeight": 792,
+          "css_height": "792px",
+          "css_min_height": "0px",
+          "css_max_height": "none",
+          "flex": "1 1 auto",
+          "flex_grow": "1",
+          "flex_basis": "auto",
+          "display": "flex",
+          "overflow_y": "visible"
+        },
+        {
+          "selector": ".studio",
+          "present": true,
+          "parent": "div.screen screen--studio screen--studio-focus",
+          "parent_display": "flex",
+          "height": 646,
+          "clientHeight": 646,
+          "scrollHeight": 646,
+          "css_height": "646px",
+          "css_min_height": "0px",
+          "css_max_height": "none",
+          "flex": "1 1 auto",
+          "flex_grow": "1",
+          "flex_basis": "auto",
+          "display": "flex",
+          "overflow_y": "visible"
+        },
+        {
+          "selector": ".studio__timeline",
+          "present": true,
+          "parent": "div.studio",
+          "parent_display": "flex",
+          "height": 226,
+          "clientHeight": 224,
+          "scrollHeight": 224,
+          "css_height": "226px",
+          "css_min_height": "160px",
+          "css_max_height": "none",
+          "flex": "1 1 auto",
+          "flex_grow": "1",
+          "flex_basis": "auto",
+          "display": "block",
+          "overflow_y": "auto"
+        },
+        {
+          "selector": ".composer",
+          "present": true,
+          "parent": "section.studio__main",
+          "parent_display": "flex",
+          "height": 269,
+          "clientHeight": 267,
+          "scrollHeight": 267,
+          "css_height": "269px",
+          "css_min_height": "auto",
+          "css_max_height": "none",
+          "flex": "0 1 auto",
+          "flex_grow": "0",
+          "flex_basis": "auto",
+          "display": "flex",
+          "overflow_y": "visible"
+        }
+      ],
+      "children": [
+        {
+          "selector": ".screen--studio-focus",
+          "children": [
+            {
+              "tag": "header",
+              "className": "focus-bar",
+              "height": 52,
+              "display": "flex",
+              "flex": "0 0 auto"
+            },
+            {
+              "tag": "div",
+              "className": "context-bar",
+              "height": 0,
+              "display": "none",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "section",
+              "className": "activity-strip",
+              "height": 32,
+              "display": "flex",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "section",
+              "className": "usage-hud",
+              "height": 38,
+              "display": "flex",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "div",
+              "className": "studio",
+              "height": 646,
+              "display": "flex",
+              "flex": "1 1 auto"
+            },
+            {
+              "tag": "div",
+              "className": "control-strip",
+              "height": 0,
+              "display": "none",
+              "flex": "0 1 auto"
+            }
+          ]
+        },
+        {
+          "selector": ".studio",
+          "children": [
+            {
+              "tag": "div",
+              "className": "history-search",
+              "height": 50.5,
+              "display": "flex",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "div",
+              "className": "timeline__toolbar",
+              "height": 27,
+              "display": "flex",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "section",
+              "className": "studio__timeline",
+              "height": 226,
+              "display": "block",
+              "flex": "1 1 auto"
+            },
+            {
+              "tag": "div",
+              "className": "studio__work",
+              "height": 318.5,
+              "display": "grid",
+              "flex": "0 0 auto"
+            }
+          ]
+        },
+        {
+          "selector": ".composer",
+          "children": [
+            {
+              "tag": "div",
+              "className": "composer__mode",
+              "height": 32,
+              "display": "flex",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "div",
+              "className": "favorites",
+              "height": 0,
+              "display": "none",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "div",
+              "className": "composer__input",
+              "height": 163,
+              "display": "block",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "div",
+              "className": "composer__actions",
+              "height": 36,
+              "display": "flex",
+              "flex": "0 1 auto"
+            }
+          ]
+        }
+      ],
+      "scroll_y": 29,
+      "views": [],
+      "active_element": "DIV.composer-grip"
+    },
+    "fullscreen_activation": {
+      "attempts": 0,
+      "focused": true,
+      "visible": true
+    },
+    "fullscreen_preconditions": {
+      "visible": true,
+      "focused": true
+    },
+    "fullscreen_pending_view": {
+      "busy": "true",
+      "pressed": "false",
+      "disabled": true,
+      "fullscreen_dataset": "off"
+    },
+    "fullscreen_attempts": [
+      {
+        "attempt": 1,
+        "at": "2026-11-14T18:07:48.125Z",
+        "focused": true
+      },
+      {
+        "attempt": 1,
+        "settled": true,
+        "entered": true,
+        "is_fullscreen": true
+      }
+    ],
+    "fullscreen": {
+      "screen": "studio",
+      "fullscreen": "on",
+      "focus": "on",
+      "shell_focus": true,
+      "rail_display": "none",
+      "topbar_display": "none",
+      "stage": {
+        "x": 14,
+        "y": 192,
+        "width": 1442,
+        "height": 719,
+        "bottom": 911,
+        "right": 1456
+      },
+      "timeline": {
+        "x": 14,
+        "y": 285.5,
+        "width": 1442,
+        "height": 299,
+        "bottom": 584.5,
+        "right": 1456
+      },
+      "composer": {
+        "x": 14,
+        "y": 604.5,
+        "width": 1442,
+        "height": 269,
+        "bottom": 873.5,
+        "right": 1456
+      },
+      "bar": {
+        "x": 14,
+        "y": 46,
+        "width": 1442,
+        "height": 52,
+        "bottom": 98,
+        "right": 1456
+      },
+      "textarea": {
+        "x": 27,
+        "y": 678.5,
+        "width": 1416,
+        "height": 117,
+        "bottom": 795.5,
+        "right": 1443
+      },
+      "bar_height": 52,
+      "timeline_share": 0.41585535465924894,
+      "composer_share": 0.3741307371349096,
+      "textarea_value": "Refactor the retry path and keep the draft intact",
+      "selection": [
+        6,
+        19
+      ],
+      "same_studio": true,
+      "same_textarea": true,
+      "overflow": false,
+      "connection": "EngineNot started",
+      "reachable": {
+        "send": true,
+        "fullscreen": true,
+        "grip": true,
+        "exit": true,
+        "interrupt": true,
+        "timeline": true
+      },
+      "chain": [
+        {
+          "selector": ".harness__main",
+          "present": true,
+          "parent": "div.harness shell shell--focus ",
+          "parent_display": "grid",
+          "height": 923,
+          "clientHeight": 923,
+          "scrollHeight": 923,
+          "css_height": "923px",
+          "css_min_height": "923px",
+          "css_max_height": "none",
+          "flex": "0 1 auto",
+          "flex_grow": "0",
+          "flex_basis": "auto",
+          "display": "flex",
+          "overflow_y": "visible"
+        },
+        {
+          "selector": ".screen--studio-focus",
+          "present": true,
+          "parent": "main.harness__main shell__main",
+          "parent_display": "flex",
+          "height": 865,
+          "clientHeight": 865,
+          "scrollHeight": 865,
+          "css_height": "865px",
+          "css_min_height": "0px",
+          "css_max_height": "none",
+          "flex": "1 1 auto",
+          "flex_grow": "1",
+          "flex_basis": "auto",
+          "display": "flex",
+          "overflow_y": "visible"
+        },
+        {
+          "selector": ".studio",
+          "present": true,
+          "parent": "div.screen screen--studio screen--studio-focus",
+          "parent_display": "flex",
+          "height": 719,
+          "clientHeight": 719,
+          "scrollHeight": 719,
+          "css_height": "719px",
+          "css_min_height": "0px",
+          "css_max_height": "none",
+          "flex": "1 1 auto",
+          "flex_grow": "1",
+          "flex_basis": "auto",
+          "display": "flex",
+          "overflow_y": "visible"
+        },
+        {
+          "selector": ".studio__timeline",
+          "present": true,
+          "parent": "div.studio",
+          "parent_display": "flex",
+          "height": 299,
+          "clientHeight": 297,
+          "scrollHeight": 297,
+          "css_height": "299px",
+          "css_min_height": "160px",
+          "css_max_height": "none",
+          "flex": "1 1 auto",
+          "flex_grow": "1",
+          "flex_basis": "auto",
+          "display": "block",
+          "overflow_y": "auto"
+        },
+        {
+          "selector": ".composer",
+          "present": true,
+          "parent": "section.studio__main",
+          "parent_display": "flex",
+          "height": 269,
+          "clientHeight": 267,
+          "scrollHeight": 267,
+          "css_height": "269px",
+          "css_min_height": "auto",
+          "css_max_height": "none",
+          "flex": "0 1 auto",
+          "flex_grow": "0",
+          "flex_basis": "auto",
+          "display": "flex",
+          "overflow_y": "visible"
+        }
+      ],
+      "children": [
+        {
+          "selector": ".screen--studio-focus",
+          "children": [
+            {
+              "tag": "header",
+              "className": "focus-bar",
+              "height": 52,
+              "display": "flex",
+              "flex": "0 0 auto"
+            },
+            {
+              "tag": "div",
+              "className": "context-bar",
+              "height": 0,
+              "display": "none",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "section",
+              "className": "activity-strip",
+              "height": 32,
+              "display": "flex",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "section",
+              "className": "usage-hud",
+              "height": 38,
+              "display": "flex",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "div",
+              "className": "studio",
+              "height": 719,
+              "display": "flex",
+              "flex": "1 1 auto"
+            },
+            {
+              "tag": "div",
+              "className": "control-strip",
+              "height": 0,
+              "display": "none",
+              "flex": "0 1 auto"
+            }
+          ]
+        },
+        {
+          "selector": ".studio",
+          "children": [
+            {
+              "tag": "div",
+              "className": "history-search",
+              "height": 50.5,
+              "display": "flex",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "div",
+              "className": "timeline__toolbar",
+              "height": 27,
+              "display": "flex",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "section",
+              "className": "studio__timeline",
+              "height": 299,
+              "display": "block",
+              "flex": "1 1 auto"
+            },
+            {
+              "tag": "div",
+              "className": "studio__work",
+              "height": 318.5,
+              "display": "grid",
+              "flex": "0 0 auto"
+            }
+          ]
+        },
+        {
+          "selector": ".composer",
+          "children": [
+            {
+              "tag": "div",
+              "className": "composer__mode",
+              "height": 32,
+              "display": "flex",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "div",
+              "className": "favorites",
+              "height": 0,
+              "display": "none",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "div",
+              "className": "composer__input",
+              "height": 163,
+              "display": "block",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "div",
+              "className": "composer__actions",
+              "height": 36,
+              "display": "flex",
+              "flex": "0 1 auto"
+            }
+          ]
+        }
+      ],
+      "scroll_y": 0,
+      "views": [
+        {
+          "fullscreen": false,
+          "pending": true,
+          "available": true,
+          "epoch": 0
+        },
+        {
+          "fullscreen": true,
+          "pending": false,
+          "available": true,
+          "epoch": 1
+        }
+      ],
+      "active_element": "DIV.composer-grip"
+    },
+    "zoom_200_scroll": {
+      "top": 0,
+      "bottom": 406.75
+    },
+    "zoom_200": {
+      "top": {
+        "screen": "studio",
+        "fullscreen": "on",
+        "focus": "on",
+        "shell_focus": true,
+        "rail_display": "none",
+        "topbar_display": "none",
+        "stage": {
+          "x": 14,
+          "y": 192,
+          "width": 707,
+          "height": 664.25,
+          "bottom": 856.25,
+          "right": 721
+        },
+        "timeline": {
+          "x": 14,
+          "y": 311.75,
+          "width": 707,
+          "height": 226,
+          "bottom": 537.75,
+          "right": 721
+        },
+        "composer": {
+          "x": 14,
+          "y": 557.75,
+          "width": 707,
+          "height": 261,
+          "bottom": 818.75,
+          "right": 721
+        },
+        "bar": {
+          "x": 14,
+          "y": 46,
+          "width": 707,
+          "height": 52,
+          "bottom": 98,
+          "right": 721
+        },
+        "textarea": {
+          "x": 25,
+          "y": 627.75,
+          "width": 685,
+          "height": 117,
+          "bottom": 744.75,
+          "right": 710
+        },
+        "bar_height": 52,
+        "timeline_share": 0.3402333458788107,
+        "composer_share": 0.39292435077154686,
+        "textarea_value": "Refactor the retry path and keep the draft intact",
+        "selection": [
+          6,
+          19
+        ],
+        "same_studio": true,
+        "same_textarea": true,
+        "overflow": false,
+        "connection": "EngineNot started",
+        "reachable": {
+          "send": false,
+          "fullscreen": true,
+          "grip": false,
+          "exit": true,
+          "interrupt": true,
+          "timeline": false
+        },
+        "chain": [
+          {
+            "selector": ".harness__main",
+            "present": true,
+            "parent": "div.harness shell shell--focus ",
+            "parent_display": "grid",
+            "height": 868.25,
+            "clientHeight": 868,
+            "scrollHeight": 868,
+            "css_height": "868.25px",
+            "css_min_height": "461.5px",
+            "css_max_height": "none",
+            "flex": "0 1 auto",
+            "flex_grow": "0",
+            "flex_basis": "auto",
+            "display": "flex",
+            "overflow_y": "visible"
+          },
+          {
+            "selector": ".screen--studio-focus",
+            "present": true,
+            "parent": "main.harness__main shell__main",
+            "parent_display": "flex",
+            "height": 810.25,
+            "clientHeight": 810,
+            "scrollHeight": 810,
+            "css_height": "810.25px",
+            "css_min_height": "0px",
+            "css_max_height": "none",
+            "flex": "1 1 auto",
+            "flex_grow": "1",
+            "flex_basis": "auto",
+            "display": "flex",
+            "overflow_y": "visible"
+          },
+          {
+            "selector": ".studio",
+            "present": true,
+            "parent": "div.screen screen--studio screen--studio-focus",
+            "parent_display": "flex",
+            "height": 664.25,
+            "clientHeight": 664,
+            "scrollHeight": 664,
+            "css_height": "664.25px",
+            "css_min_height": "0px",
+            "css_max_height": "none",
+            "flex": "1 1 auto",
+            "flex_grow": "1",
+            "flex_basis": "auto",
+            "display": "flex",
+            "overflow_y": "visible"
+          },
+          {
+            "selector": ".studio__timeline",
+            "present": true,
+            "parent": "div.studio",
+            "parent_display": "flex",
+            "height": 226,
+            "clientHeight": 224,
+            "scrollHeight": 224,
+            "css_height": "226px",
+            "css_min_height": "140px",
+            "css_max_height": "none",
+            "flex": "1 1 auto",
+            "flex_grow": "1",
+            "flex_basis": "auto",
+            "display": "block",
+            "overflow_y": "auto"
+          },
+          {
+            "selector": ".composer",
+            "present": true,
+            "parent": "section.studio__main",
+            "parent_display": "flex",
+            "height": 261,
+            "clientHeight": 259,
+            "scrollHeight": 259,
+            "css_height": "261px",
+            "css_min_height": "auto",
+            "css_max_height": "none",
+            "flex": "0 1 auto",
+            "flex_grow": "0",
+            "flex_basis": "auto",
+            "display": "flex",
+            "overflow_y": "visible"
+          }
+        ],
+        "children": [
+          {
+            "selector": ".screen--studio-focus",
+            "children": [
+              {
+                "tag": "header",
+                "className": "focus-bar",
+                "height": 52,
+                "display": "flex",
+                "flex": "0 0 auto"
+              },
+              {
+                "tag": "div",
+                "className": "context-bar",
+                "height": 0,
+                "display": "none",
+                "flex": "0 1 auto"
+              },
+              {
+                "tag": "section",
+                "className": "activity-strip",
+                "height": 32,
+                "display": "flex",
+                "flex": "0 1 auto"
+              },
+              {
+                "tag": "section",
+                "className": "usage-hud",
+                "height": 38,
+                "display": "flex",
+                "flex": "0 1 auto"
+              },
+              {
+                "tag": "div",
+                "className": "studio",
+                "height": 664.25,
+                "display": "flex",
+                "flex": "1 1 auto"
+              },
+              {
+                "tag": "div",
+                "className": "control-strip",
+                "height": 0,
+                "display": "none",
+                "flex": "0 1 auto"
+              }
+            ]
+          },
+          {
+            "selector": ".studio",
+            "children": [
+              {
+                "tag": "div",
+                "className": "history-search",
+                "height": 76.5,
+                "display": "flex",
+                "flex": "0 1 auto"
+              },
+              {
+                "tag": "div",
+                "className": "timeline__toolbar",
+                "height": 27.25,
+                "display": "flex",
+                "flex": "0 1 auto"
+              },
+              {
+                "tag": "section",
+                "className": "studio__timeline",
+                "height": 226,
+                "display": "block",
+                "flex": "1 1 auto"
+              },
+              {
+                "tag": "div",
+                "className": "studio__work",
+                "height": 310.5,
+                "display": "grid",
+                "flex": "0 0 auto"
+              }
+            ]
+          },
+          {
+            "selector": ".composer",
+            "children": [
+              {
+                "tag": "div",
+                "className": "composer__mode",
+                "height": 32,
+                "display": "flex",
+                "flex": "0 1 auto"
+              },
+              {
+                "tag": "div",
+                "className": "favorites",
+                "height": 0,
+                "display": "none",
+                "flex": "0 1 auto"
+              },
+              {
+                "tag": "div",
+                "className": "composer__input",
+                "height": 163,
+                "display": "block",
+                "flex": "0 1 auto"
+              },
+              {
+                "tag": "div",
+                "className": "composer__actions",
+                "height": 36,
+                "display": "flex",
+                "flex": "0 1 auto"
+              }
+            ]
+          }
+        ],
+        "scroll_y": 0,
+        "views": [
+          {
+            "fullscreen": false,
+            "pending": true,
+            "available": true,
+            "epoch": 0
+          },
+          {
+            "fullscreen": true,
+            "pending": false,
+            "available": true,
+            "epoch": 1
+          }
+        ],
+        "active_element": "DIV.composer-grip"
+      },
+      "bottom": {
+        "screen": "studio",
+        "fullscreen": "on",
+        "focus": "on",
+        "shell_focus": true,
+        "rail_display": "none",
+        "topbar_display": "none",
+        "stage": {
+          "x": 14,
+          "y": -214.75,
+          "width": 707,
+          "height": 664.25,
+          "bottom": 449.5,
+          "right": 721
+        },
+        "timeline": {
+          "x": 14,
+          "y": -95,
+          "width": 707,
+          "height": 226,
+          "bottom": 131,
+          "right": 721
+        },
+        "composer": {
+          "x": 14,
+          "y": 151,
+          "width": 707,
+          "height": 261,
+          "bottom": 412,
+          "right": 721
+        },
+        "bar": {
+          "x": 14,
+          "y": -360.75,
+          "width": 707,
+          "height": 52,
+          "bottom": -308.75,
+          "right": 721
+        },
+        "textarea": {
+          "x": 25,
+          "y": 221,
+          "width": 685,
+          "height": 117,
+          "bottom": 338,
+          "right": 710
+        },
+        "bar_height": 52,
+        "timeline_share": 0.3402333458788107,
+        "composer_share": 0.39292435077154686,
+        "textarea_value": "Refactor the retry path and keep the draft intact",
+        "selection": [
+          6,
+          19
+        ],
+        "same_studio": true,
+        "same_textarea": true,
+        "overflow": false,
+        "connection": "EngineNot started",
+        "reachable": {
+          "send": true,
+          "fullscreen": true,
+          "grip": true,
+          "exit": true,
+          "interrupt": true,
+          "timeline": true
+        },
+        "chain": [
+          {
+            "selector": ".harness__main",
+            "present": true,
+            "parent": "div.harness shell shell--focus ",
+            "parent_display": "grid",
+            "height": 868.25,
+            "clientHeight": 868,
+            "scrollHeight": 868,
+            "css_height": "868.25px",
+            "css_min_height": "461.5px",
+            "css_max_height": "none",
+            "flex": "0 1 auto",
+            "flex_grow": "0",
+            "flex_basis": "auto",
+            "display": "flex",
+            "overflow_y": "visible"
+          },
+          {
+            "selector": ".screen--studio-focus",
+            "present": true,
+            "parent": "main.harness__main shell__main",
+            "parent_display": "flex",
+            "height": 810.25,
+            "clientHeight": 810,
+            "scrollHeight": 810,
+            "css_height": "810.25px",
+            "css_min_height": "0px",
+            "css_max_height": "none",
+            "flex": "1 1 auto",
+            "flex_grow": "1",
+            "flex_basis": "auto",
+            "display": "flex",
+            "overflow_y": "visible"
+          },
+          {
+            "selector": ".studio",
+            "present": true,
+            "parent": "div.screen screen--studio screen--studio-focus",
+            "parent_display": "flex",
+            "height": 664.25,
+            "clientHeight": 664,
+            "scrollHeight": 664,
+            "css_height": "664.25px",
+            "css_min_height": "0px",
+            "css_max_height": "none",
+            "flex": "1 1 auto",
+            "flex_grow": "1",
+            "flex_basis": "auto",
+            "display": "flex",
+            "overflow_y": "visible"
+          },
+          {
+            "selector": ".studio__timeline",
+            "present": true,
+            "parent": "div.studio",
+            "parent_display": "flex",
+            "height": 226,
+            "clientHeight": 224,
+            "scrollHeight": 224,
+            "css_height": "226px",
+            "css_min_height": "140px",
+            "css_max_height": "none",
+            "flex": "1 1 auto",
+            "flex_grow": "1",
+            "flex_basis": "auto",
+            "display": "block",
+            "overflow_y": "auto"
+          },
+          {
+            "selector": ".composer",
+            "present": true,
+            "parent": "section.studio__main",
+            "parent_display": "flex",
+            "height": 261,
+            "clientHeight": 259,
+            "scrollHeight": 259,
+            "css_height": "261px",
+            "css_min_height": "auto",
+            "css_max_height": "none",
+            "flex": "0 1 auto",
+            "flex_grow": "0",
+            "flex_basis": "auto",
+            "display": "flex",
+            "overflow_y": "visible"
+          }
+        ],
+        "children": [
+          {
+            "selector": ".screen--studio-focus",
+            "children": [
+              {
+                "tag": "header",
+                "className": "focus-bar",
+                "height": 52,
+                "display": "flex",
+                "flex": "0 0 auto"
+              },
+              {
+                "tag": "div",
+                "className": "context-bar",
+                "height": 0,
+                "display": "none",
+                "flex": "0 1 auto"
+              },
+              {
+                "tag": "section",
+                "className": "activity-strip",
+                "height": 32,
+                "display": "flex",
+                "flex": "0 1 auto"
+              },
+              {
+                "tag": "section",
+                "className": "usage-hud",
+                "height": 38,
+                "display": "flex",
+                "flex": "0 1 auto"
+              },
+              {
+                "tag": "div",
+                "className": "studio",
+                "height": 664.25,
+                "display": "flex",
+                "flex": "1 1 auto"
+              },
+              {
+                "tag": "div",
+                "className": "control-strip",
+                "height": 0,
+                "display": "none",
+                "flex": "0 1 auto"
+              }
+            ]
+          },
+          {
+            "selector": ".studio",
+            "children": [
+              {
+                "tag": "div",
+                "className": "history-search",
+                "height": 76.5,
+                "display": "flex",
+                "flex": "0 1 auto"
+              },
+              {
+                "tag": "div",
+                "className": "timeline__toolbar",
+                "height": 27.25,
+                "display": "flex",
+                "flex": "0 1 auto"
+              },
+              {
+                "tag": "section",
+                "className": "studio__timeline",
+                "height": 226,
+                "display": "block",
+                "flex": "1 1 auto"
+              },
+              {
+                "tag": "div",
+                "className": "studio__work",
+                "height": 310.5,
+                "display": "grid",
+                "flex": "0 0 auto"
+              }
+            ]
+          },
+          {
+            "selector": ".composer",
+            "children": [
+              {
+                "tag": "div",
+                "className": "composer__mode",
+                "height": 32,
+                "display": "flex",
+                "flex": "0 1 auto"
+              },
+              {
+                "tag": "div",
+                "className": "favorites",
+                "height": 0,
+                "display": "none",
+                "flex": "0 1 auto"
+              },
+              {
+                "tag": "div",
+                "className": "composer__input",
+                "height": 163,
+                "display": "block",
+                "flex": "0 1 auto"
+              },
+              {
+                "tag": "div",
+                "className": "composer__actions",
+                "height": 36,
+                "display": "flex",
+                "flex": "0 1 auto"
+              }
+            ]
+          }
+        ],
+        "scroll_y": 406.75,
+        "views": [
+          {
+            "fullscreen": false,
+            "pending": true,
+            "available": true,
+            "epoch": 0
+          },
+          {
+            "fullscreen": true,
+            "pending": false,
+            "available": true,
+            "epoch": 1
+          }
+        ],
+        "active_element": "DIV.composer-grip"
+      }
+    },
+    "after_exit": {
+      "screen": "studio",
+      "fullscreen": "off",
+      "focus": "on",
+      "shell_focus": true,
+      "rail_display": "none",
+      "topbar_display": "none",
+      "stage": {
+        "x": 14,
+        "y": 192,
+        "width": 1252,
+        "height": 646,
+        "bottom": 838,
+        "right": 1266
+      },
+      "timeline": {
+        "x": 14,
+        "y": 285.5,
+        "width": 1252,
+        "height": 226,
+        "bottom": 511.5,
+        "right": 1266
+      },
+      "composer": {
+        "x": 14,
+        "y": 531.5,
+        "width": 1252,
+        "height": 269,
+        "bottom": 800.5,
+        "right": 1266
+      },
+      "bar": {
+        "x": 14,
+        "y": 46,
+        "width": 1252,
+        "height": 52,
+        "bottom": 98,
+        "right": 1266
+      },
+      "textarea": {
+        "x": 27,
+        "y": 605.5,
+        "width": 1226,
+        "height": 117,
+        "bottom": 722.5,
+        "right": 1253
+      },
+      "bar_height": 52,
+      "timeline_share": 0.3498452012383901,
+      "composer_share": 0.41640866873065013,
+      "textarea_value": "Refactor the retry path and keep the draft intact",
+      "selection": [
+        6,
+        19
+      ],
+      "same_studio": true,
+      "same_textarea": true,
+      "overflow": false,
+      "connection": "EngineNot started",
+      "reachable": {
+        "send": true,
+        "fullscreen": true,
+        "grip": true,
+        "exit": true,
+        "interrupt": true,
+        "timeline": true
+      },
+      "chain": [
+        {
+          "selector": ".harness__main",
+          "present": true,
+          "parent": "div.harness shell shell--focus ",
+          "parent_display": "grid",
+          "height": 850,
+          "clientHeight": 850,
+          "scrollHeight": 850,
+          "css_height": "850px",
+          "css_min_height": "800px",
+          "css_max_height": "none",
+          "flex": "0 1 auto",
+          "flex_grow": "0",
+          "flex_basis": "auto",
+          "display": "flex",
+          "overflow_y": "visible"
+        },
+        {
+          "selector": ".screen--studio-focus",
+          "present": true,
+          "parent": "main.harness__main shell__main",
+          "parent_display": "flex",
+          "height": 792,
+          "clientHeight": 792,
+          "scrollHeight": 792,
+          "css_height": "792px",
+          "css_min_height": "0px",
+          "css_max_height": "none",
+          "flex": "1 1 auto",
+          "flex_grow": "1",
+          "flex_basis": "auto",
+          "display": "flex",
+          "overflow_y": "visible"
+        },
+        {
+          "selector": ".studio",
+          "present": true,
+          "parent": "div.screen screen--studio screen--studio-focus",
+          "parent_display": "flex",
+          "height": 646,
+          "clientHeight": 646,
+          "scrollHeight": 646,
+          "css_height": "646px",
+          "css_min_height": "0px",
+          "css_max_height": "none",
+          "flex": "1 1 auto",
+          "flex_grow": "1",
+          "flex_basis": "auto",
+          "display": "flex",
+          "overflow_y": "visible"
+        },
+        {
+          "selector": ".studio__timeline",
+          "present": true,
+          "parent": "div.studio",
+          "parent_display": "flex",
+          "height": 226,
+          "clientHeight": 224,
+          "scrollHeight": 224,
+          "css_height": "226px",
+          "css_min_height": "160px",
+          "css_max_height": "none",
+          "flex": "1 1 auto",
+          "flex_grow": "1",
+          "flex_basis": "auto",
+          "display": "block",
+          "overflow_y": "auto"
+        },
+        {
+          "selector": ".composer",
+          "present": true,
+          "parent": "section.studio__main",
+          "parent_display": "flex",
+          "height": 269,
+          "clientHeight": 267,
+          "scrollHeight": 267,
+          "css_height": "269px",
+          "css_min_height": "auto",
+          "css_max_height": "none",
+          "flex": "0 1 auto",
+          "flex_grow": "0",
+          "flex_basis": "auto",
+          "display": "flex",
+          "overflow_y": "visible"
+        }
+      ],
+      "children": [
+        {
+          "selector": ".screen--studio-focus",
+          "children": [
+            {
+              "tag": "header",
+              "className": "focus-bar",
+              "height": 52,
+              "display": "flex",
+              "flex": "0 0 auto"
+            },
+            {
+              "tag": "div",
+              "className": "context-bar",
+              "height": 0,
+              "display": "none",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "section",
+              "className": "activity-strip",
+              "height": 32,
+              "display": "flex",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "section",
+              "className": "usage-hud",
+              "height": 38,
+              "display": "flex",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "div",
+              "className": "studio",
+              "height": 646,
+              "display": "flex",
+              "flex": "1 1 auto"
+            },
+            {
+              "tag": "div",
+              "className": "control-strip",
+              "height": 0,
+              "display": "none",
+              "flex": "0 1 auto"
+            }
+          ]
+        },
+        {
+          "selector": ".studio",
+          "children": [
+            {
+              "tag": "div",
+              "className": "history-search",
+              "height": 50.5,
+              "display": "flex",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "div",
+              "className": "timeline__toolbar",
+              "height": 27,
+              "display": "flex",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "section",
+              "className": "studio__timeline",
+              "height": 226,
+              "display": "block",
+              "flex": "1 1 auto"
+            },
+            {
+              "tag": "div",
+              "className": "studio__work",
+              "height": 318.5,
+              "display": "grid",
+              "flex": "0 0 auto"
+            }
+          ]
+        },
+        {
+          "selector": ".composer",
+          "children": [
+            {
+              "tag": "div",
+              "className": "composer__mode",
+              "height": 32,
+              "display": "flex",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "div",
+              "className": "favorites",
+              "height": 0,
+              "display": "none",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "div",
+              "className": "composer__input",
+              "height": 163,
+              "display": "block",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "div",
+              "className": "composer__actions",
+              "height": 36,
+              "display": "flex",
+              "flex": "0 1 auto"
+            }
+          ]
+        }
+      ],
+      "scroll_y": 0,
+      "views": [
+        {
+          "fullscreen": false,
+          "pending": true,
+          "available": true,
+          "epoch": 0
+        },
+        {
+          "fullscreen": true,
+          "pending": false,
+          "available": true,
+          "epoch": 1
+        },
+        {
+          "fullscreen": true,
+          "pending": true,
+          "available": true,
+          "epoch": 1
+        },
+        {
+          "fullscreen": false,
+          "pending": false,
+          "available": true,
+          "epoch": 2
+        }
+      ],
+      "active_element": "DIV.composer-grip"
+    },
+    "bounds": {
+      "before": {
+        "x": 145,
+        "y": 33,
+        "width": 1280,
+        "height": 800
+      },
+      "after": {
+        "x": 145,
+        "y": 33,
+        "width": 1280,
+        "height": 800
+      }
+    },
+    "after_escape": {
+      "screen": "studio",
+      "fullscreen": "off",
+      "focus": "off",
+      "shell_focus": false,
+      "rail_display": "flex",
+      "topbar_display": "flex",
+      "stage": {
+        "x": 260,
+        "y": 440.59375,
+        "width": 996,
+        "height": 913,
+        "bottom": 1353.59375,
+        "right": 1256
+      },
+      "timeline": {
+        "x": 260,
+        "y": 546.09375,
+        "width": 996,
+        "height": 352,
+        "bottom": 898.09375,
+        "right": 1256
+      },
+      "composer": {
+        "x": 260,
+        "y": 936.09375,
+        "width": 632,
+        "height": 368,
+        "bottom": 1304.09375,
+        "right": 892
+      },
+      "bar": null,
+      "textarea": {
+        "x": 275,
+        "y": 1075.09375,
+        "width": 602,
+        "height": 117,
+        "bottom": 1192.09375,
+        "right": 877
+      },
+      "bar_height": null,
+      "timeline_share": 0.3855421686746988,
+      "composer_share": 0.40306681270536693,
+      "textarea_value": "Refactor the retry path and keep the draft intact",
+      "selection": [
+        6,
+        19
+      ],
+      "same_studio": true,
+      "same_textarea": true,
+      "overflow": false,
+      "connection": "EngineNot started",
+      "reachable": {
+        "send": false,
+        "fullscreen": true,
+        "grip": false,
+        "exit": false,
+        "interrupt": false,
+        "timeline": false
+      },
+      "chain": [
+        {
+          "selector": ".harness__main",
+          "present": true,
+          "parent": "div.harness shell  ",
+          "parent_display": "grid",
+          "height": 1602.59375,
+          "clientHeight": 1603,
+          "scrollHeight": 1603,
+          "css_height": "1602.59px",
+          "css_min_height": "auto",
+          "css_max_height": "none",
+          "flex": "0 1 auto",
+          "flex_grow": "0",
+          "flex_basis": "auto",
+          "display": "block",
+          "overflow_y": "visible"
+        },
+        {
+          "selector": ".screen--studio-focus",
+          "present": false
+        },
+        {
+          "selector": ".studio",
+          "present": true,
+          "parent": "div.screen screen--studio ",
+          "parent_display": "flex",
+          "height": 913,
+          "clientHeight": 913,
+          "scrollHeight": 913,
+          "css_height": "913px",
+          "css_min_height": "auto",
+          "css_max_height": "none",
+          "flex": "0 1 auto",
+          "flex_grow": "0",
+          "flex_basis": "auto",
+          "display": "flex",
+          "overflow_y": "visible"
+        },
+        {
+          "selector": ".studio__timeline",
+          "present": true,
+          "parent": "div.studio",
+          "parent_display": "flex",
+          "height": 352,
+          "clientHeight": 350,
+          "scrollHeight": 350,
+          "css_height": "352px",
+          "css_min_height": "auto",
+          "css_max_height": "none",
+          "flex": "0 1 auto",
+          "flex_grow": "0",
+          "flex_basis": "auto",
+          "display": "block",
+          "overflow_y": "auto"
+        },
+        {
+          "selector": ".composer",
+          "present": true,
+          "parent": "section.studio__main",
+          "parent_display": "flex",
+          "height": 368,
+          "clientHeight": 366,
+          "scrollHeight": 366,
+          "css_height": "368px",
+          "css_min_height": "auto",
+          "css_max_height": "none",
+          "flex": "0 1 auto",
+          "flex_grow": "0",
+          "flex_basis": "auto",
+          "display": "flex",
+          "overflow_y": "visible"
+        }
+      ],
+      "children": [
+        {
+          "selector": ".screen--studio-focus",
+          "children": []
+        },
+        {
+          "selector": ".studio",
+          "children": [
+            {
+              "tag": "div",
+              "className": "history-search",
+              "height": 50.5,
+              "display": "flex",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "div",
+              "className": "timeline__toolbar",
+              "height": 27,
+              "display": "flex",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "section",
+              "className": "studio__timeline",
+              "height": 352,
+              "display": "block",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "div",
+              "className": "studio__work",
+              "height": 441.5,
+              "display": "grid",
+              "flex": "0 1 auto"
+            }
+          ]
+        },
+        {
+          "selector": ".composer",
+          "children": [
+            {
+              "tag": "div",
+              "className": "composer__mode",
+              "height": 32,
+              "display": "flex",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "div",
+              "className": "favorites",
+              "height": 43,
+              "display": "flex",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "div",
+              "className": "composer__input",
+              "height": 163,
+              "display": "block",
+              "flex": "0 1 auto"
+            },
+            {
+              "tag": "div",
+              "className": "composer__actions",
+              "height": 64,
+              "display": "flex",
+              "flex": "0 1 auto"
+            }
+          ]
+        }
+      ],
+      "scroll_y": 0,
+      "views": [
+        {
+          "fullscreen": false,
+          "pending": true,
+          "available": true,
+          "epoch": 0
+        },
+        {
+          "fullscreen": true,
+          "pending": false,
+          "available": true,
+          "epoch": 1
+        },
+        {
+          "fullscreen": true,
+          "pending": true,
+          "available": true,
+          "epoch": 1
+        },
+        {
+          "fullscreen": false,
+          "pending": false,
+          "available": true,
+          "epoch": 2
+        }
+      ],
+      "active_element": "SECTION.studio__timeline"
+    },
+    "stored_view": {
+      "screen": "studio",
+      "inspectorTab": "task",
+      "studioMode": "work",
+      "focusMode": false
+    },
+    "engine_state": "disconnected"
+  },
+  "native_events": [
+    {
+      "event": "enter-full-screen",
+      "at": "2026-11-14T18:07:48.470Z",
+      "is_fullscreen": true,
+      "bounds": {
+        "x": 0,
+        "y": 33,
+        "width": 1470,
+        "height": 923
+      }
+    },
+    {
+      "event": "leave-full-screen",
+      "at": "2026-11-14T18:07:51.382Z",
+      "is_fullscreen": false,
+      "bounds": {
+        "x": 145,
+        "y": 33,
+        "width": 1280,
+        "height": 800
+      }
+    }
+  ],
+  "screenshots": [
+    "r05-studio-normal.png",
+    "r05-focus-windowed.png",
+    "r05-focus-command-menu.png",
+    "r05-focus-drawer.png",
+    "r05-native-fullscreen.png",
+    "r05-focus-200.png"
+  ],
+  "project": "prj_b27abcd7c0cdd07b"
+}

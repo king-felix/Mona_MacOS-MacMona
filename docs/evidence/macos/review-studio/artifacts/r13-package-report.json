@@ -2,12 +2,12 @@
   "schema_version": 1,
   "product": "Mona",
   "version": "0.1.0",
-  "build": "148",
+  "build": "152",
   "channel": "local",
   "package": "Mona-0.1.0-macOS-arm64-local.pkg",
-  "package_sha256": "ffa51835851218467b3e95d025bca480553c294c527acfdc80f6c78ac6634d8b",
-  "package_size": 163802874,
-  "verified_at": "2026-11-14T17:53:50.112Z",
+  "package_sha256": "e4ffe0e0308866e2bf7185e24701b82a599dc49591f99aba83ef2592308c777d",
+  "package_size": 163802705,
+  "verified_at": "2026-11-14T18:18:40.867Z",
   "gates": {
     "declared_metadata": {
       "ok": true,
@@ -15,7 +15,7 @@
       "declares": [
         "package id com.mona.workbench.pkg",
         "version 0.1.0",
-        "build 148",
+        "build 152",
         "bundles com.mona.workbench + com.mona.workbench.service",
         "arm64 only",
         "macOS 14.0+"

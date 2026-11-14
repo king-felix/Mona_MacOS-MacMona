@@ -1,0 +1,292 @@
+{
+  "schema_version": 1,
+  "label": "R13 candidate verification",
+  "captured_at": "2026-11-14T18:18:51.376Z",
+  "host": {
+    "macos": "26.5.1",
+    "architecture": "arm64"
+  },
+  "app": "<repo>/packaging/macos/out/stage/payload/Applications/Mona.app",
+  "ok": false,
+  "failed": [
+    "package_smoke"
+  ],
+  "checks": {
+    "app_present": {
+      "ok": true,
+      "detail": "<repo>/packaging/macos/out/stage/payload/Applications/Mona.app"
+    },
+    "bundle_identity": {
+      "ok": true,
+      "detail": {
+        "bundle_id": "com.mona.workbench",
+        "version": "0.1.0",
+        "build": "152",
+        "channel": "local",
+        "minimum_macos": "14.0",
+        "executable": "Mona"
+      }
+    },
+    "component_manifest_present": {
+      "ok": true,
+      "detail": "packaging/macos/out/stage/payload/Applications/Mona.app/Contents/Resources/component-manifest.json"
+    },
+    "manifest_matches_bundle": {
+      "ok": true,
+      "detail": {
+        "manifest_build": "152",
+        "app_build": "152"
+      }
+    },
+    "artifact_names_its_source": {
+      "ok": true,
+      "detail": {
+        "app_build": "152",
+        "artifact_commit": "c9745dc0643edbd79467164ef78edb39cf739a40",
+        "artifact_tree_dirty": false,
+        "commits_since": 0,
+        "commits_since_examples": [],
+        "build_number_gap": 0,
+        "note": "The artifact must have been built from a clean tree, and every commit since it in this checkout must be a ledger/evidence commit (a build can never describe code it did not contain)."
+      }
+    },
+    "signature_verifies": {
+      "ok": true,
+      "detail": ""
+    },
+    "signing_tier_recorded": {
+      "ok": true,
+      "detail": {
+        "tier": "ad-hoc local",
+        "gatekeeper_accepted": false
+      }
+    },
+    "component_digests_match": {
+      "ok": true,
+      "detail": {
+        "checked": 13,
+        "problems": []
+      }
+    },
+    "arm64_only": {
+      "ok": true,
+      "detail": {
+        "mach_o_files": 3,
+        "violations": []
+      }
+    },
+    "minimum_os_declared": {
+      "ok": true,
+      "detail": {
+        "floor": "14.0",
+        "violations": [],
+        "note": "app-owned components only; the pinned engine keeps its own deployment target"
+      }
+    },
+    "native_components_present": {
+      "ok": true,
+      "detail": {
+        "required": [
+          "native/mona-supervisor",
+          "native/mona-pty",
+          "engine/codewhale",
+          "app/dist/main/main/index.js",
+          "app/dist/main/preload/index.js"
+        ],
+        "missing": []
+      }
+    },
+    "review_features_shipped": {
+      "ok": true,
+      "detail": {
+        "markers": 8,
+        "missing": []
+      }
+    },
+    "no_developer_paths": {
+      "ok": true,
+      "detail": {
+        "scanned": 422,
+        "hits": []
+      }
+    },
+    "package_smoke": {
+      "ok": false,
+      "detail": {
+        "exit": 1,
+        "ok": false,
+        "checks": [
+          {
+            "name": "packaged",
+            "ok": true,
+            "detail": "running from an app bundle"
+          },
+          {
+            "name": "arm64 executable",
+            "ok": true,
+            "detail": "<repo>/packaging/macos/out/stage/payload/Applications/Mona.app/Contents/MacOS/Mona: Mach-O 64-bit executable arm64"
+          },
+          {
+            "name": "bundled engine version",
+            "ok": true,
+            "detail": "codewhale 0.10.2 (ff466b2ed0bf) via bundled"
+          },
+          {
+            "name": "bundled engine location",
+            "ok": true,
+            "detail": "<repo>/packaging/macos/out/stage/payload/Applications/Mona.app/Contents/Resources/engine/codewhale"
+          },
+          {
+            "name": "native supervisor",
+            "ok": true,
+            "detail": "<repo>/packaging/macos/out/stage/payload/Applications/Mona.app/Contents/Resources/native/mona-supervisor (runs)"
+          },
+          {
+            "name": "native pty",
+            "ok": true,
+            "detail": "<repo>/packaging/macos/out/stage/payload/Applications/Mona.app/Contents/Resources/native/mona-pty (spawned a shell)"
+          },
+          {
+            "name": "capability inventory",
+            "ok": true,
+            "detail": "<repo>/packaging/macos/out/stage/payload/Applications/Mona.app/Contents/Resources/docs/codewhale-capabilities-macos.json"
+          },
+          {
+            "name": "component manifest",
+            "ok": true,
+            "detail": "<repo>/packaging/macos/out/stage/payload/Applications/Mona.app/Contents/Resources/component-manifest.json"
+          },
+          {
+            "name": "component digests",
+            "ok": true,
+            "detail": "13/13 hashes match the manifest"
+          },
+          {
+            "name": "install location",
+            "ok": false,
+            "detail": "<repo>/packaging/macos/out/stage/payload/Applications/Mona.app"
+          },
+          {
+            "name": "state directory",
+            "ok": true,
+            "detail": "<tmp> Support/Mona/state"
+          }
+        ],
+        "stderr": ""
+      }
+    }
+  },
+  "facts": {
+    "identity": {
+      "bundle_id": "com.mona.workbench",
+      "version": "0.1.0",
+      "build": "152",
+      "channel": "local",
+      "minimum_macos": "14.0",
+      "executable": "Mona"
+    },
+    "source": {
+      "commit": "c9745dc",
+      "build_number": "152",
+      "tree_clean": true
+    },
+    "manifest": {
+      "build": "152",
+      "channel": "local",
+      "minimum_macos": "14.0",
+      "engine": {
+        "version": "0.10.2",
+        "commit": "ff466b2ed0bfb4ae5267d4d8d0ecb562cf46956e",
+        "source": "installed_native",
+        "upstream_sha256": "da0229610647f1cc2dd14c4227b333a92ea276a49f5d4d79160fa19e515e590d"
+      },
+      "components": 13
+    },
+    "signature": {
+      "authority": null,
+      "team": "not set",
+      "hardened_runtime": null,
+      "tier": "ad-hoc local"
+    },
+    "gatekeeper": {
+      "accepted": false,
+      "stdout": "",
+      "stderr": ""
+    },
+    "components_checked": 13,
+    "minimum_os": {
+      "app_owned": [
+        "14.0"
+      ],
+      "engine": [
+        {
+          "path": "engine/codewhale",
+          "min_os": "11.0"
+        }
+      ]
+    },
+    "package_smoke": {
+      "exit": 1,
+      "ok": false,
+      "checks": [
+        {
+          "name": "packaged",
+          "ok": true,
+          "detail": "running from an app bundle"
+        },
+        {
+          "name": "arm64 executable",
+          "ok": true,
+          "detail": "<repo>/packaging/macos/out/stage/payload/Applications/Mona.app/Contents/MacOS/Mona: Mach-O 64-bit executable arm64"
+        },
+        {
+          "name": "bundled engine version",
+          "ok": true,
+          "detail": "codewhale 0.10.2 (ff466b2ed0bf) via bundled"
+        },
+        {
+          "name": "bundled engine location",
+          "ok": true,
+          "detail": "<repo>/packaging/macos/out/stage/payload/Applications/Mona.app/Contents/Resources/engine/codewhale"
+        },
+        {
+          "name": "native supervisor",
+          "ok": true,
+          "detail": "<repo>/packaging/macos/out/stage/payload/Applications/Mona.app/Contents/Resources/native/mona-supervisor (runs)"
+        },
+        {
+          "name": "native pty",
+          "ok": true,
+          "detail": "<repo>/packaging/macos/out/stage/payload/Applications/Mona.app/Contents/Resources/native/mona-pty (spawned a shell)"
+        },
+        {
+          "name": "capability inventory",
+          "ok": true,
+          "detail": "<repo>/packaging/macos/out/stage/payload/Applications/Mona.app/Contents/Resources/docs/codewhale-capabilities-macos.json"
+        },
+        {
+          "name": "component manifest",
+          "ok": true,
+          "detail": "<repo>/packaging/macos/out/stage/payload/Applications/Mona.app/Contents/Resources/component-manifest.json"
+        },
+        {
+          "name": "component digests",
+          "ok": true,
+          "detail": "13/13 hashes match the manifest"
+        },
+        {
+          "name": "install location",
+          "ok": false,
+          "detail": "<repo>/packaging/macos/out/stage/payload/Applications/Mona.app"
+        },
+        {
+          "name": "state directory",
+          "ok": true,
+          "detail": "<tmp> Support/Mona/state"
+        }
+      ],
+      "stderr": ""
+    }
+  },
+  "note": "Read from the artifact itself: the bundle's own component manifest, every listed file hashed, every Mach-O header decoded, and the shipped bundles searched for the review's own channel names. No engine is started and no model request is made."
+}

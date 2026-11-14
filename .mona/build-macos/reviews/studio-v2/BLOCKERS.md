@@ -1,18 +1,27 @@
 # Blockers — Studio review (studio-v2)
 
-**Status: no blocked review problem.** `attempts.jsonl` is empty; no review
-task has consumed an attempt. R11 measured every budget it could and recorded the
-one it could not meet (idle memory) as a derived, named exception rather than a
-blocker — the runtime's own floor is 356 MiB against a 350 MiB target, so no
-application code can satisfy it on this host. R00's four behavioral fixes were reproduced,
-fixed and regression-tested inside one task, so no problem became open.
+**Status: one blocked review task, not a failed attempt.** `attempts.jsonl` is
+empty; no review task has consumed an attempt. R11 measured every budget it
+could and recorded the one it could not meet (idle memory) as a derived, named
+exception rather than a blocker — the runtime's own floor is 356 MiB against a
+350 MiB target, so no application code can satisfy it on this host. R00's four
+behavioral fixes were reproduced, fixed and regression-tested inside one task, so
+no problem became open. R13 is blocked on a privilege, not a hypothesis.
 
-## R13 is blocked on one admin-authorized install (EXT-INSTALL)
+## R13 is blocked on installing the build it fixed (EXT-INSTALL)
 
-Build 147 is assembled and its payload is verified, but `/Applications/Mona.app`
-still holds build 104. The packaging build stops at `installed_copy` by design,
-and `sudo -n` refuses in this session, so the installed candidate cannot be
-qualified without Victor.
+What changed since the task opened: **build 151 is installed** at
+`/Applications/Mona.app` and was qualified end to end — 16/16 verifier checks, a
+137-check shell smoke through LaunchServices, 26/26 command, 60/60 immersive and
+one live pinned-engine turn (22/22). The history mode it ran exposed a real
+regression (115.5 px of drift per older page, introduced when R11 windowed the
+console). That is fixed in source, `smoke:history` is now in `npm run ci`, and
+candidate **build 152** passes all four modes from its own bytes
+(137 + 26 + 60 + 19).
+
+`installer` refuses without root, and the packaging gate correctly refuses to
+call the old installed copy this build, so the fixed candidate cannot be
+qualified in place.
 
 **Exact help needed** — one command, with administrator authorization:
 
@@ -20,18 +29,17 @@ qualified without Victor.
 sudo installer -pkg packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg -target /
 ```
 
-Then R13 resumes with `node scripts/r13-candidate-verify.mjs --smoke --launch`
-against `/Applications/Mona.app`, the interactive pass its acceptance names, and
-`npm run mac:package:local` (whose install gates then run for the new build).
-R14 depends on R13 and stays pending until then. Nothing about this is
-attempt-counted: no hypothesis failed, a privilege is missing.
+Then R13 closes with `node scripts/r13-candidate-verify.mjs --smoke --launch`,
+`node scripts/r13-installed-pass.mjs` (history must read 19/19), and
+`npm run mac:package:local` (its install-side gates then run for build 152).
+R14 depends on R13; its independent work is recorded with its own external
+blocker (EXT-SIGNING). No attempt is counted: a privilege is missing.
 
-Measured while blocked: a `ditto` copy at `/Applications/Mona-r13-candidate.app`
-passed the app's own acceptance sample and launched through LaunchServices, but
-will not quit — the product refuses a packaged copy outside `/Applications`
-while the installed copy exists (`-[NSAlert runModal]` observed in a stack
-sample). That is the rule working, and the reason the interactive checks need
-the install.
+Deliberately not done: replacing `/Applications/Mona.app` by copying the bundle
+into place. `/Applications` is group-writable for an admin user on this host, so
+it would work — and it would leave the package receipt describing a different
+payload, which is the opposite of what this task proves.
+
 
 ## External prerequisites carried from the product ledger
 

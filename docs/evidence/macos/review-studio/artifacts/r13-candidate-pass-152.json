@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "label": "R13 installed-artifact pass",
+  "captured_at": "2026-11-14T18:21:51.933Z",
+  "app": "~/DS_Projects/Mona/packaging/macos/out/stage/payload/Applications/Mona.app",
+  "build": "152",
+  "channel": "local",
+  "host": {
+    "macos": "26.5.1",
+    "architecture": "arm64"
+  },
+  "ok": true,
+  "modes": [
+    {
+      "mode": "shell",
+      "covers": "catalog, studio, drafts, activity strip, follow-up queue, usage HUD, board, changes, cost, settings, palette, layout, zoom",
+      "flag": "--shell-smoke",
+      "exit": 0,
+      "signal": null,
+      "timed_out": false,
+      "elapsed_ms": 15441,
+      "report_present": true,
+      "report_ok": true,
+      "checks_total": 137,
+      "checks_failed": [],
+      "captures": [
+        {
+          "name": "r13-p-r08-activity.png",
+          "bytes": 465638
+        },
+        {
+          "name": "r13-p-r09-usage.png",
+          "bytes": 465638
+        }
+      ],
+      "capture_dir": "~tmp/mona-r13-shell-60IRMv/captures",
+      "stderr": "",
+      "stdout": "",
+      "process_gone": true,
+      "helpers_left": 0
+    },
+    {
+      "mode": "command",
+      "covers": "slash-command autocomplete, keyboard selection, dispatch interception, 200 % scale",
+      "flag": "--command-smoke",
+      "exit": 0,
+      "signal": null,
+      "timed_out": false,
+      "elapsed_ms": 1839,
+      "report_present": true,
+      "report_ok": true,
+      "checks_total": 26,
+      "checks_failed": [],
+      "captures": [
+        {
+          "name": "r13-r03-command-menu-200.png",
+          "bytes": 251305
+        },
+        {
+          "name": "r13-r03-command-menu.png",
+          "bytes": 382517
+        }
+      ],
+      "capture_dir": "~tmp/mona-r13-command-OLWnU8/captures",
+      "stderr": "",
+      "stdout": "",
+      "process_gone": true,
+      "helpers_left": 0
+    },
+    {
+      "mode": "immersive",
+      "covers": "Focus Studio, native fullscreen transitions, composer and draft survival",
+      "flag": "--immersive-smoke",
+      "exit": 0,
+      "signal": null,
+      "timed_out": false,
+      "elapsed_ms": 7895,
+      "report_present": true,
+      "report_ok": true,
+      "checks_total": 60,
+      "checks_failed": [],
+      "captures": [
+        {
+          "name": "r13-r05-focus-200.png",
+          "bytes": 214923
+        },
+        {
+          "name": "r13-r05-focus-command-menu.png",
+          "bytes": 314802
+        },
+        {
+          "name": "r13-r05-focus-drawer.png",
+          "bytes": 300384
+        },
+        {
+          "name": "r13-r05-focus-windowed.png",
+          "bytes": 229984
+        },
+        {
+          "name": "r13-r05-studio-normal.png",
+          "bytes": 435453
+        }
+      ],
+      "capture_dir": "~tmp/mona-r13-immersive-fKdW0F/captures",
+      "stderr": "",
+      "stdout": "",
+      "process_gone": true,
+      "helpers_left": 0
+    },
+    {
+      "mode": "history",
+      "covers": "keyset history paging, item identity, archived/current thread selection, anchoring",
+      "flag": "--history-smoke",
+      "exit": 0,
+      "signal": null,
+      "timed_out": false,
+      "elapsed_ms": 3829,
+      "report_present": true,
+      "report_ok": true,
+      "checks_total": 19,
+      "checks_failed": [],
+      "captures": [
+        {
+          "name": "r13-r02-history-long-session.png",
+          "bytes": 448919
+        }
+      ],
+      "capture_dir": "~tmp/mona-r13-history-9gVllz/captures",
+      "stderr": "",
+      "stdout": "",
+      "process_gone": true,
+      "helpers_left": 0
+    }
+  ],
+  "note": "Each mode spawns the installed binary (the one LaunchServices runs) with its own isolated user-data directory and a temporary capture directory. The checks are the repository's own fixture-driven UI smokes; no engine is started and no model request is made."
+}

@@ -1,208 +1,206 @@
 # R13 — Native installed-artifact qualification
 
-**Prompt:** R13 · **Status:** blocked at the install gate · **Platform:** darwin-arm64
-**Host:** macOS 26.5.1, Apple silicon, node 26.13.0, Electron 45.3.0
-**Candidate:** `Mona-0.1.0-macOS-arm64-local.pkg`, build **147**,
-sha256 `e54b2cffd62e6697b74ad65efad19d4b613df88965d6da7169fafd7947d435f9`,
-163,804,045 bytes, ad-hoc (no installer signature), assembled from commit
-`cf433aa` with a clean tree
-**Installed copy at the time of this task:** build **104** (installed
-2026-11-13T15:33:41Z, ad-hoc), receipt manifest `8fb892db…`
-**Engine:** none started — no project was opened, so no runtime exists and no
-model request was made.
+**Prompt:** R13 · **Status:** blocked at the install gate for build **152** — the
+installed build **151** was qualified end to end and exposed one defect, which is
+fixed and verified on the candidate and on the development tree
+**Platform:** darwin-arm64 · **Host:** macOS 26.5.1, Apple silicon, node 26.13.0,
+Electron 45.3.0
+**Installed:** `/Applications/Mona.app`, build **151**, source `26c38c5`, clean
+tree, installed 2026-11-14T17:57:26Z, ad-hoc, manifest `31eaa3a3…`
+**Candidate in hand:** build **152**, source `c9745dc`, clean tree, ad-hoc,
+`Mona-0.1.0-macOS-arm64-local.pkg` sha256 `e4ffe0e0308866e2bf7185e24701b82a599dc49591f99aba83ef2592308c777d`,
+163,802,705 bytes, assembled 2026-11-14T18:18:40Z
+**Engine:** 0.10.2 (`ff466b2ed0bf`) inside both bundles. One live turn and one
+interrupt were run through the installed app; nothing else contacted a provider.
 
-Everything that can be qualified without administrator authorization is
-qualified below. The one thing that cannot — exercising **the installed app** —
-needs the installer, and `sudo` refuses in this session (`sudo -n` →
-"a password is required"). That is EXT-INSTALL, recorded with the exact command
-in §7.
+The install that this task was blocked on has happened: build 151 replaced
+build 104. Every acceptance item that does not need a second privileged install
+is measured below. The one that does — putting the fixed candidate at
+`/Applications/Mona.app` — is recorded in §7 with the exact command.
 
 ---
 
-## 1. What was built
+## 1. The installed artifact is this checkout's build
 
-`npm run mac:package:local` assembled the payload, ad-hoc signed 25 nested
-components inside-out (17 Mach-O files, 8 nested bundles), built the component
-package and the flat installer, and verified the declared metadata:
+`node scripts/r13-candidate-verify.mjs --smoke --launch` against
+`/Applications/Mona.app`: **16 checks, all true** (`artifacts/r13-candidate-verify.json`).
 
-- package id `com.mona.workbench.pkg`, version `0.1.0`, build `147`
-- bundles `com.mona.workbench` + `com.mona.workbench.service`, arm64 only,
-  macOS 14.0+
-- payload 673 files + 14 links, expanded from the package and compared against
-  the staged payload with no mismatches and no extras
-- package signature: **none** (`pkgutil --check-signature` → "no signature");
-  this is a local candidate, not a distributable
-
-It then stopped at `installed_copy`, by design:
-
-> Two builds were made. The first (146) was assembled from an R12 working tree
-> that had not been committed yet, and the build numbers itself by commit count —
-> so the commits that describe the artifact moved the count past it, and the
-> verifier could no longer tie the artifact to a commit. Build **147** is the
-> one recorded here: built from `cf433aa` with a clean tree, so its number, its
-> bytes and `git rev-list --count HEAD` agree. The verifier now refuses the tie
-> when the checkout is dirty, which is what makes that agreement a check rather
-> than a hope.
-
-
-> the installed copy at /Applications/Mona.app is not this build; install
-> Mona-0.1.0-macOS-arm64-local.pkg with administrator authorization, then re-run
-
-The package's own gate report (`packaging/macos/out/package-report.json`) lists
-`declared_metadata`, `architecture`, `dependencies`, `secrets`,
-`payload_expand`, `install_rehearsal` and `uninstall_rehearsal` as passed, with
-`package smoke against /Applications` and `LaunchServices GUI launch` pending.
-
-## 2. The payload, verified from its own bytes
-
-`scripts/r13-candidate-verify.mjs` answers a different question from the build:
-not "did we assemble what we meant to" but "what is on disk, and is it this
-checkout's build with the review's features in it". It reads the bundle's own
-`Contents/Resources/component-manifest.json`, hashes every component it lists,
-decodes every Mach-O header, and searches the shipped bundles for the review's
-own channel names. Report: `artifacts/r13-candidate-verify.json`.
-
-Every check passes:
-
-- **bundle identity** — `com.mona.workbench`, 0.1.0, build 147, channel local,
-  minimum macOS 14.0.
-- **build number matches the source** — 147 = `git rev-list --count HEAD` at
-  `cf433aa` **and** the checkout is clean, so the artifact is tied to this
-  commit, not to a stale build and not to uncommitted work.
-- **component digests** — all 13 components the manifest lists (the bundled
-  engine, both native helpers, two icons, the capability inventory and seven
-  licence/notice files) exist with their recorded size and sha256. The rest of
-  the 673-file payload is covered by the package's own expansion comparison and
-  the app seal.
-- **arm64 only** — every Mach-O file in the bundle is arm64; no x86_64 slice.
-- **minimum OS** — every app-owned Mach-O declares 14.0. The bundled engine
-  declares 11.0: it is the pinned upstream 0.10.2 binary
-  (`da022961…`, commit `ff466b2ed0bf`) and is not rewritten, which is the
-  no-silent-engine-change rule working.
-- **native components present** — `native/mona-supervisor`, `native/mona-pty`,
-  `engine/codewhale`, `app/dist/main/main/index.js`, `app/dist/main/preload/index.js`.
+- **identity** — `com.mona.workbench`, 0.1.0, build 151, channel local, minimum
+  macOS 14.0.
+- **the artifact names its source** — the bundle's component manifest carries
+  `commit 26c38c5770d4039972811427b23b056a469985d1` and `dirty: false`; the build
+  number equals `git rev-list --count HEAD`; the tree is clean. The same content
+  digest (`45f076607eaa00a0…`) is computed from the installed bundle and from the
+  staged payload the package was built from, so the install really is these
+  bytes.
+- **component digests** — 13/13 listed components (bundled engine, both native
+  helpers, two icons, the capability inventory, seven licence/notice files) match
+  their recorded size and sha256.
+- **arm64 only, 14.0 declared** — every app-owned Mach-O is arm64 at 14.0; the
+  bundled engine declares 11.0 because it is the pinned upstream binary and is
+  not rewritten.
 - **the review's features shipped** — the packaged main bundle registers
   `projects:history-item` (R02), `commands:execute` (R04),
   `window:fullscreen:set` (R05), `studio:answer-pending` (R07) and
-  `studio:follow-up-add` (R08); the minified renderer bundle carries
-  "Load earlier events" (R02), "Jump to latest" (R10) and "Vivid" (R06).
-- **no developer paths, no secrets** — 422 text files scanned for the build
-  host's home, the checkout path, Command Line Tools and Xcode paths, and the
-  credential shapes the packaging gate uses. Clean, with the one documented
-  allowance: `main/work/git.js` *names* the toolchain paths so it can refuse
-  Apple's Git stub (the same allowance `build.mjs` carries).
+  `studio:follow-up-add` (R08); the renderer bundle carries "Load earlier
+  events", "Jump to latest" and "Vivid".
+- **LaunchServices launch and shutdown** — `open -na` started a real main process,
+  a renderer and a per-user state directory, and a `SIGTERM` ended it with no
+  helper left behind. `graceful_shutdown` is measured here rather than inferred
+  (the earlier copy at `/Applications/Mona-r13-candidate.app` could not quit
+  because of the duplicate-copy notice — D-027).
+- **signing tier** — ad-hoc, `TeamIdentifier=not set`, Hardened Runtime not
+  applicable, Gatekeeper rejects it. A local candidate, exactly as labelled.
 
-## 3. The in-app acceptance sample
+## 2. The installed app's own native smokes, through LaunchServices
 
-Copied to `/Applications/Mona-r13-candidate.app` (a `ditto` copy, not an
-install), the app ran its own `--package-smoke` sample: **every check passed**,
-including "packaged", "arm64 executable", "bundled engine version 0.10.2 via
-bundled", "native supervisor", "state directory" and "install location".
+`scripts/r13-installed-pass.mjs` spawns the binary the OS runs
+(`/Applications/Mona.app/Contents/MacOS/Mona`) with the repository's own
+fixture-driven UI modes, isolated user-data and a temporary capture directory.
+The shell mode was additionally driven through LaunchServices (`open -na`) with
+`--env`, so the LaunchServices path itself ran 137 checks.
 
-## 4. LaunchServices launch, and the notice that stops it
+| Mode | Checks | Result |
+|---|---|---|
+| shell (LaunchServices) | 137 | all pass |
+| shell (driver) | 137 | all pass |
+| command | 26 | all pass — slash-command autocomplete, keyboard selection, dispatch interception, 200 % scale |
+| immersive | 60 | all pass — Focus Studio, native fullscreen, composer and draft survival |
+| history | 18 | **2 fail — `scroll_anchor_held`, `second_older_page_loaded`** |
 
-Launching that copy through LaunchServices (`open -na`, fresh
-`HOME`/`CFFIXED_USER_HOME`/`TMPDIR`, its own `--user-data-dir`) starts a real
-main process, a renderer process and a per-user state directory — the launch
-path works.
+Report: `artifacts/r13-installed-pass.json` (the failing history run),
+`artifacts/r13-shell-smoke-launchservices.json`.
 
-It does not quit, and the reason is the product's own rule, not a shutdown
-defect: `src/main/install-location.ts` refuses to run a packaged copy outside
-`/Applications/Mona.app` while the installed copy exists, and raises a modal
-notice ("This Mona copy is not the installed application" — Continue / Quit).
-Sampling the process while it held the quit request shows the main thread in
-`-[NSAlert runModal]`. The installed copy (build 104, at the standard path) quits
-on `SIGTERM` in **1 s** on the same host, which is what proves the difference is
-the duplicate-copy notice and not the shutdown path.
+## 3. The defect the installed pass found
 
-So the verifier records `launchservices_launch` and
-`duplicate_copy_notice`, and marks `graceful_shutdown` **not testable at this
-location** rather than passing a check it did not run. Graceful shutdown and the
-interactive checks belong to the installed copy.
+The history smoke was **not** in the local CI list, so it had been failing
+unnoticed since R11 (`e299dc8`) windowed the agent console. It fails on the
+installed build and on the development build identically, three runs in three,
+so this is a source regression, not a packaging artifact:
 
-## 5. Rehearsals
+- On a 10,054-event project, loading an older page moved the reader **115.5 px**
+  (about one card) instead of holding the message being read.
+- The second page was counted but never painted, because the windowing change
+  meant the smoke's old "it is in `document.body.textContent`" proxy no longer
+  described a page that sits far above the viewport.
 
-All of these ran through the isolated-root guards; the owner's installed app and
-project data were never involved.
+Root cause: R02's anchor compared the list's *height* growth with the viewport's
+movement. That identity was exact while every card was mounted. R11 renders a
+window plus estimated spacers, so the list's height is an estimate and the
+identity cannot hold. The fix (`src/renderer/shell/Studio.tsx`) anchors on
+**card identity**: the card at the top of the viewport when "Load earlier" is
+clicked has its pane offset held across the frames the new slice needs to
+measure itself; the height form remains as the fallback for an unmounted card.
 
-- **Install rehearsal** — the package's scripts ran against a temporary root,
-  twice: `idempotent_reinstall: true`, receipt written.
-- **Uninstall rehearsal** — 11 sub-checks, all true: dry run changed nothing and
-  listed owned paths; a missing manifest and a foreign bundle were refused; user
-  data was removed only for the named home; projects survived
-  `--remove-user-data`; a home outside the rehearsal root was refused; the real
-  removal touched only owned paths and preserved unrelated content.
-- **Update, rollback and migration** — `smoke:p23` ran in this queue's CI
-  (58 checks, 0 skipped) on the same source; it covers the update trust tiers,
-  deferral, the intent ledger, snapshot restore and the rollback refusals.
+The smoke now measures what the reader sees (`anchor_offset` within 2 px), proves
+the second page from the projected list (`data-cards`), and proves the third page
+is reachable by painting its range (`history frame 9455` at the oldest end).
+`smoke:history` joined `scripts/ci.mjs` so the next silent drift is caught.
 
-## 6. Prerequisites, measured
+Verified after the fix:
 
-- **`npm run mac:doctor`** — every check green (macOS, arm64, not translated,
-  tools, Swift, engine, artifacts, ≥5 GiB free: 29.8 GiB).
-- **Git / Command Line Tools** — `/usr/bin/git` is Apple Git 2.39.3 with
-  `xcode-select -p` = `/Library/Developer/CommandLineTools`, so Git is real on
-  this host (not the install-me stub). A clean recipient without CLT still has
-  the documented MAC-004 dependency; P26/P27 own the bundle-or-document
-  decision.
-- **OS floor** — the payload declares 14.0 and this host is 26.5.1. No 14.x host
-  has been tested (OPEN-OSFLOOR).
-- **Signing tier** — ad-hoc, `TeamIdentifier=not set`, Gatekeeper rejects it:
-  a local candidate, exactly as labelled (OPEN-LOCAL-TRUST, which is EXT-SIGNING).
+- `node scripts/history-smoke.mjs` — **19/19, three consecutive runs**, anchor
+  delta **0** (was 115.5).
+- The fixed candidate's own bytes through the same driver:
+  **shell 137/137, command 26/26, immersive 60/60, history 19/19**
+  (`artifacts/r13-candidate-pass-152.json`, `artifacts/r13-candidate-verify-152.json`).
 
-## 7. Blocked: the install, and what follows it
+## 4. One live route interaction on the installed app
 
-The candidate cannot replace `/Applications/Mona.app` without administrator
-authorization. That single command is the whole prerequisite:
+`--studio-smoke` on the installed bundle ran one tool-enabled task and one
+interrupt through the owned pinned engine (`artifacts/r13-studio-live.json`,
+captures `r13-installed-studio-run.png`, `r13-installed-studio-live.png`,
+`r13-installed-studio-offline.png`). **22/22:** runtime connected, engine identity
+pinned, profile `deepseek / deepseek-flash` (the configured route; Mona made no
+switch), submission accepted, turn completed, file changed, test command
+observed, tool card rendered, effective permission full access, **cost observed**,
+replay without duplicates, interrupt confirmed as terminal, runtime stopped,
+offline history retained, no link navigation and no fake percentage in chrome.
+
+## 5. Rehearsals and honesty checks
+
+- **Install rehearsal** — package scripts against a temporary root, twice:
+  `idempotent_reinstall: true`, receipt written.
+- **Uninstall rehearsal** — 11/11 sub-checks: dry run changed nothing and listed
+  owned paths; a missing manifest and a foreign bundle were refused; user data
+  was removed only for the named home; projects survived `--remove-user-data`; a
+  home outside the rehearsal root was refused; removal touched only owned paths
+  and preserved unrelated content.
+- **Payload hygiene** — 673 files + 14 links; no developer paths, no credentials;
+  the one documented allowance is `main/work/git.js` naming the Xcode/CLT paths so
+  it can refuse Apple's Git stub.
+- **`npm run mac:doctor`** — all host checks green, 0 Developer ID identities,
+  ≥5 GiB free (28 GiB).
+- **Git on a clean recipient** — `/usr/bin/git` here is real (CLT installed);
+  packaged Mona still refuses the CLT stub, so the MAC-004 dependency stays open
+  and R14 reconciles it.
+- **OS floor** — 14.0 declared, this host is 26.5.1; no 14.x host executed
+  (OPEN-OSFLOOR, P26).
+
+## 6. Why build 152 is not installed
+
+`/Applications` still holds build 151, and the packaging gate refuses to pretend
+otherwise (it compares the whole content digest, not the version string). A
+rebuild is not byte-identical to an earlier one because the ad-hoc signature
+seals the bundle's resource directory, which seals the component manifest, which
+names the source commit — by construction, a changed source means a changed
+digest, and the installed copy must be the candidate, not a lookalike.
+
+`installer` refuses without root:
+
+```
+$ installer -pkg packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg -target /
+installer: Must be run as root to install this package.
+```
+
+Replacing `/Applications/Mona.app` by copying the bundle into place is possible
+for an admin-group user on this host (`/Applications` is group-writable), and it
+is **deliberately not done**: it would leave the package receipt describing a
+different payload and would bypass the install path this task exists to prove.
+
+## 7. The one remaining step
 
 ```sh
 sudo installer -pkg packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg -target /
 ```
 
-The package in `packaging/macos/out/` is the exact build 147 this document
-describes (`e54b2cff…`); it is gitignored, so if the tree is rebuilt, write the
-new digest down here before installing.
+Then, in this order:
 
-After it, in this order:
+1. `node scripts/r13-candidate-verify.mjs --smoke --launch` — 16 checks against
+   build 152 at the standard path.
+2. `node scripts/r13-installed-pass.mjs` — shell/command/immersive/history from
+   the installed bytes; history must show 19/19.
+3. `npm run mac:package:local` — its `installed_copy`, `package_smoke` and
+   `gui_launch` gates then execute for build 152 and close the package report.
 
-1. `node scripts/r13-candidate-verify.mjs --smoke --launch` against
-   `/Applications/Mona.app` — the same report with `graceful_shutdown` now
-   measured.
-2. The interactive pass the prompt names: open an existing project, select an
-   archived thread, type `/` and dispatch a view command, press Enter (newline)
-   and Command-Enter (submit), enter and leave Focus Studio and native
-   fullscreen, queue a follow-up and answer a pending request if one appears,
-   read the usage HUD against the Cost screen, export and restore a handoff, and
-   quit from the menu.
-3. `npm run mac:package:local` again — the `installed_copy` gate then passes and
-   the install gates (package smoke against `/Applications`, LaunchServices GUI
-   launch) run for the new build.
-4. New captures from the installed build; the pre-review captures do not certify
-   it.
+No hypothesis failed here; a privilege is missing, so no attempt is counted.
 
 ## 8. Evidence
 
 | Artifact | What it is |
 |---|---|
-| `artifacts/r13-candidate-verify.json` | The verifier's report: 16 checks, all true, against the `/Applications` copy of build 147 at `cf433aa`, with the package smoke and the LaunchServices launch; `shutdown: not tested — duplicate_copy_notice`. |
-| `artifacts/r13-package-report.json` | The build's own gate report for build 147 (copied out of the gitignored `packaging/macos/out/`): metadata, architecture, dependencies, secrets, payload expansion and both rehearsals. |
-| `artifacts/r13-uninstall-rehearsal.json` | The 11 uninstall sub-checks with the commands' own output (same copy). |
-| `scripts/r13-candidate-verify.mjs` | The verifier itself, re-runnable against the installed app after the install. |
+| `artifacts/r13-candidate-verify.json` | The verifier against installed build 151: 16/16, including LaunchServices launch and measured shutdown. |
+| `artifacts/r13-candidate-verify-152.json` | The same verifier against candidate build 152's staged bytes: 13/13 components, source `c9745dc`; `package_smoke`'s `install location` check is the only non-pass, because the bundle is not at `/Applications`. |
+| `artifacts/r13-installed-pass.json` | The installed-mode driver on build 151: shell 137/137, command 26/26, immersive 60/60, history 18/20 with the two anchor failures that opened the defect. |
+| `artifacts/r13-candidate-pass-152.json` | The same driver on candidate build 152: 137 + 26 + 60 + 19, all pass. |
+| `artifacts/r13-shell-smoke-launchservices.json` | The 137-check shell smoke driven through `open -na` on the installed app. |
+| `artifacts/r13-command-smoke.json`, `artifacts/r13-immersive-smoke.json`, `artifacts/r13-studio-live.json` | The command, immersive and live-studio reports from the installed bundle. |
+| `artifacts/r13-history-anchor-defect.json` | One failing history run on the installed build, kept as the defect's record rather than deleted. |
+| `artifacts/r02-history-long-smoke.json`, `artifacts/r02-history-long-session.png` | The fixed smoke: 19/19, delta 0, and its capture. |
+| `artifacts/r13-package-report.json`, `artifacts/r13-uninstall-rehearsal.json` | Build 152's own gate report and the 11 uninstall sub-checks. |
+| `artifacts/r13-installed-studio-{run,live,offline}.png` | Captures from the installed app's live run, interrupt and offline history. |
 
-Reproduce: `npm run mac:package:local` (stops at `installed_copy`), then the
-verifier above. It starts no engine and makes no model request.
+Reproduce: `node scripts/r13-candidate-verify.mjs --smoke --launch`,
+`node scripts/r13-installed-pass.mjs [--app <bundle> --out <file>]`.
 
 ## 9. What is not proven
 
-1. **The installed candidate.** Build 147 has not been installed; `/Applications`
-   still holds build 104. Every interactive acceptance item is therefore unproven
-   for this build.
-2. **Graceful shutdown of this build** from a real window. It is proven for the
-   installed build 104 and structurally for the source (the lifecycle smoke's
-   quit phase), but not for 147 as a packaged app.
-3. **Finder Service handoff from the packaged Service**, and the installed
-   Service's enabled state (`enabled: null` at P21), remain human checks.
-4. **The 14.x OS floor** and a clean recipient without CLT are unexecuted
-   (OPEN-OSFLOOR, OPEN-GIT).
-5. **Clean-host Gatekeeper acceptance** is impossible for an ad-hoc build by
-   definition; R14 and EXT-SIGNING own it.
+1. **Build 152 at `/Applications`.** The fix is verified on the candidate's bytes
+   and on the development tree, not on an installed copy (§7).
+2. **A 14.x host** and a **clean recipient without CLT** (OPEN-OSFLOOR, OPEN-GIT).
+3. **Finder Service handoff from the packaged Service** and the installed
+   Service's enabled state remain human checks (P24).
+4. **Clean-host Gatekeeper acceptance** is impossible for an ad-hoc build by
+   definition; R14/EXT-SIGNING own it.
+5. **No screen recording permission**, so captures are Electron page captures of
+   the real windows, not desktop recordings.

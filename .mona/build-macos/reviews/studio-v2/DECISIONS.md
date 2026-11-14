@@ -668,3 +668,33 @@ D-001…D-103) and never replace them.
   the exact one-line command and is not attempt-counted: no hypothesis failed.
 - **Consequence:** R14 stays ineligible until R13 completes, which keeps the
   release task behind a real artifact instead of a simulated one.
+
+## RD-028 — The history anchor names a card, not a height
+
+- **Date:** 2026-11-14 (R13)
+- **Context:** the installed-artifact pass ran `--history-smoke`, which was never
+  in `npm run ci`. It had been failing since R11 windowed the console: R02's
+  anchor held the reader's place by adding the list's height growth to the scroll
+  position, which is exact only while every card is mounted. With windowing the
+  height includes estimated spacers, so on a 10,054-event project every older
+  page dropped the reader **115.5 px** — one card — and the smoke's
+  `document.body.textContent` proxy for "the page loaded" no longer described a
+  page rendered above the window.
+- **Decision — anchor on identity.** `loadOlder` records the card at the top of
+  the viewport and its pane offset; the layout effect holds that offset for up to
+  four animation frames while the new slice measures itself. The old height form
+  stays as the fallback for a card that is not mounted. A reader who loads an
+  older page sees the same message in the same place.
+- **Decision — assert what the reader sees.** `scroll_anchor_held` now compares
+  the anchored card's offset from the pane top (≤ 2 px) instead of comparing
+  height growth with scroll movement. The second page is proven by the projected
+  list (`data-cards`), and a third check proves reachability by painting the
+  oldest page's range at the top. The tolerance was not widened and no check was
+  removed; the metric is the contract.
+- **Decision — put the guarantee in the gate.** `smoke:history` joins
+  `scripts/ci.mjs`. The defect survived because a real check existed but nothing
+  ran it, which is the same failure mode R13's command-smoke note records.
+- **Consequence:** the fixed source is verified on the development tree (19/19,
+  three runs) and on candidate build 152's own bytes (137 + 26 + 60 + 19). The
+  installed copy remains build 151 until one admin-authorized install, so R13
+  stays `blocked` with that exact command rather than claiming the reinstall.
