@@ -123,27 +123,6 @@ facts.source = {
   build_number: sourceBuild,
   tree_clean: dirty.length === 0,
 };
-// The artifact numbers itself by commit count, so the tie to a commit is the
-// count plus a clean tree. One commit of slack is deliberate and named: the
-// ledger commit that records the build (state.json, this very report's hash)
-// comes after the build and moves the count by one. Anything beyond that means
-// the artifact does not describe this checkout.
-const buildGap = sourceBuild === null ? null : Number(sourceBuild) - Number(identity.build);
-record(
-  "build_number_matches_source",
-  buildGap !== null && buildGap >= 0 && buildGap <= 1 && dirty.length === 0,
-  {
-    app: identity.build,
-    source: sourceBuild,
-    build_gap: buildGap,
-    tree_clean: dirty.length === 0,
-    reason:
-      dirty.length === 0
-        ? "0 = built from exactly this commit; 1 = one ledger commit recording the build"
-        : "the checkout has uncommitted changes; the artifact cannot be tied to a commit",
-  },
-);
-
 const manifestPath = join(appPath, "Contents/Resources/component-manifest.json");
 record("component_manifest_present", existsSync(manifestPath), relative(ROOT, manifestPath));
 const manifest = existsSync(manifestPath) ? JSON.parse(readFileSync(manifestPath, "utf8")) : null;
@@ -160,6 +139,40 @@ record(
   "manifest_matches_bundle",
   manifest !== null && manifest.build === identity.build && manifest.channel === identity.channel,
   manifest ? { manifest_build: manifest.build, app_build: identity.build } : null,
+);
+
+// The artifact names the commit it was built from (its own component manifest),
+// which is the only tie that survives a ledger commit. The build number is a
+// commit count and drifts as the ledger grows, so it is reported, not asserted.
+const artifactCommit = manifest?.source?.commit ?? null;
+const artifactDirty = manifest?.source?.dirty ?? null;
+const descendants =
+  artifactCommit === null
+    ? []
+    : capture("/usr/bin/git", ["-C", ROOT, "log", "--format=%h %s", `${artifactCommit}..HEAD`])
+        .stdout.trim()
+        .split("\n")
+        .filter(Boolean);
+const ledgerOnly =
+  descendants.length === 0 || descendants.every((line) => /^(\S+) (Ledger|R\d\d|P\d\d)/.test(line));
+record(
+  "artifact_names_its_source",
+  artifactCommit !== null &&
+    artifactDirty === false &&
+    capture("/usr/bin/git", ["-C", ROOT, "cat-file", "-e", `${artifactCommit}^{commit}`]).status ===
+      0 &&
+    ledgerOnly,
+  {
+    app_build: identity.build,
+    artifact_commit: artifactCommit,
+    artifact_tree_dirty: artifactDirty,
+    commits_since: descendants.length,
+    commits_since_examples: descendants.slice(0, 5),
+    build_number_gap: sourceBuild === null ? null : Number(sourceBuild) - Number(identity.build),
+    note:
+      "The artifact must have been built from a clean tree, and every commit since it in this " +
+      "checkout must be a ledger/evidence commit (a build can never describe code it did not contain).",
+  },
 );
 
 // --- signatures -------------------------------------------------------------

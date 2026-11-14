@@ -751,6 +751,14 @@ function writeComponentManifest(resources, engine, components, licenses) {
     channel,
     bundle_identifier: APP_BUNDLE_ID,
     minimum_macos: MINIMUM_MACOS,
+    // The artifact names the tree it was built from. `build` is only a commit
+    // count, and a count drifts with every ledger commit that follows the
+    // build; the commit does not, so a verifier can say "these bytes are that
+    // commit" instead of "these bytes are that number" (R13).
+    source: {
+      commit: git(["rev-parse", "HEAD"]) || null,
+      dirty: git(["status", "--porcelain"]).length > 0,
+    },
     engine: {
       version: engine.version,
       commit: engine.commit,
@@ -1473,6 +1481,10 @@ function writeReports({
     channel,
     version,
     build,
+    source: {
+      commit: git(["rev-parse", "HEAD"]) || null,
+      dirty: git(["status", "--porcelain"]).length > 0,
+    },
     started_at: startedAt,
     finished_at: new Date().toISOString(),
     host: {

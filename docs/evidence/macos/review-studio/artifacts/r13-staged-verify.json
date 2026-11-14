@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
   "label": "R13 candidate verification",
-  "captured_at": "2026-11-14T17:54:31.048Z",
+  "captured_at": "2026-11-14T17:54:53.741Z",
   "host": {
     "macos": "26.5.1",
     "architecture": "arm64"
   },
-  "app": "/Users/basestar/DS_Projects/Mona/packaging/macos/out/stage/payload/Applications/Mona.app",
+  "app": "<repo>/packaging/macos/out/stage/payload/Applications/Mona.app",
   "ok": false,
   "failed": [
     "build_number_matches_source"
@@ -14,7 +14,7 @@
   "checks": {
     "app_present": {
       "ok": true,
-      "detail": "/Users/basestar/DS_Projects/Mona/packaging/macos/out/stage/payload/Applications/Mona.app"
+      "detail": "<repo>/packaging/macos/out/stage/payload/Applications/Mona.app"
     },
     "bundle_identity": {
       "ok": true,
@@ -31,8 +31,8 @@
       "ok": false,
       "detail": {
         "app": "148",
-        "source": "148",
-        "build_gap": 0,
+        "source": "150",
+        "build_gap": 2,
         "tree_clean": false,
         "reason": "the checkout has uncommitted changes; the artifact cannot be tied to a commit"
       }
@@ -119,8 +119,8 @@
       "executable": "Mona"
     },
     "source": {
-      "commit": "4595829",
-      "build_number": "148",
+      "commit": "9e2fc27",
+      "build_number": "150",
       "tree_clean": false
     },
     "manifest": {
