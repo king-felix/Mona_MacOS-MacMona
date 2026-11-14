@@ -516,6 +516,9 @@ export const IpcRequests = {
   "capability:snapshot": z.strictObject({}),
   "capability:refresh": z.strictObject({}),
   "capability:report": z.strictObject({}),
+  // R03: the pinned slash-command catalog. A local read of checked-in data;
+  // filtering and help in the renderer make no IPC call and no model call.
+  "commands:catalog": z.strictObject({}),
 
   "extensions:install": z.strictObject({
     projectId: ProjectId,

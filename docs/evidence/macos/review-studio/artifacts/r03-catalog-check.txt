@@ -1,0 +1,10 @@
+{
+  "ok": true,
+  "warnings": [],
+  "counts": {
+    "commands": 109,
+    "hidden": 1,
+    "terminalOnly": 69,
+    "unavailable": 5
+  }
+}

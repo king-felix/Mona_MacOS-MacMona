@@ -114,6 +114,7 @@ import type {
   TerminalSnapshot,
 } from "../shared/contracts/terminal";
 import type { CapabilitySnapshot } from "../shared/contracts/capability";
+import type { CommandCatalogSnapshot } from "../shared/contracts/commands";
 import type {
   ContextSelectionPreview,
   ContextSlotView,
@@ -587,6 +588,8 @@ const bridge: MonaBridge = {
     ipcRenderer.invoke("capability:refresh", {}),
   capabilityReport: (): Promise<IpcResult<{ json: string; markdown: string; filename: string }>> =>
     ipcRenderer.invoke("capability:report", {}),
+  commandCatalog: (): Promise<IpcResult<CommandCatalogSnapshot>> =>
+    ipcRenderer.invoke("commands:catalog", {}),
 
   // P19. Each call is one validated channel; no generic filesystem or exec
   // reach is added, and dialog-driven paths are chosen in the main process.

@@ -46,6 +46,7 @@ import { AgentObservatory } from "./work/agents";
 import { RouteWorkbench } from "./work/settings";
 import { ExtensionWorkbench } from "./work/extensions";
 import { CapabilityExplorer } from "./work/capability";
+import { CommandCatalogService } from "./work/commands";
 import { ProjectMemory } from "./work/memory";
 import { PromptShelf } from "./work/shelf";
 import { ProjectHandoff } from "./work/handoff";
@@ -93,6 +94,7 @@ const IS_SHELL_SMOKE = process.argv.includes("--shell-smoke");
 const IS_STUDIO_SMOKE = process.argv.includes("--studio-smoke");
 const IS_OPEN_SMOKE = process.argv.includes("--open-smoke");
 const IS_HISTORY_SMOKE = process.argv.includes("--history-smoke");
+const IS_COMMAND_SMOKE = process.argv.includes("--command-smoke");
 const IS_PACKAGE_SMOKE = process.argv.includes("--package-smoke");
 const PACKAGE_SMOKE_OUT = (() => {
   const inline = process.argv.find((argument) => argument.startsWith("--package-smoke-out="));
@@ -121,6 +123,7 @@ let routeWorkbench: RouteWorkbench | null = null;
 let extensionWorkbench: ExtensionWorkbench | null = null;
 let terminalManager: TerminalManager | null = null;
 let capabilityExplorer: CapabilityExplorer | null = null;
+const commandCatalog = new CommandCatalogService();
 let projectMemory: ProjectMemory | null = null;
 let promptShelf: PromptShelf | null = null;
 let projectHandoff: ProjectHandoff | null = null;
@@ -133,6 +136,7 @@ let activeProjectId: StudioProjectId | null = null;
 let studioSmokeProjectId: string | null = null;
 let studioSmokeRoot: string | null = null;
 let historySmokeProjectId: string | null = null;
+let commandSmokeProjectId: string | null = null;
 let openCoordinator: OpenCoordinator | null = null;
 let resolveCoordinatorReady: (() => void) | null = null;
 interface EngineIdentity {
@@ -299,6 +303,16 @@ function openWindow(): BrowserWindow {
       void runHistorySmoke(window)
         .catch((error: unknown) => {
           process.stderr.write(`history smoke failed: ${String(error)}\n`);
+          process.exitCode = 1;
+        })
+        .finally(() => app.quit());
+    });
+  }
+  if (IS_COMMAND_SMOKE) {
+    window.webContents.once("did-finish-load", () => {
+      void runCommandSmoke(window)
+        .catch((error: unknown) => {
+          process.stderr.write(`command smoke failed: ${String(error)}\n`);
           process.exitCode = 1;
         })
         .finally(() => app.quit());
@@ -2451,6 +2465,237 @@ async function runHistorySmoke(window: BrowserWindow): Promise<void> {
   if (report.ok !== true) process.exitCode = 1;
 }
 
+// ----------------------------------------------------------- command smoke
+
+/**
+ * R03 evidence runner. It opens a real project in the real Electron shell and
+ * drives the composer's command list with real keyboard and pointer events.
+ * Autocomplete, filtering, and help are local reads: the connection stays
+ * "Not started" and no model request is made.
+ */
+async function runCommandSmoke(window: BrowserWindow): Promise<void> {
+  const outDir =
+    process.env.MONA_COMMAND_SMOKE_OUT_DIR ??
+    join(process.cwd(), "docs", "evidence", "macos", "review-studio", "artifacts");
+  mkdirSync(outDir, { recursive: true });
+  window.setSize(1280, 900);
+  const report: Record<string, unknown> = {
+    schema_version: 1,
+    ok: false,
+    checks: {} as Record<string, boolean>,
+    facts: {} as Record<string, unknown>,
+  };
+  const checks = report.checks as Record<string, boolean>;
+  const facts = report.facts as Record<string, unknown>;
+  const waitFor = async (expression: string, timeoutMs = 20_000): Promise<boolean> => {
+    const deadline = Date.now() + timeoutMs;
+    while (Date.now() < deadline) {
+      const value = await window.webContents.executeJavaScript(expression);
+      if (value) return true;
+      await new Promise((resolve) => setTimeout(resolve, 80));
+    }
+    return false;
+  };
+  const evaluate = async <T>(expression: string): Promise<T> =>
+    (await window.webContents.executeJavaScript(expression)) as T;
+  const typeText = async (value: string): Promise<string> =>
+    evaluate<string>(`(() => {
+      const element = document.querySelector("textarea");
+      if (!element) throw new Error("composer textarea is absent");
+      element.focus();
+      const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value")?.set;
+      setter?.call(element, ${JSON.stringify(value)});
+      element.setSelectionRange(${JSON.stringify(value)}.length, ${JSON.stringify(value)}.length);
+      element.dispatchEvent(new Event("input", { bubbles: true }));
+      element.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }));
+      return element.value;
+    })()`);
+  const pressKey = async (
+    init: Record<string, unknown>,
+  ): Promise<{ prevented: boolean; value: string }> =>
+    evaluate(`(() => {
+      const element = document.querySelector("textarea");
+      const event = new KeyboardEvent("keydown", ${JSON.stringify({ bubbles: true, cancelable: true, ...init })});
+      element.dispatchEvent(event);
+      return { prevented: event.defaultPrevented, value: element.value };
+    })()`);
+  try {
+    report.project = commandSmokeProjectId;
+    await waitFor("document.body.dataset.ready === 'true'");
+    checks.catalog_rendered = await waitFor(
+      "document.querySelectorAll('[data-project-id]').length > 0",
+    );
+    await evaluate("document.querySelector('[data-project-id]')?.click(); true");
+    checks.studio_opened = await waitFor("document.documentElement.dataset.screen === 'studio'");
+    await waitFor("document.querySelector('textarea') !== null");
+    await typeText("/");
+    checks.menu_opens = await waitFor("document.querySelector('.command-menu') !== null");
+    checks.listbox_is_labelled = await evaluate(
+      "document.querySelector('[role=\"listbox\"]')?.getAttribute('aria-label') === 'Codewhale commands'",
+    );
+    const initial = await evaluate<Record<string, unknown>>(`(() => {
+      const menu = document.querySelector(".command-menu");
+      const options = Array.from(document.querySelectorAll('[role="option"]'));
+      return {
+        header: menu?.querySelector(".command-menu__head")?.textContent ?? "",
+        options: options.length,
+        first: options[0]?.textContent ?? "",
+        detail: menu?.querySelector(".command-menu__detail")?.textContent ?? "",
+        connection:
+          document.querySelector('[data-testid="studio-connection"]')?.textContent ?? "",
+      };
+    })()`);
+    facts.initial = initial;
+    checks.reports_catalog_total = String(initial.header ?? "").includes("109 catalogued");
+    checks.has_real_description = String(initial.detail ?? "").length > 20;
+    checks.connection_not_started = String(initial.connection ?? "").includes("Not started");
+
+    await typeText("/he");
+    const filtered = await evaluate<Record<string, unknown>>(`(() => {
+      const options = Array.from(document.querySelectorAll('[role="option"]'));
+      return {
+        count: options.length,
+        first: options[0]?.textContent ?? "",
+        detail: document.querySelector(".command-menu__detail")?.textContent ?? "",
+      };
+    })()`);
+    facts.filtered = filtered;
+    checks.filter_narrows =
+      Number(filtered.count) > 0 && Number(filtered.count) < Number(initial.options);
+    checks.filter_finds_help = String(filtered.first).includes("/help");
+    checks.detail_shows_tui_route = String(filtered.detail).includes("TUI only");
+
+    const accepted = await pressKey({ key: "Tab" });
+    checks.tab_accepts = await waitFor("document.querySelector('textarea')?.value === '/help '");
+    facts.tab = {
+      prevented: accepted.prevented,
+      value: await evaluate<string>("document.querySelector('textarea')?.value ?? ''"),
+    };
+    checks.menu_closed_after_accept = await waitFor(
+      "document.querySelector('.command-menu') === null",
+    );
+
+    await typeText("/he");
+    const escape = await pressKey({ key: "Escape" });
+    checks.escape_closes_first = escape.prevented === true;
+    checks.escape_keeps_draft = escape.value === "/he";
+    checks.menu_closed_by_escape = await waitFor(
+      "document.querySelector('.command-menu') === null",
+    );
+
+    await typeText("/he");
+    const plainEnter = await pressKey({ key: "Enter" });
+    checks.plain_enter_is_newline = plainEnter.prevented === false;
+
+    await typeText("/he");
+    await pressKey({ key: "Enter", metaKey: true });
+    checks.ambiguous_explained = await waitFor(
+      "document.querySelector('.notification__title')?.textContent?.includes('ambiguous') === true",
+    );
+    const ambiguousNotice = await evaluate<string>(
+      "document.querySelector('.notification__title')?.textContent ?? ''",
+    );
+    facts.ambiguous_notice = ambiguousNotice;
+    checks.ambiguous_keeps_draft =
+      (await evaluate<string>("document.querySelector('textarea')?.value ?? ''")) === "/he";
+
+    await typeText("/help");
+    await pressKey({ key: "Enter", metaKey: true });
+    checks.tui_only_explained = await waitFor(
+      "document.querySelector('.notification__title')?.textContent?.includes('TUI-only') === true",
+    );
+    facts.tui_only_notice = await evaluate<string>(
+      "document.querySelector('.notification__title')?.textContent ?? ''",
+    );
+    checks.engine_still_not_started = (
+      await evaluate<string>(
+        "document.querySelector('[data-testid=\"studio-connection\"]')?.textContent ?? ''",
+      )
+    ).includes("Not started");
+
+    await typeText("/");
+    facts.normal = await evaluate<Record<string, unknown>>(`(() => {
+      const menu = document.querySelector(".command-menu");
+      const compose = document.querySelector(".composer");
+      const rect = menu?.getBoundingClientRect();
+      const crect = compose?.getBoundingClientRect();
+      return {
+        top: rect?.top ?? null,
+        bottom: rect?.bottom ?? null,
+        height: rect?.height ?? null,
+        composer_top: crect?.top ?? null,
+        composer_height: crect?.height ?? null,
+        viewport_height: window.innerHeight,
+        header: document.querySelector(".command-menu__head")?.textContent ?? null,
+        detail_height: document.querySelector(".command-menu__detail")?.getBoundingClientRect().height ?? null,
+        body_height: document.querySelector(".command-menu__body")?.getBoundingClientRect().height ?? null,
+        placement: document.querySelector(".command-menu")?.className ?? null,
+      };
+    })()`);
+    const normalFacts = facts.normal as { top?: number | null; placement?: string };
+    checks.menu_inside_viewport_at_default =
+      (normalFacts.top ?? -1) >= 0 || normalFacts.placement?.includes("below") === true;
+    const menuShot = await window.webContents.capturePage();
+    writeFileSync(join(outDir, "r03-command-menu.png"), menuShot.toPNG());
+
+    // 200% page zoom: the floating list must stay inside the window and keep
+    // its own scrolling, instead of pushing the composer or the page sideways.
+    window.webContents.setZoomFactor(2);
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    // A user at 200% zooms to the composer before typing; focus/scroll bring the
+    // textarea into the viewport, and the list must then fit beside it.
+    await evaluate("document.querySelector('textarea')?.scrollIntoView({ block: 'center' }); true");
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    await typeText("/");
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    const zoomed = await evaluate<Record<string, unknown>>(`(() => {
+      const menu = document.querySelector(".command-menu");
+      const rect = menu?.getBoundingClientRect();
+      const body = document.querySelector(".command-menu__body");
+      return {
+        inside:
+          rect !== undefined &&
+          rect.left >= 0 &&
+          rect.top >= 0 &&
+          rect.right <= window.innerWidth &&
+          rect.bottom <= window.innerHeight,
+        width: rect?.width ?? 0,
+        viewport: window.innerWidth,
+        top: rect?.top ?? null,
+        bottom: rect?.bottom ?? null,
+        height: rect?.height ?? null,
+        viewport_height: window.innerHeight,
+        scrolls: body ? body.scrollHeight > body.clientHeight : false,
+        page_overflow:
+          document.documentElement.scrollWidth > document.documentElement.clientWidth,
+        detail_visible: Boolean(document.querySelector(".command-menu__detail")),
+        body_height:
+          document.querySelector(".command-menu__body")?.getBoundingClientRect().height ?? 0,
+        options: document.querySelectorAll('[role="option"]').length,
+      };
+    })()`);
+    facts.zoomed = zoomed;
+    checks.zoom_200_menu_inside_viewport = zoomed.inside === true;
+    checks.zoom_200_no_page_overflow = zoomed.page_overflow === false;
+    checks.zoom_200_list_usable = Number(zoomed.body_height ?? 0) >= 40;
+    checks.zoom_200_options_present = Number(zoomed.options) > 0;
+    const zoomShot = await window.webContents.capturePage();
+    writeFileSync(join(outDir, "r03-command-menu-200.png"), zoomShot.toPNG());
+    window.webContents.setZoomFactor(1);
+    await new Promise((resolve) => setTimeout(resolve, 200));
+
+    report.screenshots = ["r03-command-menu.png", "r03-command-menu-200.png"];
+    report.ok = Object.values(checks).every(Boolean);
+  } catch (error) {
+    const candidate = error as { message?: string; stack?: string };
+    report.ok = false;
+    report.error = { message: candidate.message ?? String(error), stack: candidate.stack ?? null };
+  }
+  const out = process.env.MONA_COMMAND_SMOKE_OUT;
+  if (out) writeFileSync(out, JSON.stringify(report, null, 2) + "\n");
+  if (report.ok !== true) process.exitCode = 1;
+}
+
 async function runStudioSmoke(window: BrowserWindow): Promise<void> {
   const outDir =
     process.env.MONA_STUDIO_SMOKE_DIR ??
@@ -3257,7 +3502,8 @@ if (!gotLock) {
         IS_SHELL_SMOKE ||
         IS_STUDIO_SMOKE ||
         IS_OPEN_SMOKE ||
-        IS_HISTORY_SMOKE;
+        IS_HISTORY_SMOKE ||
+        IS_COMMAND_SMOKE;
       const stateRoot = smokeState
         ? mkdtempSync(join(tmpdir(), "mona-product-state-"))
         : appPaths.state;
@@ -3553,7 +3799,11 @@ if (!gotLock) {
             return items;
           },
           shouldQuit: () =>
-            !IS_SMOKE && !IS_LIFECYCLE_SMOKE && !IS_SHELL_SMOKE && !IS_HISTORY_SMOKE,
+            !IS_SMOKE &&
+            !IS_LIFECYCLE_SMOKE &&
+            !IS_SHELL_SMOKE &&
+            !IS_HISTORY_SMOKE &&
+            !IS_COMMAND_SMOKE,
           // A successful handoff is the one point where quitting is correct:
           // every active item was checked first, so nothing is interrupted.
           afterHandoff: () => {
@@ -4002,6 +4252,18 @@ if (!gotLock) {
       }
     }
 
+    if (IS_COMMAND_SMOKE && projectService && productState) {
+      // R03 evidence. A real store and a real folder; the runner below opens
+      // this project in the shell and drives command autocomplete. No runtime
+      // is started and no model is asked anything.
+      const base = mkdtempSync(join(tmpdir(), "mona-command-smoke-project-"));
+      const root = join(base, "Command smoke");
+      mkdirSync(root, { recursive: true });
+      writeFileSync(join(root, "README.md"), "# Command smoke\n", "utf8");
+      const opened = await projectService.open(root);
+      commandSmokeProjectId = opened?.project.id ?? null;
+    }
+
     if (IS_STUDIO_SMOKE && projectService && productState) {
       const base = mkdtempSync(join(tmpdir(), "mona-studio-smoke-project-"));
       const root = join(base, "Studio smoke project");
@@ -4121,6 +4383,7 @@ if (!gotLock) {
       extensions: extensionWorkbench,
       terminal: terminalManager,
       capabilities: capabilityExplorer,
+      commands: commandCatalog,
       memory: projectMemory,
       shelf: promptShelf,
       handoff: projectHandoff,
@@ -4395,7 +4658,8 @@ if (!gotLock) {
       !IS_SMOKE &&
       !IS_SHELL_SMOKE &&
       !IS_STUDIO_SMOKE &&
-      !IS_HISTORY_SMOKE
+      !IS_HISTORY_SMOKE &&
+      !IS_COMMAND_SMOKE
     ) {
       const choice = await dialog.showMessageBox({
         type: "warning",

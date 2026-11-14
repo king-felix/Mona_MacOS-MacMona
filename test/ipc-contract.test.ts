@@ -504,6 +504,13 @@ describe("capability IPC validation", () => {
   });
 });
 
+describe("R03 command catalog IPC validation", () => {
+  it("accepts only an empty request", () => {
+    expect(validateIpc("commands:catalog", {})).toEqual({});
+    expect(() => validateIpc("commands:catalog", { query: "help" })).toThrow();
+  });
+});
+
 describe("history IPC validation", () => {
   const projectId = "prj_0123456789abcdef";
 

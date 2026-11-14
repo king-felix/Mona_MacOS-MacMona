@@ -12,6 +12,8 @@ import type {
 import type { StudioSnapshot, StudioSubmitResult } from "../src/shared/contracts/studio";
 import type { MonaBridge } from "../src/shared/contracts/bridge";
 import { Shell } from "../src/renderer/shell/Shell";
+import { buildCommandCatalog } from "../src/shared/commands/catalog";
+import type { CommandCatalogSnapshot } from "../src/shared/contracts/commands";
 
 /**
  * R01 acceptance at the component boundary: real Shell, real StudioScreen, a
@@ -221,6 +223,7 @@ interface World {
   submitGate: Gate<IpcResult<StudioSubmitResult>> | null;
   submitResult: IpcResult<StudioSubmitResult> | null;
   historyGate: Gate<IpcResult<HistoryPage>> | null;
+  catalogResult: IpcResult<CommandCatalogSnapshot> | null;
 }
 
 function world(projects: ProjectSummary[]): World {
@@ -236,6 +239,7 @@ function world(projects: ProjectSummary[]): World {
     submitGate: null,
     submitResult: null,
     historyGate: null,
+    catalogResult: null,
   };
 }
 
@@ -292,6 +296,7 @@ function install(state: World): void {
       }
       return state.saveResult ?? ok({ saved: true });
     },
+    commandCatalog: async () => state.catalogResult ?? ok(buildCommandCatalog()),
     submitTask: async (projectId: string, prompt: string, mode: string) => {
       state.submitCalls.push({ projectId, prompt, mode });
       if (state.submitGate) return state.submitGate.promise;
@@ -390,6 +395,10 @@ function headerTitle(): string {
 
 function draftHint(): string {
   return container!.querySelector(".composer__left .hint-line")?.textContent ?? "";
+}
+
+function noticeText(): string {
+  return container!.querySelector(".notification__title")?.textContent ?? "";
 }
 
 function errorText(): string {
@@ -732,5 +741,80 @@ describe("R02 paged history in the real shell", () => {
     expect(timeline.scrollTop).toBe(1_500);
     expect(container!.textContent).toContain("one");
     expect(container!.textContent).toContain("three");
+  });
+});
+
+describe("R03 commands never reach the model", () => {
+  async function openStudio(): Promise<World> {
+    const state = world([project(C, "Start")]);
+    state.details.set(C, detail(state.catalog[0]!));
+    await boot(state);
+    await openProject(C, "Start");
+    return state;
+  }
+
+  it("explains a complete TUI-only command instead of submitting it", async () => {
+    const state = await openStudio();
+    type("/help");
+    commandEnter();
+    await tick(4);
+    expect(state.submitCalls).toHaveLength(0);
+    expect(noticeText()).toContain("/help");
+    expect(noticeText()).toContain("TUI-only");
+    expect(textarea().value).toBe("/help");
+  });
+
+  it("reports an ambiguous prefix and selects nothing silently", async () => {
+    const state = await openStudio();
+    type("/he");
+    commandEnter();
+    await tick(4);
+    expect(state.submitCalls).toHaveLength(0);
+    expect(noticeText()).toContain("ambiguous");
+    expect(noticeText()).toContain("/help");
+  });
+
+  it("names a required argument instead of sending the bare command", async () => {
+    const state = await openStudio();
+    type("/anchor");
+    commandEnter();
+    await tick(4);
+    expect(state.submitCalls).toHaveLength(0);
+    expect(noticeText()).toContain("needs an argument");
+    expect(noticeText()).toContain("/anchor <text>");
+  });
+
+  it("fails closed on slash text when the catalog could not be loaded", async () => {
+    const state = world([project(C, "Start")]);
+    state.details.set(C, detail(state.catalog[0]!));
+    state.catalogResult = {
+      ok: false,
+      error: { code: "RUNTIME_UNAVAILABLE", message: "catalog unreadable" },
+    };
+    await boot(state);
+    await openProject(C, "Start");
+    type("/help");
+    commandEnter();
+    await tick(4);
+    expect(state.submitCalls).toHaveLength(0);
+    expect(noticeText()).toContain("catalog is unavailable");
+  });
+
+  it("still sends ordinary prose as a prompt", async () => {
+    const state = await openStudio();
+    type("Investigate the failing test");
+    commandEnter();
+    await tick(6);
+    expect(state.submitCalls).toHaveLength(1);
+    expect(state.submitCalls[0]?.prompt).toBe("Investigate the failing test");
+  });
+
+  it("sends a slash path literally", async () => {
+    const state = await openStudio();
+    type("/Users/example/notes.md");
+    commandEnter();
+    await tick(6);
+    expect(state.submitCalls).toHaveLength(1);
+    expect(state.submitCalls[0]?.prompt).toBe("/Users/example/notes.md");
   });
 });

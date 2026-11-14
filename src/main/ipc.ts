@@ -14,6 +14,7 @@ import type { AgentObservatory } from "./work/agents";
 import type { RouteWorkbench } from "./work/settings";
 import type { ExtensionWorkbench } from "./work/extensions";
 import type { CapabilityExplorer } from "./work/capability";
+import type { CommandCatalogService } from "./work/commands";
 import type { ProjectMemory } from "./work/memory";
 import type { PromptShelf } from "./work/shelf";
 import type { ProjectHandoff } from "./work/handoff";
@@ -52,6 +53,7 @@ export interface IpcDependencies {
   extensions: ExtensionWorkbench | null;
   terminal: TerminalManager | null;
   capabilities: CapabilityExplorer | null;
+  commands: CommandCatalogService | null;
   memory: ProjectMemory | null;
   shelf: PromptShelf | null;
   handoff: ProjectHandoff | null;
@@ -1051,6 +1053,15 @@ export function registerIpc(rendererRoot: string, dependencies: IpcDependencies)
   handle("capability:snapshot", () => envelope(() => requireCapabilities().snapshot()));
   handle("capability:refresh", () => envelope(() => requireCapabilities().refresh()));
   handle("capability:report", () => envelope(() => requireCapabilities().report()));
+  handle("commands:catalog", () => {
+    const catalog = dependencies.commands;
+    if (!catalog) {
+      throw Object.assign(new Error("the command catalog is unavailable"), {
+        code: "RUNTIME_UNAVAILABLE",
+      });
+    }
+    return envelope(() => catalog.snapshot());
+  });
 
   // P19: project memory, prompt shelf, handoff, and diagnostics. Each handler
   // maps to one validated channel; the workbench classes own the logic and the

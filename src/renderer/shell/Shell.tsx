@@ -12,6 +12,7 @@ import type {
 import type { OpenResult } from "../../shared/contracts/open";
 import { stepZoom } from "../../shared/zoom";
 import type { CapabilitySnapshot } from "../../shared/contracts/capability";
+import type { CommandCatalogSnapshot } from "../../shared/contracts/commands";
 import type { TaskView } from "../../shared/contracts/board";
 import {
   POLISH_ACCENTS,
@@ -66,6 +67,11 @@ import { TerminalPanel } from "./TerminalPanel";
 import { rankPalette, type PaletteDetail, type PaletteEntry, type PaletteKind } from "./palette";
 import { DraftJournal, SelectionEpoch, SubmissionGate, type SubmissionIdentity } from "./session";
 import { HistoryPager, type HistoryView } from "./history";
+import {
+  classifyComposerText,
+  couldBeCommandText,
+  describeCommandIntent,
+} from "./composer-commands";
 import type { ScreenId } from "./types";
 import { projectMonogram, projectAccent } from "./visual";
 
@@ -161,6 +167,9 @@ export function Shell(): JSX.Element {
   // across an await.
   const [draft, setDraft] = useState("");
   const [draftStatus, setDraftStatus] = useState<DraftStatus>("idle");
+  // R03: the pinned command catalog. One local read at launch; opening the
+  // list, filtering it, and reading help make no further call.
+  const [commandCatalog, setCommandCatalog] = useState<CommandCatalogSnapshot | null>(null);
   const [studio, setStudio] = useState<StudioSnapshot | null>(null);
   const [studioMode, setStudioMode] = useState<StudioMode>("work");
   const [studioBusy, setStudioBusy] = useState(false);
@@ -232,6 +241,26 @@ export function Shell(): JSX.Element {
   );
 
   useEffect(() => history.subscribe(setHistoryView), [history]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const bridge = window.mona as typeof window.mona & {
+      commandCatalog?: typeof window.mona.commandCatalog;
+    };
+    if (typeof bridge.commandCatalog !== "function") return;
+    void bridge.commandCatalog().then((result) => {
+      if (cancelled) return;
+      if (result.ok) {
+        setCommandCatalog(result.value);
+      } else {
+        setNoticeTone("attention");
+        setNotice(`The command catalog could not be read: ${result.error.message}`);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     applyTheme(theme);
@@ -947,6 +976,26 @@ export function Shell(): JSX.Element {
       setError("A task prompt must not be empty.");
       return;
     }
+    const token = epoch.current();
+    const name = current.project.name;
+    // R03: a recognised Codewhale command is never submitted as a prompt. The
+    // catalog explains what the line is and which route would run it; R04 wires
+    // the execution. Nothing here reaches the engine or a model.
+    if (!commandCatalog && couldBeCommandText(view.text)) {
+      reportNotice(
+        token,
+        name,
+        "The Codewhale command catalog is unavailable, so this slash text was not sent: it could be a command. Start the line with a space to send it as literal text.",
+        "attention",
+      );
+      return;
+    }
+    const intent = commandCatalog ? classifyComposerText(view.text, commandCatalog) : null;
+    if (intent && intent.kind !== "prompt") {
+      const explanation = describeCommandIntent(intent);
+      if (explanation) reportNotice(token, name, explanation, "attention");
+      return;
+    }
     // Immutable identity, captured before the first await. The bytes that are
     // sent, the thread they belong to, and the draft revision they came from
     // cannot drift afterwards.
@@ -960,8 +1009,6 @@ export function Shell(): JSX.Element {
     // Claims synchronously, so a click plus ⌘Enter (or a repeated key) can
     // never dispatch twice, even before React re-renders `studioBusy`.
     if (!submission.claim(identity)) return;
-    const token = epoch.current();
-    const name = current.project.name;
     setStudioBusy(true);
     try {
       // Persist whatever is newest before sending; a failure here is reported
@@ -1001,6 +1048,7 @@ export function Shell(): JSX.Element {
       setStudioBusy(false);
     }
   }, [
+    commandCatalog,
     drafts,
     epoch,
     flushDraft,
@@ -1603,6 +1651,7 @@ export function Shell(): JSX.Element {
             mode={studioMode}
             draft={draft}
             draftStatus={draftStatus}
+            commandCatalog={commandCatalog}
             inspectorTab={inspectorTab}
             onInspectorTab={setInspectorTab}
             onDraft={onDraft}

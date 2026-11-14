@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "ok": true,
+  "checks": {
+    "catalog_rendered": true,
+    "studio_opened": true,
+    "menu_opens": true,
+    "listbox_is_labelled": true,
+    "reports_catalog_total": true,
+    "has_real_description": true,
+    "connection_not_started": true,
+    "filter_narrows": true,
+    "filter_finds_help": true,
+    "detail_shows_tui_route": true,
+    "tab_accepts": true,
+    "menu_closed_after_accept": true,
+    "escape_closes_first": true,
+    "escape_keeps_draft": true,
+    "menu_closed_by_escape": true,
+    "plain_enter_is_newline": true,
+    "ambiguous_explained": true,
+    "ambiguous_keeps_draft": true,
+    "tui_only_explained": true,
+    "engine_still_not_started": true,
+    "menu_inside_viewport_at_default": true,
+    "zoom_200_menu_inside_viewport": true,
+    "zoom_200_no_page_overflow": true,
+    "zoom_200_list_usable": true,
+    "zoom_200_options_present": true
+  },
+  "facts": {
+    "initial": {
+      "header": "Codewhale commands79 matches · 109 catalogued",
+      "options": 79,
+      "first": "/rc/remote-controlResume this exact session from your Codewhale web accountTUI only",
+      "detail": "/rcResume this exact session from your Codewhale web account/rc [status|link|open|stop]·statuslinkopenstop·scope session·no model call·effects network, session-stateTUI only Hands the session to the Codewhale web app; account flow, no Runtime API operation documented.",
+      "connection": "EngineNot started"
+    },
+    "filtered": {
+      "count": 41,
+      "first": "/help/? /bangzhu /帮助Commands, skills, and keysTUI only",
+      "detail": "/helpCommands, skills, and keys/help [command]·scope ui·no model call·effects noneTUI only Renders the TUI help surface. Mona browses this catalog locally instead; R04 owns the local help action."
+    },
+    "tab": {
+      "prevented": true,
+      "value": "/help "
+    },
+    "ambiguous_notice": "\"he\" is ambiguous (/help). Tab accepts the highlighted command; nothing was sent.",
+    "tui_only_notice": "/help is a Codewhale command, not a prompt. TUI-only: Renders the TUI help surface. Mona browses this catalog locally instead; R04 owns the local help action.",
+    "normal": {
+      "top": 16,
+      "bottom": 415.09375,
+      "height": 399.09375,
+      "composer_top": 307.09375,
+      "composer_height": 319,
+      "viewport_height": 875,
+      "header": "Codewhale commands79 matches · 109 catalogued",
+      "detail_height": 156,
+      "body_height": 166.59375,
+      "placement": "command-menu command-menu--above"
+    },
+    "zoomed": {
+      "inside": true,
+      "width": 582,
+      "viewport": 640,
+      "top": 16,
+      "bottom": 139.79296875,
+      "height": 123.79296875,
+      "viewport_height": 437,
+      "scrolls": true,
+      "page_overflow": false,
+      "detail_visible": false,
+      "body_height": 82.29296875,
+      "options": 79
+    }
+  },
+  "project": "prj_a1e6e55c54a66bb6",
+  "screenshots": [
+    "r03-command-menu.png",
+    "r03-command-menu-200.png"
+  ],
+  "electron": {
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+}

@@ -5,6 +5,7 @@ import type {
   ThreadSummary,
 } from "../../shared/contracts/project-bridge";
 import type { StudioMode, StudioSnapshot } from "../../shared/contracts/studio";
+import type { CommandCatalogEntry, CommandCatalogSnapshot } from "../../shared/contracts/commands";
 import type { PromptFavorite } from "../../shared/contracts/polish";
 import {
   Badge,
@@ -38,6 +39,14 @@ import {
 import { engineBadge, formatTokens, projectAccent, projectMonogram, relativeTime } from "./visual";
 import { Markdown } from "./markdown";
 import { projectTimeline, type TimelineEntry } from "./timeline";
+import { CommandMenu } from "./CommandMenu";
+import {
+  acceptCommand,
+  classifyComposerText,
+  probeCommandToken,
+  rankCommands,
+  type CommandIntent,
+} from "./composer-commands";
 
 /**
  * The paged history the shell has loaded. Omitted only by embedders (and tests)
@@ -67,6 +76,8 @@ export interface StudioProps {
   mode: StudioMode;
   draft: string;
   draftStatus: "idle" | "saving" | "saved" | "error";
+  /** The pinned slash-command catalog; absent only in embedders that have none. */
+  commandCatalog?: CommandCatalogSnapshot | null;
   inspectorTab: string;
   onInspectorTab: (tab: string) => void;
   focusMode: boolean;
@@ -250,9 +261,21 @@ function formatDuration(seconds: number): string {
 
 export function StudioScreen(props: StudioProps): JSX.Element {
   const timelineRef = useRef<HTMLDivElement | null>(null);
+  const composerRef = useRef<HTMLTextAreaElement | null>(null);
+  const composerBoxRef = useRef<HTMLDivElement | null>(null);
   const followRef = useRef(true);
   const anchorRef = useRef<{ height: number; top: number; loads: number } | null>(null);
   const [atLatest, setAtLatest] = useState(true);
+  const [caret, setCaret] = useState(0);
+  const [selection, setSelection] = useState({ start: 0, end: 0 });
+  const [composing, setComposing] = useState(false);
+  const [commandIndex, setCommandIndex] = useState(0);
+  const [dismissedCommand, setDismissedCommand] = useState<string | null>(null);
+  const [pendingCaret, setPendingCaret] = useState<number | null>(null);
+  const [menuBox, setMenuBox] = useState<{ placement: "above" | "below"; maxHeight: number }>({
+    placement: "above",
+    maxHeight: 360,
+  });
 
   const { detail, studio, history } = props;
   const events = history?.events ?? detail?.events ?? [];
@@ -309,6 +332,122 @@ export function StudioScreen(props: StudioProps): JSX.Element {
     if (node) node.scrollTop = node.scrollHeight;
   };
 
+  const commandProbe =
+    props.commandCatalog && !composing
+      ? probeCommandToken(props.draft, caret, selection.start, selection.end)
+      : { token: null, literal: null };
+  const commandQuery = commandProbe.token?.name ?? "";
+  const commandMatches =
+    props.commandCatalog && commandProbe.token
+      ? rankCommands(props.commandCatalog, commandQuery)
+      : [];
+  const commandKey = commandProbe.token
+    ? `${commandProbe.token.start}:${commandProbe.token.name}`
+    : null;
+  const commandMenuOpen = commandKey !== null && dismissedCommand !== commandKey;
+  // The listbox only exists when it has rows; ARIA references must follow the
+  // DOM, not the intent, or the combobox points at a missing element.
+  const commandListOpen = commandMenuOpen && commandMatches.length > 0;
+  const commandIntent: CommandIntent = props.commandCatalog
+    ? classifyComposerText(props.draft, props.commandCatalog)
+    : { kind: "prompt" };
+  const commandLine = commandIntent.kind !== "prompt";
+  // A new query or a freshly opened list starts at its best match. Arrow keys
+  // change only the index, so they are not reset by this effect.
+  useEffect(() => {
+    setCommandIndex(0);
+  }, [commandQuery, commandMenuOpen]);
+
+  // A restored or externally replaced draft must not leave a caret from the
+  // previous project. Clamp it to the text and re-measure on draft-identity
+  // changes so the probe never reads a position the user cannot see.
+  useEffect(() => {
+    if (caret <= props.draft.length) return;
+    setCaret(props.draft.length);
+    setSelection({ start: props.draft.length, end: props.draft.length });
+  }, [props.draft.length, caret]);
+
+  useEffect(() => {
+    setCommandIndex(0);
+    setDismissedCommand(null);
+  }, [detail?.project.id, history?.threadId]);
+
+  // Escape dismisses this token only. Moving the caret away or editing the
+  // token clears the dismissal; accepting a no-argument command also closes the
+  // list instead of immediately reopening it on the new text.
+  useEffect(() => {
+    if (dismissedCommand !== null && dismissedCommand !== commandKey) {
+      setDismissedCommand(null);
+    }
+  }, [commandKey, dismissedCommand]);
+
+  // The list floats over the studio. Measure the composer so it opens on the
+  // side with room: a 900 px window has less than 42vh above the composer, and
+  // a 200% zoom halves the CSS viewport again. The panel scrolls rather than
+  // pushing the composer or the page sideways.
+  useLayoutEffect(() => {
+    if (!commandMenuOpen) return;
+    const measure = (): void => {
+      const node = composerBoxRef.current;
+      if (!node) return;
+      const rect = node.getBoundingClientRect();
+      const above = rect.top - 16;
+      const below = window.innerHeight - rect.bottom - 16;
+      const placement = above >= 220 || above >= below ? "above" : "below";
+      const available = placement === "above" ? above : below;
+      // The viewport cap matters at page zoom: Electron changes the CSS
+      // viewport without resizing the window, so a measurement taken before a
+      // zoom change must never produce a panel taller than the window.
+      const cap = Math.min(520, window.innerHeight - 16);
+      // Never taller than the room on the chosen side. Below 64 CSS px the
+      // panel overlaps the composer (a tiny window at high zoom) rather than
+      // pretending to fit; the list stays scrollable.
+      setMenuBox({
+        placement,
+        maxHeight: Math.min(cap, Math.max(64, available - 8)),
+      });
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    window.addEventListener("scroll", measure, true);
+    window.visualViewport?.addEventListener("resize", measure);
+    return () => {
+      window.removeEventListener("resize", measure);
+      window.removeEventListener("scroll", measure, true);
+      window.visualViewport?.removeEventListener("resize", measure);
+    };
+  }, [commandMenuOpen, props.draft, props.focusMode]);
+
+  // Accepting a suggestion is a controlled-value edit; restore the caret after
+  // React has rendered the new text instead of guessing where the DOM put it.
+  useEffect(() => {
+    if (pendingCaret === null) return;
+    const node = composerRef.current;
+    if (node) {
+      node.focus();
+      node.setSelectionRange(pendingCaret, pendingCaret);
+      setCaret(pendingCaret);
+      setSelection({ start: pendingCaret, end: pendingCaret });
+    }
+    setPendingCaret(null);
+  }, [props.draft, pendingCaret]);
+
+  const trackCaret = (node: HTMLTextAreaElement): void => {
+    const start = node.selectionStart ?? 0;
+    const end = node.selectionEnd ?? start;
+    setCaret(start);
+    setSelection({ start, end });
+  };
+
+  const acceptEntry = (entry: CommandCatalogEntry): void => {
+    if (!commandProbe.token) return;
+    const next = acceptCommand(props.draft, commandProbe.token, entry);
+    props.onDraft(next.text);
+    setPendingCaret(next.caret);
+    setCommandIndex(0);
+    setDismissedCommand(`${commandProbe.token.start}:${entry.name}`);
+  };
+
   if (!detail) {
     return (
       <div className="screen">
@@ -352,6 +491,12 @@ export function StudioScreen(props: StudioProps): JSX.Element {
   const sendReason =
     studio?.cannotSubmitReason ??
     (studio === null ? "Mona starts the engine when you submit an explicit task." : null);
+  const sendDisabled = commandLine ? props.draft.trim().length === 0 : sendBlocked;
+  const sendTitle = commandLine
+    ? "This line is a Codewhale command. Send explains its route; it is never sent to the model."
+    : sendBlocked
+      ? (sendReason ?? "A turn is already active")
+      : "Submit this task";
   const connectionState = studio?.connection.state ?? "not_started";
   const canStart =
     !props.studioBusy &&
@@ -742,27 +887,110 @@ export function StudioScreen(props: StudioProps): JSX.Element {
                   Save prompt…
                 </Button>
               </div>
-              <TextArea
-                label="Task prompt"
-                hint="Enter adds a line break. ⌘Enter sends. Saved locally for this project and thread."
-                placeholder="Describe one concrete outcome, its boundaries, and how to verify it…"
-                rows={3}
-                value={props.draft}
-                onChange={(event) => props.onDraft(event.target.value)}
-                onKeyDown={(event) => {
-                  if (
-                    event.key !== "Enter" ||
-                    !event.metaKey ||
-                    event.shiftKey ||
-                    event.altKey ||
-                    event.ctrlKey ||
-                    event.nativeEvent.isComposing
-                  )
-                    return;
-                  event.preventDefault();
-                  if (!event.repeat && !sendBlocked) props.onSubmit();
-                }}
-              />
+              <div className="composer__input" ref={composerBoxRef}>
+                <TextArea
+                  ref={composerRef}
+                  label="Task prompt"
+                  hint="Enter adds a line break. ⌘Enter sends. Type / at line start for Codewhale commands."
+                  placeholder="Describe one concrete outcome, its boundaries, and how to verify it…"
+                  rows={3}
+                  value={props.draft}
+                  role="combobox"
+                  aria-haspopup="listbox"
+                  aria-autocomplete="list"
+                  aria-expanded={commandListOpen}
+                  aria-controls={commandListOpen ? "composer-command-menu" : undefined}
+                  aria-activedescendant={
+                    commandListOpen
+                      ? `composer-command-option-${Math.min(commandIndex, commandMatches.length - 1)}`
+                      : undefined
+                  }
+                  onChange={(event) => {
+                    props.onDraft(event.target.value);
+                    trackCaret(event.target);
+                  }}
+                  onSelect={(event) => trackCaret(event.currentTarget)}
+                  onClick={(event) => trackCaret(event.currentTarget)}
+                  onMouseUp={(event) => trackCaret(event.currentTarget)}
+                  onKeyUp={(event) => trackCaret(event.currentTarget)}
+                  onCompositionStart={() => setComposing(true)}
+                  onCompositionEnd={(event) => {
+                    setComposing(false);
+                    trackCaret(event.currentTarget);
+                  }}
+                  onKeyDown={(event) => {
+                    const native = event.nativeEvent;
+                    if (native.isComposing || composing) return;
+                    if (commandMenuOpen) {
+                      if (
+                        (event.key === "ArrowDown" || event.key === "ArrowUp") &&
+                        !event.metaKey &&
+                        !event.ctrlKey &&
+                        !event.altKey
+                      ) {
+                        // With no rows the caret keeps its normal behaviour;
+                        // swallowing the key would strand the user.
+                        if (commandMatches.length > 0) {
+                          event.preventDefault();
+                          const delta = event.key === "ArrowDown" ? 1 : -1;
+                          setCommandIndex(
+                            (index) =>
+                              (index + delta + commandMatches.length) % commandMatches.length,
+                          );
+                          return;
+                        }
+                      }
+                      if (
+                        event.key === "Tab" &&
+                        !event.shiftKey &&
+                        !event.metaKey &&
+                        !event.ctrlKey &&
+                        !event.altKey
+                      ) {
+                        const entry = commandMatches[commandIndex]?.entry;
+                        if (entry) {
+                          event.preventDefault();
+                          acceptEntry(entry);
+                          return;
+                        }
+                      }
+                      if (event.key === "Escape") {
+                        // The list closes first; Escape never interrupts work or
+                        // leaves Focus Mode while a suggestion is open.
+                        event.preventDefault();
+                        event.stopPropagation();
+                        setDismissedCommand(commandKey);
+                        return;
+                      }
+                    }
+                    if (
+                      event.key !== "Enter" ||
+                      !event.metaKey ||
+                      event.shiftKey ||
+                      event.altKey ||
+                      event.ctrlKey ||
+                      native.isComposing
+                    )
+                      return;
+                    event.preventDefault();
+                    if (!event.repeat && (commandLine || !sendBlocked)) props.onSubmit();
+                  }}
+                />
+                {props.commandCatalog && commandMenuOpen ? (
+                  <CommandMenu
+                    catalog={props.commandCatalog}
+                    query={commandQuery}
+                    matches={commandMatches}
+                    selected={Math.min(commandIndex, Math.max(0, commandMatches.length - 1))}
+                    onHover={setCommandIndex}
+                    onAccept={acceptEntry}
+                    engine={studio?.connection.engine ?? null}
+                    placement={menuBox.placement}
+                    maxHeight={menuBox.maxHeight}
+                    compact={menuBox.maxHeight < 240}
+                  />
+                ) : null}
+              </div>
               <div className="composer__actions">
                 <div className="composer__left">
                   <span className="hint-line" aria-live="polite">
@@ -788,10 +1016,8 @@ export function StudioScreen(props: StudioProps): JSX.Element {
                   <Button
                     variant="primary"
                     icon={<PlayIcon size={15} />}
-                    disabled={sendBlocked}
-                    title={
-                      sendBlocked ? (sendReason ?? "A turn is already active") : "Submit this task"
-                    }
+                    disabled={sendDisabled}
+                    title={sendTitle}
                     onClick={props.onSubmit}
                     data-testid="studio-send"
                   >

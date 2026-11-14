@@ -4,11 +4,11 @@ import {
   useRef,
   useState,
   type ButtonHTMLAttributes,
+  type ComponentPropsWithRef,
   type InputHTMLAttributes,
   type JSX,
   type ReactNode,
   type SelectHTMLAttributes,
-  type TextareaHTMLAttributes,
 } from "react";
 import {
   CheckIcon,
@@ -153,7 +153,7 @@ export function TextField({
   );
 }
 
-export interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
+export interface TextAreaProps extends ComponentPropsWithRef<"textarea"> {
   label: string;
   hint?: string;
   error?: string | null;

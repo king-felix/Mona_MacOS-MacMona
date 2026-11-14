@@ -1,10 +1,12 @@
 // @vitest-environment jsdom
-import { act } from "react";
+import { act, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ProjectDetail, StoredEventSummary } from "../src/shared/contracts/project-bridge";
 import type { StudioSnapshot } from "../src/shared/contracts/studio";
+import { buildCommandCatalog } from "../src/shared/commands/catalog";
 import { StudioScreen } from "../src/renderer/shell/Studio";
+import axe from "axe-core";
 
 let root: Root | null = null;
 let container: HTMLDivElement | null = null;
@@ -622,5 +624,259 @@ describe("R02 scroll anchoring", () => {
     });
     // The reader stays where they were; the live edge does not drag them.
     expect(node.scrollTop).toBe(400);
+  });
+});
+
+describe("R03 descriptive command autocomplete", () => {
+  const catalog = buildCommandCatalog();
+
+  function Harness({
+    initial = "",
+    ...props
+  }: Partial<Parameters<typeof StudioScreen>[0]> & { initial?: string }): JSX.Element {
+    const [draft, setDraft] = useState(initial);
+    return (
+      <StudioScreen
+        detail={detail()}
+        studio={studio()}
+        studioBusy={false}
+        mode="work"
+        draft={draft}
+        draftStatus="idle"
+        inspectorTab="task"
+        onInspectorTab={() => undefined}
+        onDraft={setDraft}
+        onMode={() => undefined}
+        onOpenFolder={() => undefined}
+        onShowBoard={() => undefined}
+        onStart={() => undefined}
+        onSubmit={() => undefined}
+        onInterrupt={() => undefined}
+        onPause={() => undefined}
+        onResumeQueue={() => undefined}
+        onCancelQueued={() => undefined}
+        onStop={() => undefined}
+        onReconcile={() => undefined}
+        focusMode={false}
+        favorites={[]}
+        onToggleFocus={() => undefined}
+        onUseFavorite={() => undefined}
+        onRequestSaveFavorite={() => undefined}
+        onRemoveFavorite={() => undefined}
+        commandCatalog={catalog}
+        {...props}
+      />
+    );
+  }
+
+  function renderHarness(
+    props: Partial<Parameters<typeof StudioScreen>[0]> & { initial?: string },
+  ) {
+    act(() => root?.render(<Harness {...props} />));
+  }
+
+  /** A controlled composer: the draft comes from the props, as the real Shell does. */
+  function renderControlled(draft: string) {
+    act(() =>
+      root?.render(
+        <StudioScreen
+          detail={detail()}
+          studio={studio()}
+          studioBusy={false}
+          mode="work"
+          draft={draft}
+          draftStatus="idle"
+          inspectorTab="task"
+          onInspectorTab={() => undefined}
+          onDraft={() => undefined}
+          onMode={() => undefined}
+          onOpenFolder={() => undefined}
+          onShowBoard={() => undefined}
+          onStart={() => undefined}
+          onSubmit={() => undefined}
+          onInterrupt={() => undefined}
+          onPause={() => undefined}
+          onResumeQueue={() => undefined}
+          onCancelQueued={() => undefined}
+          onStop={() => undefined}
+          onReconcile={() => undefined}
+          focusMode={false}
+          favorites={[]}
+          onToggleFocus={() => undefined}
+          onUseFavorite={() => undefined}
+          onRequestSaveFavorite={() => undefined}
+          onRemoveFavorite={() => undefined}
+          commandCatalog={catalog}
+        />,
+      ),
+    );
+  }
+
+  function composer(): HTMLTextAreaElement {
+    const element = container!.querySelector<HTMLTextAreaElement>("textarea");
+    if (!element) throw new Error("composer textarea is not rendered");
+    return element;
+  }
+
+  function type(value: string): void {
+    const element = composer();
+    const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value")?.set;
+    act(() => {
+      setter?.call(element, value);
+      element.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+  }
+
+  function key(init: KeyboardEventInit): KeyboardEvent {
+    const event = new KeyboardEvent("keydown", { bubbles: true, cancelable: true, ...init });
+    act(() => {
+      composer().dispatchEvent(event);
+    });
+    return event;
+  }
+
+  it("opens a listbox with a description, usage, and route for a command position", () => {
+    renderHarness({ initial: "/he" });
+    const menu = container!.querySelector('[data-testid="command-menu"]');
+    expect(menu).not.toBeNull();
+    const listbox = container!.querySelector('[role="listbox"]');
+    expect(listbox?.getAttribute("aria-label")).toBe("Codewhale commands");
+    expect(container!.querySelectorAll('[role="option"]').length).toBeGreaterThan(0);
+    expect(composer().getAttribute("role")).toBe("combobox");
+    expect(composer().getAttribute("aria-expanded")).toBe("true");
+    expect(composer().getAttribute("aria-activedescendant")).toMatch(/^composer-command-option-/);
+    const text = container!.textContent ?? "";
+    expect(text).toContain("/help");
+    expect(text).toContain("Commands, skills, and keys");
+    expect(text).toContain("/help [command]");
+    expect(text).toContain("TUI only");
+  });
+
+  it("moves with arrows, accepts with Tab, and leaves plain Enter as a newline", () => {
+    const onSubmit = vi.fn();
+    renderHarness({ initial: "/", onSubmit });
+    const first = composer().getAttribute("aria-activedescendant");
+    key({ key: "ArrowDown" });
+    expect(composer().getAttribute("aria-activedescendant")).not.toBe(first);
+    key({ key: "ArrowUp" });
+    expect(composer().getAttribute("aria-activedescendant")).toBe(first);
+
+    const enter = key({ key: "Enter" });
+    expect(enter.defaultPrevented).toBe(false);
+    expect(onSubmit).not.toHaveBeenCalled();
+
+    type("/he");
+    key({ key: "Tab" });
+    expect(composer().value).toBe("/help ");
+    expect(container!.querySelector('[data-testid="command-menu"]')).toBeNull();
+  });
+
+  it("accepting a no-argument command closes the list instead of reopening it", () => {
+    renderHarness({ initial: "/cle" });
+    key({ key: "Tab" });
+    expect(composer().value).toBe("/clear");
+    expect(container!.querySelector('[data-testid="command-menu"]')).toBeNull();
+  });
+
+  it("Escape closes the list first without touching the draft or submitting", () => {
+    const onSubmit = vi.fn();
+    renderHarness({ initial: "/he", onSubmit });
+    const escape = key({ key: "Escape" });
+    expect(escape.defaultPrevented).toBe(true);
+    expect(container!.querySelector('[data-testid="command-menu"]')).toBeNull();
+    expect(composer().value).toBe("/he");
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  it("does not open during IME composition and never submits a composing Enter", () => {
+    const onSubmit = vi.fn();
+    renderHarness({ initial: "/", onSubmit });
+    act(() => {
+      composer().dispatchEvent(new CompositionEvent("compositionstart", { bubbles: true }));
+    });
+    type("/he");
+    expect(container!.querySelector('[data-testid="command-menu"]')).toBeNull();
+    const event = new KeyboardEvent("keydown", {
+      key: "Enter",
+      metaKey: true,
+      bubbles: true,
+      cancelable: true,
+    });
+    Object.defineProperty(event, "isComposing", { value: true });
+    act(() => {
+      composer().dispatchEvent(event);
+    });
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  it("does not reference a listbox that has no rows, and announces the empty filter", () => {
+    renderHarness({ initial: "/zzzzz" });
+    const element = composer();
+    expect(element.getAttribute("aria-expanded")).toBe("false");
+    expect(element.getAttribute("aria-controls")).toBeNull();
+    const status = container!.querySelector('.command-menu__head [role="status"]');
+    expect(status?.textContent).toContain("No catalogued command matches");
+    // Arrow keys still move the caret when there is nothing to choose.
+    const event = new KeyboardEvent("keydown", {
+      key: "ArrowDown",
+      bubbles: true,
+      cancelable: true,
+    });
+    act(() => {
+      element.dispatchEvent(event);
+    });
+    expect(event.defaultPrevented).toBe(false);
+  });
+
+  it("clamps a restored draft caret instead of reading a stale position", () => {
+    renderControlled("/help now please");
+    const element = container!.querySelector<HTMLTextAreaElement>("textarea")!;
+    act(() => {
+      element.setSelectionRange(15, 15);
+      element.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }));
+    });
+    // A project switch replaces the draft with a shorter one. The stale caret
+    // (15) must not be read against the new text.
+    renderControlled("/");
+    expect(container!.querySelector('[data-testid="command-menu"]')).not.toBeNull();
+    expect((container!.querySelector("textarea") as HTMLTextAreaElement).value).toBe("/");
+  });
+
+  it("closes while a selection is active so accepting cannot discard it", () => {
+    renderHarness({ initial: "/he" });
+    const element = composer();
+    act(() => {
+      element.setSelectionRange(0, 3);
+      element.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }));
+    });
+    expect(container!.querySelector('[data-testid="command-menu"]')).toBeNull();
+  });
+
+  it("accepts a pointed row and restores the caret after the replacement", () => {
+    renderHarness({ initial: "/he" });
+    const option = container!.querySelector<HTMLElement>('[role="option"]');
+    expect(option).not.toBeNull();
+    act(() => {
+      option!.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, cancelable: true }));
+      option!.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+    expect(composer().value).toBe("/help ");
+    expect(composer().selectionStart).toBe(6);
+  });
+
+  it("keeps Send available for a command even when the engine cannot submit it", () => {
+    renderHarness({ initial: "/help", studio: studio({ canSubmit: false }) });
+    const send = container!.querySelector<HTMLButtonElement>('[data-testid="studio-send"]');
+    expect(send?.disabled).toBe(false);
+    expect(send?.title).toContain("Codewhale command");
+  });
+
+  it("has no serious accessibility violations with the list open", async () => {
+    renderHarness({ initial: "/he" });
+    const results = await axe.run(container!, { rules: { "color-contrast": { enabled: false } } });
+    const blocking = results.violations.filter(
+      (violation) => violation.impact === "serious" || violation.impact === "critical",
+    );
+    expect(blocking.map((violation) => `${violation.id}: ${violation.help}`)).toEqual([]);
   });
 });

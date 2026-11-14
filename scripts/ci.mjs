@@ -25,6 +25,9 @@ for (const script of [
   "format:check",
   "lint",
   "typecheck",
+  // R03: the pinned slash-command catalog must match its annotations and its
+  // capture digest. Offline, deterministic, no engine and no network.
+  "catalog:check",
   "build:supervisor",
   "build:pty",
   "build:service",

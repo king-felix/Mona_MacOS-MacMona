@@ -21,6 +21,7 @@ import type {
   TerminalSnapshot,
 } from "./terminal";
 import type { CapabilitySnapshot } from "./capability";
+import type { CommandCatalogSnapshot } from "./commands";
 import type {
   ContextSelectionPreview,
   ContextSlot,
@@ -592,6 +593,11 @@ export interface MonaBridge {
   capabilitySnapshot(): Promise<IpcResult<CapabilitySnapshot>>;
   refreshCapabilities(): Promise<IpcResult<CapabilitySnapshot>>;
   capabilityReport(): Promise<IpcResult<{ json: string; markdown: string; filename: string }>>;
+  /**
+   * R03: the pinned slash-command catalog. A local read of checked-in data;
+   * filtering and help in the renderer make no further request.
+   */
+  commandCatalog(): Promise<IpcResult<CommandCatalogSnapshot>>;
 
   // P19: project memory, prompt shelf, portable handoff, and diagnostics.
   // Every method here is a local read or an inert local write. None accepts a

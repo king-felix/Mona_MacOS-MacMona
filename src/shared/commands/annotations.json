@@ -1,0 +1,1027 @@
+{
+  "schemaVersion": 1,
+  "basis": "Engine usage, summary and implementation inspected at the pinned 0.10.2 commit. Scope and effects describe what the command does, not what Mona has wired yet. support=runtime-api means a documented /v1 operation exists for R04 to call; support=terminal-only means only the TUI implements it; support=unavailable means 0.10.2 exposes no route.",
+  "entries": {
+    "advisor": {
+      "scope": "thread",
+      "sideEffects": ["thread-state", "spend"],
+      "cost": "may-spend",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Toggles the session advisor in TUI state; no Runtime API operation documented."
+      }
+    },
+    "agent": {
+      "scope": "thread",
+      "sideEffects": ["thread-state", "spend"],
+      "cost": "may-spend",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Creates a persistent sub-agent session through a TUI turn; /v1/agent-runs only inspects and cancels existing runs."
+      }
+    },
+    "anchor": {
+      "scope": "thread",
+      "sideEffects": ["thread-state"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Session-scoped context anchors live in the TUI; no Runtime API operation documented."
+      }
+    },
+    "attach": {
+      "scope": "thread",
+      "sideEffects": ["thread-state"],
+      "cost": "none",
+      "support": "unavailable",
+      "route": {
+        "kind": "unavailable",
+        "note": "Mona's composer does not attach media (RV-13); typed turns accept image input but this command is TUI-only."
+      }
+    },
+    "auth": {
+      "scope": "account",
+      "sideEffects": ["credential-change", "network"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Browser OAuth flows belong to the TUI; provider API keys are the only credential route Mona exposes, through P16 settings."
+      }
+    },
+    "auto": {
+      "scope": "thread",
+      "sideEffects": ["thread-state", "spend"],
+      "cost": "unknown",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Auto-Review is a TUI workflow surface; the engine exposes no Runtime API operation for it on 0.10.2."
+      }
+    },
+    "automation": {
+      "scope": "engine",
+      "sideEffects": ["config-write", "spend"],
+      "cost": "may-spend",
+      "support": "runtime-api",
+      "route": {
+        "kind": "runtime-api",
+        "endpoints": [
+          "/v1/automations/{id}/pause",
+          "/v1/automations/{id}/resume",
+          "/v1/automations/{id}/run",
+          "/v1/automations/{id}/runs"
+        ]
+      }
+    },
+    "balance": {
+      "scope": "account",
+      "sideEffects": ["network"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Provider balance is read by the TUI; no Runtime API operation documented."
+      }
+    },
+    "branch": {
+      "scope": "session",
+      "sideEffects": ["session-state"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Moves the session's active branch pointer; /v1/threads/{id}/fork creates a sibling but does not select a branch entry."
+      }
+    },
+    "cache": {
+      "scope": "thread",
+      "sideEffects": ["none"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Cache statistics are rendered by the TUI diagnostics commands."
+      }
+    },
+    "change": {
+      "scope": "engine",
+      "sideEffects": ["none"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Reads the bundled release notes; no Runtime API operation documented."
+      }
+    },
+    "clear": {
+      "scope": "thread",
+      "sideEffects": ["thread-state", "destructive"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Clears the live TUI conversation; no Runtime API operation documented. Mona must not substitute a new thread silently."
+      }
+    },
+    "color": {
+      "scope": "ui",
+      "sideEffects": ["ui-only"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": { "kind": "tui-local", "note": "Composer color is terminal presentation." }
+    },
+    "compact": {
+      "scope": "thread",
+      "sideEffects": ["thread-state", "spend"],
+      "cost": "may-spend",
+      "support": "runtime-api",
+      "route": { "kind": "runtime-api", "endpoints": ["/v1/threads/{id}/compact"] }
+    },
+    "config": {
+      "scope": "engine",
+      "sideEffects": ["config-write"],
+      "cost": "none",
+      "support": "runtime-api",
+      "route": { "kind": "runtime-api", "endpoints": ["/v1/config", "/v1/config/reload"] }
+    },
+    "connect": {
+      "scope": "account",
+      "sideEffects": ["credential-change", "network"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": { "kind": "tui-local", "note": "Plugin-provider browser sign-in is a TUI flow." }
+    },
+    "constitution": {
+      "scope": "engine",
+      "sideEffects": ["config-write"],
+      "cost": "none",
+      "support": "runtime-api",
+      "route": {
+        "kind": "runtime-api",
+        "endpoints": ["/v1/constitution", "/v1/constitution/preview"]
+      },
+      "notes": "Read and preview are documented routes; ratify, edit and migrate remain TUI-local."
+    },
+    "context": {
+      "scope": "thread",
+      "sideEffects": ["none"],
+      "cost": "none",
+      "support": "runtime-api",
+      "route": { "kind": "runtime-api", "endpoints": ["/v1/threads/{id}/context"] }
+    },
+    "copy": {
+      "scope": "ui",
+      "sideEffects": ["ui-only"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": { "kind": "tui-local", "note": "Copies to the terminal clipboard." }
+    },
+    "cost": {
+      "scope": "thread",
+      "sideEffects": ["none"],
+      "cost": "none",
+      "support": "runtime-api",
+      "route": { "kind": "runtime-api", "endpoints": ["/v1/usage", "/v1/threads/{id}/usage"] }
+    },
+    "diff": {
+      "scope": "workspace",
+      "sideEffects": ["none"],
+      "cost": "none",
+      "support": "runtime-api",
+      "route": { "kind": "runtime-api", "endpoints": ["/v1/diff", "/v1/workspace/diff"] }
+    },
+    "disconnect": {
+      "scope": "account",
+      "sideEffects": ["credential-change"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Removes a provider sign-in from the engine's own credential store; no Runtime API operation documented."
+      }
+    },
+    "edit": {
+      "scope": "thread",
+      "sideEffects": ["thread-state", "spend"],
+      "cost": "may-spend",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Rewinds and resubmits the last message in the TUI; no single Runtime API operation documented."
+      }
+    },
+    "effort": {
+      "scope": "thread",
+      "sideEffects": ["thread-state"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Sets the session's reasoning effort for later turns; the Runtime API has no per-thread effort write."
+      }
+    },
+    "exit": {
+      "scope": "ui",
+      "sideEffects": ["ui-only"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Quits the TUI; Mona's own lifecycle controls the app."
+      }
+    },
+    "export": {
+      "scope": "session",
+      "sideEffects": ["none"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Writes a sanitized export from the TUI; no Runtime API export operation documented."
+      }
+    },
+    "feedback": {
+      "scope": "workspace",
+      "sideEffects": ["workspace-write"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Drafts a local issue report file; no Runtime API operation documented."
+      }
+    },
+    "fleet": {
+      "scope": "engine",
+      "sideEffects": ["spend", "process-spawn"],
+      "cost": "may-spend",
+      "support": "runtime-api",
+      "route": {
+        "kind": "runtime-api",
+        "endpoints": [
+          "/v1/fleet/runs",
+          "/v1/fleet/runs/{run_id}/start",
+          "/v1/fleet/runs/{run_id}/stop"
+        ]
+      }
+    },
+    "fork": {
+      "scope": "session",
+      "sideEffects": ["session-state"],
+      "cost": "none",
+      "support": "runtime-api",
+      "route": {
+        "kind": "runtime-api",
+        "endpoints": ["/v1/threads/{id}/fork", "/v1/threads/{id}/fork-at-turn"]
+      }
+    },
+    "fullscreen": {
+      "scope": "ui",
+      "sideEffects": ["ui-only"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Terminal alternate screen; R05 owns Mona's native fullscreen."
+      }
+    },
+    "goal": {
+      "scope": "thread",
+      "sideEffects": ["thread-state", "spend"],
+      "cost": "may-spend",
+      "support": "runtime-api",
+      "route": {
+        "kind": "runtime-api",
+        "endpoints": [
+          "/v1/goals",
+          "/v1/threads/{id}/goal",
+          "/v1/threads/{id}/goal/complete",
+          "/v1/threads/{id}/goal/block"
+        ]
+      },
+      "notes": "Setting an active goal starts engine work (D-037). Pause returned 404 on 0.10.2 (p15-goal-probe.json)."
+    },
+    "help": {
+      "scope": "ui",
+      "sideEffects": ["none"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Renders the TUI help surface. Mona browses this catalog locally instead; R04 owns the local help action."
+      }
+    },
+    "hf": {
+      "scope": "engine",
+      "sideEffects": ["network"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": { "kind": "tui-local", "note": "Hugging Face MCP setup and concepts are TUI help." }
+    },
+    "home": {
+      "scope": "ui",
+      "sideEffects": ["ui-only"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": { "kind": "tui-local", "note": "TUI home screen." }
+    },
+    "hooks": {
+      "scope": "engine",
+      "sideEffects": ["none"],
+      "cost": "none",
+      "support": "runtime-api",
+      "route": { "kind": "runtime-api", "endpoints": ["/v1/hooks"] },
+      "notes": "P17 qualified this route as read-only; editing hooks has no desktop route."
+    },
+    "hotbar": {
+      "scope": "ui",
+      "sideEffects": ["ui-only"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": { "kind": "tui-local", "note": "Terminal hotbar setup." }
+    },
+    "import-claude": {
+      "scope": "engine",
+      "sideEffects": ["config-write"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Plans and applies a settings import in the TUI; no Runtime API operation documented."
+      }
+    },
+    "init": {
+      "scope": "workspace",
+      "sideEffects": ["workspace-write", "spend"],
+      "cost": "may-spend",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Generates AGENTS.md through an LLM turn (init.rs delegates to AppAction::SendMessage)."
+      }
+    },
+    "inline": {
+      "scope": "ui",
+      "sideEffects": ["ui-only"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": { "kind": "tui-local", "note": "Terminal scrollback presentation." }
+    },
+    "jobs": {
+      "scope": "workspace",
+      "sideEffects": ["process-spawn", "workspace-write"],
+      "cost": "none",
+      "support": "runtime-api",
+      "route": {
+        "kind": "runtime-api",
+        "endpoints": ["/v1/jobs", "/v1/threads/{id}/jobs/{job_id}"]
+      }
+    },
+    "lane": {
+      "scope": "engine",
+      "sideEffects": ["spend", "process-spawn"],
+      "cost": "may-spend",
+      "support": "unavailable",
+      "route": {
+        "kind": "unavailable",
+        "note": "Checked-in workflows and Lanes expose no Runtime API route on 0.10.2 (P18 covered this; MONA-CAP-018/019)."
+      }
+    },
+    "links": {
+      "scope": "ui",
+      "sideEffects": ["none"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": { "kind": "tui-local", "note": "Prints documentation and community links." }
+    },
+    "load": {
+      "scope": "session",
+      "sideEffects": ["session-state"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Imports a session file into the TUI; the Runtime API lists and resumes sessions, it does not import files."
+      }
+    },
+    "login": {
+      "scope": "account",
+      "sideEffects": ["credential-change", "network"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Account sign-in and key storage are TUI flows; P16 owns Mona's provider-key route."
+      }
+    },
+    "logout": {
+      "scope": "account",
+      "sideEffects": ["credential-change", "destructive"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Deletes saved provider keys and account state after confirmation; never offered as a casual desktop action."
+      }
+    },
+    "lsp": {
+      "scope": "workspace",
+      "sideEffects": ["config-write"],
+      "cost": "none",
+      "support": "runtime-api",
+      "route": { "kind": "runtime-api", "endpoints": ["/v1/lsp"] }
+    },
+    "mcp": {
+      "scope": "engine",
+      "sideEffects": ["config-write", "network", "process-spawn"],
+      "cost": "none",
+      "support": "runtime-api",
+      "route": {
+        "kind": "runtime-api",
+        "endpoints": ["/v1/apps/mcp/servers", "/v1/apps/mcp/tools"]
+      },
+      "notes": "P17 qualified add/control/tools; project-scope entries stay read-only."
+    },
+    "memory": {
+      "scope": "engine",
+      "sideEffects": ["config-write", "workspace-write"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Engine structured memory is managed in the TUI; P19's Memory screen reads Mona's own records, not this store."
+      }
+    },
+    "mode": {
+      "scope": "thread",
+      "sideEffects": ["permission-change"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Changes the session permission mode. No Runtime API write is documented; Mona must never widen permission implicitly."
+      }
+    },
+    "model": {
+      "scope": "engine",
+      "sideEffects": ["config-write"],
+      "cost": "none",
+      "support": "runtime-api",
+      "route": {
+        "kind": "runtime-api",
+        "endpoints": ["/v1/providers", "/v1/providers/{id}/switch", "/v1/config"]
+      }
+    },
+    "modeldb": {
+      "scope": "engine",
+      "sideEffects": ["none"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": { "kind": "tui-local", "note": "Browsed from the bundled database in the TUI." }
+    },
+    "models": {
+      "scope": "engine",
+      "sideEffects": ["network"],
+      "cost": "none",
+      "support": "runtime-api",
+      "route": {
+        "kind": "runtime-api",
+        "endpoints": ["/v1/providers", "/v1/providers/{id}/models"]
+      }
+    },
+    "network": {
+      "scope": "engine",
+      "sideEffects": ["config-write"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": { "kind": "tui-local", "note": "Network allow/deny rules are a TUI config surface." }
+    },
+    "new": {
+      "scope": "session",
+      "sideEffects": ["session-state"],
+      "cost": "none",
+      "support": "runtime-api",
+      "route": {
+        "kind": "runtime-api",
+        "endpoints": ["/v1/threads", "/v1/sessions/{id}/resume-thread"]
+      },
+      "notes": "Verified in session/new.rs: starts a fresh saved session; refuses while runtime work is active; --force discards draft or queued input only. Previous sessions stay available via /resume."
+    },
+    "note": {
+      "scope": "workspace",
+      "sideEffects": ["workspace-write"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Workspace notes are written by the TUI; no Runtime API operation documented."
+      }
+    },
+    "overview": {
+      "scope": "thread",
+      "sideEffects": ["none"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "TUI home dashboard; Mona has its own Home and Studio dashboards."
+      }
+    },
+    "permissions": {
+      "scope": "engine",
+      "sideEffects": ["config-write"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Lists and removes saved permission rules; no Runtime API rule-management operation documented."
+      }
+    },
+    "pet": {
+      "scope": "ui",
+      "sideEffects": ["ui-only"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": { "kind": "tui-local", "note": "Terminal animation surface." }
+    },
+    "pin": {
+      "scope": "ui",
+      "sideEffects": ["ui-only"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": { "kind": "tui-local", "note": "Pins the terminal window on top." }
+    },
+    "plugin": {
+      "scope": "engine",
+      "sideEffects": ["config-write", "network", "process-spawn"],
+      "cost": "none",
+      "support": "runtime-api",
+      "route": {
+        "kind": "runtime-api",
+        "endpoints": ["/v1/apps/plugins", "/v1/apps/plugins/install"]
+      },
+      "notes": "P17 qualified list/control/install; trust itself remains a terminal action."
+    },
+    "preview-request": {
+      "scope": "thread",
+      "sideEffects": ["none"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Composes a redacted preview in the TUI. No provider-request inspection route exists on 0.10.2 (D-087)."
+      }
+    },
+    "profile": {
+      "scope": "engine",
+      "sideEffects": ["config-write"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Switches a named config profile; the Runtime API is bound to the profile it started with."
+      }
+    },
+    "provider": {
+      "scope": "engine",
+      "sideEffects": ["config-write", "credential-change"],
+      "cost": "none",
+      "support": "runtime-api",
+      "route": {
+        "kind": "runtime-api",
+        "endpoints": ["/v1/providers", "/v1/providers/{id}/switch", "/v1/providers/{id}/key"]
+      }
+    },
+    "purge": {
+      "scope": "thread",
+      "sideEffects": ["thread-state", "spend"],
+      "cost": "may-spend",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Triggers agent context pruning/offloading; the follow-up work is model-driven."
+      }
+    },
+    "queue": {
+      "scope": "thread",
+      "sideEffects": ["thread-state"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Queued messages are TUI session state; no documented Runtime API queue operation."
+      }
+    },
+    "rc": {
+      "scope": "session",
+      "sideEffects": ["network", "session-state"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Hands the session to the Codewhale web app; account flow, no Runtime API operation documented."
+      }
+    },
+    "receipts": {
+      "scope": "thread",
+      "sideEffects": ["none"],
+      "cost": "none",
+      "support": "runtime-api",
+      "route": {
+        "kind": "runtime-api",
+        "endpoints": ["/v1/threads/{id}/receipt", "/v1/threads/{id}/turns/{turn_id}/receipt"]
+      }
+    },
+    "relay": {
+      "scope": "session",
+      "sideEffects": ["network", "session-state"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Creates a session relay for a fresh thread; remote/account setup is TUI-driven."
+      }
+    },
+    "remote-env": {
+      "scope": "session",
+      "sideEffects": ["network", "session-state"],
+      "cost": "unknown",
+      "support": "unavailable",
+      "route": {
+        "kind": "unavailable",
+        "note": "The pinned runtime reports environments=false; hosted Work is not available on this build."
+      }
+    },
+    "rename": {
+      "scope": "session",
+      "sideEffects": ["session-state"],
+      "cost": "none",
+      "support": "runtime-api",
+      "route": { "kind": "runtime-api", "endpoints": ["/v1/sessions/{id}"] }
+    },
+    "restore": {
+      "scope": "workspace",
+      "sideEffects": ["workspace-write", "destructive"],
+      "cost": "none",
+      "support": "runtime-api",
+      "route": {
+        "kind": "runtime-api",
+        "endpoints": ["/v1/snapshots", "/v1/snapshots/{id}/restore"]
+      },
+      "notes": "P13 surfaces one-file file-revert; whole-workspace restore is the engine-native route and is not surfaced in Mona yet."
+    },
+    "resume": {
+      "scope": "session",
+      "sideEffects": ["session-state"],
+      "cost": "none",
+      "support": "runtime-api",
+      "route": {
+        "kind": "runtime-api",
+        "endpoints": ["/v1/sessions/{id}/resume-thread", "/v1/sessions"]
+      },
+      "notes": "Session import from a JSON file is TUI-only; the documented route resumes a saved session."
+    },
+    "retry": {
+      "scope": "thread",
+      "sideEffects": ["thread-state", "spend"],
+      "cost": "may-spend",
+      "support": "runtime-api",
+      "route": { "kind": "runtime-api", "endpoints": ["/v1/threads/{id}/retry"] }
+    },
+    "review": {
+      "scope": "workspace",
+      "sideEffects": ["spend"],
+      "cost": "may-spend",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Runs a structured review through a model turn; no single Runtime API review operation documented."
+      }
+    },
+    "rlm": {
+      "scope": "thread",
+      "sideEffects": ["thread-state", "spend"],
+      "cost": "may-spend",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Opens a persistent recursive context; model-driven TUI session."
+      }
+    },
+    "router": {
+      "scope": "engine",
+      "sideEffects": ["config-write"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Configures the per-turn Auto router; P16 validates saved-route changes but not this router setup."
+      }
+    },
+    "save": {
+      "scope": "session",
+      "sideEffects": ["workspace-write"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Writes a session export file; no Runtime API operation documented."
+      }
+    },
+    "sessions": {
+      "scope": "session",
+      "sideEffects": ["session-state", "destructive"],
+      "cost": "none",
+      "support": "runtime-api",
+      "route": {
+        "kind": "runtime-api",
+        "endpoints": ["/v1/sessions", "/v1/sessions/summary", "/v1/sessions/{id}"]
+      },
+      "notes": "Prune and delete are destructive and need explicit confirmation; listing is read-only."
+    },
+    "settings": {
+      "scope": "ui",
+      "sideEffects": ["ui-only"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": { "kind": "tui-local", "note": "Opens the TUI settings surface." }
+    },
+    "setup": {
+      "scope": "engine",
+      "sideEffects": ["config-write", "credential-change", "network"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Interactive TUI setup wizard; Mona's Settings screens cover the parts P16/P17 qualified."
+      }
+    },
+    "share": {
+      "scope": "session",
+      "sideEffects": ["network"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Publishes a session URL through the Codewhale account; no Runtime API operation documented."
+      }
+    },
+    "skill": {
+      "scope": "engine",
+      "sideEffects": ["config-write", "network"],
+      "cost": "none",
+      "support": "runtime-api",
+      "route": {
+        "kind": "runtime-api",
+        "endpoints": [
+          "/v1/skills",
+          "/v1/skills/install",
+          "/v1/skills/{name}/trust",
+          "/v1/skills/{name}/update"
+        ]
+      }
+    },
+    "skills": {
+      "scope": "engine",
+      "sideEffects": ["none"],
+      "cost": "none",
+      "support": "runtime-api",
+      "route": { "kind": "runtime-api", "endpoints": ["/v1/skills"] }
+    },
+    "stash": {
+      "scope": "thread",
+      "sideEffects": ["thread-state"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Parks the TUI composer draft; Mona's DraftJournal owns its own drafts."
+      }
+    },
+    "status": {
+      "scope": "thread",
+      "sideEffects": ["none"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Session status readout; Mona's own dashboard reports the same facts from stored records."
+      }
+    },
+    "statusline": {
+      "scope": "ui",
+      "sideEffects": ["ui-only"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": { "kind": "tui-local", "note": "Footer configuration." }
+    },
+    "structcopy": {
+      "scope": "session",
+      "sideEffects": ["none"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Copies a redacted session object to stdout or the clipboard."
+      }
+    },
+    "subagents": {
+      "scope": "thread",
+      "sideEffects": ["none"],
+      "cost": "none",
+      "support": "runtime-api",
+      "route": { "kind": "runtime-api", "endpoints": ["/v1/agent-runs"] }
+    },
+    "system": {
+      "scope": "thread",
+      "sideEffects": ["none"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Shows the TUI's composed system prompt; no provider-request inspection route exists on 0.10.2."
+      }
+    },
+    "task": {
+      "scope": "thread",
+      "sideEffects": ["thread-state", "spend"],
+      "cost": "may-spend",
+      "support": "runtime-api",
+      "route": {
+        "kind": "runtime-api",
+        "endpoints": ["/v1/tasks", "/v1/tasks/{id}", "/v1/tasks/{id}/cancel"]
+      },
+      "notes": "Adding a task can start background work; listing and inspecting do not."
+    },
+    "theme": {
+      "scope": "ui",
+      "sideEffects": ["ui-only"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": { "kind": "tui-local", "note": "Terminal theme; R06 owns Mona's visual identity." }
+    },
+    "title": {
+      "scope": "ui",
+      "sideEffects": ["ui-only"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": { "kind": "tui-local", "note": "Sets the terminal tab/window title." }
+    },
+    "tokens": {
+      "scope": "thread",
+      "sideEffects": ["none"],
+      "cost": "none",
+      "support": "runtime-api",
+      "route": { "kind": "runtime-api", "endpoints": ["/v1/usage", "/v1/threads/{id}/usage"] }
+    },
+    "tools": {
+      "scope": "thread",
+      "sideEffects": ["none"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Inspects the latest prepared tool request in the TUI."
+      }
+    },
+    "transcript": {
+      "scope": "ui",
+      "sideEffects": ["ui-only"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": { "kind": "tui-local", "note": "Terminal transcript overlay." }
+    },
+    "translate": {
+      "scope": "engine",
+      "sideEffects": ["config-write", "spend"],
+      "cost": "unknown",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Toggles output translation in config; whether translated output is produced by a model is not stated, so cost stays unknown."
+      }
+    },
+    "tree": {
+      "scope": "session",
+      "sideEffects": ["none"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Renders the TUI session tree; no Runtime API graph operation documented."
+      }
+    },
+    "trust": {
+      "scope": "workspace",
+      "sideEffects": ["permission-change", "config-write"],
+      "cost": "none",
+      "support": "runtime-api",
+      "route": {
+        "kind": "runtime-api",
+        "endpoints": ["/v1/workspace/status", "/v1/workspace/trust"]
+      }
+    },
+    "turn": {
+      "scope": "thread",
+      "sideEffects": ["none"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Opens the TUI whole-turn inspector; Mona's timeline and receipts are the native equivalent."
+      }
+    },
+    "undo": {
+      "scope": "workspace",
+      "sideEffects": ["workspace-write", "destructive"],
+      "cost": "none",
+      "support": "runtime-api",
+      "route": {
+        "kind": "runtime-api",
+        "endpoints": ["/v1/threads/{id}/undo", "/v1/threads/{id}/patch-undo"]
+      }
+    },
+    "update": {
+      "scope": "engine",
+      "sideEffects": ["network", "process-spawn"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Updates the engine release binary from GitHub; Mona never upgrades the pinned engine implicitly."
+      }
+    },
+    "verbose": {
+      "scope": "ui",
+      "sideEffects": ["ui-only"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Shows or hides live reasoning in the TUI transcript."
+      }
+    },
+    "voice": {
+      "scope": "thread",
+      "sideEffects": ["network", "thread-state"],
+      "cost": "unknown",
+      "support": "runtime-api",
+      "route": { "kind": "runtime-api", "endpoints": ["/v1/voice", "/v1/voice/dictate"] },
+      "notes": "Speech synthesis/dictation may be metered by the provider; no price is assumed."
+    },
+    "voicecontrol": {
+      "scope": "thread",
+      "sideEffects": ["network", "thread-state"],
+      "cost": "unknown",
+      "support": "runtime-api",
+      "route": { "kind": "runtime-api", "endpoints": ["/v1/voice/control"] }
+    },
+    "voicesend": {
+      "scope": "thread",
+      "sideEffects": ["network", "thread-state", "spend"],
+      "cost": "may-spend",
+      "support": "runtime-api",
+      "route": { "kind": "runtime-api", "endpoints": ["/v1/voice/send"] }
+    },
+    "workbar": {
+      "scope": "ui",
+      "sideEffects": ["ui-only"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": { "kind": "tui-local", "note": "Places the TUI workbar." }
+    },
+    "workflow": {
+      "scope": "engine",
+      "sideEffects": ["spend", "process-spawn"],
+      "cost": "may-spend",
+      "support": "unavailable",
+      "route": {
+        "kind": "unavailable",
+        "note": "Checked-in Workflows expose no Runtime API route on 0.10.2 (P18: MONA-CAP-018/019)."
+      }
+    },
+    "workflows": {
+      "scope": "engine",
+      "sideEffects": ["none"],
+      "cost": "none",
+      "support": "unavailable",
+      "route": {
+        "kind": "unavailable",
+        "note": "Lists TUI workflow runs; no Runtime API route on 0.10.2."
+      }
+    },
+    "workspace": {
+      "scope": "workspace",
+      "sideEffects": ["session-state"],
+      "cost": "none",
+      "support": "terminal-only",
+      "route": {
+        "kind": "tui-local",
+        "note": "Shows or switches the TUI workspace; a Runtime server is bound to the workspace it started with."
+      }
+    }
+  }
+}
