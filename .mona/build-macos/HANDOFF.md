@@ -69,6 +69,29 @@ and it was false.
   this change does not touch; `deleteProjectContents` still leaves `events`
   rows behind (the new `event_gaps` rows are removed with their project).
 
+### Operator-requested repair — 2026-11-13 (D-101)
+
+Not a prompt. The tree was published to a **public** repository,
+`github.com/king-felix/Mona_MacOS-MacMona`, at Victor's explicit instruction
+(AGENTS.md rule 7 otherwise reserves public hosting for him). Before push, the
+operator asked whether any API key had been committed.
+
+- **Audit:** no credential was ever committed. The live 35-character DeepSeek key
+  was compared against every blob in all 108 commits — exact match 0, any
+  10-character window 0, base64/hex/URL-encoded 0. No key, token, or
+  credential file was ever tracked.
+- **Scrub anyway**, because two fake `sk-` fixtures tripped the project's own
+  scanner and captured evidence carried the account name: fixtures shortened
+  (still redacted, with a non-vacuous guard assertion), `p01-live.json`,
+  `p16-p17-ci.txt`, and `p18-tests.txt` normalized to `<user>` / `/Users/<user>`
+  with written provenance notes, and history rewritten so the old values are not
+  in the public record either.
+- **Rewritten history:** 108 commits, tip tree byte-identical (`fea6437…`), 1,715
+  blobs re-scanned with 0 residue. Old SHAs are gone; the mapping is in D-101.
+  **Any earlier clone must be re-cloned, not pulled.**
+- **Verified:** 791 tests, `smoke:terminal` 31/31, lint/typecheck/build clean,
+  `validate` green, `monabuild secrets` 0 findings.
+
 ### Operator-requested repair — 2026-11-13 (D-100)
 
 Not a prompt. "Unrecognized event · operation.heartbeat" was appearing every ten

@@ -1729,3 +1729,53 @@ and the smoke measures it rather than asserting it is pretty.
 - **Consequence:** the console shows conversation, tools, and outcomes; plumbing
   appears only as "N engine activity events stored". Evidence:
   `docs/evidence/macos/P08-studio.md`.
+
+## D-101 — Publication scrub: no secret was found, and the history was still rewritten
+
+- **Date:** 2026-11-13 (operator: "carry out all your recommendations")
+- **Context:** the working tree was pushed to a **public** repository,
+  `github.com/king-felix/Mona_MacOS-MacMona`, at the operator's explicit request
+  (AGENTS.md rule 7 otherwise reserves public hosting for Victor; this is
+  Victor's own instruction). Before pushing, the operator asked whether any key
+  had been committed.
+- **Audit result — no credential was ever committed.** The live key
+  (`~/.codewhale/secrets/secrets.json`, `entries.deepseek`, 35 characters) was
+  compared against every blob in all 108 commits: exact match 0, any 10-character
+  window 0, base64/hex/URL-encoded forms 0. No `.env`, `secrets.json`, `id_rsa`,
+  `id_ed25519`, `.pem`, `.p12`, or `.key` file was ever tracked. Every
+  `-----BEGIN … PRIVATE KEY-----` occurrence is a bare marker inside a unit-test
+  assertion with no key material. The scanner's 10 findings were two fake
+  `sk-live-…` fixtures and eight captured `machine-home-path` strings.
+- **Decision — three changes, none of them a rotation:**
+  1. The two fixtures are now `sk-fixture-notreal01`: still ≥8 characters after
+     the prefix, so `redactDiagnostics` must still strip them, but below the
+     scanner's 20-character threshold. `test/settings-workbench.test.ts` now
+     asserts the fixture is *present* in the raw text before asserting it is
+     gone, so that coverage cannot silently become vacuous again.
+  2. `p01-live.json`, `p16-p17-ci.txt`, and `p18-tests.txt` normalize the
+     account name and home paths to `<user>` / `/Users/<user>`, each carrying a
+     written provenance note. No measurement in them changed.
+  3. History was rewritten (`git filter-repo`) so the old fixture values and the
+     account name are not in the public record either: 108 commits, tip tree
+     **byte-identical** (`fea6437…`), 1,715 blobs re-scanned with 0 residue.
+- **Verified:** 791 tests in 79 files; `smoke:terminal` 31/31 with
+  `log_redacts_key: true` and `log_redacts_home: true`; lint, typecheck, build
+  clean; `monabuild validate` green; `monabuild secrets` 0 findings (was 10).
+- **Rejected:** rotating the key (nothing leaked; rotation would be theater),
+  deleting the evidence files (destroys the record the build is built on), and
+  leaving the account name (a public personal identifier plus permanent scanner
+  noise).
+- **Commit mapping** (the rewrite means old SHAs no longer exist):
+
+  | Role | Before | After |
+  | --- | --- | --- |
+  | Gap-ledger repair | `7e71273` | `0e3f1c0` |
+  | Console plumbing fix | `10d8375` | `4d893fc` |
+  | Pre-scrub tip | `db830e1` | `5b15c66` |
+  | Last verified before this session | `76c9863` | `ba199da` |
+  | P23 verified commit (HANDOFF) | `f755d8a` | `6a492d0` |
+
+- **Limits, stated:** GitHub may keep unreachable objects reachable by SHA for a
+  time, and pages, API caches, forks, and clones made before the rewrite keep
+  their own copies. Rewriting history also means any clone taken earlier no
+  longer shares ancestry; it must be re-cloned rather than pulled.

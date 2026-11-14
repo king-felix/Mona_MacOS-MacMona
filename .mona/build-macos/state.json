@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 738,
+  "revision": 745,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -8,7 +8,7 @@
   "prompt_file_sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8",
   "current_prompt": "P23",
   "current_prompt_status": "completed",
-  "last_verified_commit": "76c9863",
+  "last_verified_commit": "5b15c6694679cc9468916dcd8b7a6f0dfd8d6765",
   "tasks": {
     "P00": {
       "status": "completed",
@@ -83,7 +83,7 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "65392c4f87a9573725df76f73f8e5806ea0d0becccf57a6c4c9637da3d5da2e4",
+          "sha256": "50a9a874dfefb7c13844103626b30db85972706ae5429b12201a4d422d1abb84",
           "note": "P15 appended D-037..D-041; earlier entries unchanged"
         },
         {
@@ -755,7 +755,7 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "65392c4f87a9573725df76f73f8e5806ea0d0becccf57a6c4c9637da3d5da2e4",
+          "sha256": "50a9a874dfefb7c13844103626b30db85972706ae5429b12201a4d422d1abb84",
           "note": "P15 appended D-037..D-041; earlier entries unchanged"
         }
       ],
@@ -1272,7 +1272,7 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "65392c4f87a9573725df76f73f8e5806ea0d0becccf57a6c4c9637da3d5da2e4",
+          "sha256": "50a9a874dfefb7c13844103626b30db85972706ae5429b12201a4d422d1abb84",
           "note": "P15 appended D-037..D-041; earlier entries unchanged"
         },
         {
@@ -2088,7 +2088,7 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "65392c4f87a9573725df76f73f8e5806ea0d0becccf57a6c4c9637da3d5da2e4"
+          "sha256": "50a9a874dfefb7c13844103626b30db85972706ae5429b12201a4d422d1abb84"
         }
       ],
       "blocker_ids": []
@@ -2206,11 +2206,11 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "65392c4f87a9573725df76f73f8e5806ea0d0becccf57a6c4c9637da3d5da2e4"
+          "sha256": "50a9a874dfefb7c13844103626b30db85972706ae5429b12201a4d422d1abb84"
         },
         {
           "path": ".mona/build-macos/HANDOFF.md",
-          "sha256": "14f47270d72773df30f125199f18a785bca9284728cdcfd680d29c081ed85273"
+          "sha256": "0616b8397bb787c22247d3dac00b63b1da46bfa2c949e1a9706b352fde65f3a2"
         }
       ],
       "blocker_ids": []
@@ -2424,11 +2424,11 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "65392c4f87a9573725df76f73f8e5806ea0d0becccf57a6c4c9637da3d5da2e4"
+          "sha256": "50a9a874dfefb7c13844103626b30db85972706ae5429b12201a4d422d1abb84"
         },
         {
           "path": ".mona/build-macos/HANDOFF.md",
-          "sha256": "14f47270d72773df30f125199f18a785bca9284728cdcfd680d29c081ed85273"
+          "sha256": "0616b8397bb787c22247d3dac00b63b1da46bfa2c949e1a9706b352fde65f3a2"
         },
         {
           "path": "test/work-git.test.ts",
@@ -2553,7 +2553,7 @@
   "next_eligible_prompts": [
     "P14"
   ],
-  "last_checkpoint_utc": "2026-11-14T04:03:11.986Z",
+  "last_checkpoint_utc": "2026-11-14T04:04:28.259Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",
