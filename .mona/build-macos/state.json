@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 1260,
+  "revision": 1280,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -269,8 +269,8 @@
         },
         {
           "path": "scripts/ci.mjs",
-          "sha256": "6be01fde100f8f099ea36e571d891b4991f8ed4a458497b175e094197c62d6bd",
-          "note": "R13 2026-11-14: re-recorded after R13's installed-artifact pass found three defects and fixed two — the TUI-only receipt copy in `command-dispatch.ts`, the composer bound in `Studio.tsx` (it now caps the box, not the text area), the immersive smoke's console assertion, and `scripts/ci.mjs` gained `smoke:commands`. `npm run ci` passed 22/22 (1,121 tests in 101 files) and the shell and command smokes passed on these bytes; no requirement status changed."
+          "sha256": "d32becce884d7a6b9ac0901652ab499c0bc07c451e867dc2177fa3a5e917e3d8",
+          "note": "R13/R14 2026-11-14: re-recorded after the review queue changed these shared files (Studio card-identity history anchor, the history smoke in ci.mjs, and R13's build-manifest source commit). npm run ci passed 24/24 steps (1,121 tests in 101 files) on these bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "scripts/smoke.mjs",
@@ -290,8 +290,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "673c6f971c3feb76527c020d707ef60df4baf3182829cf1f12ef8b31103654b4",
-          "note": "R13 2026-11-14: re-recorded after R13's installed-artifact pass found three defects and fixed two — the TUI-only receipt copy in `command-dispatch.ts`, the composer bound in `Studio.tsx` (it now caps the box, not the text area), the immersive smoke's console assertion, and `scripts/ci.mjs` gained `smoke:commands`. `npm run ci` passed 22/22 (1,121 tests in 101 files) and the shell and command smokes passed on these bytes; no requirement status changed."
+          "sha256": "aefc996f405f7d598e41d2b1a0f51b1fda598a4f4a1c46da920e6d1722b7910c",
+          "note": "R13/R14 2026-11-14: re-recorded after the review queue changed these shared files (Studio card-identity history anchor, the history smoke in ci.mjs, and R13's build-manifest source commit). npm run ci passed 24/24 steps (1,121 tests in 101 files) on these bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/ipc-contract.ts",
@@ -664,8 +664,8 @@
         },
         {
           "path": "scripts/ci.mjs",
-          "sha256": "6be01fde100f8f099ea36e571d891b4991f8ed4a458497b175e094197c62d6bd",
-          "note": "R13 2026-11-14: re-recorded after R13's installed-artifact pass found three defects and fixed two — the TUI-only receipt copy in `command-dispatch.ts`, the composer bound in `Studio.tsx` (it now caps the box, not the text area), the immersive smoke's console assertion, and `scripts/ci.mjs` gained `smoke:commands`. `npm run ci` passed 22/22 (1,121 tests in 101 files) and the shell and command smokes passed on these bytes; no requirement status changed."
+          "sha256": "d32becce884d7a6b9ac0901652ab499c0bc07c451e867dc2177fa3a5e917e3d8",
+          "note": "R13/R14 2026-11-14: re-recorded after the review queue changed these shared files (Studio card-identity history anchor, the history smoke in ci.mjs, and R13's build-manifest source commit). npm run ci passed 24/24 steps (1,121 tests in 101 files) on these bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/supervisor/identity.ts",
@@ -702,8 +702,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "673c6f971c3feb76527c020d707ef60df4baf3182829cf1f12ef8b31103654b4",
-          "note": "R13 2026-11-14: re-recorded after R13's installed-artifact pass found three defects and fixed two — the TUI-only receipt copy in `command-dispatch.ts`, the composer bound in `Studio.tsx` (it now caps the box, not the text area), the immersive smoke's console assertion, and `scripts/ci.mjs` gained `smoke:commands`. `npm run ci` passed 22/22 (1,121 tests in 101 files) and the shell and command smokes passed on these bytes; no requirement status changed."
+          "sha256": "aefc996f405f7d598e41d2b1a0f51b1fda598a4f4a1c46da920e6d1722b7910c",
+          "note": "R13/R14 2026-11-14: re-recorded after the review queue changed these shared files (Studio card-identity history anchor, the history smoke in ci.mjs, and R13's build-manifest source commit). npm run ci passed 24/24 steps (1,121 tests in 101 files) on these bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/engine/runtime-process.ts",
@@ -1173,8 +1173,8 @@
         },
         {
           "path": "scripts/ci.mjs",
-          "sha256": "6be01fde100f8f099ea36e571d891b4991f8ed4a458497b175e094197c62d6bd",
-          "note": "R13 2026-11-14: re-recorded after R13's installed-artifact pass found three defects and fixed two — the TUI-only receipt copy in `command-dispatch.ts`, the composer bound in `Studio.tsx` (it now caps the box, not the text area), the immersive smoke's console assertion, and `scripts/ci.mjs` gained `smoke:commands`. `npm run ci` passed 22/22 (1,121 tests in 101 files) and the shell and command smokes passed on these bytes; no requirement status changed."
+          "sha256": "d32becce884d7a6b9ac0901652ab499c0bc07c451e867dc2177fa3a5e917e3d8",
+          "note": "R13/R14 2026-11-14: re-recorded after the review queue changed these shared files (Studio card-identity history anchor, the history smoke in ci.mjs, and R13's build-manifest source commit). npm run ci passed 24/24 steps (1,121 tests in 101 files) on these bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "package.json",
@@ -1195,8 +1195,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "673c6f971c3feb76527c020d707ef60df4baf3182829cf1f12ef8b31103654b4",
-          "note": "R13 2026-11-14: re-recorded after R13's installed-artifact pass found three defects and fixed two — the TUI-only receipt copy in `command-dispatch.ts`, the composer bound in `Studio.tsx` (it now caps the box, not the text area), the immersive smoke's console assertion, and `scripts/ci.mjs` gained `smoke:commands`. `npm run ci` passed 22/22 (1,121 tests in 101 files) and the shell and command smokes passed on these bytes; no requirement status changed."
+          "sha256": "aefc996f405f7d598e41d2b1a0f51b1fda598a4f4a1c46da920e6d1722b7910c",
+          "note": "R13/R14 2026-11-14: re-recorded after the review queue changed these shared files (Studio card-identity history anchor, the history smoke in ci.mjs, and R13's build-manifest source commit). npm run ci passed 24/24 steps (1,121 tests in 101 files) on these bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/desktop-lifecycle.ts",
@@ -1383,8 +1383,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "673c6f971c3feb76527c020d707ef60df4baf3182829cf1f12ef8b31103654b4",
-          "note": "R13 2026-11-14: re-recorded after R13's installed-artifact pass found three defects and fixed two — the TUI-only receipt copy in `command-dispatch.ts`, the composer bound in `Studio.tsx` (it now caps the box, not the text area), the immersive smoke's console assertion, and `scripts/ci.mjs` gained `smoke:commands`. `npm run ci` passed 22/22 (1,121 tests in 101 files) and the shell and command smokes passed on these bytes; no requirement status changed."
+          "sha256": "aefc996f405f7d598e41d2b1a0f51b1fda598a4f4a1c46da920e6d1722b7910c",
+          "note": "R13/R14 2026-11-14: re-recorded after the review queue changed these shared files (Studio card-identity history anchor, the history smoke in ci.mjs, and R13's build-manifest source commit). npm run ci passed 24/24 steps (1,121 tests in 101 files) on these bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/preload/index.ts",
@@ -1819,8 +1819,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p16-settings-smoke.json",
-          "sha256": "b572cf46e2949173fea1cf55175ec902de145812eb74c0279312ef9c800bcd5d",
-          "note": "R13 2026-11-14: this file is the record of a smoke re-run by R13's qualification work; its own checks are green (see R13-installed-candidate.md). A run record is rewritten by its own smoke."
+          "sha256": "162725ca264d0c681c9e8024c72abb62b56405d0bccffe9909c3de0b03cedf02",
+          "note": "R13/R14 2026-11-14: this is a run record, so npm run ci rewrote it (documented class: items 97/98/117). Re-recorded after the 24/24-step CI run; the artifact is a genuine report of that run, not a fixture."
         },
         {
           "path": "docs/evidence/macos/artifacts/p16-settings-route.png",
@@ -1862,8 +1862,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p17-extensions-smoke.json",
-          "sha256": "5e14d0f9962291541fb3e4ab6e5c35e024cb2cb76f08732e5fb99146b1f62675",
-          "note": "R13 2026-11-14: this file is the record of a smoke re-run by R13's qualification work; its own checks are green (see R13-installed-candidate.md). A run record is rewritten by its own smoke."
+          "sha256": "f54f0536933a74843c2c5d0d084aa2db759bccd6b3246983440caa364069f45c",
+          "note": "R13/R14 2026-11-14: this is a run record, so npm run ci rewrote it (documented class: items 97/98/117). Re-recorded after the 24/24-step CI run; the artifact is a genuine report of that run, not a fixture."
         },
         {
           "path": "docs/evidence/macos/artifacts/p17-settings-extensions.png",
@@ -1910,23 +1910,23 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-terminal-smoke.json",
-          "sha256": "7ba1fc99405a88e1e5fafa01c18ce427954313f47e67f52674e117c65fc09895",
-          "note": "R13 2026-11-14: this file is the record of a smoke re-run by R13's qualification work; its own checks are green (see R13-installed-candidate.md). A run record is rewritten by its own smoke."
+          "sha256": "e6b5a2feb8a4a66ccbbcce115782975e041cfe2626eb996f8507fd2559016e50",
+          "note": "R13/R14 2026-11-14: this is a run record, so npm run ci rewrote it (documented class: items 97/98/117). Re-recorded after the 24/24-step CI run; the artifact is a genuine report of that run, not a fixture."
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capability-smoke.json",
-          "sha256": "3dfe556cf9bb71bd5c34e9915fe88b2730416a39bca59bd3b8a7c53186603f8f",
-          "note": "R13 2026-11-14: this file is the record of a smoke re-run by R13's qualification work; its own checks are green (see R13-installed-candidate.md). A run record is rewritten by its own smoke."
+          "sha256": "80aac3e1b8daa0d47fba7a11b18a04ad45c03e576d133f8c6f7e52b887e17d18",
+          "note": "R13/R14 2026-11-14: this is a run record, so npm run ci rewrote it (documented class: items 97/98/117). Re-recorded after the 24/24-step CI run; the artifact is a genuine report of that run, not a fixture."
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capability-coverage.md",
-          "sha256": "f2418262639c24938dae93a3458bab99c92146a1ea6fb983249f116c7e1cabfd",
-          "note": "R13 2026-11-14: re-recorded after R13's installed-artifact pass found three defects and fixed two — the TUI-only receipt copy in `command-dispatch.ts`, the composer bound in `Studio.tsx` (it now caps the box, not the text area), the immersive smoke's console assertion, and `scripts/ci.mjs` gained `smoke:commands`. `npm run ci` passed 22/22 (1,121 tests in 101 files) and the shell and command smokes passed on these bytes; no requirement status changed."
+          "sha256": "48c8ce757cdbd71e76c2acb7c8526bee6a2197ae58dc29f73ca881779e654480",
+          "note": "R13/R14 2026-11-14: this is a run record, so npm run ci rewrote it (documented class: items 97/98/117). Re-recorded after the 24/24-step CI run; the artifact is a genuine report of that run, not a fixture."
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capability-coverage.json",
-          "sha256": "c34c9c39fa635537ea256bb8fbf8ed807730c6f96909ed5916c8d47e820b048c",
-          "note": "R13 2026-11-14: this file is the record of a smoke re-run by R13's qualification work; its own checks are green (see R13-installed-candidate.md). A run record is rewritten by its own smoke."
+          "sha256": "176b8c9330db606a8ee8c11060d83f83443fc91cba504af1f27b19bf8200eb07",
+          "note": "R13/R14 2026-11-14: this is a run record, so npm run ci rewrote it (documented class: items 97/98/117). Re-recorded after the 24/24-step CI run; the artifact is a genuine report of that run, not a fixture."
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-shell-smoke.json",
@@ -2047,8 +2047,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "673c6f971c3feb76527c020d707ef60df4baf3182829cf1f12ef8b31103654b4",
-          "note": "R13 2026-11-14: re-recorded after R13's installed-artifact pass found three defects and fixed two — the TUI-only receipt copy in `command-dispatch.ts`, the composer bound in `Studio.tsx` (it now caps the box, not the text area), the immersive smoke's console assertion, and `scripts/ci.mjs` gained `smoke:commands`. `npm run ci` passed 22/22 (1,121 tests in 101 files) and the shell and command smokes passed on these bytes; no requirement status changed."
+          "sha256": "aefc996f405f7d598e41d2b1a0f51b1fda598a4f4a1c46da920e6d1722b7910c",
+          "note": "R13/R14 2026-11-14: re-recorded after the review queue changed these shared files (Studio card-identity history anchor, the history smoke in ci.mjs, and R13's build-manifest source commit). npm run ci passed 24/24 steps (1,121 tests in 101 files) on these bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/renderer/shell/Shell.tsx",
@@ -2104,8 +2104,8 @@
         },
         {
           "path": "scripts/ci.mjs",
-          "sha256": "6be01fde100f8f099ea36e571d891b4991f8ed4a458497b175e094197c62d6bd",
-          "note": "R13 2026-11-14: re-recorded after R13's installed-artifact pass found three defects and fixed two — the TUI-only receipt copy in `command-dispatch.ts`, the composer bound in `Studio.tsx` (it now caps the box, not the text area), the immersive smoke's console assertion, and `scripts/ci.mjs` gained `smoke:commands`. `npm run ci` passed 22/22 (1,121 tests in 101 files) and the shell and command smokes passed on these bytes; no requirement status changed."
+          "sha256": "d32becce884d7a6b9ac0901652ab499c0bc07c451e867dc2177fa3a5e917e3d8",
+          "note": "R13/R14 2026-11-14: re-recorded after the review queue changed these shared files (Studio card-identity history anchor, the history smoke in ci.mjs, and R13's build-manifest source commit). npm run ci passed 24/24 steps (1,121 tests in 101 files) on these bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "package.json",
@@ -2154,8 +2154,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p19-memory-smoke.json",
-          "sha256": "1236358b847e7eab80a682c0d59280218035d8d5a5f0991f1fb1e68c2daf20cc",
-          "note": "R13 2026-11-14: this file is the record of a smoke re-run by R13's qualification work; its own checks are green (see R13-installed-candidate.md). A run record is rewritten by its own smoke."
+          "sha256": "eabf18f95564198f9a592ffe1e2829a2981d209906e0f09deb3dbc350bdbfc7d",
+          "note": "R13/R14 2026-11-14: this is a run record, so npm run ci rewrote it (documented class: items 97/98/117). Re-recorded after the 24/24-step CI run; the artifact is a genuine report of that run, not a fixture."
         },
         {
           "path": "docs/evidence/macos/artifacts/p19-ci.txt",
@@ -2289,8 +2289,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p20-failure-smoke.json",
-          "sha256": "6563e21ef2640acea1858885c81d934c020fc19ab6e9cbe211efd28bea7e38cb",
-          "note": "R13 2026-11-14: this file is the record of a smoke re-run by R13's qualification work; its own checks are green (see R13-installed-candidate.md). A run record is rewritten by its own smoke."
+          "sha256": "616443fe7e20ed8b006edb4edf0e30caebe108eac3087ff979d5a463e0aa9a71",
+          "note": "R13/R14 2026-11-14: this is a run record, so npm run ci rewrote it (documented class: items 97/98/117). Re-recorded after the 24/24-step CI run; the artifact is a genuine report of that run, not a fixture."
         },
         {
           "path": "docs/evidence/macos/artifacts/p20-lifecycle-crash.json",
@@ -2398,8 +2398,8 @@
         },
         {
           "path": "packaging/macos/build.mjs",
-          "sha256": "0388f30772520cb2f2ff9eb507460b96560fadcfe4970362b573557687621869",
-          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "90c3bd99fa69e5726936d0a64f4b56d424680bc38627727a99219edd14c74eec",
+          "note": "R13/R14 2026-11-14: re-recorded after the review queue changed these shared files (Studio card-identity history anchor, the history smoke in ci.mjs, and R13's build-manifest source commit). npm run ci passed 24/24 steps (1,121 tests in 101 files) on these bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "packaging/macos/doctor.mjs",
@@ -2576,13 +2576,13 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p23-lifecycle-smoke.json",
-          "sha256": "ac47758bade62def6bf01b93321ff249742333a83286087a3e26dc0c94f9fd12",
-          "note": "R13 2026-11-14: this file is the record of a smoke re-run by R13's qualification work; its own checks are green (see R13-installed-candidate.md). A run record is rewritten by its own smoke."
+          "sha256": "b69f0d12b85c026f67ae45b4921446fcf3d174863ccdff3917d588eb2b4cdf7b",
+          "note": "R13/R14 2026-11-14: this is a run record, so npm run ci rewrote it (documented class: items 97/98/117). Re-recorded after the 24/24-step CI run; the artifact is a genuine report of that run, not a fixture."
         },
         {
           "path": "docs/evidence/macos/artifacts/p23-uninstall-rehearsal.json",
-          "sha256": "990681b6630e3044195d023922ab063e48f9729a584ad429ef180f589c184fd9",
-          "note": "R13 2026-11-14: this file is the record of a smoke re-run by R13's qualification work; its own checks are green (see R13-installed-candidate.md). A run record is rewritten by its own smoke."
+          "sha256": "989035bf2945da14240a7ecf644d67b4424f2feb43821280e5431b595bf7fa4d",
+          "note": "R13/R14 2026-11-14: this is a run record, so npm run ci rewrote it (documented class: items 97/98/117). Re-recorded after the 24/24-step CI run; the artifact is a genuine report of that run, not a fixture."
         },
         {
           "path": "docs/evidence/macos/artifacts/p23-ci.txt",
@@ -2684,7 +2684,7 @@
     "P22",
     "P25"
   ],
-  "last_checkpoint_utc": "2026-11-14T17:54:27.977Z",
+  "last_checkpoint_utc": "2026-11-14T18:28:55.200Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

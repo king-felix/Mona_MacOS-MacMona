@@ -37,9 +37,9 @@
     "attempts": ".mona/build-macos/attempts.jsonl",
     "requirement_registry": "docs/requirements-macos.json"
   },
-  "revision": 100,
-  "current_task": "R14",
-  "current_task_status": "blocked",
+  "revision": 105,
+  "current_task": "R15",
+  "current_task_status": "completed",
   "tasks": {
     "R00": {
       "status": "completed",
@@ -612,8 +612,8 @@
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r02-history-long-session.png",
-          "sha256": "613e08f4035ac5845f8a63dbefe95473d5ff4cc698c722c7babcae2a5f502a7e",
-          "note": "R13 2026-11-14: the smoke was re-run after fixing the anchor regression it had been failing since R11; 19/19, delta 0, fresh capture. The run record and capture are the current bytes."
+          "sha256": "093a04bd37093e2dd75395e3d8922c7e2fd091388a9a62b748fbf9f4fe07fa9c",
+          "note": "R13/R15 2026-11-14: rewritten by the CI smoke run (the capture regenerates on each run). Current bytes, same screen and same assertions."
         }
       ],
       "attempt_problem_ids": [],
@@ -898,13 +898,13 @@
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r03-command-menu.png",
-          "sha256": "790013b8ed2bcf3ad49b1c5a92fd973f0b7410451dcfc8258b10154345abccd1",
-          "note": "R03: pinned 0.10.2 /v1/commands capture, offline coverage check, focused and full tests, gates, real-Electron command smoke (25/25), and the 100%/200% captures."
+          "sha256": "a4dfe87923e08e548cf4e090bc51b8d2d06fcdc6a2602685f97bb3c69ff47cbe",
+          "note": "R13/R15 2026-11-14: rewritten by the CI smoke run (captures regenerate on each run). Current bytes, same screens and same assertions."
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r03-command-menu-200.png",
-          "sha256": "37a76abf5128be8e1150e28f31fa4f6e1b493405183412227ede62f22d2464f7",
-          "note": "R03: pinned 0.10.2 /v1/commands capture, offline coverage check, focused and full tests, gates, real-Electron command smoke (25/25), and the 100%/200% captures."
+          "sha256": "884b1f59e6aa88d37e63570f3e4b9dc2edd72a8e0ce332ef0f22b062c6445875",
+          "note": "R13/R15 2026-11-14: rewritten by the CI smoke run (captures regenerate on each run). Current bytes, same screens and same assertions."
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r03-shell-smoke.json",
@@ -2700,17 +2700,17 @@
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r14-release-refusal.txt",
           "sha256": "d3cbd9f912c08a29a2f3fc27facbffa08e3d29660f2f2eb530d510b45bbf1d89",
-          "note": "R14 2026-11-14: preflight/release/verify all refuse without credentials (exits 3/3/2, no artifact); 17 release-trust tests pass; OS floor and clean-host Git reconciled with the original scope and left as owner decisions rather than invented."
+          "note": "R14 2026-11-14: the build machine's home path is redacted per item 32, so these three records were re-hashed after redaction. No result changed."
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r14-verify-refusal.txt",
-          "sha256": "15f8a4bb0ec988d11eee1483935ba532fa0ceadbba2f019bb6bb1aa3eb3bcc75",
-          "note": "R14 2026-11-14: preflight/release/verify all refuse without credentials (exits 3/3/2, no artifact); 17 release-trust tests pass; OS floor and clean-host Git reconciled with the original scope and left as owner decisions rather than invented."
+          "sha256": "0cfec2cd0e09f3b82ce224dc25ff010d7e63a619bab6c5bcd567c2dc1cea01f6",
+          "note": "R14 2026-11-14: the build machine's home path is redacted per item 32, so these three records were re-hashed after redaction. No result changed."
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r14-release-tests.txt",
-          "sha256": "af38e3d1f584960f5e3d6a9d4669d7ea503a06a5d53067b80de6b24ff6a4961e",
-          "note": "R14 2026-11-14: preflight/release/verify all refuse without credentials (exits 3/3/2, no artifact); 17 release-trust tests pass; OS floor and clean-host Git reconciled with the original scope and left as owner decisions rather than invented."
+          "sha256": "64a5928e0f5af57a41414f493fb60535b3781bb27b5ad0ef20a460437ba18e66",
+          "note": "R14 2026-11-14: the build machine's home path is redacted per item 32, so these three records were re-hashed after redaction. No result changed."
         }
       ],
       "attempt_problem_ids": [],
@@ -2721,7 +2721,7 @@
       ]
     },
     "R15": {
-      "status": "pending",
+      "status": "completed",
       "title": "Final review handoff and exact artifacts",
       "prerequisites": [
         "R13",
@@ -2734,23 +2734,63 @@
       ],
       "feature_ids": [],
       "source_hashes": [],
-      "acceptance_completed": [],
-      "acceptance_remaining": [
-        "Every defect and requested feature has an outcome, tests and correct status",
-        "Owner documentation and shortcuts refreshed, including literal slash text, Enter/Command-Enter, focus vs fullscreen, steering vs follow-up and cost scope",
-        "Before/after production captures and concise release notes included",
-        "Exact tested artifact bytes promoted; no rebuild after qualification with old hashes",
-        "Coherent local commits after the secret scan; no release publication",
-        "Reviewed patch history traceable without claiming the patch alone implemented the sequence",
-        "Working features, tests, source commit, installed build, artifact paths, signing tier and next action reported",
-        "Three-attempt ledger preserved and original unfinished macOS prompts not reset"
+      "acceptance_completed": [
+        "Every defect and requested feature has an outcome, tests and correct status: 17 of 18 findings verified, RV-12 open under R14/EXT-SIGNING, and all five user feature IDs verified — each row names its task, tests and evidence",
+        "Owner documentation and shortcuts refreshed in docs/owner-guide-macos.md: literal slash text, the pinned command catalog, Enter versus Command-Enter, Focus Mode versus native fullscreen, follow-up versus steering, the three cost scopes and five honest states, and every known limit with its reason",
+        "Before/after production captures and concise release notes included: the reviewed baseline R00 artifacts as before, installed-build captures as after (Studio at 100 % and 200 %, live turn, interrupt, offline history, Focus, fullscreen, command menus, Aurora pair, long history, activity strip, usage HUD)",
+        "Exact tested artifact bytes promoted with no rebuild after qualification: build 152 package sha256 e4ffe0e0… and installed build 151 are named separately and neither is re-described as the other",
+        "Coherent local commits after the secret scan: 745 files scanned, 0 findings; 15 commits since the R08/P22/P25 checkpoint; no publication and no remote artifact",
+        "Reviewed patch history traceable without claiming the patch alone implemented the sequence: the hotfix (a253a05e…) was applied unmodified at R00 and its six files stand, while the Studio features, catalog, paging, usage HUD, approvals, visual identity and the R13 anchor fix each have their own commit and evidence",
+        "Working features, tests, source commit (a2bd168), installed build (151), candidate (152), package digest, signing tier (ad-hoc local) and next action are all reported",
+        "Three-attempt ledger preserved and original unfinished macOS prompts not reset: attempts.jsonl is empty, no problem consumed an attempt, and P22/P24/P26/P27 keep their recorded status"
       ],
-      "tests": [],
-      "evidence": [],
+      "acceptance_remaining": [],
+      "tests": [
+        {
+          "command": "npm run ci",
+          "result": "passed",
+          "detail": "24 of 24 steps, exit 0, including the newly-gated smoke:history; 1,121 tests in 101 files; renderer scan 0 patterns.",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r15-ci.txt",
+          "captured_utc": "2026-11-14T18:47:00.000Z"
+        },
+        {
+          "command": "node tools/monabuild/cli.mjs secrets",
+          "result": "passed",
+          "detail": "745 files scanned, 0 findings, before the handoff commit.",
+          "evidence": "docs/evidence/macos/review-studio/R15-final-handoff.md",
+          "captured_utc": "2026-11-14T18:47:00.000Z"
+        },
+        {
+          "command": "node tools/monabuild/cli.mjs review validate",
+          "result": "passed",
+          "detail": "Review and product ledgers both clean; all evidence hashes current after the re-records noted below.",
+          "evidence": "docs/evidence/macos/review-studio/R15-final-handoff.md",
+          "captured_utc": "2026-11-14T18:47:00.000Z"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/review-studio/R15-final-handoff.md",
+          "sha256": "3774b4b130af8786ed5cbed75e9fcc416d958a56e1eb14a20b243fc3ef7078ab",
+          "note": "R15 2026-11-14: the review matrix, the owner guide with every shortcut and distinction, and the 24/24-step CI run the handoff cites."
+        },
+        {
+          "path": "docs/owner-guide-macos.md",
+          "sha256": "82f0829a1dfdedd22fdddca858a69a9f427ff19d3c4baf02afe65b2aa242a44d",
+          "note": "R15 2026-11-14: the review matrix, the owner guide with every shortcut and distinction, and the 24/24-step CI run the handoff cites."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r15-ci.txt",
+          "sha256": "e2a879c6d2bec4b6cd152a5ed93d35291d2ec15628ec80996cdeb1ed77facc2c",
+          "note": "R15 2026-11-14: the review matrix, the owner guide with every shortcut and distinction, and the 24/24-step CI run the handoff cites."
+        }
+      ],
       "attempt_problem_ids": [],
       "platform": "darwin-arm64",
-      "next_action": "Audit the review matrix only after R13/R14 outcomes are recorded.",
-      "notes": []
+      "next_action": "Install build 152 (sudo installer …) to close R13, and provide the two Developer ID identities plus a notary credential to close R14; P24/P26/P27 then resume in the product ledger.",
+      "notes": [
+        "R15 2026-11-14: the review sequence is delivered as far as the available privileges allow. R13 and R14 remain blocked on one admin-authorized install and on Developer ID/notary credentials respectively; both have their exact commands recorded, neither is attempt-counted, and no requirement was lowered to make the matrix look finished."
+      ]
     }
   },
   "issues": {
@@ -2979,7 +3019,7 @@
       ]
     }
   },
-  "last_checkpoint_utc": "2026-11-14T18:25:20.469Z",
+  "last_checkpoint_utc": "2026-11-14T18:29:50.125Z",
   "notes": [
     "R11 completed: bounded console rendering with measured windowing, a nine-screen axe pass with four real a11y defects fixed, reduced motion and 200% scale measured, three visual regressions fixed, and the independent review's one blocker and three majors fixed with tests proven to fail on the old code. The memory budget is exceeded by the runtime floor and carried as a derived, named exception."
   ]

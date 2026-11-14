@@ -1,5 +1,5 @@
 
-[1m[30m[46m RUN [49m[39m[22m [36mv5.1.0 [39m[90m/Users/basestar/DS_Projects/Mona[39m
+[1m[30m[46m RUN [49m[39m[22m [36mv5.1.0 [39m[90m~/DS_Projects/Mona[39m
 
  [32m✓[39m test/release-trust.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 130[2mms[22m[39m
 

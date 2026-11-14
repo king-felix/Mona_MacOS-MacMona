@@ -1,0 +1,2848 @@
+
+> mona@0.1.0-p02 ci
+> node scripts/ci.mjs
+
+
+> mona@0.1.0-p02 format:check
+> prettier --check .
+
+Checking formatting...
+All matched files use Prettier code style!
+
+> mona@0.1.0-p02 lint
+> eslint .
+
+
+~/DS_Projects/Mona/test/engine-adapter.test.ts
+  19:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+~/DS_Projects/Mona/test/engine-orchestration.test.ts
+  8:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+~/DS_Projects/Mona/test/work-agents.test.ts
+  236:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 3 problems (0 errors, 3 warnings)
+
+
+> mona@0.1.0-p02 typecheck
+> tsc -p tsconfig.main.json --noEmit && tsc -p tsconfig.renderer.json --noEmit
+
+
+> mona@0.1.0-p02 catalog:check
+> node scripts/command-catalog.mjs --check
+
+{
+  "ok": true,
+  "warnings": [],
+  "counts": {
+    "commands": 109,
+    "hidden": 1,
+    "terminalOnly": 69,
+    "unavailable": 5
+  }
+}
+
+> mona@0.1.0-p02 build:supervisor
+> node scripts/build-supervisor.mjs
+
+{
+  "schema_version": 1,
+  "ok": true,
+  "binary": "native/macos-supervisor/build/mona-supervisor",
+  "target": "arm64-apple-macos14.0",
+  "arch": "arm64",
+  "sha256": "15db348b18d6b31ab5cc236b94248db9c29d0605e06a4ecdf246d91cb3d422ce",
+  "size": 201920,
+  "compiler": "Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)",
+  "file": "native/macos-supervisor/build/mona-supervisor: Mach-O 64-bit executable arm64",
+  "signature": "ad-hoc",
+  "signed": true,
+  "verified": true,
+  "built_at": "2026-11-14T18:26:39.855Z"
+}
+
+> mona@0.1.0-p02 build:pty
+> node scripts/build-pty.mjs
+
+{
+  "schema_version": 1,
+  "ok": true,
+  "binary": "native/macos-pty/build/mona-pty",
+  "target": "arm64-apple-macos14.0",
+  "arch": "arm64",
+  "sha256": "9c23d0387e4fe3de0b743385b224c37e06ba8cbb5c56af5e6b0f71faeadea68b",
+  "size": 105136,
+  "compiler": "Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)",
+  "file": "native/macos-pty/build/mona-pty: Mach-O 64-bit executable arm64",
+  "signature": "ad-hoc",
+  "signed": true,
+  "verified": true,
+  "built_at": "2026-11-14T18:26:41.084Z"
+}
+
+> mona@0.1.0-p02 build:service
+> node scripts/build-service.mjs
+
+{
+  "schema_version": 1,
+  "ok": true,
+  "bundle": "native/macos-services/build/Mona.service",
+  "target": "arm64-apple-macos14.0",
+  "arch": "arm64",
+  "sha256": "2d342e75ea82e82abc7856a52f8d89e612294acb8ffbefe2e30484cfc7f09b01",
+  "size": 232496,
+  "compiler": "Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)",
+  "file": "native/macos-services/build/Mona.service/Contents/MacOS/MonaService: Mach-O 64-bit executable arm64",
+  "plist_lint": "~/DS_Projects/Mona/native/macos-services/build/Mona.service/Contents/Info.plist: OK",
+  "signature": "ad-hoc",
+  "signed": true,
+  "verified": true,
+  "descriptor": {
+    "app_bundle_identifier": "com.mona.workbench",
+    "bundle_identifier": "com.mona.workbench.service",
+    "bundle_path": "~/DS_Projects/Mona/native/macos-services/build/Mona.service",
+    "executable": "~/DS_Projects/Mona/native/macos-services/build/Mona.service/Contents/MacOS/MonaService",
+    "message": "startProject",
+    "schema_version": 1,
+    "send_file_types": [
+      "public.folder"
+    ],
+    "send_types": [
+      "public.file-url"
+    ],
+    "service": "Start new DS project with Mona"
+  },
+  "built_at": "2026-11-14T18:26:43.099Z"
+}
+
+> mona@0.1.0-p02 pretest
+> node scripts/build-supervisor.mjs && node scripts/build-pty.mjs
+
+{
+  "schema_version": 1,
+  "ok": true,
+  "binary": "native/macos-supervisor/build/mona-supervisor",
+  "target": "arm64-apple-macos14.0",
+  "arch": "arm64",
+  "sha256": "15db348b18d6b31ab5cc236b94248db9c29d0605e06a4ecdf246d91cb3d422ce",
+  "size": 201920,
+  "compiler": "Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)",
+  "file": "native/macos-supervisor/build/mona-supervisor: Mach-O 64-bit executable arm64",
+  "signature": "ad-hoc",
+  "signed": true,
+  "verified": true,
+  "built_at": "2026-11-14T18:26:45.204Z"
+}
+{
+  "schema_version": 1,
+  "ok": true,
+  "binary": "native/macos-pty/build/mona-pty",
+  "target": "arm64-apple-macos14.0",
+  "arch": "arm64",
+  "sha256": "9c23d0387e4fe3de0b743385b224c37e06ba8cbb5c56af5e6b0f71faeadea68b",
+  "size": 105136,
+  "compiler": "Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)",
+  "file": "native/macos-pty/build/mona-pty: Mach-O 64-bit executable arm64",
+  "signature": "ad-hoc",
+  "signed": true,
+  "verified": true,
+  "built_at": "2026-11-14T18:26:46.173Z"
+}
+
+> mona@0.1.0-p02 test
+> vitest run
+
+
+ RUN  v5.1.0 ~/DS_Projects/Mona
+
+Switched to a new branch 'left'
+Switched to branch 'main'
+Preparing worktree (new branch 'linked-branch')
+ ✓ test/work-studio.test.ts (20 tests) 2055ms
+ ✓ test/studio-pending.test.ts (24 tests) 2197ms
+ ✓ test/supervisor-native.test.ts (10 tests) 2598ms
+   ✓ native supervisor (9)
+     ✓ stops the entire owned tree and leaves unrelated processes alone 516ms
+     ✓ records the escaped process group and stops it by identity 359ms
+     ✓ escalates a TERM-ignoring tree to a bounded SIGKILL 796ms
+ ✓ test/work-changes.test.ts (20 tests) 2753ms
+   ✓ change capture and attribution (5)
+     ✓ attributes dirty Git paths from receipts and leaves unreceipted work unclaimed 360ms
+   ✓ stage and commit through the ledger (2)
+     ✓ keeps unrelated staged work and refuses mixed staging without an explicit choice 902ms
+ ✓ test/work-git.test.ts (17 tests) 3156ms
+   ✓ GitService status (6)
+     ✓ reports a merge conflict honestly 480ms
+     ✓ names a linked worktree without mistaking it for the main checkout 313ms
+   ✓ GitService staging and selected commits (5)
+     ✓ never hands Mona's provider secrets to a repository hook 485ms
+ ✓ test/update-coordinator.test.ts (23 tests) 1251ms
+ ✓ test/work-agents.test.ts (17 tests) 911ms
+ ✓ test/app-icon.test.ts (11 tests) 1327ms
+   ✓ the icon set the bundle ships (1)
+     ✓ writes an .icns and an .ico from the same master 860ms
+ ✓ test/capability.test.ts (12 tests) 974ms
+ ✓ test/projects-service.test.ts (11 tests) 1397ms
+   ✓ project catalog service (11)
+     ✓ keeps the newest event window so a long thread keeps following the turn 411ms
+ ✓ test/state-catalog.test.ts (11 tests) 779ms
+ ✓ test/runtime-store.test.ts (8 tests) 1320ms
+   ✓ runtime store owner probe (3)
+     ✓ reports no owner when the lock file has no live holder 493ms
+   ✓ start preflight (3)
+     ✓ refuses a start when another Codewhale host owns the store, and names it 382ms
+     ✓ names Mona's own leftover runtime as the owner 380ms
+ ✓ test/state-database.test.ts (14 tests) 1380ms
+ ✓ test/studio-new-thread.test.ts (18 tests) 1390ms
+ ✓ test/update-recovery.test.ts (11 tests) 737ms
+ ✓ test/work-costs.test.ts (19 tests) 700ms
+ ✓ test/settings-workbench.test.ts (15 tests) 1261ms
+ ✓ test/memory-shelf.test.ts (14 tests) 816ms
+ ✓ test/work-attempts.test.ts (14 tests) 1185ms
+ ✓ test/shell-races.test.tsx (36 tests) 5779ms
+   ✓ shell submission identity (4)
+     ✓ keeps text typed during a send and sends exactly the claimed bytes 668ms
+   ✓ shell draft saving (3)
+     ✓ never reports newer text saved when an older acknowledgement arrives late 1255ms
+     ✓ keeps the text and says so when a save is rejected 653ms
+   ✓ R04 commands dispatch through the typed IPC route (13)
+     ✓ keys the draft to the new conversation after /new 662ms
+   ✓ focus Studio and native full screen (6)
+     ✓ stores the layout preference and never the OS full-screen state 404ms
+ ✓ test/terminal-manager.test.ts (16 tests) 798ms
+   ✓ native pty helper (2)
+     ✓ runs a real shell, honors resize, and reports the exit code 556ms
+ ✓ test/studio-follow-up.test.ts (9 tests) 1102ms
+ ✓ test/history-paging.test.ts (5 tests) 7078ms
+   ✓ R02 paged stored history (5)
+     ✓ keeps a 10,000+ event project reachable page by page, once each 4773ms
+     ✓ reconstructs a 2,000+ frame item whose beginning predates the page 1871ms
+ ✓ test/memory-handoff.test.ts (9 tests) 984ms
+ ✓ test/state-portable.test.ts (7 tests) 879ms
+ ✓ test/work-board.test.ts (12 tests) 987ms
+ ✓ test/work-digest.test.ts (7 tests) 601ms
+ ✓ test/lint-hooks-gate.test.ts (3 tests) 784ms
+   ✓ react-hooks lint gate (3)
+     ✓ rejects a hook after an early return (the R11 production defect) 737ms
+ ✓ test/runtime-process.test.ts (10 tests) 1020ms
+   ✓ runtime startup states are actionable (9)
+     ✓ stops a verified orphan record before starting a new owner 472ms
+Not implemented: HTMLCanvasElement's getContext() method: without installing the @napi-rs/canvas npm package
+ ✓ test/design-components.test.tsx (17 tests) 1402ms
+   ✓ automated accessibility checks (13)
+     ✓ keeps empty and disconnected states accessible on studio 354ms
+Not implemented: HTMLCanvasElement's getContext() method: without installing the @napi-rs/canvas npm package
+ ✓ test/studio-screen.test.tsx (36 tests) 923ms
+ ✓ test/work-notifications.test.ts (14 tests) 358ms
+ ✓ test/state-artifacts.test.ts (5 tests) 309ms
+ ✓ test/r11-a11y.test.tsx (15 tests) 542ms
+ ✓ test/extensions-workbench.test.ts (10 tests) 448ms
+ ✓ test/memory-screen.test.tsx (10 tests) 488ms
+ ✓ test/shared-core.test.ts (2 tests) 361ms
+ ✓ test/runtime-supervisor.test.ts (16 tests) 157ms
+ ✓ test/memory-search.test.ts (12 tests) 437ms
+ ✓ test/settings-restore.test.ts (5 tests) 343ms
+ ✓ test/work-polish-service.test.ts (4 tests) 295ms
+ ✓ test/work-preferences.test.ts (6 tests) 434ms
+ ✓ test/r10-conveniences.test.ts (10 tests) 442ms
+ ✓ test/studio-focus.test.tsx (15 tests) 275ms
+ ✓ test/usage-hud.test.ts (13 tests) 201ms
+ ✓ test/update-screen.test.tsx (7 tests) 121ms
+ ✓ test/capability-screen.test.tsx (6 tests) 157ms
+ ✓ test/terminal-screen.test.tsx (10 tests) 212ms
+ ✓ test/agents-screen.test.tsx (5 tests) 132ms
+ ✓ test/release-trust.test.ts (17 tests) 281ms
+ ✓ test/settings-screen.test.tsx (4 tests) 124ms
+ ✓ test/changes-screen.test.tsx (4 tests) 163ms
+ ✓ test/window-fullscreen.test.ts (11 tests) 87ms
+ ✓ test/command-catalog.test.ts (7 tests) 104ms
+ ✓ test/p20-failure-matrix.test.ts (12 tests) 102ms
+ ✓ test/open-coordinator.test.ts (5 tests) 84ms
+ ✓ test/cost-screen.test.tsx (5 tests) 80ms
+ ✓ test/work-profile.test.ts (5 tests) 83ms
+ ✓ test/board-plan-status.test.ts (2 tests) 81ms
+ ✓ test/boundary.test.ts (10 tests) 51ms
+ ✓ test/engine-orchestration.test.ts (10 tests) 17ms
+ ✓ test/engine-adapter.test.ts (25 tests) 55ms
+ ✓ test/timeline-window.test.ts (14 tests) 6ms
+ ✓ test/supervisor-records.test.ts (6 tests) 12ms
+ ✓ test/polish-screen.test.tsx (5 tests) 182ms
+ ✓ test/state-paths.test.ts (4 tests) 37ms
+ ✓ test/update-uninstall.test.ts (6 tests) 22ms
+ ✓ test/ipc-contract.test.ts (42 tests) 37ms
+ ✓ test/command-dispatch.test.ts (15 tests) 14ms
+ ✓ test/work-control.test.ts (8 tests) 4ms
+ ✓ test/folder-request.test.ts (12 tests) 10ms
+ ✓ test/contracts.test.ts (15 tests) 7ms
+ ✓ test/history-pager.test.ts (7 tests) 7ms
+ ✓ test/update-trust.test.ts (25 tests) 14ms
+ ✓ test/studio-render.test.tsx (21 tests) 14ms
+ ✓ test/tool-discovery.test.ts (5 tests) 15ms
+ ✓ test/engine-artifacts.test.ts (15 tests) 9ms
+ ✓ test/zoom.test.ts (8 tests) 4ms
+ ✓ test/safe-archive.test.ts (12 tests) 10ms
+ ✓ test/open-service-status.test.ts (13 tests) 4ms
+ ✓ test/shell-session.test.ts (14 tests) 8ms
+ ✓ test/engine-compat.test.ts (4 tests) 6ms
+ ✓ test/update-version.test.ts (5 tests) 4ms
+ ✓ test/studio-activity.test.ts (8 tests) 4ms
+ ✓ test/supervisor-identity.test.ts (9 tests) 3ms
+ ✓ test/menu-template.test.ts (5 tests) 6ms
+ ✓ test/package-macos.test.ts (13 tests) 11ms
+ ✓ test/design-tokens.test.ts (8 tests) 12ms
+ ✓ test/fixtures.test.ts (9 tests) 11ms
+ ✓ test/design-no-network.test.ts (4 tests) 5ms
+ ✓ test/work-attention.test.ts (6 tests) 8ms
+ ✓ test/engine-sse.test.ts (6 tests) 7ms
+ ✓ test/palette.test.ts (5 tests) 5ms
+ ✓ test/command-execution-plan.test.ts (7 tests) 8ms
+ ✓ test/composer-commands.test.ts (14 tests) 5ms
+ ✓ test/ansi.test.ts (9 tests) 4ms
+ ✓ test/open-drop.test.ts (5 tests) 2ms
+ ✓ test/navigation.test.ts (6 tests) 2ms
+ ✓ test/supervisor-restart.test.ts (3 tests) 2ms
+ ✓ test/install-location.test.ts (3 tests) 2ms
+ ✓ test/terminal-buffer.test.ts (7 tests) 2ms
+
+ Test Files  101 passed (101)
+      Tests  1121 passed (1121)
+   Start at  11:26:46
+   Duration  11.62s (tests 83%, import 7%, environment 7%, transform 2%)
+
+    Isolate  101 workers spawned · ~156ms startup each (spawn + environment, per file)
+             at least ~2.09s faster with isolate: false — reuses workers across files instead of one per file
+
+
+> mona@0.1.0-p02 build
+> npm run clean && npm run build:main && npm run build:renderer
+
+
+> mona@0.1.0-p02 clean
+> rm -rf dist coverage
+
+
+> mona@0.1.0-p02 build:main
+> tsc -p tsconfig.main.json
+
+
+> mona@0.1.0-p02 build:renderer
+> vite build
+
+vite v8.3.8 building client environment for production...
+transforming...
+✓ 160 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/renderer/index.html                       0.76 kB │ gzip:   0.41 kB
+dist/renderer/assets/mona-mark-ChAj1Hvn.png   27.56 kB
+dist/renderer/assets/index-Bc25RO4d.css       84.85 kB │ gzip:  14.15 kB
+dist/renderer/assets/index-C2kaELEg.js       783.71 kB │ gzip: 213.98 kB
+
+✓ built in 125ms
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+
+> mona@0.1.0-p02 smoke:board
+> npm run build:main && node scripts/board-smoke.mjs
+
+
+> mona@0.1.0-p02 build:main
+> tsc -p tsconfig.main.json
+
+P10/P11 sample run: PASS
+  ok   dependency_cycle_rejected
+  ok   no_partial_import
+  ok   import_is_inert
+  ok   imported_tasks_pending
+  ok   imported_owner_default
+  ok   deterministic_selection
+  ok   preview_has_prompt
+  ok   preview_excludes_spec
+  ok   queue_ran_one
+  ok   queue_stopped
+  ok   other_tasks_unstarted
+  ok   running_is_one
+  ok   evidence_gated_completion
+  ok   prerequisite_verified
+  ok   interrupted_next_step
+  ok   resume_at_recorded_step
+  ok   stale_after_code_change
+  ok   criteria_survive_export
+  ok   round_trip_criteria
+  ok   workspaces_isolated
+  ok   handoff_from_state
+  ok   transitions_audited
+  ok   attempt_one_open
+  ok   attempt_two_same_problem
+  ok   attempt_three_blocks
+  ok   attempt_task_blocked
+  ok   attempt_fourth_rejected
+  ok   attempt_ack_keeps_count
+  ok   independent_work_continues
+  ok   pause_gate_blocks_dispatch
+  ok   victor_handoff_card
+  ok   handoff_names_unblock_not_start
+  ok   interrupt_attribution_by_turn
+  ok   finished_turn_releases_link
+  ok   reopen_keeps_total
+  ok   reopen_allows_resume
+  ok   attempt_audit
+{
+  "schema_version": 1,
+  "prompts": [
+    "P10",
+    "P11"
+  ],
+  "ok": true,
+  "checks": {
+    "dependency_cycle_rejected": true,
+    "no_partial_import": true,
+    "import_is_inert": true,
+    "imported_tasks_pending": true,
+    "imported_owner_default": true,
+    "deterministic_selection": true,
+    "preview_has_prompt": true,
+    "preview_excludes_spec": true,
+    "queue_ran_one": true,
+    "queue_stopped": true,
+    "other_tasks_unstarted": true,
+    "running_is_one": true,
+    "evidence_gated_completion": true,
+    "prerequisite_verified": true,
+    "interrupted_next_step": true,
+    "resume_at_recorded_step": true,
+    "stale_after_code_change": true,
+    "criteria_survive_export": true,
+    "round_trip_criteria": true,
+    "workspaces_isolated": true,
+    "handoff_from_state": true,
+    "transitions_audited": true,
+    "attempt_one_open": true,
+    "attempt_two_same_problem": true,
+    "attempt_three_blocks": true,
+    "attempt_task_blocked": true,
+    "attempt_fourth_rejected": true,
+    "attempt_ack_keeps_count": true,
+    "independent_work_continues": true,
+    "pause_gate_blocks_dispatch": true,
+    "victor_handoff_card": true,
+    "handoff_names_unblock_not_start": true,
+    "interrupt_attribution_by_turn": true,
+    "finished_turn_releases_link": true,
+    "reopen_keeps_total": true,
+    "reopen_allows_resume": true,
+    "attempt_audit": true
+  },
+  "cycle_rejection": "CONFLICT: dependency cycle: a -> b -> a",
+  "imported_tasks": [
+    {
+      "key": "build",
+      "taskId": "tsk_00000003"
+    },
+    {
+      "key": "review",
+      "taskId": "tsk_00000004"
+    },
+    {
+      "key": "docs",
+      "taskId": "tsk_00000005"
+    }
+  ],
+  "attempts": {
+    "problem_id": "prb_00000026",
+    "total": 3,
+    "consecutive": 3,
+    "blocked_status": "blocked",
+    "task_status": "blocked",
+    "fourth_retry": "CONFLICT: this problem is blocked after three attempts without progress; reopen it with material new evidence or resolve it first",
+    "handoff": [
+      {
+        "problem": "prb_00000026",
+        "requirement": "MONA-011",
+        "help": "Unblock MONA-011: the same assertion still fails — new evidence or a decision is required.",
+        "evidence": []
+      }
+    ],
+    "audit": [
+      {
+        "kind": "created",
+        "actor": "agent"
+      },
+      {
+        "kind": "attempt",
+        "actor": "agent"
+      },
+      {
+        "kind": "attempt",
+        "actor": "agent"
+      },
+      {
+        "kind": "attempt",
+        "actor": "agent"
+      },
+      {
+        "kind": "blocked",
+        "actor": "agent"
+      },
+      {
+        "kind": "acknowledged",
+        "actor": "human"
+      },
+      {
+        "kind": "reopened",
+        "actor": "human"
+      }
+    ]
+  },
+  "queue": {
+    "ran": [
+      "tsk_00000003"
+    ],
+    "stopped_because": "one_prompt_per_assignment",
+    "executor_calls": 1
+  },
+  "handoff": {
+    "current_task": "Review the result",
+    "current_status": "running",
+    "last_verified_step": "read the output",
+    "next_exact_action": "Continue \"Review the result\"; the engine owns the active turn, and the recorded step is \"record the decision\".",
+    "open_attempts": 0
+  },
+  "stale": [
+    {
+      "taskId": "tsk_00000003",
+      "reason": "workspace changed after verification (525b6a46 → 5845bac0)"
+    }
+  ],
+  "transitions": [
+    {
+      "task": "tsk_00000003",
+      "from": "pending",
+      "to": "running",
+      "actor": "mona_queue",
+      "reason": null
+    },
+    {
+      "task": "tsk_00000003",
+      "from": "running",
+      "to": "verifying",
+      "actor": "human",
+      "reason": null
+    },
+    {
+      "task": "tsk_00000003",
+      "from": "verifying",
+      "to": "completed",
+      "actor": "human",
+      "reason": "acceptance passed: 1 criteria"
+    },
+    {
+      "task": "tsk_00000004",
+      "from": "pending",
+      "to": "running",
+      "actor": "mona_queue",
+      "reason": null
+    },
+    {
+      "task": "tsk_00000004",
+      "from": "running",
+      "to": "interrupted",
+      "actor": "mona_queue",
+      "reason": "sample crash"
+    },
+    {
+      "task": "tsk_00000004",
+      "from": "interrupted",
+      "to": "running",
+      "actor": "mona_queue",
+      "reason": "resume at record the decision"
+    },
+    {
+      "task": "tsk_00000003",
+      "from": "completed",
+      "to": "verifying",
+      "actor": "reconciler",
+      "reason": "workspace changed after verification (525b6a46 → 5845bac0)"
+    }
+  ],
+  "workspace_files": {
+    "feature": "<tmp>/workspace/src/feature.mjs",
+    "test_output": "<tmp>/workspace/evidence/test-output.txt"
+  }
+}
+
+> mona@0.1.0-p02 smoke:cost
+> npm run build:main && node scripts/cost-smoke.mjs
+
+
+> mona@0.1.0-p02 build:main
+> tsc -p tsconfig.main.json
+
+P12 cost sample: PASS
+  ok   inclusive_bucket_exact
+  ok   exclusive_bucket_exact
+  ok   replay_single_row
+  ok   reported_cost_exact
+  ok   thread_delta_exact
+  ok   unpriced_stays_unknown
+  ok   estimate_from_card_exact
+  ok   estimate_names_its_card
+  ok   rate_revision_preserves_history
+  ok   recalc_preview_is_read_only
+  ok   civil_day_dst
+  ok   budget_warns
+  ok   budget_reports_lower_bound
+  ok   budget_stops_next_dispatch
+  ok   budget_clear_restores_dispatch
+  ok   day_budget_uses_civil_day
+  ok   view_incomplete_when_unknown
+  ok   balance_unavailable
+  ok   export_csv_has_states
+  ok   export_json_has_no_balance
+{
+  "schema_version": 1,
+  "prompt": "P12",
+  "ok": true,
+  "checks": {
+    "inclusive_bucket_exact": true,
+    "exclusive_bucket_exact": true,
+    "replay_single_row": true,
+    "reported_cost_exact": true,
+    "thread_delta_exact": true,
+    "unpriced_stays_unknown": true,
+    "estimate_from_card_exact": true,
+    "estimate_names_its_card": true,
+    "rate_revision_preserves_history": true,
+    "recalc_preview_is_read_only": true,
+    "civil_day_dst": true,
+    "budget_warns": true,
+    "budget_reports_lower_bound": true,
+    "budget_stops_next_dispatch": true,
+    "budget_clear_restores_dispatch": true,
+    "day_budget_uses_civil_day": true,
+    "view_incomplete_when_unknown": true,
+    "balance_unavailable": true,
+    "export_csv_has_states": true,
+    "export_json_has_no_balance": true
+  },
+  "detail": {
+    "arithmetic": {
+      "inclusive": 1360800000,
+      "exclusive": 46902100000
+    },
+    "civil_day": {
+      "day": "2026-03-08",
+      "startIso": "2026-03-08T05:00:00.000Z",
+      "endIso": "2026-03-09T04:00:00.000Z"
+    },
+    "day_gate": {
+      "previous_day_allowed": false,
+      "same_day_allowed": true
+    }
+  },
+  "totals": {
+    "turns": 4,
+    "inputTokens": 4800,
+    "cachedTokens": 3200,
+    "cacheMissTokens": 0,
+    "outputTokens": 160,
+    "reasoningTokens": 48,
+    "costUsd": 0.0048608,
+    "costPicoUsd": 4860800000,
+    "costComplete": false,
+    "costBasis": "mixed",
+    "reportedTurns": 2,
+    "estimatedTurns": 1,
+    "unknownTurns": 1,
+    "missingTurns": 0,
+    "unallocatedTurns": 0,
+    "unallocatedUsd": 0
+  },
+  "routes": [
+    {
+      "provider": "deepseek",
+      "model": "deepseek-flash",
+      "state": "unknown_price",
+      "rateCardId": "rate_00000005",
+      "pricingReadAt": "2026-11-11T00:00:00.000Z"
+    }
+  ],
+  "days": [
+    {
+      "day": "2026-11-11",
+      "turns": 4,
+      "cost_usd": 0.0048608
+    }
+  ],
+  "notes": [
+    "Provider billing remains authoritative. Mona has no supported balance interface, so no remaining balance is shown."
+  ],
+  "database": "<tmp>/state/mona.sqlite"
+}
+
+> mona@0.1.0-p02 smoke:changes
+> npm run build:main && node scripts/changes-smoke.mjs
+
+
+> mona@0.1.0-p02 build:main
+> tsc -p tsconfig.main.json
+
+P13 changes sample: PASS
+  ok   settled_receipt
+  ok   missing_delta_is_not_empty
+  ok   tool_attribution
+  ok   delta_attribution
+  ok   artifact_attribution
+  ok   binary_and_large_marked
+  ok   deleted_file_kept
+  ok   restore_available
+  ok   text_window
+  ok   diff_window
+  ok   later_edit_is_conflict
+  ok   conflict_refused
+  ok   restore_through_engine
+  ok   restored_bytes
+  ok   restore_receipt_written
+  ok   stale_preview_refused
+  ok   stale_preview_did_not_overwrite
+  ok   artifact_not_restorable
+  ok   selected_commit_only
+  ok   unrelated_staged_preserved
+  ok   unreceipted_is_not_agent_authored
+  ok   commit_receipt_written
+  ok   mixed_commit_refused
+  ok   explicit_mixed_commit
+  ok   editor_conflict
+  ok   non_git_reported
+  ok   non_git_stage_refused
+{
+  "schema_version": 1,
+  "prompt": "P13",
+  "ok": true,
+  "checks": {
+    "settled_receipt": true,
+    "missing_delta_is_not_empty": true,
+    "tool_attribution": true,
+    "delta_attribution": true,
+    "artifact_attribution": true,
+    "binary_and_large_marked": true,
+    "deleted_file_kept": true,
+    "restore_available": true,
+    "text_window": true,
+    "diff_window": true,
+    "later_edit_is_conflict": true,
+    "conflict_refused": true,
+    "restore_through_engine": true,
+    "restored_bytes": true,
+    "restore_receipt_written": true,
+    "stale_preview_refused": true,
+    "stale_preview_did_not_overwrite": true,
+    "artifact_not_restorable": true,
+    "selected_commit_only": true,
+    "unrelated_staged_preserved": true,
+    "unreceipted_is_not_agent_authored": true,
+    "commit_receipt_written": true,
+    "mixed_commit_refused": true,
+    "explicit_mixed_commit": true,
+    "editor_conflict": true,
+    "non_git_reported": true,
+    "non_git_stage_refused": true
+  },
+  "detail": {
+    "receipts": [
+      {
+        "turn": "turn_missing",
+        "state": "unavailable",
+        "files": 0,
+        "notes": "Workspace snapshots are disabled for this runtime, so no delta was recorded. Tool receipts, when present, are still listed."
+      },
+      {
+        "turn": "turn_1",
+        "state": "settled",
+        "files": 5,
+        "notes": null
+      }
+    ],
+    "git": {
+      "branch": "main",
+      "worktree": null,
+      "counts": {
+        "staged": 1,
+        "unstaged": 0,
+        "untracked": 3,
+        "conflicted": 0
+      },
+      "head": "d111d81"
+    },
+    "restore_receipts": 1,
+    "recovery": {
+      "mechanism": "engine pre-restore snapshot",
+      "durable": false,
+      "note": "Every revert is preceded by a mandatory pre-restore snapshot of the workspace. The engine keeps the newest 50 snapshots plus the newest 50 turn boundaries, so recovery is not permanent.",
+      "recent": [
+        {
+          "id": "snap_1",
+          "label": "pre-turn:1",
+          "timestamp": 1780730580
+        }
+      ]
+    }
+  },
+  "database": "<tmp>/state/mona.sqlite"
+}
+
+> mona@0.1.0-p02 smoke:polish
+> npm run build:main && node scripts/polish-smoke.mjs
+
+
+> mona@0.1.0-p02 build:main
+> tsc -p tsconfig.main.json
+
+{
+  "schema_version": 1,
+  "label": "P14 DETERMINISTIC POLISH SAMPLE — no engine, no provider call",
+  "captured_at": "2026-11-14T18:27:11.164Z",
+  "ok": true,
+  "checks": {
+    "brief_matches_focus_task": true,
+    "brief_reports_blocker": true,
+    "brief_changed_files": true,
+    "brief_spend_incomplete": true,
+    "brief_has_no_percentage": true,
+    "since_groups_present": true,
+    "mark_seen_advances": true,
+    "catch_up_after_mark": true,
+    "notification_seed_silent": true,
+    "notification_delivers_once": true,
+    "notification_reconnect_silent": true,
+    "notification_default_is_redacted": true,
+    "notification_receipt_states_delivery": true,
+    "quiet_hours_suppresses": true,
+    "quiet_timezones_correct": true,
+    "attention_badge": true,
+    "attention_menu": true,
+    "attention_surfaces_clear": true,
+    "launch_at_login_off": true,
+    "keep_awake_scoped": true,
+    "keep_awake_preference_off": true,
+    "favorite_saved": true,
+    "identity_normalized": true
+  },
+  "facts": {
+    "resume": {
+      "projectId": "prj_00000001",
+      "projectName": "P14 sample",
+      "generatedAt": "2026-11-12T09:00:51.000Z",
+      "source": {
+        "lastSeenAt": "2026-11-12T08:00:49.000Z",
+        "eventsConsidered": 2,
+        "tasksConsidered": 2,
+        "changeSetsConsidered": 1
+      },
+      "currentTask": {
+        "id": "tsk_00000007",
+        "title": "An unproductive loop",
+        "status": "pending",
+        "prompt": "Make the failing check pass without lowering the requirement.",
+        "nextStep": null
+      },
+      "lastVerifiedStep": null,
+      "unresolvedBlocker": {
+        "problemId": "prb_00000008",
+        "taskId": "tsk_00000007",
+        "taskTitle": "An unproductive loop",
+        "requirement": "MONA-011",
+        "helpNeeded": "Unblock MONA-011: the same assertion still fails — new evidence or a decision is required.",
+        "totalAttempts": 3,
+        "noProgressAttempts": 3,
+        "evidence": [
+          "docs/evidence/attempt.txt"
+        ],
+        "blockedAt": "2026-11-12T09:00:38.000Z"
+      },
+      "blockers": [
+        {
+          "problemId": "prb_00000008",
+          "taskId": "tsk_00000007",
+          "taskTitle": "An unproductive loop",
+          "requirement": "MONA-011",
+          "helpNeeded": "Unblock MONA-011: the same assertion still fails — new evidence or a decision is required.",
+          "totalAttempts": 3,
+          "noProgressAttempts": 3,
+          "evidence": [
+            "docs/evidence/attempt.txt"
+          ],
+          "blockedAt": "2026-11-12T09:00:38.000Z"
+        }
+      ],
+      "testResult": {
+        "available": true,
+        "satisfiedChecks": 0,
+        "totalChecks": 0,
+        "label": "Observed: npm test (completed)",
+        "lastEvidencePath": null,
+        "lastAt": null,
+        "observedCommand": {
+          "command": "npm test",
+          "status": "completed",
+          "at": "2026-11-12T09:00:43.000Z"
+        },
+        "note": "A test command was observed in stored engine events. Its exit status is not interpreted here; the tool status is shown."
+      },
+      "changes": {
+        "available": true,
+        "countedFiles": 1,
+        "turns": 1,
+        "unreceiptedPaths": 0,
+        "truncated": false,
+        "label": "1 file in 1 recorded turn",
+        "note": "Stored receipts are shown. Connect the studio to re-read them from the engine."
+      },
+      "spend": {
+        "observed": true,
+        "knownUsd": 0.0042,
+        "complete": false,
+        "label": "At least $0.0042; 1 of 2 turns unpriced",
+        "reportedTurns": 1,
+        "estimatedTurns": 0,
+        "unknownTurns": 1,
+        "missingTurns": 0
+      },
+      "nextStep": "Unblock MONA-011 on \"An unproductive loop\": Unblock MONA-011: the same assertion still fails — new evidence or a decision is required.",
+      "facts": [
+        {
+          "label": "Unresolved blocker",
+          "value": "MONA-011 · Unblock MONA-011: the same assertion still fails — new evidence or a decision is required.",
+          "tone": "danger"
+        },
+        {
+          "label": "Current prompt",
+          "value": "An unproductive loop · pending",
+          "tone": "neutral"
+        },
+        {
+          "label": "Test result",
+          "value": "Observed: npm test (completed)",
+          "tone": "attention"
+        },
+        {
+          "label": "Changed files",
+          "value": "1 file in 1 recorded turn",
+          "tone": "neutral"
+        },
+        {
+          "label": "Spend confidence",
+          "value": "At least $0.0042; 1 of 2 turns unpriced",
+          "tone": "attention"
+        }
+      ],
+      "noCompletionPercentage": true
+    },
+    "since": {
+      "since": "2026-11-12T08:00:49.000Z",
+      "entryCount": 4,
+      "groups": [
+        {
+          "id": "completion",
+          "entries": [
+            "Verified: Make the catalog real",
+            "Turn completed · 1 file receipt"
+          ]
+        },
+        {
+          "id": "blocker",
+          "entries": [
+            "Blocked: An unproductive loop"
+          ]
+        },
+        {
+          "id": "test",
+          "entries": [
+            "Test command completed"
+          ]
+        }
+      ]
+    },
+    "sinceAfterMark": 1,
+    "notifications": {
+      "seeded": 0,
+      "delivered": [
+        {
+          "title": "Mona · work finished",
+          "body": "Open Mona to review the project record. Detailed content is hidden on the lock screen."
+        }
+      ],
+      "reconnect": 0
+    },
+    "quiet": {
+      "overnight_inside": true,
+      "no_quiet_at_noon": true,
+      "end_is_exclusive": true,
+      "other_zone_not_quiet": true
+    },
+    "attention": {
+      "active": {
+        "badge": "2",
+        "menuTitle": "◐ Working · 1 blocked",
+        "tooltip": "Mona · work in progress · 1 blocked · 1 finished since your last visit",
+        "running": true,
+        "blocked": 1,
+        "unseenCompletions": 1,
+        "installed": true,
+        "updatedAt": "2026-11-14T18:27:11.158Z",
+        "note": "sample host"
+      },
+      "clearedBadge": "2",
+      "lastBadge": "2",
+      "lastMenu": {
+        "title": "◐ Working · 1 blocked",
+        "tooltip": "Mona · work in progress · 1 blocked · 1 finished since your last visit"
+      }
+    },
+    "keepAwake": {
+      "started": 1,
+      "stopped": 1,
+      "activeWhileWorking": {
+        "active": true,
+        "scopedToActiveWork": true,
+        "note": "work is active and keep-awake is enabled"
+      },
+      "afterPreferenceOff": {
+        "active": false,
+        "scopedToActiveWork": false,
+        "note": "keep-awake is turned off in Settings"
+      }
+    },
+    "favorite": {
+      "id": "fav_acc4b30076ef4ba7",
+      "label": "Review the diff",
+      "text": "Review the diff and record what changed.",
+      "createdAt": "2026-11-14T18:27:11.162Z",
+      "updatedAt": "2026-11-14T18:27:11.162Z"
+    },
+    "identity": {
+      "accent": "mint",
+      "monogram": "P1"
+    }
+  }
+}
+
+> mona@0.1.0-p02 smoke:agents
+> npm run build:main && npm run build:supervisor && node scripts/agents-smoke.mjs
+
+
+> mona@0.1.0-p02 build:main
+> tsc -p tsconfig.main.json
+
+
+> mona@0.1.0-p02 build:supervisor
+> node scripts/build-supervisor.mjs
+
+{
+  "schema_version": 1,
+  "ok": true,
+  "binary": "native/macos-supervisor/build/mona-supervisor",
+  "target": "arm64-apple-macos14.0",
+  "arch": "arm64",
+  "sha256": "15db348b18d6b31ab5cc236b94248db9c29d0605e06a4ecdf246d91cb3d422ce",
+  "size": 201920,
+  "compiler": "Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)",
+  "file": "native/macos-supervisor/build/mona-supervisor: Mach-O 64-bit executable arm64",
+  "signature": "ad-hoc",
+  "signed": true,
+  "verified": true,
+  "built_at": "2026-11-14T18:27:15.865Z"
+}
+{
+  "schema_version": 1,
+  "mode": "fixture",
+  "ok": true,
+  "started_utc": "2026-11-14T18:27:15.958Z",
+  "project": {
+    "id": "prj_04e0b49ce15e7cf1",
+    "root": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p15-fixture-1wqohN/workspace"
+  },
+  "checks": {
+    "real-subagent-identity": {
+      "ok": true,
+      "detail": null
+    },
+    "unknown-subagent-spend": {
+      "ok": true,
+      "detail": null
+    },
+    "self-report-tests": {
+      "ok": true,
+      "detail": null
+    },
+    "partial-fleet-receipt": {
+      "ok": true,
+      "detail": null
+    },
+    "parent-child-not-additive": {
+      "ok": true,
+      "detail": null
+    },
+    "serial-only": {
+      "ok": true,
+      "detail": null
+    },
+    "child-failure-visible": {
+      "ok": true,
+      "detail": "failed"
+    },
+    "cancel-accepted-not-terminal": {
+      "ok": true,
+      "detail": null
+    },
+    "cancel-receipt-recorded": {
+      "ok": true,
+      "detail": null
+    },
+    "disconnect-stored": {
+      "ok": true,
+      "detail": null
+    },
+    "disconnect-unknown-spend": {
+      "ok": true,
+      "detail": null
+    },
+    "blocked-dependency-refused": {
+      "ok": true,
+      "detail": null
+    },
+    "fixture-suite": {
+      "ok": true,
+      "detail": null
+    }
+  },
+  "observations": [
+    {
+      "step": "live",
+      "source": "engine",
+      "runs": [
+        {
+          "runId": "agent_fixture",
+          "status": "running",
+          "spend": "unknown",
+          "tests": "self_reported",
+          "tools": [
+            "read_file"
+          ]
+        }
+      ],
+      "fleets": [
+        {
+          "runId": "fleet_fixture",
+          "lifecycle": "completed",
+          "receipts": [
+            "partial"
+          ],
+          "worker": "fleet_fixture-local-1"
+        }
+      ],
+      "summary": {
+        "runs": 2,
+        "running": 1,
+        "terminal": 1,
+        "failed": 0,
+        "interrupted": 0,
+        "unknownSpend": 2,
+        "goalsActive": 0,
+        "fleetRuns": 1,
+        "fleetWorkers": 1
+      }
+    }
+  ],
+  "live": null,
+  "error": null,
+  "finished_utc": "2026-11-14T18:27:15.992Z"
+}
+
+> mona@0.1.0-p02 smoke:settings
+> npm run build:main && node scripts/settings-smoke.mjs
+
+
+> mona@0.1.0-p02 build:main
+> tsc -p tsconfig.main.json
+
+{
+  "ok": true,
+  "checks": 22,
+  "error": null
+}
+
+> mona@0.1.0-p02 smoke:extensions
+> npm run build:main && node scripts/extensions-smoke.mjs
+
+
+> mona@0.1.0-p02 build:main
+> tsc -p tsconfig.main.json
+
+{
+  "ok": true,
+  "checks": 39,
+  "error": null
+}
+
+> mona@0.1.0-p02 smoke:terminal
+> npm run build:main && npm run build:pty && node scripts/terminal-smoke.mjs
+
+
+> mona@0.1.0-p02 build:main
+> tsc -p tsconfig.main.json
+
+
+> mona@0.1.0-p02 build:pty
+> node scripts/build-pty.mjs
+
+{
+  "schema_version": 1,
+  "ok": true,
+  "binary": "native/macos-pty/build/mona-pty",
+  "target": "arm64-apple-macos14.0",
+  "arch": "arm64",
+  "sha256": "9c23d0387e4fe3de0b743385b224c37e06ba8cbb5c56af5e6b0f71faeadea68b",
+  "size": 105136,
+  "compiler": "Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)",
+  "file": "native/macos-pty/build/mona-pty: Mach-O 64-bit executable arm64",
+  "signature": "ad-hoc",
+  "signed": true,
+  "verified": true,
+  "built_at": "2026-11-14T18:27:26.125Z"
+}
+{
+  "schema_version": 1,
+  "label": "P18 integrated terminal — real native pty",
+  "captured_at": "2026-11-14T18:27:34.199Z",
+  "ok": true,
+  "checks": {
+    "session_running": true,
+    "session_cwd_is_workspace": true,
+    "helper_pid_recorded": true,
+    "shell_pid_recorded": true,
+    "pty_is_real": true,
+    "controlling_terminal": true,
+    "path_present": true,
+    "secrets_withheld": true,
+    "startup_files_not_sourced": true,
+    "engine_reachable_from_shell": true,
+    "resize_observed_by_child": true,
+    "search_finds_output": true,
+    "ring_evicts_exactly": true,
+    "newest_output_readable": true,
+    "exit_code_observed": true,
+    "exit_event_emitted": true,
+    "transcript_retained_after_exit": true,
+    "write_refused_after_exit": true,
+    "terminate_reports_exit": true,
+    "shell_gone_after_close": true,
+    "ended_session_evicted_at_cap": true,
+    "final_ended_session_evicted": true,
+    "running_session_not_evicted": true,
+    "log_available": true,
+    "log_redacts_home": true,
+    "log_redacts_key": true,
+    "log_is_read_only": true,
+    "log_missing_is_stated": true,
+    "helper_is_native_arm64": true,
+    "helper_has_no_node_coupling": true,
+    "no_pty_node_module": true
+  },
+  "facts": {
+    "helper": {
+      "binary": "native/macos-pty/build/mona-pty",
+      "build": {
+        "schema_version": 1,
+        "ok": true,
+        "binary": "native/macos-pty/build/mona-pty",
+        "target": "arm64-apple-macos14.0",
+        "arch": "arm64",
+        "sha256": "9c23d0387e4fe3de0b743385b224c37e06ba8cbb5c56af5e6b0f71faeadea68b",
+        "size": 105136,
+        "compiler": "Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)",
+        "file": "native/macos-pty/build/mona-pty: Mach-O 64-bit executable arm64",
+        "signature": "ad-hoc",
+        "signed": true,
+        "verified": true,
+        "built_at": "2026-11-14T18:27:26.125Z"
+      }
+    },
+    "tty": true,
+    "withheld": [
+      {
+        "name": "DEEPSEEK_API_KEY",
+        "withheld": true
+      },
+      {
+        "name": "CODEWHALE_RUNTIME_TOKEN",
+        "withheld": true
+      },
+      {
+        "name": "OPENAI_API_KEY",
+        "withheld": true
+      }
+    ],
+    "startup": {
+      "fake_home": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p18-terminal-PFAlHC/home",
+      "marker_created": false
+    },
+    "engine_in_terminal": true,
+    "resized": {
+      "rows": 43,
+      "cols": 132,
+      "observed": true
+    },
+    "search": {
+      "matches": 2,
+      "first": "\u001b[1m\u001b[7m%\u001b[27m\u001b[1m\u001b[0m                                                                                                                                   \r \r\r\u001b[0m\u001b[27m\u001b[24m\u001b[JMacBook-Air% \u001b[K\u001b[?2004he\becho searchneedle-42\u001b[?2004l\r\r"
+    },
+    "ring": {
+      "total": 336907,
+      "dropped": 74763,
+      "truncated": true,
+      "tail": "                                                                           \r \r\r\u001b[0m\u001b[27m\u001b[24m\u001b[JMacBook-Air% \u001b[K\u001b[?2004h"
+    },
+    "ui_bytes": 336907,
+    "exit": {
+      "status": "exited",
+      "code": 5,
+      "signal": null
+    },
+    "close": {
+      "status": "exited",
+      "shell_pid": 64935,
+      "alive_after_close": false
+    },
+    "session_cap": {
+      "max": 3,
+      "replaced": "term_f88d839c9797d4c5",
+      "sessions": 3,
+      "refused_with_three_live": true
+    },
+    "log": {
+      "available": true,
+      "path": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p18-terminal-PFAlHC/logs/run.log",
+      "bytes": 106
+    },
+    "native": {
+      "file": "native/macos-pty/build/mona-pty: Mach-O 64-bit executable arm64",
+      "target": "arm64-apple-macos14.0",
+      "signature": "ad-hoc",
+      "verified": true
+    },
+    "runtime_dependencies": [
+      "react",
+      "react-dom",
+      "zod"
+    ]
+  }
+}
+
+> mona@0.1.0-p02 smoke:capability
+> npm run build:main && node scripts/capability-smoke.mjs
+
+
+> mona@0.1.0-p02 build:main
+> tsc -p tsconfig.main.json
+
+{
+  "schema_version": 1,
+  "label": "P18 capability coverage — pinned 0.10.2",
+  "captured_at": "2026-11-14T18:27:40.346Z",
+  "ok": true,
+  "checks": {
+    "reconcile_in_sync": true,
+    "inventory_valid": true,
+    "coverage_math": true,
+    "every_row_has_route": true,
+    "entry_targets_exist_in_this_build": true,
+    "parity_not_claimed": true,
+    "drift_checked": true,
+    "drift_version_matches": true,
+    "drift_commit_matches": true,
+    "drift_no_additions": true,
+    "drift_no_removals": true,
+    "cli_help_all_answer": true,
+    "cli_rows_covered": true,
+    "verified_terminal_rows_executed": true,
+    "features_read": true,
+    "report_names_gaps": true,
+    "report_states_no_parity": true
+  },
+  "facts": {
+    "coverage": {
+      "rowsTotal": 75,
+      "verified": 43,
+      "unqualified": 28,
+      "unavailable": 2,
+      "blockedGaps": 2,
+      "withEntryPoint": 72,
+      "testedEntryPoint": 51,
+      "byEntryKind": {
+        "terminal": 26,
+        "settings_tab": 17,
+        "screen": 29,
+        "none": 3
+      },
+      "terminalOnly": 26,
+      "nativeControls": 45,
+      "advancedActions": 15,
+      "complete": false,
+      "gaps": [
+        {
+          "id": "MONA-CAP-001",
+          "name": "run",
+          "status": "unqualified",
+          "reason": "The TUI runs in the integrated terminal; Mona's own turns use /v1. Opening the TUI is a deliberate user command, not an automatic fallback."
+        },
+        {
+          "id": "MONA-CAP-003",
+          "name": "session-diagnostics",
+          "status": "unqualified",
+          "reason": "Route is `codewhale sessions` then `codewhale session-diagnostics <jsonl>`. Neither Mona nor its smoke runs it, so no success is claimed."
+        },
+        {
+          "id": "MONA-CAP-004",
+          "name": "scorecard",
+          "status": "unqualified",
+          "reason": "Needs a metrics file to score. No native scorecard panel, and no sample input is invented; the cost lens shows recorded usage, not this quality score."
+        },
+        {
+          "id": "MONA-CAP-006",
+          "name": "speech",
+          "status": "unqualified",
+          "reason": "Paid TTS is outside 1.0 scope. The command is reachable in the terminal; Mona never calls it and never claims a configured route."
+        },
+        {
+          "id": "MONA-CAP-010",
+          "name": "rc",
+          "status": "unqualified",
+          "reason": "Upstream browser handoff; Mona does not depend on it. Reachable only as an explicit terminal command."
+        },
+        {
+          "id": "MONA-CAP-011",
+          "name": "fork",
+          "status": "unqualified",
+          "reason": "Thread forking has no native control. The terminal entry runs the CLI command, and a fork creates a new thread without workspace rollback."
+        },
+        {
+          "id": "MONA-CAP-012",
+          "name": "init",
+          "status": "unqualified",
+          "reason": "Writes a workspace file. The capability row prefills the exact command and never runs it automatically."
+        },
+        {
+          "id": "MONA-CAP-014",
+          "name": "setup",
+          "status": "unqualified",
+          "reason": "Writes configuration. Mona adds MCP servers through the engine's own route instead; `setup` is terminal-only."
+        },
+        {
+          "id": "MONA-CAP-015",
+          "name": "remote-setup",
+          "status": "unavailable",
+          "reason": "Cloud hosting is outside 1.0 scope. No remote is invented and no bundle is generated automatically."
+        },
+        {
+          "id": "MONA-CAP-018",
+          "name": "workflow",
+          "status": "blocked_gap",
+          "reason": "Checked-in JS workflows run through a Lane Runtime with no HTTP route, so Mona cannot launch or inspect them. A terminal entry would not fulfill MONA-019; full parity stays blocked until the engine exposes a route or Victor narrows scope."
+        },
+        {
+          "id": "MONA-CAP-019",
+          "name": "lane",
+          "status": "blocked_gap",
+          "reason": "Lane management is terminal-only on this build. Mona shows no lane control and does not simulate one."
+        },
+        {
+          "id": "MONA-CAP-020",
+          "name": "review",
+          "status": "unqualified",
+          "reason": "The billable model review is terminal-only; Mona's source review reads recorded turn artifacts and Git state instead, so no hidden model call happens."
+        },
+        {
+          "id": "MONA-CAP-021",
+          "name": "apply",
+          "status": "unqualified",
+          "reason": "Destructive and terminal-only. Mona's restore path is the engine's checked one-file file-revert (P13); no patch apply control is offered."
+        },
+        {
+          "id": "MONA-CAP-022",
+          "name": "eval",
+          "status": "unqualified",
+          "reason": "Terminal-only. Cost depends on the suite, so the row states that before invocation."
+        },
+        {
+          "id": "MONA-CAP-025",
+          "name": "integrations",
+          "status": "unqualified",
+          "reason": "Third-party harness integration is terminal-only; Mona makes no claim about a configured harness."
+        },
+        {
+          "id": "MONA-CAP-027",
+          "name": "web",
+          "status": "unqualified",
+          "reason": "The upstream browser client overlaps Mona. Reachable only as an explicit terminal command; Mona never opens it automatically."
+        },
+        {
+          "id": "MONA-CAP-028",
+          "name": "login",
+          "status": "unqualified",
+          "reason": "Credentials never cross the renderer. Provider keys use the dedicated P16 route; account login is terminal-only and user-initiated."
+        },
+        {
+          "id": "MONA-CAP-029",
+          "name": "logout",
+          "status": "unqualified",
+          "reason": "Destructive and terminal-only, with the engine's own confirmation. Mona does not offer a one-click credential wipe."
+        },
+        {
+          "id": "MONA-CAP-030",
+          "name": "auth",
+          "status": "unqualified",
+          "reason": "Provider keys are set through the engine's own route (P16); other auth modes are terminal-only."
+        },
+        {
+          "id": "MONA-CAP-031",
+          "name": "account",
+          "status": "unqualified",
+          "reason": "Local key routes remain primary; account status is terminal-only."
+        },
+        {
+          "id": "MONA-CAP-032",
+          "name": "dispatch",
+          "status": "unavailable",
+          "reason": "Cloud computers are unavailable. No control is shown and no remote is invented."
+        },
+        {
+          "id": "MONA-CAP-033",
+          "name": "mcp-server",
+          "status": "unqualified",
+          "reason": "Terminal-only. Mona is an MCP host, not a server; the row states the reverse direction."
+        },
+        {
+          "id": "MONA-CAP-036",
+          "name": "thread",
+          "status": "unqualified",
+          "reason": "Resume and fork flows are terminal-only beyond the studio's recorded resume."
+        },
+        {
+          "id": "MONA-CAP-037",
+          "name": "sandbox",
+          "status": "unqualified",
+          "reason": "The effective permission posture is shown from the turn receipt (P08), not recomputed here; `sandbox` is terminal-only."
+        },
+        {
+          "id": "MONA-CAP-041",
+          "name": "update",
+          "status": "unqualified",
+          "reason": "Mona never silently upgrades the engine. An engine change is an explicit, separately tested compatibility decision and stays terminal-only here."
+        },
+        {
+          "id": "MONA-CAP-052",
+          "name": "Approvals bridge",
+          "status": "unqualified",
+          "reason": "Verified: pending rows persist with the Runtime capability, both reply routes are wired (POST /v1/approvals/{id}, POST /v1/user-input/{thread}/{request}), and the engine's own thread-detail lists settle or expire them. Not verified: a live approval decision end to end, remembered grants (passed through, not listed), and clarifications on the tool-free compatibility transport."
+        },
+        {
+          "id": "MONA-CAP-055",
+          "name": "Tool: apply_patch",
+          "status": "unqualified",
+          "reason": "apply_patch is displayed as a tool-attributed change when the agent uses it. Mona offers no direct patch control."
+        },
+        {
+          "id": "MONA-CAP-056",
+          "name": "Web search",
+          "status": "unqualified",
+          "reason": "Web search is provider-native and may add provider charges. Mona makes no claim that a route has it enabled."
+        },
+        {
+          "id": "MONA-CAP-061",
+          "name": "Terminal stream/input",
+          "status": "unqualified",
+          "reason": "Engine terminal sessions can only be attached, never created (404 otherwise), so a client cannot open its own shell through them. Mona owns its PTY instead; an attach view for engine-owned shells is not built."
+        },
+        {
+          "id": "MONA-CAP-062",
+          "name": "Workspace files, search, artifacts",
+          "status": "unqualified",
+          "reason": "Project text search is P19. Mona never copies repository contents into its database to fake it."
+        },
+        {
+          "id": "MONA-CAP-063",
+          "name": "Workspace snapshots/restore",
+          "status": "unqualified",
+          "reason": "Whole-workspace restore (POST /v1/snapshots/{id}/restore) and forking patch-undo are not surfaced. A workspace-wide overwrite stays a separate, explicitly authorized action."
+        },
+        {
+          "id": "MONA-CAP-071",
+          "name": "Engine update path",
+          "status": "unqualified",
+          "reason": "Mona never upgrades the engine silently. The pinned 0.10.2 build is a tested compatibility decision; an upgrade needs a new qualification pass."
+        }
+      ],
+      "summary": "75 discovered rows: 43 verified, 28 open, 2 blocked gaps, 2 unavailable. 51 entry points exercised. Full parity is not claimed while any row is open or blocked."
+    },
+    "dead_targets": [],
+    "drift": {
+      "checked": true,
+      "checkedAt": "2026-11-14T18:27:36.830Z",
+      "error": null,
+      "engineVersion": "0.10.2",
+      "engineCommit": "ff466b2ed0bf",
+      "inventoryVersion": "0.10.2",
+      "inventoryCommit": "ff466b2ed0bfb4ae5267d4d8d0ecb562cf46956e",
+      "versionMatch": true,
+      "commitMatch": true,
+      "additions": [],
+      "removals": [],
+      "note": "The installed engine matches the recorded surface."
+    },
+    "engine_binary": "/opt/homebrew/bin/codewhale",
+    "cli_help": [
+      {
+        "name": "run",
+        "exit": 0,
+        "ok": true,
+        "bytes": 346
+      },
+      {
+        "name": "doctor",
+        "exit": 0,
+        "ok": true,
+        "bytes": 1393
+      },
+      {
+        "name": "session-diagnostics",
+        "exit": 0,
+        "ok": true,
+        "bytes": 441
+      },
+      {
+        "name": "scorecard",
+        "exit": 0,
+        "ok": true,
+        "bytes": 366
+      },
+      {
+        "name": "models",
+        "exit": 0,
+        "ok": true,
+        "bytes": 615
+      },
+      {
+        "name": "speech",
+        "exit": 0,
+        "ok": true,
+        "bytes": 356
+      },
+      {
+        "name": "sessions",
+        "exit": 0,
+        "ok": true,
+        "bytes": 328
+      },
+      {
+        "name": "receipts",
+        "exit": 0,
+        "ok": true,
+        "bytes": 660
+      },
+      {
+        "name": "resume",
+        "exit": 0,
+        "ok": true,
+        "bytes": 329
+      },
+      {
+        "name": "rc",
+        "exit": 0,
+        "ok": true,
+        "bytes": 369
+      },
+      {
+        "name": "fork",
+        "exit": 0,
+        "ok": true,
+        "bytes": 325
+      },
+      {
+        "name": "init",
+        "exit": 0,
+        "ok": true,
+        "bytes": 356
+      },
+      {
+        "name": "install",
+        "exit": 0,
+        "ok": true,
+        "bytes": 363
+      },
+      {
+        "name": "setup",
+        "exit": 0,
+        "ok": true,
+        "bytes": 352
+      },
+      {
+        "name": "remote-setup",
+        "exit": 0,
+        "ok": true,
+        "bytes": 937
+      },
+      {
+        "name": "exec",
+        "exit": 0,
+        "ok": true,
+        "bytes": 2626
+      },
+      {
+        "name": "fleet",
+        "exit": 0,
+        "ok": true,
+        "bytes": 637
+      },
+      {
+        "name": "workflow",
+        "exit": 0,
+        "ok": true,
+        "bytes": 835
+      },
+      {
+        "name": "lane",
+        "exit": 0,
+        "ok": true,
+        "bytes": 1822
+      },
+      {
+        "name": "review",
+        "exit": 0,
+        "ok": true,
+        "bytes": 358
+      },
+      {
+        "name": "apply",
+        "exit": 0,
+        "ok": true,
+        "bytes": 353
+      },
+      {
+        "name": "eval",
+        "exit": 0,
+        "ok": true,
+        "bytes": 339
+      },
+      {
+        "name": "mcp",
+        "exit": 0,
+        "ok": true,
+        "bytes": 1043
+      },
+      {
+        "name": "features",
+        "exit": 0,
+        "ok": true,
+        "bytes": 376
+      },
+      {
+        "name": "integrations",
+        "exit": 0,
+        "ok": true,
+        "bytes": 393
+      },
+      {
+        "name": "serve",
+        "exit": 0,
+        "ok": true,
+        "bytes": 1484
+      },
+      {
+        "name": "web",
+        "exit": 0,
+        "ok": true,
+        "bytes": 603
+      },
+      {
+        "name": "login",
+        "exit": 0,
+        "ok": true,
+        "bytes": 723
+      },
+      {
+        "name": "logout",
+        "exit": 0,
+        "ok": true,
+        "bytes": 451
+      },
+      {
+        "name": "auth",
+        "exit": 0,
+        "ok": true,
+        "bytes": 2055
+      },
+      {
+        "name": "account",
+        "exit": 0,
+        "ok": true,
+        "bytes": 1459
+      },
+      {
+        "name": "dispatch",
+        "exit": 0,
+        "ok": true,
+        "bytes": 1467
+      },
+      {
+        "name": "mcp-server",
+        "exit": 0,
+        "ok": true,
+        "bytes": 259
+      },
+      {
+        "name": "config",
+        "exit": 0,
+        "ok": true,
+        "bytes": 1203
+      },
+      {
+        "name": "model",
+        "exit": 0,
+        "ok": true,
+        "bytes": 490
+      },
+      {
+        "name": "thread",
+        "exit": 0,
+        "ok": true,
+        "bytes": 720
+      },
+      {
+        "name": "sandbox",
+        "exit": 0,
+        "ok": true,
+        "bytes": 366
+      },
+      {
+        "name": "app-server",
+        "exit": 0,
+        "ok": true,
+        "bytes": 3041
+      },
+      {
+        "name": "completion",
+        "exit": 0,
+        "ok": true,
+        "bytes": 1493
+      },
+      {
+        "name": "metrics",
+        "exit": 0,
+        "ok": true,
+        "bytes": 436
+      },
+      {
+        "name": "update",
+        "exit": 0,
+        "ok": true,
+        "bytes": 1053
+      },
+      {
+        "name": "providers",
+        "exit": 0,
+        "ok": true,
+        "bytes": 432
+      },
+      {
+        "name": "help",
+        "exit": 0,
+        "ok": true,
+        "bytes": 6534
+      }
+    ],
+    "executed_terminal_rows": [
+      {
+        "id": "MONA-CAP-039",
+        "name": "completion",
+        "argv": [
+          "completion",
+          "zsh"
+        ],
+        "exit": 0,
+        "bytes": 309792,
+        "ok": true
+      },
+      {
+        "id": "MONA-CAP-040",
+        "name": "metrics",
+        "argv": [
+          "metrics"
+        ],
+        "exit": 0,
+        "bytes": 1453,
+        "ok": true
+      },
+      {
+        "id": "MONA-CAP-043",
+        "name": "help",
+        "argv": [
+          "help"
+        ],
+        "exit": 0,
+        "bytes": 6534,
+        "ok": true
+      }
+    ],
+    "features": [
+      {
+        "name": "shell_tool",
+        "stage": "stable",
+        "enabled": true
+      },
+      {
+        "name": "subagents",
+        "stage": "stable",
+        "enabled": true
+      },
+      {
+        "name": "web_search",
+        "stage": "stable",
+        "enabled": true
+      },
+      {
+        "name": "apply_patch",
+        "stage": "stable",
+        "enabled": true
+      },
+      {
+        "name": "mcp",
+        "stage": "stable",
+        "enabled": true
+      },
+      {
+        "name": "exec_policy",
+        "stage": "stable",
+        "enabled": true
+      },
+      {
+        "name": "vision_model",
+        "stage": "beta",
+        "enabled": false
+      },
+      {
+        "name": "verify_tool",
+        "stage": "stable",
+        "enabled": true
+      },
+      {
+        "name": "code_mode",
+        "stage": "experimental",
+        "enabled": true
+      },
+      {
+        "name": "finance_host",
+        "stage": "experimental",
+        "enabled": false
+      },
+      {
+        "name": "data_host",
+        "stage": "experimental",
+        "enabled": false
+      },
+      {
+        "name": "speech_host",
+        "stage": "experimental",
+        "enabled": false
+      },
+      {
+        "name": "pdf_host",
+        "stage": "experimental",
+        "enabled": false
+      },
+      {
+        "name": "ocr_host",
+        "stage": "experimental",
+        "enabled": false
+      },
+      {
+        "name": "github_host",
+        "stage": "experimental",
+        "enabled": false
+      },
+      {
+        "name": "web_search_host",
+        "stage": "experimental",
+        "enabled": false
+      },
+      {
+        "name": "web_extract_host",
+        "stage": "experimental",
+        "enabled": false
+      },
+      {
+        "name": "review_host",
+        "stage": "experimental",
+        "enabled": false
+      },
+      {
+        "name": "extension_host",
+        "stage": "experimental",
+        "enabled": false
+      }
+    ]
+  }
+}
+
+> mona@0.1.0-p02 smoke:commands
+> npm run build && node scripts/command-smoke.mjs
+
+
+> mona@0.1.0-p02 build
+> npm run clean && npm run build:main && npm run build:renderer
+
+
+> mona@0.1.0-p02 clean
+> rm -rf dist coverage
+
+
+> mona@0.1.0-p02 build:main
+> tsc -p tsconfig.main.json
+
+
+> mona@0.1.0-p02 build:renderer
+> vite build
+
+vite v8.3.8 building client environment for production...
+transforming...
+✓ 160 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/renderer/index.html                       0.76 kB │ gzip:   0.41 kB
+dist/renderer/assets/mona-mark-ChAj1Hvn.png   27.56 kB
+dist/renderer/assets/index-Bc25RO4d.css       84.85 kB │ gzip:  14.15 kB
+dist/renderer/assets/index-C2kaELEg.js       783.71 kB │ gzip: 213.98 kB
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 119ms
+{
+  "schema_version": 1,
+  "ok": true,
+  "checks": {
+    "catalog_rendered": true,
+    "studio_opened": true,
+    "menu_opens": true,
+    "listbox_is_labelled": true,
+    "reports_catalog_total": true,
+    "has_real_description": true,
+    "connection_not_started": true,
+    "filter_narrows": true,
+    "filter_finds_help": true,
+    "detail_shows_tui_route": true,
+    "tab_accepts": true,
+    "menu_closed_after_accept": true,
+    "escape_closes_first": true,
+    "escape_keeps_draft": true,
+    "menu_closed_by_escape": true,
+    "plain_enter_is_newline": true,
+    "ambiguous_explained": true,
+    "ambiguous_keeps_draft": true,
+    "tui_only_explained": true,
+    "engine_still_not_started": true,
+    "unfiltered_list_restored": true,
+    "menu_inside_viewport_at_default": true,
+    "zoom_200_menu_inside_viewport": true,
+    "zoom_200_no_page_overflow": true,
+    "zoom_200_list_usable": true,
+    "zoom_200_options_present": true
+  },
+  "facts": {
+    "initial": {
+      "header": "Codewhale commands79 matches · 109 catalogued",
+      "options": 79,
+      "first": "/rc/remote-controlResume this exact session from your Codewhale web accountTUI only",
+      "detail": "/rcResume this exact session from your Codewhale web account/rc [status|link|open|stop]·statuslinkopenstop·scope session·no model call·effects network, session-stateTUI only Hands the session to the Codewhale web app; account flow, no Runtime API operation documented.",
+      "connection": "EngineNot started"
+    },
+    "filtered": {
+      "count": 41,
+      "first": "/help/? /bangzhu /帮助Commands, skills, and keysTUI only",
+      "detail": "/helpCommands, skills, and keys/help [command]·scope ui·no model call·effects noneTUI only Renders the TUI help surface. Mona browses this catalog locally instead; R04 owns the local help action."
+    },
+    "tab": {
+      "prevented": true,
+      "value": "/help "
+    },
+    "ambiguous_notice": "\"he\" is ambiguous (/help). Tab accepts the highlighted command; nothing was sent.",
+    "tui_only_notice": "TUI-only. The CLI prints its own command help. Nothing was run. The terminal pane is prefilled with the command above and waits for you to launch it.",
+    "normal": {
+      "top": 16,
+      "bottom": 384.09375,
+      "height": 368.09375,
+      "composer_top": 276.09375,
+      "composer_height": 319,
+      "viewport_height": 875,
+      "header": "Codewhale commands79 matches · 109 catalogued",
+      "detail_height": 156,
+      "body_height": 135.59375,
+      "placement": "command-menu command-menu--above"
+    },
+    "zoomed": {
+      "inside": true,
+      "width": 582,
+      "viewport": 640,
+      "top": 16,
+      "bottom": 139.79296875,
+      "height": 123.79296875,
+      "viewport_height": 437,
+      "scrolls": true,
+      "page_overflow": false,
+      "detail_visible": false,
+      "body_height": 82.29296875,
+      "options": 79
+    }
+  },
+  "project": "prj_04d020e56739bc69",
+  "screenshots": [
+    "r03-command-menu.png",
+    "r03-command-menu-200.png"
+  ],
+  "electron": {
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+}
+
+> mona@0.1.0-p02 smoke:history
+> npm run build && node scripts/history-smoke.mjs
+
+
+> mona@0.1.0-p02 build
+> npm run clean && npm run build:main && npm run build:renderer
+
+
+> mona@0.1.0-p02 clean
+> rm -rf dist coverage
+
+
+> mona@0.1.0-p02 build:main
+> tsc -p tsconfig.main.json
+
+
+> mona@0.1.0-p02 build:renderer
+> vite build
+
+vite v8.3.8 building client environment for production...
+transforming...
+✓ 160 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/renderer/index.html                       0.76 kB │ gzip:   0.41 kB
+dist/renderer/assets/mona-mark-ChAj1Hvn.png   27.56 kB
+dist/renderer/assets/index-Bc25RO4d.css       84.85 kB │ gzip:  14.15 kB
+dist/renderer/assets/index-C2kaELEg.js       783.71 kB │ gzip: 213.98 kB
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 96ms
+{
+  "schema_version": 1,
+  "ok": true,
+  "checks": {
+    "catalog_rendered": true,
+    "studio_opened": true,
+    "timeline_rendered": true,
+    "scope_reports_stored_total": true,
+    "scope_reports_older_pages": true,
+    "newest_page_visible": true,
+    "older_page_not_yet_loaded": true,
+    "load_earlier_offered": true,
+    "jump_absent_at_live_edge": true,
+    "no_runtime_started": true,
+    "thread_selector_present": true,
+    "thread_selector_distinguishes": true,
+    "jump_appears_after_scrolling": true,
+    "older_page_loaded": true,
+    "scroll_anchor_held": true,
+    "older_page_rendered_once": true,
+    "second_older_page_loaded": true,
+    "older_page_reachable": true,
+    "jump_to_latest_returns_to_edge": true
+  },
+  "phases": [
+    {
+      "name": "initial",
+      "scope": "200 shown · 10054 stored · older pages available · 10 painted",
+      "cards": 10,
+      "newest_visible": true,
+      "older_absent": true,
+      "load_button": true,
+      "jump_button": false,
+      "connection": "EngineNot started",
+      "thread_options": [
+        "All threads",
+        "Archived work · archived",
+        "Local shell thread · current"
+      ],
+      "thread_disabled": false
+    },
+    {
+      "name": "anchor",
+      "before": {
+        "top": 328,
+        "height": 22022,
+        "anchor_key": "thr_history_archived:thr_history_archived-3",
+        "anchor_offset": -94,
+        "windowed": "true",
+        "rendered": 13,
+        "cards": 200
+      },
+      "after": {
+        "top": 328,
+        "height": 44022,
+        "anchor_applications": 1,
+        "older_loads": 1,
+        "anchor_offset": -94,
+        "cards": 400
+      },
+      "delta": 0,
+      "height_delta": 22000
+    },
+    {
+      "name": "reach",
+      "top": 0,
+      "height": 66023,
+      "cards": 600,
+      "rendered": 10,
+      "frames": [
+        9455,
+        9456,
+        9457,
+        9458,
+        9459,
+        9460
+      ],
+      "oldest": 9455
+    },
+    {
+      "name": "jump",
+      "distance": 0,
+      "jump_button": false,
+      "scope": "600 shown · 10054 stored · older pages available · 10 painted"
+    }
+  ],
+  "project": "prj_e980e513eff6cae6",
+  "stored_total": 10054,
+  "screenshot": "docs/evidence/macos/review-studio/artifacts/r02-history-long-session.png",
+  "electron": {
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+}
+
+> mona@0.1.0-p02 smoke:memory
+> npm run build:main && node scripts/memory-smoke.mjs
+
+
+> mona@0.1.0-p02 build:main
+> tsc -p tsconfig.main.json
+
+{
+  "ok": true,
+  "checks": 90,
+  "failed": [],
+  "first_failure": null,
+  "error": null
+}
+
+> mona@0.1.0-p02 smoke:failure
+> npm run build:main && node scripts/p20-failure-smoke.mjs
+
+
+> mona@0.1.0-p02 build:main
+> tsc -p tsconfig.main.json
+
+{
+  "ok": true,
+  "checks": 22,
+  "failed": [],
+  "first_failure": null,
+  "error": null
+}
+
+> mona@0.1.0-p02 smoke:p23
+> npm run build:main && node scripts/p23-lifecycle-smoke.mjs
+
+
+> mona@0.1.0-p02 build:main
+> tsc -p tsconfig.main.json
+
+{
+  "ok": true,
+  "checks": 58,
+  "skipped": [],
+  "failed": [],
+  "first_failure": null,
+  "error": null
+}
+
+> mona@0.1.0-p02 smoke:lifecycle
+> npm run build && node scripts/lifecycle-smoke.mjs
+
+
+> mona@0.1.0-p02 build
+> npm run clean && npm run build:main && npm run build:renderer
+
+
+> mona@0.1.0-p02 clean
+> rm -rf dist coverage
+
+
+> mona@0.1.0-p02 build:main
+> tsc -p tsconfig.main.json
+
+
+> mona@0.1.0-p02 build:renderer
+> vite build
+
+vite v8.3.8 building client environment for production...
+transforming...
+✓ 160 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/renderer/index.html                       0.76 kB │ gzip:   0.41 kB
+dist/renderer/assets/mona-mark-ChAj1Hvn.png   27.56 kB
+dist/renderer/assets/index-Bc25RO4d.css       84.85 kB │ gzip:  14.15 kB
+dist/renderer/assets/index-C2kaELEg.js       783.71 kB │ gzip: 213.98 kB
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 100ms
+{
+  "ok": true,
+  "checks": {
+    "owner_exit_zero": true,
+    "second_instance_exit_zero": true,
+    "evidence_written": true,
+    "runtime_started": true,
+    "tree_alive_before_crash": true,
+    "sleep_became_reconnecting": true,
+    "sleep_kept_process": true,
+    "wake_resumed": true,
+    "wake_kept_same_work": true,
+    "renderer_crash_kept_main": true,
+    "renderer_crash_counted": true,
+    "renderer_crash_kept_work": true,
+    "window_closed_app_alive": true,
+    "window_closed_kept_work": true,
+    "dock_reopen_created_window": true,
+    "dock_reopen_same_work": true,
+    "dock_reopen_menu_bar_installed": true,
+    "second_instance_dispatched": true,
+    "quit_stopped_tree": true,
+    "quit_reported_no_rollback": true,
+    "quit_receipt_names_interrupt": true,
+    "all_children_dead_after_quit": true,
+    "crash_runtime_was_running": true,
+    "crash_killed_main": true,
+    "crash_left_no_orphan": true,
+    "crash_left_no_orphan_supervisor": true,
+    "crash_shutdown_settled": true
+  },
+  "error": null,
+  "pids": [
+    66468,
+    66469,
+    66470
+  ],
+  "alive_after_quit": [],
+  "shutdown": {
+    "action": "quit_and_stop_work",
+    "interrupted": false,
+    "interruptUncertain": false,
+    "stopped": true,
+    "escalated": true,
+    "survivors": [],
+    "rollback": "not_promised",
+    "notes": [
+      "no active turn to interrupt",
+      "runtime control_socket stop confirmed after forced escalation",
+      "forced termination is last-resort cleanup, not rollback"
+    ]
+  },
+  "evidence": {
+    "schema_version": 1,
+    "ok": true,
+    "phases": [
+      {
+        "phase": "started",
+        "state": "running",
+        "alive": [
+          66468,
+          66469,
+          66470
+        ],
+        "runtime_status": {
+          "state": "running",
+          "reason": "started",
+          "since": "2026-11-14T18:28:06.603Z",
+          "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-lifecycle-work-jSpdfQ",
+          "ownershipId": "rt_a796e1c1190d",
+          "port": 0,
+          "engine": {
+            "version": "smoke",
+            "commit": "smoke"
+          },
+          "external": false,
+          "restarts": 0,
+          "lastFailure": null,
+          "pendingRestartInMs": null
+        }
+      },
+      {
+        "phase": "sleep",
+        "runtime_state": "reconnecting",
+        "child_alive": true
+      },
+      {
+        "phase": "wake",
+        "resumed": true,
+        "runtime_state": "running",
+        "same_work": true,
+        "child_alive": true
+      },
+      {
+        "phase": "renderer_crash",
+        "main_alive": true,
+        "renderer_crashes": 1,
+        "runtime_state": "running",
+        "child_alive": true,
+        "tree_alive": [
+          66468,
+          66469,
+          66470
+        ]
+      },
+      {
+        "phase": "window_closed",
+        "windows": 0,
+        "runtime_state": "running",
+        "child_alive": true,
+        "tree_alive": [
+          66468,
+          66469,
+          66470
+        ]
+      },
+      {
+        "phase": "dock_reopen",
+        "windows": 1,
+        "same_work": true,
+        "child_alive": true,
+        "menu_bar_installed": true
+      },
+      {
+        "phase": "second_instance",
+        "expected": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-RPJbmt",
+        "received": {
+          "path": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-RPJbmt",
+          "input": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-RPJbmt",
+          "receivedAt": "2026-11-14T18:28:06.728Z",
+          "source": "second_instance",
+          "notes": [
+            "resolved: symlink or alias resolved before registration"
+          ]
+        },
+        "windows": 1
+      }
+    ],
+    "pids": {
+      "supervisor": 66467,
+      "child": 66468,
+      "pgid": 66468,
+      "tree": [
+        66468,
+        66469,
+        66470
+      ]
+    },
+    "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-lifecycle-work-jSpdfQ",
+    "polish": {
+      "preferences": {
+        "notifications": {
+          "enabled": true,
+          "completion": true,
+          "blocker": true,
+          "limit": true,
+          "showDetails": false,
+          "quietHours": {
+            "enabled": false,
+            "start": "22:00",
+            "end": "07:00",
+            "timeZone": "America/Denver"
+          }
+        },
+        "dockBadge": true,
+        "menuBarStatus": true,
+        "keepAwakeDuringWork": false,
+        "launchAtLogin": false
+      },
+      "attention": {
+        "badge": null,
+        "menuTitle": "◐ Mona",
+        "tooltip": "Mona · idle",
+        "running": false,
+        "blocked": 0,
+        "unseenCompletions": 0,
+        "installed": true,
+        "updatedAt": "2026-11-14T18:28:06.543Z",
+        "note": "menu-bar status is installed; the Dock badge is a native app badge"
+      },
+      "keepAwake": {
+        "active": false,
+        "scopedToActiveWork": false,
+        "note": "keep-awake is turned off in Settings"
+      },
+      "launchAtLogin": {
+        "enabled": false,
+        "applied": false,
+        "note": "Launch at login has not been evaluated yet."
+      },
+      "menuBar": {
+        "installed": true,
+        "note": "menu-bar status is installed; the Dock badge is a native app badge"
+      },
+      "notifications": {
+        "available": true,
+        "note": "macOS notifications are available. Delivery also depends on the system permission for Mona.",
+        "recent": []
+      }
+    },
+    "lifecycle_before_start": {
+      "quitRequested": false,
+      "shutdownRunning": false,
+      "shutdownComplete": false,
+      "shutdownReceipt": null,
+      "shutdownError": null,
+      "lastOpenRequest": null,
+      "rendererCrashes": 0,
+      "lastPowerEvent": null,
+      "runtime": {
+        "state": "disconnected",
+        "reason": "never_started",
+        "since": "2026-11-14T18:28:06.332Z",
+        "workspace": null,
+        "ownershipId": null,
+        "port": null,
+        "engine": null,
+        "external": false,
+        "restarts": 0,
+        "lastFailure": null,
+        "pendingRestartInMs": null
+      },
+      "work": {
+        "active": null,
+        "queued": [],
+        "pauseAfterTask": false,
+        "quitting": false
+      }
+    },
+    "runtime_before_quit": {
+      "state": "running",
+      "reason": "running_after_renderer_crash",
+      "since": "2026-11-14T18:28:07.037Z",
+      "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-lifecycle-work-jSpdfQ",
+      "ownershipId": "rt_a796e1c1190d",
+      "port": 0,
+      "engine": {
+        "version": "smoke",
+        "commit": "smoke"
+      },
+      "external": false,
+      "restarts": 0,
+      "lastFailure": null,
+      "pendingRestartInMs": null
+    },
+    "lifecycle_before_quit": {
+      "quitRequested": false,
+      "shutdownRunning": false,
+      "shutdownComplete": false,
+      "shutdownReceipt": null,
+      "shutdownError": null,
+      "lastOpenRequest": {
+        "path": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-RPJbmt",
+        "input": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-RPJbmt",
+        "receivedAt": "2026-11-14T18:28:06.728Z",
+        "source": "second_instance",
+        "notes": [
+          "resolved: symlink or alias resolved before registration"
+        ]
+      },
+      "rendererCrashes": 1,
+      "lastPowerEvent": "resume",
+      "runtime": {
+        "state": "running",
+        "reason": "running_after_renderer_crash",
+        "since": "2026-11-14T18:28:07.037Z",
+        "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-lifecycle-work-jSpdfQ",
+        "ownershipId": "rt_a796e1c1190d",
+        "port": 0,
+        "engine": {
+          "version": "smoke",
+          "commit": "smoke"
+        },
+        "external": false,
+        "restarts": 0,
+        "lastFailure": null,
+        "pendingRestartInMs": null
+      },
+      "work": {
+        "active": null,
+        "queued": [],
+        "pauseAfterTask": false,
+        "quitting": false
+      }
+    },
+    "shutdown": {
+      "quitRequested": true,
+      "shutdownRunning": false,
+      "shutdownComplete": true,
+      "shutdownReceipt": {
+        "action": "quit_and_stop_work",
+        "interrupted": false,
+        "interruptUncertain": false,
+        "stopped": true,
+        "escalated": true,
+        "survivors": [],
+        "rollback": "not_promised",
+        "notes": [
+          "no active turn to interrupt",
+          "runtime control_socket stop confirmed after forced escalation",
+          "forced termination is last-resort cleanup, not rollback"
+        ]
+      },
+      "shutdownError": null,
+      "lastOpenRequest": {
+        "path": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-RPJbmt",
+        "input": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-RPJbmt",
+        "receivedAt": "2026-11-14T18:28:06.728Z",
+        "source": "second_instance",
+        "notes": [
+          "resolved: symlink or alias resolved before registration"
+        ]
+      },
+      "rendererCrashes": 1,
+      "lastPowerEvent": "resume",
+      "runtime": {
+        "state": "stopped",
+        "reason": "stopped",
+        "since": "2026-11-14T18:28:33.511Z",
+        "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-lifecycle-work-jSpdfQ",
+        "ownershipId": null,
+        "port": null,
+        "engine": null,
+        "external": false,
+        "restarts": 0,
+        "lastFailure": null,
+        "pendingRestartInMs": null
+      },
+      "work": {
+        "active": null,
+        "queued": [],
+        "pauseAfterTask": false,
+        "quitting": true
+      }
+    }
+  },
+  "owner_log": {
+    "stdout": "",
+    "stderr": ""
+  },
+  "second_exit": {
+    "code": 0,
+    "signal": null
+  },
+  "crash": {
+    "tree": [
+      65884,
+      65885,
+      65886
+    ],
+    "alive": [],
+    "supervisor_alive": false,
+    "checked_after_ms": 2187,
+    "settled": true
+  }
+}
+{
+  "ok": true,
+  "steps": [
+    {
+      "name": "format:check",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 3679
+    },
+    {
+      "name": "lint",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 3232
+    },
+    {
+      "name": "typecheck",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 3911
+    },
+    {
+      "name": "catalog:check",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 153
+    },
+    {
+      "name": "build:supervisor",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 2496
+    },
+    {
+      "name": "build:pty",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 1229
+    },
+    {
+      "name": "build:service",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 2017
+    },
+    {
+      "name": "test",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 14908
+    },
+    {
+      "name": "build",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 2769
+    },
+    {
+      "name": "smoke:board",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 2487
+    },
+    {
+      "name": "smoke:cost",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 2387
+    },
+    {
+      "name": "smoke:changes",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 2899
+    },
+    {
+      "name": "smoke:polish",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 2614
+    },
+    {
+      "name": "smoke:agents",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 4828
+    },
+    {
+      "name": "smoke:settings",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 3369
+    },
+    {
+      "name": "smoke:extensions",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 3192
+    },
+    {
+      "name": "smoke:terminal",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 11653
+    },
+    {
+      "name": "smoke:capability",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 6138
+    },
+    {
+      "name": "smoke:commands",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 5288
+    },
+    {
+      "name": "smoke:history",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 6819
+    },
+    {
+      "name": "smoke:memory",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 2472
+    },
+    {
+      "name": "smoke:failure",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 3068
+    },
+    {
+      "name": "smoke:p23",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 2756
+    },
+    {
+      "name": "smoke:lifecycle",
+      "ok": true,
+      "exit": 0,
+      "elapsed_ms": 32855
+    }
+  ],
+  "renderer_scan": {
+    "ok": true,
+    "files": 4,
+    "patterns": [],
+    "bytes": 896890
+  },
+  "dist_bytes": 896890
+}

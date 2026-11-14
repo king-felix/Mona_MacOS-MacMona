@@ -1,16 +1,65 @@
 # Handoff — Studio review (studio-v2)
 
-**Registry:** `.mona/build-macos/reviews/studio-v2/state.json` (revision 87, after R13)
-**Current task:** R13 — **blocked on EXT-INSTALL** · **Next eligible:** none (R14 needs R13)
+**Registry:** `.mona/build-macos/reviews/studio-v2/state.json` (revision 105, after R15)
+**Current task:** R15 — **completed**. 14 of 16 review tasks complete; R13 and
+R14 are **blocked on external prerequisites**, not on code.
 **Review document:** `MacMona_Studio_Review_PROMPTS.md` (sha256
 `7e1e16d1…`) · **Hotfix:** `MacMona_Review_Hotfix.patch` (sha256
-`a253a05e…`, applied unmodified)
-**Product ledger:** unchanged authority —
-`.mona/build-macos/state.json` is at P23 completed; P22/P25 remain its eligible
-prompts. Nothing in this review queue resets P00–P27 or the attempt counts
-(`attempts.jsonl` is still empty; no problem consumed an attempt).
+`a253a05e…`, applied unmodified at R00)
+**Product ledger:** unchanged authority — `.mona/build-macos/state.json`; P22 is
+blocked, P24/P26/P27 pending, and nothing in this queue resets P00–P27 or the
+attempt counts (`attempts.jsonl` is still empty; no problem consumed an attempt).
+**Gate:** `npm run ci` 24/24 steps, 1,121 tests in 101 files, before the R15
+commit. Both ledgers validate. `monabuild secrets`: 745 files, 0 findings.
 
-## R13 — installed-candidate qualification: built and verified, blocked on the install (2026-11-14)
+## What this pass delivered (2026-11-14)
+
+- **R13 — installed build 151 qualified end to end, one real defect fixed.**
+  Verifier 16/16 (build vs `HEAD`, 13 component digests, arm64 only, minimum OS,
+  review channels, LaunchServices launch, measured shutdown). Installed modes
+  through the real binary: shell 137/137 (also via `open -na`), command 26/26,
+  immersive 60/60, one live pinned-engine turn plus interrupt 22/22. History
+  failed — R02's anchor compared the list's height growth with the viewport's
+  movement and R11's windowing made that height an estimate, so every older page
+  dropped the reader 115.5 px on a 10,054-event project. Fixed by anchoring on
+  card identity (RD-028), the smoke now asserts the reader-visible contract plus
+  reachability, and **`smoke:history` is in `npm run ci`**. Candidate build 152
+  passes all four modes from its own bytes (137 + 26 + 60 + 19).
+  Remaining: `sudo installer -pkg packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg -target /`.
+- **R14 — release pipeline exercised to every refusal it can produce.** Preflight
+  exits 3 naming the two missing Developer ID identities and the notary
+  credential; release exits 3 without an artifact; verify exits 2 rather than
+  accept the ad-hoc local build; 17/17 release-trust tests. Two original-scope
+  claims are stated rather than asserted (RD-029): 14.0 is a declared floor that
+  only 26.5.1 has executed, and Git features still need CLT or another Git.
+- **R15 — handoff, owner guide and artifact manifest.**
+  `docs/evidence/macos/review-studio/R15-final-handoff.md` carries the review
+  matrix, before/after captures, release notes and the exact bytes;
+  `docs/owner-guide-macos.md` states every shortcut and every distinction
+  (Enter vs ⌘Enter, literal slash text, Focus vs fullscreen, follow-up vs
+  steering, cost scopes) plus each known limit with its reason.
+
+## Next exact actions
+
+1. **Close R13** — install the fixed candidate, then
+   `node scripts/r13-candidate-verify.mjs --smoke --launch`,
+   `node scripts/r13-installed-pass.mjs`, `npm run mac:package:local`.
+2. **Close R14** — Developer ID Application + Installer (same team) and
+   `xcrun notarytool store-credentials mona-release`; then
+   `npm run mac:release:preflight`, `npm run mac:release -- --keychain-profile
+   mona-release`, `npm run mac:verify-release`.
+3. **Product ledger** — P24 waits on P22's signed artifact; P26 on P24+P25; P27
+   on P26. P26/P27 own the 14.x matrix and the Git-bundle decision.
+
+## Earlier tasks (R00–R12)
+
+Complete, each with its own document under `docs/evidence/macos/review-studio/`
+and its evidence recorded in the registry. Their summary lives in
+`R15-final-handoff.md` §1; the details did not change in this pass.
+
+## Historical note — the R13 blocker as it stood before this pass
+
+: built and verified, blocked on the install (2026-11-14)
 
 - **Build 147 is assembled.** `npm run mac:package:local` passed every package
   gate — declared metadata, architecture, dependencies, secrets, 673-file payload

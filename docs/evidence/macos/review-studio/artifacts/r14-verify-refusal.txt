@@ -1,14 +1,14 @@
 {
   "ok": false,
   "command": "verify",
-  "package": "/Users/basestar/DS_Projects/Mona/packaging/macos/out/Mona-0.1.0-macOS-arm64.pkg",
+  "package": "~/DS_Projects/Mona/packaging/macos/out/Mona-0.1.0-macOS-arm64.pkg",
   "digest": null,
   "receipt_digest": null,
   "notarization": null,
   "assessments": {},
   "problems": [
-    "package is absent: /Users/basestar/DS_Projects/Mona/packaging/macos/out/Mona-0.1.0-macOS-arm64.pkg",
-    "release receipt is absent: /Users/basestar/DS_Projects/Mona/packaging/macos/out/release-receipt.json"
+    "package is absent: ~/DS_Projects/Mona/packaging/macos/out/Mona-0.1.0-macOS-arm64.pkg",
+    "release receipt is absent: ~/DS_Projects/Mona/packaging/macos/out/release-receipt.json"
   ],
   "note": "This artifact is not a verifiable release."
 }
