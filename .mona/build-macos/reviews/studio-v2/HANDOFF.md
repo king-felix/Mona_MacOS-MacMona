@@ -1,7 +1,7 @@
 # Handoff — Studio review (studio-v2)
 
-**Registry:** `.mona/build-macos/reviews/studio-v2/state.json` (revision 3)
-**Current task:** R00 — completed · **Next eligible:** R01, R02
+**Registry:** `.mona/build-macos/reviews/studio-v2/state.json` (revision 9)
+**Current task:** R01 — completed · **Next eligible:** R02, R03
 **Review document:** `MacMona_Studio_Review_PROMPTS.md` (sha256
 `7e1e16d1…`) · **Hotfix:** `MacMona_Review_Hotfix.patch` (sha256
 `a253a05e…`, applied unmodified)
@@ -9,6 +9,27 @@
 `.mona/build-macos/state.json` is at P23 completed; P22/P25 remain its
 eligible prompts. Nothing in this review queue resets P00–P27 or the attempt
 counts (`attempts.jsonl` is empty; no problem consumed an attempt).
+
+## Where R01 landed
+
+- **RV-01 fixed.** `src/renderer/shell/session.ts` now owns the composer through
+  `DraftJournal`: one revision per edit, writes serialized per draft key, and an
+  acknowledgement may claim `saved` only for the revision it actually wrote.
+  `SubmissionGate` claims a submission synchronously with an immutable identity
+  `{project, thread, revision, text, mode}`; `acceptSent` clears **only** the
+  submitted revision, and reports `preserved` when text arrived during the send
+  or `stale` when another project is open.
+- **RV-02 fixed.** `SelectionEpoch` invalidates older loads, refreshes and
+  actions, including A→B→A, which a project-id comparison cannot catch. Stale
+  results never replace `selected`/`studio`; stale failures are still shown,
+  labelled with their project name. `busy` is a counter, so no latch sticks.
+- Favorites, the quit dialog and project switches flush through the journal;
+  `saveProjectView` re-checks the selected project inside its timer.
+- Evidence: `docs/evidence/macos/review-studio/R01-drafts-and-navigation.md`
+  with the race matrix, `artifacts/r01-prefix-races.txt` (6 failed | 3 passed
+  before the fix) and `artifacts/r01-tests.txt`, `r01-shell-smoke.json`.
+- Gates: 23 focused tests, **819 tests in 81 files**, typecheck clean, lint 0
+  errors, format clean, real Electron shell smoke **127/127**.
 
 ## Where R00 landed
 
@@ -32,21 +53,21 @@ counts (`attempts.jsonl` is empty; no problem consumed an attempt).
 
 ## Exact next action
 
-Start **R01** (drafts and asynchronous navigation are lossless) — it is the
-prerequisite for R03, R05 and R07:
+Two tasks are eligible now:
+
+- **R02 — complete, identity-aware history and paging.** Read
+  `src/main/projects/service.ts` (the fixed 200-event tail),
+  `src/main/state/store.ts` event reads, `src/shared/contracts/project-bridge.ts`
+  and `src/renderer/shell/timeline.ts`. R03 does not depend on it, but R04 does.
+- **R03 — verified slash-command catalog and autocomplete.** Read the pinned
+  0.10.2 slash-command registry before writing a catalog; never generate
+  descriptions from memory or with a model.
 
 ```sh
-node tools/monabuild/cli.mjs review status
-# read:
-#   src/renderer/shell/Shell.tsx  persistDraft / selectProject / refreshSelected /
-#                                 submitTask / action handlers
-#   src/shared/contracts/project-bridge.ts, draft storage, IPC contracts
-# then set R01 running through `monabuild review checkpoint`.
+node tools/monabuild/cli.mjs review status   # next_eligible: R02, R03
 ```
 
-R02 (identity-aware history and paging) is independent of R01 and may run
-instead if history work is preferred first. Do not start R03/R05/R07 before
-their prerequisites are completed.
+Do not start R04, R05 or R07 before their prerequisites complete.
 
 ## Rules that still bind
 

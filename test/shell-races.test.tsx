@@ -1,0 +1,632 @@
+// @vitest-environment jsdom
+import { act } from "react";
+import { createRoot, type Root } from "react-dom/client";
+import { afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import type { ProjectId } from "../src/shared/contracts/ids";
+import type {
+  IpcResult,
+  ProjectDetail,
+  ProjectSummary,
+} from "../src/shared/contracts/project-bridge";
+import type { StudioSnapshot, StudioSubmitResult } from "../src/shared/contracts/studio";
+import type { MonaBridge } from "../src/shared/contracts/bridge";
+import { Shell } from "../src/renderer/shell/Shell";
+
+/**
+ * R01 acceptance at the component boundary: real Shell, real StudioScreen, a
+ * fake bridge whose IPC answers the test releases by hand. Each case turns a
+ * user ordering (type during send, switch during send, reversed loads, late
+ * acknowledgement) into a deterministic deferred-promise sequence.
+ */
+
+let root: Root | null = null;
+let container: HTMLDivElement | null = null;
+
+beforeAll(() => {
+  (globalThis as unknown as { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
+  Object.defineProperty(window, "matchMedia", {
+    writable: true,
+    value: (query: string) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: () => undefined,
+      removeListener: () => undefined,
+      addEventListener: () => undefined,
+      removeEventListener: () => undefined,
+      dispatchEvent: () => false,
+    }),
+  });
+});
+
+beforeEach(() => {
+  localStorage.clear();
+  container = document.createElement("div");
+  document.body.appendChild(container);
+  root = createRoot(container);
+});
+
+afterEach(() => {
+  delete document.body.dataset.ready;
+  act(() => root?.unmount());
+  container?.remove();
+  root = null;
+  container = null;
+});
+
+const A = "prj_aaaaaaaaaaaaaaaa" as ProjectId;
+const B = "prj_bbbbbbbbbbbbbbbb" as ProjectId;
+const C = "prj_cccccccccccccccc" as ProjectId;
+
+function project(id: ProjectId, name: string): ProjectSummary {
+  return {
+    id,
+    name,
+    rootPath: `/Users/example/projects/${name}`,
+    canonicalPath: `/Users/example/projects/${name}`,
+    repositoryKind: "none",
+    repositoryRoot: null,
+    worktreeName: null,
+    accent: null,
+    monogram: null,
+    archived: false,
+    pinned: false,
+    removedAt: null,
+    createdAt: "2026-11-11T00:00:00.000Z",
+    updatedAt: "2026-11-11T00:00:00.000Z",
+    revision: 1,
+  };
+}
+
+function detail(summary: ProjectSummary, draftText: string | null = null): ProjectDetail {
+  return {
+    project: summary,
+    tasks: [],
+    dependencies: [],
+    threads: [
+      {
+        id: `thr_${summary.id.slice(4)}`,
+        title: null,
+        engineThreadId: null,
+        updatedAt: "2026-11-11T00:00:00.000Z",
+      },
+    ],
+    draft: draftText === null ? null : { threadId: `thr_${summary.id.slice(4)}`, text: draftText },
+    events: [],
+    usage: {
+      turns: 0,
+      inputTokens: 0,
+      outputTokens: 0,
+      cachedTokens: 0,
+      reasoningTokens: 0,
+      costUsd: 0,
+      costComplete: false,
+      observed: false,
+      byModel: [],
+    },
+    evidence: [],
+    view: null,
+    branch: null,
+    engine: {
+      state: "disconnected",
+      reason: "not_started",
+      owned: false,
+      external: false,
+      workspace: null,
+      port: null,
+      engineVersion: null,
+      engineCommit: null,
+      executable: null,
+      executablePresent: false,
+      canExecute: false,
+      blockedReason: "No runtime is bound to this project yet.",
+      binding: null,
+    },
+  };
+}
+
+function studioSnapshot(id: ProjectId): StudioSnapshot {
+  return {
+    projectId: id,
+    connection: {
+      state: "connected",
+      reason: "authenticated loopback runtime is ready",
+      since: "2026-11-11T00:00:00.000Z",
+      port: 51234,
+      engine: { version: "0.10.2", commit: "ff466b2ed0bfb4ae5267d4d8d0ecb562cf46956e" },
+      owned: true,
+      external: false,
+      lastEventAt: null,
+      silentForMs: null,
+      missing: [],
+    },
+    threadId: `thr_${id.slice(4)}`,
+    engineThreadId: `thr_${id.slice(4)}`,
+    activeTurnId: null,
+    lastMode: "work",
+    pauseAfterTask: false,
+    queued: 0,
+    profile: {
+      provider: "deepseek",
+      model: "deepseek-flash",
+      reasoningEffort: null,
+      permissionPosture: "full_access",
+      autoApprove: true,
+      trustMode: true,
+      allowShell: true,
+      source: "configured",
+      effective: null,
+      effectiveTurnId: null,
+    },
+    cost: { observed: false, costUsd: 0, costComplete: false, turns: 0, label: "unpriced" },
+    submission: null,
+    diagnostics: [],
+    pendingInput: null,
+    canSubmit: true,
+    cannotSubmitReason: null,
+    controls: { canInterrupt: false, canPause: true, canCancelQueued: false, canStop: true },
+  };
+}
+
+function acceptedResult(id: ProjectId, turnId = "turn_0000000000000001"): StudioSubmitResult {
+  return {
+    outcome: "accepted",
+    operationKey: "op_key_000000000001",
+    turnId,
+    note: null,
+    guidance: null,
+    reconciliation: null,
+    snapshot: studioSnapshot(id),
+  };
+}
+
+interface SaveCall {
+  projectId: string;
+  threadId: string;
+  text: string;
+}
+
+interface SubmitCall {
+  projectId: string;
+  prompt: string;
+  mode: string;
+}
+
+interface Gate<T> {
+  promise: Promise<T>;
+  resolve: (value: T) => void;
+}
+
+function gate<T>(): Gate<T> {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>((done) => {
+    resolve = done;
+  });
+  return { promise, resolve };
+}
+
+interface World {
+  catalog: ProjectSummary[];
+  details: Map<string, ProjectDetail>;
+  detailGates: Map<string, Gate<IpcResult<ProjectDetail>>>;
+  saveCalls: SaveCall[];
+  submitCalls: SubmitCall[];
+  /** When set, each save waits for its own gate until the test releases it. */
+  saveManual: boolean;
+  saveGates: Array<Gate<IpcResult<{ saved: boolean }>>>;
+  saveResult: IpcResult<{ saved: boolean }> | null;
+  submitGate: Gate<IpcResult<StudioSubmitResult>> | null;
+  submitResult: IpcResult<StudioSubmitResult> | null;
+}
+
+function world(projects: ProjectSummary[]): World {
+  return {
+    catalog: projects,
+    details: new Map(),
+    detailGates: new Map(),
+    saveCalls: [],
+    submitCalls: [],
+    saveManual: false,
+    saveGates: [],
+    saveResult: null,
+    submitGate: null,
+    submitResult: null,
+  };
+}
+
+function ok<T>(value: T): IpcResult<T> {
+  return { ok: true, value };
+}
+
+function install(state: World): void {
+  const handlers: Record<string, (...args: never[]) => unknown> = {
+    getAppInfo: async () => ({
+      name: "Mona",
+      version: "0.1.0-test",
+      electron: "45.3.0",
+      chrome: "140",
+      node: "24",
+      platform: "darwin",
+      arch: "arm64",
+      packaged: false,
+    }),
+    getPaths: async () => ({ support: "/tmp/mona", cache: "/tmp/mona", logs: "/tmp/mona" }),
+    zoom: async () => ({ factor: 1, percent: "100%", steps: [1], min: 1, max: 2 }),
+    discoverTools: async () => [],
+    listProjects: async () => ok(state.catalog),
+    projectDetail: async (id: string) => {
+      const pending = state.detailGates.get(id);
+      if (pending) return pending.promise;
+      const value = state.details.get(id);
+      if (!value) return { ok: false, error: { code: "NOT_FOUND", message: `no ${id}` } };
+      return ok(value);
+    },
+    studioState: async (id: string) => ok(studioSnapshot(id as ProjectId)),
+    polishDigest: async () => ({ ok: false, error: { code: "NONE", message: "no digest" } }),
+    polishStatus: async () => ({ ok: false, error: { code: "NONE", message: "no status" } }),
+    promptFavorites: async () => ok([]),
+    saveDraft: async (projectId: string, threadId: string, text: string) => {
+      state.saveCalls.push({ projectId, threadId, text });
+      if (state.saveManual) {
+        const pending = gate<IpcResult<{ saved: boolean }>>();
+        state.saveGates.push(pending);
+        return pending.promise;
+      }
+      return state.saveResult ?? ok({ saved: true });
+    },
+    submitTask: async (projectId: string, prompt: string, mode: string) => {
+      state.submitCalls.push({ projectId, prompt, mode });
+      if (state.submitGate) return state.submitGate.promise;
+      return state.submitResult ?? ok(acceptedResult(projectId as ProjectId));
+    },
+    markPolishSeen: async () => ok({ marked: true }),
+    saveProjectView: async () => ok({ saved: true }),
+  };
+  const bridge = new Proxy(
+    {},
+    {
+      get: (_target, property) => {
+        const name = String(property);
+        if (name in handlers) return handlers[name];
+        if (name.startsWith("on")) return () => () => undefined;
+        if (name === "pathForDroppedFile") return () => null;
+        return async () => ok(null);
+      },
+    },
+  ) as unknown as MonaBridge;
+  Object.defineProperty(window, "mona", { configurable: true, writable: true, value: bridge });
+}
+
+async function tick(rounds = 4): Promise<void> {
+  for (let index = 0; index < rounds; index += 1) {
+    await act(async () => {
+      await Promise.resolve();
+    });
+  }
+}
+
+async function waitFor(predicate: () => boolean, label: string, timeoutMs = 2000): Promise<void> {
+  const started = Date.now();
+  while (Date.now() - started < timeoutMs) {
+    if (predicate()) return;
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    });
+  }
+  throw new Error(`timed out waiting for ${label}`);
+}
+
+async function wait(ms: number): Promise<void> {
+  await act(async () => {
+    await new Promise((resolve) => setTimeout(resolve, ms));
+  });
+}
+
+function textarea(): HTMLTextAreaElement {
+  const element = container!.querySelector<HTMLTextAreaElement>("textarea");
+  if (!element) throw new Error("composer textarea is not rendered");
+  return element;
+}
+
+function type(value: string): void {
+  const element = textarea();
+  const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value")?.set;
+  act(() => {
+    setter?.call(element, value);
+    element.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+}
+
+function clickProject(id: ProjectId): void {
+  const button = container!.querySelector<HTMLButtonElement>(`[data-project-id="${id}"]`);
+  if (!button) throw new Error(`project ${id} is not in the catalog list`);
+  act(() => {
+    button.click();
+  });
+}
+
+function clickSend(): void {
+  const button = container!.querySelector<HTMLButtonElement>('[data-testid="studio-send"]');
+  if (!button) throw new Error("send button is not rendered");
+  act(() => {
+    button.click();
+  });
+}
+
+function commandEnter(): void {
+  act(() => {
+    textarea().dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: "Enter",
+        metaKey: true,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+  });
+}
+
+function headerTitle(): string {
+  return container!.querySelector(".context-bar__title")?.textContent ?? "";
+}
+
+function draftHint(): string {
+  return container!.querySelector(".composer__left .hint-line")?.textContent ?? "";
+}
+
+function errorText(): string {
+  return container!.querySelector(".callout")?.textContent ?? "";
+}
+
+async function boot(state: World): Promise<void> {
+  delete document.body.dataset.ready;
+  install(state);
+  act(() => {
+    root?.render(<Shell />);
+  });
+  await waitFor(() => document.body.dataset.ready === "true", "the shell to boot");
+  await tick(6);
+}
+
+async function goHome(): Promise<void> {
+  const button = container!.querySelector<HTMLButtonElement>(
+    'nav[aria-label="Screens"] button[aria-label="Home"]',
+  );
+  if (!button) throw new Error("the Home rail item is not rendered");
+  act(() => {
+    button.click();
+  });
+  await waitFor(
+    () => container!.querySelectorAll("[data-project-id]").length > 0,
+    "the catalog list",
+  );
+}
+
+async function openProject(id: ProjectId, name: string): Promise<void> {
+  clickProject(id);
+  await waitFor(() => headerTitle() === name, `the studio for ${name}`);
+}
+
+describe("shell selection epochs", () => {
+  it("a slow A load cannot replace a later B selection", async () => {
+    const state = world([project(C, "Start"), project(A, "Alpha"), project(B, "Beta")]);
+    state.details.set(C, detail(state.catalog[0]!));
+    state.details.set(B, detail(state.catalog[2]!));
+    const slowA = gate<IpcResult<ProjectDetail>>();
+    state.detailGates.set(A, slowA);
+    await boot(state);
+
+    clickProject(A); // slow load starts
+    await tick(2);
+    await openProject(B, "Beta");
+
+    // A's response arrives last. The project id matches a project in the
+    // catalogue, so only a selection epoch can reject it.
+    await act(async () => {
+      slowA.resolve(ok(detail(state.catalog[1]!)));
+      await Promise.resolve();
+    });
+    await tick(6);
+    expect(headerTitle()).toBe("Beta");
+  });
+
+  it("A→B→A applies the newest load, not the first one for the same project", async () => {
+    const state = world([project(C, "Start"), project(A, "Alpha"), project(B, "Beta")]);
+    state.details.set(C, detail(state.catalog[0]!));
+    state.details.set(B, detail(state.catalog[2]!));
+    const firstA = gate<IpcResult<ProjectDetail>>();
+    state.detailGates.set(A, firstA);
+    await boot(state);
+
+    clickProject(A); // first A load, slow
+    await tick(2);
+    await openProject(B, "Beta");
+    const secondA = gate<IpcResult<ProjectDetail>>();
+    state.detailGates.set(A, secondA);
+    await goHome();
+    clickProject(A); // A again, also slow
+    await tick(2);
+
+    // The first A response is stale even though the current project is A.
+    await act(async () => {
+      firstA.resolve(ok(detail(state.catalog[1]!, "stale A draft")));
+      await Promise.resolve();
+    });
+    await tick(6);
+    // The stale load must not apply at all: the shell stays on the catalog
+    // instead of opening A with the old payload.
+    expect(container!.querySelector("textarea")).toBeNull();
+    expect(headerTitle()).not.toBe("Alpha");
+
+    await act(async () => {
+      secondA.resolve(ok(detail(state.catalog[1]!, "fresh A draft")));
+      await Promise.resolve();
+    });
+    await waitFor(() => textarea().value === "fresh A draft", "the newest A load");
+  });
+});
+
+describe("shell submission identity", () => {
+  it("keeps text typed during a send and sends exactly the claimed bytes", async () => {
+    const state = world([project(A, "Alpha")]);
+    state.details.set(A, detail(state.catalog[0]!));
+    await boot(state);
+    await openProject(A, "Alpha");
+    state.submitGate = gate<IpcResult<StudioSubmitResult>>();
+
+    type("Ship the fix");
+    clickSend();
+    await waitFor(() => state.submitCalls.length === 1, "the first submit");
+    // The composer stays editable while the send is in flight.
+    type("Ship the fix, then update the notes.");
+    expect(state.submitCalls[0]!.prompt).toBe("Ship the fix");
+
+    await act(async () => {
+      state.submitGate!.resolve(ok(acceptedResult(A)));
+      await Promise.resolve();
+    });
+    await tick(8);
+    expect(state.submitCalls).toHaveLength(1);
+    expect(textarea().value).toBe("Ship the fix, then update the notes.");
+    // The newer text is queued by the normal debounce, then acknowledged.
+    await wait(600);
+    expect(draftHint()).toContain("Draft saved locally");
+    expect(state.saveCalls.at(-1)?.text).toBe("Ship the fix, then update the notes.");
+  });
+
+  it("clears the composer when nothing changed during the send", async () => {
+    const state = world([project(A, "Alpha")]);
+    state.details.set(A, detail(state.catalog[0]!));
+    await boot(state);
+    await openProject(A, "Alpha");
+    state.submitGate = gate<IpcResult<StudioSubmitResult>>();
+
+    type("One short task");
+    clickSend();
+    await waitFor(() => state.submitCalls.length === 1, "the first submit");
+    await act(async () => {
+      state.submitGate!.resolve(ok(acceptedResult(A)));
+      await Promise.resolve();
+    });
+    await waitFor(() => textarea().value === "", "the composer to clear");
+    expect(state.saveCalls.some((call) => call.projectId === A && call.text === "")).toBe(true);
+  });
+
+  it("a switch during a send leaves the new project's draft untouched", async () => {
+    const state = world([project(C, "Start"), project(A, "Alpha"), project(B, "Beta")]);
+    state.details.set(C, detail(state.catalog[0]!));
+    state.details.set(A, detail(state.catalog[1]!));
+    state.details.set(B, detail(state.catalog[2]!, "B work in progress"));
+    await boot(state);
+    await openProject(A, "Alpha");
+    state.submitGate = gate<IpcResult<StudioSubmitResult>>();
+
+    type("Alpha task");
+    clickSend();
+    await waitFor(() => state.submitCalls.length === 1, "the first submit");
+    await goHome();
+    await openProject(B, "Beta");
+    expect(textarea().value).toBe("B work in progress");
+
+    await act(async () => {
+      state.submitGate!.resolve(ok(acceptedResult(A)));
+      await Promise.resolve();
+    });
+    await tick(8);
+    expect(textarea().value).toBe("B work in progress");
+    expect(state.saveCalls.some((call) => call.projectId === B && call.text === "")).toBe(false);
+  });
+
+  it("a repeated click and Command-Enter dispatch exactly once", async () => {
+    const state = world([project(A, "Alpha")]);
+    state.details.set(A, detail(state.catalog[0]!));
+    await boot(state);
+    await openProject(A, "Alpha");
+    state.submitGate = gate<IpcResult<StudioSubmitResult>>();
+
+    type("Only once");
+    clickSend();
+    clickSend();
+    commandEnter();
+    await tick(4);
+    expect(state.submitCalls).toHaveLength(1);
+
+    await act(async () => {
+      state.submitGate!.resolve(ok(acceptedResult(A)));
+      await Promise.resolve();
+    });
+    await tick(6);
+    expect(state.submitCalls).toHaveLength(1);
+    // The gate is released: a later, separate task may be sent.
+    type("A second task");
+    clickSend();
+    await waitFor(() => state.submitCalls.length === 2, "a second submission after release");
+  });
+});
+
+describe("shell draft saving", () => {
+  it("never reports newer text saved when an older acknowledgement arrives late", async () => {
+    const state = world([project(A, "Alpha")]);
+    state.details.set(A, detail(state.catalog[0]!));
+    await boot(state);
+    await openProject(A, "Alpha");
+    // From here every save waits for the test, including the ones a debounce
+    // queued behind an edit.
+    state.saveManual = true;
+
+    const baseline = state.saveCalls.length;
+    type("first draft");
+    await wait(600); // debounce fires; this save is now in flight
+    expect(state.saveCalls.length - baseline).toBe(1);
+
+    // Typing while the older save is still unacknowledged.
+    type("first draft, extended");
+    expect(draftHint()).toContain("Saving draft");
+
+    // The older write acknowledges; its reply says nothing about the newer text.
+    await act(async () => {
+      state.saveGates[0]!.resolve(ok({ saved: true }));
+      await Promise.resolve();
+    });
+    await tick(6);
+    expect(draftHint()).not.toContain("Draft saved locally");
+    expect(textarea().value).toBe("first draft, extended");
+
+    // The journal then writes the newest text, and only that write may say saved.
+    await wait(600);
+    expect(state.saveCalls.at(-1)?.text).toBe("first draft, extended");
+    expect(draftHint()).toContain("Saving draft");
+    await act(async () => {
+      state.saveGates.at(-1)!.resolve(ok({ saved: true }));
+      await Promise.resolve();
+    });
+    await waitFor(() => draftHint().includes("Draft saved locally"), "the newer text to be saved");
+  });
+
+  it("keeps the text and says so when a save is rejected", async () => {
+    const state = world([project(A, "Alpha")]);
+    state.details.set(A, detail(state.catalog[0]!));
+    state.saveResult = {
+      ok: false,
+      error: { code: "CONFLICT", message: "draft thread does not belong to this project" },
+    };
+    await boot(state);
+    await openProject(A, "Alpha");
+
+    type("Do not lose this");
+    await wait(600);
+    expect(textarea().value).toBe("Do not lose this");
+    expect(draftHint()).toContain("could not be saved");
+    expect(errorText()).toContain("CONFLICT");
+  });
+
+  it("a restart restores the stored draft and sends nothing", async () => {
+    const state = world([project(A, "Alpha")]);
+    state.details.set(A, detail(state.catalog[0]!, "Restored draft"));
+    await boot(state);
+    await openProject(A, "Alpha");
+    expect(textarea().value).toBe("Restored draft");
+    expect(state.submitCalls).toHaveLength(0);
+    expect(draftHint()).toContain("Draft saved locally");
+  });
+});

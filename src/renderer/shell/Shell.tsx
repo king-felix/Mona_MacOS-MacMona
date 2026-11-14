@@ -64,6 +64,7 @@ import { CapabilitiesScreen, type CapabilityEntryRequest } from "./Capabilities"
 import { MemoryScreen } from "./Memory";
 import { TerminalPanel } from "./TerminalPanel";
 import { rankPalette, type PaletteDetail, type PaletteEntry, type PaletteKind } from "./palette";
+import { DraftJournal, SelectionEpoch, SubmissionGate, type SubmissionIdentity } from "./session";
 import type { ScreenId } from "./types";
 import { projectMonogram, projectAccent } from "./visual";
 
@@ -154,6 +155,9 @@ export function Shell(): JSX.Element {
   const [terminalMode, setTerminalMode] = useState<"shell" | "log">("shell");
   const [terminalCommand, setTerminalCommand] = useState<string | null>(null);
   const [dialog, setDialog] = useState<DialogState>(null);
+  // The composer's text is owned by the draft journal below; these two states
+  // mirror it for rendering. Nothing else may hold a second copy of the text
+  // across an await.
   const [draft, setDraft] = useState("");
   const [draftStatus, setDraftStatus] = useState<DraftStatus>("idle");
   const [studio, setStudio] = useState<StudioSnapshot | null>(null);
@@ -184,11 +188,18 @@ export function Shell(): JSX.Element {
   const queryRef = useRef(query);
   const archivedRef = useRef(showArchived);
   const selectedRef = useRef<ProjectDetail | null>(null);
-  const draftRef = useRef<{ projectId: ProjectId | null; threadId: string | null; text: string }>({
-    projectId: null,
-    threadId: null,
-    text: "",
-  });
+  // R01: the journal owns draft text and serializes writes; the epoch decides
+  // which project load is current; the gate makes a submission single-flight
+  // from the moment it is claimed.
+  const [drafts] = useState(
+    () =>
+      new DraftJournal((projectId, threadId, text) =>
+        window.mona.saveDraft(projectId, threadId, text),
+      ),
+  );
+  const [epoch] = useState(() => new SelectionEpoch());
+  const [submission] = useState(() => new SubmissionGate());
+  const busyCount = useRef(0);
   const draftTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const studioTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const openFolderRef = useRef<() => void>(() => undefined);
@@ -197,6 +208,15 @@ export function Shell(): JSX.Element {
   queryRef.current = query;
   archivedRef.current = showArchived;
   selectedRef.current = selected;
+
+  useEffect(
+    () =>
+      drafts.subscribe((view) => {
+        setDraft(view.text);
+        setDraftStatus(view.phase);
+      }),
+    [drafts],
+  );
 
   useEffect(() => {
     applyTheme(theme);
@@ -229,24 +249,45 @@ export function Shell(): JSX.Element {
     setCatalog(result.value);
   }, []);
 
-  const persistDraft = useCallback(async (): Promise<void> => {
-    const snapshot = { ...draftRef.current };
-    if (!snapshot.projectId || !snapshot.threadId) {
-      setDraftStatus("idle");
-      return;
-    }
-    const result = await window.mona.saveDraft(
-      snapshot.projectId,
-      snapshot.threadId,
-      snapshot.text,
-    );
-    if (!result.ok) {
-      setDraftStatus("error");
-      setError(`${result.error.code}: ${result.error.message}`);
-      return;
-    }
-    setDraftStatus("saved");
+  const beginBusy = useCallback((): void => {
+    busyCount.current += 1;
+    setBusy(true);
   }, []);
+  const endBusy = useCallback((): void => {
+    busyCount.current = Math.max(0, busyCount.current - 1);
+    if (busyCount.current === 0) setBusy(false);
+  }, []);
+
+  const reportError = useCallback(
+    (token: number, projectName: string, error: { code: string; message: string }): void => {
+      const text = `${error.code}: ${error.message}`;
+      // A failure is never hidden, even when the user has moved to another
+      // project; it is labelled so it cannot be read as the current project's.
+      setError(epoch.isCurrent(token) ? text : `${projectName} · ${text}`);
+    },
+    [epoch],
+  );
+
+  const reportNotice = useCallback(
+    (
+      token: number,
+      projectName: string,
+      text: string,
+      tone: "success" | "attention" = "success",
+    ): void => {
+      setNoticeTone(tone);
+      // A notice about a project the user has left is labelled, not presented
+      // as if it described the project on screen.
+      setNotice(epoch.isCurrent(token) ? text : `${projectName} · ${text}`);
+    },
+    [epoch],
+  );
+
+  const persistDraft = useCallback(async (): Promise<void> => {
+    await drafts.flush();
+    const failure = drafts.lastFailure;
+    if (failure) setError(failure);
+  }, [drafts]);
 
   const flushDraft = useCallback(async (): Promise<void> => {
     if (draftTimer.current) {
@@ -256,84 +297,94 @@ export function Shell(): JSX.Element {
     await persistDraft();
   }, [persistDraft]);
 
-  const onDraft = useCallback(
-    (text: string) => {
-      setDraft(text);
-      draftRef.current.text = text;
-      setDraftStatus("saving");
+  const writeDraft = useCallback(
+    (text: string): void => {
+      drafts.edit(text);
       if (draftTimer.current) clearTimeout(draftTimer.current);
       draftTimer.current = setTimeout(() => {
         draftTimer.current = null;
         void persistDraft();
       }, 500);
     },
-    [persistDraft],
+    [drafts, persistDraft],
+  );
+
+  const onDraft = useCallback(
+    (text: string) => {
+      writeDraft(text);
+    },
+    [writeDraft],
   );
 
   const selectProject = useCallback(
     async (project: ProjectSummary, target?: ScreenId): Promise<void> => {
-      await flushDraft();
-      setBusy(true);
-      const [result, studioResult, digestResult] = await Promise.all([
-        window.mona.projectDetail(project.id),
-        window.mona.studioState(project.id),
-        window.mona.polishDigest(project.id),
-      ]);
-      if (!result.ok) {
-        setError(`${result.error.code}: ${result.error.message}`);
-        setBusy(false);
-        return;
-      }
-      const detail = result.value;
-      setSelected(detail);
-      setStudio(studioResult.ok ? studioResult.value : null);
-      const text = detail.draft?.text ?? "";
-      setDraft(text);
-      draftRef.current = {
-        projectId: detail.project.id,
-        threadId: detail.draft?.threadId ?? detail.threads[0]?.id ?? null,
-        text,
-      };
-      setDraftStatus(text ? "saved" : "idle");
-      const view = detail.view as {
-        screen?: unknown;
-        inspectorTab?: unknown;
-        studioMode?: unknown;
-        focusMode?: unknown;
-      } | null;
-      setInspectorTab(typeof view?.inspectorTab === "string" ? view.inspectorTab : "task");
-      setStudioMode(view?.studioMode === "plan" ? "plan" : "work");
-      setFocusMode(view?.focusMode === true);
-      setScreen(target ?? (isScreen(view?.screen) ? view.screen : "studio"));
-      setDigest(digestResult.ok ? digestResult.value : null);
-      localStorage.setItem("mona.lastProject", detail.project.id);
-      setError(null);
-      setBusy(false);
-      // Reading the project is the visit. The digest above was computed from the
-      // old watermark, so entries remain visible; the next visit starts after
-      // this mark. Whether a notification was acknowledged changes no task.
-      void window.mona.markPolishSeen(detail.project.id).then((marked) => {
-        if (!marked.ok) return;
-        void window.mona.polishStatus().then((status) => {
-          if (status.ok) setPolishStatus(status.value);
+      // The epoch is claimed before the first await, so any older in-flight load
+      // (or refresh) is invalid from this moment on, including A→B→A.
+      const token = epoch.begin();
+      const pendingFlush = flushDraft();
+      beginBusy();
+      try {
+        const [result, studioResult, digestResult] = await Promise.all([
+          window.mona.projectDetail(project.id),
+          window.mona.studioState(project.id),
+          window.mona.polishDigest(project.id),
+        ]);
+        setError(null);
+        // The outgoing draft must be persisted before its key is replaced.
+        await pendingFlush;
+        if (!epoch.isCurrent(token)) return;
+        if (!result.ok) {
+          setError(`${result.error.code}: ${result.error.message}`);
+          return;
+        }
+        const detail = result.value;
+        setSelected(detail);
+        setStudio(studioResult.ok ? studioResult.value : null);
+        const threadId = detail.draft?.threadId ?? detail.threads[0]?.id ?? null;
+        drafts.open(detail.project.id, threadId, detail.draft?.text ?? "");
+        const view = detail.view as {
+          screen?: unknown;
+          inspectorTab?: unknown;
+          studioMode?: unknown;
+          focusMode?: unknown;
+        } | null;
+        setInspectorTab(typeof view?.inspectorTab === "string" ? view.inspectorTab : "task");
+        setStudioMode(view?.studioMode === "plan" ? "plan" : "work");
+        setFocusMode(view?.focusMode === true);
+        setScreen(target ?? (isScreen(view?.screen) ? view.screen : "studio"));
+        setDigest(digestResult.ok ? digestResult.value : null);
+        localStorage.setItem("mona.lastProject", detail.project.id);
+        // Reading the project is the visit. The digest above was computed from
+        // the old watermark, so entries remain visible; the next visit starts
+        // after this mark. Whether a notification was acknowledged changes no
+        // task.
+        void window.mona.markPolishSeen(detail.project.id).then((marked) => {
+          if (!marked.ok) return;
+          void window.mona.polishStatus().then((status) => {
+            if (status.ok) setPolishStatus(status.value);
+          });
         });
-      });
+      } finally {
+        endBusy();
+      }
     },
-    [flushDraft],
+    [beginBusy, drafts, endBusy, epoch, flushDraft],
   );
 
   const refreshSelected = useCallback(async (): Promise<void> => {
     const current = selectedRef.current;
     if (!current) return;
+    // The identity that matters is the selection this refresh belongs to, not
+    // the project id: A→B→A must not apply A's old refresh.
+    const token = epoch.current();
     const [detailResult, studioResult] = await Promise.all([
       window.mona.projectDetail(current.project.id),
       window.mona.studioState(current.project.id),
     ]);
-    if (detailResult.ok && selectedRef.current?.project.id === current.project.id) {
-      setSelected(detailResult.value);
-    }
+    if (!epoch.isCurrent(token)) return;
+    if (detailResult.ok) setSelected(detailResult.value);
     if (studioResult.ok) setStudio(studioResult.value);
-  }, []);
+  }, [epoch]);
 
   const focusToggleAt = useRef(0);
   const toggleFocusMode = useCallback((): void => {
@@ -374,20 +425,15 @@ export function Shell(): JSX.Element {
 
   const useFavorite = useCallback(
     (favorite: PromptFavorite): void => {
-      const current = draftRef.current.text;
+      // Insertion goes through the same journal path as typing, so it cannot
+      // bypass serialization, and it never overwrites unsent text silently.
+      const current = drafts.current()?.text ?? "";
       const text =
         current.trim().length === 0 ? favorite.text : `${current.trimEnd()}\n\n${favorite.text}`;
-      setDraft(text);
-      draftRef.current.text = text;
-      setDraftStatus("saving");
-      if (draftTimer.current) clearTimeout(draftTimer.current);
-      draftTimer.current = setTimeout(() => {
-        draftTimer.current = null;
-        void persistDraft();
-      }, 500);
+      writeDraft(text);
       setNotice(`Inserted “${favorite.label}” into the composer. Nothing has been sent.`);
     },
-    [persistDraft],
+    [drafts, writeDraft],
   );
 
   const removeFavorite = useCallback(
@@ -431,22 +477,37 @@ export function Shell(): JSX.Element {
     if (!identityDialog) return;
     const { project, accent, monogram } = identityDialog;
     setIdentityDialog(null);
-    setBusy(true);
-    const result = await window.mona.setProjectIdentity({
-      projectId: project.id,
-      accent: accent as PolishAccent | null,
-      monogram: monogram.trim().length === 0 ? null : monogram.trim(),
-      expectedRevision: project.revision,
-    });
-    setBusy(false);
-    if (!result.ok) {
-      setError(`${result.error.code}: ${result.error.message}`);
-      return;
+    const token = epoch.current();
+    beginBusy();
+    try {
+      const result = await window.mona.setProjectIdentity({
+        projectId: project.id,
+        accent: accent as PolishAccent | null,
+        monogram: monogram.trim().length === 0 ? null : monogram.trim(),
+        expectedRevision: project.revision,
+      });
+      if (!result.ok) {
+        reportError(token, project.name, result.error);
+        return;
+      }
+      reportNotice(token, project.name, "Project identity updated.");
+      await refreshCatalog();
+      if (epoch.isCurrent(token) && selectedRef.current?.project.id === project.id) {
+        await selectProject(result.value);
+      }
+    } finally {
+      endBusy();
     }
-    setNotice("Project identity updated.");
-    await refreshCatalog();
-    if (selectedRef.current?.project.id === project.id) await selectProject(result.value);
-  }, [identityDialog, refreshCatalog, selectProject]);
+  }, [
+    beginBusy,
+    endBusy,
+    epoch,
+    identityDialog,
+    refreshCatalog,
+    reportError,
+    reportNotice,
+    selectProject,
+  ]);
 
   /**
    * A Finder handoff opens the project and puts the cursor in the composer.
@@ -467,22 +528,25 @@ export function Shell(): JSX.Element {
         );
         return;
       }
+      const token = epoch.current();
       setNotice(
         result.created
           ? `Added “${result.projectName ?? "project"}” to the catalog. Runtime not started.`
           : `Opened “${result.projectName ?? "project"}”. Runtime not started.`,
       );
       const list = await window.mona.listProjects(undefined, true);
-      if (list.ok) {
-        setCatalog(list.value);
-        const project = list.value.find((entry) => entry.id === result.projectId);
-        if (project) {
-          await selectProject(project, "studio");
-          focusComposer();
-        }
+      if (!list.ok) return;
+      setCatalog(list.value);
+      // An open result that arrives after the user selected something else must
+      // not pull the view away from that newer choice.
+      if (!epoch.isCurrent(token)) return;
+      const project = list.value.find((entry) => entry.id === result.projectId);
+      if (project) {
+        await selectProject(project, "studio");
+        focusComposer();
       }
     },
-    [focusComposer, selectProject],
+    [epoch, focusComposer, selectProject],
   );
 
   const boot = useCallback(async (): Promise<void> => {
@@ -611,8 +675,12 @@ export function Shell(): JSX.Element {
 
   useEffect(() => {
     if (!selected) return;
+    const projectId = selected.project.id;
     const timer = setTimeout(() => {
-      void window.mona.saveProjectView(selected.project.id, {
+      // Guard the write itself: the effect's cleanup cancels on a selection
+      // change, but a mixed view must never be stored against another project.
+      if (selectedRef.current?.project.id !== projectId) return;
+      void window.mona.saveProjectView(projectId, {
         screen,
         inspectorTab,
         studioMode,
@@ -623,24 +691,30 @@ export function Shell(): JSX.Element {
   }, [screen, inspectorTab, selected, studioMode, focusMode]);
 
   const openFolder = useCallback(async (): Promise<void> => {
-    setBusy(true);
+    const token = epoch.current();
+    beginBusy();
     setError(null);
-    const result = await window.mona.openProject();
-    setBusy(false);
-    if (!result.ok) {
-      setError(`${result.error.code}: ${result.error.message}`);
-      return;
+    try {
+      const result = await window.mona.openProject();
+      if (!result.ok) {
+        reportError(token, "Open folder", result.error);
+        return;
+      }
+      if (!result.value) {
+        setNotice("Folder selection canceled.");
+        return;
+      }
+      setNotice(
+        result.value.created ? "Project added to the catalog." : "Project opened from the catalog.",
+      );
+      await refreshCatalog();
+      // The user asked for this folder explicitly: a newer explicit selection
+      // still wins, so only select when nothing newer happened meanwhile.
+      if (epoch.isCurrent(token)) await selectProject(result.value.project, "studio");
+    } finally {
+      endBusy();
     }
-    if (!result.value) {
-      setNotice("Folder selection canceled.");
-      return;
-    }
-    setNotice(
-      result.value.created ? "Project added to the catalog." : "Project opened from the catalog.",
-    );
-    await refreshCatalog();
-    await selectProject(result.value.project, "studio");
-  }, [refreshCatalog, selectProject]);
+  }, [beginBusy, endBusy, epoch, refreshCatalog, reportError, selectProject]);
   openFolderRef.current = () => void openFolder();
   toggleFocusModeRef.current = toggleFocusMode;
 
@@ -656,45 +730,65 @@ export function Shell(): JSX.Element {
         if (selection.error) setError(selection.error);
         return;
       }
-      setBusy(true);
-      const result = await window.mona.openDroppedFolder(selection.path);
-      setBusy(false);
-      if (!result.ok) {
-        setError(`${result.error.code}: ${result.error.message}`);
-        return;
+      beginBusy();
+      try {
+        const result = await window.mona.openDroppedFolder(selection.path);
+        if (!result.ok) {
+          setError(`${result.error.code}: ${result.error.message}`);
+          return;
+        }
+        await handleOpenResult(result.value.result);
+      } finally {
+        endBusy();
       }
-      await handleOpenResult(result.value.result);
     },
-    [handleOpenResult],
+    [beginBusy, endBusy, handleOpenResult],
   );
 
   const performProjectAction = useCallback(
     async (
       work: () => Promise<IpcResult<ProjectSummary>>,
-      options: { success?: string; refreshDetail?: boolean } = {},
+      options: { success?: string; refreshDetail?: boolean; projectName?: string } = {},
     ): Promise<void> => {
-      setBusy(true);
+      const token = epoch.current();
+      const wasSelected = selectedRef.current?.project.id ?? null;
+      beginBusy();
       setError(null);
-      const result = await work();
-      setBusy(false);
-      if (!result.ok) {
-        setError(`${result.error.code}: ${result.error.message}`);
-        return;
-      }
-      if (options.success) setNotice(options.success);
-      await refreshCatalog();
-      if (options.refreshDetail && selectedRef.current?.project.id === result.value.id) {
-        await selectProject(result.value);
+      try {
+        const result = await work();
+        if (!result.ok) {
+          reportError(token, options.projectName ?? "Project", result.error);
+          return;
+        }
+        if (options.success) setNotice(options.success);
+        await refreshCatalog();
+        // A pin/rename may only reopen the project it changed, and only while
+        // the user is still on it. A slow rename of A must not pull the view
+        // back from B.
+        if (
+          options.refreshDetail &&
+          epoch.isCurrent(token) &&
+          selectedRef.current?.project.id === result.value.id &&
+          result.value.id === wasSelected
+        ) {
+          await selectProject(result.value);
+        }
+      } finally {
+        endBusy();
       }
     },
-    [refreshCatalog, selectProject],
+    [beginBusy, endBusy, epoch, refreshCatalog, reportError, selectProject],
   );
 
   const togglePin = useCallback(
     (project: ProjectSummary) => {
       void performProjectAction(
         () => window.mona.setProjectPinned(project.id, !project.pinned, project.revision),
-        { success: project.pinned ? "Project unpinned." : "Project pinned.", refreshDetail: true },
+        {
+          success: project.pinned ? "Project unpinned." : "Project pinned.",
+          refreshDetail: true,
+          projectName: project.name,
+        },
       );
     },
     [performProjectAction],
@@ -708,6 +802,7 @@ export function Shell(): JSX.Element {
           success: project.archived
             ? "Project restored from archive."
             : "Project archived; source untouched.",
+          projectName: project.name,
         },
       );
     },
@@ -716,23 +811,27 @@ export function Shell(): JSX.Element {
 
   const relocate = useCallback(
     async (project: ProjectSummary): Promise<void> => {
-      setBusy(true);
+      const token = epoch.current();
+      beginBusy();
       setError(null);
-      const result = await window.mona.relocateProject(project.id, project.revision);
-      setBusy(false);
-      if (!result.ok) {
-        setError(`${result.error.code}: ${result.error.message}`);
-        return;
+      try {
+        const result = await window.mona.relocateProject(project.id, project.revision);
+        if (!result.ok) {
+          reportError(token, project.name, result.error);
+          return;
+        }
+        if (!result.value) {
+          setNotice("Relocation canceled.");
+          return;
+        }
+        reportNotice(token, project.name, "Project rebound to the new folder.");
+        await refreshCatalog();
+        if (epoch.isCurrent(token)) await selectProject(result.value);
+      } finally {
+        endBusy();
       }
-      if (!result.value) {
-        setNotice("Relocation canceled.");
-        return;
-      }
-      setNotice("Project rebound to the new folder.");
-      await refreshCatalog();
-      await selectProject(result.value);
     },
-    [refreshCatalog, selectProject],
+    [beginBusy, endBusy, epoch, refreshCatalog, reportNotice, reportError, selectProject],
   );
 
   const reveal = useCallback((project: ProjectSummary) => {
@@ -749,7 +848,7 @@ export function Shell(): JSX.Element {
     setDialog(null);
     await performProjectAction(
       () => window.mona.renameProject(dialog.project.id, name, dialog.project.revision),
-      { success: "Project label renamed.", refreshDetail: true },
+      { success: "Project label renamed.", refreshDetail: true, projectName: dialog.project.name },
     );
   }, [dialog, performProjectAction]);
 
@@ -757,112 +856,182 @@ export function Shell(): JSX.Element {
     if (!dialog || dialog.kind !== "remove") return;
     const project = dialog.project;
     setDialog(null);
-    setBusy(true);
-    const result = await window.mona.removeProject(project.id, project.revision);
-    setBusy(false);
-    if (!result.ok) {
-      setError(`${result.error.code}: ${result.error.message}`);
-      return;
+    const token = epoch.current();
+    beginBusy();
+    try {
+      const result = await window.mona.removeProject(project.id, project.revision);
+      if (!result.ok) {
+        reportError(token, project.name, result.error);
+        return;
+      }
+      if (epoch.isCurrent(token) && selectedRef.current?.project.id === project.id) {
+        // Invalidate any load still in flight for the removed project, and drop
+        // its draft with it.
+        epoch.begin();
+        drafts.close();
+        setSelected(null);
+        setStudio(null);
+        setScreen("home");
+      }
+      reportNotice(
+        token,
+        project.name,
+        "Removed from the catalog. The source folder was not touched.",
+      );
+      await refreshCatalog();
+    } finally {
+      endBusy();
     }
-    if (selectedRef.current?.project.id === project.id) {
-      setSelected(null);
-      setDraft("");
-      draftRef.current = { projectId: null, threadId: null, text: "" };
-      setScreen("home");
-    }
-    setNotice("Removed from the catalog. The source folder was not touched.");
-    await refreshCatalog();
-  }, [dialog, refreshCatalog]);
+  }, [beginBusy, dialog, drafts, endBusy, epoch, refreshCatalog, reportNotice, reportError]);
 
   const startStudio = useCallback(async (): Promise<void> => {
-    const project = selectedRef.current?.project.id;
-    if (!project) return;
+    const current = selectedRef.current;
+    if (!current) return;
+    const token = epoch.current();
+    const name = current.project.name;
     setStudioBusy(true);
-    const result = await window.mona.startStudio(project);
-    setStudioBusy(false);
-    if (!result.ok) {
-      setError(`${result.error.code}: ${result.error.message}`);
-      return;
+    try {
+      const result = await window.mona.startStudio(current.project.id);
+      if (!result.ok) {
+        reportError(token, name, result.error);
+        return;
+      }
+      if (epoch.isCurrent(token)) setStudio(result.value);
+      reportNotice(
+        token,
+        name,
+        result.value.connection.state === "connected"
+          ? "Owned runtime connected to this workspace."
+          : result.value.connection.reason,
+      );
+      await refreshSelected();
+    } finally {
+      setStudioBusy(false);
     }
-    setStudio(result.value);
-    setNotice(
-      result.value.connection.state === "connected"
-        ? "Owned runtime connected to this workspace."
-        : result.value.connection.reason,
-    );
-    await refreshSelected();
-  }, [refreshSelected]);
+  }, [epoch, refreshSelected, reportError, reportNotice]);
 
   const submitTask = useCallback(async (): Promise<void> => {
     const current = selectedRef.current;
-    if (!current) return;
-    const prompt = draftRef.current.text;
-    if (prompt.trim().length === 0) {
+    const view = drafts.current();
+    if (!current || !view) return;
+    if (view.text.trim().length === 0) {
       setError("A task prompt must not be empty.");
       return;
     }
-    await flushDraft();
+    // Immutable identity, captured before the first await. The bytes that are
+    // sent, the thread they belong to, and the draft revision they came from
+    // cannot drift afterwards.
+    const identity: SubmissionIdentity = {
+      projectId: current.project.id,
+      threadId: view.threadId,
+      draftRevision: view.revision,
+      text: view.text,
+      mode: studioMode,
+    };
+    // Claims synchronously, so a click plus ⌘Enter (or a repeated key) can
+    // never dispatch twice, even before React re-renders `studioBusy`.
+    if (!submission.claim(identity)) return;
+    const token = epoch.current();
+    const name = current.project.name;
     setStudioBusy(true);
-    const result = await window.mona.submitTask(current.project.id, prompt, studioMode);
-    setStudioBusy(false);
-    if (!result.ok) {
-      setError(`${result.error.code}: ${result.error.message}`);
-      return;
+    try {
+      // Persist whatever is newest before sending; a failure here is reported
+      // but does not silently block the submission the user asked for.
+      await flushDraft();
+      const result = await window.mona.submitTask(identity.projectId, identity.text, identity.mode);
+      if (!result.ok) {
+        reportError(token, name, result.error);
+        return;
+      }
+      if (epoch.isCurrent(token)) setStudio(result.value.snapshot);
+      if (result.value.outcome === "accepted") {
+        const cleared = drafts.acceptSent(identity);
+        const turnSuffix = result.value.turnId ? `: ${result.value.turnId}` : ".";
+        reportNotice(
+          token,
+          name,
+          cleared === "cleared"
+            ? `Turn accepted${result.value.turnId ? turnSuffix : "."}`
+            : cleared === "preserved"
+              ? `Turn accepted${result.value.turnId ? turnSuffix : "."} Text typed since sending was kept.`
+              : `Turn accepted${result.value.turnId ? turnSuffix : "."}`,
+        );
+      } else if (result.value.outcome === "outcome_unknown") {
+        reportNotice(
+          token,
+          name,
+          result.value.guidance ?? "Outcome unknown: reconcile the lookup before resending.",
+          "attention",
+        );
+      } else {
+        reportNotice(token, name, result.value.note ?? "The runtime did not accept the turn.");
+      }
+      await refreshSelected();
+    } finally {
+      submission.release(identity);
+      setStudioBusy(false);
     }
-    setStudio(result.value.snapshot);
-    if (result.value.outcome === "accepted") {
-      setDraft("");
-      draftRef.current = { ...draftRef.current, text: "" };
-      const threadId = draftRef.current.threadId ?? current.threads[0]?.id;
-      if (threadId) await window.mona.saveDraft(current.project.id, threadId, "");
-      setDraftStatus("idle");
-      setNotice(`Turn accepted${result.value.turnId ? `: ${result.value.turnId}` : ""}.`);
-    } else if (result.value.outcome === "outcome_unknown") {
-      setNotice(result.value.guidance ?? "Outcome unknown: reconcile the lookup before resending.");
-    } else {
-      setNotice(result.value.note ?? "The runtime did not accept the turn.");
-    }
-    await refreshSelected();
-  }, [flushDraft, refreshSelected, studioMode]);
+  }, [
+    drafts,
+    epoch,
+    flushDraft,
+    refreshSelected,
+    reportError,
+    reportNotice,
+    studioMode,
+    submission,
+  ]);
 
   const runStudioAction = useCallback(
     async (
       action: (projectId: ProjectId) => Promise<IpcResult<StudioActionResult>>,
     ): Promise<void> => {
-      const project = selectedRef.current?.project.id;
-      if (!project) return;
+      const current = selectedRef.current;
+      if (!current) return;
+      const token = epoch.current();
+      const name = current.project.name;
       setStudioBusy(true);
-      const result = await action(project);
-      setStudioBusy(false);
-      if (!result.ok) {
-        setError(`${result.error.code}: ${result.error.message}`);
-        return;
+      try {
+        const result = await action(current.project.id);
+        if (!result.ok) {
+          reportError(token, name, result.error);
+          return;
+        }
+        if (epoch.isCurrent(token)) setStudio(result.value.snapshot);
+        reportNotice(token, name, result.value.note);
+        await refreshSelected();
+      } finally {
+        setStudioBusy(false);
       }
-      setStudio(result.value.snapshot);
-      setNotice(result.value.note);
-      await refreshSelected();
     },
-    [refreshSelected],
+    [epoch, refreshSelected, reportError, reportNotice],
   );
 
   const reconcileStudio = useCallback(async (): Promise<void> => {
-    const project = selectedRef.current?.project.id;
-    if (!project) return;
+    const current = selectedRef.current;
+    if (!current) return;
+    const token = epoch.current();
+    const name = current.project.name;
     setStudioBusy(true);
-    const result = await window.mona.reconcileSubmission(project);
-    setStudioBusy(false);
-    if (!result.ok) {
-      setError(`${result.error.code}: ${result.error.message}`);
-      return;
+    try {
+      const result = await window.mona.reconcileSubmission(current.project.id);
+      if (!result.ok) {
+        reportError(token, name, result.error);
+        return;
+      }
+      if (epoch.isCurrent(token)) setStudio(result.value.snapshot);
+      reportNotice(
+        token,
+        name,
+        `Reconciliation: ${result.value.status}${
+          result.value.guidance ? ` · ${result.value.guidance}` : ""
+        }`,
+      );
+      await refreshSelected();
+    } finally {
+      setStudioBusy(false);
     }
-    setStudio(result.value.snapshot);
-    setNotice(
-      `Reconciliation: ${result.value.status}${
-        result.value.guidance ? ` · ${result.value.guidance}` : ""
-      }`,
-    );
-    await refreshSelected();
-  }, [refreshSelected]);
+  }, [epoch, refreshSelected, reportError, reportNotice]);
 
   const openCapabilityEntry = useCallback(
     (entry: {
@@ -1424,7 +1593,7 @@ export function Shell(): JSX.Element {
             onToggleFocus={toggleFocusMode}
             onUseFavorite={useFavorite}
             onRequestSaveFavorite={() =>
-              setFavoriteDialog({ label: "", text: draftRef.current.text })
+              setFavoriteDialog({ label: "", text: drafts.current()?.text ?? "" })
             }
             onRemoveFavorite={(id) => void removeFavorite(id)}
           />
@@ -1882,7 +2051,12 @@ export function Shell(): JSX.Element {
               variant="danger"
               onClick={() => {
                 setQuitOpen(false);
-                void window.mona.quitMona(true);
+                // Persist whatever the composer holds before the app goes away;
+                // the quit decision itself is unchanged.
+                void (async () => {
+                  await flushDraft();
+                  await window.mona.quitMona(true);
+                })();
               }}
             >
               Quit and interrupt

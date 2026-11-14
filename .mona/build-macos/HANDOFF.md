@@ -25,8 +25,14 @@ P00–P27 board, its requirements or its attempt counts.
   regression tests confirmed to fail without the fixes and pass with them.
   Focused 24 → 29 tests, full suite 791 → 796 in 79 files, typecheck clean,
   lint 0 errors, format:check green, `smoke:shell` 127/127.
-- **Next review task:** R01 (lossless drafts and async navigation) or R02
-  (identity-aware history), both eligible. `.mona/build-macos/reviews/
+- **R01 completed (2026-11-14):** the composer is owned by a draft journal with
+  per-key serialized writes and revision-checked acknowledgements, and every
+  async completion in the shell is scoped to a selection epoch (A→B→A
+  included). Six pre-fix race tests fail on the R00 shell and pass now; 819
+  tests in 81 files, shell smoke 127/127. Evidence:
+  `docs/evidence/macos/review-studio/R01-drafts-and-navigation.md`.
+- **Next review task:** R02 (identity-aware history and paging) or R03 (slash
+  command catalog), both eligible. `.mona/build-macos/reviews/
   studio-v2/HANDOFF.md` carries the exact first action.
 - **Original ledger hygiene:** P10/P19 `store.ts` evidence hashes were
   re-recorded only after the suite passed on the new bytes and carry a note

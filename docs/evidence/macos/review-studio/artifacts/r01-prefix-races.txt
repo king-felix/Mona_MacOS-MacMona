@@ -1,0 +1,139 @@
+# R01 pre-fix observation 2026-11-14T04:36:33Z
+
+Shell.tsx reverted to its R00 state; the R01 session module and its tests kept.
+$ npx vitest run test/shell-races.test.tsx
+
+ RUN  v5.1.0 ~/DS_Projects/Mona
+
+ ❯ test/shell-races.test.tsx (9 tests | 6 failed) 1704ms
+   ❯ shell selection epochs (2)
+     × a slow A load cannot replace a later B selection 79ms
+     × A→B→A applies the newest load, not the first one for the same project 54ms
+   ❯ shell submission identity (4)
+     × keeps text typed during a send and sends exactly the claimed bytes 58ms
+     ✓ clears the composer when nothing changed during the send 48ms
+     × a switch during a send leaves the new project's draft untouched 68ms
+     × a repeated click and Command-Enter dispatch exactly once 40ms
+   ❯ shell draft saving (3)
+     × never reports newer text saved when an older acknowledgement arrives late 655ms
+     ✓ keeps the text and says so when a save is rejected 656ms
+     ✓ a restart restores the stored draft and sends nothing 45ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/shell-races.test.tsx > shell selection epochs > a slow A load cannot replace a later B selection
+AssertionError: expected 'Alpha' to be 'Beta' // Object.is equality
+
+Expected: "Beta"
+Received: "Alpha"
+
+ ❯ test/shell-races.test.tsx:430:27
+    428|     });
+    429|     await tick(6);
+    430|     expect(headerTitle()).toBe("Beta");
+       |                           ^
+    431|   });
+    432|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  test/shell-races.test.tsx > shell selection epochs > A→B→A applies the newest load, not the first one for the same project
+AssertionError: expected <textarea …(5)></textarea> to be null
+
+- Expected:
+null
+
++ Received:
+<textarea
+  aria-describedby="field-_r_u_-hint"
+  class="input input--area"
+  id="field-_r_u_"
+  placeholder="Describe one concrete outcome, its boundaries, and how to verify it…"
+  rows="3"
+>
+  stale A draft
+</textarea>
+
+ ❯ test/shell-races.test.tsx:458:50
+    456|     // The stale load must not apply at all: the shell stays on the ca…
+    457|     // instead of opening A with the old payload.
+    458|     expect(container!.querySelector("textarea")).toBeNull();
+       |                                                  ^
+    459|     expect(headerTitle()).not.toBe("Alpha");
+    460|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  test/shell-races.test.tsx > shell submission identity > keeps text typed during a send and sends exactly the claimed bytes
+AssertionError: expected '' to be 'Ship the fix, then update the notes.' // Object.is equality
+
+- Expected
++ Received
+
+- Ship the fix, then update the notes.
+
+ ❯ test/shell-races.test.tsx:490:30
+    488|     await tick(8);
+    489|     expect(state.submitCalls).toHaveLength(1);
+    490|     expect(textarea().value).toBe("Ship the fix, then update the notes…
+       |                              ^
+    491|     // The newer text is queued by the normal debounce, then acknowled…
+    492|     await wait(600);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  test/shell-races.test.tsx > shell submission identity > a switch during a send leaves the new project's draft untouched
+AssertionError: expected '' to be 'B work in progress' // Object.is equality
+
+- Expected
++ Received
+
+- B work in progress
+
+ ❯ test/shell-races.test.tsx:536:30
+    534|     });
+    535|     await tick(8);
+    536|     expect(textarea().value).toBe("B work in progress");
+       |                              ^
+    537|     expect(state.saveCalls.some((call) => call.projectId === B && call…
+    538|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  test/shell-races.test.tsx > shell submission identity > a repeated click and Command-Enter dispatch exactly once
+AssertionError: expected [ { …(3) }, { …(3) }, { …(3) } ] to have a length of 1 but got 3
+
+- Expected
++ Received
+
+- 1
++ 3
+
+ ❯ test/shell-races.test.tsx:552:31
+    550|     commandEnter();
+    551|     await tick(4);
+    552|     expect(state.submitCalls).toHaveLength(1);
+       |                               ^
+    553|
+    554|     await act(async () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  test/shell-races.test.tsx > shell draft saving > never reports newer text saved when an older acknowledgement arrives late
+AssertionError: expected 'Draft saved locally' not to contain 'Draft saved locally'
+ ❯ test/shell-races.test.tsx:592:29
+    590|     });
+    591|     await tick(6);
+    592|     expect(draftHint()).not.toContain("Draft saved locally");
+       |                             ^
+    593|     expect(textarea().value).toBe("first draft, extended");
+    594|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  6 failed | 3 passed (9)
+   Start at  21:36:33
+   Duration  2.05s (tests 87%, environment 9%, import 3%, transform 2%)
+

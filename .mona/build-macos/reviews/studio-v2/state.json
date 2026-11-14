@@ -37,8 +37,8 @@
     "attempts": ".mona/build-macos/attempts.jsonl",
     "requirement_registry": "docs/requirements-macos.json"
   },
-  "revision": 6,
-  "current_task": "R00",
+  "revision": 10,
+  "current_task": "R01",
   "current_task_status": "completed",
   "tasks": {
     "R00": {
@@ -213,7 +213,7 @@
       "updated_utc": "2026-11-14T04:30:00.000Z"
     },
     "R01": {
-      "status": "pending",
+      "status": "completed",
       "title": "Make drafts and asynchronous navigation lossless",
       "prerequisites": [
         "R00"
@@ -227,9 +227,33 @@
         "RV-01",
         "RV-02"
       ],
-      "source_hashes": [],
-      "acceptance_completed": [],
-      "acceptance_remaining": [
+      "source_hashes": [
+        {
+          "path": "src/renderer/shell/session.ts",
+          "sha256": "b1e7948199f7147ae63a76750a931cdca337d0468aab1006e2f61525fb6582f6",
+          "state": "current",
+          "note": "New at R01: SelectionEpoch, SubmissionGate, DraftJournal."
+        },
+        {
+          "path": "src/renderer/shell/Shell.tsx",
+          "sha256": "73e4691f095f82ddbd9e3f6dc42bc70f38e76255ad5a4523dbd234fe1a0cf882",
+          "state": "current",
+          "note": "Draft text now lives in the journal; every async completion is epoch-scoped."
+        },
+        {
+          "path": "test/shell-races.test.tsx",
+          "sha256": "c4805cc40a0a77b3e5368b73871a368098f175529d22f07fa322f781724b624f",
+          "state": "current",
+          "note": "Component-level deferred-promise race matrix."
+        },
+        {
+          "path": "test/shell-session.test.ts",
+          "sha256": "81763702c2574ccb4bae1f6ca79378042cf14aded18c107bcf3715cb4e733da9",
+          "state": "current",
+          "note": "Unit tests for the session primitives."
+        }
+      ],
+      "acceptance_completed": [
         "Selection/load epochs discard out-of-date detail and studio responses, including A→B→A",
         "Async busy/error/notice updates are scoped to the selection that produced them",
         "Immutable submission identity (project, thread, draft revision, text, mode) captured before the first await",
@@ -239,12 +263,85 @@
         "Rejected/uncertain submissions preserve text; save failures are surfaced and cleaned up in try/finally",
         "Deferred-promise tests cover typing during send, switch during send, reversed responses, delayed save acks, rejected IPC, duplicate submit, A→B→A and restart"
       ],
-      "tests": [],
-      "evidence": [],
+      "acceptance_remaining": [],
+      "tests": [
+        {
+          "command": "npx vitest run test/shell-races.test.tsx test/shell-session.test.ts",
+          "result": "passed",
+          "detail": "23 tests: 9 component-level races + 14 unit tests",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r01-tests.txt",
+          "captured_utc": "2026-11-14T04:45:00.000Z"
+        },
+        {
+          "command": "npx vitest run test/shell-races.test.tsx (Shell.tsx at its R00 state)",
+          "result": "failed",
+          "detail": "6 failed | 3 passed: the six pre-fix race failures",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r01-prefix-races.txt",
+          "captured_utc": "2026-11-14T04:36:33.000Z"
+        },
+        {
+          "command": "npm test",
+          "result": "passed",
+          "detail": "819 tests in 81 files (was 796/79)",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r01-tests.txt",
+          "captured_utc": "2026-11-14T04:45:00.000Z"
+        },
+        {
+          "command": "npm run typecheck",
+          "result": "passed",
+          "detail": "main and renderer, no errors",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r01-tests.txt",
+          "captured_utc": "2026-11-14T04:45:00.000Z"
+        },
+        {
+          "command": "npm run lint",
+          "result": "passed",
+          "detail": "0 errors, 3 pre-existing warnings",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r01-tests.txt",
+          "captured_utc": "2026-11-14T04:45:00.000Z"
+        },
+        {
+          "command": "npm run format:check",
+          "result": "passed",
+          "detail": "all files clean",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r01-tests.txt",
+          "captured_utc": "2026-11-14T04:45:00.000Z"
+        },
+        {
+          "command": "npm run smoke:shell",
+          "result": "passed",
+          "detail": "127/127 checks, Electron exit 0",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r01-shell-smoke.json",
+          "captured_utc": "2026-11-14T04:35:00.000Z"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/review-studio/R01-drafts-and-navigation.md",
+          "sha256": "37d04f0bc28a97cd1cebed28ef0159aff6661dd02de2c984a5de73fb7976fda2"
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r01-prefix-races.txt",
+          "sha256": "103e88cbf193c90b21af889d6cd9308111a8377d6688d035f3ccfe59e610e6ab"
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r01-tests.txt",
+          "sha256": "1a0f352722c91922a6cec046655e270a410b1ab0abbb7884b7ad1d6a23c2e12f"
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r01-shell-smoke.json",
+          "sha256": "a91b6a595b9e911fd75f6909ee2cf7349114b028cb0e7df23ff5518ca9159607"
+        }
+      ],
       "attempt_problem_ids": [],
       "platform": "darwin-arm64",
-      "next_action": "Read Shell.tsx draft/submit paths and project bridge, then implement the epoch + single-flight submission contract with deferred-promise tests.",
-      "notes": []
+      "next_action": "",
+      "notes": [
+        "Writes are serialized per draft key in the renderer instead of adding a revision column in main: it is the only layer that knows the newest text, and it also fixes the late-acknowledgement half of RV-01, which a main-side CAS cannot.",
+        "A stale failure is still shown, labelled with its project name; a stale success notice is labelled the same way. Nothing is hidden to keep the UI tidy.",
+        "Favorite insertion, the quit dialog and project switches all go through the journal (flush before the key is replaced)."
+      ],
+      "updated_utc": "2026-11-14T04:45:00.000Z"
     },
     "R02": {
       "status": "pending",
@@ -722,9 +819,11 @@
     "RV-01": {
       "title": "Accepted send can erase newer draft text, including another project's draft",
       "priority": "high",
-      "status": "open",
+      "status": "verified",
       "task": "R01",
-      "evidence": [],
+      "evidence": [
+        "docs/evidence/macos/review-studio/R01-drafts-and-navigation.md"
+      ],
       "notes": [
         "Source-level race noted at Shell.tsx:796 in the reviewed baseline; not reproduced on this Mac."
       ]
@@ -732,9 +831,11 @@
     "RV-02": {
       "title": "Stale async project/runtime results can overwrite current UI",
       "priority": "high",
-      "status": "open",
+      "status": "verified",
       "task": "R01",
-      "evidence": [],
+      "evidence": [
+        "docs/evidence/macos/review-studio/R01-drafts-and-navigation.md"
+      ],
       "notes": []
     },
     "RV-03": {
@@ -869,7 +970,7 @@
       "status": "verified",
       "task": "R00",
       "evidence": [
-        "docs/evidence/macos/review-studio/R00-baseline.md"
+        "docs/evidence/macos/review-studio/R01-drafts-and-navigation.md"
       ],
       "notes": [
         "Landed with the verified hotfix at R00. R01 owns lossless single-flight submission; R05 owns composer resizing."
@@ -892,7 +993,7 @@
       "notes": []
     }
   },
-  "last_checkpoint_utc": "2026-11-14T04:25:24.075Z",
+  "last_checkpoint_utc": "2026-11-14T04:37:53.376Z",
   "notes": [
     "Subordinate ledger. The P00–P27 registry remains authoritative for product requirements; this registry tracks review tasks and findings only.",
     "Attempts continue in the shared attempts.jsonl; a review task ID never resets a count."

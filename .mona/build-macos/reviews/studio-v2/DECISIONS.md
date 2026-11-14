@@ -1,5 +1,36 @@
 # Decisions — Studio review (studio-v2)
 
+## RD-006 — Draft writes are serialized in the renderer, not CAS'd in main
+
+- **Date:** 2026-11-14 (R01)
+- **Context:** R01 allows either "serialize saves per draft key" or "enforce
+  revision/CAS ordering in main/storage" so an old save cannot overwrite newer
+  text.
+- **Decision:** `DraftJournal` (`src/renderer/shell/session.ts`) serializes writes
+  per `(project, thread)` key through a promise chain, keeps a revision per edit,
+  and only reports `saved` for the revision an acknowledgement actually wrote.
+  Main's `saveDraft` is unchanged.
+- **Why:** the renderer is the only layer that knows the newest text. A main-side
+  CAS would reject an older write, but it cannot stop an older *acknowledgement*
+  from labelling newer text "saved", which was half of RV-01. Serializing per key
+  also makes the final stored text the newest text by construction.
+- **Consequence:** one write per key is in flight at a time; a rejected write
+  stops the convergence loop, leaves the text in memory and reports the error.
+  The stored draft can lag the composer by one debounce (500 ms) or one flight,
+  never more, and text is never cleared except by `acceptSent` on an exact
+  revision match.
+
+## RD-007 — A stale outcome is labelled, never dropped
+
+- **Date:** 2026-11-14 (R01)
+- **Decision:** when an async completion belongs to a project the user has left,
+  its failure is still shown, prefixed with that project's name; its success
+  notice is prefixed the same way. `selected`/`studio` are not updated.
+- **Why:** hiding a failure to keep the screen tidy is dishonest; presenting it
+  as the current project's failure is misleading. Labelling keeps both true.
+- **Consequence:** errors can name a project that is not on screen. The Studio
+  itself never shows another project's data.
+
 Durable choices made while carrying out the MacMona Studio review. These are
 subordinate to the original product decisions (`.mona/build-macos/DECISIONS.md`,
 D-001…D-103) and never replace them.
