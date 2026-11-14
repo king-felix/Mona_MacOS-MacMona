@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 1068,
+  "revision": 1069,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -2521,7 +2521,20 @@
         "Run npm run mac:release:preflight, then npm run mac:release -- --keychain-profile mona-release, then npm run mac:verify-release",
         "Record the accepted submission id, the notary log, the stapled ticket, spctl acceptance and the installed nested execution path as P22 evidence"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P22-trust.md",
+          "sha256": "d82be73753b30c10744f543621b32cd64d9fbac8a2d31c85a9ae3e80386a003a"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p22-preflight.json",
+          "sha256": "96210158fb4e15ff84b7d083f5978ccce578a01c953ea12bc529c6a0410a7c31"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p22-release-refusal.json",
+          "sha256": "160289dae8f40cf7d2ea6a6bd3d80518f43ace4be561eb31fe05528514a0e246"
+        }
+      ],
       "blocker_ids": [
         "EXT-SIGNING"
       ],
@@ -2637,7 +2650,7 @@
     "P22",
     "P25"
   ],
-  "last_checkpoint_utc": "2026-11-14T10:01:43.080Z",
+  "last_checkpoint_utc": "2026-11-14T10:02:33.757Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

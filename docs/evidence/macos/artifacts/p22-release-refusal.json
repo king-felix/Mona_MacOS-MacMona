@@ -1,0 +1,10 @@
+{
+  "ok": false,
+  "command": "release",
+  "stage": "preflight",
+  "problems": [
+    "no \"Developer ID Application\" identity is installed",
+    "no \"Developer ID Installer\" identity is installed",
+    "no notarization credential is configured: pass --keychain-profile <name>, or set MONA_NOTARY_APPLE_ID, MONA_NOTARY_TEAM_ID and MONA_NOTARY_PASSWORD, or MONA_NOTARY_API_KEY"
+  ]
+}
