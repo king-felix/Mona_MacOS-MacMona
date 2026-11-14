@@ -7,22 +7,34 @@ is not, so nothing here has to be taken on trust.
 
 ## Install and launch
 
+- **Installing the latest build is one command:**
+
+  ```sh
+  npm run mac:install
+  ```
+
+  It builds, packages, installs with `sudo` (your own terminal prompts for the
+  password), then verifies the installed copy against the artifact it just built,
+  including that the whole content digest matches — so it cannot report success
+  for an older copy. To do the steps separately, run `npm run mac:package:local`
+  and then:
+
+  ```sh
+  sudo installer -pkg packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg -target /
+  ```
+
+- **A disk image is made on request, not on every build.** `mac:package:dmg`
+  writes a `.dmg` into `packaging/macos/out/`; mount it and drag Mona to
+  Applications. One difference matters: the image installs the **app only**,
+  while the package also updates the Finder Service at
+  `/Library/Services/Mona.service`. If the Service ever behaves oddly after an
+  image install, install the package. Both artifacts are verified from their own
+  bytes after they are written.
 - **There is no shareable release, by decision.** Mona is built and used on the
   machine that builds it. There is no Developer ID signature and no notarization
   ticket (`mac:release` refuses without them, and stays that way), so macOS
   refuses this build on any other Mac. Anyone else who wants Mona builds it from
-  source: `npm install && npm run mac:package:local` for the installer, or
-  `npm run mac:package:dmg` for a disk image you can drag to Applications.
-- **The disk image** is `packaging/macos/out/Mona-0.1.0-macOS-arm64-local.dmg`.
-  It contains the app, a pointer to Applications, this guide, and a README that
-  states the local-only signing tier. Mount it, drag Mona to Applications, open
-  it. The image is verified from its own bytes after it is written (`npm run
-mac:package:dmg` prints `ok: true` only when the app inside is byte-identical
-  to the app that went in).
-- **The installer package** is `packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg`.
-  It does more than the image — it also installs the Finder Service to
-  `/Library/Services/Mona.service` — so it needs administrator authorization:
-  `sudo installer -pkg packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg -target /`.
+  source.
 - **Requires macOS 14.0 or later; tested on macOS 26.5.1.** The floor is declared
   and enforced by the installer. It has not been executed on a 14.x host, and
   this guide does not claim it has.

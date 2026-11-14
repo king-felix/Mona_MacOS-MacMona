@@ -102,11 +102,13 @@ the committed file is damaged and preserves the damaged copy for diagnosis.
 
 ## Product build commands (as they land)
 
-The macOS build will expose `mac:doctor`, `mac:bootstrap`, `mac:dev`,
-`mac:test`, `mac:package:local`, `mac:release:preflight`, `mac:release`, and
-`mac:verify-release` (spec §21). Until P02 establishes the desktop scaffold,
-only the build-ledger utility above exists. Do not create product scaffolding
-before its prompt.
+The macOS build exposes `mac:doctor`, `mac:bootstrap`, `mac:dev`, `mac:test`,
+`mac:package:local`, `mac:install`, `mac:release:preflight`, `mac:release`, and
+`mac:verify-release` (spec §21). `mac:install` builds, packages and installs the
+result with `sudo`, then runs the install-side gates against the installed copy;
+`mac:package:dmg` exists but is on request only and is not part of the build loop.
+`mac:release` is implemented and fails closed: the owner has decided there is no
+Apple Developer account, so distribution is local and build-it-yourself (D-103).
 
 ## Conflict policy
 

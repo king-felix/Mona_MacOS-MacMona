@@ -1990,3 +1990,32 @@ and the smoke measures it rather than asserting it is pretty.
   satisfies its dependants, a blocked one does not").
 - **Why:** `skipped` means "decided not to do this", which is a settled outcome;
   conflating it with "not done yet" would misreport what is actionable.
+
+## D-107 — The install is one authorized command; the image is on request
+
+- **Date:** 2026-11-14 (owner request)
+- **Context:** installing the latest build took three steps with a deliberate
+  failure in the middle: `mac:package:local` refused at the `installed_copy` gate
+  because `/Applications` still held the previous build, then the operator ran
+  `sudo installer`, then re-ran the packaging command to close the gates. The
+  gate is right; the ritual around it was not. The owner also said a disk image
+  is wanted only on request.
+- **Decision — `npm run mac:install` performs the whole cycle.** It builds and
+  packages exactly as `mac:package:local` does, installs that package with
+  `sudo` on the caller's own terminal, then runs the install-side gates against
+  the result. The gate is not skipped: `copyToApplications` still compares the
+  full content digest, and it now re-checks *after* installing and refuses to
+  certify a copy that does not match the artifact built in the same run.
+- **Decision — no silent authorization.** `sudo -n` is not used. If the run has
+  no terminal it refuses immediately with the two remedies, because a subprocess
+  waiting on a password prompt that can never arrive is worse than a refusal.
+  This was observed: the first implementation hung on `sudo installer` with
+  stdin closed; the guard and a ten-minute deadline are the fix.
+- **Decision — the DMG is on request.** `mac:package:dmg` stays (it is the local
+  image, verified from its own bytes) but is not run by `mac:install`, by
+  `mac:package:local`, or by CI. Its cost is a second ~170 MB artifact and a full
+  copy; there is no reason to pay that on every build.
+- **Consequence:** the ordinary loop is `npm run mac:install`. The image is
+  `npm run mac:package:dmg` when asked. The difference between the two is stated
+  in the owner guide: the image installs the app only, the package also updates
+  the Finder Service.

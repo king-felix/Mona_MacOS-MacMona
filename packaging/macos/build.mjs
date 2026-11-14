@@ -85,6 +85,8 @@ const TOOLS = {
   ditto: "/usr/bin/ditto",
   swiftc: ["xcrun", ["--sdk", "macosx", "swiftc"]],
   security: "/usr/bin/security",
+  installer: "/usr/sbin/installer",
+  sudo: "/usr/bin/sudo",
   lsregister:
     "/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister",
 };
@@ -97,6 +99,16 @@ function option(name, fallback) {
   const index = args.indexOf(name);
   return index >= 0 && args[index + 1] ? args[index + 1] : fallback;
 }
+
+/**
+ * `--install` closes the loop the gate describes: the package this run just
+ * built is installed with administrator authorization and the install-side gates
+ * then run against it, in the same invocation. The gate is not skipped or
+ * weakened — `copyToApplications` still compares the whole content digest before
+ * and after; it is given a way to *reach* the matching state instead of only
+ * reporting that it is not there yet.
+ */
+const INSTALL = flag("--install");
 
 const mode = option("--mode", "local");
 if (mode !== "local" && mode !== "release") {
@@ -1289,7 +1301,7 @@ function plistValue(path, key) {
   return result.status === 0 ? result.stdout.trim() : null;
 }
 
-function copyToApplications(appBundle) {
+function copyToApplications(appBundle, packageFile) {
   const target = "/Applications/Mona.app";
   if (existsSync(target)) {
     const channelAtTarget = plistValue(join(target, "Contents/Info.plist"), "MonaBuildChannel");
@@ -1304,10 +1316,60 @@ function copyToApplications(appBundle) {
     // for the package to be installed first instead of silently smoking an old
     // copy.
     if (appDigest(target) !== appDigest(appBundle)) {
-      fail(
-        `the installed copy at ${target} is not this build; install ` +
-          `${basename(packageFileName({ version, channel }))} with administrator authorization, then re-run`,
-      );
+      if (!INSTALL) {
+        fail(
+          `the installed copy at ${target} is not this build; install ` +
+            `${basename(packageFileName({ version, channel }))} with administrator authorization, ` +
+            "or re-run with --install (npm run mac:install) to do it in this run",
+        );
+      }
+      // The installed copy is the previous build. Installing is the authorized
+      // step, so it is performed here with the caller's own terminal: `sudo`
+      // prompts for the password it needs and nothing is cached or replayed.
+      log(`installing ${basename(packageFile)} over ${target} (administrator authorization)`);
+      // `sudo` rather than `installer` directly: the package is root-owned, and
+      // the authorization belongs to the person running the command. Its prompt
+      // is the caller's own terminal; nothing here caches, replays or bypasses a
+      // credential, and `sudo -n` is deliberately not used because a silent
+      // failure is worse than a prompt.
+      // An authorization prompt needs a terminal. Without one sudo can sit
+      // waiting for input that will never arrive, which is worse than refusing:
+      // so this is checked before anything is attempted, and the run carries a
+      // deadline as well as the check.
+      if (!process.stdin.isTTY) {
+        fail(
+          "cannot prompt for administrator authorization because this run has no terminal. " +
+            "Run `npm run mac:install` in an interactive terminal, or install the package " +
+            `yourself with \`sudo installer -pkg ${basename(packageFile)} -target /\` and ` +
+            "re-run `npm run mac:package:local`.",
+        );
+      }
+      const installed = spawnSync(TOOLS.sudo, ["installer", "-pkg", packageFile, "-target", "/"], {
+        stdio: "inherit",
+        timeout: 10 * 60_000,
+      });
+      if (installed.status !== 0) {
+        fail(
+          "the installer did not complete. Run `npm run mac:install` in an interactive " +
+            "terminal so sudo can prompt, or install the package yourself with " +
+            `\`sudo installer -pkg ${basename(packageFile)} -target /\` and re-run ` +
+            "`npm run mac:package:local`. Nothing further was checked and no gate was " +
+            "recorded as passing.",
+        );
+      }
+      // Read back, not assumed: the same comparison the gate already performs.
+      if (appDigest(target) !== appDigest(appBundle)) {
+        fail(
+          `after installing, ${target} still does not match this build; ` +
+            "refusing to certify an installed copy that is not the artifact built here",
+        );
+      }
+      return {
+        path: target,
+        replaced: true,
+        matched_installed_copy: true,
+        installed_from: basename(packageFile),
+      };
     }
     return { path: target, replaced: false, matched_installed_copy: true };
   }
@@ -1940,7 +2002,7 @@ async function main() {
   log(`package report written: sha256=${packageReport.package_sha256.slice(0, 16)}…`);
 
   // Rehearse the service's own descriptor from the payload.
-  const installed = copyToApplications(join(payloadDir, APP_PATH));
+  const installed = copyToApplications(join(payloadDir, APP_PATH), packageFile);
   const smoke = runPackageSmoke(installed.path);
   if (!smoke.ok) fail("the installed package smoke failed", smoke);
   const guiHome = mkdtempSync(join(tmpdir(), "mona-p21-gui-"));

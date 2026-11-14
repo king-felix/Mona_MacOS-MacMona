@@ -8,10 +8,21 @@ uninstall lifetime are P23 (see `docs/decisions/ADR-016-update-and-lifecycle.md`
 
 ```sh
 npm run mac:doctor            # host, tools, artifacts, engine, identities (read-only)
-npm run mac:package:local     # build, sign ad-hoc, package, verify, install receipt
-npm run mac:package:dmg       # local disk image of the same app, verified from its own bytes
+npm run mac:install           # build, package, install it (sudo prompts), verify the installed copy
+npm run mac:package:local     # build, sign ad-hoc, package, verify — stops before installing
+npm run mac:package:dmg       # on request: a local disk image, verified from its own bytes
 npm run mac:package:release   # fails closed: there is no Developer ID identity here
 ```
+
+`mac:install` is the ordinary path to a running build: it packages exactly what
+`mac:package:local` does, then installs that package with `sudo` (the password
+prompt is your own terminal), then runs the install-side gates — the package
+smoke against the installed app, the LaunchServices launch, and the whole-content
+digest comparison that refuses to certify an installed copy which is not this
+build. Without `--install` the same run stops at that comparison and says so.
+
+`mac:package:dmg` is **not** part of the build loop and is not run by CI. It is
+made when someone asks for a disk image.
 
 **Distribution is local (D-103).** There is no Apple Developer account for this
 project and none will be obtained, so there is no signed, notarized, shareable

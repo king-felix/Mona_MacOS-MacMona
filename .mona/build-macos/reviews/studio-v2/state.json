@@ -37,7 +37,7 @@
     "attempts": ".mona/build-macos/attempts.jsonl",
     "requirement_registry": "docs/requirements-macos.json"
   },
-  "revision": 130,
+  "revision": 132,
   "current_task": "R15",
   "current_task_status": "completed",
   "tasks": {
@@ -2152,9 +2152,9 @@
         },
         {
           "path": "package.json",
-          "sha256": "4bd60bb1cdc18ab0ea603e46aad7ffcc252fa244d753aa22045d1274be8c721e",
+          "sha256": "7c0949e239b0798dcbd37c2104883832ded22ed384b91d0e76072aef38ed2af1",
           "state": "current",
-          "note": "2026-11-14 local-distribution pass: package.json gained mac:package:dmg; src/main/index.ts gained settled smoke waits; the verifier gained source_dirty. Re-recorded against current bytes with no assertion removed."
+          "note": "2026-11-14 (D-107): package.json and the owner guide changed when the install became one command and the DMG became on-request. Re-recorded against current bytes; no assertion removed."
         },
         {
           "path": "scripts/r11-smoke.mjs",
@@ -2300,9 +2300,9 @@
         },
         {
           "path": "package.json",
-          "sha256": "4bd60bb1cdc18ab0ea603e46aad7ffcc252fa244d753aa22045d1274be8c721e",
+          "sha256": "7c0949e239b0798dcbd37c2104883832ded22ed384b91d0e76072aef38ed2af1",
           "state": "current",
-          "note": "2026-11-14 local-distribution pass: package.json gained mac:package:dmg; src/main/index.ts gained settled smoke waits; the verifier gained source_dirty. Re-recorded against current bytes with no assertion removed."
+          "note": "2026-11-14 (D-107): package.json and the owner guide changed when the install became one command and the DMG became on-request. Re-recorded against current bytes; no assertion removed."
         },
         {
           "path": "package-lock.json",
@@ -2788,8 +2788,8 @@
         },
         {
           "path": "docs/owner-guide-macos.md",
-          "sha256": "ca8e97690dc399b27c38efc8a1984c02a9b5f98a22c6067ebdcc47ec28bad72b",
-          "note": "2026-11-14: the owner guide now states the local distribution tier, the declared-versus-tested OS claim and the Git dependency, per D-103/104/105."
+          "sha256": "acf13da04cc0e9b5ebf301399e0e0105cd41e116266887b3229ccfc960494ccb",
+          "note": "2026-11-14 (D-107): the guide now leads with npm run mac:install and states the image is on request, including the app-only versus app-plus-Service difference."
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r15-ci.txt",
@@ -3032,7 +3032,7 @@
       ]
     }
   },
-  "last_checkpoint_utc": "2026-11-14T19:48:15.786Z",
+  "last_checkpoint_utc": "2026-11-14T20:00:18.682Z",
   "notes": [
     "R11 completed: bounded console rendering with measured windowing, a nine-screen axe pass with four real a11y defects fixed, reduced motion and 200% scale measured, three visual regressions fixed, and the independent review's one blocker and three majors fixed with tests proven to fail on the old code. The memory budget is exceeded by the runtime floor and carried as a derived, named exception."
   ]

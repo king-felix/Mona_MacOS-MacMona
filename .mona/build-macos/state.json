@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 1359,
+  "revision": 1376,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -63,7 +63,8 @@
         },
         {
           "path": "AGENTS.md",
-          "sha256": "ef2f32c505270dc630ba52135192fb341afc43855fd7587af741065bd9b05624"
+          "sha256": "0bd3c6129c5f529220dae6dd3ae11dbfa78969e882cf95b0b0a422e15f020ceb",
+          "note": "2026-11-14 (D-107): re-recorded after the install path became one command (npm run mac:install / build.mjs --install) and the DMG was demoted to on-request. Shared files changed: package.json, packaging/macos/build.mjs, packaging/macos/README.md, AGENTS.md, the owner guide and the ledger. npm run ci passed on these bytes; no assertion was removed and no requirement was raised."
         },
         {
           "path": "docs/evidence/macos/artifacts/p00-adversarial-probes.txt",
@@ -83,8 +84,8 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "6844d3c7bbd3f9a6a3ca783ce0b38d4fe4f374fa7fdacd3a76be5a9c33cb7992",
-          "note": "2026-11-14 local-distribution pass (D-103/104/105): re-recorded after the owner decided the distribution tier (local .pkg + .dmg, no Developer ID), the OS claim (14.0 declared, 26.5.1 tested) and the Git dependency (documented, not bundled). Shared files changed: package.json (mac:package:dmg), packaging/macos/{build.mjs,dmg.mjs,README.md}, src/main/index.ts (settled smoke waits), scripts/r13-candidate-verify.mjs (source_dirty), tools/monabuild (skipped prerequisites), the ledgers and the guides. No assertion was removed and no requirement was raised."
+          "sha256": "65f497ff36047550a1bd132fde25d865462c4d7070a1436363578534a0565f04",
+          "note": "2026-11-14 (D-107): re-recorded after the install path became one command (npm run mac:install / build.mjs --install) and the DMG was demoted to on-request. Shared files changed: package.json, packaging/macos/build.mjs, packaging/macos/README.md, AGENTS.md, the owner guide and the ledger. npm run ci passed on these bytes; no assertion was removed and no requirement was raised."
         },
         {
           "path": "docs/evidence/macos/artifacts/p00-test-run.txt",
@@ -238,8 +239,8 @@
         },
         {
           "path": "package.json",
-          "sha256": "4bd60bb1cdc18ab0ea603e46aad7ffcc252fa244d753aa22045d1274be8c721e",
-          "note": "2026-11-14 local-distribution pass (D-103/104/105): re-recorded after the owner decided the distribution tier (local .pkg + .dmg, no Developer ID), the OS claim (14.0 declared, 26.5.1 tested) and the Git dependency (documented, not bundled). Shared files changed: package.json (mac:package:dmg), packaging/macos/{build.mjs,dmg.mjs,README.md}, src/main/index.ts (settled smoke waits), scripts/r13-candidate-verify.mjs (source_dirty), tools/monabuild (skipped prerequisites), the ledgers and the guides. No assertion was removed and no requirement was raised."
+          "sha256": "7c0949e239b0798dcbd37c2104883832ded22ed384b91d0e76072aef38ed2af1",
+          "note": "2026-11-14 (D-107): re-recorded after the install path became one command (npm run mac:install / build.mjs --install) and the DMG was demoted to on-request. Shared files changed: package.json, packaging/macos/build.mjs, packaging/macos/README.md, AGENTS.md, the owner guide and the ledger. npm run ci passed on these bytes; no assertion was removed and no requirement was raised."
         },
         {
           "path": "package-lock.json",
@@ -286,8 +287,8 @@
         },
         {
           "path": "packaging/macos/README.md",
-          "sha256": "6394e4cd200e05db5a29172f1aca49989ea8ce6d7862c8638db77b43dc52f663",
-          "note": "2026-11-14 local-distribution pass (D-103/104/105): re-recorded after the owner decided the distribution tier (local .pkg + .dmg, no Developer ID), the OS claim (14.0 declared, 26.5.1 tested) and the Git dependency (documented, not bundled). Shared files changed: package.json (mac:package:dmg), packaging/macos/{build.mjs,dmg.mjs,README.md}, src/main/index.ts (settled smoke waits), scripts/r13-candidate-verify.mjs (source_dirty), tools/monabuild (skipped prerequisites), the ledgers and the guides. No assertion was removed and no requirement was raised."
+          "sha256": "4f853f8d64a506b7133ec9607518fd734c758932d43e5d417aa58e25309f2468",
+          "note": "2026-11-14 (D-107): re-recorded after the install path became one command (npm run mac:install / build.mjs --install) and the DMG was demoted to on-request. Shared files changed: package.json, packaging/macos/build.mjs, packaging/macos/README.md, AGENTS.md, the owner guide and the ledger. npm run ci passed on these bytes; no assertion was removed and no requirement was raised."
         },
         {
           "path": "src/main/index.ts",
@@ -572,8 +573,8 @@
         },
         {
           "path": "package.json",
-          "sha256": "4bd60bb1cdc18ab0ea603e46aad7ffcc252fa244d753aa22045d1274be8c721e",
-          "note": "2026-11-14 local-distribution pass (D-103/104/105): re-recorded after the owner decided the distribution tier (local .pkg + .dmg, no Developer ID), the OS claim (14.0 declared, 26.5.1 tested) and the Git dependency (documented, not bundled). Shared files changed: package.json (mac:package:dmg), packaging/macos/{build.mjs,dmg.mjs,README.md}, src/main/index.ts (settled smoke waits), scripts/r13-candidate-verify.mjs (source_dirty), tools/monabuild (skipped prerequisites), the ledgers and the guides. No assertion was removed and no requirement was raised."
+          "sha256": "7c0949e239b0798dcbd37c2104883832ded22ed384b91d0e76072aef38ed2af1",
+          "note": "2026-11-14 (D-107): re-recorded after the install path became one command (npm run mac:install / build.mjs --install) and the DMG was demoted to on-request. Shared files changed: package.json, packaging/macos/build.mjs, packaging/macos/README.md, AGENTS.md, the owner guide and the ledger. npm run ci passed on these bytes; no assertion was removed and no requirement was raised."
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
@@ -755,13 +756,13 @@
         },
         {
           "path": "package.json",
-          "sha256": "4bd60bb1cdc18ab0ea603e46aad7ffcc252fa244d753aa22045d1274be8c721e",
-          "note": "2026-11-14 local-distribution pass (D-103/104/105): re-recorded after the owner decided the distribution tier (local .pkg + .dmg, no Developer ID), the OS claim (14.0 declared, 26.5.1 tested) and the Git dependency (documented, not bundled). Shared files changed: package.json (mac:package:dmg), packaging/macos/{build.mjs,dmg.mjs,README.md}, src/main/index.ts (settled smoke waits), scripts/r13-candidate-verify.mjs (source_dirty), tools/monabuild (skipped prerequisites), the ledgers and the guides. No assertion was removed and no requirement was raised."
+          "sha256": "7c0949e239b0798dcbd37c2104883832ded22ed384b91d0e76072aef38ed2af1",
+          "note": "2026-11-14 (D-107): re-recorded after the install path became one command (npm run mac:install / build.mjs --install) and the DMG was demoted to on-request. Shared files changed: package.json, packaging/macos/build.mjs, packaging/macos/README.md, AGENTS.md, the owner guide and the ledger. npm run ci passed on these bytes; no assertion was removed and no requirement was raised."
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "6844d3c7bbd3f9a6a3ca783ce0b38d4fe4f374fa7fdacd3a76be5a9c33cb7992",
-          "note": "2026-11-14 local-distribution pass (D-103/104/105): re-recorded after the owner decided the distribution tier (local .pkg + .dmg, no Developer ID), the OS claim (14.0 declared, 26.5.1 tested) and the Git dependency (documented, not bundled). Shared files changed: package.json (mac:package:dmg), packaging/macos/{build.mjs,dmg.mjs,README.md}, src/main/index.ts (settled smoke waits), scripts/r13-candidate-verify.mjs (source_dirty), tools/monabuild (skipped prerequisites), the ledgers and the guides. No assertion was removed and no requirement was raised."
+          "sha256": "65f497ff36047550a1bd132fde25d865462c4d7070a1436363578534a0565f04",
+          "note": "2026-11-14 (D-107): re-recorded after the install path became one command (npm run mac:install / build.mjs --install) and the DMG was demoted to on-request. Shared files changed: package.json, packaging/macos/build.mjs, packaging/macos/README.md, AGENTS.md, the owner guide and the ledger. npm run ci passed on these bytes; no assertion was removed and no requirement was raised."
         }
       ],
       "blocker_ids": [],
@@ -1179,8 +1180,8 @@
         },
         {
           "path": "package.json",
-          "sha256": "4bd60bb1cdc18ab0ea603e46aad7ffcc252fa244d753aa22045d1274be8c721e",
-          "note": "2026-11-14 local-distribution pass (D-103/104/105): re-recorded after the owner decided the distribution tier (local .pkg + .dmg, no Developer ID), the OS claim (14.0 declared, 26.5.1 tested) and the Git dependency (documented, not bundled). Shared files changed: package.json (mac:package:dmg), packaging/macos/{build.mjs,dmg.mjs,README.md}, src/main/index.ts (settled smoke waits), scripts/r13-candidate-verify.mjs (source_dirty), tools/monabuild (skipped prerequisites), the ledgers and the guides. No assertion was removed and no requirement was raised."
+          "sha256": "7c0949e239b0798dcbd37c2104883832ded22ed384b91d0e76072aef38ed2af1",
+          "note": "2026-11-14 (D-107): re-recorded after the install path became one command (npm run mac:install / build.mjs --install) and the DMG was demoted to on-request. Shared files changed: package.json, packaging/macos/build.mjs, packaging/macos/README.md, AGENTS.md, the owner guide and the ledger. npm run ci passed on these bytes; no assertion was removed and no requirement was raised."
         },
         {
           "path": "src/main/open/folder-request.ts",
@@ -1278,8 +1279,8 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "6844d3c7bbd3f9a6a3ca783ce0b38d4fe4f374fa7fdacd3a76be5a9c33cb7992",
-          "note": "2026-11-14 local-distribution pass (D-103/104/105): re-recorded after the owner decided the distribution tier (local .pkg + .dmg, no Developer ID), the OS claim (14.0 declared, 26.5.1 tested) and the Git dependency (documented, not bundled). Shared files changed: package.json (mac:package:dmg), packaging/macos/{build.mjs,dmg.mjs,README.md}, src/main/index.ts (settled smoke waits), scripts/r13-candidate-verify.mjs (source_dirty), tools/monabuild (skipped prerequisites), the ledgers and the guides. No assertion was removed and no requirement was raised."
+          "sha256": "65f497ff36047550a1bd132fde25d865462c4d7070a1436363578534a0565f04",
+          "note": "2026-11-14 (D-107): re-recorded after the install path became one command (npm run mac:install / build.mjs --install) and the DMG was demoted to on-request. Shared files changed: package.json, packaging/macos/build.mjs, packaging/macos/README.md, AGENTS.md, the owner guide and the ledger. npm run ci passed on these bytes; no assertion was removed and no requirement was raised."
         },
         {
           "path": "docs/evidence/macos/artifacts/p09-finder-panel.png",
@@ -2110,8 +2111,8 @@
         },
         {
           "path": "package.json",
-          "sha256": "4bd60bb1cdc18ab0ea603e46aad7ffcc252fa244d753aa22045d1274be8c721e",
-          "note": "2026-11-14 local-distribution pass (D-103/104/105): re-recorded after the owner decided the distribution tier (local .pkg + .dmg, no Developer ID), the OS claim (14.0 declared, 26.5.1 tested) and the Git dependency (documented, not bundled). Shared files changed: package.json (mac:package:dmg), packaging/macos/{build.mjs,dmg.mjs,README.md}, src/main/index.ts (settled smoke waits), scripts/r13-candidate-verify.mjs (source_dirty), tools/monabuild (skipped prerequisites), the ledgers and the guides. No assertion was removed and no requirement was raised."
+          "sha256": "7c0949e239b0798dcbd37c2104883832ded22ed384b91d0e76072aef38ed2af1",
+          "note": "2026-11-14 (D-107): re-recorded after the install path became one command (npm run mac:install / build.mjs --install) and the DMG was demoted to on-request. Shared files changed: package.json, packaging/macos/build.mjs, packaging/macos/README.md, AGENTS.md, the owner guide and the ledger. npm run ci passed on these bytes; no assertion was removed and no requirement was raised."
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
@@ -2120,8 +2121,8 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "6844d3c7bbd3f9a6a3ca783ce0b38d4fe4f374fa7fdacd3a76be5a9c33cb7992",
-          "note": "2026-11-14 local-distribution pass (D-103/104/105): re-recorded after the owner decided the distribution tier (local .pkg + .dmg, no Developer ID), the OS claim (14.0 declared, 26.5.1 tested) and the Git dependency (documented, not bundled). Shared files changed: package.json (mac:package:dmg), packaging/macos/{build.mjs,dmg.mjs,README.md}, src/main/index.ts (settled smoke waits), scripts/r13-candidate-verify.mjs (source_dirty), tools/monabuild (skipped prerequisites), the ledgers and the guides. No assertion was removed and no requirement was raised."
+          "sha256": "65f497ff36047550a1bd132fde25d865462c4d7070a1436363578534a0565f04",
+          "note": "2026-11-14 (D-107): re-recorded after the install path became one command (npm run mac:install / build.mjs --install) and the DMG was demoted to on-request. Shared files changed: package.json, packaging/macos/build.mjs, packaging/macos/README.md, AGENTS.md, the owner guide and the ledger. npm run ci passed on these bytes; no assertion was removed and no requirement was raised."
         }
       ],
       "blocker_ids": []
@@ -2245,8 +2246,8 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "6844d3c7bbd3f9a6a3ca783ce0b38d4fe4f374fa7fdacd3a76be5a9c33cb7992",
-          "note": "2026-11-14 local-distribution pass (D-103/104/105): re-recorded after the owner decided the distribution tier (local .pkg + .dmg, no Developer ID), the OS claim (14.0 declared, 26.5.1 tested) and the Git dependency (documented, not bundled). Shared files changed: package.json (mac:package:dmg), packaging/macos/{build.mjs,dmg.mjs,README.md}, src/main/index.ts (settled smoke waits), scripts/r13-candidate-verify.mjs (source_dirty), tools/monabuild (skipped prerequisites), the ledgers and the guides. No assertion was removed and no requirement was raised."
+          "sha256": "65f497ff36047550a1bd132fde25d865462c4d7070a1436363578534a0565f04",
+          "note": "2026-11-14 (D-107): re-recorded after the install path became one command (npm run mac:install / build.mjs --install) and the DMG was demoted to on-request. Shared files changed: package.json, packaging/macos/build.mjs, packaging/macos/README.md, AGENTS.md, the owner guide and the ledger. npm run ci passed on these bytes; no assertion was removed and no requirement was raised."
         },
         {
           "path": ".mona/build-macos/HANDOFF.md",
@@ -2315,8 +2316,8 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "6844d3c7bbd3f9a6a3ca783ce0b38d4fe4f374fa7fdacd3a76be5a9c33cb7992",
-          "note": "2026-11-14 local-distribution pass (D-103/104/105): re-recorded after the owner decided the distribution tier (local .pkg + .dmg, no Developer ID), the OS claim (14.0 declared, 26.5.1 tested) and the Git dependency (documented, not bundled). Shared files changed: package.json (mac:package:dmg), packaging/macos/{build.mjs,dmg.mjs,README.md}, src/main/index.ts (settled smoke waits), scripts/r13-candidate-verify.mjs (source_dirty), tools/monabuild (skipped prerequisites), the ledgers and the guides. No assertion was removed and no requirement was raised."
+          "sha256": "65f497ff36047550a1bd132fde25d865462c4d7070a1436363578534a0565f04",
+          "note": "2026-11-14 (D-107): re-recorded after the install path became one command (npm run mac:install / build.mjs --install) and the DMG was demoted to on-request. Shared files changed: package.json, packaging/macos/build.mjs, packaging/macos/README.md, AGENTS.md, the owner guide and the ledger. npm run ci passed on these bytes; no assertion was removed and no requirement was raised."
         }
       ],
       "blocker_ids": []
@@ -2399,8 +2400,8 @@
         },
         {
           "path": "packaging/macos/build.mjs",
-          "sha256": "436429870da62fd46415f9e07897f182891044288ecf6eb47e7d0f41ee0e65de",
-          "note": "2026-11-14 local-distribution pass (D-103/104/105): re-recorded after the owner decided the distribution tier (local .pkg + .dmg, no Developer ID), the OS claim (14.0 declared, 26.5.1 tested) and the Git dependency (documented, not bundled). Shared files changed: package.json (mac:package:dmg), packaging/macos/{build.mjs,dmg.mjs,README.md}, src/main/index.ts (settled smoke waits), scripts/r13-candidate-verify.mjs (source_dirty), tools/monabuild (skipped prerequisites), the ledgers and the guides. No assertion was removed and no requirement was raised."
+          "sha256": "24c8685029e69980bb2c9faab60f5dbdb51e5e916787b40d938a6d2042d05ecf",
+          "note": "2026-11-14 (D-107): re-recorded after the install path became one command (npm run mac:install / build.mjs --install) and the DMG was demoted to on-request. Shared files changed: package.json, packaging/macos/build.mjs, packaging/macos/README.md, AGENTS.md, the owner guide and the ledger. npm run ci passed on these bytes; no assertion was removed and no requirement was raised."
         },
         {
           "path": "packaging/macos/doctor.mjs",
@@ -2434,8 +2435,8 @@
         },
         {
           "path": "packaging/macos/README.md",
-          "sha256": "6394e4cd200e05db5a29172f1aca49989ea8ce6d7862c8638db77b43dc52f663",
-          "note": "2026-11-14 local-distribution pass (D-103/104/105): re-recorded after the owner decided the distribution tier (local .pkg + .dmg, no Developer ID), the OS claim (14.0 declared, 26.5.1 tested) and the Git dependency (documented, not bundled). Shared files changed: package.json (mac:package:dmg), packaging/macos/{build.mjs,dmg.mjs,README.md}, src/main/index.ts (settled smoke waits), scripts/r13-candidate-verify.mjs (source_dirty), tools/monabuild (skipped prerequisites), the ledgers and the guides. No assertion was removed and no requirement was raised."
+          "sha256": "4f853f8d64a506b7133ec9607518fd734c758932d43e5d417aa58e25309f2468",
+          "note": "2026-11-14 (D-107): re-recorded after the install path became one command (npm run mac:install / build.mjs --install) and the DMG was demoted to on-request. Shared files changed: package.json, packaging/macos/build.mjs, packaging/macos/README.md, AGENTS.md, the owner guide and the ledger. npm run ci passed on these bytes; no assertion was removed and no requirement was raised."
         },
         {
           "path": "src/main/package-smoke.ts",
@@ -2476,8 +2477,8 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "6844d3c7bbd3f9a6a3ca783ce0b38d4fe4f374fa7fdacd3a76be5a9c33cb7992",
-          "note": "2026-11-14 local-distribution pass (D-103/104/105): re-recorded after the owner decided the distribution tier (local .pkg + .dmg, no Developer ID), the OS claim (14.0 declared, 26.5.1 tested) and the Git dependency (documented, not bundled). Shared files changed: package.json (mac:package:dmg), packaging/macos/{build.mjs,dmg.mjs,README.md}, src/main/index.ts (settled smoke waits), scripts/r13-candidate-verify.mjs (source_dirty), tools/monabuild (skipped prerequisites), the ledgers and the guides. No assertion was removed and no requirement was raised."
+          "sha256": "65f497ff36047550a1bd132fde25d865462c4d7070a1436363578534a0565f04",
+          "note": "2026-11-14 (D-107): re-recorded after the install path became one command (npm run mac:install / build.mjs --install) and the DMG was demoted to on-request. Shared files changed: package.json, packaging/macos/build.mjs, packaging/macos/README.md, AGENTS.md, the owner guide and the ledger. npm run ci passed on these bytes; no assertion was removed and no requirement was raised."
         },
         {
           "path": ".mona/build-macos/HANDOFF.md",
@@ -2627,8 +2628,8 @@
         },
         {
           "path": "docs/owner-guide-macos.md",
-          "sha256": "ca8e97690dc399b27c38efc8a1984c02a9b5f98a22c6067ebdcc47ec28bad72b",
-          "note": "2026-11-14 local-distribution pass (D-103/104/105): re-recorded after the owner decided the distribution tier (local .pkg + .dmg, no Developer ID), the OS claim (14.0 declared, 26.5.1 tested) and the Git dependency (documented, not bundled). Shared files changed: package.json (mac:package:dmg), packaging/macos/{build.mjs,dmg.mjs,README.md}, src/main/index.ts (settled smoke waits), scripts/r13-candidate-verify.mjs (source_dirty), tools/monabuild (skipped prerequisites), the ledgers and the guides. No assertion was removed and no requirement was raised."
+          "sha256": "acf13da04cc0e9b5ebf301399e0e0105cd41e116266887b3229ccfc960494ccb",
+          "note": "2026-11-14 (D-107): re-recorded after the install path became one command (npm run mac:install / build.mjs --install) and the DMG was demoted to on-request. Shared files changed: package.json, packaging/macos/build.mjs, packaging/macos/README.md, AGENTS.md, the owner guide and the ledger. npm run ci passed on these bytes; no assertion was removed and no requirement was raised."
         }
       ],
       "blocker_ids": []
@@ -2709,7 +2710,7 @@
     "P22",
     "P25"
   ],
-  "last_checkpoint_utc": "2026-11-14T19:48:02.861Z",
+  "last_checkpoint_utc": "2026-11-14T20:00:07.865Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",
