@@ -1896,3 +1896,32 @@ and the smoke measures it rather than asserting it is pretty.
 - **Not claimed:** notarization, stapling, Gatekeeper acceptance, offline launch
   after stapling, and the installed nested execution path. None of them ran
   because EXT-SIGNING has no credential on this host.
+
+## D-102 — A blocked qualification reports the rows it could not settle
+
+- **Date:** 2026-11-14 (P24, review R13–R15)
+- **Context:** P24 asks for a clean-recipient matrix on a second Apple silicon Mac
+  or clean VM against "the actual distribution bytes". Neither the host nor a
+  signed artifact exists here. The instruction is explicit that the harness and
+  checklist should be finished and the qualification kept blocked — so the risk
+  is a report that looks complete because everything measurable passed.
+- **Decision — statuses, not a score.** `scripts/p24-recipient.mjs` gives every
+  matrix row one of four statuses: `passed`, `failed`, `recorded` (an observation
+  that decides nothing, such as which Git this host has), or `untested` (a fact
+  this host cannot establish, with the reason). `qualification` is `qualified`
+  only when nothing is `failed` and nothing is `untested`, and the process exits
+  non-zero otherwise. There is no average, no percentage and no "mostly green".
+- **Decision — measure the refusal.** The harness quarantines a *copy* of the
+  package the way a browser download arrives and runs `spctl -a -vv -t install`
+  on it. For the unsigned local build that is a rejection, and the rejection is
+  recorded as a failed row: it is the same measurement a recipient would get.
+  Nothing removes the attribute, disables Gatekeeper, or offers a right-click
+  recipe — those would turn a prerequisite into a bypass.
+- **Decision — read the package, not the staging tree.** `pkgutil --expand-full`
+  unpacks the payload, so architecture, minimum OS and the removal utility are
+  read from the bytes that would ship. A staging directory passing would prove
+  only that the build was hopeful.
+- **Consequence:** P24 is `blocked` on EXT-SIGNING and EXT-RECIPIENT-HOST with a
+  re-runnable harness; when a signed artifact and a second host exist, the same
+  command either goes green or names exactly which row fails. No attempt is
+  counted, and moving the matrix to another host later cannot reset the count.

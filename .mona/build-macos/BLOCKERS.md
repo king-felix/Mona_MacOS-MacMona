@@ -28,6 +28,21 @@ clean recipient, below); it is not attempt-counted because no attempt failed.
   on any later build, because the gate compares the installed copy to the build
   in hand. That is the gate working, not a missing prerequisite.
 
+### EXT-RECIPIENT-HOST — no second Mac or clean VM for P24
+
+- **What is needed:** a separate Apple silicon Mac (or a clean supported macOS VM,
+  14.x and 26.x) to run the exact installer through quarantine. A second local
+  user is additional evidence, never proof that a recipient has no Xcode,
+  Homebrew or cached engine.
+- **Measured 2026-11-14:** the P24 harness settled every row this host can settle
+  — 9 settled, 7 pass, 2 fail (both the unsigned package being rejected by
+  Gatekeeper), 11 rows named untested with reasons. `npm run mac:recipient`.
+- **Also needs EXT-SIGNING:** an unsigned installer is refused by Gatekeeper on
+  any other Mac, so the recipient run cannot begin until R14 produces a signed,
+  notarized, stapled artifact.
+- **Rule:** this blocks MAC-007 and P26's recipient matrix only. It does not block
+  local work or the release pipeline's own checks.
+
 ### EXT-SIGNING — Developer ID credentials (P22 blocked here)
 
 - **Measured 2026-11-14, again:** `security find-identity -v -p codesigning`

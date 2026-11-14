@@ -1,0 +1,225 @@
+{
+  "schema_version": 1,
+  "prompt": "P24",
+  "label": "clean-recipient qualification harness",
+  "captured_at": "2026-11-14T18:31:58.942Z",
+  "platform": {
+    "macos": "26.5.1",
+    "architecture": "arm64"
+  },
+  "package": {
+    "path": "packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg",
+    "sha256": "e4ffe0e0308866e2bf7185e24701b82a599dc49591f99aba83ef2592308c777d",
+    "bytes": 163802705
+  },
+  "payload_manifest": {
+    "version": "0.1.0",
+    "build": "152",
+    "channel": "local",
+    "source": {
+      "commit": "c9745dc0643edbd79467164ef78edb39cf739a40",
+      "dirty": false
+    },
+    "engine": "0.10.2"
+  },
+  "rows": [
+    {
+      "id": "artifact.present",
+      "claim": "The distribution package exists and is identified",
+      "status": "passed",
+      "detail": {
+        "path": "packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg",
+        "sha256": "e4ffe0e0308866e2bf7185e24701b82a599dc49591f99aba83ef2592308c777d",
+        "bytes": 163802705,
+        "signature": "unsigned",
+        "signed": false
+      }
+    },
+    {
+      "id": "artifact.signed",
+      "claim": "The package carries a Developer ID Installer signature, so Gatekeeper can accept it",
+      "status": "failed",
+      "detail": "the package is unsigned (ad-hoc local build); a recipient's Gatekeeper will refuse it, so the just-works claim cannot be made for these bytes"
+    },
+    {
+      "id": "installer.requirements",
+      "claim": "The installer declares a minimum OS and remains arm64-only",
+      "status": "passed",
+      "detail": {
+        "host_os_requirement": true,
+        "minimum_macos": "14.0",
+        "arm64_only": true
+      }
+    },
+    {
+      "id": "payload.architecture",
+      "claim": "Every executable in the payload is arm64 and needs no newer OS than declared",
+      "status": "passed",
+      "detail": {
+        "architectures": [
+          "arm64"
+        ],
+        "minimum_os": [
+          "11.0",
+          "14.0"
+        ],
+        "executables": true
+      }
+    },
+    {
+      "id": "payload.minimum_os",
+      "claim": "Approved payload code declares macOS 14.0; the pinned engine keeps its upstream floor",
+      "status": "passed",
+      "detail": {
+        "app_owned": [
+          "14.0"
+        ],
+        "engine_floor": "11.0 (pinned upstream binary)"
+      }
+    },
+    {
+      "id": "payload.uninstall_bounded",
+      "claim": "The shipped removal utility is bounded and refuses unrecognized paths",
+      "status": "passed",
+      "detail": "contract satisfied"
+    },
+    {
+      "id": "security.assessments_enabled",
+      "claim": "Gatekeeper assessment is enabled and was not weakened for this test",
+      "status": "passed",
+      "detail": "assessments enabled"
+    },
+    {
+      "id": "security.quarantine_present",
+      "claim": "A quarantined copy carries the download attribute",
+      "status": "passed",
+      "detail": "0081;00000000;Safari;"
+    },
+    {
+      "id": "security.gatekeeper_install",
+      "claim": "Gatekeeper's assessment of the quarantined installer, with normal protections in place",
+      "status": "failed",
+      "detail": {
+        "verdict": "~tmp: rejected\nsource=no usable signature",
+        "note": "This is the measurement a recipient would get. It is not worked around: no xattr removal, no spctl override, no right-click recipe."
+      }
+    },
+    {
+      "id": "host.git",
+      "claim": "The recipient's Git situation, reported rather than assumed",
+      "status": "recorded",
+      "detail": {
+        "xcrun_git": "/Library/Developer/CommandLineTools/usr/bin/git",
+        "developer_dir": "/Library/Developer/CommandLineTools",
+        "homebrew_git": false,
+        "only_the_clt_stub_here_means_the_inverse_of_this_host": true,
+        "note": "This host has Command Line Tools, so it cannot stand in for a clean recipient. Packaged Mona refuses Apple's CLT stub rather than triggering the installer, so Git features report unavailable on a machine without Git."
+      }
+    },
+    {
+      "id": "host.identity",
+      "claim": "The host this matrix ran on",
+      "status": "recorded",
+      "detail": {
+        "macos": "26.5.1",
+        "architecture": "arm64",
+        "note": "A development host with Xcode CLT, Homebrew and a cached engine. It cannot prove the absence of those things."
+      }
+    },
+    {
+      "id": "recipient.clean_host",
+      "claim": "A separate Apple silicon Mac or clean supported VM runs the exact signed installer through quarantine",
+      "status": "untested",
+      "detail": "requires a second host or VM; this repository has neither"
+    },
+    {
+      "id": "recipient.auth_install",
+      "claim": "The standard Installer authentication prompt completes without a terminal step",
+      "status": "untested",
+      "detail": "requires an administrator prompt on the recipient host"
+    },
+    {
+      "id": "recipient.launch_after_install",
+      "claim": "The installed app launches from Applications and the Finder Service opens a folder",
+      "status": "untested",
+      "detail": "requires the install above; the LaunchServices launch itself is proven for the local build (R13)"
+    },
+    {
+      "id": "recipient.new_user_api_setup",
+      "claim": "A secure provider setup on a machine with no cached credential",
+      "status": "untested",
+      "detail": "requires a user account that has never run Codewhale; this builds on second-user evidence, which the prompt says is not proof"
+    },
+    {
+      "id": "recipient.offline_first_run",
+      "claim": "Offline local operation before any provider is configured",
+      "status": "untested",
+      "detail": "requires a recipient with no network path to a provider and no cached engine config"
+    },
+    {
+      "id": "recipient.denied_folder_permission",
+      "claim": "A denied or revoked folder permission produces a clear, non-destructive refusal",
+      "status": "untested",
+      "detail": "requires manipulating TCC, which needs interactive consent"
+    },
+    {
+      "id": "recipient.locked_keychain",
+      "claim": "A locked keychain is reported, not retried into a loop",
+      "status": "untested",
+      "detail": "requires a locked login keychain on the recipient"
+    },
+    {
+      "id": "recipient.sleep_wake",
+      "claim": "Sleep and wake leave the runtime in a stated state",
+      "status": "untested",
+      "detail": "requires a physical lid close or a real suspend; simulated suspend is already covered by the lifecycle smoke"
+    },
+    {
+      "id": "recipient.multiple_users",
+      "claim": "Two users on one Mac do not share state or credentials",
+      "status": "untested",
+      "detail": "requires a second account with administrator authorization"
+    },
+    {
+      "id": "recipient.unsupported_os",
+      "claim": "An unsupported macOS version is refused by the installer rather than half-installed",
+      "status": "untested",
+      "detail": "requires a host below 14.0; the requirement is declared and the enforcement is in the preinstall script"
+    },
+    {
+      "id": "recipient.clean_reinstall_upgrade_uninstall",
+      "claim": "A clean reinstall, an upgrade over the previous build and an uninstall all behave",
+      "status": "untested",
+      "detail": "the rehearsals and the P23 lifecycle smoke cover the mechanisms under isolated roots; the recipient run is the part that needs the host"
+    }
+  ],
+  "summary": {
+    "settled": 9,
+    "passed": 7,
+    "failed": 2,
+    "untested": 11,
+    "recorded": 2
+  },
+  "qualification": "blocked",
+  "reasons": [
+    "artifact.signed: the package is unsigned (ad-hoc local build); a recipient's Gatekeeper will refuse it, so the just-works claim cannot be made for these bytes",
+    "security.gatekeeper_install: {\"verdict\":\"~tmp: rejected\\nsource=no usable signature\",\"note\":\"This is the measurement a recipient would get. It is not worked around: no xattr removal, no spctl override, no right-click recipe.\"}",
+    "recipient.clean_host: requires a second host or VM; this repository has neither",
+    "recipient.auth_install: requires an administrator prompt on the recipient host",
+    "recipient.launch_after_install: requires the install above; the LaunchServices launch itself is proven for the local build (R13)",
+    "recipient.new_user_api_setup: requires a user account that has never run Codewhale; this builds on second-user evidence, which the prompt says is not proof",
+    "recipient.offline_first_run: requires a recipient with no network path to a provider and no cached engine config",
+    "recipient.denied_folder_permission: requires manipulating TCC, which needs interactive consent",
+    "recipient.locked_keychain: requires a locked login keychain on the recipient",
+    "recipient.sleep_wake: requires a physical lid close or a real suspend; simulated suspend is already covered by the lifecycle smoke",
+    "recipient.multiple_users: requires a second account with administrator authorization",
+    "recipient.unsupported_os: requires a host below 14.0; the requirement is declared and the enforcement is in the preinstall script",
+    "recipient.clean_reinstall_upgrade_uninstall: the rehearsals and the P23 lifecycle smoke cover the mechanisms under isolated roots; the recipient run is the part that needs the host"
+  ],
+  "next": [
+    "a Developer ID-signed, notarized, stapled installer (R14/EXT-SIGNING)",
+    "a separate Apple silicon Mac or clean supported VM at macOS 14.0 and 26.x",
+    "one administrator authentication prompt on that host"
+  ],
+  "note": "Rows marked untested are facts this host cannot establish. Nothing was removed from the matrix and no requirement was lowered to make it pass."
+}
