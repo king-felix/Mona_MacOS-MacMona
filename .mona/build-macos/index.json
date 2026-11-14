@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-14T08:24:06.125Z",
+  "generated_utc": "2026-11-14T08:25:29.920Z",
   "git": {
     "available": true,
-    "commit": "aff081a709cfe7e7442009fc9a80fb7b85c06530",
+    "commit": "a5218c0673d208e9cd7510defed7cd6d287bfcfa",
     "dirty": true
   },
-  "digest": "89f4830772e12c020a9729ce2fcf92085d6e89c0cea1cafd82afb79e3464dabd",
+  "digest": "0d0206fed6c9ae6de1593a3cb738fd483c1fe44f7263112f3e8b30e9d265e66f",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -1140,18 +1140,18 @@
     },
     {
       "path": "docs/evidence/macos/review-studio/artifacts/r05-focused-tests.txt",
-      "sha256": "b9f45a2d17b4743e7b9a9d8f7ac8044b31c308b8ec2ce793c99a262a366e773b",
-      "bytes": 1914
+      "sha256": "d9dd054f15dabc12bedb3eb42501c7849289a8fe604f72d63db11dff5a96e307",
+      "bytes": 1900
     },
     {
       "path": "docs/evidence/macos/review-studio/artifacts/r05-full-tests.txt",
-      "sha256": "4f924e1c67147ca803e818acd13faf9222ae11eb2d80a777ee54f74e304990af",
-      "bytes": 20481
+      "sha256": "6851972e448df912748d80b8a3179921fc0ceba105f26afa89ce6842d6f451b5",
+      "bytes": 20467
     },
     {
       "path": "docs/evidence/macos/review-studio/artifacts/r05-gates.txt",
-      "sha256": "d08d47e80d50d5b523f3918cf6db8d7a50e380fd31140ef7c5eea0437a5c1266",
-      "bytes": 723
+      "sha256": "0f3092120842caed2c07d64f7d4a6738984719c986b9dfa85183fc9e88c18f5b",
+      "bytes": 681
     },
     {
       "path": "docs/evidence/macos/review-studio/artifacts/r05-immersive-smoke.json",
