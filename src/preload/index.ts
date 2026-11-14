@@ -8,6 +8,9 @@ import type {
 } from "../shared/contracts/bridge";
 import type { ProjectId } from "../shared/contracts/ids";
 import type {
+  HistoryCursor,
+  HistoryItemPage,
+  HistoryPage,
   IpcResult,
   OpenProjectResult,
   ProjectDetail,
@@ -157,6 +160,22 @@ const bridge: MonaBridge = {
     ipcRenderer.invoke("projects:open", rootPath ? { rootPath } : {}),
   projectDetail: (id: ProjectId): Promise<IpcResult<ProjectDetail>> =>
     ipcRenderer.invoke("projects:detail", { projectId: id }),
+  projectHistory: (
+    id: ProjectId,
+    options: { before?: HistoryCursor | null; limit?: number; threadId?: string | null } = {},
+  ): Promise<IpcResult<HistoryPage>> =>
+    ipcRenderer.invoke("projects:history", {
+      projectId: id,
+      ...(options.before ? { before: options.before } : {}),
+      ...(options.limit === undefined ? {} : { limit: options.limit }),
+      ...(options.threadId === undefined ? {} : { threadId: options.threadId }),
+    }),
+  projectHistoryItem: (
+    id: ProjectId,
+    threadId: string,
+    itemId: string,
+  ): Promise<IpcResult<HistoryItemPage>> =>
+    ipcRenderer.invoke("projects:history-item", { projectId: id, threadId, itemId }),
   renameProject: (id: ProjectId, name: string, expectedRevision: number) =>
     ipcRenderer.invoke("projects:rename", { projectId: id, name, expectedRevision }),
   setProjectPinned: (id: ProjectId, pinned: boolean, expectedRevision: number) =>

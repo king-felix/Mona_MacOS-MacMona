@@ -82,6 +82,26 @@ export const IpcRequests = {
     rootPath: z.string().min(1).max(4096).startsWith("/").optional(),
   }),
   "projects:detail": z.strictObject({ projectId: ProjectId }),
+  // One older page of stored history. A read of Mona's own state: no runtime is
+  // started and no model is asked anything. The cursor is a storage position,
+  // never an engine sequence number.
+  "projects:history": z.strictObject({
+    projectId: ProjectId,
+    before: z
+      .strictObject({
+        recordedAt: z.string().min(1).max(64),
+        rowId: z.number().int().min(0),
+      })
+      .nullable()
+      .optional(),
+    limit: z.number().int().min(1).max(500).optional(),
+    threadId: z.string().min(1).max(200).nullable().optional(),
+  }),
+  "projects:history-item": z.strictObject({
+    projectId: ProjectId,
+    threadId: z.string().min(1).max(200),
+    itemId: z.string().min(1).max(200),
+  }),
   "projects:rename": z.strictObject({
     projectId: ProjectId,
     name: z.string().min(1).max(200),

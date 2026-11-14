@@ -15,7 +15,9 @@ function event(
     seq,
     kind,
     payload,
-    timestamp: `2026-11-11T00:00:0${seq}.000Z`,
+    timestamp: `2026-11-11T00:00:0${String(seq % 10)}.${String(seq).padStart(3, "0")}Z`,
+    turnId: null,
+    itemId: null,
     ...extra,
   };
 }
@@ -246,5 +248,149 @@ describe("engine activity is counted, not hidden", () => {
     expect(internalActivity).toBe(4);
     expect(unprojected).toEqual(["future.event"]);
     expect(entries.map((entry) => entry.kind)).toEqual(["tool", "unknown", "status"]);
+  });
+});
+
+describe("R02 identity-aware conversation projection", () => {
+  const TURN = "turn_aaaaaaaaaaaaaaaa";
+
+  function delta(seq: number, itemId: string | null, kind: string, text: string) {
+    return event(seq, "item.delta", { kind, delta: text }, { turnId: TURN, itemId });
+  }
+
+  function completed(seq: number, itemId: string | null, kind: string, detail: string) {
+    return event(
+      seq,
+      "item.completed",
+      { item: { id: itemId ?? undefined, kind, status: "completed", detail } },
+      { turnId: TURN, itemId },
+    );
+  }
+
+  it("never merges two interleaved items of the same kind in one thread", () => {
+    const { entries } = projectTimeline(
+      [
+        event(1, "turn.started", { permission_posture: "full_access" }, { turnId: TURN }),
+        delta(2, "item_a", "agent_message", "ALPHA "),
+        delta(3, "item_b", "agent_message", "BETA "),
+        delta(4, "item_a", "agent_message", "one"),
+        delta(5, "item_b", "agent_message", "two"),
+        completed(6, "item_a", "agent_message", "ALPHA one"),
+        completed(7, "item_b", "agent_message", "BETA two"),
+      ],
+      { historyComplete: true },
+    );
+    const messages = entries.filter((entry) => entry.kind === "assistant");
+    expect(messages).toHaveLength(2);
+    expect(messages.map((entry) => entry.body)).toEqual(["ALPHA one", "BETA two"]);
+    expect(messages.map((entry) => entry.itemId)).toEqual(["item_a", "item_b"]);
+    expect(messages.every((entry) => entry.streaming === false)).toBe(true);
+  });
+
+  it("uses one stable key for the streamed and completed card of an item", () => {
+    const during = projectTimeline([delta(1, "item_a", "agent_message", "half")], {
+      historyComplete: true,
+    });
+    const after = projectTimeline(
+      [
+        delta(1, "item_a", "agent_message", "half"),
+        completed(2, "item_a", "agent_message", "half"),
+      ],
+      { historyComplete: true },
+    );
+    expect(during.entries).toHaveLength(1);
+    expect(after.entries).toHaveLength(1);
+    expect(after.entries[0]?.key).toBe(during.entries[0]?.key);
+    expect(during.entries[0]?.streaming).toBe(true);
+    expect(after.entries[0]?.streaming).toBe(false);
+  });
+
+  it("treats a hole in the global sequence as interleaving, not loss", () => {
+    // `seq` is one counter shared by every thread, so 2 → 90 proves nothing.
+    // The two deltas are one message and the projection must not invent a gap,
+    // an error, or an unrecognized frame.
+    const { entries, unprojected } = projectTimeline(
+      [
+        delta(1, "item_a", "agent_message", "first "),
+        delta(90, "item_a", "agent_message", "second"),
+        completed(91, "item_a", "agent_message", "first second"),
+      ],
+      { historyComplete: true },
+    );
+    expect(entries.filter((entry) => entry.kind === "assistant")).toHaveLength(1);
+    expect(entries[0]?.body).toBe("first second");
+    expect(entries.some((entry) => entry.kind === "error" || entry.kind === "unknown")).toBe(false);
+    expect(unprojected).toEqual([]);
+  });
+
+  it("marks an item that begins at a page boundary as partial, and only then", () => {
+    const frames = [
+      event(1, "turn.started", {}, { turnId: TURN }),
+      delta(2, "item_a", "agent_message", "this beginning is in the page"),
+    ];
+    const complete = projectTimeline(frames, { historyComplete: true });
+    expect(complete.entries.find((entry) => entry.kind === "assistant")?.partial).toBe(false);
+
+    const paged = projectTimeline(frames, { historyComplete: false });
+    // The turn started in this window, so the item's beginning really is here.
+    expect(paged.entries.find((entry) => entry.kind === "assistant")?.partial).toBe(false);
+
+    const truncated = projectTimeline([delta(2, "item_a", "agent_message", "tail only")], {
+      historyComplete: false,
+    });
+    expect(truncated.entries[0]).toMatchObject({ partial: true, itemId: "item_a" });
+  });
+
+  it("reports legacy frames without item identity as unknown instead of guessing", () => {
+    const { entries } = projectTimeline(
+      [
+        delta(1, null, "agent_message", "legacy "),
+        delta(2, null, "agent_message", "stream"),
+        completed(3, null, "agent_message", "legacy stream"),
+      ],
+      { historyComplete: true },
+    );
+    const messages = entries.filter((entry) => entry.kind === "assistant");
+    expect(messages).toHaveLength(1);
+    expect(messages[0]).toMatchObject({ body: "legacy stream", itemId: null });
+  });
+
+  it("does not bind one legacy stream when two same-kind streams are open", () => {
+    // Two turns, two unidentified streams, one completion with no identity and
+    // no turn: it must not pick either stream silently.
+    const { entries } = projectTimeline(
+      [
+        event(
+          1,
+          "item.delta",
+          { kind: "agent_message", delta: "one" },
+          { turnId: "turn_one", itemId: null },
+        ),
+        event(
+          2,
+          "item.delta",
+          { kind: "agent_message", delta: "two" },
+          { turnId: "turn_two", itemId: null },
+        ),
+        completed(3, null, "agent_message", "unknown source"),
+      ],
+      { historyComplete: true },
+    );
+    const messages = entries.filter((entry) => entry.kind === "assistant");
+    expect(messages.map((entry) => entry.body).sort()).toEqual(["one", "two", "unknown source"]);
+  });
+
+  it("keeps turn identity on every projected card", () => {
+    const { entries } = projectTimeline(
+      [
+        event(1, "turn.started", {}, { turnId: TURN }),
+        delta(2, "item_a", "agent_message", "hello"),
+        completed(3, "item_a", "agent_message", "hello"),
+        event(4, "turn.completed", {}, { turnId: TURN }),
+      ],
+      { historyComplete: true },
+    );
+    expect(entries.every((entry) => entry.turnId === TURN)).toBe(true);
+    expect(entries.filter((entry) => entry.itemId !== null)).toHaveLength(1);
   });
 });

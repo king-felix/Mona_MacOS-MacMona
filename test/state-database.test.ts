@@ -507,6 +507,86 @@ describe("maintenance barrier", () => {
   });
 });
 
+describe("schema v10 item identity", () => {
+  it("adds item identity without inventing it for rows written before v10", async () => {
+    const dir = tempDir();
+    const dbPath = join(dir, "mona.sqlite");
+    const v9 = await migrateDatabase({
+      dbPath,
+      migrations: MIGRATIONS.slice(0, 9),
+      now: makeClock().now,
+    });
+    v9.db
+      .prepare(
+        "INSERT INTO projects (id, name, root_path, canonical_path, fs_dev, fs_ino, repository_kind, " +
+          "repository_root, worktree_name, archived, pinned, removed_at, created_at, updated_at, revision) " +
+          "VALUES ('prj_items000000001', 'Items', '/tmp/items', '/tmp/items', 1, 2, 'none', NULL, NULL, 0, 0, NULL, " +
+          "'2026-11-11T00:00:00.000Z', '2026-11-11T00:00:00.000Z', 1)",
+      )
+      .run();
+    v9.db
+      .prepare(
+        "INSERT INTO threads (id, project_id, engine_thread_id, title, created_at, updated_at) " +
+          "VALUES ('thr_items000000001', 'prj_items000000001', 'thr_engine_items', 'Legacy', " +
+          "'2026-11-11T00:00:00.000Z', '2026-11-11T00:00:00.000Z')",
+      )
+      .run();
+    v9.db
+      .prepare(
+        "INSERT INTO events (thread_id, seq, kind, payload_json, timestamp, recorded_at, turn_id) " +
+          "VALUES ('thr_items000000001', 1, 'item.delta', ?, '2026-11-11T00:00:01.000Z', " +
+          "'2026-11-11T00:00:01.000Z', 'turn_legacy')",
+      )
+      .run(JSON.stringify({ kind: "agent_message", delta: "before identity" }));
+    v9.db.close();
+
+    const migrated = await migrateDatabase({
+      dbPath,
+      migrations: MIGRATIONS,
+      now: makeClock().now,
+    });
+    try {
+      expect(migrated.db.prepare("PRAGMA user_version").get()).toMatchObject({
+        user_version: MIGRATIONS[MIGRATIONS.length - 1]?.version,
+      });
+      const legacy = migrated.db
+        .prepare("SELECT seq, turn_id, item_id FROM events WHERE thread_id = 'thr_items000000001'")
+        .get();
+      // The row keeps its turn and gains an explicit unknown item identity; the
+      // payload is not mined to invent one.
+      expect(legacy).toMatchObject({ seq: 1, turn_id: "turn_legacy", item_id: null });
+      migrated.db
+        .prepare(
+          "INSERT INTO events (thread_id, seq, kind, payload_json, timestamp, recorded_at, turn_id, item_id) " +
+            "VALUES ('thr_items000000001', 2, 'item.delta', '{}', '2026-11-11T00:00:02.000Z', " +
+            "'2026-11-11T00:00:02.000Z', 'turn_new', 'item_new')",
+        )
+        .run();
+      expect(
+        migrated.db
+          .prepare("SELECT item_id FROM events WHERE thread_id = 'thr_items000000001' AND seq = 2")
+          .get(),
+      ).toMatchObject({ item_id: "item_new" });
+      expect(
+        migrated.db
+          .prepare(
+            "SELECT COUNT(*) AS n FROM sqlite_master WHERE type = 'index' AND name = 'events_item'",
+          )
+          .get(),
+      ).toMatchObject({ n: 1 });
+      expect(
+        migrated.db
+          .prepare(
+            "SELECT COUNT(*) AS n FROM sqlite_master WHERE type = 'index' AND name = 'events_recorded'",
+          )
+          .get(),
+      ).toMatchObject({ n: 1 });
+    } finally {
+      migrated.db.close();
+    }
+  });
+});
+
 describe("backup and restore", () => {
   it("restores a verified snapshot and puts the previous database back on failure", async () => {
     const { store, dir } = await openTestStore();

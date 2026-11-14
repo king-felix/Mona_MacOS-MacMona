@@ -5,6 +5,9 @@ export type TimelineKind =
   "user" | "assistant" | "reasoning" | "tool" | "status" | "error" | "unknown";
 
 export interface TimelineEntry {
+  /** The local thread this card belongs to. */
+  threadId: string;
+  /** Stable across the streamed and completed frames of one item. */
   key: string;
   kind: TimelineKind;
   title: string;
@@ -12,6 +15,21 @@ export interface TimelineEntry {
   status: string | null;
   seq: number;
   timestamp: string;
+  /** Envelope turn identity; null when the stored row does not carry one. */
+  turnId: string | null;
+  /**
+   * The item this card belongs to, or null when the stored frames predate item
+   * identity. Null is reported as unknown; it is never matched to another item
+   * by `kind` alone.
+   */
+  itemId: string | null;
+  /** True while no terminal frame for this item has been seen. */
+  streaming: boolean;
+  /**
+   * True when the item's beginning is older than the events supplied (a page
+   * boundary). `itemId` decides whether the beginning can be reloaded.
+   */
+  partial: boolean;
 }
 
 function record(value: unknown): Record<string, unknown> | null {
@@ -39,6 +57,12 @@ function firstString(source: Record<string, unknown> | null, keys: string[]): st
   return "";
 }
 
+/** The item id a completion payload names, independent of the envelope. */
+function payloadItemId(payload: Record<string, unknown> | null): string | null {
+  const item = record(payload?.item);
+  return firstString(item, ["id"]) || null;
+}
+
 /**
  * A stored frame that is plumbing rather than conversation is counted, not
  * printed: the count is reported so nothing is silently dropped.
@@ -51,12 +75,64 @@ export interface TimelineProjection {
   unprojected: string[];
 }
 
+export interface TimelineOptions {
+  /**
+   * True when the supplied events are the whole stored transcript. When false,
+   * an item that begins at the first conversation frame is reported as partial
+   * instead of pretending its visible text is its beginning.
+   */
+  historyComplete?: boolean;
+  /**
+   * Items whose stored frames were explicitly reloaded (`threadId:itemId`).
+   * Their beginning is in hand even though the surrounding transcript is still
+   * paged, so they are not partial.
+   */
+  completeItems?: ReadonlySet<string>;
+}
+
+interface OpenItem {
+  key: string;
+  itemId: string | null;
+  kind: string;
+  text: string;
+  status: string | null;
+  /** First frame of the item; kept so the card never reorders when it ends. */
+  seq: number;
+  timestamp: string;
+  turnId: string | null;
+  completed: boolean;
+  /** The item opened at the conversation boundary of a partial transcript. */
+  atBoundary: boolean;
+}
+
+type ThreadEntry = Omit<TimelineEntry, "threadId">;
+type ThreadProjection = {
+  entries: ThreadEntry[];
+  internalActivity: number;
+  unprojected: string[];
+};
+type Slot = { type: "entry"; entry: ThreadEntry } | { type: "item"; key: string };
+
 /**
- * Deterministic conversation projection over stored engine events. Deltas are
- * merged into their completed item; duplicate sequences are ignored; unknown
- * kinds stay visible instead of vanishing. No text is invented here.
+ * Deterministic conversation projection over stored engine events.
+ *
+ * Identity, not adjacency, binds frames: a delta belongs to its `itemId`, and a
+ * completion finalizes that same item, so the streamed and completed card share
+ * one key and two items of the same kind in a thread never merge. Sequence
+ * numbers are never consulted for loss: `seq` is one global engine counter, and
+ * this projection does not infer that a gap means a missing frame. Only frames
+ * the engine reported as skipped, recorded by main, are loss.
+ *
+ * Events that predate item identity (stored before schema v10) are grouped only
+ * within one turn and one kind, and their cards carry `itemId: null` — explicit
+ * unknown identity rather than a guess.
  */
-export function projectTimeline(events: StoredEventSummary[]): TimelineProjection {
+export function projectTimeline(
+  events: StoredEventSummary[],
+  options: TimelineOptions = {},
+): TimelineProjection {
+  const historyComplete = options.historyComplete === true;
+  const completeItems = options.completeItems ?? new Set<string>();
   // A project includes multiple native/local threads. Stream accumulation and
   // completion matching must never cross those identities, even if their item
   // kinds or sequence numbers happen to match.
@@ -70,10 +146,11 @@ export function projectTimeline(events: StoredEventSummary[]): TimelineProjectio
   const unprojected = new Set<string>();
   let internalActivity = 0;
   for (const [threadId, frames] of threads) {
-    const projection = projectThreadTimeline(frames);
+    const projection = projectThreadTimeline(frames, historyComplete, completeItems, threadId);
     entries.push(
       ...projection.entries.map((entry) => ({
         ...entry,
+        threadId,
         key: `${threadId}:${entry.key}`,
       })),
     );
@@ -87,62 +164,147 @@ export function projectTimeline(events: StoredEventSummary[]): TimelineProjectio
   return { entries, internalActivity, unprojected: [...unprojected].sort() };
 }
 
-function projectThreadTimeline(events: StoredEventSummary[]): TimelineProjection {
-  const entries: TimelineEntry[] = [];
+function deltaKind(kind: string): TimelineKind {
+  return kind === "user_message" ? "user" : kind === "agent_reasoning" ? "reasoning" : "assistant";
+}
+
+function itemTitle(kind: string): string {
+  if (kind === "user_message") return "You";
+  if (kind === "agent_reasoning") return "Engine-reported reasoning";
+  return "Engine (streamed)";
+}
+
+function projectThreadTimeline(
+  events: StoredEventSummary[],
+  historyComplete: boolean,
+  completeItems: ReadonlySet<string>,
+  threadId: string,
+): ThreadProjection {
+  const entries: ThreadEntry[] = [];
   let internalActivity = 0;
   const unprojected = new Set<string>();
-  let openDelta: { kind: string; text: string; seq: number; timestamp: string } | null = null;
-  const seen = new Set<string>();
-  let emittedReasoning = 0;
-
-  const deltaKind = (kind: string): TimelineKind =>
-    kind === "user_message" ? "user" : kind === "agent_reasoning" ? "reasoning" : "assistant";
-
-  const flushDelta = (): void => {
-    if (!openDelta) return;
-    entries.push({
-      key: `delta-${openDelta.seq}`,
-      kind: deltaKind(openDelta.kind),
-      title:
-        openDelta.kind === "user_message"
-          ? "You"
-          : openDelta.kind === "agent_reasoning"
-            ? "Engine-reported reasoning"
-            : "Engine (streamed)",
-      body: openDelta.text,
-      status: "streaming",
-      seq: openDelta.seq,
-      timestamp: openDelta.timestamp,
-    });
-    openDelta = null;
-  };
-
-  const takeDelta = (kinds: string[]): typeof openDelta => {
-    if (openDelta && kinds.includes(openDelta.kind)) {
-      const taken = openDelta;
-      openDelta = null;
-      return taken;
-    }
-    return null;
-  };
-
+  const seen = new Set<number>();
+  const frames: StoredEventSummary[] = [];
   for (const event of events) {
-    const dedupeKey = `${event.threadId}:${event.seq}`;
-    if (seen.has(dedupeKey)) continue;
-    seen.add(dedupeKey);
+    // Duplicate replays carry the same (thread, seq); the second copy is the
+    // same fact, not a second frame.
+    if (seen.has(event.seq)) continue;
+    seen.add(event.seq);
+    frames.push(event);
+  }
+
+  // The conversation boundary of the supplied window: the first frame that is
+  // not plumbing. An item that opens here may have begun before the page.
+  let boundaryIndex = frames.findIndex((event) => !isEnginePlumbingKind(event.kind));
+  if (boundaryIndex < 0) boundaryIndex = frames.length;
+
+  const slots: Slot[] = [];
+  const items = new Map<string, OpenItem>();
+  const unidentified: string[] = [];
+  // React keys must stay unique even when storage holds two terminal frames
+  // for the same item id (a replay at a different sequence, for example).
+  const usedKeys = new Set<string>();
+
+  const emit = (
+    entry: Omit<ThreadEntry, "turnId" | "itemId" | "streaming" | "partial"> & {
+      turnId?: string | null;
+      itemId?: string | null;
+      partial?: boolean;
+    },
+  ): void => {
+    const key = usedKeys.has(entry.key) ? `${entry.key}:${entry.seq}` : entry.key;
+    usedKeys.add(key);
+    slots.push({
+      type: "entry",
+      entry: {
+        ...entry,
+        key,
+        turnId: entry.turnId ?? null,
+        itemId: entry.itemId ?? null,
+        streaming: false,
+        partial: entry.partial === true,
+      },
+    });
+  };
+
+  const openItem = (event: StoredEventSummary, kind: string): void => {
+    const itemId = event.itemId ?? null;
+    // Identified frames bind to their item. An unidentified delta can only be
+    // grouped inside its own turn and kind, and is marked unknown for the UI.
+    const base =
+      itemId !== null ? `item:${itemId}` : `unidentified:${event.turnId ?? "no-turn"}:${kind}`;
+    // A delta that arrives after its item's terminal frame is a new stream; it
+    // must not overwrite the completed card that still holds the same key.
+    const key = items.has(base) ? `${base}:${event.seq}` : base;
+    const block: OpenItem = {
+      key,
+      itemId,
+      kind,
+      text: "",
+      status: "streaming",
+      seq: event.seq,
+      timestamp: event.timestamp,
+      turnId: event.turnId ?? null,
+      completed: false,
+      atBoundary:
+        !historyComplete &&
+        !(itemId !== null && completeItems.has(`${threadId}:${itemId}`)) &&
+        event === frames[boundaryIndex],
+    };
+    items.set(key, block);
+    usedKeys.add(key);
+    if (itemId === null) unidentified.push(key);
+    slots.push({ type: "item", key });
+  };
+
+  const finalize = (key: string, update: { kind: string; text: string; status: string }): void => {
+    const block = items.get(key);
+    if (!block) return;
+    block.kind = update.kind;
+    block.status = update.status;
+    // A completion that carries the item's text wins; otherwise the streamed
+    // accumulation is what the engine actually delivered.
+    block.text = update.text || block.text;
+    block.completed = true;
+  };
+
+  const takeUnidentified = (kind: string, turnId: string | null): string | null => {
+    const candidates = unidentified.filter((key) => {
+      const block = items.get(key);
+      if (!block || block.completed) return false;
+      if (block.kind !== kind) return false;
+      return (block.turnId ?? null) === (turnId ?? null);
+    });
+    // Only an unambiguous match is allowed. Two open unidentified streams of
+    // one kind cannot both be this completion, so none is chosen.
+    return candidates.length === 1 ? (candidates[0] ?? null) : null;
+  };
+
+  const targetFor = (itemId: string | null, kind: string, turnId: string | null): string | null => {
+    if (itemId !== null) {
+      const keyed = `item:${itemId}`;
+      if (items.has(keyed)) return keyed;
+    }
+    // Legacy completions name their item only in the payload, while the
+    // matching deltas predate identity. Bind them only when exactly one
+    // unidentified stream of this kind in this turn can be the source.
+    return takeUnidentified(kind, turnId);
+  };
+
+  for (const event of frames) {
     const payload = record(event.payload);
-    const key = `${event.threadId}-${event.seq}`;
+    const turnId = event.turnId ?? null;
     if (isEnginePlumbingKind(event.kind)) {
       // Liveness/accounting does not end a message. Flushing here strands a
       // partial card beside the later completed answer.
       internalActivity += 1;
       continue;
     }
-    if (event.kind !== "item.delta" && event.kind !== "item.completed") flushDelta();
+    const key = `${event.threadId}-${event.seq}`;
 
     switch (event.kind) {
       case "thread.started":
-        entries.push({
+        emit({
           key,
           kind: "status",
           title: "Thread opened",
@@ -150,11 +312,13 @@ function projectThreadTimeline(events: StoredEventSummary[]): TimelineProjection
           status: null,
           seq: event.seq,
           timestamp: event.timestamp,
+          turnId,
+          itemId: event.itemId ?? null,
         });
         break;
       case "turn.started": {
         const posture = payload?.permission_posture;
-        entries.push({
+        emit({
           key,
           kind: "status",
           title: "Turn started",
@@ -162,19 +326,27 @@ function projectThreadTimeline(events: StoredEventSummary[]): TimelineProjection
           status: typeof posture === "string" ? posture : null,
           seq: event.seq,
           timestamp: event.timestamp,
+          turnId,
+          itemId: event.itemId ?? null,
         });
         break;
       }
       case "item.delta": {
         const delta = typeof payload?.delta === "string" ? payload.delta : "";
         const kind = typeof payload?.kind === "string" ? payload.kind : "unknown";
-        if (!openDelta) {
-          openDelta = { kind, text: delta, seq: event.seq, timestamp: event.timestamp };
-        } else if (openDelta.kind === kind) {
-          openDelta.text += delta;
+        const itemId = event.itemId ?? null;
+        const base =
+          itemId !== null ? `item:${itemId}` : `unidentified:${turnId ?? "no-turn"}:${kind}`;
+        const existing = items.get(base);
+        if (existing && !existing.completed) {
+          existing.text += delta;
         } else {
-          flushDelta();
-          openDelta = { kind, text: delta, seq: event.seq, timestamp: event.timestamp };
+          openItem(event, kind);
+          const opened = slots[slots.length - 1];
+          if (opened?.type === "item") {
+            const block = items.get(opened.key);
+            if (block) block.text = delta;
+          }
         }
         break;
       }
@@ -184,71 +356,104 @@ function projectThreadTimeline(events: StoredEventSummary[]): TimelineProjection
         const status = firstString(item, ["status"]) || "completed";
         const detail = firstString(item, ["detail"]);
         const summary = firstString(item, ["summary"]);
-        const messageKinds =
-          kind === "user_message"
-            ? ["user_message"]
-            : kind === "agent_reasoning"
-              ? ["agent_reasoning"]
-              : ["agent_message", "assistant_message", "unknown"];
-        const streamed = takeDelta(messageKinds);
-        if (!streamed) flushDelta();
-        if (kind === "agent_message" || kind === "assistant_message" || kind === "user_message") {
-          const body = detail || streamed?.text || summary;
-          if (body) {
-            entries.push({
-              key,
+        const itemId = event.itemId ?? payloadItemId(payload);
+        const keyed = itemId !== null ? `item:${itemId}` : null;
+        const target = targetFor(itemId, kind, turnId);
+        const message =
+          kind === "agent_message" || kind === "assistant_message" || kind === "user_message";
+        if (target !== null) {
+          const block = items.get(target);
+          finalize(target, {
+            kind,
+            text: detail || (message ? (block?.text ?? "") : summary),
+            status,
+          });
+          break;
+        }
+        if (message) {
+          const body = detail || summary;
+          // An identified completion with no text of its own can mean its
+          // deltas are on an older page. Showing an explicitly partial card is
+          // better than letting the item vanish; the UI can reload its frames.
+          const needsBeginning = body.length === 0 && itemId !== null && !historyComplete;
+          if (body || needsBeginning) {
+            emit({
+              key: keyed ?? key,
               kind: kind === "user_message" ? "user" : "assistant",
               title: kind === "user_message" ? "You" : "Engine",
               body,
               status,
-              seq: streamed?.seq ?? event.seq,
-              timestamp: streamed?.timestamp ?? event.timestamp,
+              seq: event.seq,
+              timestamp: event.timestamp,
+              turnId,
+              itemId,
+              partial: needsBeginning,
             });
           }
         } else if (kind === "agent_reasoning") {
-          emittedReasoning += 1;
-          entries.push({
-            key,
+          emit({
+            key: keyed ?? key,
             kind: "reasoning",
-            title: `Engine-reported reasoning ${emittedReasoning}`,
-            body: detail || streamed?.text || summary,
+            title: "Engine-reported reasoning",
+            body: detail || summary,
             status,
-            seq: streamed?.seq ?? event.seq,
-            timestamp: streamed?.timestamp ?? event.timestamp,
+            seq: event.seq,
+            timestamp: event.timestamp,
+            turnId,
+            itemId,
           });
         } else if (["tool_call", "command_execution", "file_change", "web_search"].includes(kind)) {
-          entries.push({
-            key,
+          emit({
+            key: keyed ?? key,
             kind: "tool",
             title: kind.replace(/_/g, " "),
             body: detail || summary,
             status,
             seq: event.seq,
             timestamp: event.timestamp,
+            turnId,
+            itemId,
           });
         } else {
-          entries.push({
-            key,
+          emit({
+            key: keyed ?? key,
             kind: "status",
             title: `Item completed · ${kind}`,
             body: detail || summary,
             status,
             seq: event.seq,
             timestamp: event.timestamp,
+            turnId,
+            itemId,
           });
         }
         break;
       }
       case "item.failed": {
         const item = record(payload?.item);
-        entries.push({
-          key,
+        const kind = firstString(item, ["kind"]) || "unknown";
+        const itemId = event.itemId ?? payloadItemId(payload);
+        const keyed = itemId !== null ? `item:${itemId}` : null;
+        const target = targetFor(itemId, kind, turnId);
+        const failure = firstString(item, ["detail", "summary", "error"]) || textOf(payload);
+        if (target !== null) {
+          finalize(target, {
+            kind: "error",
+            text: failure,
+            status: firstString(item, ["status"]) || "failed",
+          });
+          break;
+        }
+        emit({
+          key: keyed ?? key,
           kind: "error",
           title: "Item failed",
-          body: firstString(item, ["detail", "summary", "error"]) || textOf(payload),
+          body: failure,
           status: firstString(item, ["status"]) || "failed",
           seq: event.seq,
           timestamp: event.timestamp,
+          turnId,
+          itemId,
         });
         break;
       }
@@ -257,19 +462,31 @@ function projectThreadTimeline(events: StoredEventSummary[]): TimelineProjection
         // had produced before that is still real. Reporting it as an
         // unrecognized event hid both facts.
         const item = record(payload?.item);
-        entries.push({
-          key,
+        const kind = firstString(item, ["kind"]) || "unknown";
+        const itemId = event.itemId ?? payloadItemId(payload);
+        const keyed = itemId !== null ? `item:${itemId}` : null;
+        const target = targetFor(itemId, kind, turnId);
+        const detail =
+          firstString(item, ["detail", "summary"]) || firstString(item, ["kind"]) || "";
+        if (target !== null) {
+          finalize(target, { kind: "status", text: detail, status: "interrupted" });
+          break;
+        }
+        emit({
+          key: keyed ?? key,
           kind: "status",
           title: "Item interrupted",
-          body: firstString(item, ["detail", "summary"]) || firstString(item, ["kind"]),
+          body: detail,
           status: "interrupted",
           seq: event.seq,
           timestamp: event.timestamp,
+          turnId,
+          itemId,
         });
         break;
       }
       case "turn.interrupt_requested":
-        entries.push({
+        emit({
           key,
           kind: "status",
           title: "Interrupt requested",
@@ -277,6 +494,8 @@ function projectThreadTimeline(events: StoredEventSummary[]): TimelineProjection
           status: null,
           seq: event.seq,
           timestamp: event.timestamp,
+          turnId,
+          itemId: event.itemId ?? null,
         });
         break;
       case "turn.artifacts": {
@@ -298,7 +517,7 @@ function projectThreadTimeline(events: StoredEventSummary[]): TimelineProjection
         if (workspace?.truncated === true || omitted > 0) {
           parts.push(`${omitted} omitted`);
         }
-        entries.push({
+        emit({
           key,
           kind: "status",
           title: "Turn artifacts",
@@ -306,11 +525,13 @@ function projectThreadTimeline(events: StoredEventSummary[]): TimelineProjection
           status: null,
           seq: event.seq,
           timestamp: event.timestamp,
+          turnId,
+          itemId: event.itemId ?? null,
         });
         break;
       }
       case "turn.completed":
-        entries.push({
+        emit({
           key,
           kind: "status",
           title: "Turn completed",
@@ -318,10 +539,12 @@ function projectThreadTimeline(events: StoredEventSummary[]): TimelineProjection
           status: "completed",
           seq: event.seq,
           timestamp: event.timestamp,
+          turnId,
+          itemId: event.itemId ?? null,
         });
         break;
       case "turn.failed":
-        entries.push({
+        emit({
           key,
           kind: "error",
           title: "Turn failed",
@@ -329,10 +552,12 @@ function projectThreadTimeline(events: StoredEventSummary[]): TimelineProjection
           status: "failed",
           seq: event.seq,
           timestamp: event.timestamp,
+          turnId,
+          itemId: event.itemId ?? null,
         });
         break;
       case "turn.interrupted":
-        entries.push({
+        emit({
           key,
           kind: "status",
           title: "Turn interrupted",
@@ -340,11 +565,13 @@ function projectThreadTimeline(events: StoredEventSummary[]): TimelineProjection
           status: "interrupted",
           seq: event.seq,
           timestamp: event.timestamp,
+          turnId,
+          itemId: event.itemId ?? null,
         });
         break;
       case "approval.decided":
       case "user_input.answered":
-        entries.push({
+        emit({
           key,
           kind: "status",
           title: event.kind === "approval.decided" ? "Approval decided" : "Question answered",
@@ -352,6 +579,8 @@ function projectThreadTimeline(events: StoredEventSummary[]): TimelineProjection
           status: null,
           seq: event.seq,
           timestamp: event.timestamp,
+          turnId,
+          itemId: event.itemId ?? null,
         });
         break;
       default:
@@ -360,7 +589,7 @@ function projectThreadTimeline(events: StoredEventSummary[]): TimelineProjection
           event.kind.startsWith("user_input.") ||
           event.kind === "clarification.requested"
         ) {
-          entries.push({
+          emit({
             key,
             kind: "status",
             title: "Engine is waiting for input",
@@ -368,9 +597,11 @@ function projectThreadTimeline(events: StoredEventSummary[]): TimelineProjection
             status: "waiting",
             seq: event.seq,
             timestamp: event.timestamp,
+            turnId,
+            itemId: event.itemId ?? null,
           });
         } else if (event.kind.startsWith("status.") || event.kind.startsWith("thread.")) {
-          entries.push({
+          emit({
             key,
             kind: "status",
             title: event.kind,
@@ -378,10 +609,12 @@ function projectThreadTimeline(events: StoredEventSummary[]): TimelineProjection
             status: firstString(payload, ["status"]) || null,
             seq: event.seq,
             timestamp: event.timestamp,
+            turnId,
+            itemId: event.itemId ?? null,
           });
         } else {
           unprojected.add(event.kind);
-          entries.push({
+          emit({
             key,
             kind: "unknown",
             title: `Unrecognized event · ${event.kind}`,
@@ -389,13 +622,82 @@ function projectThreadTimeline(events: StoredEventSummary[]): TimelineProjection
             status: null,
             seq: event.seq,
             timestamp: event.timestamp,
+            turnId,
+            itemId: event.itemId ?? null,
           });
         }
+        break;
     }
   }
 
-  // A delta with no completion still happened; show it as an unfinished stream.
-  flushDelta();
+  for (const slot of slots) {
+    if (slot.type === "entry") {
+      entries.push(slot.entry);
+      continue;
+    }
+    const block = items.get(slot.key);
+    if (!block) continue;
+    if (block.kind === "error") {
+      entries.push({
+        key: block.key,
+        kind: "error",
+        title: "Item failed",
+        body: block.text,
+        status: block.status,
+        seq: block.seq,
+        timestamp: block.timestamp,
+        turnId: block.turnId,
+        itemId: block.itemId,
+        streaming: !block.completed,
+        partial: block.atBoundary,
+      });
+      continue;
+    }
+    const conversation =
+      block.kind === "user_message" ||
+      block.kind === "agent_message" ||
+      block.kind === "assistant_message" ||
+      block.kind === "agent_reasoning";
+    if (!conversation) {
+      entries.push({
+        key: block.key,
+        kind: "status",
+        title: block.completed
+          ? `Item completed · ${block.kind}`
+          : `Item streaming · ${block.kind}`,
+        body: block.text,
+        status: block.status,
+        seq: block.seq,
+        timestamp: block.timestamp,
+        turnId: block.turnId,
+        itemId: block.itemId,
+        streaming: !block.completed,
+        partial: block.atBoundary,
+      });
+      continue;
+    }
+    entries.push({
+      key: block.key,
+      kind: deltaKind(block.kind),
+      title: block.completed
+        ? block.kind === "user_message"
+          ? "You"
+          : block.kind === "agent_reasoning"
+            ? "Engine-reported reasoning"
+            : "Engine"
+        : itemTitle(block.kind),
+      body: block.text,
+      status: block.status,
+      seq: block.seq,
+      timestamp: block.timestamp,
+      turnId: block.turnId,
+      itemId: block.itemId,
+      streaming: !block.completed,
+      // A partial card is honest about what it does not have. With an item id
+      // the UI can reload the beginning; without one it must say it cannot.
+      partial: block.atBoundary,
+    });
+  }
 
   entries.sort((left, right) => {
     if (left.timestamp === right.timestamp) return left.seq - right.seq;

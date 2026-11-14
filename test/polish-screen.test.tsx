@@ -159,8 +159,10 @@ function detail(): ProjectDetail {
     tasks: [],
     dependencies: [],
     threads: [],
+    currentThreadId: "thr_0123456789abcdef",
     draft: null,
     events: [],
+    history: { olderCursor: null, hasMore: false, storedTotal: 0, pageSize: 0 },
     usage: {
       turns: 0,
       inputTokens: 0,

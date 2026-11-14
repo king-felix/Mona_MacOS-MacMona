@@ -4,6 +4,7 @@ import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import type { ProjectId } from "../src/shared/contracts/ids";
 import type {
+  HistoryPage,
   IpcResult,
   ProjectDetail,
   ProjectSummary,
@@ -91,8 +92,10 @@ function detail(summary: ProjectSummary, draftText: string | null = null): Proje
         updatedAt: "2026-11-11T00:00:00.000Z",
       },
     ],
+    currentThreadId: `thr_${summary.id.slice(4)}`,
     draft: draftText === null ? null : { threadId: `thr_${summary.id.slice(4)}`, text: draftText },
     events: [],
+    history: { olderCursor: null, hasMore: false, storedTotal: 0, pageSize: 0 },
     usage: {
       turns: 0,
       inputTokens: 0,
@@ -217,6 +220,7 @@ interface World {
   saveResult: IpcResult<{ saved: boolean }> | null;
   submitGate: Gate<IpcResult<StudioSubmitResult>> | null;
   submitResult: IpcResult<StudioSubmitResult> | null;
+  historyGate: Gate<IpcResult<HistoryPage>> | null;
 }
 
 function world(projects: ProjectSummary[]): World {
@@ -231,6 +235,7 @@ function world(projects: ProjectSummary[]): World {
     saveResult: null,
     submitGate: null,
     submitResult: null,
+    historyGate: null,
   };
 }
 
@@ -262,6 +267,19 @@ function install(state: World): void {
       return ok(value);
     },
     studioState: async (id: string) => ok(studioSnapshot(id as ProjectId)),
+    projectHistory: async () => {
+      if (state.historyGate) return state.historyGate.promise;
+      return ok({
+        events: [],
+        olderCursor: null,
+        hasMore: false,
+        storedTotal: 0,
+        pageSize: 0,
+        threadId: null,
+      });
+    },
+    projectHistoryItem: async (projectId: string, threadId: string, itemId: string) =>
+      ok({ threadId, itemId, events: [], truncated: false, storedCount: 0 }),
     polishDigest: async () => ({ ok: false, error: { code: "NONE", message: "no digest" } }),
     polishStatus: async () => ({ ok: false, error: { code: "NONE", message: "no status" } }),
     promptFavorites: async () => ok([]),
@@ -628,5 +646,91 @@ describe("shell draft saving", () => {
     expect(textarea().value).toBe("Restored draft");
     expect(state.submitCalls).toHaveLength(0);
     expect(draftHint()).toContain("Draft saved locally");
+  });
+});
+
+describe("R02 paged history in the real shell", () => {
+  it("prepends an older page without moving the reader", async () => {
+    const state = world([project(A, "A")]);
+    const summary = project(A, "A");
+    const current: ProjectDetail = detail(summary);
+    current.events = [
+      {
+        threadId: `thr_${A.slice(4)}`,
+        seq: 3,
+        kind: "item.completed",
+        payload: { item: { id: "item_3", kind: "agent_message", detail: "three" } },
+        timestamp: "2026-11-11T00:00:03.000Z",
+        turnId: null,
+        itemId: "item_3",
+      },
+    ];
+    current.history = {
+      olderCursor: { recordedAt: "r3", rowId: 3 },
+      hasMore: true,
+      storedTotal: 3,
+      pageSize: 1,
+    };
+    state.details.set(A, current);
+    state.historyGate = gate<IpcResult<HistoryPage>>();
+    install(state);
+    act(() => root?.render(<Shell />));
+    act(() => document.dispatchEvent(new Event("mona:ready")));
+    document.body.dataset.ready = "true";
+    await waitFor(
+      () => container!.querySelectorAll("[data-project-id]").length > 0,
+      "catalog cards",
+    );
+    act(() => {
+      container!.querySelector<HTMLElement>("[data-project-id]")?.click();
+    });
+    await waitFor(() => document.documentElement.dataset.screen === "studio", "studio screen");
+    const timeline = container!.querySelector<HTMLDivElement>('[data-testid="studio-timeline"]');
+    if (!timeline) throw new Error("timeline is not rendered");
+    Object.defineProperty(timeline, "scrollHeight", { configurable: true, value: 1_000 });
+    Object.defineProperty(timeline, "clientHeight", { configurable: true, value: 300 });
+    timeline.scrollTop = 500;
+    act(() => {
+      timeline.dispatchEvent(new Event("scroll", { bubbles: true }));
+    });
+    const loadEarlier = Array.from(container!.querySelectorAll("button")).find((button) =>
+      button.textContent?.includes("Load earlier"),
+    );
+    if (!loadEarlier) throw new Error("load earlier is not offered");
+    act(() => loadEarlier.click());
+    Object.defineProperty(timeline, "scrollHeight", { configurable: true, value: 2_000 });
+    state.historyGate.resolve(
+      ok({
+        events: [
+          {
+            threadId: `thr_${A.slice(4)}`,
+            seq: 1,
+            kind: "item.completed",
+            payload: { item: { id: "item_1", kind: "agent_message", detail: "one" } },
+            timestamp: "2026-11-11T00:00:01.000Z",
+            turnId: null,
+            itemId: "item_1",
+          },
+          {
+            threadId: `thr_${A.slice(4)}`,
+            seq: 2,
+            kind: "item.completed",
+            payload: { item: { id: "item_2", kind: "agent_message", detail: "two" } },
+            timestamp: "2026-11-11T00:00:02.000Z",
+            turnId: null,
+            itemId: "item_2",
+          },
+        ],
+        olderCursor: null,
+        hasMore: false,
+        storedTotal: 3,
+        pageSize: 2,
+        threadId: null,
+      }),
+    );
+    await tick(8);
+    expect(timeline.scrollTop).toBe(1_500);
+    expect(container!.textContent).toContain("one");
+    expect(container!.textContent).toContain("three");
   });
 });

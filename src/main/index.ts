@@ -92,6 +92,7 @@ const IS_DESIGN_SHOTS = process.argv.includes("--design-shots");
 const IS_SHELL_SMOKE = process.argv.includes("--shell-smoke");
 const IS_STUDIO_SMOKE = process.argv.includes("--studio-smoke");
 const IS_OPEN_SMOKE = process.argv.includes("--open-smoke");
+const IS_HISTORY_SMOKE = process.argv.includes("--history-smoke");
 const IS_PACKAGE_SMOKE = process.argv.includes("--package-smoke");
 const PACKAGE_SMOKE_OUT = (() => {
   const inline = process.argv.find((argument) => argument.startsWith("--package-smoke-out="));
@@ -131,6 +132,7 @@ let keepAwake: KeepAwake | null = null;
 let activeProjectId: StudioProjectId | null = null;
 let studioSmokeProjectId: string | null = null;
 let studioSmokeRoot: string | null = null;
+let historySmokeProjectId: string | null = null;
 let openCoordinator: OpenCoordinator | null = null;
 let resolveCoordinatorReady: (() => void) | null = null;
 interface EngineIdentity {
@@ -287,6 +289,16 @@ function openWindow(): BrowserWindow {
       void captureDesignShots(window)
         .catch((error: unknown) => {
           process.stderr.write(`design shots failed: ${String(error)}\n`);
+          process.exitCode = 1;
+        })
+        .finally(() => app.quit());
+    });
+  }
+  if (IS_HISTORY_SMOKE) {
+    window.webContents.once("did-finish-load", () => {
+      void runHistorySmoke(window)
+        .catch((error: unknown) => {
+          process.stderr.write(`history smoke failed: ${String(error)}\n`);
           process.exitCode = 1;
         })
         .finally(() => app.quit());
@@ -2274,6 +2286,169 @@ const STUDIO_HOLD_TASK =
   "Run the shell command `sleep 20` in the workspace and wait for it to finish. " +
   "Then reply only with: done";
 
+// ------------------------------------------------------------ history smoke
+
+/**
+ * R02 evidence runner. It opens a real 10,000+ event project in the real shell
+ * and drives the paged history: Load earlier, scroll anchoring, Jump to latest,
+ * thread selection, and honest partial items. Reading history must not start a
+ * runtime or ask a model; the connection check below asserts that.
+ */
+async function runHistorySmoke(window: BrowserWindow): Promise<void> {
+  const outDir =
+    process.env.MONA_HISTORY_SMOKE_OUT_DIR ??
+    join(process.cwd(), "docs", "evidence", "macos", "artifacts");
+  mkdirSync(outDir, { recursive: true });
+  window.setSize(1280, 900);
+  const report: Record<string, unknown> = {
+    schema_version: 1,
+    ok: false,
+    checks: {} as Record<string, boolean>,
+    phases: [] as unknown[],
+  };
+  const checks = report.checks as Record<string, boolean>;
+  const phases = report.phases as Array<Record<string, unknown>>;
+  const phase = (name: string, value: Record<string, unknown>): void => {
+    phases.push({ name, ...value });
+  };
+  const waitFor = async (expression: string, timeoutMs = 30_000): Promise<boolean> => {
+    const deadline = Date.now() + timeoutMs;
+    while (Date.now() < deadline) {
+      const value = await window.webContents.executeJavaScript(expression);
+      if (value) return true;
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+    return false;
+  };
+  try {
+    report.project = historySmokeProjectId;
+    await waitFor("document.body.dataset.ready === 'true'");
+    checks.catalog_rendered = await waitFor(
+      "document.querySelectorAll('[data-project-id]').length > 0",
+    );
+    await window.webContents.executeJavaScript(
+      "document.querySelector('[data-project-id]')?.click(); true",
+    );
+    checks.studio_opened = await waitFor("document.documentElement.dataset.screen === 'studio'");
+    checks.timeline_rendered = await waitFor(
+      "document.querySelectorAll('.timeline-event').length > 0",
+    );
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    const initial = await window.webContents.executeJavaScript(`(() => {
+      const text = document.body.textContent ?? '';
+      const scope = document.querySelector('[data-testid="studio-history-scope"]');
+      const select = document.querySelector('[data-testid="studio-thread-select"]');
+      return {
+        scope: scope?.textContent ?? null,
+        cards: document.querySelectorAll('.timeline-event').length,
+        newest_visible: text.includes('history frame 10050'),
+        older_absent: !text.includes('history frame 9850'),
+        load_button: Boolean(document.querySelector('[data-testid="studio-load-earlier"]')),
+        jump_button: Boolean(document.querySelector('[data-testid="studio-jump-latest"]')),
+        connection: document.querySelector('[data-testid="studio-connection"]')?.textContent ?? null,
+        thread_options: select ? Array.from(select.options).map((option) => option.textContent) : [],
+        thread_disabled: select ? select.disabled : null,
+      };
+    })()`);
+    phase("initial", initial);
+    const storedReported = Number(String(initial.scope ?? "").match(/(\d+) stored/)?.[1] ?? "0");
+    report.stored_total = storedReported;
+    checks.scope_reports_stored_total = storedReported >= 10_000;
+    checks.scope_reports_older_pages = String(initial.scope ?? "").includes(
+      "older pages available",
+    );
+    checks.newest_page_visible = initial.newest_visible === true;
+    checks.older_page_not_yet_loaded = initial.older_absent === true;
+    checks.load_earlier_offered = initial.load_button === true;
+    checks.jump_absent_at_live_edge = initial.jump_button === false;
+    checks.no_runtime_started = String(initial.connection ?? "").includes("Not started");
+    checks.thread_selector_present = initial.thread_disabled === false;
+    checks.thread_selector_distinguishes =
+      initial.thread_options.some((label: string | null) => label?.includes("current")) &&
+      initial.thread_options.some((label: string | null) => label?.includes("archived"));
+
+    // Scroll away from the live edge, then load an older page. The content
+    // above the viewport must grow by exactly the distance the viewport moves:
+    // that is what "does not drag the reader down" means in pixels.
+    const before = await window.webContents.executeJavaScript(`(() => {
+      const node = document.querySelector('[data-testid="studio-timeline"]');
+      if (!node) return null;
+      node.scrollTop = 300;
+      node.dispatchEvent(new Event('scroll', { bubbles: true }));
+      return { top: node.scrollTop, height: node.scrollHeight };
+    })()`);
+    await new Promise((resolve) => setTimeout(resolve, 150));
+    checks.jump_appears_after_scrolling = await waitFor(
+      `Boolean(document.querySelector('[data-testid="studio-jump-latest"]'))`,
+    );
+    await window.webContents.executeJavaScript(
+      `document.querySelector('[data-testid="studio-load-earlier"]')?.click(); true`,
+    );
+    checks.older_page_loaded = await waitFor(
+      "(document.body.textContent ?? '').includes('history frame 9850')",
+    );
+    await new Promise((resolve) => setTimeout(resolve, 350));
+    const after = await window.webContents.executeJavaScript(`(() => {
+      const node = document.querySelector('[data-testid="studio-timeline"]');
+      if (!node) return null;
+      return {
+        top: node.scrollTop,
+        height: node.scrollHeight,
+        anchor_applications: Number(node.dataset.anchorApplications ?? -1),
+        older_loads: Number(node.dataset.historyLoads ?? -1),
+      };
+    })()`);
+    const anchorDelta =
+      before && after
+        ? Math.abs(after.top - before.top - (after.height - before.height))
+        : Number.NaN;
+    phase("anchor", { before, after, delta: anchorDelta });
+    checks.scroll_anchor_held = Number.isFinite(anchorDelta) && anchorDelta <= 2;
+    checks.older_page_rendered_once = await window.webContents.executeJavaScript(
+      "((document.body.textContent ?? '').match(/history frame 9850/g) ?? []).length === 1",
+    );
+
+    // A second page proves the cursor continues rather than reloading one fixed
+    // window.
+    await window.webContents.executeJavaScript(
+      `document.querySelector('[data-testid="studio-load-earlier"]')?.click(); true`,
+    );
+    checks.second_older_page_loaded = await waitFor(
+      "(document.body.textContent ?? '').includes('history frame 9650')",
+    );
+
+    await window.webContents.executeJavaScript(
+      `document.querySelector('[data-testid="studio-jump-latest"]')?.click(); true`,
+    );
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    const atLatest = await window.webContents.executeJavaScript(`(() => {
+      const node = document.querySelector('[data-testid="studio-timeline"]');
+      if (!node) return null;
+      return {
+        distance: node.scrollHeight - node.scrollTop - node.clientHeight,
+        jump_button: Boolean(document.querySelector('[data-testid="studio-jump-latest"]')),
+        scope: document.querySelector('[data-testid="studio-history-scope"]')?.textContent ?? null,
+      };
+    })()`);
+    phase("jump", atLatest);
+    checks.jump_to_latest_returns_to_edge =
+      atLatest !== null && atLatest.distance < 48 && atLatest.jump_button === false;
+
+    const shot = await window.webContents.capturePage();
+    const shotPath = join(outDir, "r02-history-long-session.png");
+    writeFileSync(shotPath, shot.toPNG());
+    report.screenshot = shotPath;
+    report.ok = Object.values(checks).every(Boolean);
+  } catch (error) {
+    const candidate = error as { message?: string; stack?: string };
+    report.ok = false;
+    report.error = { message: candidate.message ?? String(error), stack: candidate.stack ?? null };
+  }
+  const out = process.env.MONA_HISTORY_SMOKE_OUT;
+  if (out) writeFileSync(out, JSON.stringify(report, null, 2) + "\n");
+  if (report.ok !== true) process.exitCode = 1;
+}
+
 async function runStudioSmoke(window: BrowserWindow): Promise<void> {
   const outDir =
     process.env.MONA_STUDIO_SMOKE_DIR ??
@@ -3075,7 +3250,12 @@ if (!gotLock) {
     try {
       const appPaths = resolveAppPaths();
       const smokeState =
-        IS_SMOKE || IS_LIFECYCLE_SMOKE || IS_SHELL_SMOKE || IS_STUDIO_SMOKE || IS_OPEN_SMOKE;
+        IS_SMOKE ||
+        IS_LIFECYCLE_SMOKE ||
+        IS_SHELL_SMOKE ||
+        IS_STUDIO_SMOKE ||
+        IS_OPEN_SMOKE ||
+        IS_HISTORY_SMOKE;
       const stateRoot = smokeState
         ? mkdtempSync(join(tmpdir(), "mona-product-state-"))
         : appPaths.state;
@@ -3370,7 +3550,8 @@ if (!gotLock) {
             }
             return items;
           },
-          shouldQuit: () => !IS_SMOKE && !IS_LIFECYCLE_SMOKE && !IS_SHELL_SMOKE,
+          shouldQuit: () =>
+            !IS_SMOKE && !IS_LIFECYCLE_SMOKE && !IS_SHELL_SMOKE && !IS_HISTORY_SMOKE,
           // A successful handoff is the one point where quitting is correct:
           // every active item was checked first, so nothing is interrupted.
           afterHandoff: () => {
@@ -3686,6 +3867,136 @@ if (!gotLock) {
           acceptance: ["Names the next exact action", "Spells the current blocker"],
           tags: ["resume"],
         });
+      }
+    }
+
+    if (IS_HISTORY_SMOKE && projectService && productState) {
+      // R02 long-session evidence. The store is a real StateStore on this Mac;
+      // the run below opens this project in the real Electron shell and pages
+      // through its history. No runtime is started and no model is asked
+      // anything.
+      const base = mkdtempSync(join(tmpdir(), "mona-history-smoke-project-"));
+      const root = join(base, "Long session");
+      mkdirSync(root, { recursive: true });
+      writeFileSync(join(root, "README.md"), "# Long session\n", "utf8");
+      const opened = await projectService.open(root);
+      historySmokeProjectId = opened?.project.id ?? null;
+      if (opened) {
+        const detail = await projectService.detail(opened.project.id);
+        const thread = detail.threads[0];
+        if (thread) {
+          const start = Date.parse("2026-11-01T00:00:00.000Z");
+          const total = 10_050;
+          let seq = 1;
+          await productState.recordEvent({
+            threadId: thread.id,
+            seq: seq++,
+            kind: "thread.started",
+            payload: {},
+            timestamp: new Date(start).toISOString(),
+          });
+          // One long turn: 2,100 message frames for item_long, with a
+          // heartbeat every 40 frames and a second item interleaved for the
+          // first 300. The rest of the project is ordinary status history.
+          const turnId = "turn_history_smoke_0001";
+          await productState.recordEvent({
+            threadId: thread.id,
+            seq: seq++,
+            kind: "turn.started",
+            turnId,
+            payload: { permission_posture: "full_access" },
+            timestamp: new Date(start + seq * 10).toISOString(),
+          });
+          for (let index = 0; index < 2_100; index += 1) {
+            if (index % 40 === 39) {
+              await productState.recordEvent({
+                threadId: thread.id,
+                seq: seq++,
+                kind: "operation.heartbeat",
+                turnId,
+                payload: { observed_at: new Date(start + seq * 10).toISOString() },
+                timestamp: new Date(start + seq * 10).toISOString(),
+              });
+            }
+            await productState.recordEvent({
+              threadId: thread.id,
+              seq: seq++,
+              kind: "item.delta",
+              turnId,
+              itemId: "item_history_long",
+              payload: { kind: "agent_message", delta: `long-${index} ` },
+              timestamp: new Date(start + seq * 10).toISOString(),
+            });
+            if (index < 300) {
+              await productState.recordEvent({
+                threadId: thread.id,
+                seq: seq++,
+                kind: "item.delta",
+                turnId,
+                itemId: "item_history_short",
+                payload: { kind: "agent_message", delta: `short-${index} ` },
+                timestamp: new Date(start + seq * 10).toISOString(),
+              });
+            }
+          }
+          await productState.recordEvent({
+            threadId: thread.id,
+            seq: seq++,
+            kind: "item.completed",
+            turnId,
+            itemId: "item_history_long",
+            payload: {
+              item: { id: "item_history_long", kind: "agent_message", status: "completed" },
+            },
+            timestamp: new Date(start + seq * 10).toISOString(),
+          });
+          await productState.recordEvent({
+            threadId: thread.id,
+            seq: seq++,
+            kind: "item.completed",
+            turnId,
+            itemId: "item_history_short",
+            payload: {
+              item: { id: "item_history_short", kind: "agent_message", status: "completed" },
+            },
+            timestamp: new Date(start + seq * 10).toISOString(),
+          });
+          await productState.recordEvent({
+            threadId: thread.id,
+            seq: seq++,
+            kind: "turn.completed",
+            turnId,
+            payload: {},
+            timestamp: new Date(start + seq * 10).toISOString(),
+          });
+          while (seq <= total) {
+            const frame = seq;
+            await productState.recordEvent({
+              threadId: thread.id,
+              seq,
+              kind: "status.note",
+              payload: { note: `history frame ${frame}` },
+              timestamp: new Date(start + seq * 10).toISOString(),
+            });
+            seq += 1;
+          }
+          // A second, older thread so the selector has to distinguish the
+          // current conversation from archived history.
+          const archived = await productState.upsertThread({
+            id: "thr_history_archived",
+            projectId: opened.project.id,
+            title: "Archived work",
+          });
+          for (let index = 1; index <= 4; index += 1) {
+            await productState.recordEvent({
+              threadId: archived.id,
+              seq: index,
+              kind: "status.note",
+              payload: { note: `archived frame ${index}` },
+              timestamp: new Date(start + index * 10).toISOString(),
+            });
+          }
+        }
       }
     }
 
@@ -4077,7 +4388,13 @@ if (!gotLock) {
       bundlePath: resolve(app.getAppPath(), "../../.."),
       packaged: app.isPackaged,
     });
-    if (installLocation.duplicate && !IS_SMOKE && !IS_SHELL_SMOKE && !IS_STUDIO_SMOKE) {
+    if (
+      installLocation.duplicate &&
+      !IS_SMOKE &&
+      !IS_SHELL_SMOKE &&
+      !IS_STUDIO_SMOKE &&
+      !IS_HISTORY_SMOKE
+    ) {
       const choice = await dialog.showMessageBox({
         type: "warning",
         title: "Mona is installed in two places",

@@ -5,17 +5,20 @@ import type { ProjectId } from "../../shared/contracts/ids";
 import type {
   EngineSnapshot,
   EvidenceSummary,
+  HistoryItemPage,
+  HistoryPage,
   OpenProjectResult,
   ProjectDetail,
   ProjectSummary,
   RuntimeStatusView,
   StateFacts,
+  StoredEventSummary,
   TaskSummary,
   UsageSummaryView,
 } from "../../shared/contracts/project-bridge";
 import type { RuntimeStatus } from "../supervisor/runtime-supervisor";
 import { StateError } from "../state/errors";
-import type { RuntimeBinding, StateStore, StoredProject } from "../state/store";
+import type { RuntimeBinding, StateStore, StoredEvent, StoredProject } from "../state/store";
 
 export interface ProjectServiceOptions {
   store: StateStore;
@@ -27,6 +30,23 @@ export interface ProjectServiceOptions {
 }
 
 const MAX_VIEW_BYTES = 64 * 1024;
+
+/**
+ * The boundary shape of one stored frame. Identity is copied, never invented:
+ * a null `itemId`/`turnId` is a fact about a row written before that identity
+ * was captured, and the renderer reports it as unknown.
+ */
+function eventSummary(event: StoredEvent): StoredEventSummary {
+  return {
+    threadId: event.threadId,
+    seq: event.seq,
+    kind: event.kind,
+    payload: event.payload,
+    timestamp: event.timestamp,
+    turnId: event.turnId ?? null,
+    itemId: event.itemId ?? null,
+  };
+}
 
 function summary(project: StoredProject): ProjectSummary {
   return {
@@ -205,25 +225,29 @@ export class ProjectService {
     if (!project)
       throw new StateError("NOT_FOUND", "project is not in the catalog", { projectId: id });
     const thread = await this.ensureThread(project);
-    const [tasks, dependencies, threads, usage, usageByModel, evidence, view, draft, binding] =
-      await Promise.all([
-        this.store.listTasks(id),
-        this.store.listDependencies(id),
-        this.store.listThreads(id),
-        this.store.summarizeUsage(id),
-        this.store.usageByModel(id),
-        this.store.listRequirementEvidence(id),
-        this.store.getSettings(`view:${id}`),
-        this.store.getDraft(id, thread.id),
-        this.store.getRuntimeBinding(id),
-      ]);
-    const events = (await this.store.readProjectEvents(id, 200)).map((event) => ({
-      threadId: event.threadId,
-      seq: event.seq,
-      kind: event.kind,
-      payload: event.payload,
-      timestamp: event.timestamp,
-    }));
+    const [
+      tasks,
+      dependencies,
+      threads,
+      usage,
+      usageByModel,
+      evidence,
+      view,
+      draft,
+      binding,
+      page,
+    ] = await Promise.all([
+      this.store.listTasks(id),
+      this.store.listDependencies(id),
+      this.store.listThreads(id),
+      this.store.summarizeUsage(id),
+      this.store.usageByModel(id),
+      this.store.listRequirementEvidence(id),
+      this.store.getSettings(`view:${id}`),
+      this.store.getDraft(id, thread.id),
+      this.store.getRuntimeBinding(id),
+      this.store.readProjectHistoryPage({ projectId: id, limit: 200 }),
+    ]);
     const taskSummaries: TaskSummary[] = tasks.map((task) => ({
       id: task.id,
       title: task.title,
@@ -261,13 +285,82 @@ export class ProjectService {
         engineThreadId: entry.engineThreadId,
         updatedAt: entry.updatedAt,
       })),
+      currentThreadId: thread.id,
       draft: draft === null ? null : { threadId: thread.id, text: draft },
-      events,
+      events: page.events.map(eventSummary),
+      history: {
+        olderCursor: page.olderCursor,
+        hasMore: page.hasMore,
+        storedTotal: page.storedTotal,
+        pageSize: page.events.length,
+      },
       usage: usageView,
       evidence: evidenceView,
       view: view?.value ?? null,
       branch: this.branch(project.rootPath),
       engine: engineSnapshot(this.status(), binding, project),
+    };
+  }
+
+  /**
+   * Read one older page of stored history. This is a read of Mona's own state:
+   * it starts no runtime and makes no provider request.
+   */
+  async history(
+    id: ProjectId,
+    options: {
+      before?: { recordedAt: string; rowId: number } | null;
+      limit?: number;
+      threadId?: string | null;
+    } = {},
+  ): Promise<HistoryPage> {
+    const project = await this.store.getProject(id);
+    if (!project) {
+      throw new StateError("NOT_FOUND", "project is not in the catalog", { projectId: id });
+    }
+    const threadId = options.threadId ?? null;
+    if (threadId !== null) {
+      const threads = await this.store.listThreads(id);
+      if (!threads.some((entry) => entry.id === threadId)) {
+        throw new StateError("CONFLICT", "thread does not belong to this project", { threadId });
+      }
+    }
+    const page = await this.store.readProjectHistoryPage({
+      projectId: id,
+      limit: options.limit,
+      before: options.before ?? null,
+      threadId,
+    });
+    return {
+      events: page.events.map(eventSummary),
+      olderCursor: page.olderCursor,
+      hasMore: page.hasMore,
+      storedTotal: page.storedTotal,
+      pageSize: page.events.length,
+      threadId,
+    };
+  }
+
+  /**
+   * Every stored frame of one item, so a card whose beginning predates the page
+   * can be rebuilt from storage instead of from an inference. Reads only.
+   */
+  async historyItem(id: ProjectId, threadId: string, itemId: string): Promise<HistoryItemPage> {
+    const project = await this.store.getProject(id);
+    if (!project) {
+      throw new StateError("NOT_FOUND", "project is not in the catalog", { projectId: id });
+    }
+    const threads = await this.store.listThreads(id);
+    if (!threads.some((entry) => entry.id === threadId)) {
+      throw new StateError("CONFLICT", "thread does not belong to this project", { threadId });
+    }
+    const result = await this.store.readItemEvents({ threadId, itemId });
+    return {
+      threadId,
+      itemId,
+      events: result.events.map(eventSummary),
+      truncated: result.truncated,
+      storedCount: result.storedCount,
     };
   }
 
@@ -356,10 +449,14 @@ export class ProjectService {
 
   private async ensureThread(project: StoredProject): Promise<{ id: string; updatedAt: string }> {
     const threads = await this.store.listThreads(project.id);
-    const existing = threads[0];
+    // The project's own shell thread has a deterministic id. Prefer it over
+    // "most recently updated", which an archived engine thread can win and
+    // thereby look like the current conversation.
+    const localId = stableThreadId(project.id);
+    const existing = threads.find((entry) => entry.id === localId) ?? threads[0];
     if (existing) return { id: existing.id, updatedAt: existing.updatedAt };
     const thread = await this.store.upsertThread({
-      id: stableThreadId(project.id),
+      id: localId,
       projectId: project.id as ProjectId,
       title: "Local shell thread",
     });

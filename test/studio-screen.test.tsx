@@ -2,7 +2,7 @@
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { ProjectDetail } from "../src/shared/contracts/project-bridge";
+import type { ProjectDetail, StoredEventSummary } from "../src/shared/contracts/project-bridge";
 import type { StudioSnapshot } from "../src/shared/contracts/studio";
 import { StudioScreen } from "../src/renderer/shell/Studio";
 
@@ -39,7 +39,10 @@ afterEach(() => {
   container = null;
 });
 
-function detail(events: ProjectDetail["events"] = []): ProjectDetail {
+function detail(
+  events: ProjectDetail["events"] = [],
+  overrides: Partial<ProjectDetail> = {},
+): ProjectDetail {
   return {
     project: {
       id: "prj_0123456789abcdef",
@@ -61,8 +64,15 @@ function detail(events: ProjectDetail["events"] = []): ProjectDetail {
     tasks: [],
     dependencies: [],
     threads: [],
+    currentThreadId: "thr_0123456789abcdef",
     draft: null,
     events,
+    history: {
+      olderCursor: null,
+      hasMore: false,
+      storedTotal: events.length,
+      pageSize: events.length,
+    },
     usage: {
       turns: 0,
       inputTokens: 0,
@@ -92,6 +102,7 @@ function detail(events: ProjectDetail["events"] = []): ProjectDetail {
       blockedReason: "No runtime is bound to this project yet.",
       binding: null,
     },
+    ...overrides,
   };
 }
 
@@ -348,5 +359,268 @@ describe("studio screen honesty and safety", () => {
       }),
     });
     expect(container?.textContent).toContain("waiting for input Mona cannot answer");
+  });
+});
+
+describe("R02 paged conversation history", () => {
+  const threadA = {
+    id: "thr_a",
+    title: "Current work",
+    engineThreadId: "eng_a",
+    updatedAt: "2026-11-11T00:00:02.000Z",
+  };
+  const threadB = {
+    id: "thr_b",
+    title: "Older work",
+    engineThreadId: null,
+    updatedAt: "2026-11-10T00:00:00.000Z",
+  };
+
+  function stored(
+    seq: number,
+    text: string,
+    extra: Partial<StoredEventSummary> = {},
+  ): StoredEventSummary {
+    return {
+      threadId: "thr_a",
+      seq,
+      kind: "item.completed",
+      payload: { item: { id: "item_a", kind: "agent_message", status: "completed", detail: text } },
+      timestamp: `2026-11-11T00:00:0${seq}.000Z`,
+      turnId: "turn_one",
+      itemId: "item_a",
+      ...extra,
+    };
+  }
+
+  function history(
+    events: StoredEventSummary[],
+    overrides: Partial<NonNullable<Parameters<typeof StudioScreen>[0]["history"]>> = {},
+  ): NonNullable<Parameters<typeof StudioScreen>[0]["history"]> {
+    return {
+      events,
+      storedTotal: 10_050,
+      hasMore: true,
+      loading: false,
+      error: null,
+      threadId: null,
+      truncatedItems: {},
+      completeItems: {},
+      olderLoads: 0,
+      onLoadOlder: () => undefined,
+      onLoadItem: () => undefined,
+      onSelectThread: () => undefined,
+      ...overrides,
+    };
+  }
+
+  it("loads a real older page instead of revealing a fixed tail", () => {
+    const onLoadOlder = vi.fn();
+    const events = [stored(1, "visible answer")];
+    render({
+      detail: detail(events, {
+        threads: [threadA],
+        history: {
+          olderCursor: { recordedAt: "2026-11-11T00:00:01.000Z", rowId: 1 },
+          hasMore: true,
+          storedTotal: 10_050,
+          pageSize: 1,
+        },
+      }),
+      history: history(events, { onLoadOlder }),
+    });
+    const scope =
+      container!.querySelector('[data-testid="studio-history-scope"]')?.textContent ?? "";
+    expect(scope).toContain("1 shown");
+    expect(scope).toContain("10050 stored");
+    expect(scope).toContain("older pages available");
+    const load = container!.querySelector('[data-testid="studio-load-earlier"]');
+    expect(load).not.toBeNull();
+    expect(container!.textContent).not.toContain("Show 1 earlier event");
+    act(() => (load as HTMLButtonElement).click());
+    expect(onLoadOlder).toHaveBeenCalledTimes(1);
+  });
+
+  it("offers Jump to latest once the reader scrolls away, and honours it", () => {
+    const events = [stored(1, "one"), stored(2, "two")];
+    render({
+      detail: detail(events, { threads: [threadA] }),
+      history: history(events, { hasMore: false, storedTotal: 2 }),
+    });
+    const node = container!.querySelector('[data-testid="studio-timeline"]') as HTMLDivElement;
+    Object.defineProperty(node, "scrollHeight", { configurable: true, value: 1_000 });
+    Object.defineProperty(node, "clientHeight", { configurable: true, value: 300 });
+    node.scrollTop = 0;
+    act(() => {
+      node.dispatchEvent(new Event("scroll", { bubbles: true }));
+    });
+    const jump = container!.querySelector('[data-testid="studio-jump-latest"]');
+    expect(jump).not.toBeNull();
+    act(() => (jump as HTMLButtonElement).click());
+    expect(node.scrollTop).toBe(1_000);
+    expect(container!.querySelector('[data-testid="studio-jump-latest"]')).toBeNull();
+  });
+
+  it("distinguishes the current thread from archived conversation", () => {
+    const onSelectThread = vi.fn();
+    render({
+      detail: detail([], { threads: [threadA, threadB] }),
+      studio: studio({ threadId: "thr_a" }),
+      history: history([], { hasMore: false, storedTotal: 0, onSelectThread }),
+    });
+    const select = container!.querySelector(
+      '[data-testid="studio-thread-select"]',
+    ) as HTMLSelectElement;
+    const labels = Array.from(select.options).map((option) => option.textContent);
+    expect(labels).toEqual(["All threads", "Current work · current", "Older work · archived"]);
+    act(() => {
+      select.value = "thr_b";
+      select.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    expect(onSelectThread).toHaveBeenCalledWith("thr_b");
+  });
+
+  it("shows an honest partial card and can load the item's beginning", () => {
+    const onLoadItem = vi.fn();
+    const events: StoredEventSummary[] = [
+      {
+        threadId: "thr_a",
+        seq: 9,
+        kind: "item.delta",
+        payload: { kind: "agent_message", delta: "…only the tail" },
+        timestamp: "2026-11-11T00:00:09.000Z",
+        turnId: "turn_one",
+        itemId: "item_a",
+      },
+    ];
+    render({
+      detail: detail(events, { threads: [threadA] }),
+      history: history(events, { onLoadItem }),
+    });
+    const partial = container!.querySelector('[data-testid="studio-partial-item"]');
+    expect(partial).not.toBeNull();
+    expect(partial?.textContent).toContain("began before the events loaded here");
+    const load = Array.from(partial!.querySelectorAll("button")).find((button) =>
+      button.textContent?.includes("Load the beginning"),
+    );
+    act(() => (load as HTMLButtonElement).click());
+    expect(onLoadItem).toHaveBeenCalledWith("thr_a", "item_a");
+  });
+
+  it("says when a partial item has no stored identity to reload", () => {
+    const events: StoredEventSummary[] = [
+      {
+        threadId: "thr_a",
+        seq: 9,
+        kind: "item.delta",
+        payload: { kind: "agent_message", delta: "legacy tail" },
+        timestamp: "2026-11-11T00:00:09.000Z",
+        turnId: "turn_one",
+        itemId: null,
+      },
+    ];
+    render({
+      detail: detail(events, { threads: [threadA] }),
+      history: history(events),
+    });
+    const partial = container!.querySelector('[data-testid="studio-partial-item"]');
+    expect(partial?.textContent).toContain("cannot reconstruct it");
+    expect(partial?.querySelector("button")).toBeNull();
+  });
+
+  it("reports a truncated item load instead of implying completeness", () => {
+    const events = [stored(1, "one")];
+    render({
+      detail: detail(events, { threads: [threadA] }),
+      history: history(events, {
+        hasMore: true,
+        truncatedItems: { "thr_a:item_a": { returned: 400, stored: 5_000 } },
+        completeItems: {},
+      }),
+    });
+    expect(
+      container!.querySelector('[data-testid="studio-truncated-item"]')?.textContent,
+    ).toContain("Showing 400 of 5000 stored frames");
+  });
+});
+
+describe("R02 scroll anchoring", () => {
+  function stored(seq: number, text: string): StoredEventSummary {
+    return {
+      threadId: "thr_a",
+      seq,
+      kind: "item.completed",
+      payload: {
+        item: { id: `item_${seq}`, kind: "agent_message", status: "completed", detail: text },
+      },
+      timestamp: `2026-11-11T00:00:0${seq}.000Z`,
+      turnId: "turn_one",
+      itemId: `item_${seq}`,
+    };
+  }
+  function history(
+    events: StoredEventSummary[],
+    hasMore: boolean,
+    olderLoads = 0,
+    onLoadOlder: () => void = () => undefined,
+  ): NonNullable<Parameters<typeof StudioScreen>[0]["history"]> {
+    return {
+      events,
+      storedTotal: 300,
+      hasMore,
+      loading: false,
+      error: null,
+      threadId: null,
+      truncatedItems: {},
+      completeItems: {},
+      olderLoads,
+      onLoadOlder,
+    };
+  }
+
+  it("keeps the reader's viewport in place when an older page is prepended", () => {
+    const newer = [stored(3, "three")];
+    const detailProps = detail(newer, { threads: [] });
+    render({ detail: detailProps, history: history(newer, true) });
+    const node = container!.querySelector('[data-testid="studio-timeline"]') as HTMLDivElement;
+    Object.defineProperty(node, "scrollHeight", { configurable: true, value: 1_000 });
+    Object.defineProperty(node, "clientHeight", { configurable: true, value: 300 });
+    node.scrollTop = 500;
+    act(() => {
+      node.dispatchEvent(new Event("scroll", { bubbles: true }));
+    });
+    const loadEarlier = Array.from(container!.querySelectorAll("button")).find((button) =>
+      button.textContent?.includes("Load earlier"),
+    );
+    expect(loadEarlier).toBeDefined();
+    act(() => (loadEarlier as HTMLButtonElement).click());
+
+    // The older page arrives: the content above the viewport grew by 1,000 px.
+    Object.defineProperty(node, "scrollHeight", { configurable: true, value: 2_000 });
+    render({
+      detail: detailProps,
+      history: history([stored(1, "one"), stored(2, "two"), ...newer], true, 1),
+    });
+    expect(node.scrollTop).toBe(1_500);
+  });
+
+  it("does not move the viewport when only new live events arrive", () => {
+    const initial = [stored(3, "three")];
+    const detailProps = detail(initial, { threads: [] });
+    render({ detail: detailProps, history: history(initial, false) });
+    const node = container!.querySelector('[data-testid="studio-timeline"]') as HTMLDivElement;
+    Object.defineProperty(node, "scrollHeight", { configurable: true, value: 1_000 });
+    Object.defineProperty(node, "clientHeight", { configurable: true, value: 300 });
+    node.scrollTop = 400;
+    act(() => {
+      node.dispatchEvent(new Event("scroll", { bubbles: true }));
+    });
+    Object.defineProperty(node, "scrollHeight", { configurable: true, value: 1_200 });
+    render({
+      detail: detailProps,
+      history: history([...initial, stored(4, "four")], false),
+    });
+    // The reader stays where they were; the live edge does not drag them.
+    expect(node.scrollTop).toBe(400);
   });
 });

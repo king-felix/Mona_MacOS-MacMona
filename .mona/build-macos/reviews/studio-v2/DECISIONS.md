@@ -89,3 +89,34 @@ D-001…D-103) and never replace them.
 - **Consequence:** the one formatting-relevant change R00 makes is
   configuration — the owner-supplied review document joins the other law
   documents in `.prettierignore`, so CI does not reformat Victor's text.
+
+## RD-005 — History is paged by storage order, and identity is stored, not inferred
+
+- **Decision:** the conversation page cursor is the store's receipt order
+  `(recorded_at, rowid)`, never an engine sequence number. The engine's `seq` is
+  one global counter shared by every thread (D-099), so a cursor built on it
+  would skip or repeat frames whenever another thread took numbers in between.
+  Loss remains only what `event_gaps` records from `previous_seq`.
+- **Decision:** `events.item_id` (schema v10) keeps the envelope's item
+  identity; a completion that omits it still names its item in
+  `payload.item.id`. Rows from before v10 keep `NULL`, which the UI reports as
+  unknown identity. They are not filled in by guessing, and a legacy completion
+  is bound to an unidentified stream only when exactly one such stream of that
+  kind in that turn can be its source.
+- **Decision:** a card whose beginning predates the loaded window is marked
+  partial. With an item id it offers a bounded reload of that item's stored
+  frames (≤ 4,000); without one it says the beginning cannot be reconstructed.
+  Backfilling whole pages to hide the boundary was rejected: it turns a page
+  read into a transcript read and still cannot recover pre-v10 identity.
+- **Decision:** scroll anchoring keys on a completed older-page read
+  (`olderLoads`), not on the event array changing. A live append changes the
+  same array; anchoring on that would drag a reader down on every new frame.
+  `scroll-behavior: smooth` was removed for the same reason: its animation made
+  follow-scroll look like the reader had left the live edge.
+- **Decision:** the current thread is the project's deterministic local thread
+  (`thr_<sha256(projectId)>`), exposed as `ProjectDetail.currentThreadId`, not
+  "the most recently updated thread" — an archived thread can hold that title
+  and would otherwise be labelled current.
+- **Consequence:** R04's `/new` can create additional threads and the Studio
+  will label them archived until one becomes current. R11 owns rendering
+  performance once a reader has loaded many pages.

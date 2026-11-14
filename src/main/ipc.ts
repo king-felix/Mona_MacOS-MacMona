@@ -242,6 +242,27 @@ export function registerIpc(rendererRoot: string, dependencies: IpcDependencies)
   handle("projects:detail", (input) =>
     envelope(() => dependencies.projects.detail((input as { projectId: never }).projectId)),
   );
+  handle("projects:history", (input) => {
+    const value = input as {
+      projectId: never;
+      before?: { recordedAt: string; rowId: number } | null;
+      limit?: number;
+      threadId?: string | null;
+    };
+    return envelope(() =>
+      dependencies.projects.history(value.projectId, {
+        before: value.before ?? null,
+        limit: value.limit,
+        threadId: value.threadId ?? null,
+      }),
+    );
+  });
+  handle("projects:history-item", (input) => {
+    const value = input as { projectId: never; threadId: string; itemId: string };
+    return envelope(() =>
+      dependencies.projects.historyItem(value.projectId, value.threadId, value.itemId),
+    );
+  });
   handle("projects:rename", (input) => {
     const value = input as { projectId: never; name: string; expectedRevision: number };
     return envelope(() =>

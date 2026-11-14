@@ -45,12 +45,61 @@ export interface ThreadSummary {
   updatedAt: string;
 }
 
+/**
+ * The envelope identities a stored engine frame carries. `null` means the row
+ * predates identity capture (or the engine omitted it); it never means "no
+ * item exists", and it is never filled in by guessing.
+ */
 export interface StoredEventSummary {
   threadId: string;
   seq: number;
   kind: string;
   payload: unknown;
   timestamp: string;
+  turnId: string | null;
+  itemId: string | null;
+}
+
+/**
+ * A keyset cursor over one project's stored events, in storage order.
+ * `recordedAt` is the store's own receipt time and `rowId` breaks ties inside
+ * one millisecond, so pages cannot skip or repeat a row when events arrive
+ * between two reads. Sequence numbers are deliberately not the cursor: `seq`
+ * is one global engine counter shared by every thread, and a hole in it is
+ * never evidence that this transcript lost a frame.
+ */
+export interface HistoryCursor {
+  recordedAt: string;
+  rowId: number;
+}
+
+/** What the current page covers, so the UI can state its real scope. */
+export interface HistoryWindow {
+  /** Pass as `before` to read the next older page; null when none remains. */
+  olderCursor: HistoryCursor | null;
+  hasMore: boolean;
+  /** Events stored for this project (or thread filter) in total. */
+  storedTotal: number;
+  /** Rows carried in the page this window describes. */
+  pageSize: number;
+}
+
+/** One page of stored history, oldest-first within the page. */
+export interface HistoryPage extends HistoryWindow {
+  events: StoredEventSummary[];
+  /** The thread filter this page was read with, if any. */
+  threadId: string | null;
+}
+
+/** Every stored frame of one engine item, so a partial card can be rebuilt. */
+export interface HistoryItemPage {
+  threadId: string;
+  itemId: string;
+  events: StoredEventSummary[];
+  /** True when the item has more stored frames than this response carries. */
+  truncated: boolean;
+  /** Frames stored for this item in the thread, including any not returned. */
+  storedCount: number;
 }
 
 export interface EvidenceSummary {
@@ -114,8 +163,17 @@ export interface ProjectDetail {
   tasks: TaskSummary[];
   dependencies: Array<{ taskId: TaskId; dependsOnTaskId: TaskId }>;
   threads: ThreadSummary[];
+  /**
+   * The thread this project would use for new work right now. The Studio marks
+   * it "current"; other threads are archived conversation, even before a
+   * runtime exists to report its own thread id.
+   */
+  currentThreadId: string;
   draft: { threadId: string; text: string } | null;
+  /** The newest page of stored history; older pages come from `projects:history`. */
   events: StoredEventSummary[];
+  /** Scope and continuation of `events`. Never inferred from array length alone. */
+  history: HistoryWindow;
   usage: UsageSummaryView;
   evidence: EvidenceSummary[];
   view: unknown;

@@ -701,6 +701,24 @@ CREATE TABLE event_gaps (
 );
 `;
 
+// v10 keeps the envelope's item identity beside the frame that carried it.
+//
+// The engine addresses streamed items by `item_id`, and Mona used to drop that
+// field at ingestion, leaving the timeline to match a delta to a completion by
+// `kind` alone. Two items of the same kind in one thread then merged into one
+// card. The column is nullable on purpose: rows written before this migration
+// have no stored identity, and "unknown" stays a fact about those rows rather
+// than being filled in from the payload.
+//
+// `events_recorded` supports the keyset history cursor, which orders by the
+// store's receipt time and the row id. It is not a sequence range: loss is only
+// ever what the engine reports through `previous_seq` (schema v9).
+const V10 = `
+ALTER TABLE events ADD COLUMN item_id TEXT;
+CREATE INDEX events_item ON events (thread_id, item_id);
+CREATE INDEX events_recorded ON events (recorded_at);
+`;
+
 export const MIGRATIONS: readonly Migration[] = [
   { version: 1, name: "core-project-state", sql: V1 },
   { version: 2, name: "project-identity-fields", sql: V2 },
@@ -711,6 +729,7 @@ export const MIGRATIONS: readonly Migration[] = [
   { version: 7, name: "orchestration-observations-and-receipts", sql: V7 },
   { version: 8, name: "installer-update-intents", sql: V8 },
   { version: 9, name: "engine-event-gaps", sql: V9 },
+  { version: 10, name: "event-item-identity", sql: V10 },
 ];
 
 export const CURRENT_SCHEMA_VERSION = MIGRATIONS[MIGRATIONS.length - 1]?.version ?? 0;

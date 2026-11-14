@@ -1,5 +1,9 @@
-import { useEffect, useRef, useState, type JSX } from "react";
-import type { ProjectDetail } from "../../shared/contracts/project-bridge";
+import { useEffect, useLayoutEffect, useRef, useState, type JSX } from "react";
+import type {
+  ProjectDetail,
+  StoredEventSummary,
+  ThreadSummary,
+} from "../../shared/contracts/project-bridge";
 import type { StudioMode, StudioSnapshot } from "../../shared/contracts/studio";
 import type { PromptFavorite } from "../../shared/contracts/polish";
 import {
@@ -35,8 +39,29 @@ import { engineBadge, formatTokens, projectAccent, projectMonogram, relativeTime
 import { Markdown } from "./markdown";
 import { projectTimeline, type TimelineEntry } from "./timeline";
 
+/**
+ * The paged history the shell has loaded. Omitted only by embedders (and tests)
+ * that render the Studio from its first page alone; the screen then reports the
+ * scope honestly from `ProjectDetail.history` and offers no page controls.
+ */
+export interface StudioHistoryProps {
+  events: StoredEventSummary[];
+  storedTotal: number;
+  hasMore: boolean;
+  loading: boolean;
+  error: string | null;
+  threadId: string | null;
+  truncatedItems: Record<string, { returned: number; stored: number }>;
+  completeItems: Record<string, true>;
+  olderLoads: number;
+  onLoadOlder?: () => void;
+  onLoadItem?: (threadId: string, itemId: string) => void;
+  onSelectThread?: (threadId: string | null) => void;
+}
+
 export interface StudioProps {
   detail: ProjectDetail | null;
+  history?: StudioHistoryProps | null;
   studio: StudioSnapshot | null;
   studioBusy: boolean;
   mode: StudioMode;
@@ -64,8 +89,14 @@ export interface StudioProps {
   onReconcile: () => void;
 }
 
-const TIMELINE_WINDOW = 60;
 const LONG_BODY = 4_000;
+
+function threadLabel(thread: ThreadSummary, currentThreadId: string | null | undefined): string {
+  const title = thread.title?.trim() || `Thread ${thread.id.slice(-8)}`;
+  // "Current" is the thread this Studio is bound to; everything else is
+  // archived conversation and is labelled as such instead of looking live.
+  return `${title} · ${thread.id === currentThreadId ? "current" : "archived"}`;
+}
 
 function connectionLabel(studio: StudioSnapshot | null, detail: ProjectDetail): string {
   if (!studio) return engineBadge(detail.engine).label;
@@ -104,7 +135,15 @@ function connectionTone(
   return "neutral";
 }
 
-function TimelineCard({ entry }: { entry: TimelineEntry }): JSX.Element {
+function TimelineCard({
+  entry,
+  truncated,
+  onLoadItem,
+}: {
+  entry: TimelineEntry;
+  truncated?: { returned: number; stored: number } | null;
+  onLoadItem?: (threadId: string, itemId: string) => void;
+}): JSX.Element {
   const [expanded, setExpanded] = useState(false);
   const tooLong = entry.body.length > LONG_BODY;
   const body = tooLong && !expanded ? `${entry.body.slice(0, LONG_BODY)}\n…` : entry.body;
@@ -149,6 +188,35 @@ function TimelineCard({ entry }: { entry: TimelineEntry }): JSX.Element {
             <pre className="timeline-event__output">{body}</pre>
           )
         ) : null}
+        {entry.partial ? (
+          <div className="timeline-event__partial" data-testid="studio-partial-item">
+            <span>
+              This message began before the events loaded here, so the text below is not its
+              beginning.
+            </span>
+            {entry.itemId ? (
+              onLoadItem ? (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => onLoadItem(entry.threadId, entry.itemId as string)}
+                >
+                  Load the beginning of this message
+                </Button>
+              ) : null
+            ) : (
+              <span className="hint-line">
+                Its beginning was stored before item identity existed, so Mona cannot reconstruct
+                it.
+              </span>
+            )}
+          </div>
+        ) : null}
+        {truncated ? (
+          <span className="hint-line" data-testid="studio-truncated-item">
+            Showing {truncated.returned} of {truncated.stored} stored frames for this message.
+          </span>
+        ) : null}
         {tooLong ? (
           <Button size="sm" variant="ghost" onClick={() => setExpanded(!expanded)}>
             {expanded ? "Collapse long output" : `Show full output (${entry.body.length} chars)`}
@@ -181,18 +249,66 @@ function formatDuration(seconds: number): string {
 }
 
 export function StudioScreen(props: StudioProps): JSX.Element {
-  const [showAll, setShowAll] = useState(false);
   const timelineRef = useRef<HTMLDivElement | null>(null);
   const followRef = useRef(true);
-  const entryCount = props.detail?.events.length ?? 0;
-  const { detail, studio } = props;
+  const anchorRef = useRef<{ height: number; top: number; loads: number } | null>(null);
+  const [atLatest, setAtLatest] = useState(true);
+
+  const { detail, studio, history } = props;
+  const events = history?.events ?? detail?.events ?? [];
+  const historyComplete = history ? !history.hasMore : detail?.history.hasMore === false;
 
   // Follow new engine events, but never fight a reader who scrolled up.
   useEffect(() => {
     const node = timelineRef.current;
     if (!node || !followRef.current) return;
     node.scrollTop = node.scrollHeight;
-  }, [entryCount, detail?.events]);
+  }, [events]);
+
+  // A different project or thread starts at its own live edge; a stale
+  // follow/scroll position from the previous conversation is not inherited.
+  useEffect(() => {
+    followRef.current = true;
+    setAtLatest(true);
+    anchorRef.current = null;
+    const node = timelineRef.current;
+    if (node) node.scrollTop = node.scrollHeight;
+  }, [detail?.project.id, history?.threadId]);
+
+  // Inserting an older page must not drag the reader down: hold the distance
+  // from the bottom constant while content grows above the viewport. The
+  // anchor is applied only when a completed older-page read changes the
+  // load counter, so a live refresh cannot be mistaken for an older page.
+  useLayoutEffect(() => {
+    const anchor = anchorRef.current;
+    const node = timelineRef.current;
+    if (!anchor || !node) return;
+    if ((history?.olderLoads ?? 0) === anchor.loads) return;
+    const target = node.scrollHeight - anchor.height + anchor.top;
+    anchorRef.current = null;
+    node.scrollTop = target;
+    // Written to the DOM rather than React state: counting this must not cause
+    // another commit, and the smoke can assert that the anchor really applied.
+    node.dataset.anchorApplications = String(Number(node.dataset.anchorApplications ?? 0) + 1);
+  }, [events, history?.olderLoads]);
+
+  const loadOlder = (): void => {
+    const node = timelineRef.current;
+    anchorRef.current = node
+      ? { height: node.scrollHeight, top: node.scrollTop, loads: history?.olderLoads ?? 0 }
+      : null;
+    followRef.current = false;
+    setAtLatest(false);
+    props.history?.onLoadOlder?.();
+  };
+
+  const jumpToLatest = (): void => {
+    followRef.current = true;
+    setAtLatest(true);
+    const node = timelineRef.current;
+    if (node) node.scrollTop = node.scrollHeight;
+  };
+
   if (!detail) {
     return (
       <div className="screen">
@@ -218,9 +334,11 @@ export function StudioScreen(props: StudioProps): JSX.Element {
 
   const { project, engine, usage } = detail;
   const health = { label: connectionLabel(studio, detail), tone: connectionTone(studio, detail) };
-  const { entries, internalActivity, unprojected } = projectTimeline(detail.events);
-  const visibleEntries = showAll ? entries : entries.slice(-TIMELINE_WINDOW);
-  const hidden = entries.length - visibleEntries.length;
+  const { entries, internalActivity, unprojected } = projectTimeline(events, {
+    historyComplete,
+    completeItems: new Set(Object.keys(history?.completeItems ?? {})),
+  });
+  const scope = history?.storedTotal ?? detail.history.storedTotal;
   const blockedTasks = detail.tasks.filter((task) => task.status === "blocked");
   const currentTask =
     detail.tasks.find((task) => task.status === "running") ??
@@ -452,15 +570,72 @@ export function StudioScreen(props: StudioProps): JSX.Element {
       ) : null}
 
       <div className="studio">
+        {/* Paging controls stay outside the scrolling console, so Jump to
+            latest is reachable without scrolling and Load earlier is never
+            hidden by the very history it loads. */}
+        <div className="timeline__toolbar" data-testid="studio-history-toolbar">
+          <label className="timeline__thread">
+            <span className="hint-line">Conversation</span>
+            <select
+              value={history?.threadId ?? ""}
+              disabled={!history?.onSelectThread || detail.threads.length < 2}
+              onChange={(event) => props.history?.onSelectThread?.(event.target.value || null)}
+              data-testid="studio-thread-select"
+            >
+              <option value="">All threads</option>
+              {detail.threads.map((thread) => (
+                <option key={thread.id} value={thread.id}>
+                  {threadLabel(thread, studio?.threadId ?? detail.currentThreadId)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <span className="hint-line" data-testid="studio-history-scope">
+            {entries.length} shown · {scope} stored
+            {history?.hasMore ? " · older pages available" : " · earliest stored event loaded"}
+          </span>
+          <span className="timeline__toolbar-actions">
+            {history?.hasMore ? (
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={loadOlder}
+                disabled={history.loading}
+                data-testid="studio-load-earlier"
+              >
+                {history.loading ? "Loading earlier…" : "Load earlier events"}
+              </Button>
+            ) : null}
+            {!atLatest ? (
+              <Button
+                size="sm"
+                variant="primary"
+                onClick={jumpToLatest}
+                data-testid="studio-jump-latest"
+              >
+                Jump to latest
+              </Button>
+            ) : null}
+          </span>
+        </div>
+        {history?.error ? (
+          <Callout tone="attention" title="History could not be read">
+            {history.error} — the events already shown remain, and nothing was invented to fill the
+            gap.
+          </Callout>
+        ) : null}
         <section
           className="studio__timeline"
           aria-label="Agent console"
           tabIndex={0}
           data-testid="studio-timeline"
+          data-history-loads={history?.olderLoads ?? 0}
           ref={timelineRef}
           onScroll={(event) => {
             const node = event.currentTarget;
-            followRef.current = node.scrollHeight - node.scrollTop - node.clientHeight < 48;
+            const atBottom = node.scrollHeight - node.scrollTop - node.clientHeight < 48;
+            followRef.current = atBottom;
+            setAtLatest(atBottom);
           }}
         >
           {entries.length === 0 ? (
@@ -471,27 +646,29 @@ export function StudioScreen(props: StudioProps): JSX.Element {
             />
           ) : (
             <>
-              {hidden > 0 ? (
+              {internalActivity > 0 || unprojected.length > 0 ? (
                 <div className="timeline__more">
-                  {hidden > 0 ? (
-                    <Button size="sm" variant="ghost" onClick={() => setShowAll(true)}>
-                      Show {hidden} earlier event{hidden === 1 ? "" : "s"}
-                    </Button>
-                  ) : null}
-                  {internalActivity > 0 || unprojected.length > 0 ? (
-                    <span className="hint-line" data-testid="studio-activity">
-                      {internalActivity} engine activity event
-                      {internalActivity === 1 ? "" : "s"} stored
-                      {unprojected.length > 0
-                        ? ` · unprojected kinds: ${unprojected.join(", ")}`
-                        : ""}
-                    </span>
-                  ) : null}
+                  <span className="hint-line" data-testid="studio-activity">
+                    {internalActivity} engine activity event
+                    {internalActivity === 1 ? "" : "s"} stored
+                    {unprojected.length > 0
+                      ? ` · unprojected kinds: ${unprojected.join(", ")}`
+                      : ""}
+                  </span>
                 </div>
               ) : null}
               <ol className="timeline">
-                {visibleEntries.map((entry) => (
-                  <TimelineCard key={entry.key} entry={entry} />
+                {entries.map((entry) => (
+                  <TimelineCard
+                    key={entry.key}
+                    entry={entry}
+                    truncated={
+                      entry.itemId
+                        ? (history?.truncatedItems[`${entry.threadId}:${entry.itemId}`] ?? null)
+                        : null
+                    }
+                    onLoadItem={history?.onLoadItem}
+                  />
                 ))}
               </ol>
             </>
@@ -728,7 +905,10 @@ export function StudioScreen(props: StudioProps): JSX.Element {
                     </div>
                     <div className="detail-row">
                       <dt>Events</dt>
-                      <dd>{detail.events.length} stored</dd>
+                      <dd>
+                        {(history?.events.length ?? detail.history.pageSize) + " loaded of "}
+                        {detail.history.storedTotal} stored
+                      </dd>
                     </div>
                     <div className="detail-row">
                       <dt>Runtime</dt>

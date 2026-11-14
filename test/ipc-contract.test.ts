@@ -503,3 +503,50 @@ describe("capability IPC validation", () => {
     expect(() => validateIpc("capability:snapshot", { probe: true })).toThrow();
   });
 });
+
+describe("history IPC validation", () => {
+  const projectId = "prj_0123456789abcdef";
+
+  it("accepts a keyset page request and rejects malformed cursors", () => {
+    expect(validateIpc("projects:history", { projectId })).toEqual({ projectId });
+    expect(
+      validateIpc("projects:history", {
+        projectId,
+        before: { recordedAt: "2026-11-11T00:00:00.000Z", rowId: 42 },
+        limit: 500,
+        threadId: "thr_0123456789abcdef",
+      }),
+    ).toEqual({
+      projectId,
+      before: { recordedAt: "2026-11-11T00:00:00.000Z", rowId: 42 },
+      limit: 500,
+      threadId: "thr_0123456789abcdef",
+    });
+    expect(() =>
+      validateIpc("projects:history", { projectId, before: { recordedAt: "x", rowId: -1 } }),
+    ).toThrow();
+    expect(() => validateIpc("projects:history", { projectId, limit: 501 })).toThrow();
+    expect(() => validateIpc("projects:history", { projectId, threadId: "" })).toThrow();
+    expect(() =>
+      validateIpc("projects:history", {
+        projectId,
+        before: { recordedAt: "x", rowId: 1 },
+        extra: 1,
+      }),
+    ).toThrow();
+  });
+
+  it("accepts an item read and requires both identities", () => {
+    expect(
+      validateIpc("projects:history-item", {
+        projectId,
+        threadId: "thr_0123456789abcdef",
+        itemId: "item_0123456789abcdef",
+      }),
+    ).toBeTruthy();
+    expect(() => validateIpc("projects:history-item", { projectId, threadId: "thr_x" })).toThrow();
+    expect(() =>
+      validateIpc("projects:history-item", { projectId, threadId: "thr_x", itemId: "" }),
+    ).toThrow();
+  });
+});

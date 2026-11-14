@@ -1,7 +1,7 @@
 import { createHash, randomUUID } from "node:crypto";
 import type { EventEnvelope, ProjectId, ThreadId, TurnId } from "../../shared/contracts";
 import { ThreadId as ThreadIdSchema } from "../../shared/contracts";
-import { isEnginePlumbingKind, isKnownEventKind } from "../../shared/contracts/events";
+import { eventItemId, isEnginePlumbingKind, isKnownEventKind } from "../../shared/contracts/events";
 import type {
   StudioActionResult,
   StudioConnectionState,
@@ -807,6 +807,7 @@ export class WorkStudio {
       payload: event.payload,
       timestamp: event.timestamp,
       turnId: event.turn_id ?? null,
+      itemId: eventItemId(event),
     });
     if (!stored.recorded) return { terminal: false, rewind };
     this.push(session, "event", "recorded", {

@@ -37,8 +37,8 @@
     "attempts": ".mona/build-macos/attempts.jsonl",
     "requirement_registry": "docs/requirements-macos.json"
   },
-  "revision": 11,
-  "current_task": "R01",
+  "revision": 17,
+  "current_task": "R02",
   "current_task_status": "completed",
   "tasks": {
     "R00": {
@@ -62,20 +62,20 @@
         {
           "path": "src/main/state/store.ts",
           "sha256": "7f0ba831e758513922f4d9912708f9af04d34abaf7ec08981ede5c594606d07a",
-          "state": "current",
-          "note": "Reviewed baseline (local 4d893fc / remote 10d8375) sha256 89944463f5ac097ece0ad55fd7f3a66e8e279a3157585c72777828acae2d3d49; changed by the verified hotfix during R00"
+          "state": "historical",
+          "note": "Reviewed baseline (local 4d893fc / remote 10d8375) sha256 89944463f5ac097ece0ad55fd7f3a66e8e279a3157585c72777828acae2d3d49; changed by the verified hotfix during R00 | R00 bytes (historical): the R02 schema-v10 / paged-history change replaced this file after R00's verification. The recorded hash is what R00 verified; R02's own source_hashes record the current bytes."
         },
         {
           "path": "src/renderer/shell/Studio.tsx",
           "sha256": "e25bf79505f44da9ab09c8eaf4818120c0c7986d965dec45b4f733de37df3e34",
-          "state": "current",
-          "note": "Reviewed baseline (local 4d893fc / remote 10d8375) sha256 c275429b3dbe3b8b4d8daab19513f8ce3acaf38ba72b853a6e497d1e67a1d8c3; changed by the verified hotfix during R00"
+          "state": "historical",
+          "note": "Reviewed baseline (local 4d893fc / remote 10d8375) sha256 c275429b3dbe3b8b4d8daab19513f8ce3acaf38ba72b853a6e497d1e67a1d8c3; changed by the verified hotfix during R00 | R00 bytes (historical): the R02 schema-v10 / paged-history change replaced this file after R00's verification. The recorded hash is what R00 verified; R02's own source_hashes record the current bytes."
         },
         {
           "path": "src/renderer/shell/timeline.ts",
           "sha256": "c0ee1ac7e67742e345791e154d62b6b64a5b6ff9fb45526d8c56fbce766a5813",
-          "state": "current",
-          "note": "Reviewed baseline (local 4d893fc / remote 10d8375) sha256 b883985527095bab56f211b771921db765229e4bbe46875c5c328f57df654595; changed by the verified hotfix during R00"
+          "state": "historical",
+          "note": "Reviewed baseline (local 4d893fc / remote 10d8375) sha256 b883985527095bab56f211b771921db765229e4bbe46875c5c328f57df654595; changed by the verified hotfix during R00 | R00 bytes (historical): the R02 schema-v10 / paged-history change replaced this file after R00's verification. The recorded hash is what R00 verified; R02's own source_hashes record the current bytes."
         },
         {
           "path": "test/state-portable.test.ts",
@@ -86,14 +86,14 @@
         {
           "path": "test/studio-render.test.tsx",
           "sha256": "587d43624b6d86ee4f1ef4fcf607f4b4d2049625753e68da08e1323f633e9eb3",
-          "state": "current",
-          "note": "Reviewed baseline (local 4d893fc / remote 10d8375) sha256 e92e287dd49706bf1c5a293019cb0f82ebfe77e183c11f3c9670cb8d608b1d86; changed by the verified hotfix during R00"
+          "state": "historical",
+          "note": "Reviewed baseline (local 4d893fc / remote 10d8375) sha256 e92e287dd49706bf1c5a293019cb0f82ebfe77e183c11f3c9670cb8d608b1d86; changed by the verified hotfix during R00 | R00 bytes (historical): the R02 schema-v10 / paged-history change replaced this file after R00's verification. The recorded hash is what R00 verified; R02's own source_hashes record the current bytes."
         },
         {
           "path": "test/studio-screen.test.tsx",
           "sha256": "0b347c2292d84c2dc554dee280cd4c421e4fb3652014031bf616383839b220d5",
-          "state": "current",
-          "note": "Reviewed baseline (local 4d893fc / remote 10d8375) sha256 a6fd61683358895095c7f20b547fd1ae7d000e4182545ce5470ce2c31eb0d346; changed by the verified hotfix during R00"
+          "state": "historical",
+          "note": "Reviewed baseline (local 4d893fc / remote 10d8375) sha256 a6fd61683358895095c7f20b547fd1ae7d000e4182545ce5470ce2c31eb0d346; changed by the verified hotfix during R00 | R00 bytes (historical): the R02 schema-v10 / paged-history change replaced this file after R00's verification. The recorded hash is what R00 verified; R02's own source_hashes record the current bytes."
         }
       ],
       "acceptance_completed": [
@@ -237,14 +237,14 @@
         {
           "path": "src/renderer/shell/Shell.tsx",
           "sha256": "73e4691f095f82ddbd9e3f6dc42bc70f38e76255ad5a4523dbd234fe1a0cf882",
-          "state": "current",
-          "note": "Draft text now lives in the journal; every async completion is epoch-scoped."
+          "state": "historical",
+          "note": "Draft text now lives in the journal; every async completion is epoch-scoped. | R01 bytes (historical): the R02 schema-v10 / paged-history change replaced this file after R01's verification. The recorded hash is what R01 verified; R02's own source_hashes record the current bytes."
         },
         {
           "path": "test/shell-races.test.tsx",
           "sha256": "c4805cc40a0a77b3e5368b73871a368098f175529d22f07fa322f781724b624f",
-          "state": "current",
-          "note": "Component-level deferred-promise race matrix."
+          "state": "historical",
+          "note": "Component-level deferred-promise race matrix. | R01 bytes (historical): the R02 schema-v10 / paged-history change replaced this file after R01's verification. The recorded hash is what R01 verified; R02's own source_hashes record the current bytes."
         },
         {
           "path": "test/shell-session.test.ts",
@@ -345,7 +345,7 @@
       "updated_utc": "2026-11-14T04:45:00.000Z"
     },
     "R02": {
-      "status": "pending",
+      "status": "completed",
       "title": "Build complete, identity-aware history and stable streaming",
       "prerequisites": [
         "R00"
@@ -360,9 +360,183 @@
         "RV-04",
         "RV-06"
       ],
-      "source_hashes": [],
-      "acceptance_completed": [],
-      "acceptance_remaining": [
+      "source_hashes": [
+        {
+          "path": "src/main/state/schema.ts",
+          "sha256": "9ba167ffab03cb4a17945dc92a890f944f717228fa824f370b0d3a2b96d88f8d",
+          "state": "current",
+          "note": "v10 adds events.item_id plus identity/order indexes."
+        },
+        {
+          "path": "src/main/state/store.ts",
+          "sha256": "09e47ea5f313a3c3664562c2eca653b70225a9a6baecff26192275dd6f12732f",
+          "state": "current",
+          "note": "recordEvent keeps item_id; readProjectHistoryPage (keyset) and readItemEvents added."
+        },
+        {
+          "path": "src/main/projects/service.ts",
+          "sha256": "08f0b03d6a7485169eb486fe0213419565980128571b9926b14b52dc44ad176d",
+          "state": "current",
+          "note": "detail returns the newest page + history window; history/historyItem; currentThreadId."
+        },
+        {
+          "path": "src/main/work/studio.ts",
+          "sha256": "a0bf1b7cc0953b0a76fefa6a4196fa24b9c3e624de67a4d05312dba10ccbd3a9",
+          "state": "current",
+          "note": "ingestion stores the envelope/payload item identity."
+        },
+        {
+          "path": "src/main/index.ts",
+          "sha256": "5c454086eeaa2c7c7949a150c73db4984cde04882bf1311805b94738f1873cd2",
+          "state": "current",
+          "note": "--history-smoke long-session runner; runtime smoke gating."
+        },
+        {
+          "path": "src/shared/contracts/events.ts",
+          "sha256": "6dcf94810cbd6c982ff71a3f457254c8eacf8fb57de98855df24f0ee264705a8",
+          "state": "current",
+          "note": "eventItemId resolves envelope then payload identity."
+        },
+        {
+          "path": "src/shared/contracts/project-bridge.ts",
+          "sha256": "fb26ce62bd8d733babe5f8b6d4efa7b0ab65ec450280ffa4a037bf443125a584",
+          "state": "current",
+          "note": "HistoryCursor/HistoryWindow/HistoryPage/HistoryItemPage; identity on StoredEventSummary; currentThreadId."
+        },
+        {
+          "path": "src/shared/contracts/bridge.ts",
+          "sha256": "5064fe5ca10aaa7a5793b5808edb150eff36ee8994e8404279807507f14abb79",
+          "state": "current",
+          "note": "projectHistory / projectHistoryItem bridge surface."
+        },
+        {
+          "path": "src/main/ipc-contract.ts",
+          "sha256": "d74f9735f71ce74a81c8427bc91b6a4eeb1b02844c7e0997b0955ea7f3dfe0f3",
+          "state": "current",
+          "note": "strict schemas for projects:history and projects:history-item."
+        },
+        {
+          "path": "src/main/ipc.ts",
+          "sha256": "3be0a225aed3c5a145a6ecece29ecb79654620bbf43de44b28510346be9260da",
+          "state": "current",
+          "note": "handlers for the two history reads."
+        },
+        {
+          "path": "src/preload/index.ts",
+          "sha256": "d522abe17137397ce28f8a2ef1e4dbd5586b3903b618696fc04fe724988ae15c",
+          "state": "current",
+          "note": "preload passthrough for the two history reads."
+        },
+        {
+          "path": "src/renderer/shell/history.ts",
+          "sha256": "71b25618fa7a33d21afaf0be1e042a3b29f844cec023f848296621fc45246522",
+          "state": "current",
+          "note": "new: HistoryPager (keyset pages, thread filter, item reload, epoch tokens, storedTotal)."
+        },
+        {
+          "path": "src/renderer/shell/timeline.ts",
+          "sha256": "4da65e3cb49bac5fb3f2d2186c98925c24c587c0a4349b502704c7a2e7b97824",
+          "state": "current",
+          "note": "identity-bound projection, stable keys, partial items, no seq-hole inference."
+        },
+        {
+          "path": "src/renderer/shell/Studio.tsx",
+          "sha256": "b545ff44c3b0adb2ae2afa6943bfff7dca09088609e049e7a27271d329edf9da",
+          "state": "current",
+          "note": "paged toolbar, anchored older-page insertion, jump-to-latest, thread selector, partial affordance."
+        },
+        {
+          "path": "src/renderer/shell/Shell.tsx",
+          "sha256": "1f6def4b0ebc975b4ff886ef913b499dacea828e9c7b2b17c41a3e0f3ad1139d",
+          "state": "current",
+          "note": "history pager wiring scoped to the selection epoch; live merge."
+        },
+        {
+          "path": "src/renderer/styles.css",
+          "sha256": "4c9af4955fb8c7e3d7cfc50be7a009b45ad68f64b4a59e5057a002351d60d405",
+          "state": "current",
+          "note": "toolbar/partial styles; smooth scrolling removed for follow-scroll."
+        },
+        {
+          "path": "scripts/history-smoke.mjs",
+          "sha256": "be4ba95a624b42d6ccab5775a5a5a274aa6fd3d7c775d74c6270591c5773701e",
+          "state": "current",
+          "note": "new: real Electron long-session smoke driver. Output directory points at review-studio/artifacts."
+        },
+        {
+          "path": "package.json",
+          "sha256": "20cf19ee258b27e10580174721c3d0be9983304056a56ef8ae7f32c67e96d6bc",
+          "state": "current",
+          "note": "smoke:history script."
+        },
+        {
+          "path": "test/history-paging.test.ts",
+          "sha256": "daca9874ac5067fe0a4df92f1b3b9b2a314b8e12f82d0d06e4023115bc8b7545",
+          "state": "current",
+          "note": "new: 10,050-event walk, 2,100-frame item rebuild, thread filter, duplicate replay."
+        },
+        {
+          "path": "test/history-pager.test.ts",
+          "sha256": "df6a20c17bf1e3c04b1b45c3da364b422069b372da558de5665f1a961a5beba1",
+          "state": "current",
+          "note": "new: pager unit tests (stale pages, mergeLive, truncation)."
+        },
+        {
+          "path": "test/studio-render.test.tsx",
+          "sha256": "cecdd7fad7580c59f363fb69c1532a1267f5b206cd723eabff8ff4bd96568834",
+          "state": "current",
+          "note": "identity/stable-key/partial/no-seq-loss projection tests."
+        },
+        {
+          "path": "test/studio-screen.test.tsx",
+          "sha256": "713d9fc693b7671f86de480551785084a59d204e9a05dc57a701422b7e7fd382",
+          "state": "current",
+          "note": "paging toolbar, jump-to-latest, thread labels, partial/truncated cards, anchoring."
+        },
+        {
+          "path": "test/shell-races.test.tsx",
+          "sha256": "041529a8b03ac12dd691492812e8b049a29f9969ed1f25219b0230710304a68c",
+          "state": "current",
+          "note": "real-Shell paged read with deferred IPC and anchored prepend."
+        },
+        {
+          "path": "test/ipc-contract.test.ts",
+          "sha256": "3f8df8d0d9870cfa93bb968fd1998bc2db79ce82bda3b357bc84ed934cec6e58",
+          "state": "current",
+          "note": "history channel validation."
+        },
+        {
+          "path": "test/state-database.test.ts",
+          "sha256": "02894a50b054967004d5fff4e4f3f2dd902acc8e12d6fb8f898f0fd4965c7567",
+          "state": "current",
+          "note": "v9→v10 migration keeps old rows as unknown identity."
+        },
+        {
+          "path": "test/agents-screen.test.tsx",
+          "sha256": "5db9f9c9d4cd007d0807f2960ff0119427a0fcfcc2bc543c6523dc3798b9d741",
+          "state": "current",
+          "note": "fixture gains currentThreadId."
+        },
+        {
+          "path": "test/changes-screen.test.tsx",
+          "sha256": "62c60fb744db5170be96ab95ccb7d031f9a042f05f16674d0c0c06358b4f6d21",
+          "state": "current",
+          "note": "fixture gains currentThreadId."
+        },
+        {
+          "path": "test/cost-screen.test.tsx",
+          "sha256": "11edfe7a92e995e7934abc935cae178daad1a13211a9dcad9aa95c778efa9671",
+          "state": "current",
+          "note": "fixture gains currentThreadId."
+        },
+        {
+          "path": "test/polish-screen.test.tsx",
+          "sha256": "2f7d8dc9de1504c537798d89628d75fb5e47cd8a1221d4bdc3cad5db32be7ea9",
+          "state": "current",
+          "note": "fixture gains currentThreadId."
+        }
+      ],
+      "acceptance_completed": [
         "Paginated/cursor history API replaces the inaccessible fixed raw-event tail",
         "Thread/turn/item identity is preserved through persistence and IPC; deltas are never matched by kind alone",
         "Schema migration only where needed, with backups and explicit unknown identities for old rows",
@@ -372,12 +546,87 @@
         "Older-page insertion and Jump-to-latest do not drag a reader down; project follow/show-history state resets",
         "Long session (>2,000 raw frames, >10,000 stored events) remains reachable without a model request"
       ],
-      "tests": [],
-      "evidence": [],
+      "acceptance_remaining": [],
+      "tests": [
+        {
+          "command": "npx vitest run test/history-paging.test.ts test/history-pager.test.ts test/studio-render.test.tsx test/studio-screen.test.tsx test/shell-races.test.tsx test/ipc-contract.test.ts test/state-database.test.ts",
+          "result": "passed",
+          "detail": "107 tests in 7 files: 10,050-event page walk, 2,100-frame item rebuild, identity/stable-key/no-seq-loss projection, pager races, Studio paging UI and anchoring, IPC validation, v9→v10 migration",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r02-focused-tests.txt",
+          "captured_utc": "2026-11-14T04:59:34Z"
+        },
+        {
+          "command": "npx vitest run",
+          "result": "passed",
+          "detail": "849 tests in 83 files (was 819 in 81 at R01)",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r02-full-tests.txt",
+          "captured_utc": "2026-11-14T04:59:34Z"
+        },
+        {
+          "command": "npm run typecheck && npm run lint && npx prettier --check .",
+          "result": "passed",
+          "detail": "typecheck clean; lint 0 errors (3 pre-existing any warnings); formatting clean",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r02-gates.txt",
+          "captured_utc": "2026-11-14T04:59:34Z"
+        },
+        {
+          "command": "node scripts/history-smoke.mjs",
+          "result": "passed",
+          "detail": "18/18 checks on this Mac: 10,054 stored events, 2,100-frame turn, scroll anchor delta 0 px, jump distance 0 px, connection Not started (no runtime/model request)",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r02-history-long-smoke.json",
+          "captured_utc": "2026-11-14T04:59:34Z"
+        },
+        {
+          "command": "node scripts/shell-smoke.mjs",
+          "result": "passed",
+          "detail": "127/127 checks, Electron exit 0; immediate rerun after one earlier terminal_output flake (terminal path untouched by R02)",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r02-shell-smoke.json",
+          "captured_utc": "2026-11-14T04:59:34Z"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/review-studio/R02-identity-aware-history.md",
+          "sha256": "d3320db899a88cf50d216f32a42da126ad1667a589c1234e55c2bbc36f9350f1"
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r02-focused-tests.txt",
+          "sha256": "251f7ed6213a5c666bc3195a0c66ab9a4aa137cd4c42bb444cf846f0f5b65931"
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r02-full-tests.txt",
+          "sha256": "700a4c68a93f92897a41a041a23914d2c00276851e61b0fd5821614f0e9e6f2e"
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r02-gates.txt",
+          "sha256": "6389922b2bc11a88068a29fa1cd0383f63c68717df09e79d1a08e85db48637e4"
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r02-history-long-smoke.json",
+          "sha256": "cd4f5ba476c01d2f8838ea100763f75313f95d57cc6ae5444f5f85611db095c6"
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r02-shell-smoke.json",
+          "sha256": "9519780bfff6b7459c3031f9eec35f21bb5ab6dda598281501490f571c678faa"
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r02-history-long-session.png",
+          "sha256": "a0e0007213640680d82b1f9ec6f67ffa3d617720f62a16b46c11cc47a4294b6f"
+        }
+      ],
       "attempt_problem_ids": [],
       "platform": "darwin-arm64",
-      "next_action": "Read projects/service.ts, store event queries, project-bridge and timeline; define the paginated history contract.",
-      "notes": []
+      "next_action": "",
+      "notes": [
+        "Cursor is keyset over (recorded_at, rowid), never engine seq: seq is one global counter shared by threads, so a hole in it is interleaving, not loss. event_gaps remains the only loss record.",
+        "Schema v10 is additive and nullable; pre-v10 rows keep item_id NULL and are reported as unknown identity rather than inferred from payload or kind.",
+        "Legacy completions bind to an unidentified stream only when exactly one stream of that kind in that turn can be its source; otherwise the completion stands alone.",
+        "Partial cards reload one item (bounded at 4,000 frames) or state that the beginning cannot be reconstructed. No whole-transcript backfill and no invented text.",
+        "Scroll anchoring keys on olderLoads (a completed page read), so live appends never move a reader. scroll-behavior:smooth was removed because it made follow-scroll look like leaving the live edge.",
+        "currentThreadId prefers the deterministic local thread id over most-recently-updated, so an archived thread cannot be labelled current.",
+        "One earlier shell-smoke run reported terminal_output:false; the terminal path is untouched and the immediate rerun was 127/127. Recorded in the R02 evidence instead of hidden.",
+        "The 24 shell captures regenerated by the shell smoke were re-recorded through monabuild evidence with a note that the previous hash described the pre-R02 bytes; R00/R01 source hashes for files R02 changed are marked historical, not refreshed."
+      ]
     },
     "R03": {
       "status": "pending",
@@ -860,7 +1109,7 @@
         "docs/evidence/macos/review-studio/R00-baseline.md"
       ],
       "notes": [
-        "Hotfix isolates accumulation per thread; R02 extends isolation to item/turn identity."
+        "Hotfix isolated accumulation per thread; R02 extends isolation to item identity: deltas and completions bind by item_id, streamed and completed cards share one key, and legacy rows are grouped only within one turn and kind with explicit unknown identity."
       ]
     },
     "RV-05": {
@@ -878,10 +1127,14 @@
     "RV-06": {
       "title": "Older conversation is not truly pageable",
       "priority": "high",
-      "status": "open",
+      "status": "verified",
       "task": "R02",
-      "evidence": [],
-      "notes": []
+      "evidence": [
+        "docs/evidence/macos/review-studio/R02-identity-aware-history.md"
+      ],
+      "notes": [
+        "Paged keyset history replaces the fixed 200-event tail; 10,050-event fixture walks every frame once, and the Electron smoke reaches page 3 from the live edge without a runtime or model request."
+      ]
     },
     "RV-07": {
       "title": "No composer Command-Enter handler; send allows empty text",
@@ -994,7 +1247,7 @@
       "notes": []
     }
   },
-  "last_checkpoint_utc": "2026-11-14T04:38:04.638Z",
+  "last_checkpoint_utc": "2026-11-14T05:01:24.003Z",
   "notes": [
     "Subordinate ledger. The P00–P27 registry remains authoritative for product requirements; this registry tracks review tasks and findings only.",
     "Attempts continue in the shared attempts.jsonl; a review task ID never resets a count."

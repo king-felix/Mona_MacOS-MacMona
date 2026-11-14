@@ -1,0 +1,32 @@
+# R02 gates — 2026-11-14T05:01:14Z
+
+$ npm run typecheck
+
+> mona@0.1.0-p02 typecheck
+> tsc -p tsconfig.main.json --noEmit && tsc -p tsconfig.renderer.json --noEmit
+
+typecheck exit: 0
+
+$ npm run lint
+
+> mona@0.1.0-p02 lint
+> eslint .
+
+
+/Users/basestar/DS_Projects/Mona/test/engine-adapter.test.ts
+  19:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/basestar/DS_Projects/Mona/test/engine-orchestration.test.ts
+  8:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/basestar/DS_Projects/Mona/test/work-agents.test.ts
+  236:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 3 problems (0 errors, 3 warnings)
+
+lint exit: 0
+
+$ npx prettier --check .
+Checking formatting...
+All matched files use Prettier code style!
+format exit: 0

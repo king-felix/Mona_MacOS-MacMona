@@ -1579,7 +1579,10 @@ a {
      so the composer below is reachable with a short scroll rather than lost. */
   height: clamp(300px, 44vh, 620px);
   overflow-y: auto;
-  scroll-behavior: smooth;
+  /* No smooth scrolling here: follow-scroll runs on every stored frame, and an
+     animation would report the reader as "away from the live edge" mid-flight,
+     making Jump to latest flicker during a healthy stream. */
+  scroll-behavior: auto;
 }
 
 .timeline {
@@ -4789,4 +4792,51 @@ a {
   .memory-split {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+
+/* R02: paged history controls. They sit outside the scrolling console so
+   "Jump to latest" is reachable without scrolling and loading earlier never
+   depends on the history it is loading. */
+.timeline__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 0 2px;
+}
+
+.timeline__thread {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.timeline__thread select {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--text-sm);
+  padding: 4px 8px;
+  max-width: 320px;
+}
+
+.timeline__toolbar-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.timeline-event__partial {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  margin-top: 6px;
+  padding: 8px 10px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--muted);
+  font-size: var(--text-xs);
 }

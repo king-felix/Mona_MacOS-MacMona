@@ -79,3 +79,19 @@ export const ENGINE_PLUMBING_KINDS = [
 export function isEnginePlumbingKind(kind: string): boolean {
   return (ENGINE_PLUMBING_KINDS as readonly string[]).includes(kind);
 }
+
+/**
+ * The item identity a frame belongs to, using the envelope's field first and
+ * the payload's own `item.id` second. An engine that omits `item_id` on a
+ * completion still names the item inside the payload; a frame that names
+ * neither stays unknown rather than being matched to an item by kind.
+ */
+export function eventItemId(event: { item_id?: string | null; payload: unknown }): string | null {
+  if (typeof event.item_id === "string" && event.item_id.length > 0) return event.item_id;
+  const payload = event.payload;
+  if (payload === null || typeof payload !== "object") return null;
+  const item = (payload as Record<string, unknown>).item;
+  if (item === null || typeof item !== "object") return null;
+  const id = (item as Record<string, unknown>).id;
+  return typeof id === "string" && id.length > 0 ? id : null;
+}

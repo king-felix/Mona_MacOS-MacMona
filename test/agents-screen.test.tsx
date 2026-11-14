@@ -52,6 +52,7 @@ function detail(): ProjectDetail {
     tasks: [],
     dependencies: [],
     threads: [],
+    currentThreadId: "thr_0123456789abcdef",
     draft: null,
     events: [],
     usage: {

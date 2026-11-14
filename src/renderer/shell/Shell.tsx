@@ -65,6 +65,7 @@ import { MemoryScreen } from "./Memory";
 import { TerminalPanel } from "./TerminalPanel";
 import { rankPalette, type PaletteDetail, type PaletteEntry, type PaletteKind } from "./palette";
 import { DraftJournal, SelectionEpoch, SubmissionGate, type SubmissionIdentity } from "./session";
+import { HistoryPager, type HistoryView } from "./history";
 import type { ScreenId } from "./types";
 import { projectMonogram, projectAccent } from "./visual";
 
@@ -199,6 +200,18 @@ export function Shell(): JSX.Element {
   );
   const [epoch] = useState(() => new SelectionEpoch());
   const [submission] = useState(() => new SubmissionGate());
+  // R02: stored history is read page by page. The pager owns its own request
+  // token so a slow page for an abandoned project can never replace the page
+  // on screen.
+  const [history] = useState(
+    () =>
+      new HistoryPager({
+        page: (projectId, options) => window.mona.projectHistory(projectId, options),
+        item: (projectId, threadId, itemId) =>
+          window.mona.projectHistoryItem(projectId, threadId, itemId),
+      }),
+  );
+  const [historyView, setHistoryView] = useState<HistoryView>(() => history.view());
   const busyCount = useRef(0);
   const draftTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const studioTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -217,6 +230,8 @@ export function Shell(): JSX.Element {
       }),
     [drafts],
   );
+
+  useEffect(() => history.subscribe(setHistoryView), [history]);
 
   useEffect(() => {
     applyTheme(theme);
@@ -338,6 +353,14 @@ export function Shell(): JSX.Element {
           return;
         }
         const detail = result.value;
+        // History is reset with the project it belongs to, before anything can
+        // render it beside a different detail.
+        history.open(detail.project.id, {
+          events: detail.events,
+          olderCursor: detail.history.olderCursor,
+          hasMore: detail.history.hasMore,
+          storedTotal: detail.history.storedTotal,
+        });
         setSelected(detail);
         setStudio(studioResult.ok ? studioResult.value : null);
         const threadId = detail.draft?.threadId ?? detail.threads[0]?.id ?? null;
@@ -368,7 +391,7 @@ export function Shell(): JSX.Element {
         endBusy();
       }
     },
-    [beginBusy, drafts, endBusy, epoch, flushDraft],
+    [beginBusy, drafts, endBusy, epoch, flushDraft, history],
   );
 
   const refreshSelected = useCallback(async (): Promise<void> => {
@@ -382,9 +405,15 @@ export function Shell(): JSX.Element {
       window.mona.studioState(current.project.id),
     ]);
     if (!epoch.isCurrent(token)) return;
-    if (detailResult.ok) setSelected(detailResult.value);
+    if (detailResult.ok) {
+      const detail = detailResult.value;
+      // A live refresh extends the transcript; it never replaces the older
+      // pages the reader already loaded.
+      history.mergeLive(detail.project.id, detail.events, detail.history.storedTotal);
+      setSelected(detail);
+    }
     if (studioResult.ok) setStudio(studioResult.value);
-  }, [epoch]);
+  }, [epoch, history]);
 
   const focusToggleAt = useRef(0);
   const toggleFocusMode = useCallback((): void => {
@@ -1596,6 +1625,24 @@ export function Shell(): JSX.Element {
               setFavoriteDialog({ label: "", text: drafts.current()?.text ?? "" })
             }
             onRemoveFavorite={(id) => void removeFavorite(id)}
+            history={
+              selected && historyView.projectId === selected.project.id
+                ? {
+                    events: historyView.events,
+                    storedTotal: historyView.storedTotal,
+                    hasMore: historyView.hasMore,
+                    loading: historyView.loading,
+                    error: historyView.error,
+                    threadId: historyView.threadId,
+                    truncatedItems: historyView.truncatedItems,
+                    completeItems: historyView.completeItems,
+                    olderLoads: historyView.olderLoads,
+                    onLoadOlder: () => void history.older(),
+                    onLoadItem: (threadId, itemId) => void history.loadItem(threadId, itemId),
+                    onSelectThread: (threadId) => void history.selectThread(threadId),
+                  }
+                : null
+            }
           />
         ) : null}
         {screen === "board" ? (

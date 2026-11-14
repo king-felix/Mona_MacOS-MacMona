@@ -165,6 +165,19 @@ export interface StoredEvent {
   recordedAt: string;
   /** Null for rows recorded before v6; the envelope's turn is otherwise kept. */
   turnId?: string | null;
+  /**
+   * The engine item this frame belongs to. Null for rows recorded before v10
+   * (or when the engine omitted the identity); the projection treats null as
+   * unknown and never guesses an item from `kind` alone.
+   */
+  itemId?: string | null;
+}
+
+export interface StoredHistoryPage {
+  events: StoredEvent[];
+  olderCursor: { recordedAt: string; rowId: number } | null;
+  hasMore: boolean;
+  storedTotal: number;
 }
 
 export interface StoredChangeFile {
@@ -3482,6 +3495,8 @@ export class StateStore {
     timestamp: string;
     /** The envelope's turn identity, kept so tool items can be joined to it. */
     turnId?: string | null;
+    /** The envelope's item identity, kept so deltas cannot merge by kind. */
+    itemId?: string | null;
   }): Promise<{ recorded: boolean; cursor: number }> {
     if (!Number.isInteger(input.seq) || input.seq < 1) {
       throw new StateError("CONFLICT", "event sequence must be a positive integer");
@@ -3489,8 +3504,8 @@ export class StateStore {
     return this.write((db, now) => {
       const result = db
         .prepare(
-          "INSERT OR IGNORE INTO events (thread_id, seq, kind, payload_json, timestamp, recorded_at, turn_id) " +
-            "VALUES (?, ?, ?, ?, ?, ?, ?)",
+          "INSERT OR IGNORE INTO events (thread_id, seq, kind, payload_json, timestamp, recorded_at, turn_id, item_id) " +
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
         )
         .run(
           input.threadId,
@@ -3500,6 +3515,7 @@ export class StateStore {
           input.timestamp,
           now,
           input.turnId ?? null,
+          input.itemId ?? null,
         );
       const recorded = Number(result.changes) > 0;
       // Shrink a recorded gap whenever the sequence is present, including a
@@ -3672,6 +3688,7 @@ export class StateStore {
         timestamp: asString(row.timestamp),
         recordedAt: asString(row.recorded_at),
         turnId: asNullableString(row.turn_id),
+        itemId: asNullableString(row.item_id),
       }));
     });
   }
@@ -3704,38 +3721,128 @@ export class StateStore {
   }
 
   /**
-   * Timeline projection across every thread of one project. Threads are
-   * projections; the project timeline must not fragment when a live engine
-   * thread is added beside the local shell thread.
+   * One page of a project's stored history, oldest-first within the page.
    *
-   * The window is the NEWEST `limit` events, returned oldest-first so the
-   * timeline can render in order. Selecting the oldest page instead freezes a
-   * long thread's console at its first events: new frames are stored but never
-   * read, so the surface looks hung while ingestion is healthy.
+   * The cursor is a keyset over `(recorded_at, rowid)` — the store's own
+   * receipt order — so a page can be read without loading the transcript and
+   * without shifting when new events arrive. Sequence numbers are not a cursor:
+   * `seq` is one global engine counter shared by every thread, so a gap between
+   * stored sequences is normally another thread's traffic, never this
+   * transcript losing a frame. Loss stays what `event_gaps` records.
+   *
+   * `hasMore` is a row-count fact from this read, not an inference from the
+   * number of events the caller already holds.
    */
-  async readProjectEvents(projectId: ProjectId, limit = 200): Promise<StoredEvent[]> {
-    const bounded = Math.min(Math.max(1, Math.trunc(limit)), 2000);
+  async readProjectHistoryPage(input: {
+    projectId: ProjectId;
+    limit?: number;
+    before?: { recordedAt: string; rowId: number } | null;
+    threadId?: string | null;
+  }): Promise<StoredHistoryPage> {
+    // The IPC contract caps a caller's page at 500; diagnostics may ask for a
+    // wider single read, which is still bounded.
+    const bounded = Math.min(Math.max(1, Math.trunc(input.limit ?? 200)), 1_000);
     return this.read((db) => {
+      const threadClause = input.threadId ? "AND e.thread_id = ?" : "";
+      const beforeClause = input.before
+        ? "AND (e.recorded_at < ? OR (e.recorded_at = ? AND e.rowid < ?))"
+        : "";
+      const filterParams: Array<string | number> = [input.projectId];
+      if (input.threadId) filterParams.push(input.threadId);
+      const beforeParams: Array<string | number> = [];
+      if (input.before) {
+        beforeParams.push(input.before.recordedAt, input.before.recordedAt, input.before.rowId);
+      }
       const rows = db
         .prepare(
           "SELECT * FROM (" +
             "SELECT e.*, e.rowid AS insertion_order FROM events e " +
             "JOIN threads t ON t.id = e.thread_id " +
-            "WHERE t.project_id = ? " +
+            `WHERE t.project_id = ? ${threadClause} ${beforeClause} ` +
             "ORDER BY e.recorded_at DESC, e.rowid DESC LIMIT ?" +
             ") ORDER BY recorded_at ASC, insertion_order ASC",
         )
-        .all(projectId, bounded) as DbRow[];
-      return rows.map((row) => ({
-        threadId: asString(row.thread_id),
-        seq: asNumber(row.seq),
-        kind: asString(row.kind),
-        payload: JSON.parse(asString(row.payload_json)),
-        timestamp: asString(row.timestamp),
-        recordedAt: asString(row.recorded_at),
-        turnId: asNullableString(row.turn_id),
-      }));
+        .all(...filterParams, ...beforeParams, bounded + 1) as DbRow[];
+      // The extra row is the oldest of the read window: dropping it leaves the
+      // newest `bounded` rows, and its presence is how `hasMore` becomes a fact.
+      const hasMore = rows.length > bounded;
+      const page = hasMore ? rows.slice(1) : rows;
+      const countRow = db
+        .prepare(
+          "SELECT COUNT(*) AS n FROM events e JOIN threads t ON t.id = e.thread_id " +
+            `WHERE t.project_id = ? ${threadClause}`,
+        )
+        .get(...filterParams) as { n: number } | undefined;
+      const events = page.map((row) => this.eventFromRow(row));
+      const oldest = events[0];
+      return {
+        events,
+        olderCursor:
+          hasMore && oldest
+            ? { recordedAt: oldest.recordedAt, rowId: Number(page[0]?.insertion_order ?? 0) }
+            : null,
+        hasMore,
+        storedTotal: Number(countRow?.n ?? 0),
+      };
     });
+  }
+
+  /**
+   * Every stored frame of one engine item, oldest-first. Used to rebuild a
+   * message whose beginning predates the page the reader loaded.
+   *
+   * A completion frame carries its identity inside `payload.item.id` even when
+   * the envelope omitted `item_id`, so both spellings are accepted. Frames that
+   * predate identity capture carry neither and are not returned: an honest
+   * partial card beats an invented reconstruction.
+   */
+  async readItemEvents(input: {
+    threadId: string;
+    itemId: string;
+    limit?: number;
+  }): Promise<{ events: StoredEvent[]; storedCount: number; truncated: boolean }> {
+    const bounded = Math.min(Math.max(1, Math.trunc(input.limit ?? 4_000)), 8_000);
+    if (!input.threadId || !input.itemId) {
+      return { events: [], storedCount: 0, truncated: false };
+    }
+    return this.read((db) => {
+      const match =
+        "thread_id = ? AND (item_id = ? OR json_extract(payload_json, '$.item.id') = ?)";
+      const countRow = db
+        .prepare(`SELECT COUNT(*) AS n FROM events WHERE ${match}`)
+        .get(input.threadId, input.itemId, input.itemId) as { n: number } | undefined;
+      const rows = db
+        .prepare(`SELECT * FROM events WHERE ${match} ORDER BY seq ASC LIMIT ?`)
+        .all(input.threadId, input.itemId, input.itemId, bounded) as DbRow[];
+      const storedCount = Number(countRow?.n ?? 0);
+      return {
+        events: rows.map((row) => this.eventFromRow(row)),
+        storedCount,
+        truncated: storedCount > rows.length,
+      };
+    });
+  }
+
+  private eventFromRow(row: DbRow): StoredEvent {
+    return {
+      threadId: asString(row.thread_id),
+      seq: asNumber(row.seq),
+      kind: asString(row.kind),
+      payload: JSON.parse(asString(row.payload_json)),
+      timestamp: asString(row.timestamp),
+      recordedAt: asString(row.recorded_at),
+      turnId: asNullableString(row.turn_id),
+      itemId: asNullableString(row.item_id),
+    };
+  }
+
+  /**
+   * Timeline projection across every thread of one project, as one page.
+   * Retained for diagnostics that need the live edge; product reads use
+   * `readProjectHistoryPage` so older history stays reachable.
+   */
+  async readProjectEvents(projectId: ProjectId, limit = 200): Promise<StoredEvent[]> {
+    return (await this.readProjectHistoryPage({ projectId, limit })).events;
   }
 
   /** Most recent submissions for a project, newest first. Read-only. */

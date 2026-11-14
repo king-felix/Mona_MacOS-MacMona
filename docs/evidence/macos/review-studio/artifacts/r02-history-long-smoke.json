@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "ok": true,
+  "checks": {
+    "catalog_rendered": true,
+    "studio_opened": true,
+    "timeline_rendered": true,
+    "scope_reports_stored_total": true,
+    "scope_reports_older_pages": true,
+    "newest_page_visible": true,
+    "older_page_not_yet_loaded": true,
+    "load_earlier_offered": true,
+    "jump_absent_at_live_edge": true,
+    "no_runtime_started": true,
+    "thread_selector_present": true,
+    "thread_selector_distinguishes": true,
+    "jump_appears_after_scrolling": true,
+    "older_page_loaded": true,
+    "scroll_anchor_held": true,
+    "older_page_rendered_once": true,
+    "second_older_page_loaded": true,
+    "jump_to_latest_returns_to_edge": true
+  },
+  "phases": [
+    {
+      "name": "initial",
+      "scope": "200 shown · 10054 stored · older pages available",
+      "cards": 200,
+      "newest_visible": true,
+      "older_absent": true,
+      "load_button": true,
+      "jump_button": false,
+      "connection": "EngineNot started",
+      "thread_options": [
+        "All threads",
+        "Archived work · archived",
+        "Local shell thread · current"
+      ],
+      "thread_disabled": false
+    },
+    {
+      "name": "anchor",
+      "before": {
+        "top": 300,
+        "height": 14728
+      },
+      "after": {
+        "top": 15000,
+        "height": 29428,
+        "anchor_applications": 1,
+        "older_loads": 1
+      },
+      "delta": 0
+    },
+    {
+      "name": "jump",
+      "distance": 0,
+      "jump_button": false,
+      "scope": "600 shown · 10054 stored · older pages available"
+    }
+  ],
+  "project": "prj_618c85b57fc34238",
+  "stored_total": 10054,
+  "screenshot": "/Users/basestar/DS_Projects/Mona/docs/evidence/macos/review-studio/artifacts/r02-history-long-session.png",
+  "electron": {
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+}

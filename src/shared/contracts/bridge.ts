@@ -1,5 +1,8 @@
 import type { ProjectId, TaskId } from "./ids";
 import type {
+  HistoryCursor,
+  HistoryItemPage,
+  HistoryPage,
   IpcResult,
   OpenProjectResult,
   ProjectDetail,
@@ -136,6 +139,17 @@ export interface MonaBridge {
   listProjects(query?: string, includeArchived?: boolean): Promise<IpcResult<ProjectSummary[]>>;
   openProject(rootPath?: string): Promise<IpcResult<OpenProjectResult | null>>;
   projectDetail(id: ProjectId): Promise<IpcResult<ProjectDetail>>;
+  /** One older page of stored history; starts no runtime and asks no model. */
+  projectHistory(
+    id: ProjectId,
+    options?: { before?: HistoryCursor | null; limit?: number; threadId?: string | null },
+  ): Promise<IpcResult<HistoryPage>>;
+  /** Every stored frame of one item, to rebuild a card cut off by paging. */
+  projectHistoryItem(
+    id: ProjectId,
+    threadId: string,
+    itemId: string,
+  ): Promise<IpcResult<HistoryItemPage>>;
   renameProject(
     id: ProjectId,
     name: string,

@@ -31,14 +31,22 @@ P00–P27 board, its requirements or its attempt counts.
   included). Six pre-fix race tests fail on the R00 shell and pass now; 819
   tests in 81 files, shell smoke 127/127. Evidence:
   `docs/evidence/macos/review-studio/R01-drafts-and-navigation.md`.
-- **Next review task:** R02 (identity-aware history and paging) or R03 (slash
-  command catalog), both eligible. `.mona/build-macos/reviews/
+- **R02 completed (2026-11-14):** history is a keyset-paged read of stored
+  events (schema v10 keeps `item_id`), the timeline binds deltas and completions
+  by item identity, and partial cards reload one item or say they cannot. A real
+  Electron smoke paged a 10,054-event project without a runtime or model call;
+  849 tests in 83 files, shell smoke 127/127. Evidence:
+  `docs/evidence/macos/review-studio/R02-identity-aware-history.md`.
+- **Next review task:** R03 (slash-command catalog), R05 (focus/fullscreen) or
+  R07 (pending input) — all eligible now. `.mona/build-macos/reviews/
   studio-v2/HANDOFF.md` carries the exact first action.
 - **Original ledger hygiene:** P10/P19 `store.ts` evidence hashes were
   re-recorded only after the suite passed on the new bytes and carry a note
-  saying the original reports describe the pre-review bytes; 19 rewritten
-  shell captures were re-recorded per task with notes. No assertion removed,
-  no requirement status lowered, `attempts.jsonl` still empty.
+  saying the original reports describe the pre-review bytes; R02's shell smoke
+  regenerated 24 captures, which were re-recorded per task with notes, and R00/R01
+  source hashes superseded by R02 are marked historical rather than refreshed.
+  No assertion removed, no requirement status lowered, `attempts.jsonl` still
+  empty.
 
 ### Operator-requested repair — 2026-11-13 (D-098)
 
