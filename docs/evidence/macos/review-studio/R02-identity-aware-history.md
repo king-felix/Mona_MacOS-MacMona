@@ -119,7 +119,7 @@ that does not belong to the project is refused (`CONFLICT` for the thread).
 
 ## Verification
 
-**Focused fixtures — 107 tests in 7 files**
+**Focused fixtures — 110 tests in 7 files**
 (`artifacts/r02-focused-tests.txt`):
 
 - 10,050-event project: every frame reachable exactly once by walking
@@ -141,8 +141,13 @@ that does not belong to the project is refused (`CONFLICT` for the thread).
   can carry identity; both indexes exist.
 - IPC: page and item requests validated; malformed cursors, limits and threads
   refused.
+- Review-driven fixes: a failed thread switch snaps the selector back to the
+  filter that is really on screen; an interrupted item keeps its streamed text
+  instead of replacing it with the item kind; and a card whose completion
+  carries its own text is not labelled partial (only a completion that merely
+  adopts the streamed text leaves the page-boundary warning in place).
 
-**Full suite — 849 tests in 83 files** (was 819 in 81 at R01). Typecheck clean,
+**Full suite — 852 tests in 83 files** (was 819 in 81 at R01). Typecheck clean,
 lint 0 errors (3 pre-existing `any` warnings), `prettier --check .` clean.
 (`artifacts/r02-full-tests.txt`, `artifacts/r02-gates.txt`.)
 

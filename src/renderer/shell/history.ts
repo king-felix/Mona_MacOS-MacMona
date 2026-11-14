@@ -171,6 +171,9 @@ export class HistoryPager {
     const projectId = this.state.projectId;
     if (!projectId) return;
     if (this.state.threadId === threadId && !this.state.error) return;
+    // A failed read must not leave the selector claiming a filter whose events
+    // are not on screen.
+    const previousThreadId = this.state.threadId;
     const token = ++this.token;
     this.set({ threadId, loading: true, error: null });
     if (threadId === null) {
@@ -179,7 +182,11 @@ export class HistoryPager {
       const result = await this.source.page(projectId as ProjectId, { limit: PAGE_LIMIT });
       if (token !== this.token) return;
       if (!result.ok) {
-        this.set({ loading: false, error: `${result.error.code}: ${result.error.message}` });
+        this.set({
+          threadId: previousThreadId,
+          loading: false,
+          error: `${result.error.code}: ${result.error.message}`,
+        });
         return;
       }
       this.replaceWithPage(result.value);
@@ -191,7 +198,11 @@ export class HistoryPager {
     });
     if (token !== this.token) return;
     if (!result.ok) {
-      this.set({ loading: false, error: `${result.error.code}: ${result.error.message}` });
+      this.set({
+        threadId: previousThreadId,
+        loading: false,
+        error: `${result.error.code}: ${result.error.message}`,
+      });
       return;
     }
     this.replaceWithPage(result.value);

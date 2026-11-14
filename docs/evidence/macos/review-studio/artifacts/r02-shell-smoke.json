@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "captured_at": "2026-11-14T04:58:31.286Z",
+  "captured_at": "2026-11-14T05:06:47.833Z",
   "ok": true,
   "checks": {
     "ready": true,
@@ -260,7 +260,7 @@
     },
     "notification": {
       "receipt": true,
-      "text": "system refused completion · the system did not accept the notification 11/13/2026, 9:58:28 PM",
+      "text": "system refused completion · the system did not accept the notification 11/13/2026, 10:06:45 PM",
       "shown": false,
       "handed_over": false,
       "refused": true,
@@ -390,7 +390,7 @@
         "",
         "running",
         "120×40",
-        "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-shell-smoke-project-vdguX1/Shell smoke project",
+        "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-shell-smoke-project-EoHOUj/Shell smoke project",
         "1 KiB"
       ]
     }

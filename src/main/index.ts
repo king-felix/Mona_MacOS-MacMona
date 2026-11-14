@@ -11,7 +11,7 @@ import {
 } from "node:fs";
 import { randomBytes } from "node:crypto";
 import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { join, relative, resolve } from "node:path";
 import { createMainWindow } from "./window";
 import { hardenSession } from "./security";
 import { installApplicationMenu, type ApplicationMenuHandle } from "./menu";
@@ -2437,7 +2437,9 @@ async function runHistorySmoke(window: BrowserWindow): Promise<void> {
     const shot = await window.webContents.capturePage();
     const shotPath = join(outDir, "r02-history-long-session.png");
     writeFileSync(shotPath, shot.toPNG());
-    report.screenshot = shotPath;
+    // Repo-relative: the report is evidence that ships with the build, and an
+    // absolute path would carry this machine's account name (D-101).
+    report.screenshot = relative(process.cwd(), shotPath);
     report.ok = Object.values(checks).every(Boolean);
   } catch (error) {
     const candidate = error as { message?: string; stack?: string };

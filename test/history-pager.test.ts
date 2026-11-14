@@ -185,3 +185,40 @@ describe("R02 history pager", () => {
     expect(pager.view().completeItems["thr_a:item_one"]).toBeUndefined();
   });
 });
+
+describe("R02 history pager failures", () => {
+  it("does not claim a thread filter whose page failed to load", async () => {
+    let fail = false;
+    const source: HistorySource = {
+      page: async (_id, options) => {
+        if (fail && options.threadId) {
+          return { ok: false, error: { code: "DB_BUSY", message: "try again" } };
+        }
+        return page(
+          [event(options.threadId ?? "thr_a", 1, "frame")],
+          null,
+          false,
+          options.threadId ?? null,
+          options.threadId ? 10 : 20,
+        );
+      },
+      item: async () => ({ ok: false, error: { code: "X", message: "unused" } }),
+    };
+    const pager = new HistoryPager(source);
+    pager.open(projectId, {
+      events: [event("thr_a", 1, "frame")],
+      olderCursor: null,
+      hasMore: false,
+      storedTotal: 20,
+    });
+    await pager.selectThread("thr_a");
+    expect(pager.view().threadId).toBe("thr_a");
+    expect(pager.view().storedTotal).toBe(10);
+    fail = true;
+    await pager.selectThread("thr_b");
+    // The selector snaps back to the filter that is actually on screen.
+    expect(pager.view().threadId).toBe("thr_a");
+    expect(pager.view().events.every((entry) => entry.threadId === "thr_a")).toBe(true);
+    expect(pager.view().error).toBe("DB_BUSY: try again");
+  });
+});

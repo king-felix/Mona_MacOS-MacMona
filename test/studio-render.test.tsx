@@ -394,3 +394,76 @@ describe("R02 identity-aware conversation projection", () => {
     expect(entries.filter((entry) => entry.itemId !== null)).toHaveLength(1);
   });
 });
+
+describe("R02 interruption and identity edges", () => {
+  it("does not replace streamed text with an item kind when an item is interrupted", () => {
+    const { entries } = projectTimeline(
+      [
+        event(
+          1,
+          "item.delta",
+          { kind: "agent_message", delta: "partial answer" },
+          { turnId: "turn_i", itemId: "item_i" },
+        ),
+        event(
+          2,
+          "item.interrupted",
+          { item: { id: "item_i", kind: "agent_message", status: "interrupted" } },
+          { turnId: "turn_i", itemId: "item_i" },
+        ),
+      ],
+      { historyComplete: true },
+    );
+    expect(entries).toHaveLength(1);
+    expect(entries[0]).toMatchObject({
+      body: "partial answer",
+      status: "interrupted",
+      itemId: "item_i",
+      streaming: false,
+    });
+  });
+});
+
+describe("R02 page-boundary honesty", () => {
+  it("does not call a card partial when its completion carries the full text", () => {
+    const paged = projectTimeline(
+      [
+        event(
+          50,
+          "item.completed",
+          {
+            item: {
+              id: "item_cut",
+              kind: "agent_message",
+              status: "completed",
+              detail: "the whole answer",
+            },
+          },
+          { turnId: "turn_p", itemId: "item_cut" },
+        ),
+      ],
+      { historyComplete: false },
+    );
+    expect(paged.entries).toHaveLength(1);
+    expect(paged.entries[0]).toMatchObject({
+      body: "the whole answer",
+      partial: false,
+      streaming: false,
+    });
+
+    // A completion with no text still means the deltas are elsewhere, so the
+    // card must remain partial rather than vanish or look complete.
+    const textless = projectTimeline(
+      [
+        event(
+          51,
+          "item.completed",
+          { item: { id: "item_cut2", kind: "agent_message", status: "completed" } },
+          { turnId: "turn_p", itemId: "item_cut2" },
+        ),
+      ],
+      { historyComplete: false },
+    );
+    expect(textless.entries[0]).toMatchObject({ body: "", partial: true, itemId: "item_cut2" });
+  });
+});

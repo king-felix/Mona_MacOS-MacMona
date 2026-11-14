@@ -37,7 +37,7 @@
     "attempts": ".mona/build-macos/attempts.jsonl",
     "requirement_registry": "docs/requirements-macos.json"
   },
-  "revision": 18,
+  "revision": 23,
   "current_task": "R02",
   "current_task_status": "completed",
   "tasks": {
@@ -387,7 +387,7 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "5c454086eeaa2c7c7949a150c73db4984cde04882bf1311805b94738f1873cd2",
+          "sha256": "ac6b7be8e1d3a76e234880956384b925e629e8a392fd496f8d29a823a5b20bf1",
           "state": "current",
           "note": "--history-smoke long-session runner; runtime smoke gating."
         },
@@ -429,13 +429,13 @@
         },
         {
           "path": "src/renderer/shell/history.ts",
-          "sha256": "71b25618fa7a33d21afaf0be1e042a3b29f844cec023f848296621fc45246522",
+          "sha256": "41a7b8bf2e3f62793b1f831ff6160cc063e5d62cc6c5d473ddb3403af5b120bc",
           "state": "current",
           "note": "new: HistoryPager (keyset pages, thread filter, item reload, epoch tokens, storedTotal)."
         },
         {
           "path": "src/renderer/shell/timeline.ts",
-          "sha256": "4da65e3cb49bac5fb3f2d2186c98925c24c587c0a4349b502704c7a2e7b97824",
+          "sha256": "f884432822a54d6d607bac0b380f4184ed9ce21ca7d666a4d03f2a9c25328b87",
           "state": "current",
           "note": "identity-bound projection, stable keys, partial items, no seq-hole inference."
         },
@@ -477,13 +477,13 @@
         },
         {
           "path": "test/history-pager.test.ts",
-          "sha256": "df6a20c17bf1e3c04b1b45c3da364b422069b372da558de5665f1a961a5beba1",
+          "sha256": "9addcf53157685ea401117bd9f789e50a60800a0f928be13ab8a2a5d0ab12fa7",
           "state": "current",
           "note": "new: pager unit tests (stale pages, mergeLive, truncation)."
         },
         {
           "path": "test/studio-render.test.tsx",
-          "sha256": "cecdd7fad7580c59f363fb69c1532a1267f5b206cd723eabff8ff4bd96568834",
+          "sha256": "6f8889512c103be8f7cc6879b09b833ed80f77efc408310e8fad31d21585ac6a",
           "state": "current",
           "note": "identity/stable-key/partial/no-seq-loss projection tests."
         },
@@ -551,14 +551,14 @@
         {
           "command": "npx vitest run test/history-paging.test.ts test/history-pager.test.ts test/studio-render.test.tsx test/studio-screen.test.tsx test/shell-races.test.tsx test/ipc-contract.test.ts test/state-database.test.ts",
           "result": "passed",
-          "detail": "107 tests in 7 files: 10,050-event page walk, 2,100-frame item rebuild, identity/stable-key/no-seq-loss projection, pager races, Studio paging UI and anchoring, IPC validation, v9→v10 migration",
+          "detail": "110 tests in 7 files: 10,050-event page walk, 2,100-frame item rebuild, identity/stable-key/no-seq-loss projection, pager races and failed-filter handling, Studio paging UI and anchoring, IPC validation, v9→v10 migration",
           "evidence": "docs/evidence/macos/review-studio/artifacts/r02-focused-tests.txt",
           "captured_utc": "2026-11-14T04:59:34Z"
         },
         {
           "command": "npx vitest run",
           "result": "passed",
-          "detail": "849 tests in 83 files (was 819 in 81 at R01)",
+          "detail": "852 tests in 83 files (was 819 in 81 at R01)",
           "evidence": "docs/evidence/macos/review-studio/artifacts/r02-full-tests.txt",
           "captured_utc": "2026-11-14T04:59:34Z"
         },
@@ -587,31 +587,31 @@
       "evidence": [
         {
           "path": "docs/evidence/macos/review-studio/R02-identity-aware-history.md",
-          "sha256": "d3320db899a88cf50d216f32a42da126ad1667a589c1234e55c2bbc36f9350f1"
+          "sha256": "3c0d9c91d646f1bd65946dd896688a45f1820aa821451483392fb8a1cc537ea6"
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r02-focused-tests.txt",
-          "sha256": "251f7ed6213a5c666bc3195a0c66ab9a4aa137cd4c42bb444cf846f0f5b65931"
+          "sha256": "64bc35b4d9a3bb11c6c8a3237508bd2281a6394a0f18c84205a56677a122f32e"
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r02-full-tests.txt",
-          "sha256": "700a4c68a93f92897a41a041a23914d2c00276851e61b0fd5821614f0e9e6f2e"
+          "sha256": "b2da11b48e0fa5347e8b52ebd2b601f58bf9de9afe885965d53736310af474e9"
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r02-gates.txt",
-          "sha256": "6389922b2bc11a88068a29fa1cd0383f63c68717df09e79d1a08e85db48637e4"
+          "sha256": "a5965b2336383bf140d8ca33ddf4f369e6bc28d8828dfdf3b86cce2b468f827d"
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r02-history-long-smoke.json",
-          "sha256": "cd4f5ba476c01d2f8838ea100763f75313f95d57cc6ae5444f5f85611db095c6"
+          "sha256": "afda8cbe1b3a53086dbdfb81e3cdebab4a27186900d7d086d01e164a6150d6c3"
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r02-shell-smoke.json",
-          "sha256": "9519780bfff6b7459c3031f9eec35f21bb5ab6dda598281501490f571c678faa"
+          "sha256": "d2eac81f8554e65afae00f3e546e3838d3d4ddc87bc003d348b59a25ffb484d0"
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r02-history-long-session.png",
-          "sha256": "a0e0007213640680d82b1f9ec6f67ffa3d617720f62a16b46c11cc47a4294b6f"
+          "sha256": "0873648a0d370dbebde1ba7062f92167c9ef1fc823b8ee44c6d7b4e8c795f0a8"
         }
       ],
       "attempt_problem_ids": [],
@@ -626,7 +626,8 @@
         "currentThreadId prefers the deterministic local thread id over most-recently-updated, so an archived thread cannot be labelled current.",
         "One earlier shell-smoke run reported terminal_output:false; the terminal path is untouched and the immediate rerun was 127/127. Recorded in the R02 evidence instead of hidden.",
         "The 24 shell captures regenerated by the shell smoke were re-recorded through monabuild evidence with a note that the previous hash described the pre-R02 bytes; R00/R01 source hashes for files R02 changed are marked historical, not refreshed.",
-        "Verified and committed at dcf47a5; both ledgers validate and the secret scan is clean (571 files, 0 findings)."
+        "Verified and committed at dcf47a5; both ledgers validate and the secret scan is clean (571 files, 0 findings).",
+        "Review pass after the first commit found and fixed three defects: a failed thread switch left the selector claiming a filter that was not on screen; an interrupted item replaced its streamed text with the item kind; and a completion that carries its own text still labelled the card partial. Each has a test."
       ]
     },
     "R03": {
@@ -1248,7 +1249,7 @@
       "notes": []
     }
   },
-  "last_checkpoint_utc": "2026-11-14T05:01:38.992Z",
+  "last_checkpoint_utc": "2026-11-14T05:07:39.751Z",
   "notes": [
     "Subordinate ledger. The P00–P27 registry remains authoritative for product requirements; this registry tracks review tasks and findings only.",
     "Attempts continue in the shared attempts.jsonl; a review task ID never resets a count."

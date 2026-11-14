@@ -257,7 +257,10 @@ function projectThreadTimeline(
     slots.push({ type: "item", key });
   };
 
-  const finalize = (key: string, update: { kind: string; text: string; status: string }): void => {
+  const finalize = (
+    key: string,
+    update: { kind: string; text: string; status: string; ownText: boolean },
+  ): void => {
     const block = items.get(key);
     if (!block) return;
     block.kind = update.kind;
@@ -265,6 +268,12 @@ function projectThreadTimeline(
     // A completion that carries the item's text wins; otherwise the streamed
     // accumulation is what the engine actually delivered.
     block.text = update.text || block.text;
+    if (update.ownText) {
+      // The completion's own text is the engine's whole item, so a page that
+      // starts mid-item is not missing anything for this card: saying it does
+      // would be a false claim about complete text.
+      block.atBoundary = false;
+    }
     block.completed = true;
   };
 
@@ -367,6 +376,7 @@ function projectThreadTimeline(
             kind,
             text: detail || (message ? (block?.text ?? "") : summary),
             status,
+            ownText: detail.length > 0 || (!message && summary.length > 0),
           });
           break;
         }
@@ -441,6 +451,7 @@ function projectThreadTimeline(
             kind: "error",
             text: failure,
             status: firstString(item, ["status"]) || "failed",
+            ownText: failure.length > 0,
           });
           break;
         }
@@ -466,17 +477,23 @@ function projectThreadTimeline(
         const itemId = event.itemId ?? payloadItemId(payload);
         const keyed = itemId !== null ? `item:${itemId}` : null;
         const target = targetFor(itemId, kind, turnId);
-        const detail =
-          firstString(item, ["detail", "summary"]) || firstString(item, ["kind"]) || "";
+        // The item kind is a label for a standalone card, never a replacement
+        // for text the engine already streamed.
+        const detail = firstString(item, ["detail", "summary"]);
         if (target !== null) {
-          finalize(target, { kind: "status", text: detail, status: "interrupted" });
+          finalize(target, {
+            kind: "status",
+            text: detail,
+            status: "interrupted",
+            ownText: false,
+          });
           break;
         }
         emit({
           key: keyed ?? key,
           kind: "status",
           title: "Item interrupted",
-          body: detail,
+          body: detail || firstString(item, ["kind"]),
           status: "interrupted",
           seq: event.seq,
           timestamp: event.timestamp,
