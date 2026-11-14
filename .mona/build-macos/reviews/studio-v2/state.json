@@ -37,7 +37,7 @@
     "attempts": ".mona/build-macos/attempts.jsonl",
     "requirement_registry": "docs/requirements-macos.json"
   },
-  "revision": 105,
+  "revision": 106,
   "current_task": "R15",
   "current_task_status": "completed",
   "tasks": {
@@ -2147,9 +2147,9 @@
         },
         {
           "path": "package.json",
-          "sha256": "ff6538d4f6a7176b8aad9b67d56bf6b9f45dff397115e9a92ce69528ae81a970",
+          "sha256": "a95ac5d05859ad02d7ecf77376bf456907ae5720a4d0723122a8ec78436c544e",
           "state": "current",
-          "note": "R11 verified bytes; hash re-recorded by R12 after pinning `eslint-plugin-react-hooks` 7.1.1 as a devDependency."
+          "note": "P24 2026-11-14: package.json gained the mac:recipient script; re-recorded against current bytes with no assertion changed."
         },
         {
           "path": "scripts/r11-smoke.mjs",
@@ -2295,9 +2295,9 @@
         },
         {
           "path": "package.json",
-          "sha256": "ff6538d4f6a7176b8aad9b67d56bf6b9f45dff397115e9a92ce69528ae81a970",
+          "sha256": "a95ac5d05859ad02d7ecf77376bf456907ae5720a4d0723122a8ec78436c544e",
           "state": "current",
-          "note": "R12 pinned `eslint-plugin-react-hooks` 7.1.1 as a devDependency."
+          "note": "P24 2026-11-14: package.json gained the mac:recipient script; re-recorded against current bytes with no assertion changed."
         },
         {
           "path": "package-lock.json",
@@ -3019,7 +3019,7 @@
       ]
     }
   },
-  "last_checkpoint_utc": "2026-11-14T18:29:50.125Z",
+  "last_checkpoint_utc": "2026-11-14T18:33:11.132Z",
   "notes": [
     "R11 completed: bounded console rendering with measured windowing, a nine-screen axe pass with four real a11y defects fixed, reduced motion and 200% scale measured, three visual regressions fixed, and the independent review's one blocker and three majors fixed with tests proven to fail on the old code. The memory budget is exceeded by the runtime floor and carried as a derived, named exception."
   ]

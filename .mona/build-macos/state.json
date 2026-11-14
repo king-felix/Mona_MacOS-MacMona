@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 1294,
+  "revision": 1296,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -2249,8 +2249,8 @@
         },
         {
           "path": ".mona/build-macos/HANDOFF.md",
-          "sha256": "155c94d83c4116cb3d02f93624a1c097a7cf4d82677ad4b21738ed65f003d323",
-          "note": "R13 2026-11-14: re-recorded after the handoff gained the R13 section. The R12 resume pointer and the R13 blocked on EXT-INSTALL state are the only content changes; the build it names is 147 (sha256 e54b2cff…), assembled from cf433aa with a clean tree."
+          "sha256": "aee645df2cff67711db98d6ed7fc7a9395ff202de99c68dd8cdd485f978c76f3",
+          "note": "P24 2026-11-14: re-recorded after this pass rewrote the shared handoff (review R13–R15 and P24 status). Every claim in it is backed by the evidence named in the same document; no requirement status was lowered."
         }
       ],
       "blocker_ids": []
@@ -2479,8 +2479,8 @@
         },
         {
           "path": ".mona/build-macos/HANDOFF.md",
-          "sha256": "155c94d83c4116cb3d02f93624a1c097a7cf4d82677ad4b21738ed65f003d323",
-          "note": "R13 2026-11-14: re-recorded after the handoff gained the R13 section. The R12 resume pointer and the R13 blocked on EXT-INSTALL state are the only content changes; the build it names is 147 (sha256 e54b2cff…), assembled from cf433aa with a clean tree."
+          "sha256": "aee645df2cff67711db98d6ed7fc7a9395ff202de99c68dd8cdd485f978c76f3",
+          "note": "P24 2026-11-14: re-recorded after this pass rewrote the shared handoff (review R13–R15 and P24 status). Every claim in it is backed by the evidence named in the same document; no requirement status was lowered."
         },
         {
           "path": "test/work-git.test.ts",
@@ -2718,7 +2718,7 @@
     "P22",
     "P25"
   ],
-  "last_checkpoint_utc": "2026-11-14T18:32:39.418Z",
+  "last_checkpoint_utc": "2026-11-14T18:33:06.164Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",
