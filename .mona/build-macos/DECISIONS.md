@@ -1699,3 +1699,33 @@ and the smoke measures it rather than asserting it is pretty.
   attach on that thread replays nothing; a genuine hole is still shown and still
   says why. If the engine ever omits `previous_seq`, Mona stops claiming loss
   rather than guessing. Evidence: `docs/evidence/macos/engine-event-gaps.md`.
+
+## D-100 — Plumbing is counted, known frames are projected; only real drift stays "unrecognized"
+
+- **Date:** 2026-11-13 (operator-reported console noise)
+- **Observation:** "Unrecognized event · operation.heartbeat" appeared every ten
+  seconds. Heartbeats carry only `{ observed_at }`. Auditing every kind the
+  engine actually stored also found `turn.artifacts` (which Mona already
+  captures into its change set), `item.interrupted`, and
+  `turn.interrupt_requested` labelled the same way.
+- **Cause:** the timeline's plumbing set was missing `operation.heartbeat`, and
+  three kinds the engine emits had no projection at all. The Studio's
+  "not projected" diagnostic keyed off `KNOWN_EVENT_KINDS` alone, so a known
+  plumbing frame was recorded as drift and could evict a real diagnostic from
+  the 12-slot ring.
+- **Decision:**
+  1. `ENGINE_PLUMBING_KINDS` is a shared contract list with two consumers: the
+     timeline counts those frames, the Studio does not diagnose them. Adding a
+     future plumbing kind is one edit in one place.
+  2. `turn.artifacts`, `item.interrupted`, and `turn.interrupt_requested` are
+     projected as first-class status cards and added to `KNOWN_EVENT_KINDS`.
+  3. A kind in neither list is still shown as unrecognized. That is the
+     guarantee this change preserves: no frame the build has never seen is
+     silently swallowed.
+- **Rejected:** hiding all `operation.*` events by prefix (the prefix also
+  carries activity marks that explain a stalled turn), and dropping heartbeats
+  from storage (they are the engine's liveness record; the console is a
+  projection, not the archive).
+- **Consequence:** the console shows conversation, tools, and outcomes; plumbing
+  appears only as "N engine activity events stored". Evidence:
+  `docs/evidence/macos/P08-studio.md`.

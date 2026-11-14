@@ -1,7 +1,7 @@
 import { createHash, randomUUID } from "node:crypto";
 import type { EventEnvelope, ProjectId, ThreadId, TurnId } from "../../shared/contracts";
 import { ThreadId as ThreadIdSchema } from "../../shared/contracts";
-import { isKnownEventKind } from "../../shared/contracts/events";
+import { isEnginePlumbingKind, isKnownEventKind } from "../../shared/contracts/events";
 import type {
   StudioActionResult,
   StudioConnectionState,
@@ -860,7 +860,14 @@ export class WorkStudio {
       }
       this.setConnection(session, "running", "a turn is active");
     }
-    if (!isKnownEventKind(event.kind) && pendingInputFor(event.kind) === null) {
+    // Drift is a kind this build has never seen. A plumbing frame it knows
+    // (a heartbeat, a usage row) is not drift, and diagnosing every one of them
+    // would push real diagnostics out of the bounded ring.
+    if (
+      !isKnownEventKind(event.kind) &&
+      !isEnginePlumbingKind(event.kind) &&
+      pendingInputFor(event.kind) === null
+    ) {
       this.diagnose(
         session,
         `Event "${event.kind}" is stored and inspectable but this build does not project it.`,

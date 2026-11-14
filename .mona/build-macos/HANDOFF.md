@@ -69,6 +69,22 @@ and it was false.
   this change does not touch; `deleteProjectContents` still leaves `events`
   rows behind (the new `event_gaps` rows are removed with their project).
 
+### Operator-requested repair — 2026-11-13 (D-100)
+
+Not a prompt. "Unrecognized event · operation.heartbeat" was appearing every ten
+seconds in the Studio console, before the build/install step Victor asked for.
+
+- **Repair:** `ENGINE_PLUMBING_KINDS` (`src/shared/contracts/events.ts`) is now
+  one shared list consumed by both the timeline (count instead of print) and the
+  Studio diagnostic (do not call known plumbing "not projected").
+  `turn.artifacts`, `item.interrupted`, and `turn.interrupt_requested` — all
+  found in the operator's own thread — are projected as real status cards and
+  added to `KNOWN_EVENT_KINDS`.
+- **Unchanged guarantee:** a kind in neither list still shows as unrecognized.
+- **Verified:** 791 tests in 79 files; typecheck, lint, build clean;
+  `smoke:studio` 22/22. The operator's newest 2,000 stored events project to zero
+  unknown entries. Evidence: `docs/evidence/macos/P08-studio.md` (D-100).
+
 ### P23 — Update, migration, rollback, and uninstall lifecycle
 
 An installed Mona is now maintainable: replaceable without losing work,

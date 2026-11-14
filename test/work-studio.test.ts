@@ -752,6 +752,45 @@ describe("live studio: hostile and failing event streams", () => {
     ).toMatch(/3–4 was replayed and filled/);
   });
 
+  it("does not report a plumbing heartbeat as an unprojected event, while real drift still shows", async () => {
+    // Reported: "Unrecognized event · operation.heartbeat" every ten seconds.
+    // A heartbeat is a kind this build knows and stores as plumbing; diagnosing
+    // each one also evicted real diagnostics from the bounded ring.
+    const harness = await setup({
+      events: [],
+      stream: () =>
+        chunkText(
+          sseFrames(
+            [
+              envelope(1, "turn.started", {}, 0),
+              envelope(2, "operation.heartbeat", { observed_at: "2026-11-11T00:00:02Z" }, 1),
+              envelope(3, "operation.heartbeat", { observed_at: "2026-11-11T00:00:12Z" }, 2),
+              envelope(4, "future.event", { kept: true }, 3),
+              envelope(5, "turn.completed", { status: "completed" }, 4),
+            ],
+            { end: true },
+          ),
+          5,
+        ),
+    });
+    await harness.studio.start(harness.project.id as ProjectId);
+    await harness.studio.submit(harness.project.id as ProjectId, { prompt: "x", mode: "work" });
+    await waitFor(async () =>
+      (await harness.studio.snapshot(harness.project.id as ProjectId)).diagnostics
+        .join("\n")
+        .includes("future.event"),
+    );
+    const text = (await harness.studio.snapshot(harness.project.id as ProjectId)).diagnostics.join(
+      "\n",
+    );
+    expect(text).not.toContain("operation.heartbeat");
+    // Genuine drift is still named; the fix must not silence it.
+    expect(text).toContain('Event "future.event" is stored and inspectable');
+    // Both heartbeats are stored and inspectable, not dropped.
+    const stored = await harness.store.readProjectEvents(harness.project.id as ProjectId);
+    expect(stored.filter((event) => event.kind === "operation.heartbeat")).toHaveLength(2);
+  });
+
   it("does not call another thread's interleaved sequences a gap", async () => {
     const paths: string[] = [];
     // 3 and 4 belong to a different thread. `previous_seq: 2` is the engine

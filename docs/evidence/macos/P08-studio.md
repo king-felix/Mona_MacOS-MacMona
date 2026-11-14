@@ -289,3 +289,52 @@ arithmetic hole. The idle watchdog, the pump-liveness check, and the
 terminal-vs-rewind ordering from P23 stand unchanged.
 
 Evidence: `docs/evidence/macos/engine-event-gaps.md`.
+
+## Studio console: plumbing and known frames were labelled "Unrecognized" (2026-11-13)
+
+**Reported:** "Unrecognized event · operation.heartbeat" appearing every ten
+seconds, "Stored and inspectable; this build does not project it."
+
+**Measured.** `operation.heartbeat` carries only `{ observed_at }` — it is a
+liveness ping sent while a long operation runs, and the timeline had no rule for
+it, so each one became a card. The session diagnostic fired for it too, which
+put `Event "operation.heartbeat" … does not project it` into the bounded
+12-slot diagnostics ring and could evict a real one.
+
+Auditing every kind the engine actually stored in the operator's thread found
+the same defect in three more:
+
+| Kind | Stored | Why it was wrong |
+| --- | --- | --- |
+| `operation.heartbeat` | 25 | Plumbing; liveness only |
+| `turn.artifacts` | 14 | Mona **already captures it** into the change set |
+| `item.interrupted` | 2 | An interruption is not an unknown kind |
+| `turn.interrupt_requested` | 3 | Same |
+
+**Fix.**
+
+- `ENGINE_PLUMBING_KINDS` in `src/shared/contracts/events.ts` is one list with
+  two consumers: the timeline counts a plumbing frame instead of printing a
+  card, and the Studio skips the "not projected" diagnostic for it. A kind in
+  neither list is still genuinely unseen and still shows — the honesty rule is
+  unchanged.
+- `turn.artifacts`, `item.interrupted`, and `turn.interrupt_requested` are
+  projected for real: "Turn artifacts" reports workspace state, artifact count,
+  snapshot changed/unchanged, and omissions; "Item interrupted" keeps the
+  partial text; "Interrupt requested" states that the outcome arrives as a
+  terminal event. All three join `KNOWN_EVENT_KINDS`, so they are no longer
+  diagnosed as drift either.
+
+**Verified.**
+
+- Real data: the operator's newest 2,000 stored events (6 heartbeats, 14
+  `turn.artifacts`) project to **0 unknown entries and 0 unprojected kinds**,
+  207 frames counted as internal activity.
+- Unit/screen: 791 tests in 79 files. New: a heartbeat is counted, not printed
+  (`studio-render`); a heartbeat produces no diagnostic while `future.event`
+  still does (`work-studio`); interrupt/artifact frames project with the exact
+  bodies above.
+- Gates: typecheck, lint, build clean; `smoke:studio` 22/22 on the pinned engine
+  with no `Unrecognized` text in the report.
+- Storage unchanged: heartbeats are still stored and inspectable; nothing is
+  dropped from the record, only from the conversation view.

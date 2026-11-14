@@ -1,3 +1,4 @@
+import { isEnginePlumbingKind } from "../../shared/contracts/events";
 import type { StoredEventSummary } from "../../shared/contracts/project-bridge";
 
 export type TimelineKind =
@@ -39,21 +40,9 @@ function firstString(source: Record<string, unknown> | null, keys: string[]): st
 }
 
 /**
- * Engine event kinds that carry plumbing rather than conversation. They stay
- * stored and inspectable, but a timeline flooded with them hides the work. The
- * count is reported so nothing is silently dropped.
+ * A stored frame that is plumbing rather than conversation is counted, not
+ * printed: the count is reported so nothing is silently dropped.
  */
-const INTERNAL_ACTIVITY = new Set([
-  "item.started",
-  "turn.lifecycle",
-  "turn.workspace_snapshot",
-  "model.tools.snapshot",
-  "turn.provider_request",
-  "turn.usage",
-  "operation.activity_started",
-  "operation.activity_completed",
-]);
-
 export interface TimelineProjection {
   entries: TimelineEntry[];
   /** Stored engine events that were plumbing, not conversation. */
@@ -112,7 +101,7 @@ export function projectTimeline(events: StoredEventSummary[]): TimelineProjectio
     seen.add(dedupeKey);
     const payload = record(event.payload);
     const key = `${event.threadId}-${event.seq}`;
-    if (INTERNAL_ACTIVITY.has(event.kind)) {
+    if (isEnginePlumbingKind(event.kind)) {
       if (event.kind !== "item.started") flushDelta();
       internalActivity += 1;
       continue;
@@ -226,6 +215,63 @@ export function projectTimeline(events: StoredEventSummary[]): TimelineProjectio
           title: "Item failed",
           body: firstString(item, ["detail", "summary", "error"]) || textOf(payload),
           status: firstString(item, ["status"]) || "failed",
+          seq: event.seq,
+          timestamp: event.timestamp,
+        });
+        break;
+      }
+      case "item.interrupted": {
+        // An interruption is not a failure: the item stopped, and whatever it
+        // had produced before that is still real. Reporting it as an
+        // unrecognized event hid both facts.
+        const item = record(payload?.item);
+        entries.push({
+          key,
+          kind: "status",
+          title: "Item interrupted",
+          body: firstString(item, ["detail", "summary"]) || firstString(item, ["kind"]),
+          status: "interrupted",
+          seq: event.seq,
+          timestamp: event.timestamp,
+        });
+        break;
+      }
+      case "turn.interrupt_requested":
+        entries.push({
+          key,
+          kind: "status",
+          title: "Interrupt requested",
+          body: "The engine was asked to stop this turn; the outcome arrives as a terminal event.",
+          status: null,
+          seq: event.seq,
+          timestamp: event.timestamp,
+        });
+        break;
+      case "turn.artifacts": {
+        // The engine's own account of what the turn touched. Mona already
+        // captures it into the change set; the console has to show the same
+        // fact instead of calling a kind it uses "unrecognized".
+        const workspace = record(payload?.workspace);
+        const artifacts = Array.isArray(payload?.artifacts) ? payload.artifacts : [];
+        const workspaceState = firstString(workspace, ["state"]);
+        const before = firstString(workspace, ["pre_turn_snapshot_id"]);
+        const after = firstString(workspace, ["post_turn_snapshot_id"]);
+        const omitted = typeof workspace?.omitted === "number" ? workspace.omitted : 0;
+        const parts: string[] = [];
+        if (workspaceState) parts.push(`workspace ${workspaceState}`);
+        parts.push(`${artifacts.length} artifact${artifacts.length === 1 ? "" : "s"}`);
+        if (before && after) {
+          parts.push(before === after ? "snapshot unchanged" : "snapshot changed");
+        }
+        if (workspace?.truncated === true || omitted > 0) {
+          parts.push(`${omitted} omitted`);
+        }
+        entries.push({
+          key,
+          kind: "status",
+          title: "Turn artifacts",
+          body: parts.join(" · "),
+          status: null,
           seq: event.seq,
           timestamp: event.timestamp,
         });

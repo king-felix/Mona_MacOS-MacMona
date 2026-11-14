@@ -142,6 +142,75 @@ describe("timeline projection", () => {
 });
 
 describe("engine activity is counted, not hidden", () => {
+  it("counts an operation heartbeat instead of printing an unrecognized-event card", () => {
+    // Reported: "Unrecognized event · operation.heartbeat" kept appearing every
+    // ten seconds. A heartbeat carries only `observed_at`; it is liveness, not
+    // conversation, and the build knows the kind.
+    const { entries, internalActivity, unprojected } = projectTimeline([
+      event(1, "turn.started", { permission_posture: "full_access" }),
+      event(2, "operation.heartbeat", { observed_at: "2026-11-11T00:00:02Z" }),
+      event(3, "operation.heartbeat", { observed_at: "2026-11-11T00:00:12Z" }),
+      event(4, "turn.completed", { status: "completed" }),
+    ]);
+    expect(internalActivity).toBe(2);
+    expect(unprojected).toEqual([]);
+    expect(entries.map((entry) => entry.title)).toEqual(["Turn started", "Turn completed"]);
+    expect(entries.some((entry) => entry.kind === "unknown")).toBe(false);
+  });
+
+  it("projects interrupt and artifact frames it used to call unrecognized", () => {
+    // These are the kinds the operator's own thread carried, rendered as
+    // "Unrecognized event · turn.artifacts" although Mona captures that same
+    // event into its change set.
+    const { entries, unprojected } = projectTimeline([
+      event(1, "turn.interrupt_requested", {
+        thread_id: "thr_0123456789abcdef",
+        turn_id: "turn_1",
+      }),
+      event(2, "item.interrupted", {
+        item: {
+          id: "item_1",
+          turn_id: "turn_1",
+          kind: "agent_reasoning",
+          status: "interrupted",
+          summary: "partial thought",
+        },
+      }),
+      event(3, "turn.artifacts", {
+        turn_id: "turn_1",
+        workspace: {
+          state: "settled",
+          pre_turn_snapshot_id: "a",
+          post_turn_snapshot_id: "a",
+          truncated: false,
+          omitted: 0,
+        },
+        artifacts: [],
+      }),
+      event(4, "turn.artifacts", {
+        turn_id: "turn_2",
+        workspace: {
+          state: "settled",
+          pre_turn_snapshot_id: "a",
+          post_turn_snapshot_id: "b",
+          truncated: true,
+          omitted: 2,
+        },
+        artifacts: [{ id: "art_1" }],
+      }),
+    ]);
+    expect(unprojected).toEqual([]);
+    expect(entries.map((entry) => entry.title)).toEqual([
+      "Interrupt requested",
+      "Item interrupted",
+      "Turn artifacts",
+      "Turn artifacts",
+    ]);
+    expect(entries[1]).toMatchObject({ kind: "status", body: "partial thought" });
+    expect(entries[2]?.body).toBe("workspace settled · 0 artifacts · snapshot unchanged");
+    expect(entries[3]?.body).toBe("workspace settled · 1 artifact · snapshot changed · 2 omitted");
+  });
+
   it("collapses plumbing events while keeping the count and unknown kinds visible", () => {
     const { entries, internalActivity, unprojected } = projectTimeline([
       event(1, "item.started", { item: { id: "x", kind: "tool_call" } }),

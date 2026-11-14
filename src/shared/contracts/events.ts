@@ -29,12 +29,16 @@ export const KNOWN_EVENT_KINDS = [
   "turn.completed",
   "turn.failed",
   "turn.interrupted",
+  /** The engine asked the turn to stop; the outcome arrives as a terminal event. */
+  "turn.interrupt_requested",
   "turn.artifacts",
   "turn.workspace_snapshot",
   "item.started",
   "item.delta",
   "item.completed",
   "item.failed",
+  /** A streamed item stopped mid-flight; it is not the same as a failure. */
+  "item.interrupted",
   "tool_call.resolved",
   "approval.decided",
   "user_input.answered",
@@ -43,4 +47,35 @@ export type KnownEventKind = (typeof KNOWN_EVENT_KINDS)[number];
 
 export function isKnownEventKind(kind: string): kind is KnownEventKind {
   return (KNOWN_EVENT_KINDS as readonly string[]).includes(kind);
+}
+
+/**
+ * Engine frames that carry plumbing rather than conversation: liveness pings,
+ * state snapshots, usage accounting, and per-operation activity marks.
+ *
+ * They stay stored and inspectable, but a console flooded with them hides the
+ * work, so the Studio counts them instead of printing a card for each. The list
+ * is shared because both ends need the same answer: the timeline must not show
+ * them, and the session diagnostics must not report a frame this build knows as
+ * "not projected" — that is what made `operation.heartbeat` look like drift and
+ * let it evict real diagnostics from the bounded ring.
+ *
+ * A kind absent from BOTH lists is genuinely unseen by this build and stays
+ * visible, which is the honesty rule this list must not erode.
+ */
+export const ENGINE_PLUMBING_KINDS = [
+  "item.started",
+  "turn.lifecycle",
+  "turn.workspace_snapshot",
+  "model.tools.snapshot",
+  "turn.provider_request",
+  "turn.usage",
+  "operation.activity_started",
+  "operation.activity_completed",
+  /** Liveness only: `{ observed_at }` and nothing else, sent during long work. */
+  "operation.heartbeat",
+] as const;
+
+export function isEnginePlumbingKind(kind: string): boolean {
+  return (ENGINE_PLUMBING_KINDS as readonly string[]).includes(kind);
 }
