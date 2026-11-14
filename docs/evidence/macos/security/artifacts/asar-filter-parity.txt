@@ -1,0 +1,32 @@
+# @electron/asar filter parity: 4.3.1 (glob 13.0.7 / minimatch 10.2.6) vs 4.3.2 (glob 14.0.6 / minimatch 11.0.8)
+# Same script, same fixture, two installs. createPackageWithOptions with globOptions.ignore.
+
+## old: @electron/asar 4.3.1
+{
+  "entries": [
+    "/drop",
+    "/drop/c.txt",
+    "/keep",
+    "/keep/a.txt",
+    "/main.js"
+  ],
+  "main_ok": true,
+  "kept_a": true,
+  "ignored_drop_dir": false,
+  "ignored_log": true
+}
+
+## new: @electron/asar 4.3.2 (this repository)
+{
+  "entries": [
+    "/drop",
+    "/drop/c.txt",
+    "/keep",
+    "/keep/a.txt",
+    "/main.js"
+  ],
+  "main_ok": true,
+  "kept_a": true,
+  "ignored_drop_dir": false,
+  "ignored_log": true
+}

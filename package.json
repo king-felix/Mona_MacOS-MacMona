@@ -70,12 +70,17 @@
     "@types/react-dom": "19.3.0",
     "axe-core": "^4.14.0",
     "electron": "45.3.0",
-    "eslint": "10.14.0",
+    "eslint": "10.15.0",
     "jsdom": "^31.0.0",
     "prettier": "3.10.0",
     "typescript": "5.9.3",
     "typescript-eslint": "8.72.2",
     "vite": "8.3.8",
     "vitest": "5.1.0"
+  },
+  "overrides": {
+    "@typescript-eslint/typescript-estree": {
+      "minimatch": "^11.0.8"
+    }
   }
 }
