@@ -19,13 +19,14 @@
     "scroll_anchor_held": true,
     "older_page_rendered_once": true,
     "second_older_page_loaded": true,
+    "older_page_reachable": true,
     "jump_to_latest_returns_to_edge": true
   },
   "phases": [
     {
       "name": "initial",
-      "scope": "200 shown · 10054 stored · older pages available",
-      "cards": 200,
+      "scope": "200 shown · 10054 stored · older pages available · 10 painted",
+      "cards": 10,
       "newest_visible": true,
       "older_absent": true,
       "load_button": true,
@@ -41,25 +42,49 @@
     {
       "name": "anchor",
       "before": {
-        "top": 300,
-        "height": 14728
+        "top": 328,
+        "height": 22022,
+        "anchor_key": "thr_history_archived:thr_history_archived-3",
+        "anchor_offset": -94,
+        "windowed": "true",
+        "rendered": 13,
+        "cards": 200
       },
       "after": {
-        "top": 15000,
-        "height": 29428,
+        "top": 328,
+        "height": 44022,
         "anchor_applications": 1,
-        "older_loads": 1
+        "older_loads": 1,
+        "anchor_offset": -94,
+        "cards": 400
       },
-      "delta": 0
+      "delta": 0,
+      "height_delta": 22000
+    },
+    {
+      "name": "reach",
+      "top": 0,
+      "height": 66023,
+      "cards": 600,
+      "rendered": 10,
+      "frames": [
+        9455,
+        9456,
+        9457,
+        9458,
+        9459,
+        9460
+      ],
+      "oldest": 9455
     },
     {
       "name": "jump",
       "distance": 0,
       "jump_button": false,
-      "scope": "600 shown · 10054 stored · older pages available"
+      "scope": "600 shown · 10054 stored · older pages available · 10 painted"
     }
   ],
-  "project": "prj_e42ed28511234a8a",
+  "project": "prj_639527ae78ef74d5",
   "stored_total": 10054,
   "screenshot": "docs/evidence/macos/review-studio/artifacts/r02-history-long-session.png",
   "electron": {

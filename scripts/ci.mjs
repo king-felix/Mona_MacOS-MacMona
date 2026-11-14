@@ -47,6 +47,12 @@ for (const script of [
   // green run until an installed-artifact pass found it. A real window, no
   // engine, no model request.
   "smoke:commands",
+  // R13: the history smoke was also outside this list. Its anchor assertion
+  // stopped holding once R11 windowed the console, and nothing noticed until an
+  // installed-artifact pass ran it by hand — the same failure mode the comment
+  // above records for the command smoke. It runs a real window over a
+  // 10,054-event project; no engine and no model request.
+  "smoke:history",
   "smoke:memory",
   "smoke:failure",
   "smoke:p23",

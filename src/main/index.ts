@@ -2498,55 +2498,129 @@ async function runHistorySmoke(window: BrowserWindow): Promise<void> {
       initial.thread_options.some((label: string | null) => label?.includes("current")) &&
       initial.thread_options.some((label: string | null) => label?.includes("archived"));
 
-    // Scroll away from the live edge, then load an older page. The content
-    // above the viewport must grow by exactly the distance the viewport moves:
-    // that is what "does not drag the reader down" means in pixels.
+    // Scroll away from the live edge, then load an older page. R13: the original
+    // assertion compared the list's height growth with the viewport's movement.
+    // That identity was exact while every card was mounted; R11 windows the
+    // console, so the height of unmounted cards is an estimate and the identity
+    // can never hold exactly (measured 115.5 px of drift on build 151). What the
+    // reader actually experiences is the anchored card staying where it was, so
+    // the check names that card and measures its offset from the pane's top.
+    await window.webContents.executeJavaScript(`(() => {
+      const node = document.querySelector('[data-testid="studio-timeline"]');
+      if (!node) return false;
+      node.scrollTop = 300;
+      node.dispatchEvent(new Event('scroll', { bubbles: true }));
+      return true;
+    })()`);
+    // The window re-slices on the next animation frame after a scroll, so read
+    // the anchor from the slice the reader ends up looking at, not the one that
+    // was still mounted when scrollTop changed.
+    await new Promise((resolve) => setTimeout(resolve, 250));
     const before = await window.webContents.executeJavaScript(`(() => {
       const node = document.querySelector('[data-testid="studio-timeline"]');
       if (!node) return null;
-      node.scrollTop = 300;
-      node.dispatchEvent(new Event('scroll', { bubbles: true }));
-      return { top: node.scrollTop, height: node.scrollHeight };
+      const paneTop = node.getBoundingClientRect().top;
+      const cards = Array.from(node.querySelectorAll('[data-card-key]'));
+      const first = cards.find((card) => card.getBoundingClientRect().bottom > paneTop + 1) ?? null;
+      const list = node.querySelector('ol.timeline');
+      return {
+        top: node.scrollTop,
+        height: node.scrollHeight,
+        anchor_key: first?.getAttribute('data-card-key') ?? null,
+        anchor_offset: first ? first.getBoundingClientRect().top - paneTop : null,
+        windowed: list?.getAttribute('data-windowed') ?? null,
+        rendered: Number(list?.getAttribute('data-rendered') ?? -1),
+        cards: Number(list?.getAttribute('data-cards') ?? -1),
+      };
     })()`);
-    await new Promise((resolve) => setTimeout(resolve, 150));
     checks.jump_appears_after_scrolling = await waitFor(
       `Boolean(document.querySelector('[data-testid="studio-jump-latest"]'))`,
     );
     await window.webContents.executeJavaScript(
       `document.querySelector('[data-testid="studio-load-earlier"]')?.click(); true`,
     );
+    // The windowed console does not paint a page that sits far above the
+    // viewport, so the durable proof of a page is the projected list, and the
+    // paint proof is taken at the oldest end of the list (below).
     checks.older_page_loaded = await waitFor(
-      "(document.body.textContent ?? '').includes('history frame 9850')",
+      "Number(document.querySelector('ol.timeline')?.getAttribute('data-cards') ?? 0) >= 400",
     );
     await new Promise((resolve) => setTimeout(resolve, 350));
     const after = await window.webContents.executeJavaScript(`(() => {
       const node = document.querySelector('[data-testid="studio-timeline"]');
       if (!node) return null;
+      const paneTop = node.getBoundingClientRect().top;
+      const anchorKey = ${JSON.stringify(before?.anchor_key ?? null)};
+      const held = anchorKey
+        ? node.querySelector('[data-card-key="' + CSS.escape(anchorKey) + '"]')
+        : null;
+      const list = node.querySelector('ol.timeline');
       return {
         top: node.scrollTop,
         height: node.scrollHeight,
         anchor_applications: Number(node.dataset.anchorApplications ?? -1),
         older_loads: Number(node.dataset.historyLoads ?? -1),
+        anchor_offset: held ? held.getBoundingClientRect().top - paneTop : null,
+        cards: Number(list?.getAttribute('data-cards') ?? -1),
       };
     })()`);
+    const heightDelta =
+      before && after ? Math.abs(after.top - before.top - (after.height - before.height)) : null;
     const anchorDelta =
-      before && after
-        ? Math.abs(after.top - before.top - (after.height - before.height))
+      before?.anchor_offset !== null &&
+      before?.anchor_offset !== undefined &&
+      after?.anchor_offset !== null &&
+      after?.anchor_offset !== undefined
+        ? Math.abs(after.anchor_offset - before.anchor_offset)
         : Number.NaN;
-    phase("anchor", { before, after, delta: anchorDelta });
+    phase("anchor", { before, after, delta: anchorDelta, height_delta: heightDelta });
     checks.scroll_anchor_held = Number.isFinite(anchorDelta) && anchorDelta <= 2;
-    checks.older_page_rendered_once = await window.webContents.executeJavaScript(
-      "((document.body.textContent ?? '').match(/history frame 9850/g) ?? []).length === 1",
-    );
+    checks.older_page_rendered_once = await window.webContents.executeJavaScript(`(() => {
+      const keys = Array.from(document.querySelectorAll('[data-card-key]')).map((card) =>
+        card.getAttribute('data-card-key'),
+      );
+      return keys.length > 0 && new Set(keys).size === keys.length;
+    })()`);
 
     // A second page proves the cursor continues rather than reloading one fixed
-    // window.
+    // window. The projected list is the durable proof: a windowed console does
+    // not paint a page that sits far above the viewport, so reachability is
+    // proven separately by scrolling to the top and reading the oldest frame.
     await window.webContents.executeJavaScript(
       `document.querySelector('[data-testid="studio-load-earlier"]')?.click(); true`,
     );
     checks.second_older_page_loaded = await waitFor(
-      "(document.body.textContent ?? '').includes('history frame 9650')",
+      "Number(document.querySelector('ol.timeline')?.getAttribute('data-cards') ?? 0) >= 600",
     );
+    await window.webContents.executeJavaScript(`(() => {
+      const node = document.querySelector('[data-testid="studio-timeline"]');
+      if (!node) return false;
+      node.scrollTop = 0;
+      node.dispatchEvent(new Event('scroll', { bubbles: true }));
+      return true;
+    })()`);
+    await new Promise((resolve) => setTimeout(resolve, 600));
+    const reach = await window.webContents.executeJavaScript(`(() => {
+      const node = document.querySelector('[data-testid="studio-timeline"]');
+      if (!node) return null;
+      const text = node.textContent ?? '';
+      const frames = Array.from(text.matchAll(/history frame (\\d+)/g)).map((match) =>
+        Number(match[1]),
+      );
+      return {
+        top: node.scrollTop,
+        height: node.scrollHeight,
+        cards: Number(node.querySelector('ol.timeline')?.getAttribute('data-cards') ?? -1),
+        rendered: Number(node.querySelector('ol.timeline')?.getAttribute('data-rendered') ?? -1),
+        frames: frames.slice(0, 12),
+        oldest: frames.length > 0 ? Math.min(...frames) : null,
+      };
+    })()`);
+    phase("reach", reach);
+    // Page three covers frames 9451–9650; painting any of them proves the
+    // third page is reachable rather than merely counted.
+    checks.older_page_reachable =
+      reach?.rendered > 0 && reach?.oldest !== null && reach.oldest <= 9650;
 
     await window.webContents.executeJavaScript(
       `document.querySelector('[data-testid="studio-jump-latest"]')?.click(); true`,

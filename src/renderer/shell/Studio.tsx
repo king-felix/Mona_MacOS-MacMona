@@ -1281,7 +1281,15 @@ export function StudioScreen(props: StudioProps): JSX.Element {
   const composerRef = useRef<HTMLTextAreaElement | null>(null);
   const composerBoxRef = useRef<HTMLDivElement | null>(null);
   const followRef = useRef(true);
-  const anchorRef = useRef<{ height: number; top: number; loads: number } | null>(null);
+  const anchorRef = useRef<{
+    height: number;
+    top: number;
+    loads: number;
+    /** The card at the top of the viewport when the older page was asked for. */
+    key: string | null;
+    /** That card's offset from the top of the scrolling pane, in pixels. */
+    viewportOffset: number;
+  } | null>(null);
   const lastCountRef = useRef(0);
   const [unread, setUnread] = useState(0);
   const [atLatest, setAtLatest] = useState(true);
@@ -1512,28 +1520,70 @@ export function StudioScreen(props: StudioProps): JSX.Element {
     if (node) node.scrollTop = node.scrollHeight;
   }, [detail?.project.id, history?.threadId]);
 
-  // Inserting an older page must not drag the reader down: hold the distance
-  // from the bottom constant while content grows above the viewport. The
-  // anchor is applied only when a completed older-page read changes the
+  // Inserting an older page must not drag the reader down. R13 found that the
+  // original height-based correction was no longer exact once R11 windowed the
+  // console: the list's height includes estimated (unmeasured) cards, so
+  // "scrollHeight grew by N, move by N" left the reader a card short — 115.5 px
+  // on a 10,054-event project, reproduced on the installed build. The anchor now
+  // names the card that was at the top of the viewport and holds *its* offset,
+  // re-applying over a few frames while the new slice measures itself. The
+  // height-based target stays as the fallback for a card that is not mounted.
+  // The anchor is applied only when a completed older-page read changes the
   // load counter, so a live refresh cannot be mistaken for an older page.
   useLayoutEffect(() => {
     const anchor = anchorRef.current;
     const node = timelineRef.current;
     if (!anchor || !node) return;
     if ((history?.olderLoads ?? 0) === anchor.loads) return;
-    const target = node.scrollHeight - anchor.height + anchor.top;
     anchorRef.current = null;
-    node.scrollTop = target;
+    let cancelled = false;
+    let frames = 0;
+    let last = Number.NaN;
+    const pin = (): void => {
+      if (cancelled) return;
+      const card = anchor.key
+        ? node.querySelector<HTMLElement>(`[data-card-key="${CSS.escape(anchor.key)}"]`)
+        : null;
+      if (!card) {
+        node.scrollTop = node.scrollHeight - anchor.height + anchor.top;
+        return;
+      }
+      const paneTop = node.getBoundingClientRect().top;
+      const offset = card.getBoundingClientRect().top - paneTop + node.scrollTop;
+      const target = Math.max(0, offset - anchor.viewportOffset);
+      if (Number.isFinite(last) && Math.abs(target - node.scrollTop) < 0.5) return;
+      last = target;
+      node.scrollTop = target;
+      frames += 1;
+      if (frames < 4) {
+        requestAnimationFrame(() => requestAnimationFrame(() => pin()));
+      }
+    };
+    pin();
     // Written to the DOM rather than React state: counting this must not cause
     // another commit, and the smoke can assert that the anchor really applied.
     node.dataset.anchorApplications = String(Number(node.dataset.anchorApplications ?? 0) + 1);
+    return () => {
+      cancelled = true;
+    };
   }, [events, history?.olderLoads]);
 
   const loadOlder = (): void => {
     const node = timelineRef.current;
-    anchorRef.current = node
-      ? { height: node.scrollHeight, top: node.scrollTop, loads: history?.olderLoads ?? 0 }
-      : null;
+    if (!node) {
+      anchorRef.current = null;
+    } else {
+      const paneTop = node.getBoundingClientRect().top;
+      const cards = Array.from(node.querySelectorAll<HTMLElement>("[data-card-key]"));
+      const first = cards.find((card) => card.getBoundingClientRect().bottom > paneTop + 1) ?? null;
+      anchorRef.current = {
+        height: node.scrollHeight,
+        top: node.scrollTop,
+        loads: history?.olderLoads ?? 0,
+        key: first?.dataset.cardKey ?? null,
+        viewportOffset: first ? first.getBoundingClientRect().top - paneTop : 0,
+      };
+    }
     followRef.current = false;
     setAtLatest(false);
     props.history?.onLoadOlder?.();
