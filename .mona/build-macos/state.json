@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 1305,
+  "revision": 1319,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -290,8 +290,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "aefc996f405f7d598e41d2b1a0f51b1fda598a4f4a1c46da920e6d1722b7910c",
-          "note": "R13/R14 2026-11-14: re-recorded after the review queue changed these shared files (Studio card-identity history anchor, the history smoke in ci.mjs, and R13's build-manifest source commit). npm run ci passed 24/24 steps (1,121 tests in 101 files) on these bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "4e28ae3777cf1205e743551d834e042831844de5981570b56aa2c5d43ac1f5e1",
+          "note": "R13 2026-11-14 (second correction): re-recorded after the review-found anchor fixes — the smoke fixture (archived thread timestamped last, a tall block in the prepended page, the reader at 3,000 px), the anchor-mode assertion, and the heldKey mount guarantee all touch these files. npm run ci passed 24/24 steps (1,121 tests in 101 files) on these bytes; no assertion was removed and no requirement was lowered."
         },
         {
           "path": "src/main/ipc-contract.ts",
@@ -702,8 +702,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "aefc996f405f7d598e41d2b1a0f51b1fda598a4f4a1c46da920e6d1722b7910c",
-          "note": "R13/R14 2026-11-14: re-recorded after the review queue changed these shared files (Studio card-identity history anchor, the history smoke in ci.mjs, and R13's build-manifest source commit). npm run ci passed 24/24 steps (1,121 tests in 101 files) on these bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "4e28ae3777cf1205e743551d834e042831844de5981570b56aa2c5d43ac1f5e1",
+          "note": "R13 2026-11-14 (second correction): re-recorded after the review-found anchor fixes — the smoke fixture (archived thread timestamped last, a tall block in the prepended page, the reader at 3,000 px), the anchor-mode assertion, and the heldKey mount guarantee all touch these files. npm run ci passed 24/24 steps (1,121 tests in 101 files) on these bytes; no assertion was removed and no requirement was lowered."
         },
         {
           "path": "src/main/engine/runtime-process.ts",
@@ -1195,8 +1195,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "aefc996f405f7d598e41d2b1a0f51b1fda598a4f4a1c46da920e6d1722b7910c",
-          "note": "R13/R14 2026-11-14: re-recorded after the review queue changed these shared files (Studio card-identity history anchor, the history smoke in ci.mjs, and R13's build-manifest source commit). npm run ci passed 24/24 steps (1,121 tests in 101 files) on these bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "4e28ae3777cf1205e743551d834e042831844de5981570b56aa2c5d43ac1f5e1",
+          "note": "R13 2026-11-14 (second correction): re-recorded after the review-found anchor fixes — the smoke fixture (archived thread timestamped last, a tall block in the prepended page, the reader at 3,000 px), the anchor-mode assertion, and the heldKey mount guarantee all touch these files. npm run ci passed 24/24 steps (1,121 tests in 101 files) on these bytes; no assertion was removed and no requirement was lowered."
         },
         {
           "path": "src/main/desktop-lifecycle.ts",
@@ -1383,8 +1383,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "aefc996f405f7d598e41d2b1a0f51b1fda598a4f4a1c46da920e6d1722b7910c",
-          "note": "R13/R14 2026-11-14: re-recorded after the review queue changed these shared files (Studio card-identity history anchor, the history smoke in ci.mjs, and R13's build-manifest source commit). npm run ci passed 24/24 steps (1,121 tests in 101 files) on these bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "4e28ae3777cf1205e743551d834e042831844de5981570b56aa2c5d43ac1f5e1",
+          "note": "R13 2026-11-14 (second correction): re-recorded after the review-found anchor fixes — the smoke fixture (archived thread timestamped last, a tall block in the prepended page, the reader at 3,000 px), the anchor-mode assertion, and the heldKey mount guarantee all touch these files. npm run ci passed 24/24 steps (1,121 tests in 101 files) on these bytes; no assertion was removed and no requirement was lowered."
         },
         {
           "path": "src/preload/index.ts",
@@ -1819,8 +1819,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p16-settings-smoke.json",
-          "sha256": "78fdb38ed2ac2cead9e13dfc64d3dfa92b625ae6566c9f1ada9e39dc03ccf327",
-          "note": "P24 2026-11-14: this is a run record, so a re-run rewrites it (documented class, product items 97/98/117). Re-recorded after the post-refinement CI run passed 24/24 steps (1,121 tests in 101 files)."
+          "sha256": "779302641e60f0c21fc44f8081cfa62b2446a23442699425e666458f30f1dbef",
+          "note": "R13 2026-11-14: this is a run record; the post-correction CI run rewrote it (documented class, items 97/98/117). 1,121 tests in 101 files passed on these bytes."
         },
         {
           "path": "docs/evidence/macos/artifacts/p16-settings-route.png",
@@ -1862,8 +1862,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p17-extensions-smoke.json",
-          "sha256": "4e956141de5a75523638cbb5bc14677047626423fdb23caa9442a22764ed8ccd",
-          "note": "P24 2026-11-14: this is a run record, so a re-run rewrites it (documented class, product items 97/98/117). Re-recorded after the post-refinement CI run passed 24/24 steps (1,121 tests in 101 files)."
+          "sha256": "ee2783f8c61c532de452c8821b278fc8c75817aead5d7b31131a9d328cccd9e1",
+          "note": "R13 2026-11-14: this is a run record; the post-correction CI run rewrote it (documented class, items 97/98/117). 1,121 tests in 101 files passed on these bytes."
         },
         {
           "path": "docs/evidence/macos/artifacts/p17-settings-extensions.png",
@@ -1910,23 +1910,23 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-terminal-smoke.json",
-          "sha256": "af5d49ec8bdad7ab621bb04346ac135c4c5862a32f4442e100a95b93f0f4e810",
-          "note": "P24 2026-11-14: this is a run record, so a re-run rewrites it (documented class, product items 97/98/117). Re-recorded after the post-refinement CI run passed 24/24 steps (1,121 tests in 101 files)."
+          "sha256": "666401db55459c4d5803785c31b9eb60c4ce6253dbe720b61fd1387d3a749d3c",
+          "note": "R13 2026-11-14: this is a run record; the post-correction CI run rewrote it (documented class, items 97/98/117). 1,121 tests in 101 files passed on these bytes."
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capability-smoke.json",
-          "sha256": "9e7b983eaab36da6ee37982dd7ae1f54cb029d40ac25c839bfe00ab0f0d61696",
-          "note": "P24 2026-11-14: this is a run record, so a re-run rewrites it (documented class, product items 97/98/117). Re-recorded after the post-refinement CI run passed 24/24 steps (1,121 tests in 101 files)."
+          "sha256": "50a9115daff945e60b3b212326928fdc8f87bd7e830d05023333297c451809d8",
+          "note": "R13 2026-11-14: this is a run record; the post-correction CI run rewrote it (documented class, items 97/98/117). 1,121 tests in 101 files passed on these bytes."
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capability-coverage.md",
-          "sha256": "192750375674624fdc06d7da9d3bc12a56e37f2372c783eaec6973fa634c97d9",
-          "note": "P24 2026-11-14: this is a run record, so a re-run rewrites it (documented class, product items 97/98/117). Re-recorded after the post-refinement CI run passed 24/24 steps (1,121 tests in 101 files)."
+          "sha256": "255da5df1d947de77885758581621b9f0447605e4931ac63c8e6e0436a33a4b0",
+          "note": "R13 2026-11-14: this is a run record; the post-correction CI run rewrote it (documented class, items 97/98/117). 1,121 tests in 101 files passed on these bytes."
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capability-coverage.json",
-          "sha256": "3d076950ae028fe184e5a96a34938bebf6632841f449372c9d58c9eaa6e2e3cc",
-          "note": "P24 2026-11-14: this is a run record, so a re-run rewrites it (documented class, product items 97/98/117). Re-recorded after the post-refinement CI run passed 24/24 steps (1,121 tests in 101 files)."
+          "sha256": "b993035d3c65506dcac35b1be0afff45b077baa7d4b64635c929f1e6f9b0ce53",
+          "note": "R13 2026-11-14: this is a run record; the post-correction CI run rewrote it (documented class, items 97/98/117). 1,121 tests in 101 files passed on these bytes."
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-shell-smoke.json",
@@ -2047,8 +2047,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "aefc996f405f7d598e41d2b1a0f51b1fda598a4f4a1c46da920e6d1722b7910c",
-          "note": "R13/R14 2026-11-14: re-recorded after the review queue changed these shared files (Studio card-identity history anchor, the history smoke in ci.mjs, and R13's build-manifest source commit). npm run ci passed 24/24 steps (1,121 tests in 101 files) on these bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "4e28ae3777cf1205e743551d834e042831844de5981570b56aa2c5d43ac1f5e1",
+          "note": "R13 2026-11-14 (second correction): re-recorded after the review-found anchor fixes — the smoke fixture (archived thread timestamped last, a tall block in the prepended page, the reader at 3,000 px), the anchor-mode assertion, and the heldKey mount guarantee all touch these files. npm run ci passed 24/24 steps (1,121 tests in 101 files) on these bytes; no assertion was removed and no requirement was lowered."
         },
         {
           "path": "src/renderer/shell/Shell.tsx",
@@ -2154,8 +2154,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p19-memory-smoke.json",
-          "sha256": "8d38dca791059387b69b9486a7122d78b8e037849071556313bebb4fbb3527f6",
-          "note": "P24 2026-11-14: this is a run record, so a re-run rewrites it (documented class, product items 97/98/117). Re-recorded after the post-refinement CI run passed 24/24 steps (1,121 tests in 101 files)."
+          "sha256": "ae397057527707ef7f9551cd6597de2e5ac46af721007311388513cc40f8f7d6",
+          "note": "R13 2026-11-14: this is a run record; the post-correction CI run rewrote it (documented class, items 97/98/117). 1,121 tests in 101 files passed on these bytes."
         },
         {
           "path": "docs/evidence/macos/artifacts/p19-ci.txt",
@@ -2289,8 +2289,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p20-failure-smoke.json",
-          "sha256": "6bd0fcb05ef2b7e8a9eae2819f39d9925c574cecda6d5aceb4a0f605fb615d5e",
-          "note": "P24 2026-11-14: this is a run record, so a re-run rewrites it (documented class, product items 97/98/117). Re-recorded after the post-refinement CI run passed 24/24 steps (1,121 tests in 101 files)."
+          "sha256": "c5202ece59f33437c45b7a60909a5415be45691b321fd871412e92fc431475f0",
+          "note": "R13 2026-11-14: this is a run record; the post-correction CI run rewrote it (documented class, items 97/98/117). 1,121 tests in 101 files passed on these bytes."
         },
         {
           "path": "docs/evidence/macos/artifacts/p20-lifecycle-crash.json",
@@ -2576,8 +2576,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p23-lifecycle-smoke.json",
-          "sha256": "1a13bfa94ad41680b4a42c98c912f84e41c9788a81baf2aa98c7cc5034d8bf95",
-          "note": "P24 2026-11-14: this is a run record, so a re-run rewrites it (documented class, product items 97/98/117). Re-recorded after the post-refinement CI run passed 24/24 steps (1,121 tests in 101 files)."
+          "sha256": "b58094a3045b67242594f3cf1a14775e8d228236bf9428bb430a4ee6f7844b58",
+          "note": "R13 2026-11-14: this is a run record; the post-correction CI run rewrote it (documented class, items 97/98/117). 1,121 tests in 101 files passed on these bytes."
         },
         {
           "path": "docs/evidence/macos/artifacts/p23-uninstall-rehearsal.json",
@@ -2718,7 +2718,7 @@
     "P22",
     "P25"
   ],
-  "last_checkpoint_utc": "2026-11-14T18:37:08.524Z",
+  "last_checkpoint_utc": "2026-11-14T18:44:58.542Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

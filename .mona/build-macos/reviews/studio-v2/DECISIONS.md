@@ -721,3 +721,37 @@ D-001…D-103) and never replace them.
   scope statement that is true on the hardware actually used. The release stays
   `blocked` on EXT-SIGNING; its independent checks (preflight, refusal, verify,
   trust tests) are recorded as done.
+
+## RD-030 — An anchor check must be unable to pass without the correction
+
+- **Date:** 2026-11-14 (R13, after an independent review of RD-028)
+- **Context:** RD-028's first implementation held the reader's place by naming a
+  card, and the smoke reported `delta 0`. A review showed both halves were hollow:
+  the card was unmounted when the pin ran (a page is 200 cards; the window is
+  re-sliced from the pre-insertion scroll position), so the pin fell back to the
+  height form; and the anchor the fixture produced sat *above* the insertion
+  point, so a zero delta was geometry rather than behaviour. The check would have
+  stayed green with the anchor code deleted.
+- **Decision — make the identity path reachable by construction.** The anchored
+  key is component state (`heldKey`) and is passed to the window's existing
+  `includeKey`, so the card stays mounted through the prepend. `settle()` clears
+  only its own anchor (a second click owns the ref), `jumpToLatest` clears it, the
+  pin bails while the reader is following the live edge, and a project/thread
+  change abandons it.
+- **Decision — assert the path, not just the outcome.** The pin writes
+  `data-anchor-mode` (`identity` / `height`), and the smoke fails unless the card
+  is still mounted **and** the mode is `identity`. It also asserts the scenario
+  was exercised: the first page was exactly 200 cards and the viewport moved by
+  more than 1,000 px.
+- **Decision — delete the tautology.** `older_page_rendered_once` asserted key
+  uniqueness inside the rendered slice, which React keys and the merge in
+  `projectThreadTimeline` already guarantee. It now counts painted older frames
+  at the oldest end (≥ 5, none repeated), which is a claim about the page.
+- **Decision — heterogeneous fixture.** The prepended page carries a tall block,
+  so the cards above the viewport are not uniform and an estimate-based
+  correction has something to be wrong about.
+- **Consequence:** with `heldKey` removed and nothing else changed, the smoke
+  fails exactly one check and reports `anchor_mode: height`
+  (`artifacts/r13-anchor-failing-first.json`). Restored, it passes with
+  `identity` across three runs. A check that cannot fail is now treated as a
+  defect in the check, not as evidence.

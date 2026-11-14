@@ -90,19 +90,55 @@ window plus estimated spacers, so the list's height is an estimate and the
 identity cannot hold. The fix (`src/renderer/shell/Studio.tsx`) anchors on
 **card identity**: the card at the top of the viewport when "Load earlier" is
 clicked has its pane offset held across the frames the new slice needs to
-measure itself; the height form remains as the fallback for an unmounted card.
+measure itself.
 
-The smoke now measures what the reader sees (`anchor_offset` within 2 px), proves
-the second page from the projected list (`data-cards`), and proves the third page
-is reachable by painting its range (`history frame 9455` at the oldest end).
-`smoke:history` joined `scripts/ci.mjs` so the next silent drift is caught.
+### The first attempt at that fix was itself defective, and a review caught it
 
-Verified after the fix:
+An independent review of the first fix found two real problems, both reproduced:
 
-- `node scripts/history-smoke.mjs` — **19/19, three consecutive runs**, anchor
-  delta **0** (was 115.5).
-- The fixed candidate's own bytes through the same driver:
-  **shell 137/137, command 26/26, immersive 60/60, history 19/19**
+1. **The identity path was unreachable.** A page is 200 cards and the insertion
+   happens above the reader, while the window is re-sliced from the
+   *pre-insertion* scroll position — so the card the pin looked for was not in
+   the DOM. The pin fell back to the height form, settled, and never ran again.
+2. **The check could not fail.** It passed at 0 px because the anchor it picked
+   (a card from the archived thread, timestamped *first* in the fixture) sat
+   **above** the insertion point. Nothing needed correcting, so nothing was
+   corrected. The zero delta was geometry, not behaviour.
+
+Both are fixed, and each has a mechanism rather than a promise:
+
+- `heldKey` keeps the anchored card **mounted** by passing it to the existing
+  `includeKey` window input, so the pin can measure it. `settle()` only clears
+  its **own** anchor, so a second click cannot have its anchor erased.
+  `jumpToLatest` clears the anchor, the pin bails when the reader is following
+  the live edge, and an anchor is abandoned on a project/thread change.
+- The fixture timestamps the archived thread **last**, so the block no longer
+  sits where the reader scrolls; the reader is placed at **3,000 px** inside the
+  long-session page; the prepended page contains a deliberately **tall** block, so
+  the cards above the viewport are not uniform; and the pin writes
+  `data-anchor-mode`.
+- The smoke now asserts `anchor_scenario_exercised` (the first page was exactly
+  200 cards and the viewport actually moved by more than 1,000 px),
+  `anchor_card_stayed_mounted` (the recorded card is still in the DOM **and**
+  `anchor_mode === "identity"`), and `scroll_anchor_held` (its pane offset within
+  2 px). `older_page_rendered_once` no longer asserts key uniqueness — React and
+  the merge already guarantee that — and instead counts the painted older frames
+  once the list has been scrolled to the oldest end: at least five frames, none
+  repeated.
+
+**Failing-first proof.** With `heldKey` removed from `includeKey` and everything
+else unchanged, the smoke fails exactly one check and reports the fallback:
+`anchor_card_stayed_mounted` false, `anchor_mode: "height"`
+(`artifacts/r13-anchor-failing-first.json`). Restored, it passes with
+`anchor_mode: "identity"`.
+
+Verified after the correction:
+
+- `node scripts/history-smoke.mjs` — **20/20, three consecutive runs**; the
+  viewport moved 22,000 px and the anchored card's offset moved **0 px**
+  (`artifacts/r02-history-long-smoke.json`).
+- The candidate's own bytes through the same driver: **shell 137/137, command
+  26/26, immersive 60/60, history 19/19**
   (`artifacts/r13-candidate-pass-152.json`, `artifacts/r13-candidate-verify-152.json`).
 
 ## 4. One live route interaction on the installed app

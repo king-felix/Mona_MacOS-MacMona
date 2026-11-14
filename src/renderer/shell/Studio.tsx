@@ -1289,10 +1289,16 @@ export function StudioScreen(props: StudioProps): JSX.Element {
     key: string | null;
     /** That card's offset from the top of the scrolling pane, in pixels. */
     viewportOffset: number;
+    /** The project the anchor belongs to; a switch abandons it. */
+    projectId: string | null;
   } | null>(null);
   const lastCountRef = useRef(0);
   const [unread, setUnread] = useState(0);
   const [atLatest, setAtLatest] = useState(true);
+  // R13 — the card whose place an older-page read must hold. It is state, not
+  // only the ref below, because the window has to keep that card *mounted*; see
+  // the pin's comment for why the identity is otherwise unreachable.
+  const [heldKey, setHeldKey] = useState<string | null>(null);
   const [caret, setCaret] = useState(0);
   const [selection, setSelection] = useState({ start: 0, end: 0 });
   const [composing, setComposing] = useState(false);
@@ -1424,7 +1430,7 @@ export function StudioScreen(props: StudioProps): JSX.Element {
   const timelineWindow = useTimelineWindow({
     keys: cardKeys,
     containerRef: timelineRef,
-    includeKey: anchorCardKey,
+    includeKey: anchorCardKey ?? heldKey,
     followRef: followRef,
   });
   // Cards read their handlers through this ref, so a new closure in the shell
@@ -1516,6 +1522,7 @@ export function StudioScreen(props: StudioProps): JSX.Element {
     setUnread(0);
     lastCountRef.current = 0;
     anchorRef.current = null;
+    setHeldKey(null);
     const node = timelineRef.current;
     if (node) node.scrollTop = node.scrollHeight;
   }, [detail?.project.id, history?.threadId]);
@@ -1526,8 +1533,13 @@ export function StudioScreen(props: StudioProps): JSX.Element {
   // "scrollHeight grew by N, move by N" left the reader a card short — 115.5 px
   // on a 10,054-event project, reproduced on the installed build. The anchor now
   // names the card that was at the top of the viewport and holds *its* offset,
-  // re-applying over a few frames while the new slice measures itself. The
-  // height-based target stays as the fallback for a card that is not mounted.
+  // re-applying over a few frames while the new slice measures itself.
+  // `heldKey` keeps that card *mounted* across the prepend, which is what makes
+  // the identity reachable at all: a page is 200 cards, the insertion is above
+  // the reader, and the slice is computed from the pre-insertion scroll position,
+  // so the card that was on screen would otherwise not be in the DOM and the pin
+  // would fall back to the estimate it exists to replace. The height-based target
+  // stays only for a card that has genuinely left the list.
   // The anchor is applied only when a completed older-page read changes the
   // load counter, so a live refresh cannot be mistaken for an older page.
   useLayoutEffect(() => {
@@ -1535,16 +1547,30 @@ export function StudioScreen(props: StudioProps): JSX.Element {
     const node = timelineRef.current;
     if (!anchor || !node) return;
     if ((history?.olderLoads ?? 0) === anchor.loads) return;
-    // The anchor is cleared only when this pin has settled, not on entry: the
-    // effect also runs on every live frame and on the new slice's own re-render,
-    // and re-pinning from an absolute target is idempotent. Clearing it early
-    // would let a single engine event that arrives mid-measurement cancel the
-    // correction and leave the reader short again.
+    // The anchor belongs to the conversation it was taken in. A project or thread
+    // switch abandons it rather than scrolling the new conversation to a position
+    // that meant something in the old one.
+    if (anchor.projectId !== (detail?.project.id ?? null)) {
+      anchorRef.current = null;
+      setHeldKey(null);
+      return;
+    }
+    // A reader who jumped to the live edge has left the older page deliberately;
+    // a pending correction must not drag them back.
+    if (followRef.current) {
+      anchorRef.current = null;
+      setHeldKey(null);
+      return;
+    }
     let cancelled = false;
     let frames = 0;
     let last = Number.NaN;
+    // Only this pin may clear its own anchor: a second "Load earlier" click
+    // supersedes it, and the newer pin owns the ref by then.
     const settle = (): void => {
+      if (anchorRef.current !== anchor) return;
       anchorRef.current = null;
+      setHeldKey(null);
     };
     const pin = (): void => {
       if (cancelled) return;
@@ -1552,10 +1578,18 @@ export function StudioScreen(props: StudioProps): JSX.Element {
         ? node.querySelector<HTMLElement>(`[data-card-key="${CSS.escape(anchor.key)}"]`)
         : null;
       if (!card) {
+        // `heldKey` kept it mounted, so this means the card truly left the list
+        // (a page boundary dropped it, or the thread changed). Correct by the
+        // measured height difference and settle rather than loop. The mode is
+        // written to the DOM so the smoke can prove which path ran: a fallback
+        // is a real correction, but it is the estimate this change exists to
+        // replace, and it must not be able to pass as the measured one.
+        node.dataset.anchorMode = "height";
         node.scrollTop = node.scrollHeight - anchor.height + anchor.top;
         settle();
         return;
       }
+      node.dataset.anchorMode = "identity";
       const paneTop = node.getBoundingClientRect().top;
       const offset = card.getBoundingClientRect().top - paneTop + node.scrollTop;
       const target = Math.max(0, offset - anchor.viewportOffset);
@@ -1584,17 +1618,21 @@ export function StudioScreen(props: StudioProps): JSX.Element {
     const node = timelineRef.current;
     if (!node) {
       anchorRef.current = null;
+      setHeldKey(null);
     } else {
       const paneTop = node.getBoundingClientRect().top;
       const cards = Array.from(node.querySelectorAll<HTMLElement>("[data-card-key]"));
       const first = cards.find((card) => card.getBoundingClientRect().bottom > paneTop + 1) ?? null;
+      const key = first?.dataset.cardKey ?? null;
       anchorRef.current = {
         height: node.scrollHeight,
         top: node.scrollTop,
         loads: history?.olderLoads ?? 0,
-        key: first?.dataset.cardKey ?? null,
+        key,
         viewportOffset: first ? first.getBoundingClientRect().top - paneTop : 0,
+        projectId: detail?.project.id ?? null,
       };
+      setHeldKey(key);
     }
     followRef.current = false;
     setAtLatest(false);
@@ -1605,6 +1643,9 @@ export function StudioScreen(props: StudioProps): JSX.Element {
     followRef.current = true;
     setAtLatest(true);
     setUnread(0);
+    // The reader asked for the live edge; nothing is left to hold.
+    anchorRef.current = null;
+    setHeldKey(null);
     const node = timelineRef.current;
     if (!node) return;
     node.scrollTop = node.scrollHeight;

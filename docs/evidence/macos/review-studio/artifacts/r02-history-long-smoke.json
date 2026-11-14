@@ -16,10 +16,12 @@
     "thread_selector_distinguishes": true,
     "jump_appears_after_scrolling": true,
     "older_page_loaded": true,
+    "anchor_scenario_exercised": true,
+    "anchor_card_stayed_mounted": true,
     "scroll_anchor_held": true,
-    "older_page_rendered_once": true,
     "second_older_page_loaded": true,
     "older_page_reachable": true,
+    "older_page_rendered_once": true,
     "jump_to_latest_returns_to_edge": true
   },
   "phases": [
@@ -42,24 +44,26 @@
     {
       "name": "anchor",
       "before": {
-        "top": 328,
-        "height": 22022,
-        "anchor_key": "thr_history_archived:thr_history_archived-3",
-        "anchor_offset": -94,
+        "top": 3084.5,
+        "height": 22020,
+        "anchor_key": "thr_32bbbf355ed89028:thr_32bbbf355ed89028-9882",
+        "anchor_offset": -102,
         "windowed": "true",
-        "rendered": 13,
+        "rendered": 16,
         "cards": 200
       },
       "after": {
-        "top": 328,
-        "height": 44022,
+        "top": 25084.5,
+        "height": 44020,
         "anchor_applications": 1,
         "older_loads": 1,
-        "anchor_offset": -94,
+        "anchor_offset": -102,
+        "anchor_present": true,
+        "anchor_mode": "identity",
         "cards": 400
       },
       "delta": 0,
-      "height_delta": 22000
+      "height_delta": 0
     },
     {
       "name": "reach",
@@ -73,9 +77,19 @@
         9457,
         9458,
         9459,
-        9460
+        9460,
+        9461,
+        9462,
+        9463,
+        9464
       ],
       "oldest": 9455
+    },
+    {
+      "name": "painted",
+      "frames": 10,
+      "repeated": 0,
+      "max": 1
     },
     {
       "name": "jump",
@@ -84,7 +98,7 @@
       "scope": "600 shown · 10054 stored · older pages available · 10 painted"
     }
   ],
-  "project": "prj_c0dac48912709e9a",
+  "project": "prj_2934937434024b8c",
   "stored_total": 10054,
   "screenshot": "docs/evidence/macos/review-studio/artifacts/r02-history-long-session.png",
   "electron": {

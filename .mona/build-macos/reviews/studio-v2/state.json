@@ -37,7 +37,7 @@
     "attempts": ".mona/build-macos/attempts.jsonl",
     "requirement_registry": "docs/requirements-macos.json"
   },
-  "revision": 111,
+  "revision": 116,
   "current_task": "R15",
   "current_task_status": "completed",
   "tasks": {
@@ -603,8 +603,8 @@
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r02-history-long-smoke.json",
-          "sha256": "6eca07fe609b4f76bf10266feb6e92b75b01edd3f1a9296be9fc66caa05fc815",
-          "note": "P24 2026-11-14: rewritten by the post-refinement CI run (captures and run records regenerate). Current bytes; the smoke still reports 19/19 with delta 0."
+          "sha256": "9fc3d3cc4c2093f6e8a7201ebdaf2b72684557d70f9b0626a126a3546aca56b6",
+          "note": "R13 2026-11-14: the corrected smoke is 20/20 across three runs, anchor offset shift 0 px while the viewport moved 22,000 px, anchor_mode identity. r13-anchor-failing-first.json is the same run with the mount guarantee removed: it fails anchor_card_stayed_mounted and reports anchor_mode height, which is the proof the check can fail."
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r02-shell-smoke.json",
@@ -612,8 +612,13 @@
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r02-history-long-session.png",
-          "sha256": "746a4725f2c32d50ba77e97fa5636431385f6b41eab31ef55682317744295722",
-          "note": "P24 2026-11-14: rewritten by the post-refinement CI run (captures and run records regenerate). Current bytes; the smoke still reports 19/19 with delta 0."
+          "sha256": "a22e4eb57191429bd95be6f90cafe854bde274ba38c46f427e9f4ccd274c8699",
+          "note": "R13 2026-11-14: the corrected smoke is 20/20 across three runs, anchor offset shift 0 px while the viewport moved 22,000 px, anchor_mode identity. r13-anchor-failing-first.json is the same run with the mount guarantee removed: it fails anchor_card_stayed_mounted and reports anchor_mode height, which is the proof the check can fail."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r13-anchor-failing-first.json",
+          "sha256": "cf45611928c3ceedd6ca73c269c50ce1ac4d6203aa81129b85982f60536736fb",
+          "note": "R13 2026-11-14: the corrected smoke is 20/20 across three runs, anchor offset shift 0 px while the viewport moved 22,000 px, anchor_mode identity. r13-anchor-failing-first.json is the same run with the mount guarantee removed: it fails anchor_card_stayed_mounted and reports anchor_mode height, which is the proof the check can fail."
         }
       ],
       "attempt_problem_ids": [],
@@ -899,12 +904,12 @@
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r03-command-menu.png",
           "sha256": "7929397d9d93483406e1c2ef517df3832097a17bca72d452dee2c841672440ba",
-          "note": "P24 2026-11-14: rewritten by the post-refinement CI run. Current bytes; same screens, 26/26 checks."
+          "note": "R13 2026-11-14: rewritten by the post-correction CI run. Current bytes; 26/26 checks."
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r03-command-menu-200.png",
-          "sha256": "4a6426726272a62987590a87c8a4359d644928f762bbe0bf5350f8667a3771d2",
-          "note": "P24 2026-11-14: rewritten by the post-refinement CI run. Current bytes; same screens, 26/26 checks."
+          "sha256": "e9aa57eeb31076141ccc9fe30834077893dda3bc7fde63a924bbc8c596487ef0",
+          "note": "R13 2026-11-14: rewritten by the post-correction CI run. Current bytes; 26/26 checks."
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r03-shell-smoke.json",
@@ -2087,9 +2092,9 @@
         },
         {
           "path": "src/renderer/shell/Studio.tsx",
-          "sha256": "84fe2e141f67f85fdfb4b849731e602c740a54f7a54a5cd103c16d09a091b4e4",
+          "sha256": "76ed69eb9a70bdb844359006afce603424039641d2e8168d2aaeb73e31ded358",
           "state": "current",
-          "note": "R13 2026-11-14: final anchor refinement (settle on convergence; a live frame mid-pin re-pins from an absolute target rather than cancelling). Three smoke runs, 19/19, delta 0."
+          "note": "R13 2026-11-14: the review-found anchor corrections (heldKey mount guarantee, settle ownership, followRef guard, project guard, anchor-mode marker; the heterogeneous fixture and the strengthened assertions) changed these files. Three smoke runs 20/20 with anchor_mode identity; npm run ci 24/24 steps, 1,121 tests."
         },
         {
           "path": "src/renderer/shell/Shell.tsx",
@@ -2117,9 +2122,9 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "aefc996f405f7d598e41d2b1a0f51b1fda598a4f4a1c46da920e6d1722b7910c",
+          "sha256": "4e28ae3777cf1205e743551d834e042831844de5981570b56aa2c5d43ac1f5e1",
           "state": "current",
-          "note": "R13 2026-11-14: R13 fixed the history anchor this task windowed (card-identity pin instead of a height identity) and re-measured the smoke against the reader-visible contract."
+          "note": "R13 2026-11-14: the review-found anchor corrections (heldKey mount guarantee, settle ownership, followRef guard, project guard, anchor-mode marker; the heterogeneous fixture and the strengthened assertions) changed these files. Three smoke runs 20/20 with anchor_mode identity; npm run ci 24/24 steps, 1,121 tests."
         },
         {
           "path": "src/renderer/shell/Capabilities.tsx",
@@ -2548,8 +2553,8 @@
       "evidence": [
         {
           "path": "docs/evidence/macos/review-studio/R13-installed-candidate.md",
-          "sha256": "670fd553366578fb7a1e61b52dd63f0dc8b311a0e98087ead656aa487b7872db",
-          "note": "R13 2026-11-14: installed build 151 qualified end to end (16/16 verifier, 137/137 shell, 26/26 command, 60/60 immersive, 22/22 live studio turn); the history mode found a real anchor regression, fixed in source and verified on candidate build 152 (137+26+60+19, all pass). Installing 152 needs one admin command — see R13 §7."
+          "sha256": "86214a8fc5dc6d36e50b2c7ae1e0e7ab5075eccf9e85f45b26de8a40a8ec5e00",
+          "note": "R13 2026-11-14: updated with the independent review's two findings (unreachable identity path, vacuous check), the mechanical fixes, and the failing-first proof."
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r13-candidate-verify.json",
@@ -2781,8 +2786,8 @@
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r15-ci.txt",
-          "sha256": "6da56c9199d300cd61a1b36f5751d7f2eabfbc0f6199137061f03c215ae821a3",
-          "note": "P24 2026-11-14: replaced with the post-refinement CI run — 24/24 steps, 1,121 tests in 101 files — so the handoff cites the run that includes the final anchor."
+          "sha256": "592384818548104a66719b9cd4d0627bfe548693f9f93bc820964f30854f8bcd",
+          "note": "R13 2026-11-14: replaced with the post-correction CI run — 24/24 steps, 1,121 tests in 101 files."
         }
       ],
       "attempt_problem_ids": [],
@@ -3019,7 +3024,7 @@
       ]
     }
   },
-  "last_checkpoint_utc": "2026-11-14T18:37:11.834Z",
+  "last_checkpoint_utc": "2026-11-14T18:45:05.585Z",
   "notes": [
     "R11 completed: bounded console rendering with measured windowing, a nine-screen axe pass with four real a11y defects fixed, reduced motion and 200% scale measured, three visual regressions fixed, and the independent review's one blocker and three majors fixed with tests proven to fail on the old code. The memory budget is exceeded by the runtime floor and carried as a derived, named exception."
   ]

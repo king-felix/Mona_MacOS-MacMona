@@ -59,7 +59,7 @@ All matched files use Prettier code style!
   "signature": "ad-hoc",
   "signed": true,
   "verified": true,
-  "built_at": "2026-11-14T18:34:35.580Z"
+  "built_at": "2026-11-14T18:42:52.340Z"
 }
 
 > mona@0.1.0-p02 build:pty
@@ -78,7 +78,7 @@ All matched files use Prettier code style!
   "signature": "ad-hoc",
   "signed": true,
   "verified": true,
-  "built_at": "2026-11-14T18:34:36.798Z"
+  "built_at": "2026-11-14T18:42:53.520Z"
 }
 
 > mona@0.1.0-p02 build:service
@@ -113,7 +113,7 @@ All matched files use Prettier code style!
     ],
     "service": "Start new DS project with Mona"
   },
-  "built_at": "2026-11-14T18:34:38.829Z"
+  "built_at": "2026-11-14T18:42:55.462Z"
 }
 
 > mona@0.1.0-p02 pretest
@@ -132,7 +132,7 @@ All matched files use Prettier code style!
   "signature": "ad-hoc",
   "signed": true,
   "verified": true,
-  "built_at": "2026-11-14T18:34:40.835Z"
+  "built_at": "2026-11-14T18:42:57.464Z"
 }
 {
   "schema_version": 1,
@@ -147,7 +147,7 @@ All matched files use Prettier code style!
   "signature": "ad-hoc",
   "signed": true,
   "verified": true,
-  "built_at": "2026-11-14T18:34:41.793Z"
+  "built_at": "2026-11-14T18:42:58.420Z"
 }
 
 > mona@0.1.0-p02 test
@@ -159,161 +159,152 @@ All matched files use Prettier code style!
 Switched to a new branch 'left'
 Switched to branch 'main'
 Preparing worktree (new branch 'linked-branch')
- ✓ test/work-studio.test.ts (20 tests) 2116ms
- ✓ test/studio-pending.test.ts (24 tests) 2260ms
- ✓ test/work-changes.test.ts (20 tests) 2564ms
-   ✓ change capture and attribution (5)
-     ✓ attributes dirty Git paths from receipts and leaves unreceipted work unclaimed 305ms
+ ✓ test/work-studio.test.ts (20 tests) 1368ms
+ ✓ test/studio-pending.test.ts (24 tests) 1524ms
+ ✓ test/work-changes.test.ts (20 tests) 1932ms
    ✓ stage and commit through the ledger (2)
-     ✓ keeps unrelated staged work and refuses mixed staging without an explicit choice 734ms
- ✓ test/supervisor-native.test.ts (10 tests) 2664ms
+     ✓ keeps unrelated staged work and refuses mixed staging without an explicit choice 642ms
+ ✓ test/supervisor-native.test.ts (10 tests) 2300ms
    ✓ native supervisor (9)
-     ✓ stops the entire owned tree and leaves unrelated processes alone 490ms
-     ✓ records the escaped process group and stops it by identity 366ms
-     ✓ escalates a TERM-ignoring tree to a bounded SIGKILL 779ms
- ✓ test/work-git.test.ts (17 tests) 3171ms
+     ✓ stops the entire owned tree and leaves unrelated processes alone 375ms
+     ✓ records the escaped process group and stops it by identity 377ms
+     ✓ escalates a TERM-ignoring tree to a bounded SIGKILL 804ms
+ ✓ test/work-git.test.ts (17 tests) 2282ms
    ✓ GitService status (6)
-     ✓ reports a merge conflict honestly 514ms
+     ✓ reports a merge conflict honestly 304ms
    ✓ GitService staging and selected commits (5)
-     ✓ stages and commits only the selected path, preserving unrelated staged work 373ms
-     ✓ never hands Mona's provider secrets to a repository hook 487ms
-Not implemented: HTMLCanvasElement's getContext() method: without installing the @napi-rs/canvas npm package
- ✓ test/design-components.test.tsx (17 tests) 777ms
- ✓ test/projects-service.test.ts (11 tests) 1410ms
-   ✓ project catalog service (11)
-     ✓ keeps the newest event window so a long thread keeps following the turn 353ms
- ✓ test/state-database.test.ts (14 tests) 1276ms
-   ✓ crash injection (1)
-     ✓ survives a crash before, during, and after a transaction 370ms
- ✓ test/studio-new-thread.test.ts (18 tests) 1533ms
- ✓ test/app-icon.test.ts (11 tests) 1364ms
-   ✓ the icon set the bundle ships (1)
-     ✓ writes an .icns and an .ico from the same master 964ms
- ✓ test/runtime-store.test.ts (8 tests) 1375ms
+     ✓ never hands Mona's provider secrets to a repository hook 374ms
+ ✓ test/projects-service.test.ts (11 tests) 839ms
+ ✓ test/studio-new-thread.test.ts (18 tests) 928ms
+ ✓ test/runtime-store.test.ts (8 tests) 1152ms
    ✓ runtime store owner probe (3)
-     ✓ reports no owner when the lock file has no live holder 587ms
+     ✓ reports no owner when the lock file has no live holder 424ms
    ✓ start preflight (3)
-     ✓ refuses a start when another Codewhale host owns the store, and names it 378ms
-     ✓ names Mona's own leftover runtime as the owner 337ms
- ✓ test/settings-workbench.test.ts (15 tests) 1186ms
-   ✓ saved route scope (4)
-     ✓ saves a validated default and leaves the active session's observed route alone 324ms
- ✓ test/work-attempts.test.ts (14 tests) 1016ms
- ✓ test/update-coordinator.test.ts (23 tests) 1345ms
- ✓ test/studio-follow-up.test.ts (9 tests) 974ms
- ✓ test/runtime-process.test.ts (10 tests) 731ms
-   ✓ runtime startup states are actionable (9)
-     ✓ stops a verified orphan record before starting a new owner 378ms
- ✓ test/work-board.test.ts (12 tests) 766ms
- ✓ test/memory-handoff.test.ts (9 tests) 710ms
- ✓ test/shell-races.test.tsx (36 tests) 5735ms
-   ✓ shell submission identity (4)
-     ✓ keeps text typed during a send and sends exactly the claimed bytes 677ms
-   ✓ shell draft saving (3)
-     ✓ never reports newer text saved when an older acknowledgement arrives late 1254ms
-     ✓ keeps the text and says so when a save is rejected 655ms
-   ✓ R04 commands dispatch through the typed IPC route (13)
-     ✓ keys the draft to the new conversation after /new 658ms
-   ✓ focus Studio and native full screen (6)
-     ✓ stores the layout preference and never the OS full-screen state 402ms
- ✓ test/capability.test.ts (12 tests) 976ms
-Not implemented: HTMLCanvasElement's getContext() method: without installing the @napi-rs/canvas npm package
- ✓ test/studio-screen.test.tsx (36 tests) 540ms
- ✓ test/work-agents.test.ts (17 tests) 910ms
- ✓ test/history-paging.test.ts (5 tests) 6940ms
+     ✓ refuses a start when another Codewhale host owns the store, and names it 347ms
+     ✓ names Mona's own leftover runtime as the owner 360ms
+ ✓ test/update-coordinator.test.ts (23 tests) 826ms
+ ✓ test/app-icon.test.ts (11 tests) 1242ms
+   ✓ the icon set the bundle ships (1)
+     ✓ writes an .icns and an .ico from the same master 818ms
+ ✓ test/settings-workbench.test.ts (15 tests) 929ms
+ ✓ test/state-database.test.ts (14 tests) 1042ms
+ ✓ test/history-paging.test.ts (5 tests) 4000ms
    ✓ R02 paged stored history (5)
-     ✓ keeps a 10,000+ event project reachable page by page, once each 5375ms
-     ✓ reconstructs a 2,000+ frame item whose beginning predates the page 1254ms
- ✓ test/state-portable.test.ts (7 tests) 669ms
- ✓ test/memory-shelf.test.ts (14 tests) 936ms
- ✓ test/terminal-manager.test.ts (16 tests) 850ms
+     ✓ keeps a 10,000+ event project reachable page by page, once each 2836ms
+     ✓ reconstructs a 2,000+ frame item whose beginning predates the page 847ms
+ ✓ test/update-recovery.test.ts (11 tests) 630ms
+ ✓ test/state-catalog.test.ts (11 tests) 623ms
+ ✓ test/work-attempts.test.ts (14 tests) 900ms
+ ✓ test/capability.test.ts (12 tests) 796ms
+ ✓ test/work-costs.test.ts (19 tests) 615ms
+ ✓ test/memory-shelf.test.ts (14 tests) 721ms
+ ✓ test/studio-follow-up.test.ts (9 tests) 992ms
+ ✓ test/work-agents.test.ts (17 tests) 866ms
+ ✓ test/work-digest.test.ts (7 tests) 461ms
+ ✓ test/terminal-manager.test.ts (16 tests) 743ms
    ✓ native pty helper (2)
-     ✓ runs a real shell, honors resize, and reports the exit code 579ms
- ✓ test/lint-hooks-gate.test.ts (3 tests) 679ms
+     ✓ runs a real shell, honors resize, and reports the exit code 504ms
+ ✓ test/work-board.test.ts (12 tests) 490ms
+ ✓ test/memory-handoff.test.ts (9 tests) 545ms
+ ✓ test/runtime-process.test.ts (10 tests) 763ms
+   ✓ runtime startup states are actionable (9)
+     ✓ stops a verified orphan record before starting a new owner 352ms
+Not implemented: HTMLCanvasElement's getContext() method: without installing the @napi-rs/canvas npm package
+ ✓ test/design-components.test.tsx (17 tests) 807ms
+ ✓ test/lint-hooks-gate.test.ts (3 tests) 633ms
    ✓ react-hooks lint gate (3)
-     ✓ rejects a hook after an early return (the R11 production defect) 644ms
- ✓ test/state-catalog.test.ts (11 tests) 1035ms
- ✓ test/work-digest.test.ts (7 tests) 818ms
- ✓ test/work-costs.test.ts (19 tests) 942ms
- ✓ test/update-recovery.test.ts (11 tests) 1048ms
- ✓ test/extensions-workbench.test.ts (10 tests) 514ms
- ✓ test/memory-screen.test.tsx (10 tests) 448ms
- ✓ test/r11-a11y.test.tsx (15 tests) 467ms
- ✓ test/r10-conveniences.test.ts (10 tests) 389ms
- ✓ test/shared-core.test.ts (2 tests) 315ms
- ✓ test/work-preferences.test.ts (6 tests) 420ms
- ✓ test/memory-search.test.ts (12 tests) 599ms
- ✓ test/work-notifications.test.ts (14 tests) 419ms
- ✓ test/release-trust.test.ts (17 tests) 208ms
- ✓ test/settings-restore.test.ts (5 tests) 405ms
- ✓ test/state-artifacts.test.ts (5 tests) 427ms
- ✓ test/work-polish-service.test.ts (4 tests) 283ms
- ✓ test/usage-hud.test.ts (13 tests) 192ms
- ✓ test/studio-focus.test.tsx (15 tests) 246ms
- ✓ test/runtime-supervisor.test.ts (16 tests) 293ms
- ✓ test/changes-screen.test.tsx (4 tests) 113ms
- ✓ test/polish-screen.test.tsx (5 tests) 117ms
- ✓ test/terminal-screen.test.tsx (10 tests) 220ms
- ✓ test/capability-screen.test.tsx (6 tests) 157ms
- ✓ test/agents-screen.test.tsx (5 tests) 154ms
- ✓ test/command-catalog.test.ts (7 tests) 112ms
- ✓ test/window-fullscreen.test.ts (11 tests) 87ms
- ✓ test/p20-failure-matrix.test.ts (12 tests) 83ms
- ✓ test/open-coordinator.test.ts (5 tests) 75ms
- ✓ test/settings-screen.test.tsx (4 tests) 114ms
- ✓ test/work-profile.test.ts (5 tests) 68ms
- ✓ test/update-screen.test.tsx (7 tests) 160ms
- ✓ test/board-plan-status.test.ts (2 tests) 73ms
- ✓ test/boundary.test.ts (10 tests) 57ms
- ✓ test/engine-adapter.test.ts (25 tests) 60ms
- ✓ test/state-paths.test.ts (4 tests) 17ms
- ✓ test/ipc-contract.test.ts (42 tests) 38ms
- ✓ test/tool-discovery.test.ts (5 tests) 25ms
- ✓ test/update-uninstall.test.ts (6 tests) 13ms
- ✓ test/studio-render.test.tsx (21 tests) 9ms
- ✓ test/engine-orchestration.test.ts (10 tests) 34ms
- ✓ test/update-trust.test.ts (25 tests) 9ms
- ✓ test/cost-screen.test.tsx (5 tests) 101ms
- ✓ test/supervisor-records.test.ts (6 tests) 11ms
- ✓ test/fixtures.test.ts (9 tests) 6ms
- ✓ test/package-macos.test.ts (13 tests) 5ms
- ✓ test/command-dispatch.test.ts (15 tests) 10ms
- ✓ test/folder-request.test.ts (12 tests) 7ms
- ✓ test/engine-artifacts.test.ts (15 tests) 5ms
- ✓ test/safe-archive.test.ts (12 tests) 14ms
- ✓ test/shell-session.test.ts (14 tests) 6ms
+     ✓ rejects a hook after an early return (the R11 production defect) 604ms
+ ✓ test/memory-search.test.ts (12 tests) 400ms
+ ✓ test/state-portable.test.ts (7 tests) 540ms
+ ✓ test/shell-races.test.tsx (36 tests) 5899ms
+   ✓ shell submission identity (4)
+     ✓ keeps text typed during a send and sends exactly the claimed bytes 679ms
+   ✓ shell draft saving (3)
+     ✓ never reports newer text saved when an older acknowledgement arrives late 1276ms
+     ✓ keeps the text and says so when a save is rejected 650ms
+   ✓ R04 commands dispatch through the typed IPC route (13)
+     ✓ keys the draft to the new conversation after /new 657ms
+   ✓ focus Studio and native full screen (6)
+     ✓ stores the layout preference and never the OS full-screen state 405ms
+ ✓ test/extensions-workbench.test.ts (10 tests) 398ms
+ ✓ test/state-artifacts.test.ts (5 tests) 243ms
+ ✓ test/work-preferences.test.ts (6 tests) 297ms
+ ✓ test/r11-a11y.test.tsx (15 tests) 396ms
+ ✓ test/work-notifications.test.ts (14 tests) 293ms
+ ✓ test/memory-screen.test.tsx (10 tests) 401ms
+ ✓ test/settings-restore.test.ts (5 tests) 273ms
+ ✓ test/r10-conveniences.test.ts (10 tests) 298ms
+ ✓ test/runtime-supervisor.test.ts (16 tests) 159ms
+ ✓ test/work-polish-service.test.ts (4 tests) 151ms
+ ✓ test/shared-core.test.ts (2 tests) 309ms
+ ✓ test/usage-hud.test.ts (13 tests) 183ms
+ ✓ test/release-trust.test.ts (17 tests) 278ms
+ ✓ test/terminal-screen.test.tsx (10 tests) 233ms
+ ✓ test/studio-focus.test.tsx (15 tests) 420ms
+ ✓ test/update-screen.test.tsx (7 tests) 220ms
+ ✓ test/capability-screen.test.tsx (6 tests) 210ms
+Not implemented: HTMLCanvasElement's getContext() method: without installing the @napi-rs/canvas npm package
+ ✓ test/studio-screen.test.tsx (36 tests) 962ms
+ ✓ test/command-catalog.test.ts (7 tests) 132ms
+ ✓ test/agents-screen.test.tsx (5 tests) 244ms
+ ✓ test/polish-screen.test.tsx (5 tests) 212ms
+ ✓ test/settings-screen.test.tsx (4 tests) 141ms
+ ✓ test/window-fullscreen.test.ts (11 tests) 95ms
+ ✓ test/changes-screen.test.tsx (4 tests) 152ms
+ ✓ test/p20-failure-matrix.test.ts (12 tests) 126ms
+ ✓ test/cost-screen.test.tsx (5 tests) 97ms
+ ✓ test/engine-adapter.test.ts (25 tests) 47ms
+ ✓ test/board-plan-status.test.ts (2 tests) 125ms
+ ✓ test/open-coordinator.test.ts (5 tests) 152ms
+ ✓ test/boundary.test.ts (10 tests) 50ms
+ ✓ test/work-profile.test.ts (5 tests) 103ms
+ ✓ test/tool-discovery.test.ts (5 tests) 18ms
+ ✓ test/engine-orchestration.test.ts (10 tests) 27ms
+ ✓ test/ipc-contract.test.ts (42 tests) 45ms
+ ✓ test/update-uninstall.test.ts (6 tests) 11ms
+ ✓ test/state-paths.test.ts (4 tests) 16ms
+ ✓ test/safe-archive.test.ts (12 tests) 23ms
+ ✓ test/supervisor-records.test.ts (6 tests) 8ms
+ ✓ test/contracts.test.ts (15 tests) 11ms
+ ✓ test/studio-activity.test.ts (8 tests) 9ms
+ ✓ test/update-trust.test.ts (25 tests) 10ms
+ ✓ test/work-control.test.ts (8 tests) 6ms
+ ✓ test/studio-render.test.tsx (21 tests) 15ms
+ ✓ test/design-tokens.test.ts (8 tests) 21ms
+ ✓ test/command-dispatch.test.ts (15 tests) 14ms
+ ✓ test/zoom.test.ts (8 tests) 3ms
+ ✓ test/open-service-status.test.ts (13 tests) 6ms
+ ✓ test/folder-request.test.ts (12 tests) 12ms
  ✓ test/work-attention.test.ts (6 tests) 7ms
- ✓ test/engine-sse.test.ts (6 tests) 6ms
- ✓ test/design-tokens.test.ts (8 tests) 12ms
- ✓ test/command-execution-plan.test.ts (7 tests) 5ms
+ ✓ test/design-no-network.test.ts (4 tests) 5ms
+ ✓ test/shell-session.test.ts (14 tests) 7ms
+ ✓ test/engine-sse.test.ts (6 tests) 7ms
+ ✓ test/update-version.test.ts (5 tests) 3ms
+ ✓ test/timeline-window.test.ts (14 tests) 8ms
+ ✓ test/fixtures.test.ts (9 tests) 11ms
+ ✓ test/composer-commands.test.ts (14 tests) 4ms
  ✓ test/history-pager.test.ts (7 tests) 5ms
- ✓ test/engine-compat.test.ts (4 tests) 5ms
- ✓ test/menu-template.test.ts (5 tests) 3ms
+ ✓ test/engine-compat.test.ts (4 tests) 6ms
  ✓ test/palette.test.ts (5 tests) 5ms
- ✓ test/timeline-window.test.ts (14 tests) 10ms
- ✓ test/contracts.test.ts (15 tests) 10ms
- ✓ test/design-no-network.test.ts (4 tests) 6ms
- ✓ test/studio-activity.test.ts (8 tests) 8ms
- ✓ test/open-service-status.test.ts (13 tests) 7ms
- ✓ test/composer-commands.test.ts (14 tests) 5ms
- ✓ test/work-control.test.ts (8 tests) 8ms
+ ✓ test/engine-artifacts.test.ts (15 tests) 6ms
  ✓ test/ansi.test.ts (9 tests) 4ms
- ✓ test/zoom.test.ts (8 tests) 7ms
- ✓ test/update-version.test.ts (5 tests) 6ms
+ ✓ test/package-macos.test.ts (13 tests) 11ms
  ✓ test/supervisor-identity.test.ts (9 tests) 3ms
+ ✓ test/command-execution-plan.test.ts (7 tests) 10ms
+ ✓ test/menu-template.test.ts (5 tests) 5ms
  ✓ test/open-drop.test.ts (5 tests) 2ms
- ✓ test/supervisor-restart.test.ts (3 tests) 2ms
- ✓ test/terminal-buffer.test.ts (7 tests) 3ms
  ✓ test/navigation.test.ts (6 tests) 2ms
+ ✓ test/supervisor-restart.test.ts (3 tests) 2ms
+ ✓ test/terminal-buffer.test.ts (7 tests) 2ms
  ✓ test/install-location.test.ts (3 tests) 1ms
 
  Test Files  101 passed (101)
       Tests  1121 passed (1121)
-   Start at  11:34:41
-   Duration  11.20s (tests 85%, import 7%, environment 6%, transform 1%)
+   Start at  11:42:58
+   Duration  9.71s (tests 81%, import 9%, environment 8%, transform 1%, worker 1%)
 
-    Isolate  101 workers spawned · ~142ms startup each (spawn + environment, per file)
-             at least ~1.91s faster with isolate: false — reuses workers across files instead of one per file
+    Isolate  101 workers spawned · ~150ms startup each (spawn + environment, per file)
+             at least ~2.01s faster with isolate: false — reuses workers across files instead of one per file
 
 
 > mona@0.1.0-p02 build
@@ -336,17 +327,17 @@ transforming...
 ✓ 160 modules transformed.
 rendering chunks...
 computing gzip size...
-dist/renderer/index.html                       0.76 kB │ gzip:   0.42 kB
+dist/renderer/index.html                       0.76 kB │ gzip:   0.41 kB
 dist/renderer/assets/mona-mark-ChAj1Hvn.png   27.56 kB
 dist/renderer/assets/index-Bc25RO4d.css       84.85 kB │ gzip:  14.15 kB
-dist/renderer/assets/index-DkZLBo2f.js       783.72 kB │ gzip: 213.99 kB
+dist/renderer/assets/index-CyNc97HM.js       784.04 kB │ gzip: 214.11 kB
 
 [plugin builtin:vite-reporter] 
 (!) Some chunks are larger than 500 kB after minification. Consider:
 - Using dynamic import() to code-split the application
 - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
-✓ built in 110ms
+✓ built in 113ms
 
 > mona@0.1.0-p02 smoke:board
 > npm run build:main && node scripts/board-smoke.mjs
@@ -517,7 +508,7 @@ P10/P11 sample run: PASS
   "stale": [
     {
       "taskId": "tsk_00000003",
-      "reason": "workspace changed after verification (f9a8fb27 → 1a947025)"
+      "reason": "workspace changed after verification (d1733f71 → 43d818ac)"
     }
   ],
   "transitions": [
@@ -568,7 +559,7 @@ P10/P11 sample run: PASS
       "from": "completed",
       "to": "verifying",
       "actor": "reconciler",
-      "reason": "workspace changed after verification (f9a8fb27 → 1a947025)"
+      "reason": "workspace changed after verification (d1733f71 → 43d818ac)"
     }
   ],
   "workspace_files": {
@@ -778,7 +769,7 @@ P13 changes sample: PASS
         "untracked": 3,
         "conflicted": 0
       },
-      "head": "68316e5"
+      "head": "58db527"
     },
     "restore_receipts": 1,
     "recovery": {
@@ -807,7 +798,7 @@ P13 changes sample: PASS
 {
   "schema_version": 1,
   "label": "P14 DETERMINISTIC POLISH SAMPLE — no engine, no provider call",
-  "captured_at": "2026-11-14T18:35:05.908Z",
+  "captured_at": "2026-11-14T18:43:21.227Z",
   "ok": true,
   "checks": {
     "brief_matches_focus_task": true,
@@ -995,7 +986,7 @@ P13 changes sample: PASS
         "blocked": 1,
         "unseenCompletions": 1,
         "installed": true,
-        "updatedAt": "2026-11-14T18:35:05.903Z",
+        "updatedAt": "2026-11-14T18:43:21.222Z",
         "note": "sample host"
       },
       "clearedBadge": "2",
@@ -1020,11 +1011,11 @@ P13 changes sample: PASS
       }
     },
     "favorite": {
-      "id": "fav_7a7f71f7ce3d4463",
+      "id": "fav_ecbdf709dd1f48fe",
       "label": "Review the diff",
       "text": "Review the diff and record what changed.",
-      "createdAt": "2026-11-14T18:35:05.907Z",
-      "updatedAt": "2026-11-14T18:35:05.907Z"
+      "createdAt": "2026-11-14T18:43:21.226Z",
+      "updatedAt": "2026-11-14T18:43:21.226Z"
     },
     "identity": {
       "accent": "mint",
@@ -1057,16 +1048,16 @@ P13 changes sample: PASS
   "signature": "ad-hoc",
   "signed": true,
   "verified": true,
-  "built_at": "2026-11-14T18:35:10.213Z"
+  "built_at": "2026-11-14T18:43:25.747Z"
 }
 {
   "schema_version": 1,
   "mode": "fixture",
   "ok": true,
-  "started_utc": "2026-11-14T18:35:10.303Z",
+  "started_utc": "2026-11-14T18:43:25.839Z",
   "project": {
-    "id": "prj_09bb12a2087beefd",
-    "root": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p15-fixture-R1V5xA/workspace"
+    "id": "prj_a18b5b72e6978ae2",
+    "root": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p15-fixture-rhEunr/workspace"
   },
   "checks": {
     "real-subagent-identity": {
@@ -1162,7 +1153,7 @@ P13 changes sample: PASS
   ],
   "live": null,
   "error": null,
-  "finished_utc": "2026-11-14T18:35:10.338Z"
+  "finished_utc": "2026-11-14T18:43:25.878Z"
 }
 
 > mona@0.1.0-p02 smoke:settings
@@ -1215,12 +1206,12 @@ P13 changes sample: PASS
   "signature": "ad-hoc",
   "signed": true,
   "verified": true,
-  "built_at": "2026-11-14T18:35:19.980Z"
+  "built_at": "2026-11-14T18:43:35.484Z"
 }
 {
   "schema_version": 1,
   "label": "P18 integrated terminal — real native pty",
-  "captured_at": "2026-11-14T18:35:27.939Z",
+  "captured_at": "2026-11-14T18:43:43.477Z",
   "ok": true,
   "checks": {
     "session_running": true,
@@ -1271,7 +1262,7 @@ P13 changes sample: PASS
         "signature": "ad-hoc",
         "signed": true,
         "verified": true,
-        "built_at": "2026-11-14T18:35:19.980Z"
+        "built_at": "2026-11-14T18:43:35.484Z"
       }
     },
     "tty": true,
@@ -1290,7 +1281,7 @@ P13 changes sample: PASS
       }
     ],
     "startup": {
-      "fake_home": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p18-terminal-9YdSMY/home",
+      "fake_home": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p18-terminal-e7Mfaw/home",
       "marker_created": false
     },
     "engine_in_terminal": true,
@@ -1317,18 +1308,18 @@ P13 changes sample: PASS
     },
     "close": {
       "status": "exited",
-      "shell_pid": 73821,
+      "shell_pid": 82332,
       "alive_after_close": false
     },
     "session_cap": {
       "max": 3,
-      "replaced": "term_898eda856cf69fc0",
+      "replaced": "term_98a8cc42cfe0eab4",
       "sessions": 3,
       "refused_with_three_live": true
     },
     "log": {
       "available": true,
-      "path": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p18-terminal-9YdSMY/logs/run.log",
+      "path": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p18-terminal-e7Mfaw/logs/run.log",
       "bytes": 106
     },
     "native": {
@@ -1355,7 +1346,7 @@ P13 changes sample: PASS
 {
   "schema_version": 1,
   "label": "P18 capability coverage — pinned 0.10.2",
-  "captured_at": "2026-11-14T18:35:33.966Z",
+  "captured_at": "2026-11-14T18:43:49.531Z",
   "ok": true,
   "checks": {
     "reconcile_in_sync": true,
@@ -1594,7 +1585,7 @@ P13 changes sample: PASS
     "dead_targets": [],
     "drift": {
       "checked": true,
-      "checkedAt": "2026-11-14T18:35:30.489Z",
+      "checkedAt": "2026-11-14T18:43:46.041Z",
       "error": null,
       "engineVersion": "0.10.2",
       "engineCommit": "ff466b2ed0bf",
@@ -2024,17 +2015,17 @@ transforming...
 ✓ 160 modules transformed.
 rendering chunks...
 computing gzip size...
-dist/renderer/index.html                       0.76 kB │ gzip:   0.42 kB
+dist/renderer/index.html                       0.76 kB │ gzip:   0.41 kB
 dist/renderer/assets/mona-mark-ChAj1Hvn.png   27.56 kB
 dist/renderer/assets/index-Bc25RO4d.css       84.85 kB │ gzip:  14.15 kB
-dist/renderer/assets/index-DkZLBo2f.js       783.72 kB │ gzip: 213.99 kB
+dist/renderer/assets/index-CyNc97HM.js       784.04 kB │ gzip: 214.11 kB
 
 [plugin builtin:vite-reporter] 
 (!) Some chunks are larger than 500 kB after minification. Consider:
 - Using dynamic import() to code-split the application
 - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
-✓ built in 116ms
+✓ built in 117ms
 {
   "schema_version": 1,
   "ok": true,
@@ -2112,7 +2103,7 @@ dist/renderer/assets/index-DkZLBo2f.js       783.72 kB │ gzip: 213.99 kB
       "options": 79
     }
   },
-  "project": "prj_1df0803f99c6b78d",
+  "project": "prj_d428630b802a24ba",
   "screenshots": [
     "r03-command-menu.png",
     "r03-command-menu-200.png"
@@ -2148,17 +2139,17 @@ transforming...
 ✓ 160 modules transformed.
 rendering chunks...
 computing gzip size...
-dist/renderer/index.html                       0.76 kB │ gzip:   0.42 kB
+dist/renderer/index.html                       0.76 kB │ gzip:   0.41 kB
 dist/renderer/assets/mona-mark-ChAj1Hvn.png   27.56 kB
 dist/renderer/assets/index-Bc25RO4d.css       84.85 kB │ gzip:  14.15 kB
-dist/renderer/assets/index-DkZLBo2f.js       783.72 kB │ gzip: 213.99 kB
+dist/renderer/assets/index-CyNc97HM.js       784.04 kB │ gzip: 214.11 kB
 
 [plugin builtin:vite-reporter] 
 (!) Some chunks are larger than 500 kB after minification. Consider:
 - Using dynamic import() to code-split the application
 - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
-✓ built in 93ms
+✓ built in 95ms
 {
   "schema_version": 1,
   "ok": true,
@@ -2177,10 +2168,12 @@ dist/renderer/assets/index-DkZLBo2f.js       783.72 kB │ gzip: 213.99 kB
     "thread_selector_distinguishes": true,
     "jump_appears_after_scrolling": true,
     "older_page_loaded": true,
+    "anchor_scenario_exercised": true,
+    "anchor_card_stayed_mounted": true,
     "scroll_anchor_held": true,
-    "older_page_rendered_once": true,
     "second_older_page_loaded": true,
     "older_page_reachable": true,
+    "older_page_rendered_once": true,
     "jump_to_latest_returns_to_edge": true
   },
   "phases": [
@@ -2203,24 +2196,26 @@ dist/renderer/assets/index-DkZLBo2f.js       783.72 kB │ gzip: 213.99 kB
     {
       "name": "anchor",
       "before": {
-        "top": 328,
-        "height": 22022,
-        "anchor_key": "thr_history_archived:thr_history_archived-3",
-        "anchor_offset": -94,
+        "top": 3084.5,
+        "height": 22020,
+        "anchor_key": "thr_1ef948a0708e79f2:thr_1ef948a0708e79f2-9882",
+        "anchor_offset": -102,
         "windowed": "true",
-        "rendered": 13,
+        "rendered": 16,
         "cards": 200
       },
       "after": {
-        "top": 328,
-        "height": 44022,
+        "top": 25084.5,
+        "height": 44020,
         "anchor_applications": 1,
         "older_loads": 1,
-        "anchor_offset": -94,
+        "anchor_offset": -102,
+        "anchor_present": true,
+        "anchor_mode": "identity",
         "cards": 400
       },
       "delta": 0,
-      "height_delta": 22000
+      "height_delta": 0
     },
     {
       "name": "reach",
@@ -2234,9 +2229,19 @@ dist/renderer/assets/index-DkZLBo2f.js       783.72 kB │ gzip: 213.99 kB
         9457,
         9458,
         9459,
-        9460
+        9460,
+        9461,
+        9462,
+        9463,
+        9464
       ],
       "oldest": 9455
+    },
+    {
+      "name": "painted",
+      "frames": 10,
+      "repeated": 0,
+      "max": 1
     },
     {
       "name": "jump",
@@ -2245,7 +2250,7 @@ dist/renderer/assets/index-DkZLBo2f.js       783.72 kB │ gzip: 213.99 kB
       "scope": "600 shown · 10054 stored · older pages available · 10 painted"
     }
   ],
-  "project": "prj_b103d166a52fa094",
+  "project": "prj_be0d427e124112ad",
   "stored_total": 10054,
   "screenshot": "docs/evidence/macos/review-studio/artifacts/r02-history-long-session.png",
   "electron": {
@@ -2325,17 +2330,17 @@ transforming...
 ✓ 160 modules transformed.
 rendering chunks...
 computing gzip size...
-dist/renderer/index.html                       0.76 kB │ gzip:   0.42 kB
+dist/renderer/index.html                       0.76 kB │ gzip:   0.41 kB
 dist/renderer/assets/mona-mark-ChAj1Hvn.png   27.56 kB
 dist/renderer/assets/index-Bc25RO4d.css       84.85 kB │ gzip:  14.15 kB
-dist/renderer/assets/index-DkZLBo2f.js       783.72 kB │ gzip: 213.99 kB
+dist/renderer/assets/index-CyNc97HM.js       784.04 kB │ gzip: 214.11 kB
 
 [plugin builtin:vite-reporter] 
 (!) Some chunks are larger than 500 kB after minification. Consider:
 - Using dynamic import() to code-split the application
 - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
-✓ built in 98ms
+✓ built in 97ms
 {
   "ok": true,
   "checks": {
@@ -2369,9 +2374,9 @@ dist/renderer/assets/index-DkZLBo2f.js       783.72 kB │ gzip: 213.99 kB
   },
   "error": null,
   "pids": [
-    75498,
-    75499,
-    75500
+    83847,
+    83848,
+    83849
   ],
   "alive_after_quit": [],
   "shutdown": {
@@ -2396,16 +2401,16 @@ dist/renderer/assets/index-DkZLBo2f.js       783.72 kB │ gzip: 213.99 kB
         "phase": "started",
         "state": "running",
         "alive": [
-          75498,
-          75499,
-          75500
+          83847,
+          83848,
+          83849
         ],
         "runtime_status": {
           "state": "running",
           "reason": "started",
-          "since": "2026-11-14T18:35:59.083Z",
-          "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-lifecycle-work-djrrPp",
-          "ownershipId": "rt_42743ba7595b",
+          "since": "2026-11-14T18:44:14.794Z",
+          "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-lifecycle-work-tUACJK",
+          "ownershipId": "rt_e9773901a82d",
           "port": 0,
           "engine": {
             "version": "smoke",
@@ -2436,9 +2441,9 @@ dist/renderer/assets/index-DkZLBo2f.js       783.72 kB │ gzip: 213.99 kB
         "runtime_state": "running",
         "child_alive": true,
         "tree_alive": [
-          75498,
-          75499,
-          75500
+          83847,
+          83848,
+          83849
         ]
       },
       {
@@ -2447,9 +2452,9 @@ dist/renderer/assets/index-DkZLBo2f.js       783.72 kB │ gzip: 213.99 kB
         "runtime_state": "running",
         "child_alive": true,
         "tree_alive": [
-          75498,
-          75499,
-          75500
+          83847,
+          83848,
+          83849
         ]
       },
       {
@@ -2461,11 +2466,11 @@ dist/renderer/assets/index-DkZLBo2f.js       783.72 kB │ gzip: 213.99 kB
       },
       {
         "phase": "second_instance",
-        "expected": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-jeUtdb",
+        "expected": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-cCDBMS",
         "received": {
-          "path": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-jeUtdb",
-          "input": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-jeUtdb",
-          "receivedAt": "2026-11-14T18:35:59.184Z",
+          "path": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-cCDBMS",
+          "input": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-cCDBMS",
+          "receivedAt": "2026-11-14T18:44:14.894Z",
           "source": "second_instance",
           "notes": [
             "resolved: symlink or alias resolved before registration"
@@ -2475,16 +2480,16 @@ dist/renderer/assets/index-DkZLBo2f.js       783.72 kB │ gzip: 213.99 kB
       }
     ],
     "pids": {
-      "supervisor": 75497,
-      "child": 75498,
-      "pgid": 75498,
+      "supervisor": 83846,
+      "child": 83847,
+      "pgid": 83847,
       "tree": [
-        75498,
-        75499,
-        75500
+        83847,
+        83848,
+        83849
       ]
     },
-    "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-lifecycle-work-djrrPp",
+    "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-lifecycle-work-tUACJK",
     "polish": {
       "preferences": {
         "notifications": {
@@ -2513,7 +2518,7 @@ dist/renderer/assets/index-DkZLBo2f.js       783.72 kB │ gzip: 213.99 kB
         "blocked": 0,
         "unseenCompletions": 0,
         "installed": true,
-        "updatedAt": "2026-11-14T18:35:59.039Z",
+        "updatedAt": "2026-11-14T18:44:14.752Z",
         "note": "menu-bar status is installed; the Dock badge is a native app badge"
       },
       "keepAwake": {
@@ -2548,7 +2553,7 @@ dist/renderer/assets/index-DkZLBo2f.js       783.72 kB │ gzip: 213.99 kB
       "runtime": {
         "state": "disconnected",
         "reason": "never_started",
-        "since": "2026-11-14T18:35:58.868Z",
+        "since": "2026-11-14T18:44:14.581Z",
         "workspace": null,
         "ownershipId": null,
         "port": null,
@@ -2568,9 +2573,9 @@ dist/renderer/assets/index-DkZLBo2f.js       783.72 kB │ gzip: 213.99 kB
     "runtime_before_quit": {
       "state": "running",
       "reason": "running_after_renderer_crash",
-      "since": "2026-11-14T18:35:59.497Z",
-      "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-lifecycle-work-djrrPp",
-      "ownershipId": "rt_42743ba7595b",
+      "since": "2026-11-14T18:44:15.209Z",
+      "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-lifecycle-work-tUACJK",
+      "ownershipId": "rt_e9773901a82d",
       "port": 0,
       "engine": {
         "version": "smoke",
@@ -2588,9 +2593,9 @@ dist/renderer/assets/index-DkZLBo2f.js       783.72 kB │ gzip: 213.99 kB
       "shutdownReceipt": null,
       "shutdownError": null,
       "lastOpenRequest": {
-        "path": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-jeUtdb",
-        "input": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-jeUtdb",
-        "receivedAt": "2026-11-14T18:35:59.184Z",
+        "path": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-cCDBMS",
+        "input": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-cCDBMS",
+        "receivedAt": "2026-11-14T18:44:14.894Z",
         "source": "second_instance",
         "notes": [
           "resolved: symlink or alias resolved before registration"
@@ -2601,9 +2606,9 @@ dist/renderer/assets/index-DkZLBo2f.js       783.72 kB │ gzip: 213.99 kB
       "runtime": {
         "state": "running",
         "reason": "running_after_renderer_crash",
-        "since": "2026-11-14T18:35:59.497Z",
-        "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-lifecycle-work-djrrPp",
-        "ownershipId": "rt_42743ba7595b",
+        "since": "2026-11-14T18:44:15.209Z",
+        "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-lifecycle-work-tUACJK",
+        "ownershipId": "rt_e9773901a82d",
         "port": 0,
         "engine": {
           "version": "smoke",
@@ -2641,9 +2646,9 @@ dist/renderer/assets/index-DkZLBo2f.js       783.72 kB │ gzip: 213.99 kB
       },
       "shutdownError": null,
       "lastOpenRequest": {
-        "path": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-jeUtdb",
-        "input": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-jeUtdb",
-        "receivedAt": "2026-11-14T18:35:59.184Z",
+        "path": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-cCDBMS",
+        "input": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-open-request-cCDBMS",
+        "receivedAt": "2026-11-14T18:44:14.894Z",
         "source": "second_instance",
         "notes": [
           "resolved: symlink or alias resolved before registration"
@@ -2654,8 +2659,8 @@ dist/renderer/assets/index-DkZLBo2f.js       783.72 kB │ gzip: 213.99 kB
       "runtime": {
         "state": "stopped",
         "reason": "stopped",
-        "since": "2026-11-14T18:36:26.008Z",
-        "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-lifecycle-work-djrrPp",
+        "since": "2026-11-14T18:44:41.717Z",
+        "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-lifecycle-work-tUACJK",
         "ownershipId": null,
         "port": null,
         "engine": null,
@@ -2682,13 +2687,13 @@ dist/renderer/assets/index-DkZLBo2f.js       783.72 kB │ gzip: 213.99 kB
   },
   "crash": {
     "tree": [
-      74903,
-      74904,
-      74905
+      83262,
+      83263,
+      83264
     ],
     "alive": [],
     "supervisor_alive": false,
-    "checked_after_ms": 2140,
+    "checked_after_ms": 2171,
     "settled": true
   }
 }
@@ -2699,152 +2704,152 @@ dist/renderer/assets/index-DkZLBo2f.js       783.72 kB │ gzip: 213.99 kB
       "name": "format:check",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 3557
+      "elapsed_ms": 3721
     },
     {
       "name": "lint",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 3040
+      "elapsed_ms": 3053
     },
     {
       "name": "typecheck",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 3763
+      "elapsed_ms": 3805
     },
     {
       "name": "catalog:check",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 151
+      "elapsed_ms": 148
     },
     {
       "name": "build:supervisor",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 2451
+      "elapsed_ms": 2415
     },
     {
       "name": "build:pty",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 1217
+      "elapsed_ms": 1179
     },
     {
       "name": "build:service",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 2035
+      "elapsed_ms": 1945
     },
     {
       "name": "test",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 14325
+      "elapsed_ms": 12844
     },
     {
       "name": "build",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 2742
+      "elapsed_ms": 2714
     },
     {
       "name": "smoke:board",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 2439
+      "elapsed_ms": 2455
     },
     {
       "name": "smoke:cost",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 2316
+      "elapsed_ms": 2343
     },
     {
       "name": "smoke:changes",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 2777
+      "elapsed_ms": 2915
     },
     {
       "name": "smoke:polish",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 2477
+      "elapsed_ms": 2492
     },
     {
       "name": "smoke:agents",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 4430
+      "elapsed_ms": 4651
     },
     {
       "name": "smoke:settings",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 3229
+      "elapsed_ms": 3205
     },
     {
       "name": "smoke:extensions",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 3136
+      "elapsed_ms": 3141
     },
     {
       "name": "smoke:terminal",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 11243
+      "elapsed_ms": 11266
     },
     {
       "name": "smoke:capability",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 6020
+      "elapsed_ms": 6041
     },
     {
       "name": "smoke:commands",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 4947
+      "elapsed_ms": 4934
     },
     {
       "name": "smoke:history",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 6561
+      "elapsed_ms": 6735
     },
     {
       "name": "smoke:memory",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 2386
+      "elapsed_ms": 2382
     },
     {
       "name": "smoke:failure",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 2933
+      "elapsed_ms": 2895
     },
     {
       "name": "smoke:p23",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 2654
+      "elapsed_ms": 2644
     },
     {
       "name": "smoke:lifecycle",
       "ok": true,
       "exit": 0,
-      "elapsed_ms": 32618
+      "elapsed_ms": 32649
     }
   ],
   "renderer_scan": {
     "ok": true,
     "files": 4,
     "patterns": [],
-    "bytes": 896908
+    "bytes": 897224
   },
-  "dist_bytes": 896908
+  "dist_bytes": 897224
 }

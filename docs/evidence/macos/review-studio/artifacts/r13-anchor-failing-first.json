@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "ok": false,
+  "checks": {
+    "catalog_rendered": true,
+    "studio_opened": true,
+    "timeline_rendered": true,
+    "scope_reports_stored_total": true,
+    "scope_reports_older_pages": true,
+    "newest_page_visible": true,
+    "older_page_not_yet_loaded": true,
+    "load_earlier_offered": true,
+    "jump_absent_at_live_edge": true,
+    "no_runtime_started": true,
+    "thread_selector_present": true,
+    "thread_selector_distinguishes": true,
+    "jump_appears_after_scrolling": true,
+    "older_page_loaded": true,
+    "anchor_scenario_exercised": true,
+    "anchor_card_stayed_mounted": false,
+    "scroll_anchor_held": true,
+    "second_older_page_loaded": true,
+    "older_page_reachable": true,
+    "older_page_rendered_once": true,
+    "jump_to_latest_returns_to_edge": true
+  },
+  "phases": [
+    {
+      "name": "initial",
+      "scope": "200 shown · 10054 stored · older pages available · 10 painted",
+      "cards": 10,
+      "newest_visible": true,
+      "older_absent": true,
+      "load_button": true,
+      "jump_button": false,
+      "connection": "EngineNot started",
+      "thread_options": [
+        "All threads",
+        "Archived work · archived",
+        "Local shell thread · current"
+      ],
+      "thread_disabled": false
+    },
+    {
+      "name": "anchor",
+      "before": {
+        "top": 3084.5,
+        "height": 22020,
+        "anchor_key": "thr_21a7b8c0c810cada:thr_21a7b8c0c810cada-9882",
+        "anchor_offset": -102,
+        "windowed": "true",
+        "rendered": 16,
+        "cards": 200
+      },
+      "after": {
+        "top": 25084.5,
+        "height": 44020,
+        "anchor_applications": 1,
+        "older_loads": 1,
+        "anchor_offset": -102,
+        "anchor_present": true,
+        "anchor_mode": "height",
+        "cards": 400
+      },
+      "delta": 0,
+      "height_delta": 0
+    },
+    {
+      "name": "reach",
+      "top": 0,
+      "height": 66023,
+      "cards": 600,
+      "rendered": 10,
+      "frames": [
+        9455,
+        9456,
+        9457,
+        9458,
+        9459,
+        9460,
+        9461,
+        9462,
+        9463,
+        9464
+      ],
+      "oldest": 9455
+    },
+    {
+      "name": "painted",
+      "frames": 10,
+      "repeated": 0,
+      "max": 1
+    },
+    {
+      "name": "jump",
+      "distance": 0,
+      "jump_button": false,
+      "scope": "600 shown · 10054 stored · older pages available · 10 painted"
+    }
+  ],
+  "project": "prj_84f07edd6565de2d",
+  "stored_total": 10054,
+  "screenshot": "docs/evidence/macos/review-studio/artifacts/r02-history-long-session.png",
+  "electron": {
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+}

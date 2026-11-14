@@ -2505,10 +2505,15 @@ async function runHistorySmoke(window: BrowserWindow): Promise<void> {
     // can never hold exactly (measured 115.5 px of drift on build 151). What the
     // reader actually experiences is the anchored card staying where it was, so
     // the check names that card and measures its offset from the pane's top.
+    // The reader is placed *inside* the newest page, not at its top edge. R13
+    // found the old position (300 px) landed the anchor above the insertion
+    // point, so the card could not move and the check passed without the
+    // correction ever running. At 3,000 px the anchored card is a long-session
+    // frame, and the page that loads next is inserted above it.
     await window.webContents.executeJavaScript(`(() => {
       const node = document.querySelector('[data-testid="studio-timeline"]');
       if (!node) return false;
-      node.scrollTop = 300;
+      node.scrollTop = 3000;
       node.dispatchEvent(new Event('scroll', { bubbles: true }));
       return true;
     })()`);
@@ -2561,11 +2566,18 @@ async function runHistorySmoke(window: BrowserWindow): Promise<void> {
         anchor_applications: Number(node.dataset.anchorApplications ?? -1),
         older_loads: Number(node.dataset.historyLoads ?? -1),
         anchor_offset: held ? held.getBoundingClientRect().top - paneTop : null,
+        anchor_present: Boolean(held),
+        anchor_mode: node.dataset.anchorMode ?? null,
         cards: Number(list?.getAttribute('data-cards') ?? -1),
       };
     })()`);
     const heightDelta =
       before && after ? Math.abs(after.top - before.top - (after.height - before.height)) : null;
+    // A check that cannot fail proves nothing. The viewport must actually have
+    // been moved by the page insertion for this scenario to be about the anchor
+    // at all, so the correction is asserted to have done work.
+    const corrected = before && after ? Math.abs(after.top - before.top) : 0;
+    checks.anchor_scenario_exercised = corrected > 1000 && before?.cards === 200;
     const anchorDelta =
       before?.anchor_offset !== null &&
       before?.anchor_offset !== undefined &&
@@ -2574,13 +2586,14 @@ async function runHistorySmoke(window: BrowserWindow): Promise<void> {
         ? Math.abs(after.anchor_offset - before.anchor_offset)
         : Number.NaN;
     phase("anchor", { before, after, delta: anchorDelta, height_delta: heightDelta });
-    checks.scroll_anchor_held = Number.isFinite(anchorDelta) && anchorDelta <= 2;
-    checks.older_page_rendered_once = await window.webContents.executeJavaScript(`(() => {
-      const keys = Array.from(document.querySelectorAll('[data-card-key]')).map((card) =>
-        card.getAttribute('data-card-key'),
-      );
-      return keys.length > 0 && new Set(keys).size === keys.length;
-    })()`);
+    // The correction must run on the card, not on an estimate: the recorded card
+    // has to still exist after 200 cards were inserted above it. That is what
+    // makes the identity path reachable, and it is the check that fails if the
+    // console lets the window unmount the reader's card.
+    checks.anchor_card_stayed_mounted =
+      after?.anchor_present === true && after?.anchor_mode === "identity";
+    checks.scroll_anchor_held =
+      after?.anchor_present === true && Number.isFinite(anchorDelta) && anchorDelta <= 2;
 
     // A second page proves the cursor continues rather than reloading one fixed
     // window. The projected list is the durable proof: a windowed console does
@@ -2621,6 +2634,30 @@ async function runHistorySmoke(window: BrowserWindow): Promise<void> {
     // third page is reachable rather than merely counted.
     checks.older_page_reachable =
       reach?.rendered > 0 && reach?.oldest !== null && reach.oldest <= 9650;
+    // R13: the painted older page is proven where it is actually painted — at
+    // the oldest end — by counting frames. A frame that appeared twice would be
+    // a page merged with itself; this counts what is on screen, not what the
+    // list claims. (The earlier form of this check asserted key uniqueness,
+    // which React and the merge in `projectThreadTimeline` already guarantee:
+    // it could not fail.)
+    const painted = await window.webContents.executeJavaScript(`(() => {
+      const node = document.querySelector('[data-testid="studio-timeline"]');
+      if (!node) return null;
+      const text = node.textContent ?? '';
+      const counts = new Map();
+      for (const match of text.matchAll(/history frame (\\d+)/g)) {
+        counts.set(match[1], (counts.get(match[1]) ?? 0) + 1);
+      }
+      const values = [...counts.values()];
+      return {
+        frames: counts.size,
+        repeated: values.filter((value) => value > 1).length,
+        max: values.length > 0 ? Math.max(...values) : 0,
+      };
+    })()`);
+    phase("painted", painted);
+    checks.older_page_rendered_once =
+      painted?.frames >= 5 && painted?.repeated === 0 && painted?.max === 1;
 
     await window.webContents.executeJavaScript(
       `document.querySelector('[data-testid="studio-jump-latest"]')?.click(); true`,
@@ -6480,17 +6517,34 @@ if (!gotLock) {
           });
           while (seq <= total) {
             const frame = seq;
+            // R13: one block of frames in the second page is deliberately tall.
+            // Prepending a page whose cards differ in height from the ones the
+            // console has already measured is exactly the case a height-based
+            // anchor gets wrong: those cards are above the viewport, so their
+            // height is an estimate, and the error is the whole page's worth.
+            // Without heterogeneity the old height form happens to be exact here
+            // and the check could not fail.
+            const tall = frame >= 9_700 && frame < 9_750;
             await productState.recordEvent({
               threadId: thread.id,
               seq,
               kind: "status.note",
-              payload: { note: `history frame ${frame}` },
+              payload: {
+                note: tall
+                  ? `history frame ${frame}\n${Array.from({ length: 24 }, (_, line) => `  · detail line ${line + 1} for frame ${frame}`).join("\n")}`
+                  : `history frame ${frame}`,
+              },
               timestamp: new Date(start + seq * 10).toISOString(),
             });
             seq += 1;
           }
           // A second, older thread so the selector has to distinguish the
-          // current conversation from archived history.
+          // current conversation from archived history. R13: the frames are
+          // timestamped *after* the long session, so this block sorts to the
+          // bottom of the merged list. Timestamping it first put four cards at
+          // the very top, which is where the anchor test scrolls — the anchor
+          // then sat above the point where an older page is inserted, so the
+          // assertion passed without the correction ever running.
           const archived = await productState.upsertThread({
             id: "thr_history_archived",
             projectId: opened.project.id,
@@ -6502,7 +6556,7 @@ if (!gotLock) {
               seq: index,
               kind: "status.note",
               payload: { note: `archived frame ${index}` },
-              timestamp: new Date(start + index * 10).toISOString(),
+              timestamp: new Date(start + (total + 10 + index) * 10).toISOString(),
             });
           }
         }
