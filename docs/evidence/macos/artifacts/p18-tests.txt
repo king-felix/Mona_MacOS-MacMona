@@ -1,3 +1,5 @@
+# Captured output. The local account name and absolute home paths were normalized to <user> and /Users/<user> on 2026-11-13 for publication; every other line is as captured.
+# (The runner's own working directory is the project root.)
 
 [1m[30m[46m RUN [49m[39m[22m [36mv5.1.0 [39m[90m/Users/<user>/DS_Projects/Mona[39m
 

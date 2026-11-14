@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-14T03:44:42.354Z",
+  "generated_utc": "2026-11-14T04:03:12.077Z",
   "git": {
     "available": true,
-    "commit": "7e712732a7b520191d2ca469a0dee061c3415857",
+    "commit": "10d8375e9644c0563178a9d4b645d1a0ef8c999a",
     "dirty": true
   },
-  "digest": "f1c73bfe2ae2ff3cbcdbf7be39bc72cdea02879ada69cbc0addec4121bfbc150",
+  "digest": "05ec1dee40119d8537baba2697d6490e3effc23d6e0097964aa3611f30c76f1a",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,7 +15,7 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "f2579618235f9c712b29b651fa5baf43bba51cf0811e3af0a60d155465a50a48",
+      "sha256": "4fc4a2042ce7bbc3ad03054bd8aac9d69edfa084066e500562c285eee3584895",
       "bytes": 139399
     },
     {
@@ -100,8 +100,8 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p01-live.json",
-      "sha256": "f41d21286a15c8f08b3b780f3237c55e74faddd1abaafcfe48e946fef085ba73",
-      "bytes": 9330
+      "sha256": "7139ea9f21be4868bcf407dbe8649babba3a9aa55921d81190f044488aba068a",
+      "bytes": 9310
     },
     {
       "path": "docs/evidence/macos/artifacts/p01-native-binary.txt",
@@ -645,8 +645,8 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p16-p17-ci.txt",
-      "sha256": "831dd687c76845f5bd0e010882af0f2a6fd9009e9e9d3da92ac473477a3a43fd",
-      "bytes": 31720
+      "sha256": "0b73b521cdd8a14b72b4dd8c3b5f1250361c12f5c3e37bae3188a8a857e4c470",
+      "bytes": 31940
     },
     {
       "path": "docs/evidence/macos/artifacts/p16-settings-route.png",
@@ -700,7 +700,7 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p18-terminal-smoke.json",
-      "sha256": "8ceb4751f14e301b3d786acbe9caabbaac52b670cc6a90d36ab95fa1874bf265",
+      "sha256": "76a4ac562e61ee403bda6c6a3fb1f2a09269f36e10a291fa3868e8b65dd7ccec",
       "bytes": 3905
     },
     {
@@ -710,8 +710,8 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p18-tests.txt",
-      "sha256": "e5c0dc287c44886770e9307c9d29abc27f2c521bf3d52d99a45d1fc0bafe35d0",
-      "bytes": 8127
+      "sha256": "40f6c6cf90414ee9fe936e7e125be1d60eef3009ed800e77a0916313658eec4b",
+      "bytes": 8359
     },
     {
       "path": "docs/evidence/macos/artifacts/p19-ci.txt",

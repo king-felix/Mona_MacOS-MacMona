@@ -259,7 +259,7 @@ try {
   facts.log = { available: log.available, path: log.path, bytes: log.bytes };
   checks.log_available = log.available === true;
   checks.log_redacts_home = !log.text.includes(homedir());
-  checks.log_redacts_key = !/sk-live-/.test(log.text);
+  checks.log_redacts_key = !/sk-fixture-notreal01/.test(log.text);
   checks.log_is_read_only = !("write" in log);
   const missingLog = await manager.log({ projectId: "prj_ffffffffffffffff" });
   checks.log_missing_is_stated = missingLog.available === false && Boolean(missingLog.reason);

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 732,
+  "revision": 738,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -136,7 +136,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p01-live.json",
-          "sha256": "f41d21286a15c8f08b3b780f3237c55e74faddd1abaafcfe48e946fef085ba73"
+          "sha256": "7139ea9f21be4868bcf407dbe8649babba3a9aa55921d81190f044488aba068a"
         },
         {
           "path": "docs/evidence/macos/artifacts/p01-economics.json",
@@ -1821,7 +1821,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p16-p17-ci.txt",
-          "sha256": "831dd687c76845f5bd0e010882af0f2a6fd9009e9e9d3da92ac473477a3a43fd"
+          "sha256": "0b73b521cdd8a14b72b4dd8c3b5f1250361c12f5c3e37bae3188a8a857e4c470"
         }
       ],
       "blocker_ids": []
@@ -1862,7 +1862,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p16-p17-ci.txt",
-          "sha256": "831dd687c76845f5bd0e010882af0f2a6fd9009e9e9d3da92ac473477a3a43fd"
+          "sha256": "0b73b521cdd8a14b72b4dd8c3b5f1250361c12f5c3e37bae3188a8a857e4c470"
         }
       ],
       "blocker_ids": []
@@ -1900,7 +1900,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-terminal-smoke.json",
-          "sha256": "8ceb4751f14e301b3d786acbe9caabbaac52b670cc6a90d36ab95fa1874bf265"
+          "sha256": "76a4ac562e61ee403bda6c6a3fb1f2a09269f36e10a291fa3868e8b65dd7ccec"
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capability-smoke.json",
@@ -1920,7 +1920,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-tests.txt",
-          "sha256": "e5c0dc287c44886770e9307c9d29abc27f2c521bf3d52d99a45d1fc0bafe35d0"
+          "sha256": "40f6c6cf90414ee9fe936e7e125be1d60eef3009ed800e77a0916313658eec4b"
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-ci.txt",
@@ -1952,7 +1952,7 @@
         },
         {
           "path": "scripts/terminal-smoke.mjs",
-          "sha256": "0fcccd1873775486d0bdb77f9e2f24684d70ed88f37496ce1ed8feb4beedf867"
+          "sha256": "eb44e536b45a853f241d2f68bc1b25464873734ef390d6827db972f4fa900c84"
         },
         {
           "path": "scripts/capability-smoke.mjs",
@@ -2553,7 +2553,7 @@
   "next_eligible_prompts": [
     "P14"
   ],
-  "last_checkpoint_utc": "2026-11-14T03:44:42.224Z",
+  "last_checkpoint_utc": "2026-11-14T04:03:11.986Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

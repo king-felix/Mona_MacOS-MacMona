@@ -1,3 +1,5 @@
+# Captured output. The local account name and absolute home paths were normalized to <user> and /Users/<user> on 2026-11-13 for publication; every other line is as captured.
+# (The runner's own working directory is the project root.)
 
 > mona@0.1.0-p02 ci
 > node scripts/ci.mjs

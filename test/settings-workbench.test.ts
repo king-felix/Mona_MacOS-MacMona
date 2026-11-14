@@ -24,7 +24,7 @@ import { openTestStore } from "./helpers/state";
 const HOME = process.env.HOME ?? "/Users/test";
 // Built at run time so a source scanner and a diagnostics redactor are both
 // exercised by the same value without a literal key in the repository.
-const SECRET_KEY = ["sk", "live", "abcdef123456"].join("-");
+const SECRET_KEY = ["sk", "fixture", "notreal01"].join("-");
 
 function providerCatalog(): EngineProviderCatalog {
   return {
@@ -543,12 +543,15 @@ describe("diagnostics redaction", () => {
   it("redacts the home directory, provider keys, bearer tokens, and env values", () => {
     const raw = [
       `config_path = "${HOME}/.codewhale/config.toml"`,
-      "api_key = sk-fixture-notreal01",
+      `api_key = ${SECRET_KEY}`,
       "Authorization: Bearer abcdefghijklmnop",
       "DEEPSEEK_API_KEY=super-secret-value",
       "https://user:pass@example.com/v1?token=abc",
     ].join("\n");
     const result = redactDiagnostics(raw, HOME);
+    // Guard against a vacuous pass: the fixture must really be present, or the
+    // "not.toContain" assertions below prove nothing.
+    expect(raw).toContain(SECRET_KEY);
     expect(result.text).not.toContain(HOME);
     expect(result.text).toContain("~/.codewhale/config.toml");
     expect(result.text).not.toContain(SECRET_KEY);
