@@ -1779,3 +1779,47 @@ and the smoke measures it rather than asserting it is pretty.
   time, and pages, API caches, forks, and clones made before the rewrite keep
   their own copies. Rewriting history also means any clone taken earlier no
   longer shares ancestry; it must be re-cloned rather than pulled.
+
+## D-102 — Public repository: gate turned green, and the security posture read through `gh`
+
+- **Date:** 2026-11-13 (operator: "carry out your recommended actions that are safe")
+- **Context:** `gh` authenticated as `king-felix` over SSH. The account's only SSH
+  key is labeled `Cline Is My Boy` (2026-10-24) and its fingerprint matches
+  `~/.ssh/id_ed25519.pub`, so the key Mona pushes with is that entry. No
+  `AGENTS.key` file exists; a second registration of the same public key is
+  refused by GitHub, which is why the label did not change. Victor confirmed the
+  old label is his own and should stay.
+- **Gate:** `npm run ci` had been red at its first step (`format:check`) on four
+  files inherited from an older Prettier — `adapter.ts`, `ipc.ts`,
+  `Settings.tsx`, `runtime-process.test.ts`. `git diff -w` shows line wrapping,
+  trailing commas, and one import reflow; no logic. After formatting, the full
+  gate passes: **exit 0, 21/21 steps**, including three native builds, 791 tests,
+  and 13 smokes (lifecycle 34 s).
+- **Run records:** the smokes regenerate their own artifacts (HANDOFF items
+  97/98/117). Their evidence hashes were re-recorded in the same commit; no
+  assertion was removed.
+- **Security posture, measured through the API rather than assumed:**
+  - secret scanning **enabled**, push protection **enabled**, **0 alerts** in
+    open and resolved state. The prediction that GitHub would flag the
+    historical fake fixtures was **wrong**, and the measurement wins.
+  - vulnerability alerts were **disabled**; enabled now. That surfaced **2
+    medium** advisories: `minimatch` `>=7.0.0, <11.0.1` and `glob`
+    `>=9.0.0, <=14.0.1`.
+  - Both are **dev-only transitive** dependencies
+    (`@electron/packager → @electron/asar`, `eslint`, `typescript-eslint`). Mona's
+    shipped runtime dependencies are `react`, `react-dom`, `zod`, so a recipient
+    of the packaged app is not exposed. Fixing them means a semver-major jump
+    (minimatch 10→11, glob 13→14) inside the linting/packaging toolchain, which
+    is a dependency decision with breakage risk, not a safe unilateral edit.
+    **Recorded, not fixed.**
+  - `secret_scanning_validity_checks` and
+    `secret_scanning_non_provider_patterns` were requested twice and remain
+    **disabled**; GitHub accepted the request without applying it. Reported as
+    attempted-and-refused rather than claimed.
+  - No CI workflow exists (0 workflows). Adding one needs a macOS runner for the
+    Swift service and pty helper; that is unverified here, so no workflow was
+    invented to turn a badge green.
+- **Not done, deliberately:** deleting and recreating the repository to purge the
+  unreachable-by-ref commits (destructive, needs `delete_repo`), and deleting
+  `/tmp/git-backup-pre-rewrite` (the only local copy of the pre-rewrite history).
+  Both need the operator's word.
