@@ -1,7 +1,9 @@
 # Handoff — Mona macOS build
 
 **Last checkpoint:** 2026-11-12 (P23) · `monabuild validate` clean ·
-revision 508 · verified commit `f755d8a`
+revision 745 · code tip `5b15c66`, ledger commit `df1aeac`
+**History rewritten 2026-11-13 (D-101)** — old SHAs are gone. This section's
+original `f755d8a` is now `6a492d0`; the full mapping is in D-101.
 **Current prompt:** P23 completed. `monabuild next` now reports **P22**
 (signing/notarization/release automation) and **P25** (shared-core/Windows
 coordination) as eligible. P24 and P26–P27 wait on P22. P22 needs the Developer

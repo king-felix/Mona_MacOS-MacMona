@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 745,
+  "revision": 747,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -2210,7 +2210,7 @@
         },
         {
           "path": ".mona/build-macos/HANDOFF.md",
-          "sha256": "0616b8397bb787c22247d3dac00b63b1da46bfa2c949e1a9706b352fde65f3a2"
+          "sha256": "2232703dcef19e496f5e9fa3de746bcbe357ec3fca16b9e649590419d3ff7ad7"
         }
       ],
       "blocker_ids": []
@@ -2428,7 +2428,7 @@
         },
         {
           "path": ".mona/build-macos/HANDOFF.md",
-          "sha256": "0616b8397bb787c22247d3dac00b63b1da46bfa2c949e1a9706b352fde65f3a2"
+          "sha256": "2232703dcef19e496f5e9fa3de746bcbe357ec3fca16b9e649590419d3ff7ad7"
         },
         {
           "path": "test/work-git.test.ts",
@@ -2553,7 +2553,7 @@
   "next_eligible_prompts": [
     "P14"
   ],
-  "last_checkpoint_utc": "2026-11-14T04:04:28.259Z",
+  "last_checkpoint_utc": "2026-11-14T04:05:32.970Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",
