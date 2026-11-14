@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 1296,
+  "revision": 1305,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -1819,8 +1819,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p16-settings-smoke.json",
-          "sha256": "162725ca264d0c681c9e8024c72abb62b56405d0bccffe9909c3de0b03cedf02",
-          "note": "R13/R14 2026-11-14: this is a run record, so npm run ci rewrote it (documented class: items 97/98/117). Re-recorded after the 24/24-step CI run; the artifact is a genuine report of that run, not a fixture."
+          "sha256": "78fdb38ed2ac2cead9e13dfc64d3dfa92b625ae6566c9f1ada9e39dc03ccf327",
+          "note": "P24 2026-11-14: this is a run record, so a re-run rewrites it (documented class, product items 97/98/117). Re-recorded after the post-refinement CI run passed 24/24 steps (1,121 tests in 101 files)."
         },
         {
           "path": "docs/evidence/macos/artifacts/p16-settings-route.png",
@@ -1862,8 +1862,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p17-extensions-smoke.json",
-          "sha256": "f54f0536933a74843c2c5d0d084aa2db759bccd6b3246983440caa364069f45c",
-          "note": "R13/R14 2026-11-14: this is a run record, so npm run ci rewrote it (documented class: items 97/98/117). Re-recorded after the 24/24-step CI run; the artifact is a genuine report of that run, not a fixture."
+          "sha256": "4e956141de5a75523638cbb5bc14677047626423fdb23caa9442a22764ed8ccd",
+          "note": "P24 2026-11-14: this is a run record, so a re-run rewrites it (documented class, product items 97/98/117). Re-recorded after the post-refinement CI run passed 24/24 steps (1,121 tests in 101 files)."
         },
         {
           "path": "docs/evidence/macos/artifacts/p17-settings-extensions.png",
@@ -1910,23 +1910,23 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-terminal-smoke.json",
-          "sha256": "e6b5a2feb8a4a66ccbbcce115782975e041cfe2626eb996f8507fd2559016e50",
-          "note": "R13/R14 2026-11-14: this is a run record, so npm run ci rewrote it (documented class: items 97/98/117). Re-recorded after the 24/24-step CI run; the artifact is a genuine report of that run, not a fixture."
+          "sha256": "af5d49ec8bdad7ab621bb04346ac135c4c5862a32f4442e100a95b93f0f4e810",
+          "note": "P24 2026-11-14: this is a run record, so a re-run rewrites it (documented class, product items 97/98/117). Re-recorded after the post-refinement CI run passed 24/24 steps (1,121 tests in 101 files)."
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capability-smoke.json",
-          "sha256": "80aac3e1b8daa0d47fba7a11b18a04ad45c03e576d133f8c6f7e52b887e17d18",
-          "note": "R13/R14 2026-11-14: this is a run record, so npm run ci rewrote it (documented class: items 97/98/117). Re-recorded after the 24/24-step CI run; the artifact is a genuine report of that run, not a fixture."
+          "sha256": "9e7b983eaab36da6ee37982dd7ae1f54cb029d40ac25c839bfe00ab0f0d61696",
+          "note": "P24 2026-11-14: this is a run record, so a re-run rewrites it (documented class, product items 97/98/117). Re-recorded after the post-refinement CI run passed 24/24 steps (1,121 tests in 101 files)."
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capability-coverage.md",
-          "sha256": "48c8ce757cdbd71e76c2acb7c8526bee6a2197ae58dc29f73ca881779e654480",
-          "note": "R13/R14 2026-11-14: this is a run record, so npm run ci rewrote it (documented class: items 97/98/117). Re-recorded after the 24/24-step CI run; the artifact is a genuine report of that run, not a fixture."
+          "sha256": "192750375674624fdc06d7da9d3bc12a56e37f2372c783eaec6973fa634c97d9",
+          "note": "P24 2026-11-14: this is a run record, so a re-run rewrites it (documented class, product items 97/98/117). Re-recorded after the post-refinement CI run passed 24/24 steps (1,121 tests in 101 files)."
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capability-coverage.json",
-          "sha256": "176b8c9330db606a8ee8c11060d83f83443fc91cba504af1f27b19bf8200eb07",
-          "note": "R13/R14 2026-11-14: this is a run record, so npm run ci rewrote it (documented class: items 97/98/117). Re-recorded after the 24/24-step CI run; the artifact is a genuine report of that run, not a fixture."
+          "sha256": "3d076950ae028fe184e5a96a34938bebf6632841f449372c9d58c9eaa6e2e3cc",
+          "note": "P24 2026-11-14: this is a run record, so a re-run rewrites it (documented class, product items 97/98/117). Re-recorded after the post-refinement CI run passed 24/24 steps (1,121 tests in 101 files)."
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-shell-smoke.json",
@@ -2154,8 +2154,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p19-memory-smoke.json",
-          "sha256": "eabf18f95564198f9a592ffe1e2829a2981d209906e0f09deb3dbc350bdbfc7d",
-          "note": "R13/R14 2026-11-14: this is a run record, so npm run ci rewrote it (documented class: items 97/98/117). Re-recorded after the 24/24-step CI run; the artifact is a genuine report of that run, not a fixture."
+          "sha256": "8d38dca791059387b69b9486a7122d78b8e037849071556313bebb4fbb3527f6",
+          "note": "P24 2026-11-14: this is a run record, so a re-run rewrites it (documented class, product items 97/98/117). Re-recorded after the post-refinement CI run passed 24/24 steps (1,121 tests in 101 files)."
         },
         {
           "path": "docs/evidence/macos/artifacts/p19-ci.txt",
@@ -2289,8 +2289,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p20-failure-smoke.json",
-          "sha256": "616443fe7e20ed8b006edb4edf0e30caebe108eac3087ff979d5a463e0aa9a71",
-          "note": "R13/R14 2026-11-14: this is a run record, so npm run ci rewrote it (documented class: items 97/98/117). Re-recorded after the 24/24-step CI run; the artifact is a genuine report of that run, not a fixture."
+          "sha256": "6bd0fcb05ef2b7e8a9eae2819f39d9925c574cecda6d5aceb4a0f605fb615d5e",
+          "note": "P24 2026-11-14: this is a run record, so a re-run rewrites it (documented class, product items 97/98/117). Re-recorded after the post-refinement CI run passed 24/24 steps (1,121 tests in 101 files)."
         },
         {
           "path": "docs/evidence/macos/artifacts/p20-lifecycle-crash.json",
@@ -2576,8 +2576,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p23-lifecycle-smoke.json",
-          "sha256": "b69f0d12b85c026f67ae45b4921446fcf3d174863ccdff3917d588eb2b4cdf7b",
-          "note": "R13/R14 2026-11-14: this is a run record, so npm run ci rewrote it (documented class: items 97/98/117). Re-recorded after the 24/24-step CI run; the artifact is a genuine report of that run, not a fixture."
+          "sha256": "1a13bfa94ad41680b4a42c98c912f84e41c9788a81baf2aa98c7cc5034d8bf95",
+          "note": "P24 2026-11-14: this is a run record, so a re-run rewrites it (documented class, product items 97/98/117). Re-recorded after the post-refinement CI run passed 24/24 steps (1,121 tests in 101 files)."
         },
         {
           "path": "docs/evidence/macos/artifacts/p23-uninstall-rehearsal.json",
@@ -2718,7 +2718,7 @@
     "P22",
     "P25"
   ],
-  "last_checkpoint_utc": "2026-11-14T18:33:06.164Z",
+  "last_checkpoint_utc": "2026-11-14T18:37:08.524Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

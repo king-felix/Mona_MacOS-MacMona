@@ -37,7 +37,7 @@
     "attempts": ".mona/build-macos/attempts.jsonl",
     "requirement_registry": "docs/requirements-macos.json"
   },
-  "revision": 106,
+  "revision": 111,
   "current_task": "R15",
   "current_task_status": "completed",
   "tasks": {
@@ -603,8 +603,8 @@
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r02-history-long-smoke.json",
-          "sha256": "bc38a50ee4c12dc157a89ec977aabfbd513897725de51621dffea61f1ee8272a",
-          "note": "R13 2026-11-14: the smoke was re-run after fixing the anchor regression it had been failing since R11; 19/19, delta 0, fresh capture. The run record and capture are the current bytes."
+          "sha256": "6eca07fe609b4f76bf10266feb6e92b75b01edd3f1a9296be9fc66caa05fc815",
+          "note": "P24 2026-11-14: rewritten by the post-refinement CI run (captures and run records regenerate). Current bytes; the smoke still reports 19/19 with delta 0."
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r02-shell-smoke.json",
@@ -612,8 +612,8 @@
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r02-history-long-session.png",
-          "sha256": "093a04bd37093e2dd75395e3d8922c7e2fd091388a9a62b748fbf9f4fe07fa9c",
-          "note": "R13/R15 2026-11-14: rewritten by the CI smoke run (the capture regenerates on each run). Current bytes, same screen and same assertions."
+          "sha256": "746a4725f2c32d50ba77e97fa5636431385f6b41eab31ef55682317744295722",
+          "note": "P24 2026-11-14: rewritten by the post-refinement CI run (captures and run records regenerate). Current bytes; the smoke still reports 19/19 with delta 0."
         }
       ],
       "attempt_problem_ids": [],
@@ -898,13 +898,13 @@
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r03-command-menu.png",
-          "sha256": "a4dfe87923e08e548cf4e090bc51b8d2d06fcdc6a2602685f97bb3c69ff47cbe",
-          "note": "R13/R15 2026-11-14: rewritten by the CI smoke run (captures regenerate on each run). Current bytes, same screens and same assertions."
+          "sha256": "7929397d9d93483406e1c2ef517df3832097a17bca72d452dee2c841672440ba",
+          "note": "P24 2026-11-14: rewritten by the post-refinement CI run. Current bytes; same screens, 26/26 checks."
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r03-command-menu-200.png",
-          "sha256": "884b1f59e6aa88d37e63570f3e4b9dc2edd72a8e0ce332ef0f22b062c6445875",
-          "note": "R13/R15 2026-11-14: rewritten by the CI smoke run (captures regenerate on each run). Current bytes, same screens and same assertions."
+          "sha256": "4a6426726272a62987590a87c8a4359d644928f762bbe0bf5350f8667a3771d2",
+          "note": "P24 2026-11-14: rewritten by the post-refinement CI run. Current bytes; same screens, 26/26 checks."
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r03-shell-smoke.json",
@@ -2087,9 +2087,9 @@
         },
         {
           "path": "src/renderer/shell/Studio.tsx",
-          "sha256": "d2bf5e6f1c8139c4114f0734c113b4b0cd1b3fa4c01a0ec8780d67b05cec72c0",
+          "sha256": "84fe2e141f67f85fdfb4b849731e602c740a54f7a54a5cd103c16d09a091b4e4",
           "state": "current",
-          "note": "R13 2026-11-14: R13 fixed the history anchor this task windowed (card-identity pin instead of a height identity) and re-measured the smoke against the reader-visible contract."
+          "note": "R13 2026-11-14: final anchor refinement (settle on convergence; a live frame mid-pin re-pins from an absolute target rather than cancelling). Three smoke runs, 19/19, delta 0."
         },
         {
           "path": "src/renderer/shell/Shell.tsx",
@@ -2781,8 +2781,8 @@
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r15-ci.txt",
-          "sha256": "e2a879c6d2bec4b6cd152a5ed93d35291d2ec15628ec80996cdeb1ed77facc2c",
-          "note": "R15 2026-11-14: the review matrix, the owner guide with every shortcut and distinction, and the 24/24-step CI run the handoff cites."
+          "sha256": "6da56c9199d300cd61a1b36f5751d7f2eabfbc0f6199137061f03c215ae821a3",
+          "note": "P24 2026-11-14: replaced with the post-refinement CI run — 24/24 steps, 1,121 tests in 101 files — so the handoff cites the run that includes the final anchor."
         }
       ],
       "attempt_problem_ids": [],
@@ -3019,7 +3019,7 @@
       ]
     }
   },
-  "last_checkpoint_utc": "2026-11-14T18:33:11.132Z",
+  "last_checkpoint_utc": "2026-11-14T18:37:11.834Z",
   "notes": [
     "R11 completed: bounded console rendering with measured windowing, a nine-screen axe pass with four real a11y defects fixed, reduced motion and 200% scale measured, three visual regressions fixed, and the independent review's one blocker and three majors fixed with tests proven to fail on the old code. The memory budget is exceeded by the runtime floor and carried as a derived, named exception."
   ]

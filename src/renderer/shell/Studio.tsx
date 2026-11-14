@@ -1535,10 +1535,17 @@ export function StudioScreen(props: StudioProps): JSX.Element {
     const node = timelineRef.current;
     if (!anchor || !node) return;
     if ((history?.olderLoads ?? 0) === anchor.loads) return;
-    anchorRef.current = null;
+    // The anchor is cleared only when this pin has settled, not on entry: the
+    // effect also runs on every live frame and on the new slice's own re-render,
+    // and re-pinning from an absolute target is idempotent. Clearing it early
+    // would let a single engine event that arrives mid-measurement cancel the
+    // correction and leave the reader short again.
     let cancelled = false;
     let frames = 0;
     let last = Number.NaN;
+    const settle = (): void => {
+      anchorRef.current = null;
+    };
     const pin = (): void => {
       if (cancelled) return;
       const card = anchor.key
@@ -1546,18 +1553,23 @@ export function StudioScreen(props: StudioProps): JSX.Element {
         : null;
       if (!card) {
         node.scrollTop = node.scrollHeight - anchor.height + anchor.top;
+        settle();
         return;
       }
       const paneTop = node.getBoundingClientRect().top;
       const offset = card.getBoundingClientRect().top - paneTop + node.scrollTop;
       const target = Math.max(0, offset - anchor.viewportOffset);
-      if (Number.isFinite(last) && Math.abs(target - node.scrollTop) < 0.5) return;
+      const converged = Number.isFinite(last) && Math.abs(target - node.scrollTop) < 0.5;
       last = target;
       node.scrollTop = target;
       frames += 1;
-      if (frames < 4) {
-        requestAnimationFrame(() => requestAnimationFrame(() => pin()));
+      // Four frames is the bound: the new slice's cards have measured themselves
+      // by then, so the remaining difference is zero, not an estimate.
+      if (converged || frames >= 4) {
+        settle();
+        return;
       }
+      requestAnimationFrame(() => requestAnimationFrame(() => pin()));
     };
     pin();
     // Written to the DOM rather than React state: counting this must not cause
