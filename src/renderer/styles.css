@@ -299,8 +299,13 @@ a {
 }
 
 .brand-mark {
-  font-size: 20px;
-  color: var(--primary);
+  /* The owner's artwork, drawn at the size of the old glyph. It carries its own
+     rounded-square background and transparent margin, so no radius or colour
+     is applied here — anything added would fight the asset. */
+  width: 24px;
+  height: 24px;
+  flex: none;
+  display: block;
 }
 
 .brand-name {

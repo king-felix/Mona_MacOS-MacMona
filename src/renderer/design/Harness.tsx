@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, type JSX } from "react";
+import monaMark from "../assets/mona-mark.png";
 import { HARNESS_LABEL } from "./fixtures";
 import {
   Badge,
@@ -223,9 +224,14 @@ export function Harness(): JSX.Element {
 
       <aside className="rail" aria-label="Primary">
         <div className="rail__brand">
-          <span className="brand-mark" aria-hidden="true">
-            ◐
-          </span>
+          <img
+            className="brand-mark"
+            src={monaMark}
+            alt=""
+            aria-hidden="true"
+            width={24}
+            height={24}
+          />
           <span className="brand-name">Mona</span>
           <span className="brand-tag">harness</span>
         </div>

@@ -396,6 +396,10 @@ async function buildApp({ electronVersion, icon }) {
   // the installer show Mona rather than "Electron".
   const resources = join(appBundle, "Contents/Resources");
   copyFileSync(icon, join(resources, "Mona.icns"));
+  // The same mark in the Windows container. macOS never reads an `.ico`, but the
+  // logo is asked for in both formats, so it ships instead of existing only in
+  // the build directory.
+  copyFileSync(join(dirname(icon), "Mona.ico"), join(resources, "Mona.ico"));
   rmSync(join(resources, "electron.icns"), { force: true });
   run(TOOLS.plutil, [
     "-replace",
@@ -645,6 +649,10 @@ function signService(serviceBundle, identity) {
 
 function componentList(resources, engine) {
   const entries = [
+    // The app mark, sealed like any other payload byte: the bundle icon is what
+    // Finder, About, and the Dock draw.
+    ["Mona.icns", "image"],
+    ["Mona.ico", "image"],
     ["engine/codewhale", "engine"],
     ["native/mona-supervisor", "native-helper"],
     ["native/mona-pty", "native-helper"],

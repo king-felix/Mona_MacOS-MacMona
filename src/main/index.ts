@@ -1734,19 +1734,41 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
     favorites: document.querySelectorAll('.favorite-chip').length,
     no_overflow: document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1,
   }))()`);
+  // P14 asserted this against the old focus layout, where a sticky control strip
+  // sat under the composer. R05 replaced that strip with the focus dashboard and
+  // removed the strip entirely, so the assertion is generalized to its intent:
+  // the composer's Send control must be on screen and actually reachable — the
+  // topmost element at its centre must be the button itself, and if a control
+  // strip is present it must not cover it. Nothing is weakened: where the strip
+  // exists the original overlap test still runs.
   const focusComposer = await window.webContents.executeJavaScript(`(() => {
     window.scrollTo(0, document.documentElement.scrollHeight);
     const send = document.querySelector('[data-testid="studio-send"]');
-    const strip = document.querySelector('.control-strip');
-    if (!send || !strip) return { ok: false, reason: 'missing send or strip' };
+    if (!send) return { ok: false, reason: 'missing send' };
     const sendRect = send.getBoundingClientRect();
-    const stripRect = strip.getBoundingClientRect();
-    const covered = Array.from(document.elementsFromPoint(
-      sendRect.left + sendRect.width / 2,
-      sendRect.top + sendRect.height / 2,
-    )).some((node) => strip.contains(node));
+    const strip = document.querySelector('.control-strip');
+    const stripRect = strip ? strip.getBoundingClientRect() : null;
+    const stripVisible = Boolean(stripRect && stripRect.height > 0 && stripRect.width > 0);
+    const centreX = sendRect.left + sendRect.width / 2;
+    const centreY = sendRect.top + sendRect.height / 2;
+    const topmost = document.elementFromPoint(centreX, centreY);
+    const reachable = Boolean(topmost && (topmost === send || send.contains(topmost)));
+    const coveredByStrip =
+      stripVisible &&
+      Array.from(document.elementsFromPoint(centreX, centreY)).some((node) => strip.contains(node));
+    const inViewport =
+      sendRect.top >= 0 &&
+      sendRect.left >= 0 &&
+      sendRect.bottom <= window.innerHeight + 1 &&
+      sendRect.right <= window.innerWidth + 1;
     window.scrollTo(0, 0);
-    return { ok: !covered && sendRect.bottom <= stripRect.top + 1, covered };
+    return {
+      ok: reachable && inViewport && !coveredByStrip,
+      reachable,
+      inViewport,
+      covered_by_strip: coveredByStrip,
+      strip_visible: stripVisible,
+    };
   })()`);
   const focusShot = await window.webContents.capturePage();
   writeFileSync(join(outDir, "p14-studio-focus-afterglow.png"), focusShot.toPNG());
