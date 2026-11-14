@@ -41,6 +41,26 @@ it would work — and it would leave the package receipt describing a different
 payload, which is the opposite of what this task proves.
 
 
+## R14 is blocked on EXT-SIGNING (credentials, not code)
+
+The release pipeline is finished and refuses to pretend otherwise:
+`mac:release:preflight` exits 3 naming the three missing prerequisites,
+`mac:release` exits 3 without producing a package, and `mac:verify-release`
+exits 2 rather than accept the ad-hoc local build. `test/release-trust.test.ts`
+is 17/17.
+
+**Exact help needed** — two Developer ID identities (Application and Installer,
+same team) in the login keychain, and one notary credential
+(`xcrun notarytool store-credentials mona-release`, or the
+`MONA_NOTARY_API_KEY` / `MONA_NOTARY_KEY_ID` / `MONA_NOTARY_ISSUER` triple).
+
+Then: `npm run mac:release:preflight`, `npm run mac:release --
+--keychain-profile mona-release`, `npm run mac:verify-release`.
+
+Two scope claims stay open by decision, not by omission (RD-029): 14.0 is a
+declared floor that only 26.5.1 has executed, and Git features still need CLT or
+another Git. P26 owns both.
+
 ## External prerequisites carried from the product ledger
 
 These are not blocked review work and are not attempt-counted. Their full

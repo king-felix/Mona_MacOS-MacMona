@@ -37,8 +37,8 @@
     "attempts": ".mona/build-macos/attempts.jsonl",
     "requirement_registry": "docs/requirements-macos.json"
   },
-  "revision": 98,
-  "current_task": "R13",
+  "revision": 100,
+  "current_task": "R14",
   "current_task_status": "blocked",
   "tasks": {
     "R00": {
@@ -2630,7 +2630,7 @@
       ]
     },
     "R14": {
-      "status": "pending",
+      "status": "blocked",
       "title": "Shareable Mac release prerequisites and pipeline",
       "prerequisites": [
         "R13"
@@ -2644,21 +2644,81 @@
         "RV-12"
       ],
       "source_hashes": [],
-      "acceptance_completed": [],
-      "acceptance_remaining": [
-        "Developer ID signing/notarization/stapling/release verification path completed with authorized credentials, or an explicit blocked shareable-release status",
-        "Release trust model and native helper signing requirements preserved",
-        "No publication, enrollment purchase, agreement acceptance or invented hosting",
-        "Release mode never succeeds by removing its safeguard",
-        "Minimum tested OS and clean-host Git/tool prerequisites reconciled with the original release scope",
-        "No bypass-Gatekeeper recipe is presented as recipient readiness"
+      "acceptance_completed": [
+        "Explicit blocked shareable-release status recorded, with the exact owner prerequisite (two Developer ID identities plus one notary credential) and the three commands that follow",
+        "Release trust model and native helper signing preserved: inside-out Developer ID signing with Hardened Runtime, secure timestamps and per-component entitlements, never --deep; productsign for the flat package; 17/17 release-trust tests",
+        "No publication, enrollment purchase, agreement acceptance or invented hosting; nothing was signed, submitted or uploaded (release exit 3, no artifact)",
+        "Release mode cannot succeed by removing its safeguard: preflight refuses with three named problems and verify refuses an absent release with exit 2 rather than accepting the ad-hoc local package",
+        "Minimum tested OS and clean-host Git reconciled with the original release scope: 14.0 is declared and enforced but only 26.5.1 has executed it; Git is not bundled and Git features require CLT or another Git, so the candidate cannot yet claim no mandatory developer tools (D-029); both left as P26/P27 owner decisions rather than invented ones",
+        "No bypass-Gatekeeper recipe is presented as recipient readiness anywhere in packaging, scripts or docs"
       ],
-      "tests": [],
-      "evidence": [],
+      "acceptance_remaining": [
+        "A signed, notarized (Accepted), stapled package produced with authorized credentials and qualified under quarantine on a clean recipient — blocked on EXT-SIGNING",
+        "spctl acceptance and notarization-log handling observed on a real submission"
+      ],
+      "tests": [
+        {
+          "command": "npm run mac:release:preflight",
+          "result": "failed",
+          "detail": "Exit 3 with exactly three problems: no Developer ID Application identity, no Developer ID Installer identity, no notarization credential. All required tools present; source clean; evidence review green.",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r14-preflight.json",
+          "captured_utc": "2026-11-14T18:26:00.000Z"
+        },
+        {
+          "command": "npm run mac:release",
+          "result": "failed",
+          "detail": "Exit 3 at stage preflight; \"Release refused at preflight. No unsigned package was produced.\" Only the explicitly local ad-hoc package exists in out/.",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r14-release-refusal.txt",
+          "captured_utc": "2026-11-14T18:26:00.000Z"
+        },
+        {
+          "command": "npm run mac:verify-release",
+          "result": "failed",
+          "detail": "Exit 2: package absent, receipt absent, \"This artifact is not a verifiable release.\" It does not fall back to the local package.",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r14-verify-refusal.txt",
+          "captured_utc": "2026-11-14T18:26:00.000Z"
+        },
+        {
+          "command": "npx vitest run test/release-trust.test.ts",
+          "result": "passed",
+          "detail": "17/17 on the signing, envelope, URL and receipt contracts.",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r14-release-tests.txt",
+          "captured_utc": "2026-11-14T18:26:00.000Z"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/review-studio/R14-shareable-release.md",
+          "sha256": "a883b982e3289a96b559f05c7acd0d0f104d8e32971b49125f04aababca9b8c4",
+          "note": "R14 2026-11-14: preflight/release/verify all refuse without credentials (exits 3/3/2, no artifact); 17 release-trust tests pass; OS floor and clean-host Git reconciled with the original scope and left as owner decisions rather than invented."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r14-preflight.json",
+          "sha256": "1b9f8c8b933e3e09d451828028bd393c0476b9497c9d1f6c0548d7bd946791d8",
+          "note": "R14 2026-11-14: preflight/release/verify all refuse without credentials (exits 3/3/2, no artifact); 17 release-trust tests pass; OS floor and clean-host Git reconciled with the original scope and left as owner decisions rather than invented."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r14-release-refusal.txt",
+          "sha256": "d3cbd9f912c08a29a2f3fc27facbffa08e3d29660f2f2eb530d510b45bbf1d89",
+          "note": "R14 2026-11-14: preflight/release/verify all refuse without credentials (exits 3/3/2, no artifact); 17 release-trust tests pass; OS floor and clean-host Git reconciled with the original scope and left as owner decisions rather than invented."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r14-verify-refusal.txt",
+          "sha256": "15f8a4bb0ec988d11eee1483935ba532fa0ceadbba2f019bb6bb1aa3eb3bcc75",
+          "note": "R14 2026-11-14: preflight/release/verify all refuse without credentials (exits 3/3/2, no artifact); 17 release-trust tests pass; OS floor and clean-host Git reconciled with the original scope and left as owner decisions rather than invented."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r14-release-tests.txt",
+          "sha256": "af38e3d1f584960f5e3d6a9d4669d7ea503a06a5d53067b80de6b24ff6a4961e",
+          "note": "R14 2026-11-14: preflight/release/verify all refuse without credentials (exits 3/3/2, no artifact); 17 release-trust tests pass; OS floor and clean-host Git reconciled with the original scope and left as owner decisions rather than invented."
+        }
+      ],
       "attempt_problem_ids": [],
       "platform": "darwin-arm64",
-      "next_action": "Confirm the Developer ID identities in EXT-SIGNING before touching release mode.",
-      "notes": []
+      "next_action": "Install the two Developer ID identities and store a notary credential; then npm run mac:release:preflight, npm run mac:release -- --keychain-profile mona-release, npm run mac:verify-release.",
+      "notes": [
+        "R14 2026-11-14: the pipeline was already implemented at P22; this task exercised every refusal it can produce without credentials, confirmed no artifact is fabricated, and reconciled the two original-scope claims that remain open (14.0 tested, Git without developer tools) as named owner decisions instead of adjusting the claim to the hardware at hand."
+      ]
     },
     "R15": {
       "status": "pending",
@@ -2919,7 +2979,7 @@
       ]
     }
   },
-  "last_checkpoint_utc": "2026-11-14T18:23:27.469Z",
+  "last_checkpoint_utc": "2026-11-14T18:25:20.469Z",
   "notes": [
     "R11 completed: bounded console rendering with measured windowing, a nine-screen axe pass with four real a11y defects fixed, reduced motion and 200% scale measured, three visual regressions fixed, and the independent review's one blocker and three majors fixed with tests proven to fail on the old code. The memory budget is exceeded by the runtime floor and carried as a derived, named exception."
   ]

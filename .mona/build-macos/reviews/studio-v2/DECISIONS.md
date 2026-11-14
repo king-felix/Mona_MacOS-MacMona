@@ -698,3 +698,26 @@ D-001…D-103) and never replace them.
   three runs) and on candidate build 152's own bytes (137 + 26 + 60 + 19). The
   installed copy remains build 151 until one admin-authorized install, so R13
   stays `blocked` with that exact command rather than claiming the reinstall.
+
+## RD-029 — The release states its untested scope instead of asserting it
+
+- **Date:** 2026-11-14 (R14)
+- **Context:** R14 asks to reconcile the minimum tested OS and clean-host
+  Git/tool prerequisites with the original release scope. The candidate declares
+  and enforces macOS 14.0, but the only host that has run it is 26.5.1. The spec
+  asks for runtime-critical Git to be bundled and for no core feature to trigger
+  Apple's Command Line Tools installer; packaged Mona refuses the CLT stub, so
+  core features satisfy that, but Git features therefore need CLT or another Git.
+- **Decision — record the gap, do not close it by wording.** The release
+  evidence names 14.0 as a *declared* floor and "no developer tools" as *not
+  claimed for Git features*. No release note, receipt or verify output may say
+  otherwise until P26 executes a 14.x matrix and P27/P26 decides bundle-Git
+  versus documented dependency.
+- **Decision — do not choose the owner's licensing question.** Bundling a
+  relocatable Git carries a GPL source-offer obligation the owner must accept;
+  documenting the dependency narrows MAC-004's claim. R14 records both options
+  and neither is implemented by implication.
+- **Consequence:** a signed artifact, when it exists, will be accompanied by a
+  scope statement that is true on the hardware actually used. The release stays
+  `blocked` on EXT-SIGNING; its independent checks (preflight, refusal, verify,
+  trust tests) are recorded as done.

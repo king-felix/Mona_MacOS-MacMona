@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "prompt": "P22",
+  "ok": false,
+  "generated_utc": "2026-11-14T18:24:22.966Z",
+  "host": {
+    "darwin": true,
+    "arm64": true,
+    "macos": "26.5.1",
+    "macos_build": "25F80",
+    "translated": false,
+    "node": "v26.13.0",
+    "minimum_macos": "14.0"
+  },
+  "tools": {
+    "missing": [],
+    "versions": {
+      "codesign": null,
+      "pkgbuild": null,
+      "productbuild": null,
+      "productsign": null,
+      "notarytool": "unknown (0)",
+      "stapler": null
+    },
+    "paths": {
+      "notarytool": "/Library/Developer/CommandLineTools/usr/bin/notarytool",
+      "stapler": "/Library/Developer/CommandLineTools/usr/bin/stapler",
+      "codesign": "/usr/bin/codesign",
+      "pkgbuild": "/usr/bin/pkgbuild",
+      "productbuild": "/usr/bin/productbuild",
+      "productsign": "/usr/bin/productsign",
+      "pkgutil": "/usr/sbin/pkgutil",
+      "spctl": "/usr/sbin/spctl",
+      "security": "/usr/bin/security",
+      "plutil": "/usr/bin/plutil"
+    }
+  },
+  "identities": {
+    "count": 0,
+    "names": [],
+    "validity": "only valid identities are listed by find-identity -v",
+    "application": null,
+    "installer": null,
+    "team": null,
+    "team_mismatch": false,
+    "problems": [
+      "no \"Developer ID Application\" identity is installed; the app and its helpers cannot be signed for distribution",
+      "no \"Developer ID Installer\" identity is installed; the flat package cannot be signed"
+    ]
+  },
+  "notary": {
+    "configured": false,
+    "method": null,
+    "profile": null,
+    "reason": "no notarization credential is configured: pass --keychain-profile <name>, or set MONA_NOTARY_APPLE_ID, MONA_NOTARY_TEAM_ID and MONA_NOTARY_PASSWORD, or MONA_NOTARY_API_KEY"
+  },
+  "source": {
+    "clean": true,
+    "dirty_files": 0,
+    "commit": "3d1cf2979cfb559be9ef41945b5b4c947cb539cb",
+    "last_verified_commit": "f7b744a",
+    "matches_verified": false
+  },
+  "manifest": {
+    "ok": true,
+    "present": false,
+    "note": "no build manifest yet; the release build writes one"
+  },
+  "evidence": {
+    "ok": true,
+    "problems": [],
+    "reviewed": true
+  },
+  "problems": [
+    "no \"Developer ID Application\" identity is installed",
+    "no \"Developer ID Installer\" identity is installed",
+    "no notarization credential is configured: pass --keychain-profile <name>, or set MONA_NOTARY_APPLE_ID, MONA_NOTARY_TEAM_ID and MONA_NOTARY_PASSWORD, or MONA_NOTARY_API_KEY"
+  ],
+  "command": "preflight",
+  "next": [
+    "install a Developer ID Application and Developer ID Installer identity in the login keychain",
+    "store notarization credentials with: xcrun notarytool store-credentials <profile>",
+    "then re-run: npm run mac:release:preflight"
+  ]
+}
