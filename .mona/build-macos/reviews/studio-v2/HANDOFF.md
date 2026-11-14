@@ -1,6 +1,6 @@
 # Handoff — Studio review (studio-v2)
 
-**Registry:** `.mona/build-macos/reviews/studio-v2/state.json` (revision 12)
+**Registry:** `.mona/build-macos/reviews/studio-v2/state.json` (revision 18)
 **Current task:** R02 — completed · **Next eligible:** R03, R05, R07
 **Review document:** `MacMona_Studio_Review_PROMPTS.md` (sha256
 `7e1e16d1…`) · **Hotfix:** `MacMona_Review_Hotfix.patch` (sha256
