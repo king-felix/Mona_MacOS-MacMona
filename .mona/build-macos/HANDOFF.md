@@ -39,6 +39,36 @@ start failed with a misleading "port is occupied" message.
 - **Build:** packaged and installed over `/Applications/Mona.app` at Victor's
   request so he can see the new diagnosis.
 
+### Operator-requested repair — 2026-11-13 (D-099)
+
+Not a prompt. Victor asked whether the Studio's "Some engine events were never
+received — #3173–3439, #4078–4101" would ever clear on its own. It would not,
+and it was false.
+
+- **Measured:** the engine's `seq` is one counter shared by every Runtime
+  thread. All 291 "missing" sequences belonged to three smoke-run threads
+  (105 + 75 + 87) and 24 one-event probe threads. The engine's own journal for
+  the thread had the same arithmetic holes, so nothing was lost.
+- **Root cause:** loss was inferred from contiguity in `ingest`,
+  `firstMissingSeq`, and `eventGaps`; `previous_seq` — the engine's statement of
+  what it delivered for this thread — was parsed and never read. Cost: a
+  permanent false notice, 7,016 duplicate frames replayed per attach, and a
+  spurious stream break whenever another thread took numbers mid-turn (the P23
+  record's "hole" was this, not transport loss).
+- **Repair:** schema v9 `event_gaps` is the only record of loss (written from
+  `previous_seq`, deleted as replay fills it); the pump resumes from the
+  accepted cursor, concludes each replay against the ledger, and
+  `connection.missing` is a read of that ledger. `firstMissingSeq` is gone.
+  The Studio copy stays: the sentence was true; the ranges were not.
+- **Verified:** 788 tests in 79 files; lint 0 errors, typecheck and build clean;
+  `smoke:p23` 58/58, `smoke:failure` 22/22, `smoke:studio` 22/22 twice
+  (with a live trace confirming `previous_seq` on every frame and zero false
+  gaps); a migrated copy of the operator's store reports no gaps and a resume
+  cursor of 10,479. Evidence: `docs/evidence/macos/engine-event-gaps.md`.
+- **Not fixed, reported:** `npm run ci` fails at `format:check` for four files
+  this change does not touch; `deleteProjectContents` still leaves `events`
+  rows behind (the new `event_gaps` rows are removed with their project).
+
 ### P23 — Update, migration, rollback, and uninstall lifecycle
 
 An installed Mona is now maintainable: replaceable without losing work,
@@ -827,6 +857,24 @@ currently covered by the rehearsal and the unit/smoke suite instead.
      was still writing, so `dropped` was 0 (`total` 245866) and two checks failed
      intermittently. The smoke now waits for the ring to stop growing. Observed
      twice before the fix, three clean runs after; the assertion is unchanged.
+119. **`npm run ci` is red at `format:check` for four untouched files**
+     (`src/main/ipc.ts`, `src/renderer/shell/Settings.tsx`,
+     `src/main/engine/adapter.ts`, `test/runtime-process.test.ts`). The committed
+     versions already fail the installed Prettier 3.10.0, so the gate has been
+     red independently of D-099. Not fixed here to avoid reformatting unrelated
+     code inside a repair; `npm run format` clears it in one step when someone
+     owns that diff.
+120. **`deleteProjectContents` leaves `events` rows behind** (pre-existing).
+     `turns` and `threads` are removed; the event projection is not. Project and
+     thread ids are fresh per creation, so nothing is mis-attributed, but a
+     deleted project's transcript stays on disk. The new `event_gaps` rows *are*
+     removed with their project. Reported, not fixed, at D-099.
+121. **`smoke:studio` remains intermittent** with the already-documented
+     `state store is closed` inside `WorkStudio.replay` (see P08's "Not
+     regenerated" note). One failure in three runs during D-099, before any gap
+     path executed; two consecutive clean runs after. The gap ledger is not
+     implicated, and the capture refreshes in this repair came from the clean
+     runs.
 
 ## Key files
 

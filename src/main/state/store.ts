@@ -3502,6 +3502,9 @@ export class StateStore {
           input.turnId ?? null,
         );
       const recorded = Number(result.changes) > 0;
+      // Shrink a recorded gap whenever the sequence is present, including a
+      // duplicate delivery: a claim that covers a stored frame is already stale.
+      this.noteEventStored(db, input.threadId, input.seq);
       const row = db
         .prepare("SELECT last_seq FROM event_cursors WHERE thread_id = ?")
         .get(input.threadId) as { last_seq: number } | undefined;
@@ -3524,37 +3527,99 @@ export class StateStore {
   }
 
   /**
-   * The first sequence this thread is missing, or the resume point when nothing
-   * is missing.
+   * Record that the engine reported skipping past per-thread sequences
+   * `from`–`to`.
    *
-   * The cursor is the *highest* stored sequence, so resuming from it steps over
-   * a hole and the hole becomes permanent. A reconnect has to resume from the
-   * first gap instead, or the transcript is silently incomplete forever.
+   * Only `previous_seq` justifies this call. `seq` is allocated from one global
+   * counter shared by every Runtime thread, so a hole between stored sequences
+   * is normally another thread's traffic; nothing is inferred from contiguity.
+   * Overlapping reports merge into one row, and a stored event shrinks the row
+   * away (see `noteEventStored`), so a repaired gap stops being a gap.
    */
-  async firstMissingSeq(threadId: string, skipped: Iterable<number> = []): Promise<number> {
-    const tombstoned = new Set(skipped);
-    return this.read((db) => {
-      const cursor = Number(
-        (
-          db.prepare("SELECT last_seq FROM event_cursors WHERE thread_id = ?").get(threadId) as
-            { last_seq: number } | undefined
-        )?.last_seq ?? 0,
-      );
-      const rows = db
-        .prepare("SELECT seq FROM events WHERE thread_id = ? ORDER BY seq")
-        .all(threadId) as Array<{ seq: number }>;
-      if (rows.length === 0) return cursor + 1;
-      // Sequences are not guaranteed to start at 1 (an engine may trim its
-      // history), so the first stored value is the baseline, not 1.
-      for (let index = 1; index < rows.length; index += 1) {
-        const previous = Number(rows[index - 1]?.seq ?? 0);
-        const current = Number(rows[index]?.seq ?? 0);
-        // A hole the engine already declined to replay is a gap it skips by
-        // design; retrying it forever would loop the stream.
-        if (current > previous + 1 && !tombstoned.has(previous + 1)) return previous + 1;
+  async recordEventGap(input: { threadId: string; from: number; to: number }): Promise<void> {
+    if (
+      !input.threadId ||
+      !Number.isInteger(input.from) ||
+      input.from < 1 ||
+      !Number.isInteger(input.to) ||
+      input.to < input.from
+    ) {
+      throw new StateError("CONFLICT", "an event gap must be a positive inclusive range");
+    }
+    return this.write((db, now) => {
+      const overlapping = db
+        .prepare(
+          "SELECT first_seq, last_seq FROM event_gaps " +
+            "WHERE thread_id = ? AND first_seq <= ? AND last_seq >= ?",
+        )
+        .all(input.threadId, input.to + 1, input.from - 1) as Array<{
+        first_seq: number;
+        last_seq: number;
+      }>;
+      let from = input.from;
+      let to = input.to;
+      for (const row of overlapping) {
+        from = Math.min(from, Number(row.first_seq));
+        to = Math.max(to, Number(row.last_seq));
       }
-      return Math.max(cursor, Number(rows[rows.length - 1]?.seq ?? 0)) + 1;
+      if (overlapping.length > 0) {
+        db.prepare(
+          "DELETE FROM event_gaps WHERE thread_id = ? AND first_seq <= ? AND last_seq >= ?",
+        ).run(input.threadId, input.to + 1, input.from - 1);
+      }
+      db.prepare(
+        "INSERT OR REPLACE INTO event_gaps (thread_id, first_seq, last_seq, detected_at) " +
+          "VALUES (?, ?, ?, ?)",
+      ).run(input.threadId, from, to, now);
     });
+  }
+
+  /** The engine-reported losses this thread still carries, oldest first. */
+  async listEventGaps(threadId: string): Promise<Array<{ from: number; to: number }>> {
+    if (!threadId) return [];
+    return this.read((db) => {
+      const rows = db
+        .prepare(
+          "SELECT first_seq, last_seq FROM event_gaps WHERE thread_id = ? ORDER BY first_seq",
+        )
+        .all(threadId) as Array<{ first_seq: number; last_seq: number }>;
+      return rows.map((row) => ({ from: Number(row.first_seq), to: Number(row.last_seq) }));
+    });
+  }
+
+  /**
+   * Shrink recorded gaps as events arrive. A hole that a replay refilled is no
+   * longer a fact about the transcript, so the row is deleted rather than kept
+   * as a claim the timeline cannot support.
+   */
+  private noteEventStored(db: DatabaseSync, threadId: string, seq: number): void {
+    const rows = db
+      .prepare(
+        "SELECT first_seq, last_seq, detected_at FROM event_gaps " +
+          "WHERE thread_id = ? AND first_seq <= ? AND last_seq >= ?",
+      )
+      .all(threadId, seq, seq) as Array<{
+      first_seq: number;
+      last_seq: number;
+      detected_at: string;
+    }>;
+    for (const row of rows) {
+      const first = Number(row.first_seq);
+      const last = Number(row.last_seq);
+      db.prepare("DELETE FROM event_gaps WHERE thread_id = ? AND first_seq = ?").run(
+        threadId,
+        first,
+      );
+      const remaining: Array<[number, number]> = [];
+      if (first < seq) remaining.push([first, seq - 1]);
+      if (seq < last) remaining.push([seq + 1, last]);
+      for (const [from, to] of remaining) {
+        db.prepare(
+          "INSERT OR REPLACE INTO event_gaps (thread_id, first_seq, last_seq, detected_at) " +
+            "VALUES (?, ?, ?, ?)",
+        ).run(threadId, from, to, String(row.detected_at));
+      }
+    }
   }
 
   /** When this thread last received an event, or null when it never has. */
@@ -3568,25 +3633,27 @@ export class StateStore {
     });
   }
 
-  /** The stored sequence range and the holes in it, for honest reporting. */
+  /** The stored sequence range and the engine-reported holes in it. */
   async eventGaps(
     threadId: string,
   ): Promise<{ first: number; last: number; gaps: Array<[number, number]> }> {
     if (!threadId) return { first: 0, last: 0, gaps: [] };
     return this.read((db) => {
+      const bounds = db
+        .prepare("SELECT MIN(seq) AS first, MAX(seq) AS last FROM events WHERE thread_id = ?")
+        .get(threadId) as { first: number | null; last: number | null } | undefined;
+      // Holes come from what the engine reported, never from contiguity: `seq`
+      // is one global counter, so the numbers between two stored frames usually
+      // belong to other threads and are not missing from this transcript.
       const rows = db
-        .prepare("SELECT seq FROM events WHERE thread_id = ? ORDER BY seq")
-        .all(threadId) as Array<{ seq: number }>;
-      const gaps: Array<[number, number]> = [];
-      for (let index = 1; index < rows.length; index += 1) {
-        const previous = Number(rows[index - 1]?.seq ?? 0);
-        const current = Number(rows[index]?.seq ?? 0);
-        if (current > previous + 1) gaps.push([previous + 1, current - 1]);
-      }
+        .prepare(
+          "SELECT first_seq, last_seq FROM event_gaps WHERE thread_id = ? ORDER BY first_seq",
+        )
+        .all(threadId) as Array<{ first_seq: number; last_seq: number }>;
       return {
-        first: Number(rows[0]?.seq ?? 0),
-        last: Number(rows[rows.length - 1]?.seq ?? 0),
-        gaps,
+        first: Number(bounds?.first ?? 0),
+        last: Number(bounds?.last ?? 0),
+        gaps: rows.map((row) => [Number(row.first_seq), Number(row.last_seq)] as [number, number]),
       };
     });
   }
@@ -5757,6 +5824,9 @@ export class StateStore {
     db.prepare("DELETE FROM usage_records WHERE project_id = ?").run(projectId);
     db.prepare(
       "DELETE FROM cost_thread_marks WHERE thread_id IN (SELECT id FROM threads WHERE project_id = ?)",
+    ).run(projectId);
+    db.prepare(
+      "DELETE FROM event_gaps WHERE thread_id IN (SELECT id FROM threads WHERE project_id = ?)",
     ).run(projectId);
     db.prepare(
       "DELETE FROM turns WHERE thread_id IN (SELECT id FROM threads WHERE project_id = ?)",

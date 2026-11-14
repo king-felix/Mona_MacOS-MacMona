@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { StateStore } from "../src/main/state/store";
+import { CURRENT_SCHEMA_VERSION } from "../src/main/state/schema";
 import { UpdateCoordinator } from "../src/main/update/coordinator";
 import { inspectPackage, type CommandRunner } from "../src/main/update/trust";
 import { openTestStore, tempDir, type TestStoreHandle } from "./helpers/state";
@@ -170,7 +171,7 @@ describe("update coordinator", () => {
     expect(h.launched).toHaveLength(1);
     expect(receipt.backup).not.toBeNull();
     expect(receipt.backup?.integrity).toBe("ok");
-    expect(receipt.backup?.schemaVersion).toBe(8);
+    expect(receipt.backup?.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
     expect(existsSync(receipt.backup?.path ?? "")).toBe(true);
 
     const intent = await h.store.store.latestUpdateIntent();

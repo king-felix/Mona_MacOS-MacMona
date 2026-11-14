@@ -137,16 +137,23 @@ interface StudioSession {
   pumpActive: boolean;
   pumpKey: string | null;
   usageRecorded: Set<string>;
-  /** Set to the last contiguous sequence when a gap is observed. */
-  resumeFrom: number | null;
-  /** Gaps the engine declined to replay; recorded once, never asked twice. */
+  /**
+   * The `since_seq` a replay should use, or null to resume from the accepted
+   * cursor. Set only when the engine reports that it skipped past this thread.
+   */
+  replaySince: number | null;
+  /** Holes this session already asked the engine to replay and cannot fill. */
   skippedGaps: Set<number>;
-  /** The hole this connection was opened to replay, if any. */
-  pendingGap: number | null;
+  /** The engine-reported hole this connection was opened to replay, if any. */
+  pendingGap: { from: number; to: number } | null;
 }
 
 const MAX_DIAGNOSTICS = 12;
 const MAX_PROMPT = 100_000;
+
+function rangeLabel(gap: { from: number; to: number }): string {
+  return gap.from === gap.to ? String(gap.from) : `${gap.from}–${gap.to}`;
+}
 
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
@@ -271,7 +278,7 @@ export class WorkStudio {
         if (!pumping) {
           this.diagnose(
             existing,
-            "the previous stream reader is gone; re-attaching from the first missing event",
+            "the previous stream reader is gone; re-attaching to the engine event stream",
           );
         }
         if (binding) {
@@ -331,7 +338,7 @@ export class WorkStudio {
       pumpActive: false,
       pumpKey: null,
       usageRecorded: new Set(),
-      resumeFrom: null,
+      replaySince: null,
       skippedGaps: new Set(),
       pendingGap: null,
     };
@@ -629,20 +636,20 @@ export class WorkStudio {
   private async runPump(session: StudioSession, binding: ModeBinding): Promise<void> {
     let attempts = 0;
     while (!session.stopped && !this.closed) {
-      // Resume from the FIRST MISSING sequence, not the highest stored one.
-      // The cursor is the highest stored seq, so resuming from it steps over a
-      // hole and the hole can never be refilled — the transcript stays
-      // incomplete no matter how many times the stream reconnects.
-      // `firstNeeded` is inclusive ("the first event I do not have"), while the
-      // transport's `since_seq` is exclusive ("everything after this"), so the
-      // subtraction happens once, here, at the boundary.
-      const firstNeeded = await this.store.firstMissingSeq(
-        binding.localThreadId,
-        session.skippedGaps,
-      );
-      const resumeFrom = session.resumeFrom;
-      const since = Math.max(0, Math.min(resumeFrom ?? firstNeeded, firstNeeded) - 1);
-      session.resumeFrom = null;
+      // `since_seq` is exclusive: resuming from the accepted cursor asks for
+      // "everything after what this thread already has". A replay rewinds to the
+      // sequence that preceded a hole the engine itself reported, so the known
+      // loss can be refilled. Contiguity is never the resume point — `seq` is a
+      // single counter shared by every Runtime thread, so the next number after
+      // a stored frame usually belongs to another thread, not to a lost frame.
+      const replaySince = session.replaySince;
+      const since = replaySince ?? (await this.store.getCursor(binding.localThreadId));
+      // What this connection is meant to repair. Captured before the pass and
+      // concluded after it: a replay's outcome is only knowable once the
+      // connection that carried it has ended.
+      const replayTarget = replaySince === null ? null : session.pendingGap;
+      session.replaySince = null;
+      session.pendingGap = null;
       const controller = new AbortController();
       session.abort = controller;
       let sawEvent = false;
@@ -668,7 +675,7 @@ export class WorkStudio {
               attempts = 0;
               break;
             }
-            if (outcome.terminal) return;
+            if (outcome.terminal) break;
           } else if (item.type === "diagnostic") {
             this.diagnose(session, `stream diagnostic: ${item.reason}`);
           } else if (item.type === "end") {
@@ -686,35 +693,44 @@ export class WorkStudio {
         if (session.abort === controller) session.abort = null;
       }
       if (session.stopped || this.closed) return;
-      // A turn that finished while frames were missing still gets one repair
-      // pass: the terminal event is stored, but the record has a hole and the
-      // replay is the only way to fill it.
-      if (!session.active && session.pendingGap === null) return;
 
-      // A hole this connection was opened for: if it is still missing now, the
-      // engine does not have it. Record that once and stop asking, so a
-      // legitimate numbering skip cannot loop the stream forever.
-      if (session.pendingGap !== null) {
-        const asked = session.pendingGap;
-        session.pendingGap = null;
-        const stillMissing = await this.store.firstMissingSeq(
-          binding.localThreadId,
-          session.skippedGaps,
+      // Conclude the repair pass honestly. The ledger shrinks as stored events
+      // arrive, so it — not a guess — says whether the replay filled the hole.
+      if (replayTarget) {
+        const remaining = (await this.store.listEventGaps(binding.localThreadId)).filter(
+          (gap) => gap.from <= replayTarget.to && gap.to >= replayTarget.from,
         );
-        if (stillMissing === asked) {
-          session.skippedGaps.add(asked);
+        if (remaining.length > 0) {
+          // The engine does not have these frames. Record that once and stop
+          // asking, so a legitimate skip cannot loop the stream forever.
+          session.skippedGaps.add(replayTarget.from);
           this.diagnose(
             session,
-            `event sequence gap from ${asked} was replayed and not sent; recorded as a gap the engine skips`,
+            `event sequence gap: ${rangeLabel(replayTarget)} was replayed and not returned; recorded as a gap the engine skips`,
+          );
+        } else {
+          this.diagnose(
+            session,
+            `event sequence gap: ${rangeLabel(replayTarget)} was replayed and filled`,
           );
         }
       }
-      if (!session.active) {
-        // The turn already finished and the repair pass has run. Stop quietly:
-        // a complete turn is not an unstable stream, and the hole stays visible
-        // in `connection.missing` rather than being denied.
+
+      // A hole reported during this pass still gets exactly one repair pass,
+      // even if the turn already ended: the terminal frame is stored, but the
+      // record has a hole and a replay is the only way to fill it.
+      const repairPass = session.pendingGap !== null;
+      // A quiet end with no active turn and no hole is a finished turn, not an
+      // unstable stream. The repair pass re-opened the stream under
+      // "reconnecting", so a completed turn must not be left looking like a
+      // stream that is still trying to recover.
+      if (!session.active && !repairPass) {
+        if (session.connection === "reconnecting") {
+          this.setConnection(session, "connected", "the replay finished; no turn is active");
+        }
         return;
       }
+
       attempts += sawEvent ? 1 : 2;
       if (attempts > this.reconnectAttempts) {
         this.fail(
@@ -727,9 +743,11 @@ export class WorkStudio {
       this.setConnection(
         session,
         "reconnecting",
-        sawEvent
-          ? "the event stream ended while the turn is active; reconnecting from the first missing event"
-          : "the event stream went quiet without ending; reconnecting from the first missing event",
+        repairPass
+          ? "replaying the events the engine reported skipping"
+          : sawEvent
+            ? "the event stream ended while the turn is active; reconnecting from the accepted cursor"
+            : "the event stream went quiet without ending; reconnecting from the accepted cursor",
       );
       await this.sleep(
         Math.min(this.reconnectBaseMs * 2 ** Math.max(0, attempts - 1), this.reconnectMaxMs),
@@ -738,9 +756,9 @@ export class WorkStudio {
   }
 
   /**
-   * Store one engine event, then update projections. \
-   * `terminal` ends the pump; `rewind` asks it to reconnect from the last
-   * contiguous sequence so a detected gap is replayed.
+   * Store one engine event, then update projections. `terminal` ends the pump;
+   * `rewind` asks it to reconnect from the sequence before a hole the engine
+   * reported, so that hole can be replayed.
    */
   private async ingest(
     session: StudioSession,
@@ -756,26 +774,31 @@ export class WorkStudio {
       return { terminal: false, rewind };
     }
     const before = await this.store.getCursor(binding.localThreadId);
-    if (before > 0 && event.seq > before + 1) {
-      const from = before + 1;
-      const to = event.seq - 1;
-      const range = from === to ? String(from) : `${from}–${to}`;
-      const firstMissing = before + 1;
-      if (!session.skippedGaps.has(firstMissing)) {
-        session.resumeFrom = firstMissing;
-        session.pendingGap = firstMissing;
+    const previous = event.previous_seq;
+    // Loss is what the engine says it delivered and we did not accept — never a
+    // jump in `seq`, which is one global counter shared by every Runtime thread
+    // and therefore fills with other threads' numbers. `previous_seq` on this
+    // per-thread stream is the last sequence delivered for THIS thread.
+    if (before > 0 && typeof previous === "number" && previous > before) {
+      const gap = { from: before + 1, to: previous };
+      // Recorded before the replay is attempted: if the process dies mid-repair
+      // the loss stays a fact instead of vanishing with the attempt.
+      await this.store.recordEventGap({ threadId: binding.localThreadId, ...gap });
+      if (!session.skippedGaps.has(gap.from)) {
+        session.replaySince = before;
+        session.pendingGap = gap;
         rewind = true;
         this.diagnose(
           session,
-          `event sequence gap: ${range} was not received; reconnecting from ${firstMissing} to ask the engine to replay it`,
+          `event sequence gap: ${rangeLabel(gap)} was not received; reconnecting from ${before} to ask the engine to replay it`,
         );
       } else {
         this.diagnose(
           session,
-          `event sequence gap: ${range} is already recorded as a gap the engine skips`,
+          `event sequence gap: ${rangeLabel(gap)} is already recorded as a gap the engine skips`,
         );
       }
-      this.push(session, "control", "sequence_gap", { seq: event.seq });
+      this.push(session, "control", "sequence_gap", { seq: event.seq, ...gap });
     }
     const stored = await this.store.recordEvent({
       threadId: binding.localThreadId,

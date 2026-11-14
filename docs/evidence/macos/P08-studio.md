@@ -272,3 +272,20 @@ old query (`expected 1 to be 51`) and passes with the fix; 755 tests in 75 files
 `npm run typecheck` and `npm run lint` clean (three pre-existing test-file
 warnings). The remaining gap `3172-3439` is unchanged and still reported; no
 event content was rewritten or invented.
+
+## Correction (2026-11-13, D-099) — the "hole" in this record was another thread's traffic
+
+The P23 section above reads the 3173–3439 hole as loss that a replay would
+fill, and says the pump "asks from 3172". That diagnosis was wrong in one
+respect: `seq` is a single counter shared by every Runtime thread, so the
+numbers between two stored frames are usually other threads' events. All 291
+"missing" sequences were owned by three smoke-run threads and 24 one-event
+probes.
+
+`previous_seq` — the engine's own statement of what it delivered for *this*
+thread — is now the only evidence of loss, `event_gaps` (schema v9) is the only
+record of it, and a replay resumes from the accepted cursor instead of the first
+arithmetic hole. The idle watchdog, the pump-liveness check, and the
+terminal-vs-rewind ordering from P23 stand unchanged.
+
+Evidence: `docs/evidence/macos/engine-event-gaps.md`.

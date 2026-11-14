@@ -253,6 +253,56 @@ describe("tasks, evidence, and continuity records", () => {
     await store.close();
   });
 
+  it("records only engine-reported event gaps, merges them, and clears what a replay fills", async () => {
+    const { store, dir } = await openTestStore();
+    const project = await store.createProject({ name: "Gaps", rootPath: dir });
+    const thread = await store.upsertThread({ id: "thr_gap0000001", projectId: project.id });
+    const store_ = (seq: number) =>
+      store.recordEvent({
+        threadId: thread.id,
+        seq,
+        kind: "item.delta",
+        payload: { delta: String(seq) },
+        timestamp: `2026-11-11T00:00:0${Math.min(seq, 9)}.000Z`,
+      });
+
+    // 3 and 4 are absent from this thread because another thread used them.
+    // Nothing here may report that as loss: only the engine can.
+    for (const seq of [1, 2, 5]) await store_(seq);
+    expect(await store.listEventGaps(thread.id)).toEqual([]);
+    expect((await store.eventGaps(thread.id)).gaps).toEqual([]);
+    expect(await store.eventGaps(thread.id)).toMatchObject({ first: 1, last: 5 });
+
+    await store.recordEventGap({ threadId: thread.id, from: 3, to: 4 });
+    await store.recordEventGap({ threadId: thread.id, from: 6, to: 8 });
+    expect(await store.listEventGaps(thread.id)).toEqual([
+      { from: 3, to: 4 },
+      { from: 6, to: 8 },
+    ]);
+    // Adjacent reports describe one hole, not two.
+    await store.recordEventGap({ threadId: thread.id, from: 5, to: 5 });
+    expect(await store.listEventGaps(thread.id)).toEqual([{ from: 3, to: 8 }]);
+
+    // A replay that returns the tail shrinks the recorded loss.
+    await store_(8);
+    expect(await store.listEventGaps(thread.id)).toEqual([{ from: 3, to: 7 }]);
+    // A frame in the middle splits it; the two sides stay honest separately.
+    await store_(6);
+    expect(await store.listEventGaps(thread.id)).toEqual([
+      { from: 3, to: 5 },
+      { from: 7, to: 7 },
+    ]);
+    // Filling the rest removes the claim entirely: a repaired hole is not loss.
+    for (const seq of [3, 4, 5, 7]) await store_(seq);
+    expect(await store.listEventGaps(thread.id)).toEqual([]);
+    expect((await store.eventGaps(thread.id)).gaps).toEqual([]);
+
+    await expect(
+      store.recordEventGap({ threadId: thread.id, from: 9, to: 8 }),
+    ).rejects.toMatchObject({ code: "CONFLICT" });
+    await store.close();
+  });
+
   it("keeps drafts, settings, submissions, and bindings per project", async () => {
     const { store, dir } = await openTestStore();
     const project = await store.createProject({ name: "One", rootPath: dir });

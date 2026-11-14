@@ -683,6 +683,24 @@ CREATE INDEX update_intents_created ON update_intents (created_at DESC);
 CREATE INDEX update_intents_state ON update_intents (state, updated_at DESC);
 `;
 
+// v9 records loss of per-thread engine events as a durable fact.
+//
+// `seq` is allocated from one global counter across every Runtime thread, so a
+// hole in a thread's stored sequences proves nothing: the intervening numbers
+// belong to other threads. Loss is only ever what the engine itself reports
+// through `previous_seq` (the last sequence it delivered for *this* thread).
+// A row here is that report, and it is deleted when a replay fills the range —
+// so the Studio's gap notice is a record of real loss, not of interleaving.
+const V9 = `
+CREATE TABLE event_gaps (
+  thread_id    TEXT NOT NULL,
+  first_seq    INTEGER NOT NULL CHECK (first_seq >= 1),
+  last_seq     INTEGER NOT NULL CHECK (last_seq >= first_seq),
+  detected_at  TEXT NOT NULL,
+  PRIMARY KEY (thread_id, first_seq)
+);
+`;
+
 export const MIGRATIONS: readonly Migration[] = [
   { version: 1, name: "core-project-state", sql: V1 },
   { version: 2, name: "project-identity-fields", sql: V2 },
@@ -692,6 +710,7 @@ export const MIGRATIONS: readonly Migration[] = [
   { version: 6, name: "change-receipts-git-and-restore", sql: V6 },
   { version: 7, name: "orchestration-observations-and-receipts", sql: V7 },
   { version: 8, name: "installer-update-intents", sql: V8 },
+  { version: 9, name: "engine-event-gaps", sql: V9 },
 ];
 
 export const CURRENT_SCHEMA_VERSION = MIGRATIONS[MIGRATIONS.length - 1]?.version ?? 0;
@@ -708,6 +727,7 @@ export const REQUIRED_TABLES: readonly string[] = [
   "decisions",
   "drafts",
   "event_cursors",
+  "event_gaps",
   "events",
   "goal_observations",
   "meta",
@@ -752,10 +772,12 @@ const V7_TABLES: readonly string[] = [
   "orchestration_runs",
 ];
 const V8_TABLES: readonly string[] = ["update_intents"];
+const V9_TABLES: readonly string[] = ["event_gaps"];
 
 /** Tables a database at `version` must have. Older targets predate v3–v7. */
 export function requiredTablesFor(version: number): readonly string[] {
   let tables: readonly string[] = REQUIRED_TABLES;
+  if (version < 9) tables = tables.filter((t) => !V9_TABLES.includes(t));
   if (version < 8) tables = tables.filter((t) => !V8_TABLES.includes(t));
   if (version < 7) tables = tables.filter((t) => !V7_TABLES.includes(t));
   if (version < 6) tables = tables.filter((t) => !V6_TABLES.includes(t));

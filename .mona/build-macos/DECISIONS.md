@@ -1662,3 +1662,40 @@ and the smoke measures it rather than asserting it is pretty.
   process is spawned. A plain Codewhale TUI, a foreign workspace lock, and
   coordination state remain compatible (verified). Evidence:
   `docs/evidence/macos/runtime-store-coexistence.md`.
+
+## D-099 — Engine `seq` is one global counter; loss is `previous_seq`, and it is a ledger
+
+- **Date:** 2026-11-13 (operator-reported studio notice)
+- **Observation:** The Studio showed "Some engine events were never received —
+  #3173–3439, #4078–4101" permanently. The engine's own journal had the same
+  holes, and every one of those 291 sequences belonged to a different Runtime
+  thread (three smoke runs and 24 one-event probes). The Runtime allocates `seq`
+  from a counter shared by all threads and documents that clients must not infer
+  loss from `seq == previous_seq + 1`.
+- **Root cause:** Mona inferred loss from contiguity in three places (`ingest`,
+  `firstMissingSeq`, `eventGaps`) and ignored `previous_seq`, which its own
+  envelope already parsed. Consequences: a permanent, false notice; a
+  rewind-and-replay of up to 7,016 duplicate frames on every attach
+  (`since_seq=3172`); and a spurious stream break whenever another thread took a
+  slice of numbers mid-turn — which is what the P23 record misattributed.
+- **Decision:**
+  1. `event_gaps` (schema v9) is the only record of loss: `thread_id,
+     first_seq, last_seq, detected_at`. It is written when the engine reports a
+     hole and deleted as replayed frames arrive, so a filled hole stops being a
+     gap.
+  2. Loss is `previous_seq > accepted cursor` on a thread with a cursor. A
+     replay resumes from the cursor accepted before the hole. Contiguity is
+     never consulted.
+  3. The pump concludes each replay against the ledger: filled, or "replayed and
+     not returned" (recorded once, then left as a fact). Silence about a hole is
+     not allowed in either direction.
+  4. `connection.missing` is a read of that ledger; `firstMissingSeq` is
+     removed rather than reworded.
+- **Rejected:** recomputing holes from stored sequences with a wider window
+  (still wrong), a dismissible notice (hides loss instead of recording it), and
+  deleting the affected thread's events (destroys evidence and does not address
+  the counter).
+- **Consequence:** the operator's two ranges vanish without data surgery; an
+  attach on that thread replays nothing; a genuine hole is still shown and still
+  says why. If the engine ever omits `previous_seq`, Mona stops claiming loss
+  rather than guessing. Evidence: `docs/evidence/macos/engine-event-gaps.md`.

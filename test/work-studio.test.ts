@@ -134,7 +134,11 @@ async function setup(
       body: unknown,
     ) => ReturnType<typeof jsonResponse> | Promise<ReturnType<typeof jsonResponse>>;
     stream?: (path: string) => AsyncIterable<string>;
-    adapter?: (transport: FixtureTransport, projectId: ProjectId, workspace: string) => EngineAdapter;
+    adapter?: (
+      transport: FixtureTransport,
+      projectId: ProjectId,
+      workspace: string,
+    ) => EngineAdapter;
     now?: () => Date;
     reconnect?: {
       attempts?: number;
@@ -665,10 +669,19 @@ describe("cost budget gate at the studio", () => {
 const harnessPlaceholder = "/tmp/placeholder";
 
 describe("live studio: hostile and failing event streams", () => {
-  function envelope(seq: number, kind: string, payload: Record<string, unknown> = {}) {
+  function envelope(
+    seq: number,
+    kind: string,
+    payload: Record<string, unknown> = {},
+    previousSeq: number | null = null,
+  ) {
     return {
       schema_version: 1,
       seq,
+      // The engine's own statement of the last sequence it delivered for THIS
+      // thread. `seq` alone proves nothing: it comes from one counter shared by
+      // every Runtime thread.
+      previous_seq: previousSeq,
       event: kind,
       kind,
       thread_id: THREAD,
@@ -678,27 +691,37 @@ describe("live studio: hostile and failing event streams", () => {
     };
   }
 
-  it("detects a sequence gap, replays it from the last contiguous event, and says so", async () => {
+  it("replays a hole the engine announced and clears the gap once the frames arrive", async () => {
     const paths: string[] = [];
-    const first = [envelope(1, "thread.started"), envelope(2, "turn.started")];
-    // Sequence 5 arrives with 3 and 4 missing: a frame lost in transport.
-    const lossy = [
-      ...first,
-      envelope(5, "item.completed", {
-        item: { id: "item_a", kind: "agent_message", detail: "hi" },
-      }),
+    const live = [
+      envelope(1, "thread.started", {}, 0),
+      envelope(2, "turn.started", {}, 1),
+      // The engine says its last delivery for this thread was 4, so 3–4 were
+      // lost on the wire.
+      envelope(
+        5,
+        "item.completed",
+        { item: { id: "item_a", kind: "agent_message", detail: "hi" } },
+        4,
+      ),
     ];
     const replay = [
-      envelope(3, "stream.progress"),
-      envelope(4, "item.delta", { kind: "agent_message", delta: "hi" }),
-      envelope(6, "turn.completed", { status: "completed" }),
+      envelope(3, "item.delta", { kind: "agent_message", delta: "hi" }, 2),
+      envelope(4, "item.delta", { kind: "agent_message", delta: "!" }, 3),
+      envelope(
+        5,
+        "item.completed",
+        { item: { id: "item_a", kind: "agent_message", detail: "hi" } },
+        4,
+      ),
+      envelope(6, "turn.completed", { status: "completed" }, 5),
     ];
     const harness = await setup({
       events: [],
       stream: (path) => {
         paths.push(path);
         const from = /since_seq=(\d+)/.exec(path)?.[1] ?? "0";
-        return chunkText(sseFrames(from === "2" ? replay : lossy, { end: true }), 5);
+        return chunkText(sseFrames(from === "2" ? replay : live, { end: true }), 5);
       },
     });
     await harness.studio.start(harness.project.id as ProjectId);
@@ -709,20 +732,71 @@ describe("live studio: hostile and failing event streams", () => {
         .includes("sequence gap"),
     );
 
-    // The reconnect deliberately resumed from the last contiguous sequence, not
-    // from the highest stored one.
+    // The replay resumed from the cursor accepted before the hole (2), which is
+    // the only position that can re-deliver 3 and 4.
     expect(paths.some((path) => path.includes("since_seq=2"))).toBe(true);
-    const snapshot = await harness.studio.snapshot(harness.project.id as ProjectId);
-    expect(snapshot.diagnostics.join("\n")).toMatch(/sequence gap: 3–4/);
     const stored = await harness.store.readProjectEvents(harness.project.id as ProjectId);
-    // 3 is a stream.progress frame, which this build deliberately does not
-    // store. 4 is the frame that was lost in transport and recovered by replay.
-    expect(new Set(stored.map((event) => event.seq))).toEqual(new Set([1, 2, 4, 5, 6]));
-    expect(stored.find((event) => event.seq === 4)?.payload).toMatchObject({ delta: "hi" });
+    expect(new Set(stored.map((event) => event.seq))).toEqual(new Set([1, 2, 3, 4, 5, 6]));
+    expect(stored.find((event) => event.seq === 4)?.payload).toMatchObject({ delta: "!" });
     expect(harness.transport.count("POST", "/turns")).toBe(1);
+
+    // A filled hole is not loss: the ledger drops it, so the Studio has nothing
+    // to warn about afterwards.
+    await waitFor(
+      async () =>
+        (await harness.studio.snapshot(harness.project.id as ProjectId)).connection.missing
+          .length === 0,
+    );
+    expect(
+      (await harness.studio.snapshot(harness.project.id as ProjectId)).diagnostics.join("\n"),
+    ).toMatch(/3–4 was replayed and filled/);
   });
 
-  it("records a gap instead of looping when replay never fills it", async () => {
+  it("does not call another thread's interleaved sequences a gap", async () => {
+    const paths: string[] = [];
+    // 3 and 4 belong to a different thread. `previous_seq: 2` is the engine
+    // saying so: it delivered 2 and then 5 for *this* thread, nothing between.
+    // Treating the arithmetic hole as loss is what put permanent, false gap
+    // warnings and a 7,000-frame replay loop into a real thread.
+    const harness = await setup({
+      events: [],
+      stream: (path) => {
+        paths.push(path);
+        return chunkText(
+          sseFrames(
+            [
+              envelope(1, "thread.started", {}, 0),
+              envelope(2, "turn.started", {}, 1),
+              envelope(
+                5,
+                "item.completed",
+                { item: { id: "item_a", kind: "agent_message", detail: "hi" } },
+                2,
+              ),
+              envelope(6, "turn.completed", { status: "completed" }, 5),
+            ],
+            { end: true },
+          ),
+          5,
+        );
+      },
+    });
+    await harness.studio.start(harness.project.id as ProjectId);
+    await harness.studio.submit(harness.project.id as ProjectId, { prompt: "x", mode: "work" });
+    await waitFor(
+      async () =>
+        (await harness.studio.snapshot(harness.project.id as ProjectId)).activeTurnId === null,
+    );
+    const snapshot = await harness.studio.snapshot(harness.project.id as ProjectId);
+    expect(snapshot.diagnostics.join("\n")).not.toContain("sequence gap");
+    expect(snapshot.connection.missing).toEqual([]);
+    // One subscription, no rewind: nothing was missing, so nothing is replayed.
+    expect(paths).toHaveLength(1);
+    const stored = await harness.store.readProjectEvents(harness.project.id as ProjectId);
+    expect(new Set(stored.map((event) => event.seq))).toEqual(new Set([1, 2, 5, 6]));
+  });
+
+  it("records a gap instead of looping when replay never returns it", async () => {
     const paths: string[] = [];
     const harness = await setup({
       events: [],
@@ -731,9 +805,9 @@ describe("live studio: hostile and failing event streams", () => {
         return chunkText(
           sseFrames(
             [
-              envelope(1, "thread.started"),
-              envelope(2, "turn.started"),
-              envelope(9, "turn.completed", { status: "completed" }),
+              envelope(1, "thread.started", {}, 0),
+              envelope(2, "turn.started", {}, 1),
+              envelope(9, "turn.completed", { status: "completed" }, 8),
             ],
             { end: true },
           ),
@@ -751,19 +825,26 @@ describe("live studio: hostile and failing event streams", () => {
     const snapshot = await harness.studio.snapshot(harness.project.id as ProjectId);
     const text = snapshot.diagnostics.join("\n");
     expect(text).toMatch(/sequence gap: 3–8/);
-    // At most two recovery attempts, then the gap stays recorded rather than
-    // spinning: a non-contiguous numbering is allowed by the engine contract.
-    expect(paths.filter((path) => path.includes("since_seq=2")).length).toBeLessThanOrEqual(2);
+    expect(text).toMatch(/replayed and not returned/);
+    // Asked once, then recorded as a fact rather than retried forever.
+    expect(paths.filter((path) => path.includes("since_seq=2")).length).toBeLessThanOrEqual(1);
+    expect(snapshot.connection.missing).toEqual([{ from: 3, to: 8 }]);
   });
 });
 
 describe("live studio: gap budget is per turn", () => {
   it("recovers a second gap in a later turn after the first turn spent its budget", async () => {
     const envelopes: Record<number, Array<ReturnType<typeof envelope>>> = {};
-    function envelope(seq: number, kind: string, payload: Record<string, unknown> = {}) {
+    function envelope(
+      seq: number,
+      kind: string,
+      payload: Record<string, unknown> = {},
+      previousSeq: number | null = null,
+    ) {
       return {
         schema_version: 1,
         seq,
+        previous_seq: previousSeq,
         event: kind,
         kind,
         thread_id: THREAD,
@@ -775,18 +856,21 @@ describe("live studio: gap budget is per turn", () => {
     // Turn 1 loses seq 2; turn 2 loses seq 5. A *global* recovery budget would
     // let turn 1 consume it and leave turn 2's loss permanently unreplayed.
     envelopes[0] = [
-      envelope(1, "thread.started"),
-      envelope(3, "turn.completed", { status: "completed" }),
+      envelope(1, "thread.started", {}, 0),
+      envelope(3, "turn.completed", { status: "completed" }, 2),
     ];
-    envelopes[1] = [envelope(2, "stream.progress"), envelope(3, "turn.completed")];
+    envelopes[1] = [
+      envelope(2, "item.delta", { kind: "agent_message", delta: "x" }, 1),
+      envelope(3, "turn.completed", { status: "completed" }, 2),
+    ];
     envelopes[3] = [
-      envelope(4, "turn.started"),
-      envelope(6, "turn.completed", { status: "completed" }),
+      envelope(4, "turn.started", {}, 3),
+      envelope(6, "turn.completed", { status: "completed" }, 5),
     ];
     envelopes[4] = [
-      envelope(4, "turn.started"),
-      envelope(5, "item.delta", { kind: "agent_message", delta: "x" }),
-      envelope(6, "turn.completed", { status: "completed" }),
+      envelope(4, "turn.started", {}, 3),
+      envelope(5, "item.delta", { kind: "agent_message", delta: "x" }, 4),
+      envelope(6, "turn.completed", { status: "completed" }, 5),
     ];
 
     const harness = await setup({
@@ -827,10 +911,16 @@ describe("live studio: gap budget is per turn", () => {
  * events could never be fetched. The tests below pin each link.
  */
 describe("live studio: a silent stream, and a hole in the record", () => {
-  function envelope(seq: number, kind: string, payload: Record<string, unknown> = {}) {
+  function envelope(
+    seq: number,
+    kind: string,
+    payload: Record<string, unknown> = {},
+    previousSeq: number | null = null,
+  ) {
     return {
       schema_version: 1,
       seq,
+      previous_seq: previousSeq,
       event: kind,
       kind,
       thread_id: THREAD,
@@ -876,7 +966,7 @@ describe("live studio: a silent stream, and a hole in the record", () => {
     expect(requests[1]).toContain("since_seq=1");
   }, 10_000);
 
-  it("resumes from the first missing event, not the highest stored one", async () => {
+  it("resumes from the cursor before the hole, not the highest stored sequence", async () => {
     const requests: string[] = [];
     const harness = await setup({
       events: [],
@@ -889,12 +979,15 @@ describe("live studio: a silent stream, and a hole in the record", () => {
           return chunkText(
             sseFrames(
               [
-                envelope(1, "thread.started"),
-                envelope(2, "turn.started"),
-                envelope(5, "item.completed", {
-                  item: { id: "i", kind: "agent_message", detail: "hi" },
-                }),
-                envelope(6, "turn.completed", { status: "completed" }),
+                envelope(1, "thread.started", {}, 0),
+                envelope(2, "turn.started", {}, 1),
+                envelope(
+                  5,
+                  "item.completed",
+                  { item: { id: "i", kind: "agent_message", detail: "hi" } },
+                  4,
+                ),
+                envelope(6, "turn.completed", { status: "completed" }, 5),
               ],
               { end: true },
             ),
@@ -904,12 +997,15 @@ describe("live studio: a silent stream, and a hole in the record", () => {
         return chunkText(
           sseFrames(
             [
-              envelope(3, "item.delta", { kind: "agent_message", delta: "hi" }),
-              envelope(4, "item.delta", { kind: "agent_message", delta: "!" }),
-              envelope(5, "item.completed", {
-                item: { id: "i", kind: "agent_message", detail: "hi" },
-              }),
-              envelope(6, "turn.completed", { status: "completed" }),
+              envelope(3, "item.delta", { kind: "agent_message", delta: "hi" }, 2),
+              envelope(4, "item.delta", { kind: "agent_message", delta: "!" }, 3),
+              envelope(
+                5,
+                "item.completed",
+                { item: { id: "i", kind: "agent_message", detail: "hi" } },
+                4,
+              ),
+              envelope(6, "turn.completed", { status: "completed" }, 5),
             ],
             { end: true },
           ),
@@ -925,7 +1021,8 @@ describe("live studio: a silent stream, and a hole in the record", () => {
         .join("\n")
         .includes("sequence gap"),
     );
-    // The resume point is the hole (3, i.e. since_seq=2), never the cursor (5).
+    // The resume point is the accepted cursor before the hole (since_seq=2),
+    // never the cursor after the frame that revealed it (5).
     expect(requests.some((path) => path.includes("since_seq=2"))).toBe(true);
     expect(requests.every((path) => !path.includes("since_seq=5"))).toBe(true);
     const stored = await harness.store.readProjectEvents(harness.project.id as ProjectId);
@@ -945,11 +1042,11 @@ describe("live studio: a silent stream, and a hole in the record", () => {
           sseFrames(
             from < 2
               ? [
-                  envelope(1, "thread.started"),
-                  envelope(2, "turn.started"),
-                  envelope(5, "turn.completed"),
+                  envelope(1, "thread.started", {}, 0),
+                  envelope(2, "turn.started", {}, 1),
+                  envelope(5, "turn.completed", {}, 4),
                 ]
-              : [envelope(5, "turn.completed")],
+              : [envelope(5, "turn.completed", {}, 4)],
             { end: true },
           ),
           5,

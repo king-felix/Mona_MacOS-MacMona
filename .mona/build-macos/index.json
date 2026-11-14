@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-13T15:35:03.945Z",
+  "generated_utc": "2026-11-14T03:36:11.596Z",
   "git": {
     "available": true,
-    "commit": "820387dd4f9e5581f72999e0f371d751bf8462dc",
+    "commit": "579d4c1f996f8d41473b53bb698e9e3dee1e2b75",
     "dirty": true
   },
-  "digest": "bf4b52a721cfe404c9448c0a3b0abd888ffa154fb144ba9061d38f1fe29cf7fd",
+  "digest": "22f234093043a9142d853270d8b37f19059413a37cee0efd6209cda6f3c36506",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,8 +15,8 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "8d116d4d6b403a3051bf3ba07d2144e9ef323ae76234b10a50dc81513d5aee13",
-      "bytes": 139111
+      "sha256": "955e0b9ee5ff9a4ce4f67151dc030982a1d4acf4c62842ba320f60d7d0d2582a",
+      "bytes": 139399
     },
     {
       "path": "AGENTS.md",
@@ -350,18 +350,18 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p08-studio-live.png",
-      "sha256": "70cb90339984bf6780de0bcf45059e5d867396ce5ed54392985c4fad1d875b57",
-      "bytes": 310880
+      "sha256": "2ff0f10e9e9b38f23a32e51f668dd1db77954932a0101c5317e00b4d73604a03",
+      "bytes": 317289
     },
     {
       "path": "docs/evidence/macos/artifacts/p08-studio-offline.png",
-      "sha256": "ce1bca783e0e0f3dc37f850d7751d376ca07f30e4bebca575e20a5b219ee8034",
-      "bytes": 317414
+      "sha256": "b01ac447b5f22a1e58f75f6f358e792fefe00428dbe2d553359974aa72618d23",
+      "bytes": 330003
     },
     {
       "path": "docs/evidence/macos/artifacts/p08-studio-run.png",
-      "sha256": "9537af2a3ccbf1b6c80ae1aead69eb2cef18cff24c98f89316b0f59784cf33c3",
-      "bytes": 287851
+      "sha256": "20cd18cfe8559baaa655fb53500b39bcdae83d6f14910e0a7b790db6b6073c21",
+      "bytes": 288309
     },
     {
       "path": "docs/evidence/macos/artifacts/p08-studio-smoke.json",
@@ -740,7 +740,7 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p20-failure-smoke.json",
-      "sha256": "97c075145324890a55b9ebe54f543ba29dc39a53b84400479975a5853d97e9d8",
+      "sha256": "3e6a8b9aa785da76dda75b526ac4a49d10e3cce820db62427ab5f92f94c062ee",
       "bytes": 2515
     },
     {
@@ -810,12 +810,12 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p23-lifecycle-smoke.json",
-      "sha256": "1790bcb7d05596ed8c8971588bbcfbda06066bcb8f95a02ba0ec3751bfb98de0",
+      "sha256": "c89bb417491ea2c13ade61dcf5ed9d3422e36e20343c07e661049117229f7863",
       "bytes": 12362
     },
     {
       "path": "docs/evidence/macos/artifacts/p23-uninstall-rehearsal.json",
-      "sha256": "64ac801a6143011a7b7b19dba0fb0b453d62391bb93b330cf76efb3d894b7e73",
+      "sha256": "5790f9f5a90fd44e806414cf92473640c08449e828fee95a74e36155799cc86e",
       "bytes": 3175
     },
     {
@@ -852,6 +852,11 @@
       "path": "docs/evidence/macos/artifacts/upstream-RUNTIME_API.md",
       "sha256": "82b8b74821dfefa8a6a3f16bec96a937fc146311cbd13e6bbb4df7333e486f4a",
       "bytes": 186525
+    },
+    {
+      "path": "docs/evidence/macos/engine-event-gaps.md",
+      "sha256": "243dd38483b16a92524f956e9a5f57fe8deb99da6e9f3a1cff709b30b4cce569",
+      "bytes": 7422
     },
     {
       "path": "docs/evidence/macos/P00-bootstrap.md",
@@ -895,8 +900,8 @@
     },
     {
       "path": "docs/evidence/macos/P08-studio.md",
-      "sha256": "db92c2a8ba03f0cbf920b46db607277b4382ba3138500895e2aeb078d35dcb95",
-      "bytes": 15342
+      "sha256": "3dbbc84d1047d5908b4ebfac96e1a7586570ebe745d505d5aa37f2b0b0417e5c",
+      "bytes": 16242
     },
     {
       "path": "docs/evidence/macos/P09-finder.md",
