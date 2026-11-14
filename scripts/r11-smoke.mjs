@@ -15,6 +15,15 @@ const require = createRequire(import.meta.url);
 const electron = require("electron");
 const ROOT = resolve(new URL("..", import.meta.url).pathname);
 const artifactDir = join(ROOT, "docs", "evidence", "macos", "review-studio", "artifacts");
+/**
+ * `--app <path>` measures an installed bundle instead of the developer tree.
+ * P26 asks for the product a recipient would launch, so the same harness has to
+ * be able to point at the packaged binary; without this the numbers describe
+ * `electron .` and nothing else.
+ */
+const appArgIndex = process.argv.indexOf("--app");
+const APP_PATH = appArgIndex >= 0 ? resolve(process.argv[appArgIndex + 1] ?? "") : null;
+const APP_BINARY = APP_PATH ? join(APP_PATH, "Contents", "MacOS", "Mona") : null;
 const userDataDir = await mkdtemp(join(tmpdir(), "mona-r11-userdata-"));
 
 /** One launch. `mode` only labels the report; the state directory is shared. */
@@ -22,16 +31,28 @@ async function run(mode) {
   const outDir = await mkdtemp(join(tmpdir(), "mona-r11-out-"));
   const outFile = join(outDir, "report.json");
   const startedAt = Date.now();
-  const child = spawn(electron, [".", "--r11-smoke", `--user-data-dir=${userDataDir}`], {
-    cwd: ROOT,
-    env: {
-      ...process.env,
-      MONA_R11_SMOKE_OUT: outFile,
-      MONA_R11_SMOKE_OUT_DIR: artifactDir,
-      MONA_R11_SMOKE_MODE: mode,
-    },
-    stdio: ["ignore", "pipe", "pipe"],
-  });
+  const child = APP_BINARY
+    ? spawn(APP_BINARY, ["--r11-smoke", `--user-data-dir=${userDataDir}`], {
+        cwd: APP_PATH,
+        env: {
+          ...process.env,
+          MONA_R11_SMOKE_OUT: outFile,
+          MONA_R11_SMOKE_OUT_DIR: artifactDir,
+          MONA_R11_SMOKE_MODE: mode,
+          MONA_R11_AXE_PATH: join(ROOT, "node_modules", "axe-core", "axe.min.js"),
+        },
+        stdio: ["ignore", "pipe", "pipe"],
+      })
+    : spawn(electron, [".", "--r11-smoke", `--user-data-dir=${userDataDir}`], {
+        cwd: ROOT,
+        env: {
+          ...process.env,
+          MONA_R11_SMOKE_OUT: outFile,
+          MONA_R11_SMOKE_OUT_DIR: artifactDir,
+          MONA_R11_SMOKE_MODE: mode,
+        },
+        stdio: ["ignore", "pipe", "pipe"],
+      });
   let stdout = "";
   let stderr = "";
   child.stdout.on("data", (chunk) => (stdout += chunk));

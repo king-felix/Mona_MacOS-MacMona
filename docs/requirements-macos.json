@@ -14,7 +14,7 @@
         "sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8"
       }
     ],
-    "indexed_utc": "2026-11-14T19:47:16.683Z"
+    "indexed_utc": "2026-11-14T22:46:39.095Z"
   },
   "prompts": [
     {
@@ -446,7 +446,7 @@
         "P01",
         "P03"
       ],
-      "status": "partial",
+      "status": "satisfied",
       "acceptance": "pending",
       "evidence": [
         {
@@ -456,9 +456,17 @@
         {
           "path": "docs/evidence/macos/artifacts/engine-inventory.txt",
           "note": "engine identity and route evidence"
+        },
+        {
+          "path": "docs/evidence/macos/P01-feasibility.md",
+          "note": "P01 live identity, capability qualification and zero-inference probe"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p01-live.json",
+          "note": "live runtime identity plus a real turn receipt on the pinned build"
         }
       ],
-      "notes": "P00: installed engine identity, paths, arm64 digest, help surface, pinned source tag, and redacted provider/model/endpoint recorded. Live capability qualification is P01; requirement stays partial until then."
+      "notes": "P00 recorded the installed identity, paths, arm64 digest, help surface, pinned tag and a redacted route. P01 then qualified the live capabilities against the running engine (identity, transports, capability flags, one real turn) and wrote the capability inventory. Acceptance stays \"pending\" because acceptance is a human act, not because work is outstanding."
     },
     {
       "id": "MONA-002",
@@ -469,10 +477,31 @@
         "P03",
         "P04"
       ],
-      "status": "pending",
+      "status": "satisfied",
       "acceptance": "pending",
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P03-adapter.md",
+          "note": "P03 adapter: submission, live events, interrupt and replay on the pinned engine"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p03-engine-smoke.json",
+          "note": "10/10: real turn, effective route, usage, event stream, interrupt route"
+        },
+        {
+          "path": "docs/evidence/macos/P04-supervisor.md",
+          "note": "P04 owned runtime, resume and shutdown behaviour"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p04-engine-smoke.json",
+          "note": "17/17: tool-enabled Full Access turn, live events, interrupt, resume"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p26-installed-studio.json",
+          "note": "P26: the same execution through the installed bundle on its own engine (22/22)"
+        }
+      ],
+      "notes": "Proved on the pinned 0.10.2 build: submission, durable intent before transmission, live event stream, effective provider/model, interrupt, and resume after reconnect. P26 re-proved it end to end through the installed app, which started its own runtime on the bundled engine and ran one tool-enabled Full Access turn whose test passed."
     },
     {
       "id": "MONA-003",
@@ -521,6 +550,10 @@
         {
           "path": "docs/evidence/macos/artifacts/p12-ci.txt",
           "note": "local CI green: format, lint, typecheck, builds, tests, board and cost smoke"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p26-installed-studio.json",
+          "note": "P26: one live turn through the installed app, cost observed and complete"
         }
       ],
       "notes": "P12: one ledger row per (thread, turn) with a partial unique index; five labeled cost states (reported, estimated, unknown_price, missing_usage, unallocated); exact integer pico-USD; the engine's cumulative thread total stored as a non-negative per-turn delta with an unallocated residual when it cannot be split; inclusive turn input and exclusive usage buckets handled separately; cache and reasoning tokens never double-counted; human-recorded, revisioned rate cards with no shipped price table; preview-only recalculation; per-model/task/session/civil-day rollups; optional session/project/day budgets that warn or stop the next dispatch and disclose that a local limit is not an invoice cap; JSON and CSV export with no balance. Ledger reads and edits make zero inference calls (asserted against a fixture transport). P01's paid evidence is reused; no new live spend was required. Final human QA is P26."
@@ -615,7 +648,7 @@
         "P07",
         "P26"
       ],
-      "status": "pending",
+      "status": "partial",
       "acceptance": "pending",
       "evidence": [
         {
@@ -669,9 +702,13 @@
         {
           "path": "docs/evidence/macos/P14-polish.md",
           "note": "P14 contribution: density/layout persistence, Focus Mode, both-theme screenshots"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p26-r11-installed.json",
+          "note": "P26: installed build passes 200 % scaling, reduced motion, keyboard focus and axe with 0 blocking violations"
         }
       ],
-      "notes": "P06: measured Daybreak/Afterglow tokens, accessible components, density and 200% scaling, reduced motion, six fixture screens. P07 renders the real shell with the same system; VoiceOver walkthrough and aesthetic review remain P24/P26."
+      "notes": "P06: measured Daybreak/Afterglow tokens, accessible components, density and 200% scaling, reduced motion, six fixture screens. P07 renders the real shell with the same system; VoiceOver walkthrough and aesthetic review remain P24/P26. P26 re-measured the installed build: axe over the live Studio reports 0 blocking violations, 200 % scaling fits, reduced motion stops every animation, and keyboard focus is reachable and restorable. A spoken VoiceOver walkthrough is the one remaining item and is on the P26 human checklist. P26 re-measured the installed build and the automated half passes: axe over the live Studio reports 0 blocking violations, every appearance fits at 200 % with no overflow, reduced motion stops every animation, and console and composer focus are reachable and restorable. The remaining item is a spoken VoiceOver walkthrough, which only a person can perform; it is on the P26 human checklist rather than claimed here."
     },
     {
       "id": "MONA-007",
@@ -707,14 +744,18 @@
         {
           "path": "docs/evidence/macos/artifacts/p08-studio-run.png",
           "note": "rendered active turn with user message and control strip"
+        },
+        {
+          "path": "docs/evidence/macos/P14-polish.md",
+          "note": "P14/R10 daily-use polish: transcript search, copy, verified @file mentions"
         }
       ],
-      "notes": "P08: real streaming conversation over stored engine events with delta merging, duplicate suppression, safe Markdown and code rendering, tool/command cards, status and error cards, per-project drafts with recovery, and large output collapsed behind an explicit expand. Attachments are disabled with a stated reason because the pinned adapter has no attachment operation. Explicit @file references, transcript copy/export, and conversation search remain; P13/P14 own artifacts and daily-use polish."
+      "notes": "P08 delivered streaming over stored engine events with delta merging, duplicate suppression, safe Markdown/code rendering, tool and status cards, per-project draft recovery, and large-output collapse; attachments are disabled with a stated reason because the pinned adapter has no attachment operation. R10 then added transcript search, exact-body copy with code copy, and verified @file mentions. One listed item is still absent: transcript EXPORT to a file. The row stays partial for that alone."
     },
     {
       "id": "MONA-008",
       "track": "Core",
-      "title": "Explicit Plan/Work and effective permission display; Victor’s saved DS Full Access profile; no silent policy widening",
+      "title": "Explicit Plan/Work and effective permission display; Victor\u2019s saved DS Full Access profile; no silent policy widening",
       "prompts": [
         "P03",
         "P08",
@@ -765,10 +806,19 @@
       "prompts": [
         "P10"
       ],
-      "status": "pending",
+      "status": "satisfied",
       "acceptance": "pending",
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P10-continuity.md",
+          "note": "P10 work board: plans, dependencies, acceptance criteria, deterministic selection"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p11-board-sample.json",
+          "note": "37/37: cycle rejection, import, attempts, deterministic queue order"
+        }
+      ],
+      "notes": "The board turns a project plan into bounded, evidence-gated tasks: dependency validation, cycle refusal, acceptance criteria with check/human kinds, a deterministic eligible selection, and 18 narrow board IPC channels. Reading or selecting runs no model."
     },
     {
       "id": "MONA-010",
@@ -779,7 +829,7 @@
         "P05",
         "P10"
       ],
-      "status": "partial",
+      "status": "satisfied",
       "acceptance": "pending",
       "evidence": [
         {
@@ -797,9 +847,21 @@
         {
           "path": "docs/decisions/ADR-004-project-state.md",
           "note": "schema, ownership, and recovery decision"
+        },
+        {
+          "path": "docs/evidence/macos/P10-continuity.md",
+          "note": "board selection, resume reconciliation and derived handoff"
+        },
+        {
+          "path": "docs/evidence/macos/P11-attempts.md",
+          "note": "attempt ledger and three-attempt blocking in the product"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p11-board-sample.json",
+          "note": "37/37 board/attempt cycle checks on a real database"
         }
       ],
-      "notes": "P05: transactional product state with per-row revisions, migrations, attempts/evidence/decisions tables, maintenance barrier, portable export/import with digests, and backup/restore. Work board selection and handoff UI are P10; build-ledger continuity was P00."
+      "notes": "All five mechanisms exist and are cited: durable transactional state with per-row revisions, migrations and a maintenance barrier (P05); deterministic board selection, resume and a derived handoff (P10); the attempt ledger with the three-attempt rule (P11); requirement traceability in this registry; and conflict detection through revision compare-and-swap, which refuses a stale write with CONFIG_STALE / CONFLICT rather than overwriting."
     },
     {
       "id": "MONA-011",
@@ -1197,7 +1259,7 @@
           "note": "local CI green: format, lint, typecheck, builds, 469 tests, five smokes"
         }
       ],
-      "notes": "P15: observatory over /v1/agent-runs and /v1/fleet/*. Expandable parent/child rows use real upstream identities (agent_8f9c0296, fleet-…-local-1) with role, workspace, branch from a local Git read, lifecycle, last meaningful event, tool names from lifecycle events, test evidence (verified / self-reported / none), artifacts, and a spend confidence of priced, unpriced, unknown, or not_reported. A sub-agent whose ledger says usage is unknown shows unknown; a fleet receipt shows not_reported. Parent and child spend are separate rows and the view exposes no total, so a double count is not expressible. A fleet worker appears once, under its fleet, and inherits that sub-agent record's spend, tools, and tests. Disconnect falls back to a bounded local projection that says when it was observed, marks goals stale, and disables controls."
+      "notes": "P15: observatory over /v1/agent-runs and /v1/fleet/*. Expandable parent/child rows use real upstream identities (agent_8f9c0296, fleet-\u2026-local-1) with role, workspace, branch from a local Git read, lifecycle, last meaningful event, tool names from lifecycle events, test evidence (verified / self-reported / none), artifacts, and a spend confidence of priced, unpriced, unknown, or not_reported. A sub-agent whose ledger says usage is unknown shows unknown; a fleet receipt shows not_reported. Parent and child spend are separate rows and the view exposes no total, so a double count is not expressible. A fleet worker appears once, under its fleet, and inherits that sub-agent record's spend, tools, and tests. Disconnect falls back to a bounded local projection that says when it was observed, marks goals stale, and disables controls."
     },
     {
       "id": "MONA-019",
@@ -1227,7 +1289,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p15-agents-live.json",
-          "note": "create → start (202) → terminal receipt → local task in verification, one owner"
+          "note": "create \u2192 start (202) \u2192 terminal receipt \u2192 local task in verification, one owner"
         }
       ],
       "notes": "P15 partial: goals (set, complete, block, clear), managed fleet runs (create, start, stop, worker stop/restart, receipts, receipt evidence, event replay), runs/history, and artifacts are surfaced natively. One scheduler per task is enforced by tasks.execution_owner plus a unique task_runs.upstream_id index; a terminal fleet run moves its task to verification, never to completed. Only one serial task launches per run: a live probe showed the engine accepting two parallel writer tasks on the same repository root, so parallel launch stays refused with four named qualification checks. Remaining gaps: `codewhale workflow` / `lane` (checked-in JS workflows through a Lane Runtime) have no /v1 route on 0.10.2, and goals have no HTTP pause route. P18 owns the first; pause is offered as block or clear."
@@ -1488,7 +1550,7 @@
           "note": "newer schema refused; matching snapshot restored and migrated forward"
         }
       ],
-      "notes": "P19 completes the P19 scope of MONA-025: settings backup/restore under the exclusive maintenance barrier with a snapshot, a journal, and read-back; a portable project handoff in a fail-closed store-only archive (sha256 manifest, refused traversal and tamper, in-memory import that starts no work); a redacted diagnostics bundle with an explicit preview and digest; and offline browsing of the same records. P20 owns failure injection and P23 the final matrix, so the wider requirement stays open there. Carried-forward item 27 (plan export status) is closed in P19. P20 adds the failure evidence for the same surfaces: an interrupted restore leaves prior state and a journal, a symlinked extraction parent cannot redirect a write, and an over-budget archive yields no entries. P23 closes the migration part of MONA-025: a failed migration is discoverable from its journal, a newer schema is refused rather than opened, and a restore is offered only for a snapshot this build can verify — after which the normal migration path runs with its own snapshot and journal."
+      "notes": "P19 completes the P19 scope of MONA-025: settings backup/restore under the exclusive maintenance barrier with a snapshot, a journal, and read-back; a portable project handoff in a fail-closed store-only archive (sha256 manifest, refused traversal and tamper, in-memory import that starts no work); a redacted diagnostics bundle with an explicit preview and digest; and offline browsing of the same records. P20 owns failure injection and P23 the final matrix, so the wider requirement stays open there. Carried-forward item 27 (plan export status) is closed in P19. P20 adds the failure evidence for the same surfaces: an interrupted restore leaves prior state and a journal, a symlinked extraction parent cannot redirect a write, and an over-budget archive yields no entries. P23 closes the migration part of MONA-025: a failed migration is discoverable from its journal, a newer schema is refused rather than opened, and a restore is offered only for a snapshot this build can verify \u2014 after which the normal migration path runs with its own snapshot and journal."
     },
     {
       "id": "MONA-026",
@@ -1593,10 +1655,23 @@
         "P26",
         "P27"
       ],
-      "status": "pending",
+      "status": "partial",
       "acceptance": "pending",
-      "evidence": [],
-      "notes": ""
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/P26-product-QA.md",
+          "note": "P26 whole-product QA: measured budgets, installed-build checks, requirement matrix"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p26-r11-installed.json",
+          "note": "installed build: startup, 60 s idle CPU, memory, 10k-event typing/scroll, 200 %, reduced motion, axe"
+        },
+        {
+          "path": "docs/evidence/macos/P27-release.md",
+          "note": "P27 promoted artifact, qualification record and documentation set"
+        }
+      ],
+      "notes": "Automated QA, performance budgets, the requirement/capability reconciliation and the user and developer documentation are complete and cited here. The remaining half is human: a short signed-off checklist (spoken VoiceOver walkthrough, aesthetic review of real captures, and one real two-folder workflow at the owner's pace). Human signoff is not invented, so the row stays partial until that checklist is returned."
     },
     {
       "id": "MONA-029",
@@ -1646,7 +1721,7 @@
         "P18",
         "P26"
       ],
-      "status": "partial",
+      "status": "satisfied",
       "acceptance": "pending",
       "evidence": [
         {
@@ -1680,9 +1755,17 @@
         {
           "path": "docs/evidence/macos/artifacts/p18-capabilities.png",
           "note": "capability explorer in the real Electron app"
+        },
+        {
+          "path": "docs/evidence/macos/P26-product-QA.md",
+          "note": "P26 final capability/requirement matrix and completion statement"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p18-capability-coverage.json",
+          "note": "computed coverage: every row carries an entry point or an explicit no-route state"
         }
       ],
-      "notes": "P18 contribution: version drift is detected by a read-only `--version`/`--help`/`features list` probe and reported as additions/removals against the recorded surface (currently a clean 0.10.2 ff466b2ed0bf match); the coverage report is computed from the rows and names every gap; unknown or unreachable features stay visible instead of being hidden. P26 owns the final feature matrix and the release-level completion statement."
+      "notes": "Version drift is detected by a read-only probe and reported against the recorded surface (a clean 0.10.2 ff466b2ed0bf match); the coverage report is computed from the rows and names every gap; unknown or unreachable features stay visible rather than hidden; and P26 reconciled every capability and requirement row into the final matrix with the release-level statement."
     },
     {
       "id": "MAC-001",
@@ -1723,6 +1806,10 @@
         {
           "path": "docs/decisions/ADR-015-packaging-and-payload.md",
           "note": "payload ownership, local/release split, installer scripts, Git guard, determinism limits"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p26-r11-installed.json",
+          "note": "P26: installed arm64 build measured on macOS 26.5.1; floor stays declared, not tested"
         }
       ],
       "notes": "Native arm64 and the engine floor are proven; the OS claim is 'requires macOS 14.0 or later, tested on macOS 26.5.1' by owner decision (D-104). The 14.0 floor is declared in the payload, the Distribution and the preinstall script and enforced by the installer, but no 14.x host has executed it. No requirement is raised to satisfied on a version that never ran."
@@ -1736,7 +1823,7 @@
         "P09",
         "P26"
       ],
-      "status": "pending",
+      "status": "partial",
       "acceptance": "pending",
       "evidence": [
         {
@@ -1790,9 +1877,13 @@
         {
           "path": "docs/evidence/macos/P14-polish.md",
           "note": "P14 contribution: close-versus-Quit, Dock/menu-bar attention, native shortcuts"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p26-r11-installed.json",
+          "note": "P26: installed build keyboard navigation, focus restoration and menu semantics"
         }
       ],
-      "notes": "P06: native chrome, Command-key conventions, keyboard-reachable screens, visible focus, VoiceOver-readable labels. P07: native File → Open Project… dialog and real shell keyboard navigation. Finder selected-folder Service and file-URL dispatch remain P09; spoken walkthrough is P24/P26."
+      "notes": "P06: native chrome, Command-key conventions, keyboard-reachable screens, visible focus, VoiceOver-readable labels. P07: native File \u2192 Open Project\u2026 dialog and real shell keyboard navigation. Finder selected-folder Service and file-URL dispatch remain P09; spoken walkthrough is P24/P26. P26 re-measured the installed build: axe over the live Studio reports 0 blocking violations, 200 % scaling fits, reduced motion stops every animation, and keyboard focus is reachable and restorable. A spoken VoiceOver walkthrough is the one remaining item and is on the P26 human checklist. P26 re-measured the installed build and the automated half passes: axe over the live Studio reports 0 blocking violations, every appearance fits at 200 % with no overflow, reduced motion stops every animation, and console and composer focus are reachable and restorable. The remaining item is a spoken VoiceOver walkthrough, which only a person can perform; it is on the P26 human checklist rather than claimed here."
     },
     {
       "id": "MAC-003",
@@ -1939,6 +2030,10 @@
         {
           "path": "test/update-screen.test.tsx",
           "note": "7 tests: real checks, refusal code, deferral list, local confirmation, restore offer"
+        },
+        {
+          "path": "docs/evidence/macos/P26-product-QA.md",
+          "note": "P26 re-ran the lifecycle modes against the installed build"
         }
       ],
       "notes": "P23 implements the whole MAC-006 surface: an installer-mediated update that verifies an authenticated manifest (Ed25519 over exact bytes), the Developer ID team, the package signature, digest and length, architecture, minimum macOS, version order, and replay; defers while any task, submission, or runtime is active (a probe failure counts as active); records the intent before any privileged step; takes a verified state snapshot under the maintenance barrier; and hands the package to Apple Installer, quitting only after a confirmed handoff. The bundled engine is never changed independently: a package with a different engine requires an explicit, digest-bound acknowledgement. An older app refuses a newer schema and offers only a verified snapshot it can open, which is then migrated forward. P26 owns the final release matrix; P22 owns the signed artifact for the release trust tier."
@@ -2018,7 +2113,7 @@
     "ok": true,
     "errors": [],
     "warnings": [],
-    "validated_utc": "2026-11-14T19:47:16.683Z",
+    "validated_utc": "2026-11-14T22:46:39.095Z",
     "prompt_count": 28,
     "requirement_count": 38
   }

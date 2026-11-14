@@ -77,6 +77,19 @@ const MODES = {
     timeoutMs: 150_000,
     covers: "Focus Studio, native fullscreen transitions, composer and draft survival",
   },
+  studio: {
+    flag: "--studio-smoke",
+    env: (dir) => ({
+      MONA_STUDIO_SMOKE_OUT: join(dir, "report.json"),
+      MONA_STUDIO_SMOKE_DIR: join(dir, "captures"),
+    }),
+    // The only mode that spends anything: it starts the app's own runtime on the
+    // bundled engine and runs one tool-enabled Full Access turn (write a file,
+    // run a passing test) plus an interrupt. A few thousand input tokens.
+    timeoutMs: 300_000,
+    covers:
+      "bundled engine start, one real tool-enabled turn with a passing test, interrupt, offline history",
+  },
   history: {
     flag: "--history-smoke",
     env: (dir) => ({

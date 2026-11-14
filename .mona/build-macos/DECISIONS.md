@@ -2171,3 +2171,25 @@ and the smoke measures it rather than asserting it is pretty.
 - **Consequence:** the request is now deterministic and visible. The effective
   value stays `unknown`, because 0.10.2 still reports none (D-109), and the
   interface says exactly that rather than implying the request was honoured.
+
+## D-111 — The engine reasoning gap is accepted as permanent
+
+- **Date:** 2026-11-14 (owner: "Accept the work around as permanent")
+- **Context:** D-108 recovered the model's reasoning ladder from the engine's own
+  Models.dev cache and D-110 declared `auto` as the route's reasoning setting, so
+  the ladder and the request no longer depend on the engine's dropped metadata.
+  The residual gap is D-109's: the pinned 0.10.2 reports no **effective**
+  reasoning value on any documented surface, so Mona shows `unknown` beside an
+  engine-reported value when (and only when) one exists.
+- **Decision:** the workaround is the permanent shape for this build. The upstream
+  change request in `docs/evidence/macos/engine-change-request-reasoning.md` is
+  retained as design documentation, not as pending work, and `BLOCKERS.md`
+  records `ENGINE-REASONING-FACTS` as closed by owner decision.
+- **Why accepting it is honest:** the setting is declared and sent explicitly
+  (D-110), so the user sees exactly what Mona requests. What remains unprovable is
+  the provider's post-`auto` tier, which no client can observe on this engine. Mona
+  does not infer it, does not label the request as effective, and does not hide the
+  gap; it states it. Accepting an unprovable field is different from claiming it.
+- **What would reopen it:** an engine build that reports
+  `effective_reasoning_effort` on `TurnRecord`. The consumer path is already
+  implemented and tested, so reopening requires no Mona change beyond the pin.

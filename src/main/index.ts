@@ -3402,11 +3402,14 @@ async function runR11Smoke(window: BrowserWindow): Promise<void> {
     await sleep(400);
 
     // axe over the live Studio. The engine file is a development dependency, so a
-    // packaged run reports that it is absent instead of pretending it passed.
+    // packaged run reports that it is absent instead of pretending it passed —
+    // unless the QA harness hands it the path, which is how the installed build
+    // is measured without shipping a test-only dependency in the payload.
     let axeResult: Record<string, unknown> = { available: false };
     try {
       const source = readFileSync(
-        join(process.cwd(), "node_modules", "axe-core", "axe.min.js"),
+        process.env.MONA_R11_AXE_PATH ??
+          join(process.cwd(), "node_modules", "axe-core", "axe.min.js"),
         "utf8",
       );
       await evaluate(`(() => { ${source}\n return true; })()`);

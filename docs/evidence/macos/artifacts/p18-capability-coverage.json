@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-14T21:57:50.480Z",
+  "generated_at": "2026-11-14T22:51:23.030Z",
   "inventory": "~/DS_Projects/Mona/docs/codewhale-capabilities-macos.json",
   "coverage": {
     "rowsTotal": 75,
@@ -218,7 +218,7 @@
   },
   "drift": {
     "checked": true,
-    "checkedAt": "2026-11-14T21:57:50.480Z",
+    "checkedAt": "2026-11-14T22:51:23.029Z",
     "error": null,
     "engineVersion": "0.10.2",
     "engineCommit": "ff466b2ed0bf",
