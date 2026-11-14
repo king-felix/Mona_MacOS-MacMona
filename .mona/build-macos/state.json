@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 1138,
+  "revision": 1140,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -2245,8 +2245,8 @@
         },
         {
           "path": ".mona/build-macos/HANDOFF.md",
-          "sha256": "89f9cb8d269f231d03888ced1fccafa3aaf4e406473f1237c45dc5c0b86e1382",
-          "note": "Re-recorded after R09 (usage HUD) changed these shared bytes. The full suite (1,089 tests) and the shell smoke (137/137) passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "a4274b5174ea6fc5aede01d08d04db6d7d10171a2bb02ebd39dafe3d30dd52c4",
+          "note": "Re-recorded after R08/R09/P22/P25 updated the handoff; the report describes the state at its own checkpoint."
         }
       ],
       "blocker_ids": []
@@ -2475,8 +2475,8 @@
         },
         {
           "path": ".mona/build-macos/HANDOFF.md",
-          "sha256": "89f9cb8d269f231d03888ced1fccafa3aaf4e406473f1237c45dc5c0b86e1382",
-          "note": "Re-recorded after R09 (usage HUD) changed these shared bytes. The full suite (1,089 tests) and the shell smoke (137/137) passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "a4274b5174ea6fc5aede01d08d04db6d7d10171a2bb02ebd39dafe3d30dd52c4",
+          "note": "Re-recorded after R08/R09/P22/P25 updated the handoff; the report describes the state at its own checkpoint."
         },
         {
           "path": "test/work-git.test.ts",
@@ -2680,7 +2680,7 @@
     "P22",
     "P25"
   ],
-  "last_checkpoint_utc": "2026-11-14T10:09:36.740Z",
+  "last_checkpoint_utc": "2026-11-14T10:09:54.982Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",
