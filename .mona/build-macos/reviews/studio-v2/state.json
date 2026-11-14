@@ -37,8 +37,8 @@
     "attempts": ".mona/build-macos/attempts.jsonl",
     "requirement_registry": "docs/requirements-macos.json"
   },
-  "revision": 38,
-  "current_task": "R03",
+  "revision": 57,
+  "current_task": "R05",
   "current_task_status": "completed",
   "tasks": {
     "R00": {
@@ -364,14 +364,14 @@
         {
           "path": "src/main/state/schema.ts",
           "sha256": "9ba167ffab03cb4a17945dc92a890f944f717228fa824f370b0d3a2b96d88f8d",
-          "state": "current",
-          "note": "v10 adds events.item_id plus identity/order indexes."
+          "state": "historical",
+          "note": "R04 changed this file after the task's verification; the recorded hash is that task's state, not today's bytes (RD-003)."
         },
         {
           "path": "src/main/state/store.ts",
           "sha256": "09e47ea5f313a3c3664562c2eca653b70225a9a6baecff26192275dd6f12732f",
-          "state": "current",
-          "note": "recordEvent keeps item_id; readProjectHistoryPage (keyset) and readItemEvents added."
+          "state": "historical",
+          "note": "R04 changed this file after the task's verification; the recorded hash is that task's state, not today's bytes (RD-003)."
         },
         {
           "path": "src/main/projects/service.ts",
@@ -382,8 +382,8 @@
         {
           "path": "src/main/work/studio.ts",
           "sha256": "a0bf1b7cc0953b0a76fefa6a4196fa24b9c3e624de67a4d05312dba10ccbd3a9",
-          "state": "current",
-          "note": "ingestion stores the envelope/payload item identity."
+          "state": "historical",
+          "note": "R04 changed this file after the task's verification; the recorded hash is that task's state, not today's bytes (RD-003)."
         },
         {
           "path": "src/main/index.ts",
@@ -673,44 +673,44 @@
         {
           "path": "src/main/work/commands.ts",
           "sha256": "176350d4e4bb6d86417e9857c47780fe8e406191f87489737e544cab2b5e118c",
-          "state": "current",
-          "note": "CommandCatalogService: a local, validated, process-free read."
+          "state": "historical",
+          "note": "R04 changed this file after the task's verification; the recorded hash is that task's state, not today's bytes (RD-003)."
         },
         {
           "path": "src/main/ipc.ts",
           "sha256": "4b1a5c2f11a2b527b234f0f6d5a949dfca5eb535a3724d6324b9dccec0062b67",
-          "state": "current",
-          "note": "commands:catalog handler; no engine call."
+          "state": "historical",
+          "note": "R04 changed this file after the task's verification; the recorded hash is that task's state, not today's bytes (RD-003)."
         },
         {
           "path": "src/main/ipc-contract.ts",
           "sha256": "4670e7b11f42871520813d32684632594b14845e1af675aa2df2b3b4fce61a3d",
-          "state": "current",
-          "note": "strict empty request for commands:catalog."
+          "state": "historical",
+          "note": "R04 changed this file after the task's verification; the recorded hash is that task's state, not today's bytes (RD-003)."
         },
         {
           "path": "src/main/index.ts",
           "sha256": "01d5288f34cb27b1f234d6235469e2274464f11f97b36656f22cbd1fd76405ed",
-          "state": "current",
-          "note": "--command-smoke runner and catalog service wiring."
+          "state": "historical",
+          "note": "R05 changed this file after the task's verification; the recorded hash is that task's state, not today's bytes (RD-003 precedent)."
         },
         {
           "path": "src/preload/index.ts",
           "sha256": "44f1588504bddcd442211c4329295221025f09db9068f9c9987b95349e8a778e",
-          "state": "current",
-          "note": "commandCatalog bridge passthrough."
+          "state": "historical",
+          "note": "R04 changed this file after the task's verification; the recorded hash is that task's state, not today's bytes (RD-003)."
         },
         {
           "path": "src/shared/contracts/bridge.ts",
           "sha256": "43ce3ea0fd2037d1ceae8fa5b3c92034cc9fc1761e93a01127a939b67197172a",
-          "state": "current",
-          "note": "commandCatalog bridge type."
+          "state": "historical",
+          "note": "R04 changed this file after the task's verification; the recorded hash is that task's state, not today's bytes (RD-003)."
         },
         {
           "path": "src/shared/contracts/index.ts",
           "sha256": "34d31540b43de6f237977ca2766fced2619dbad2a0605a1edd2f37afaa43af36",
-          "state": "current",
-          "note": "exports the commands contract."
+          "state": "historical",
+          "note": "R04 changed this file after the task's verification; the recorded hash is that task's state, not today's bytes (RD-003)."
         },
         {
           "path": "src/renderer/design/primitives.tsx",
@@ -721,8 +721,8 @@
         {
           "path": "src/renderer/shell/composer-commands.ts",
           "sha256": "1bcccfc35d7c686ff5b2a97bb8efc70b5cfe93986c34ca1b1575a07c4f629945",
-          "state": "current",
-          "note": "new: pure command-position detection, ranking, acceptance, and submission intents. Ambiguity requires a bare name/alias prefix; description matches never block prose."
+          "state": "historical",
+          "note": "R04 changed this file after the task's verification; the recorded hash is that task's state, not today's bytes (RD-003)."
         },
         {
           "path": "src/renderer/shell/CommandMenu.tsx",
@@ -733,20 +733,20 @@
         {
           "path": "src/renderer/shell/Studio.tsx",
           "sha256": "acf972f3840a24cb04545ae669868b817137c3edb5d66004be0ddaef400cba84",
-          "state": "current",
-          "note": "menu wiring: keyboard/pointer/IME, listbox-consistent ARIA, caret clamp on draft replacement, measured placement capped to the viewport."
+          "state": "historical",
+          "note": "R04 changed this file after R03's verification (composer is blocked while reading an earlier conversation). The recorded hash is R03's state (RD-003)."
         },
         {
           "path": "src/renderer/shell/Shell.tsx",
           "sha256": "afcb22490bff29b28e6824cd8538ab65420a2df038541c8e0693c20a4fb0b87d",
-          "state": "current",
-          "note": "loads the catalog once; intercepts recognised commands before submission; fails closed on single-line slash text when the catalog is unreadable."
+          "state": "historical",
+          "note": "R04 changed this file after the task's verification; the recorded hash is that task's state, not today's bytes (RD-003)."
         },
         {
           "path": "src/renderer/styles.css",
           "sha256": "b3eaa284e8e0db6e8aaf52ab67cb2b70738087359e86cffdc52dd19e6f3f69d3",
-          "state": "current",
-          "note": "command menu, detail, support badges, placement and compact styles."
+          "state": "historical",
+          "note": "R05 changed this file after the task's verification; the recorded hash is that task's state, not today's bytes (RD-003 precedent)."
         },
         {
           "path": "scripts/command-catalog.mjs",
@@ -763,8 +763,8 @@
         {
           "path": "package.json",
           "sha256": "2061d794f1092bd7b7cfcb84a48954ae35f5136d0b13604d831949e768087f0e",
-          "state": "current",
-          "note": "catalog and smoke:commands scripts."
+          "state": "historical",
+          "note": "R04 changed this file after the task's verification; the recorded hash is that task's state, not today's bytes (RD-003)."
         },
         {
           "path": "test/command-catalog.test.ts",
@@ -787,14 +787,14 @@
         {
           "path": "test/shell-races.test.tsx",
           "sha256": "e5b731286b1e7d9aeda9d2344d553f00cf958104140590bd95023160e07047a1",
-          "state": "current",
-          "note": "R03 real-Shell interception (commands never submitted; catalog-unavailable fail-closed)."
+          "state": "historical",
+          "note": "R04 changed this file after the task's verification; the recorded hash is that task's state, not today's bytes (RD-003)."
         },
         {
           "path": "test/ipc-contract.test.ts",
           "sha256": "f78760e2c755548631a3c4fc6e7fc74d658ea59881a55a3d3dec34966fb14619",
-          "state": "current",
-          "note": "commands:catalog validation."
+          "state": "historical",
+          "note": "R04 changed this file after the task's verification; the recorded hash is that task's state, not today's bytes (RD-003)."
         },
         {
           "path": "scripts/ci.mjs",
@@ -921,7 +921,7 @@
       ]
     },
     "R04": {
-      "status": "pending",
+      "status": "completed",
       "title": "Safe command execution and a real /new thread lifecycle",
       "prerequisites": [
         "R02",
@@ -935,27 +935,232 @@
       "feature_ids": [
         "UX-COMMANDS"
       ],
-      "source_hashes": [],
-      "acceptance_completed": [],
-      "acceptance_remaining": [
-        "Typed commands dispatch through validated operation-specific IPC; no shell injection and no model fallback for local commands",
-        "Aliases share validation; TUI-only commands get an honest route and explicit terminal launch where that is the only semantics",
-        "Destructive or permission/model-changing commands use existing review boundaries and show effects",
-        "/new creates fresh engine conversation identity while preserving old thread/history/draft/usage/attempt evidence",
-        "Active work is refused or handled with an explicit wait/interrupt choice; a running turn is never detached and called moved",
-        "Durable operation keys make retry/acknowledgement loss safe",
-        "Literal slash text remains available to a user who wants to discuss a command",
-        "Every executable catalog row has positive and negative routing tests"
+      "source_hashes": [
+        {
+          "path": "src/shared/contracts/command-execution.ts",
+          "sha256": "c6f7ceb030d2c1678353bcb869bc50cafc57ddc4e5e751c3b5ad27225caacbad",
+          "state": "current",
+          "note": "new: typed request, route plan, receipt, and thread receipt."
+        },
+        {
+          "path": "src/shared/contracts/index.ts",
+          "sha256": "33d10b61c93d36e5e6247999209a21882ca11201da5382f54e4833b74e5b4f2a",
+          "state": "current"
+        },
+        {
+          "path": "src/shared/contracts/bridge.ts",
+          "sha256": "11941c3ef20b4981ae180f6761861c6a47fbb56ebf65787e50232a5ef7dbf2b7",
+          "state": "historical",
+          "note": "R05 changed this file after the task's verification; the recorded hash is that task's state, not today's bytes (RD-003 precedent)."
+        },
+        {
+          "path": "src/shared/commands/execution-plan.ts",
+          "sha256": "3663c31fd33dfadf98b9a09a61ce85a6499055992d74129bb295f30e2ca3c847",
+          "state": "current",
+          "note": "new: all 109 rows mapped and validated against the catalog; terminal invocations are shell-word-only."
+        },
+        {
+          "path": "src/main/work/commands.ts",
+          "sha256": "f1d0b50f7ce7d3f2148af74d04e39d9c3380db12e8b0d2c8b0f04d8608e44c92",
+          "state": "current"
+        },
+        {
+          "path": "src/main/work/command-dispatch.ts",
+          "sha256": "fb8f3e4a530104d3fefa4b01df5f91f5b2b19241e01374df89dd8a6d8cf91f7a",
+          "state": "current",
+          "note": "new: the one dispatcher (native/view/terminal/unavailable), argument rules, confirmation and key reuse."
+        },
+        {
+          "path": "src/main/work/studio.ts",
+          "sha256": "bf221d6c206aa100373738efc9f4ed6f70975b1133f8e6d88524b9a6c674cb93",
+          "state": "current",
+          "note": "generation-aware bindings, /new with durable keys, rename/compact/fork/retry receipts."
+        },
+        {
+          "path": "src/main/engine/adapter.ts",
+          "sha256": "e2afe6cff1540db38799eb11ebd87708982df90f6e7cdcf3246f71e6331877ec",
+          "state": "current",
+          "note": "renameThread, compactThread, forkThread, retryThread with wire validation."
+        },
+        {
+          "path": "src/main/engine/types.ts",
+          "sha256": "0ca9a2866aea2c78c99194a03088e98e6ec6e19adf5ccad090a1ffe8b6b5748e",
+          "state": "current",
+          "note": "four native operation contracts."
+        },
+        {
+          "path": "src/main/state/schema.ts",
+          "sha256": "dc464be71a5b5b76e9457b47008eac7b4168c3f9b9881895af2412ce77e3dffb",
+          "state": "current",
+          "note": "migration v11: threads.mode, threads.generation, command_operations."
+        },
+        {
+          "path": "src/main/state/store.ts",
+          "sha256": "18c097636e5216c88e56576a369176b96c51a190d607c79b76bf21da06b5162f",
+          "state": "current",
+          "note": "mode/generation thread reads, upsert, and command-operation records."
+        },
+        {
+          "path": "src/main/ipc.ts",
+          "sha256": "e0f05b3ea7d5526a3920eca149579600551d59fb8b737fde9b7981cee38badd0",
+          "state": "historical",
+          "note": "R05 changed this file after the task's verification; the recorded hash is that task's state, not today's bytes (RD-003 precedent)."
+        },
+        {
+          "path": "src/main/ipc-contract.ts",
+          "sha256": "e3f4907bd9597b5d2c60f966da80f96507ae1247c9a89281e02140e8e1d54524",
+          "state": "historical",
+          "note": "R05 changed this file after the task's verification; the recorded hash is that task's state, not today's bytes (RD-003 precedent)."
+        },
+        {
+          "path": "src/preload/index.ts",
+          "sha256": "2d6bbab28df240b87eff59cc3d3d484cfbd18ef84e109568ce0b42d31656e2b0",
+          "state": "historical",
+          "note": "R05 changed this file after the task's verification; the recorded hash is that task's state, not today's bytes (RD-003 precedent)."
+        },
+        {
+          "path": "src/renderer/shell/Shell.tsx",
+          "sha256": "2754587e0320953992094ee6b2b86fc777ad9140486b6be22a11df453a870a01",
+          "state": "historical",
+          "note": "R05 changed this file after the task's verification; the recorded hash is that task's state, not today's bytes (RD-003 precedent)."
+        },
+        {
+          "path": "src/renderer/shell/composer-commands.ts",
+          "sha256": "1461a2032f82a9208172703ca91d293a622b4cf863b0046224f0172438122aea",
+          "state": "current",
+          "note": "command intents carry the typed spelling; support text describes the R04 route."
+        },
+        {
+          "path": "scripts/command-execute-smoke.mjs",
+          "sha256": "e0a7b98f9ce1a4f349ed2e6884a8a66e7989bf31b0117d365f5204db61d1a244",
+          "state": "current",
+          "note": "isolated live smoke: route matrix and three real generations, no model request."
+        },
+        {
+          "path": "package.json",
+          "sha256": "a02ee7465e1fbb909d9aea87c625032412d0bb5bbff06618a2cac94411b22da3",
+          "state": "historical",
+          "note": "R05 changed this file after the task's verification; the recorded hash is that task's state, not today's bytes (RD-003 precedent)."
+        },
+        {
+          "path": "test/command-execution-plan.test.ts",
+          "sha256": "af3ca640683bd2f2691030bab91b05d7a6594cc96d7ae08f032fdd74ae1de5f9",
+          "state": "current",
+          "note": "coverage, native set, safe invocations, unavailable set."
+        },
+        {
+          "path": "test/command-dispatch.test.ts",
+          "sha256": "abb13bb524d3839ea6bddc936aa1a96875b7bb66ce7952e947b8b3e3169d7adf",
+          "state": "current",
+          "note": "all-row route matrix, aliases, injection, confirmation, key reuse, busy."
+        },
+        {
+          "path": "test/studio-new-thread.test.ts",
+          "sha256": "f4e778400741137038b110dd043cadcc31e05084d928e811b710a6a80115dcb1",
+          "state": "current",
+          "note": "idle, busy, interrupt, offline, lost response, restart, project switch, native ops."
+        },
+        {
+          "path": "test/ipc-contract.test.ts",
+          "sha256": "22e2e4a97dc62a7be9abdaa1797a12e843270192fcfba54f253296669007b410",
+          "state": "historical",
+          "note": "R05 changed this file after the task's verification; the recorded hash is that task's state, not today's bytes (RD-003 precedent)."
+        },
+        {
+          "path": "test/shell-races.test.tsx",
+          "sha256": "b6f27acd0d9c7ac3d5500a83896fce29d5ffe96111412d65bf697ed8be5e511a",
+          "state": "historical",
+          "note": "R05 changed this file after the task's verification; the recorded hash is that task's state, not today's bytes (RD-003 precedent)."
+        },
+        {
+          "path": "test/helpers/temp.ts",
+          "sha256": "43c02f1a61a206ff06688528d63c7583dff9f3a4c56fed0fdeb10b01108e31d2",
+          "state": "current",
+          "note": "new: tempDir() sweeps its directories once per test file (RD-010)."
+        }
       ],
-      "tests": [],
-      "evidence": [],
+      "acceptance_completed": [
+        "Typed commands dispatch through one validated commands:execute request in main; a recognized command never reaches the model, and no typed argument reaches a shell",
+        "Aliases resolve through the same validation, and TUI-only commands report a fixed terminal route that only prefills an invocation for an explicit launch",
+        "Destructive, spend-bearing or conversation-rewriting commands (compact, retry) return confirmation-required with their cost class and effects before anything is sent",
+        "/new creates a fresh engine conversation identity with a new generation while earlier threads, events, drafts, usage and attempt evidence stay stored",
+        "Active work is refused with the turn id and Wait/Interrupt choices; only a confirmed interrupt clears the turn, and the receipt states that the old thread's final frame is stored when reopened",
+        "Durable operation keys make retry, repeat click and restart safe: a completed key returns its first receipt and a deferred conversation is resumed, never duplicated",
+        "Literal slash text remains available (leading space, path, fence, indent) and is tested at the renderer boundary",
+        "Every executable catalog row has positive and negative routing tests, backed by an isolated live-engine run with zero model requests"
+      ],
+      "acceptance_remaining": [],
+      "tests": [
+        {
+          "command": "npx vitest run test/command-execution-plan.test.ts test/command-dispatch.test.ts test/studio-new-thread.test.ts test/ipc-contract.test.ts test/shell-races.test.tsx",
+          "result": "passed",
+          "detail": "109 tests in 5 files: plan coverage and safety, all-row dispatch matrix with the engine's real aliases, /new idle/busy/interrupt/offline/lost/restart/project-switch/pre-R04 adoption/crash-window/deferred-generation, native ops with an active-turn guard and durable receipts, IPC validation, and thirteen renderer tests including in-flight draft preservation, draft re-keying, the archived-conversation send block and the archived-command guard",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r04-focused-tests.txt",
+          "captured_utc": "2026-11-14T06:59:59.249Z"
+        },
+        {
+          "command": "npx vitest run",
+          "result": "passed",
+          "detail": "948 tests in 88 files (was 891 in 85 at R03). One earlier run flaked in runtime-process.test.ts (SUPERVISOR_UNAVAILABLE vs STARTUP_FAILED under 88 concurrent workers); that file passes 3/3 in isolation and the recorded run is green. Recorded, not hidden.",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r04-full-tests.txt",
+          "captured_utc": "2026-11-14T06:59:59.249Z"
+        },
+        {
+          "command": "npm run typecheck && npm run lint && npx prettier --check .",
+          "result": "passed",
+          "detail": "typecheck clean; lint 0 errors (3 pre-existing no-explicit-any warnings); formatting clean",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r04-gates.txt",
+          "captured_utc": "2026-11-14T06:59:59.249Z"
+        },
+        {
+          "command": "node scripts/command-execute-smoke.mjs",
+          "result": "passed",
+          "detail": "isolated pinned engine, 0 model requests: three generations with distinct engine ids, duplicate key reused, rename confirmed by the engine, view/terminal/unavailable routes, confirmation required, injection refused, no provider usage",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r04-command-execute-smoke.json",
+          "captured_utc": "2026-11-14T06:59:59.249Z"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/review-studio/R04-command-execution.md",
+          "sha256": "d1dc4016f014f24f632c543141d9990ef4da92deee0284e7d0a8b66d9e76bfda",
+          "note": "R04: the 109-row route matrix, the isolated live-engine /new smoke (0 model requests), focused and full tests, and the gates — re-run after both review passes and the test-residency fix."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r04-command-execute-smoke.json",
+          "sha256": "9cb1038ecd747fbbf9ac82299cc4c55fe7c3bfaa17238b3771d191c133927b3d",
+          "note": "R04: the 109-row route matrix, the isolated live-engine /new smoke (0 model requests), focused and full tests, and the gates — re-run after both review passes and the test-residency fix."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r04-focused-tests.txt",
+          "sha256": "b14fe4862340a364a5c738b513d817b5b8862e1935b8f611a512fa2935d00ef6",
+          "note": "R04: the 109-row route matrix, the isolated live-engine /new smoke (0 model requests), focused and full tests, and the gates — re-run after both review passes and the test-residency fix."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r04-full-tests.txt",
+          "sha256": "7105475d42d0856980b220092405ac9086668d5e34554937b7ca73bb14fc9ca4",
+          "note": "R04: the 109-row route matrix, the isolated live-engine /new smoke (0 model requests), focused and full tests, and the gates — re-run after both review passes and the test-residency fix."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r04-gates.txt",
+          "sha256": "0c8090a7967129908764dcb8d2defd061e953c065bc36639ae5831f15b23092b",
+          "note": "R04: the 109-row route matrix, the isolated live-engine /new smoke (0 model requests), focused and full tests, and the gates — re-run after both review passes and the test-residency fix."
+        }
+      ],
       "attempt_problem_ids": [],
       "platform": "darwin-arm64",
-      "next_action": "Read the R03 catalog and engine adapter thread routes; design the typed command IPC contract.",
-      "notes": []
+      "next_action": "R05: read the existing Focus Mode paths, menu-template.ts, window.ts and IPC sender validation; R07 remains independent. R08 needs R07 first.",
+      "notes": [
+        "Two independent review passes both returned FAIL with real defects; all seven are fixed with regression tests (RD-009, RD-010). Pass 1: /new cleared the draft after the await; an archived conversation could receive a send; rename/compact/fork wrote no operation row; a pending /new lost its generation; the evidence table carried per-run ids. Pass 2: the draft key was not moved to the new conversation after /new; a command line bypassed the archived guard; a deferred /new dropped its generation; the /new clear did not report kept text.",
+        "Two regression tests were proven to fail on the pre-fix code before their fix was accepted (the in-flight draft case and the deferred generation case).",
+        "The host exhausted its disk twice during verification: 94,112 leaked mona-* test directories (33.7 GB) from tempDir(). test/helpers/temp.ts now sweeps once per file; 147 small directories (0.5 MB) remain per run from direct mkdtemp callers and are recorded.",
+        "Earlier hardening, also test-covered: resumed /new honours a running turn; fork and compact refuse while a turn is active; generations are monotonic; the pre-v11 thread id is adopted; a confirmed interrupt returns the connection to `connected`; the renderer selects the new conversation after /new; only /new offers an interrupt in the busy dialog.",
+        "The command spelling rule admits the engine's real aliases (`语音`, `?`, `接力`) while still refusing whitespace, slashes, control characters and shell metacharacters.",
+        "The full suite, the three static gates and the live command smoke were all re-run on these bytes; every artifact describes this state."
+      ]
     },
     "R05": {
-      "status": "pending",
+      "status": "completed",
       "title": "Focus Studio and native fullscreen",
       "prerequisites": [
         "R01",
@@ -969,9 +1174,117 @@
         "RV-08",
         "UX-FULLSCREEN"
       ],
-      "source_hashes": [],
-      "acceptance_completed": [],
-      "acceptance_remaining": [
+      "source_hashes": [
+        {
+          "path": "src/main/window-fullscreen.ts",
+          "sha256": "382ae93ca00ec7023557f71b4bb56d42d5cd5931b60b492b591468046a4b8204",
+          "state": "current",
+          "note": "new: one controller per window; observed events are the state, pending is bounded, requests are coalesced."
+        },
+        {
+          "path": "src/main/index.ts",
+          "sha256": "e1b21fd11725b07a411c97c70ad205386fabcd6b9b76318cd0e8d0b7bfcbb3eb",
+          "state": "current",
+          "note": "flag + R05 smoke runner + per-window controller registry (keyed by web contents id)."
+        },
+        {
+          "path": "src/main/ipc.ts",
+          "sha256": "011bb7af24a5d4f16466443cb7b5102fb31c1b92e5a9dcbbeb77bc60301eb9c7",
+          "state": "current",
+          "note": "window-scoped handlers resolve the invoking sender; a sender without a window is refused."
+        },
+        {
+          "path": "src/main/ipc-contract.ts",
+          "sha256": "e21f98766e57ad865671cd79161d561d1c1b7f7e73d86b1420a39c369fe2dcf7",
+          "state": "current",
+          "note": "window:fullscreen and window:fullscreen:set, strict objects with no window identifier."
+        },
+        {
+          "path": "src/main/menu-template.ts",
+          "sha256": "57f263153d011dfe47d65fab026017a5232d0edbaa91f2af857144138094fc2f",
+          "state": "current",
+          "note": "the native full-screen role gets an id and stays the only binding for that action."
+        },
+        {
+          "path": "src/preload/index.ts",
+          "sha256": "2569a8e8facf658397b04dbc2cf22af72f3ced6c8a34cf6f82f4f59c04be1b3b",
+          "state": "current",
+          "note": "fullscreen read/write passthrough and the validated change subscription."
+        },
+        {
+          "path": "src/shared/contracts/bridge.ts",
+          "sha256": "8354caf071fee2a9e9252f57eefb382f973f7b7dde1834b4543831d88526f967",
+          "state": "current",
+          "note": "WindowFullscreenView plus the three bridge methods."
+        },
+        {
+          "path": "src/renderer/shell/Shell.tsx",
+          "sha256": "efe534125068fd3bf4c32dadad4e2476bea763ec05c8baacfd783a5b7c8c27fb",
+          "state": "current",
+          "note": "observed-state subscription, focusLayout, window-scoped toggle, no remount."
+        },
+        {
+          "path": "src/renderer/shell/Studio.tsx",
+          "sha256": "a764e754987d289130a6bd47cb26365653e7ad3637d567ae7aa980ca52dd7449",
+          "state": "current",
+          "note": "FocusBar dashboard, immersive layout hooks, bounded resizable composer, observed full-screen control."
+        },
+        {
+          "path": "src/renderer/design/icons.tsx",
+          "sha256": "9b105e4732419f067968941a69dfbe0ea3ba41fbba828c2958c5764196ee503e",
+          "state": "current",
+          "note": "FullscreenIcon and RestoreIcon."
+        },
+        {
+          "path": "src/renderer/styles.css",
+          "sha256": "5a74842727a782efb295937651bc5cf8fbf715b6bcb21476c7a14f71b4d2e67a",
+          "state": "current",
+          "note": "focus layout, dashboard, drawer, grip; the clamped 48vh console is gone in this mode."
+        },
+        {
+          "path": "scripts/immersive-smoke.mjs",
+          "sha256": "d6c80c11b4a9d22d05da09ce0afc6aa5209b79efc0e22e079894bfe58bc0f049",
+          "state": "current",
+          "note": "new: real-window smoke driver (native full screen, layout, 200%)."
+        },
+        {
+          "path": "package.json",
+          "sha256": "7fab74e2268009b37dcdc58fd8030e7879ef814a51ae825f4bbd2c6c7c656e91",
+          "state": "current",
+          "note": "smoke:immersive script."
+        },
+        {
+          "path": "test/window-fullscreen.test.ts",
+          "sha256": "2b99548b655c43ad1d3839e8e94ac341fe3f9eb0c3921ce1db1e5fc01214392e",
+          "state": "current",
+          "note": "new: observed-vs-requested, coalescing, reversal, refusal, settle deadline."
+        },
+        {
+          "path": "test/studio-focus.test.tsx",
+          "sha256": "619132e0a738294adb8cfb74a73bc64b4f3dd715d058d645c567ac90213d610d",
+          "state": "current",
+          "note": "new: dashboard, controls, resize bounds, no remount."
+        },
+        {
+          "path": "test/shell-races.test.tsx",
+          "sha256": "00398792d9a356c8f8711a94b559e45ed77e98c67bd20d93fbaaf17409609ed6",
+          "state": "current",
+          "note": "five R05 shell tests: observed transition, one toggle per press, no remount, no stored fullscreen."
+        },
+        {
+          "path": "test/ipc-contract.test.ts",
+          "sha256": "ccad59c1e6ccc2e83b96bb6a4319b3fb842a331a7e30524a8e6ad07c6c424e79",
+          "state": "current",
+          "note": "R05 payload validation, including a refused window selector."
+        },
+        {
+          "path": "test/menu-template.test.ts",
+          "sha256": "01207c0d1fe974d1b60d3f48d9c2dd361fcea86c4485015b796efeefc18a9a2b",
+          "state": "current",
+          "note": "one full-screen binding, on the role, no second accelerator."
+        }
+      ],
+      "acceptance_completed": [
         "Focus Studio hides rail/inspector/nonessential chrome while retaining essentials",
         "Enter Full Screen uses native macOS fullscreen through a narrow window-scoped IPC; observed events, not an optimistic boolean, drive UI",
         "View preference is stored separately from OS fullscreen state and never forces fullscreen on restore",
@@ -981,12 +1294,108 @@
         "Escape dismisses autocomplete/dialogs before leaving focus; no double toggle between menu accelerator and DOM shortcut",
         "No Studio/runtime remount when the layout changes"
       ],
-      "tests": [],
-      "evidence": [],
+      "acceptance_remaining": [],
+      "tests": [
+        {
+          "command": "npx vitest run test/window-fullscreen.test.ts test/studio-focus.test.tsx test/shell-races.test.tsx test/ipc-contract.test.ts test/menu-template.test.ts test/studio-screen.test.tsx",
+          "result": "passed",
+          "detail": "137 tests in 6 files: the controller state machine (observed vs requested, pending publication, coalescing, reversal, duplicate events, refusal, settle deadline), the dashboard and observed full-screen control, the drawer's repeated values, Escape closing the drawer, keyboard/pointer composer bounds, no-remount identity, six Shell-level focus/fullscreen tests (including a refused transition being announced), IPC validation, one menu binding, and the unchanged everyday Studio",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r05-focused-tests.txt",
+          "captured_utc": "2026-11-14T07:41:06.449Z"
+        },
+        {
+          "command": "npx vitest run",
+          "result": "passed",
+          "detail": "983 tests in 90 files (was 948 in 88 at R04)",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r05-full-tests.txt",
+          "captured_utc": "2026-11-14T07:41:06.450Z"
+        },
+        {
+          "command": "npm run typecheck && npm run lint && npx prettier --check .",
+          "result": "passed",
+          "detail": "typecheck clean; lint 0 errors (3 pre-existing no-explicit-any warnings); formatting clean",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r05-gates.txt",
+          "captured_utc": "2026-11-14T07:41:06.450Z"
+        },
+        {
+          "command": "npm run smoke:immersive",
+          "result": "passed",
+          "detail": "60/60 in a real window, entered and left by clicking the rendered control (window:fullscreen:set): pending observed while in flight; AppKit reported enter-full-screen at 07:40:19.564Z and leave at 07:40:22.958Z with bounds restored; the More popover opens with the elided model/spend/token values and Escape closes it without leaving the layout; dashboard 52 px; rail and top bar hidden; timeline 55.6% of the stage (57.6% in full screen); the slash-command list opens in focus at 520 px with a hit test inside it; composer 36.4%, 41.9% at its maximum with the timeline still 341 px; at 200% the timeline keeps 226 px of 497 and the document scrolls 154 px to reach Send; draft, selection and node identity preserved; stored view read while focus is on is focusMode true with no fullscreen key; engine never started",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r05-immersive-smoke.json",
+          "captured_utc": "2026-11-14T07:41:06.450Z"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/review-studio/R05-focus-studio.md",
+          "sha256": "855f4da5003283b3c6514a4cd6d2dad23653f95311f6da57ddb50a5574511b32",
+          "note": "R05: focus Studio and native full screen — the focused dashboard, the bounded resizable composer, the observed full-screen transitions entered through the rendered control, the drawer's fallback values, the review fixes, and the 200% layout."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r05-immersive-smoke.json",
+          "sha256": "562d008abe945819eed7da5c250194fdc058a59793c35a39ecee4a35291f6fa8",
+          "note": "R05: focus Studio and native full screen — the focused dashboard, the bounded resizable composer, the observed full-screen transitions entered through the rendered control, the drawer's fallback values, the review fixes, and the 200% layout."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r05-focused-tests.txt",
+          "sha256": "b9f45a2d17b4743e7b9a9d8f7ac8044b31c308b8ec2ce793c99a262a366e773b",
+          "note": "R05: focus Studio and native full screen — the focused dashboard, the bounded resizable composer, the observed full-screen transitions entered through the rendered control, the drawer's fallback values, the review fixes, and the 200% layout."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r05-full-tests.txt",
+          "sha256": "4f924e1c67147ca803e818acd13faf9222ae11eb2d80a777ee54f74e304990af",
+          "note": "R05: focus Studio and native full screen — the focused dashboard, the bounded resizable composer, the observed full-screen transitions entered through the rendered control, the drawer's fallback values, the review fixes, and the 200% layout."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r05-gates.txt",
+          "sha256": "d08d47e80d50d5b523f3918cf6db8d7a50e380fd31140ef7c5eea0437a5c1266",
+          "note": "R05: focus Studio and native full screen — the focused dashboard, the bounded resizable composer, the observed full-screen transitions entered through the rendered control, the drawer's fallback values, the review fixes, and the 200% layout."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r05-studio-normal.png",
+          "sha256": "91a36075f1b40fc06574da714a08a595c7abb7af6efa5461269ea9c8e36f1e13",
+          "note": "R05: focus Studio and native full screen — the focused dashboard, the bounded resizable composer, the observed full-screen transitions entered through the rendered control, the drawer's fallback values, the review fixes, and the 200% layout."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r05-focus-windowed.png",
+          "sha256": "12301ca6c460b1487b30eed4ed84e22bfc2a4a34f76e56e97baf310d958546f7",
+          "note": "R05: focus Studio and native full screen — the focused dashboard, the bounded resizable composer, the observed full-screen transitions entered through the rendered control, the drawer's fallback values, the review fixes, and the 200% layout."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r05-focus-command-menu.png",
+          "sha256": "b4755bb4c68eec109777ca9cda26432bc12ce6282b521e09d24e2cbefea0bf53",
+          "note": "R05: focus Studio and native full screen — the focused dashboard, the bounded resizable composer, the observed full-screen transitions entered through the rendered control, the drawer's fallback values, the review fixes, and the 200% layout."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r05-native-fullscreen.png",
+          "sha256": "a18dd8bb82ba899970bea77b1b730a96441dbc7e355371b02fd5dd8c354f79c9",
+          "note": "R05: focus Studio and native full screen — the focused dashboard, the bounded resizable composer, the observed full-screen transitions entered through the rendered control, the drawer's fallback values, the review fixes, and the 200% layout."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r05-focus-200.png",
+          "sha256": "856687dd8b72b36c241b565911f476ede39070bfbdcb66c29e03f029fc4f0bb8",
+          "note": "R05: focus Studio and native full screen — the focused dashboard, the bounded resizable composer, the observed full-screen transitions entered through the rendered control, the drawer's fallback values, the review fixes, and the 200% layout."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r05-focus-drawer.png",
+          "sha256": "1250cb5e7db9094631151ac165100474b9f28f7da4c667f6c76c950d4a78243f",
+          "note": "R05: focus Studio and native full screen — the focused dashboard, the bounded resizable composer, the observed full-screen transitions entered through the rendered control, the drawer's fallback values, the review fixes, and the 200% layout."
+        }
+      ],
       "attempt_problem_ids": [],
       "platform": "darwin-arm64",
-      "next_action": "Read the existing Focus Mode paths, menu-template.ts, window.ts and IPC sender validation.",
-      "notes": []
+      "next_action": "R06 (Aurora visual identity) is eligible once R05 is checkpointed; R07 remains independent. R06 restyles the dashboard, grip and focus-only surfaces R05 added; read design tokens and the contrast tests first.",
+      "notes": [
+        "The focused layout is on when the stored preference is on OR the window is in native full screen; the preference is a project-view record and the OS state is never persisted or restored.",
+        "setFullScreen returns before AppKit finishes the Space animation, so the smoke waits for the transition event, not isFullScreen(); an early run that quit mid-animation left the next launch unable to transition, which is why the runner never quits mid-transition.",
+        "A request macOS never answers is dropped after settleMs and re-published, so `pending` cannot latch and disable the control permanently (regression test included).",
+        "The composer's maximum is measured against the live stage and the composer's own chrome, and a ResizeObserver re-clamps it on resize, zoom and layout change; a host with no layout (jsdom) falls back to documented bounds instead of collapsing to the minimum.",
+        "The composer is not a scroll container in this layout: the command list is absolutely positioned above it and an overflow here clipped the list (caught in review, fixed, and now proven by a hit test and r05-focus-command-menu.png).",
+        "Independent review returned FAIL with three major-or-worse defects (clipped autocomplete, an un-re-clamped composer at 200%, dashboard facts hidden without a drawer route) and eight smaller ones; all were fixed with checks that fail without the fix (RD-011).",
+        "Host facts observed during the round: macOS ignores a full-screen request from an inactive app, and an Electron probe left running held activation so every attempt failed until it was cleaned up.",
+        "The R03 command smoke re-run shows 25/26 with tui_only_explained failing on R04's replacement wording; that is pre-existing drift between two closed tasks and R12 owns it. Its two captures were restored to their committed bytes.",
+        "Full screen has no renderer accelerator: Control-Command-F is the AppKit role, so one press cannot toggle twice. Focus keeps its 200 ms guard, now shell-tested."
+      ]
     },
     "R06": {
       "status": "pending",
@@ -1409,10 +1818,16 @@
     "RV-08": {
       "title": "Focus Mode is not immersive fullscreen",
       "priority": "user-request",
-      "status": "open",
+      "status": "verified",
       "task": "R05",
-      "evidence": [],
-      "notes": []
+      "evidence": [
+        "docs/evidence/macos/review-studio/R05-focus-studio.md",
+        "docs/evidence/macos/review-studio/artifacts/r05-native-fullscreen.png",
+        "docs/evidence/macos/review-studio/artifacts/r05-immersive-smoke.json"
+      ],
+      "notes": [
+        "The 48vh clamp is gone in the immersive layout; the console takes the remaining stage (55.6% at 1280x800, 57.6% in native full screen) and the surrounding shell chrome is hidden while every essential control stays reachable."
+      ]
     },
     "RV-09": {
       "title": "No descriptive slash-command autocomplete in Studio",
@@ -1470,19 +1885,30 @@
     "UX-FULLSCREEN": {
       "title": "Immersive Studio: focus and native fullscreen",
       "priority": "user-request",
-      "status": "open",
+      "status": "verified",
       "task": "R05",
-      "evidence": [],
-      "notes": []
+      "evidence": [
+        "docs/evidence/macos/review-studio/R05-focus-studio.md",
+        "docs/evidence/macos/review-studio/artifacts/r05-focused-tests.txt",
+        "docs/evidence/macos/review-studio/artifacts/r05-immersive-smoke.json"
+      ],
+      "notes": [
+        "Focus Studio (㘸⇧F, stored preference) and Enter Full Screen (native role, OS state) are separate controls that share one layout. The window reports the transition; the renderer never assumes it."
+      ]
     },
     "UX-COMMANDS": {
       "title": "Descriptive command autocomplete and safe command execution",
       "priority": "user-request",
-      "status": "open",
+      "status": "verified",
       "task": "R03",
-      "evidence": [],
+      "evidence": [
+        "docs/evidence/macos/review-studio/R04-command-execution.md",
+        "docs/evidence/macos/review-studio/artifacts/r04-command-execute-smoke.json",
+        "docs/evidence/macos/review-studio/artifacts/r04-focused-tests.txt"
+      ],
       "notes": [
-        "R03 delivered the descriptive command catalog and autocomplete. Safe execution and the /new lifecycle are R04, so the feature is not verified yet."
+        "R03 delivered the descriptive catalog and autocomplete. R04 delivers typed execution for 5 native operations, 19 view routes, 80 terminal prefill routes and 5 named unavailable rows, plus the real /new generation lifecycle.",
+        "A TUI-only route is never executed by Mona; the user launches it in the terminal pane."
       ]
     },
     "UX-COMPOSER": {
@@ -1514,7 +1940,7 @@
       "notes": []
     }
   },
-  "last_checkpoint_utc": "2026-11-14T05:51:41.024Z",
+  "last_checkpoint_utc": "2026-11-14T07:41:13.340Z",
   "notes": [
     "Subordinate ledger. The P00–P27 registry remains authoritative for product requirements; this registry tracks review tasks and findings only.",
     "Attempts continue in the shared attempts.jsonl; a review task ID never resets a count."

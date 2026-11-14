@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-14T05:51:41.176Z",
+  "generated_utc": "2026-11-14T07:41:31.703Z",
   "git": {
     "available": true,
-    "commit": "493836da71bb014f6f73d365e4d79a1648ebb935",
+    "commit": "241829b814b16f49033bd235be88af110c3cbbe9",
     "dirty": true
   },
-  "digest": "a7838ed7920c58cdc825858d43b4dba9a5bab717f579ef28a7cac5edeab61859",
+  "digest": "9acec5bc7262a983cb4e6f47af0d4e5eb1fc66d9945103f98d4c7abf171ce2fd",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,8 +15,8 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "6dd781e5e3fe962a708d0f2f4596d597aca109de58e53fee3220c5b11caa0a5a",
-      "bytes": 172919
+      "sha256": "b077772653511eec58dc0c5c1512f414e0345253c3941dcbb2d4afbd465429bf",
+      "bytes": 162728
     },
     {
       "path": "AGENTS.md",
@@ -1099,6 +1099,76 @@
       "bytes": 13710
     },
     {
+      "path": "docs/evidence/macos/review-studio/artifacts/r04-command-execute-smoke.json",
+      "sha256": "9cb1038ecd747fbbf9ac82299cc4c55fe7c3bfaa17238b3771d191c133927b3d",
+      "bytes": 13222
+    },
+    {
+      "path": "docs/evidence/macos/review-studio/artifacts/r04-focused-tests.txt",
+      "sha256": "b14fe4862340a364a5c738b513d817b5b8862e1935b8f611a512fa2935d00ef6",
+      "bytes": 1513
+    },
+    {
+      "path": "docs/evidence/macos/review-studio/artifacts/r04-full-tests.txt",
+      "sha256": "7105475d42d0856980b220092405ac9086668d5e34554937b7ca73bb14fc9ca4",
+      "bytes": 19241
+    },
+    {
+      "path": "docs/evidence/macos/review-studio/artifacts/r04-gates.txt",
+      "sha256": "0c8090a7967129908764dcb8d2defd061e953c065bc36639ae5831f15b23092b",
+      "bytes": 709
+    },
+    {
+      "path": "docs/evidence/macos/review-studio/artifacts/r05-focus-200.png",
+      "sha256": "856687dd8b72b36c241b565911f476ede39070bfbdcb66c29e03f029fc4f0bb8",
+      "bytes": 216826
+    },
+    {
+      "path": "docs/evidence/macos/review-studio/artifacts/r05-focus-command-menu.png",
+      "sha256": "b4755bb4c68eec109777ca9cda26432bc12ce6282b521e09d24e2cbefea0bf53",
+      "bytes": 298990
+    },
+    {
+      "path": "docs/evidence/macos/review-studio/artifacts/r05-focus-drawer.png",
+      "sha256": "1250cb5e7db9094631151ac165100474b9f28f7da4c667f6c76c950d4a78243f",
+      "bytes": 243187
+    },
+    {
+      "path": "docs/evidence/macos/review-studio/artifacts/r05-focus-windowed.png",
+      "sha256": "12301ca6c460b1487b30eed4ed84e22bfc2a4a34f76e56e97baf310d958546f7",
+      "bytes": 172115
+    },
+    {
+      "path": "docs/evidence/macos/review-studio/artifacts/r05-focused-tests.txt",
+      "sha256": "b9f45a2d17b4743e7b9a9d8f7ac8044b31c308b8ec2ce793c99a262a366e773b",
+      "bytes": 1914
+    },
+    {
+      "path": "docs/evidence/macos/review-studio/artifacts/r05-full-tests.txt",
+      "sha256": "4f924e1c67147ca803e818acd13faf9222ae11eb2d80a777ee54f74e304990af",
+      "bytes": 20481
+    },
+    {
+      "path": "docs/evidence/macos/review-studio/artifacts/r05-gates.txt",
+      "sha256": "d08d47e80d50d5b523f3918cf6db8d7a50e380fd31140ef7c5eea0437a5c1266",
+      "bytes": 723
+    },
+    {
+      "path": "docs/evidence/macos/review-studio/artifacts/r05-immersive-smoke.json",
+      "sha256": "562d008abe945819eed7da5c250194fdc058a59793c35a39ecee4a35291f6fa8",
+      "bytes": 20030
+    },
+    {
+      "path": "docs/evidence/macos/review-studio/artifacts/r05-native-fullscreen.png",
+      "sha256": "a18dd8bb82ba899970bea77b1b730a96441dbc7e355371b02fd5dd8c354f79c9",
+      "bytes": 182983
+    },
+    {
+      "path": "docs/evidence/macos/review-studio/artifacts/r05-studio-normal.png",
+      "sha256": "91a36075f1b40fc06574da714a08a595c7abb7af6efa5461269ea9c8e36f1e13",
+      "bytes": 262241
+    },
+    {
       "path": "docs/evidence/macos/review-studio/R00-baseline.md",
       "sha256": "c24beb7cad48b16cdae7d1affda47e71a8b8eccabdbcab03f495e8923d39a32c",
       "bytes": 9604
@@ -1119,18 +1189,28 @@
       "bytes": 30984
     },
     {
+      "path": "docs/evidence/macos/review-studio/R04-command-execution.md",
+      "sha256": "d1dc4016f014f24f632c543141d9990ef4da92deee0284e7d0a8b66d9e76bfda",
+      "bytes": 25197
+    },
+    {
+      "path": "docs/evidence/macos/review-studio/R05-focus-studio.md",
+      "sha256": "855f4da5003283b3c6514a4cd6d2dad23653f95311f6da57ddb50a5574511b32",
+      "bytes": 15476
+    },
+    {
       "path": "docs/evidence/macos/runtime-store-coexistence.md",
       "sha256": "a93f3ea0068c438e47d90ae034d29ea813d4109c50d93465a5850693fdcb5a3e",
       "bytes": 8242
     },
     {
       "path": "docs/requirements-macos.json",
-      "sha256": "f7a6a49bab5dcf98dcf9745f2ff607ce7252c66f72c17ed48d5b61a821dfcac4",
+      "sha256": "09abfe1def4924ee219e7a1b6adc237e813415dda19228b2b3e2ddd0821ae85d",
       "bytes": 83533
     },
     {
       "path": "docs/requirements-macos.json",
-      "sha256": "f7a6a49bab5dcf98dcf9745f2ff607ce7252c66f72c17ed48d5b61a821dfcac4",
+      "sha256": "09abfe1def4924ee219e7a1b6adc237e813415dda19228b2b3e2ddd0821ae85d",
       "bytes": 83533
     },
     {

@@ -159,3 +159,113 @@ D-001…D-103) and never replace them.
   real execution result that contradicts an annotation must revise the
   annotation rather than preserve it. The catalog is pinned, so a live engine
   version/commit difference is shown as drift and is never silently accepted.
+
+## RD-008 — Commands execute through one dispatcher, and `/new` is a generation
+
+- **Context:** R03 catalogued 109 composer commands and deliberately executed
+  none. R04 must run the ones the pinned engine can run, leave the rest honest,
+  and make `/new` a real conversation switch — without turning slash text into a
+  prompt or a shell line.
+- **Decision:** every command crosses one typed `commands:execute` request. Main
+  resolves the spelling (canonical name *or* alias) against the pinned catalog
+  and a curated execution plan (`src/shared/commands/execution-plan.ts`), which
+  the builder validates against the catalog. A route is one of native (five
+  typed engine operations), view (open the existing owner surface), terminal
+  (prefill a fixed shell-word invocation; never run it), or unavailable.
+- **Shell safety:** a terminal invocation is a fixed string validated against a
+  shell-word grammar, and no typed argument is ever added to it. A command that
+  takes no argument refuses arguments rather than ignoring them.
+- **`/new`:** a project/mode conversation is a *generation*. Schema v11 stores
+  `threads.mode`, `threads.generation` and `command_operations`. `/new` records
+  the operation key and its target thread before the engine write, creates the
+  engine thread with a key derived from `(project, mode, generation)`, and
+  rebinds the studio. A lost response or restart resumes the recorded target;
+  a completed key returns its first receipt. No earlier row, event, draft, usage
+  row or attempt is deleted.
+- **Busy:** a running turn is refused with the turn id and a Wait/Interrupt
+  choice. Only a *confirmed* interrupt clears the in-memory turn, and the receipt
+  says the old thread's final frame is stored when that conversation is reopened.
+- **Consequence:** R05/R08 inherit a conversation identity that survives a
+  restart without a second scheduler, and R10/R12 can build on typed command
+  receipts rather than re-parsing slash text. A route that a later prompt cannot
+  honour must be revised in the plan, not hidden behind a successful-looking
+  receipt.
+
+## RD-009 — The composer submits to the conversation on screen, and `/new` clears only what it sent
+
+- **Context:** R04 makes a project hold several conversations of one mode. Two
+  boundaries became reachable that R02/R03 did not exercise: a draft claimed
+  across an await, and a send whose target was the studio's binding rather than
+  the transcript the reader had selected.
+- **Decision:** a command dispatch claims the draft identity *before* the first
+  await, so `acceptSent` can only clear the exact revision it sent; text typed
+  during the engine call changes the revision and is preserved. Selecting an
+  archived conversation disables the composer with a stated reason instead of
+  sending into a different conversation. The status line reports the studio's
+  selected conversation (`bindings[lastMode]`), not whichever mode happens to
+  have a binding.
+- **Also:** `completeCommandOperation` is insert-or-update, so rename, compact
+  and fork leave a durable receipt; a pending `/new` records its generation with
+  its key so a crash between the two writes cannot resume at generation 0 and
+  reuse the first conversation's engine key.
+- **Consequence:** the invariant "Mona never discards text the user can still
+  see, and never sends into a conversation the user cannot see" is now enforced
+  in the same place it is claimed. R08/R10 inherit both rules.
+
+## RD-010 — A test fixture directory is removed by the file that made it
+
+- **Context:** the host filled up twice while running R04's suite. The cause was
+  not a large build: `tempDir()` minted one `mona-*` directory per state store
+  and never deleted it. 94,112 trees (33.7 GB) had accumulated in the temp
+  directory across earlier prompts, which also exhausted inodes.
+- **Decision:** `test/helpers/temp.ts` owns `tempDir()`, registers every
+  directory it creates, and sweeps them in one `afterAll` per test file. One
+  sweep per file, not per test: several suites take a store directory and a
+  workspace inside it, and a per-test sweep would delete a fixture a later test
+  in the same file still needs.
+- **Not claimed:** files that call `mkdtemp` directly still leave ~147 small
+  directories (0.5 MB) per run. That is bounded and recorded; routing each of
+  those call sites through the helper is a test-hygiene task, not R04's.
+- **Consequence:** a full suite no longer consumes gigabytes of host disk, so a
+  green run cannot fail because of its own leftovers. R12's CI reconciliation
+  inherits a suite that starts from, and returns to, a clean temp directory.
+
+## RD-011 — Full screen is an observation, and the immersive layout never clips
+
+- **Context:** R05 asked for a focused Studio plus native macOS full screen. The
+  first implementation passed its own tests and its own smoke, and an
+  independent review then refuted it with three defects that the tests could not
+  see: the composer had become a scroll container, so the absolutely positioned
+  slash-command list was clipped out of sight; the composer's pixel height was
+  never re-clamped when the stage shrank, so at 200 % it took 77 % of the stage
+  and left a 72 px console; and the "slim dashboard" hid model, spend and tokens
+  at ordinary widths while the popover promised as their fallback carried prose
+  instead of values.
+- **Decision — full screen is a fact about the window, not an intention.**
+  `main/window-fullscreen.ts` reads `isFullScreen()` inside the
+  `enter-full-screen` / `leave-full-screen` handlers. `setFullScreen(true)`
+  returns before AppKit animates, so the published view carries the *observed*
+  state plus `pending`. The request is bounded: an intent macOS never answers is
+  dropped and re-published, so `pending` cannot disable a control forever. The
+  renderer ignores the reply to its own request and moves only on the event, and
+  a transition macOS did not make is announced rather than swallowed.
+- **Decision — the window is decided by the sender.** The two IPC channels carry
+  no window identifier; main resolves the window from `event.sender.id` and
+  refuses a sender that owns none. A renderer cannot put another window into
+  full screen.
+- **Decision — the focused layout is not a scroll container.** A layout that
+  bounds its composer with `overflow` also clips everything positioned above it,
+  and the command list lives there. The stage uses `min-height` with no overflow
+  so large text scrolls the document instead of shrinking the console; the text
+  area, not the composer, carries the height bound; the bound is measured from
+  the live stage and re-applied by a ResizeObserver.
+- **Decision — hiding a fact is not removing it.** Where a narrow bar elides a
+  value, the drawer repeats the same value with the same wording, and an elided
+  label stays in the accessibility tree rather than being withdrawn from it.
+- **Not claimed:** the green button, a real second display, VoiceOver and
+  physical sleep are unverified here (R11/P24). `smoke:shell` was not re-run
+  because it rewrites 36 hash-pinned product captures; R12 owns that
+  reconciliation.
+- **Consequence:** every future immersive or HUD surface inherits three rules —
+  observe, do not assume; never bound a layout with `overflow` when something is
+  positioned outside it; and any fact you hide needs a route that still shows it.

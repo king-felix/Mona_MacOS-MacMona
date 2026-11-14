@@ -1,7 +1,7 @@
 # Handoff — Studio review (studio-v2)
 
-**Registry:** `.mona/build-macos/reviews/studio-v2/state.json` (revision after the R03 checkpoint)
-**Current task:** R03 — completed (review pass applied) · **Next eligible:** R04, R05, R07
+**Registry:** `.mona/build-macos/reviews/studio-v2/state.json` (revision 57, after the R05 evidence record)
+**Current task:** R05 — completed (review pass applied) · **Next eligible:** R06, R07, R10
 **Review document:** `MacMona_Studio_Review_PROMPTS.md` (sha256
 `7e1e16d1…`) · **Hotfix:** `MacMona_Review_Hotfix.patch` (sha256
 `a253a05e…`, applied unmodified)
@@ -9,6 +9,141 @@
 `.mona/build-macos/state.json` is at P23 completed; P22/P25 remain its
 eligible prompts. Nothing in this review queue resets P00–P27 or the attempt
 counts (`attempts.jsonl` is empty; no problem consumed an attempt).
+
+## Where R05 landed
+
+- **RV-08 / UX-FULLSCREEN verified.** Focus Studio is now genuinely immersive:
+  the rail, the workspace top bar and the footer are hidden, the context bar is
+  replaced by a 52 px dashboard (project, conversation, engine state, elapsed,
+  model, project spend, project tokens, Start/Pause/Interrupt), and the timeline
+  takes the rest of the stage — the clamped 48vh console is gone in this mode.
+- **Two controls, two facts.** Focus Studio is the *stored layout preference*
+  (⌘⇧F, the Focus button, the palette); Enter Full Screen is the *OS state*
+  (the AppKit `togglefullscreen` role, a Full Screen button, the green button).
+  The focused layout follows either; the preference is never written from the OS
+  state and a restore never forces full screen.
+- **`src/main/window-fullscreen.ts`** — one controller per window. `fullscreen`
+  is read back in the `enter-full-screen`/`leave-full-screen` handlers, `pending`
+  is published while a request is in flight, a repeat request is coalesced, a
+  reversal is not waited out, and an intent macOS never answers is dropped after
+  a bounded deadline so `pending` cannot disable a control forever.
+- **`window:fullscreen` / `window:fullscreen:set`** carry no window identifier:
+  main resolves the window from `event.sender.id` and refuses a sender that owns
+  none. The renderer ignores its own reply and moves only on the observed event;
+  a transition macOS did not make is announced.
+- **Bounded, resizable composer.** A `role="separator"` grip with pointer drag,
+  Arrow keys, Home and End; the maximum is measured from the live stage and the
+  composer's chrome and re-clamped by a ResizeObserver. The composer is *not* a
+  scroll container in this layout — that clipped the slash-command list in the
+  first implementation.
+- **Escape priority.** Composer list → the More popover → the layout. Full screen
+  has no renderer accelerator, so one press cannot toggle twice.
+- **No remount.** The `.studio` and `textarea` nodes are the same objects across
+  focus, native full screen and the exit, with the draft and its `[6, 19]`
+  selection intact.
+- Evidence: `docs/evidence/macos/review-studio/R05-focus-studio.md`,
+  `artifacts/r05-immersive-smoke.json` (real window, **60/60**, entered and left
+  by clicking the rendered control, AppKit reported both transitions with bounds
+  restored, the More popover carries the elided values and Escape closes it), `r05-focused-tests.txt` (137 in 6), `r05-full-tests.txt` (983 in 90),
+  `r05-gates.txt`, and the captures `r05-studio-normal.png`,
+  `r05-focus-windowed.png`, `r05-focus-command-menu.png`,
+  `r05-focus-drawer.png`, `r05-native-fullscreen.png`, `r05-focus-200.png`.
+- **Independent review (FAIL → fixed).** The reviewer refuted the first
+  implementation with three major-or-worse defects, all fixed with checks that
+  fail without the fix: the composer had become a scroll container and clipped
+  the command list (now proven by a hit test and a capture); the composer's pixel
+  height was never re-clamped when the stage shrank (77 % at 200 % over a 72 px
+  console now 226 px of 497); and the "slim dashboard" hid model/spend/tokens
+  with prose instead of values in the popover. Also fixed: `pending` was never
+  published (dead pending UI, silent refusal), the exit control was enabled in a
+  state where it would do nothing, Escape tore down the layout instead of closing
+  the popover, the smoke never exercised the IPC path, the stored-view assertion
+  was vacuous, `ELAPSED 0s` was a fabricated clock, and two purity/a11y nits. See
+  RD-011.
+- **Not run: `smoke:shell`.** It rewrites 36 hash-pinned product captures across
+  P07–P23 and the ordinary Studio's chrome changed (a Full Screen button). It is
+  not part of `npm run ci`; R12 owns that reconciliation. The normal layout is
+  covered by the full suite and a re-run of the R03 command smoke (25/26, the one
+  failure being `tui_only_explained`'s pre-existing R04 wording drift, which R12
+  also owns; its two captures were restored to their committed bytes).
+- Ledger hygiene: R03's `index.ts`/`styles.css` and R04's nine shared-file source
+  hashes are marked **historical** (their recorded hash is the state at that
+  task's verification), not silently refreshed. In the *product* ledger, the 35
+  evidence hashes the review queue invalidated (P02, P03, P04, P09, P10, P18 —
+  shared `index.ts`, `ipc*`, `bridge.ts`, `styles.css`, `Shell.tsx`,
+  `package.json`, `test/ipc-contract.test.ts`) were re-recorded through
+  `monabuild evidence` with a note that they describe the state at that prompt's
+  verification. `monabuild validate` is green at revision 1012, the index was
+  rewritten, and `requirements sync` changed only its own timestamps.
+
+## Where R04 landed
+
+- **UX-COMMANDS executed, not just catalogued.** One typed
+  `commands:execute` request now carries every recognized command into main.
+  `src/shared/commands/execution-plan.ts` maps all 109 rows and is validated
+  against the catalog; the dispatcher (`src/main/work/command-dispatch.ts`)
+  resolves canonical names *and* aliases, so `/yasuo` is `/compact`.
+  - **native 5:** `/new`, `/compact`, `/retry`, `/rename`, `/fork`.
+  - **view 19:** opens the owning Mona screen (Cost, Changes, Board, Agents,
+    Settings › route/extensions, Studio) and says it did not run the command.
+  - **terminal 80:** prefills a fixed shell-word invocation (`codewhale`,
+    `codewhale login`, `codewhale sessions`, …). Nothing is executed; typed
+    arguments are never interpolated.
+  - **unavailable 5:** `/attach`, `/lane`, `/remote-env`, `/workflow`,
+    `/workflows`.
+- **`/new` is a generation.** Schema v11 adds `threads.mode`,
+  `threads.generation` and `command_operations`. `/new` writes the operation key
+  and target first, creates a fresh engine thread with a deterministic key
+  (`thread-<project>-<mode>-<generation>`), and rebinds the studio. Earlier
+  conversations keep their rows, events, turns, drafts, usage and attempts; the
+  thread selector labels them archived.
+- **Busy is explicit.** A running turn is refused with its id and a Wait /
+  Interrupt dialog. Only a confirmed interrupt clears the in-memory turn; the
+  receipt says the old thread's final frame is stored when it is reopened.
+- **Offline is honest.** `/new` creates the local generation and defers the
+  engine thread; the next submission creates it with the same key.
+- **Retry-safe keys.** A lost response or repeat click resumes the recorded
+  target; a completed key returns its first receipt. A deferred conversation
+  stays pending so it can be resumed, not replayed as a failure.
+- **Review boundaries.** `/compact` and `/retry` return
+  `confirmation-required` with their cost class and effects until confirmed.
+- Evidence: `docs/evidence/macos/review-studio/R04-command-execution.md` with
+  the full 109-row route matrix, `artifacts/r04-command-execute-smoke.json`
+  (real engine, isolated HOME, **0 model requests**, three generations, distinct
+  engine ids, duplicate key reused, rename confirmed by the engine),
+  `r04-focused-tests.txt` (96), `r04-full-tests.txt` (935 in 88),
+  `r04-gates.txt`.
+- Gates on the final bytes: typecheck clean, lint 0 errors (3 pre-existing
+  warnings), formatting clean, full suite **948 tests in 88 files**, live
+  command smoke every assertion true.
+- **Independent review (FAIL → fixed).** The reviewer could not refute `/new`
+  idempotency and found five real defects elsewhere, all fixed with regression
+  tests: `/new` read the draft *after* the await, so text typed during dispatch
+  was cleared (now the identity is claimed before the call, and the regression
+  test was proven to fail on the old code); the doc's live-id table had drifted
+  from the artifact (the section is now run-independent and the ids live only in
+  the artifact); selecting an archived conversation still let a send go to the
+  current one (the composer is now blocked with a stated reason); rename,
+  compact and fork left no `command_operations` row, so a repeat key had nothing
+  to find (completions are now insert-or-update); and a pending `/new` whose row
+  was lost resumed at generation 0 and could reuse the first conversation's
+  engine key (the generation now travels with the key). See RD-009.
+- **Second review pass (FAIL → fixed).** Two more real defects: the composer's
+  draft key was not moved to the new conversation after `/new`, so the next
+  keystroke was stored against the previous thread and vanished on the next
+  load; and a command line bypassed the archived-read guard, so `/rename` from an
+  archive view rewrote the current conversation (the guard now lives in
+  `dispatchCommand` for rename/compact/fork/retry, and `/new`/views stay
+  allowed). Also: a deferred `/new` no longer drops its recorded generation, and
+  the `/new` clear now reports text it had to keep.
+- **Test residency leak fixed (RD-010).** The host ran out of disk twice because
+  `tempDir()` never removed its directories — 94,112 trees, 33.7 GB, including
+  inode exhaustion. `test/helpers/temp.ts` now sweeps them once per test file.
+  147 small directories (0.5 MB) remain per run from files that call `mkdtemp`
+  directly; that is recorded, not hidden.
+- Ledger hygiene: R03's source hashes for the files R04 changed are marked
+  **historical** (their recorded hash is the state at R03 verification), not
+  silently refreshed.
 
 ## Where R03 landed
 
@@ -152,23 +287,26 @@ counts (`attempts.jsonl` is empty; no problem consumed an attempt).
 
 Three tasks are eligible now:
 
-- **R04 — execute commands correctly and make `/new` real.** Read the R03
-  catalog (`src/shared/commands/pinned-commands.json` + `annotations.json`) and
-  the documented `/v1` routes on the `runtime-api` rows. Dispatch through
-  operation-specific IPC; never send a recognised command to the model. `/new`
-  must be tested idle, busy, disconnected, response-lost, restart, and
-  project-switch.
-- **R05 — focus Studio and native fullscreen.** Read the existing Focus Mode
-  paths, `menu-template.ts`, `window.ts`, and IPC sender validation.
+- **R06 — Aurora Studio visual identity.** Read `design/tokens.ts`, the
+  production `Studio.tsx`/`Shell.tsx`/`styles.css`, and the contrast tests
+  before touching paint. R06 restyles the R05 surface: the focus dashboard, the
+  composer grip, the drawer and the focus-only rules. Its acceptance requires
+  production-shell captures in both themes and intensities, so it must also
+  reconcile the 36 hash-pinned product captures it will change — or state
+  explicitly which ones it left to R12.
 - **R07 — in-app pending input and approvals.** Read `work/studio.ts`
   `pendingInputFor`/`ingest`/`snapshot` and probe the pinned engine's
   request/reply endpoints.
+- **R10 — everyday composition and review conveniences.** Eligible since R05
+  landed; it needs R03, R04 and R05.
 
 ```sh
-node tools/monabuild/cli.mjs review status   # next_eligible: R04, R05, R07
+node tools/monabuild/cli.mjs review status   # next_eligible: R06, R07, R10
 ```
 
-Do not start R06 (needs R05), R08 (needs R04+R07) or R09–R15.
+Do not start R08 (needs R07) or R09/R11–R15 (each needs a task that is still
+pending). Note for R06 and R12: `smoke:shell` was deliberately not re-run at
+R05 (see above), so the product captures still show the pre-R05 Studio chrome.
 
 ## Rules that still bind
 

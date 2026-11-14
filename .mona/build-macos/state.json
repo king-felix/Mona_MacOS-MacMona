@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 986,
+  "revision": 1023,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -53,8 +53,8 @@
         },
         {
           "path": "docs/requirements-macos.json",
-          "sha256": "f7a6a49bab5dcf98dcf9745f2ff607ce7252c66f72c17ed48d5b61a821dfcac4",
-          "note": "P15 re-recorded the shared requirement registry; assertions unchanged"
+          "sha256": "09abfe1def4924ee219e7a1b6adc237e813415dda19228b2b3e2ddd0821ae85d",
+          "note": "Re-recorded at the R05 checkpoint after the final requirements sync; the previous hash described the bytes before that sync. No requirement status was lowered and no assertion removed."
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
@@ -238,8 +238,8 @@
         },
         {
           "path": "package.json",
-          "sha256": "2061d794f1092bd7b7cfcb84a48954ae35f5136d0b13604d831949e768087f0e",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
+          "sha256": "7fab74e2268009b37dcdc58fd8030e7879ef814a51ae825f4bbd2c6c7c656e91",
+          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent)."
         },
         {
           "path": "package-lock.json",
@@ -288,18 +288,18 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "01d5288f34cb27b1f234d6235469e2274464f11f97b36656f22cbd1fd76405ed",
-          "note": "P15 shell-smoke driver: Agents screen capture and honest capability-gated launch assertion | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them. | Re-recorded after the R03 command smoke was made deterministic (it waits for the composer state it captures); the smoke is 26/26 and the suite is 891 tests on these bytes."
+          "sha256": "e1b21fd11725b07a411c97c70ad205386fabcd6b9b76318cd0e8d0b7bfcbb3eb",
+          "note": "Re-recorded at the R05 checkpoint: the review queue changed these bytes after this prompt's verification (the R05 smoke runner in index.ts, and the requirements sync timestamps). The previous hash described the pre-review bytes; no requirement status was lowered and no assertion removed."
         },
         {
           "path": "src/main/ipc-contract.ts",
-          "sha256": "4670e7b11f42871520813d32684632594b14845e1af675aa2df2b3b4fce61a3d",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
+          "sha256": "e21f98766e57ad865671cd79161d561d1c1b7f7e73d86b1420a39c369fe2dcf7",
+          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent)."
         },
         {
           "path": "src/main/ipc.ts",
-          "sha256": "4b1a5c2f11a2b527b234f0f6d5a949dfca5eb535a3724d6324b9dccec0062b67",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
+          "sha256": "011bb7af24a5d4f16466443cb7b5102fb31c1b92e5a9dcbbeb77bc60301eb9c7",
+          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent)."
         },
         {
           "path": "src/main/menu.ts",
@@ -328,8 +328,8 @@
         },
         {
           "path": "src/preload/index.ts",
-          "sha256": "44f1588504bddcd442211c4329295221025f09db9068f9c9987b95349e8a778e",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
+          "sha256": "2569a8e8facf658397b04dbc2cf22af72f3ced6c8a34cf6f82f4f59c04be1b3b",
+          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent)."
         },
         {
           "path": "src/renderer/App.tsx",
@@ -349,13 +349,13 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "b3eaa284e8e0db6e8aaf52ab67cb2b70738087359e86cffdc52dd19e6f3f69d3",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
+          "sha256": "5a74842727a782efb295937651bc5cf8fbf715b6bcb21476c7a14f71b4d2e67a",
+          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent)."
         },
         {
           "path": "src/shared/contracts/bridge.ts",
-          "sha256": "43ce3ea0fd2037d1ceae8fa5b3c92034cc9fc1761e93a01127a939b67197172a",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
+          "sha256": "8354caf071fee2a9e9252f57eefb382f973f7b7dde1834b4543831d88526f967",
+          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent)."
         },
         {
           "path": "src/shared/contracts/engine.ts",
@@ -372,8 +372,8 @@
         },
         {
           "path": "src/shared/contracts/index.ts",
-          "sha256": "34d31540b43de6f237977ca2766fced2619dbad2a0605a1edd2f37afaa43af36",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
+          "sha256": "33d10b61c93d36e5e6247999209a21882ca11201da5382f54e4833b74e5b4f2a",
+          "note": "R04 changed this shared file (typed command execution IPC, thread generations, command operations) after the earlier verification. Re-recorded after the full 935-test suite and the isolated live command smoke passed. No assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/shared/contracts/project.ts",
@@ -409,8 +409,8 @@
         },
         {
           "path": "test/ipc-contract.test.ts",
-          "sha256": "f78760e2c755548631a3c4fc6e7fc74d658ea59881a55a3d3dec34966fb14619",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
+          "sha256": "ccad59c1e6ccc2e83b96bb6a4319b3fb842a331a7e30524a8e6ad07c6c424e79",
+          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent)."
         },
         {
           "path": "test/navigation.test.ts",
@@ -479,8 +479,8 @@
         },
         {
           "path": "src/main/engine/adapter.ts",
-          "sha256": "4528c71e7f3f5550168dc3a85e474e637db257fffa601c51fbdde30b0c8bd7fd",
-          "note": "P15 extended the adapter with orchestration routes and real goal-transition statuses; earlier contracts unchanged and still tested"
+          "sha256": "e2afe6cff1540db38799eb11ebd87708982df90f6e7cdcf3246f71e6331877ec",
+          "note": "R04 changed this shared file (typed command execution IPC, thread generations, command operations) after the earlier verification. Re-recorded after the full 935-test suite and the isolated live command smoke passed. No assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/engine/compat.ts",
@@ -517,8 +517,8 @@
         },
         {
           "path": "src/main/engine/types.ts",
-          "sha256": "f4df1e6a68f358d593cf35d46416be96586822d7eb0a94ac5c9a9a316cd2145d",
-          "note": "P15 extended the adapter with orchestration routes and real goal-transition statuses; earlier contracts unchanged and still tested"
+          "sha256": "0ca9a2866aea2c78c99194a03088e98e6ec6e19adf5ccad090a1ffe8b6b5748e",
+          "note": "R04 changed this shared file (typed command execution IPC, thread generations, command operations) after the earlier verification. Re-recorded after the full 935-test suite and the isolated live command smoke passed. No assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/engine/wire.ts",
@@ -568,8 +568,8 @@
         },
         {
           "path": "package.json",
-          "sha256": "2061d794f1092bd7b7cfcb84a48954ae35f5136d0b13604d831949e768087f0e",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
+          "sha256": "7fab74e2268009b37dcdc58fd8030e7879ef814a51ae825f4bbd2c6c7c656e91",
+          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent)."
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
@@ -699,8 +699,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "01d5288f34cb27b1f234d6235469e2274464f11f97b36656f22cbd1fd76405ed",
-          "note": "P15 shell-smoke driver updated; supervisor paths unchanged | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them. | Re-recorded after the R03 command smoke was made deterministic (it waits for the composer state it captures); the smoke is 26/26 and the suite is 891 tests on these bytes."
+          "sha256": "e1b21fd11725b07a411c97c70ad205386fabcd6b9b76318cd0e8d0b7bfcbb3eb",
+          "note": "Re-recorded at the R05 checkpoint: the review queue changed these bytes after this prompt's verification (the R05 smoke runner in index.ts, and the requirements sync timestamps). The previous hash described the pre-review bytes; no requirement status was lowered and no assertion removed."
         },
         {
           "path": "src/main/engine/runtime-process.ts",
@@ -708,13 +708,13 @@
         },
         {
           "path": "src/main/engine/types.ts",
-          "sha256": "f4df1e6a68f358d593cf35d46416be96586822d7eb0a94ac5c9a9a316cd2145d",
-          "note": "P15 extended the adapter types and shell smoke driver; supervisor behaviour unchanged and still tested"
+          "sha256": "0ca9a2866aea2c78c99194a03088e98e6ec6e19adf5ccad090a1ffe8b6b5748e",
+          "note": "R04 changed this shared file (typed command execution IPC, thread generations, command operations) after the earlier verification. Re-recorded after the full 935-test suite and the isolated live command smoke passed. No assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/engine/adapter.ts",
-          "sha256": "4528c71e7f3f5550168dc3a85e474e637db257fffa601c51fbdde30b0c8bd7fd",
-          "note": "P15 extended the adapter types and shell smoke driver; supervisor behaviour unchanged and still tested"
+          "sha256": "e2afe6cff1540db38799eb11ebd87708982df90f6e7cdcf3246f71e6331877ec",
+          "note": "R04 changed this shared file (typed command execution IPC, thread generations, command operations) after the earlier verification. Re-recorded after the full 935-test suite and the isolated live command smoke passed. No assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/engine/errors.ts",
@@ -751,8 +751,8 @@
         },
         {
           "path": "package.json",
-          "sha256": "2061d794f1092bd7b7cfcb84a48954ae35f5136d0b13604d831949e768087f0e",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
+          "sha256": "7fab74e2268009b37dcdc58fd8030e7879ef814a51ae825f4bbd2c6c7c656e91",
+          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent)."
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
@@ -1175,8 +1175,8 @@
         },
         {
           "path": "package.json",
-          "sha256": "2061d794f1092bd7b7cfcb84a48954ae35f5136d0b13604d831949e768087f0e",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
+          "sha256": "7fab74e2268009b37dcdc58fd8030e7879ef814a51ae825f4bbd2c6c7c656e91",
+          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent)."
         },
         {
           "path": "src/main/open/folder-request.ts",
@@ -1192,8 +1192,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "01d5288f34cb27b1f234d6235469e2274464f11f97b36656f22cbd1fd76405ed",
-          "note": "P15 shell-smoke driver updated; Finder handoff unchanged | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them. | Re-recorded after the R03 command smoke was made deterministic (it waits for the composer state it captures); the smoke is 26/26 and the suite is 891 tests on these bytes."
+          "sha256": "e1b21fd11725b07a411c97c70ad205386fabcd6b9b76318cd0e8d0b7bfcbb3eb",
+          "note": "Re-recorded at the R05 checkpoint: the review queue changed these bytes after this prompt's verification (the R05 smoke runner in index.ts, and the requirements sync timestamps). The previous hash described the pre-review bytes; no requirement status was lowered and no assertion removed."
         },
         {
           "path": "src/main/desktop-lifecycle.ts",
@@ -1201,13 +1201,13 @@
         },
         {
           "path": "src/main/ipc.ts",
-          "sha256": "4b1a5c2f11a2b527b234f0f6d5a949dfca5eb535a3724d6324b9dccec0062b67",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
+          "sha256": "011bb7af24a5d4f16466443cb7b5102fb31c1b92e5a9dcbbeb77bc60301eb9c7",
+          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent)."
         },
         {
           "path": "src/main/ipc-contract.ts",
-          "sha256": "4670e7b11f42871520813d32684632594b14845e1af675aa2df2b3b4fce61a3d",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
+          "sha256": "e21f98766e57ad865671cd79161d561d1c1b7f7e73d86b1420a39c369fe2dcf7",
+          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent)."
         },
         {
           "path": "src/main/projects/service.ts",
@@ -1216,8 +1216,8 @@
         },
         {
           "path": "src/preload/index.ts",
-          "sha256": "44f1588504bddcd442211c4329295221025f09db9068f9c9987b95349e8a778e",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
+          "sha256": "2569a8e8facf658397b04dbc2cf22af72f3ced6c8a34cf6f82f4f59c04be1b3b",
+          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent)."
         },
         {
           "path": "src/shared/contracts/open.ts",
@@ -1225,13 +1225,13 @@
         },
         {
           "path": "src/shared/contracts/bridge.ts",
-          "sha256": "43ce3ea0fd2037d1ceae8fa5b3c92034cc9fc1761e93a01127a939b67197172a",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
+          "sha256": "8354caf071fee2a9e9252f57eefb382f973f7b7dde1834b4543831d88526f967",
+          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent)."
         },
         {
           "path": "src/renderer/shell/Shell.tsx",
-          "sha256": "afcb22490bff29b28e6824cd8538ab65420a2df038541c8e0693c20a4fb0b87d",
-          "note": "R01 review pass: Shell.tsx now owns drafts through a journal and selection through an epoch. Hash re-recorded after the full 819-test suite and the 127/127 shell smoke passed on the new bytes; no assertion or requirement status changed | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (888 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them. | Re-recorded after the R03 review pass (bare-prefix ambiguity, ARIA/listbox agreement, arrow-key and caret fixes) changed these bytes; the R03 full suite (891 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
+          "sha256": "efe534125068fd3bf4c32dadad4e2476bea763ec05c8baacfd783a5b7c8c27fb",
+          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent)."
         },
         {
           "path": "src/renderer/shell/drop.ts",
@@ -1248,8 +1248,8 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "b3eaa284e8e0db6e8aaf52ab67cb2b70738087359e86cffdc52dd19e6f3f69d3",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
+          "sha256": "5a74842727a782efb295937651bc5cf8fbf715b6bcb21476c7a14f71b4d2e67a",
+          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent)."
         },
         {
           "path": "test/folder-request.test.ts",
@@ -1269,8 +1269,8 @@
         },
         {
           "path": "test/ipc-contract.test.ts",
-          "sha256": "f78760e2c755548631a3c4fc6e7fc74d658ea59881a55a3d3dec34966fb14619",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
+          "sha256": "ccad59c1e6ccc2e83b96bb6a4319b3fb842a331a7e30524a8e6ad07c6c424e79",
+          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent)."
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
@@ -1342,13 +1342,13 @@
         },
         {
           "path": "src/main/state/schema.ts",
-          "sha256": "9ba167ffab03cb4a17945dc92a890f944f717228fa824f370b0d3a2b96d88f8d",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them."
+          "sha256": "dc464be71a5b5b76e9457b47008eac7b4168c3f9b9881895af2412ce77e3dffb",
+          "note": "R04 changed this shared file (typed command execution IPC, thread generations, command operations) after the earlier verification. Re-recorded after the full 935-test suite and the isolated live command smoke passed. No assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/state/store.ts",
-          "sha256": "09e47ea5f313a3c3664562c2eca653b70225a9a6baecff26192275dd6f12732f",
-          "note": "R00 review pass: the verified hotfix added events/event_cursors cleanup to deleteProjectContents. Hash re-recorded after the full 796-test suite passed on the new bytes; the original P10/P19 report still describes the pre-review bytes | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them."
+          "sha256": "18c097636e5216c88e56576a369176b96c51a190d607c79b76bf21da06b5162f",
+          "note": "R04's independent-review fixes changed this shared file after the earlier verification (draft identity claimed before dispatch; insert-or-update command operations). Re-recorded after the 944-test suite, typecheck/lint/format and the isolated live command smoke all passed. No assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/state/portable.ts",
@@ -1365,28 +1365,28 @@
         },
         {
           "path": "src/shared/contracts/bridge.ts",
-          "sha256": "43ce3ea0fd2037d1ceae8fa5b3c92034cc9fc1761e93a01127a939b67197172a",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
+          "sha256": "8354caf071fee2a9e9252f57eefb382f973f7b7dde1834b4543831d88526f967",
+          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent)."
         },
         {
           "path": "src/main/ipc-contract.ts",
-          "sha256": "4670e7b11f42871520813d32684632594b14845e1af675aa2df2b3b4fce61a3d",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
+          "sha256": "e21f98766e57ad865671cd79161d561d1c1b7f7e73d86b1420a39c369fe2dcf7",
+          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent)."
         },
         {
           "path": "src/main/ipc.ts",
-          "sha256": "4b1a5c2f11a2b527b234f0f6d5a949dfca5eb535a3724d6324b9dccec0062b67",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
+          "sha256": "011bb7af24a5d4f16466443cb7b5102fb31c1b92e5a9dcbbeb77bc60301eb9c7",
+          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent)."
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "01d5288f34cb27b1f234d6235469e2274464f11f97b36656f22cbd1fd76405ed",
-          "note": "P15 shell-smoke driver updated; board paths unchanged | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them. | Re-recorded after the R03 command smoke was made deterministic (it waits for the composer state it captures); the smoke is 26/26 and the suite is 891 tests on these bytes."
+          "sha256": "e1b21fd11725b07a411c97c70ad205386fabcd6b9b76318cd0e8d0b7bfcbb3eb",
+          "note": "Re-recorded at the R05 checkpoint: the review queue changed these bytes after this prompt's verification (the R05 smoke runner in index.ts, and the requirements sync timestamps). The previous hash described the pre-review bytes; no requirement status was lowered and no assertion removed."
         },
         {
           "path": "src/preload/index.ts",
-          "sha256": "44f1588504bddcd442211c4329295221025f09db9068f9c9987b95349e8a778e",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
+          "sha256": "2569a8e8facf658397b04dbc2cf22af72f3ced6c8a34cf6f82f4f59c04be1b3b",
+          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent)."
         },
         {
           "path": "src/renderer/shell/Board.tsx",
@@ -1400,8 +1400,8 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "b3eaa284e8e0db6e8aaf52ab67cb2b70738087359e86cffdc52dd19e6f3f69d3",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
+          "sha256": "5a74842727a782efb295937651bc5cf8fbf715b6bcb21476c7a14f71b4d2e67a",
+          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent)."
         },
         {
           "path": "test/work-board.test.ts",
@@ -2011,38 +2011,38 @@
         },
         {
           "path": "src/main/ipc.ts",
-          "sha256": "4b1a5c2f11a2b527b234f0f6d5a949dfca5eb535a3724d6324b9dccec0062b67",
-          "note": "Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
+          "sha256": "011bb7af24a5d4f16466443cb7b5102fb31c1b92e5a9dcbbeb77bc60301eb9c7",
+          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent)."
         },
         {
           "path": "src/main/ipc-contract.ts",
-          "sha256": "4670e7b11f42871520813d32684632594b14845e1af675aa2df2b3b4fce61a3d",
-          "note": "Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
+          "sha256": "e21f98766e57ad865671cd79161d561d1c1b7f7e73d86b1420a39c369fe2dcf7",
+          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent)."
         },
         {
           "path": "src/preload/index.ts",
-          "sha256": "44f1588504bddcd442211c4329295221025f09db9068f9c9987b95349e8a778e",
-          "note": "Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
+          "sha256": "2569a8e8facf658397b04dbc2cf22af72f3ced6c8a34cf6f82f4f59c04be1b3b",
+          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent)."
         },
         {
           "path": "src/shared/contracts/bridge.ts",
-          "sha256": "43ce3ea0fd2037d1ceae8fa5b3c92034cc9fc1761e93a01127a939b67197172a",
-          "note": "Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
+          "sha256": "8354caf071fee2a9e9252f57eefb382f973f7b7dde1834b4543831d88526f967",
+          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent)."
         },
         {
           "path": "src/shared/contracts/index.ts",
-          "sha256": "34d31540b43de6f237977ca2766fced2619dbad2a0605a1edd2f37afaa43af36",
-          "note": "Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
+          "sha256": "33d10b61c93d36e5e6247999209a21882ca11201da5382f54e4833b74e5b4f2a",
+          "note": "R04 changed this shared file (typed command execution IPC, thread generations, command operations) after the earlier verification. Re-recorded after the full 935-test suite and the isolated live command smoke passed. No assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "01d5288f34cb27b1f234d6235469e2274464f11f97b36656f22cbd1fd76405ed",
-          "note": "Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them. | Re-recorded after the R03 command smoke was made deterministic (it waits for the composer state it captures); the smoke is 26/26 and the suite is 891 tests on these bytes."
+          "sha256": "e1b21fd11725b07a411c97c70ad205386fabcd6b9b76318cd0e8d0b7bfcbb3eb",
+          "note": "Re-recorded at the R05 checkpoint: the review queue changed these bytes after this prompt's verification (the R05 smoke runner in index.ts, and the requirements sync timestamps). The previous hash described the pre-review bytes; no requirement status was lowered and no assertion removed."
         },
         {
           "path": "src/renderer/shell/Shell.tsx",
-          "sha256": "afcb22490bff29b28e6824cd8538ab65420a2df038541c8e0693c20a4fb0b87d",
-          "note": "R01 review pass: Shell.tsx now owns drafts through a journal and selection through an epoch. Hash re-recorded after the full 819-test suite and the 127/127 shell smoke passed on the new bytes; no assertion or requirement status changed | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (888 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them. | Re-recorded after the R03 review pass (bare-prefix ambiguity, ARIA/listbox agreement, arrow-key and caret fixes) changed these bytes; the R03 full suite (891 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
+          "sha256": "efe534125068fd3bf4c32dadad4e2476bea763ec05c8baacfd783a5b7c8c27fb",
+          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent)."
         },
         {
           "path": "src/renderer/shell/Settings.tsx",
@@ -2054,8 +2054,8 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "b3eaa284e8e0db6e8aaf52ab67cb2b70738087359e86cffdc52dd19e6f3f69d3",
-          "note": "Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
+          "sha256": "5a74842727a782efb295937651bc5cf8fbf715b6bcb21476c7a14f71b4d2e67a",
+          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent)."
         },
         {
           "path": "test/terminal-buffer.test.ts",
@@ -2087,8 +2087,8 @@
         },
         {
           "path": "test/ipc-contract.test.ts",
-          "sha256": "f78760e2c755548631a3c4fc6e7fc74d658ea59881a55a3d3dec34966fb14619",
-          "note": "Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
+          "sha256": "ccad59c1e6ccc2e83b96bb6a4319b3fb842a331a7e30524a8e6ad07c6c424e79",
+          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent)."
         },
         {
           "path": "scripts/ci.mjs",
@@ -2097,8 +2097,8 @@
         },
         {
           "path": "package.json",
-          "sha256": "2061d794f1092bd7b7cfcb84a48954ae35f5136d0b13604d831949e768087f0e",
-          "note": "Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
+          "sha256": "7fab74e2268009b37dcdc58fd8030e7879ef814a51ae825f4bbd2c6c7c656e91",
+          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent)."
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
@@ -2183,8 +2183,8 @@
         },
         {
           "path": "src/main/state/store.ts",
-          "sha256": "09e47ea5f313a3c3664562c2eca653b70225a9a6baecff26192275dd6f12732f",
-          "note": "R00 review pass: the verified hotfix added events/event_cursors cleanup to deleteProjectContents. Hash re-recorded after the full 796-test suite passed on the new bytes; the original P10/P19 report still describes the pre-review bytes | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them."
+          "sha256": "18c097636e5216c88e56576a369176b96c51a190d607c79b76bf21da06b5162f",
+          "note": "R04's independent-review fixes changed this shared file after the earlier verification (draft identity claimed before dispatch; insert-or-update command operations). Re-recorded after the 944-test suite, typecheck/lint/format and the isolated live command smoke all passed. No assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/renderer/shell/Memory.tsx",
@@ -2224,7 +2224,8 @@
         },
         {
           "path": "docs/requirements-macos.json",
-          "sha256": "f7a6a49bab5dcf98dcf9745f2ff607ce7252c66f72c17ed48d5b61a821dfcac4"
+          "sha256": "09abfe1def4924ee219e7a1b6adc237e813415dda19228b2b3e2ddd0821ae85d",
+          "note": "Re-recorded at the R05 checkpoint after the final requirements sync; the previous hash described the bytes before that sync. No requirement status was lowered and no assertion removed."
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
@@ -2449,7 +2450,8 @@
         },
         {
           "path": "docs/requirements-macos.json",
-          "sha256": "f7a6a49bab5dcf98dcf9745f2ff607ce7252c66f72c17ed48d5b61a821dfcac4"
+          "sha256": "09abfe1def4924ee219e7a1b6adc237e813415dda19228b2b3e2ddd0821ae85d",
+          "note": "Re-recorded at the R05 checkpoint after the final requirements sync; the previous hash described the bytes before that sync. No requirement status was lowered and no assertion removed."
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
@@ -2585,7 +2587,7 @@
     "P22",
     "P25"
   ],
-  "last_checkpoint_utc": "2026-11-14T05:51:35.937Z",
+  "last_checkpoint_utc": "2026-11-14T07:41:31.520Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",
