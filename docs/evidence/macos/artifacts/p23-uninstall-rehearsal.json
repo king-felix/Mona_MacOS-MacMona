@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "tool": "mac:package",
-  "captured_at": "2026-11-14T18:18:40.793Z",
+  "captured_at": "2026-11-14T19:59:21.342Z",
   "ok": true,
   "check": {
     "dry_run_exit": 0,
@@ -19,26 +19,26 @@
   "dry_run_stdout": [
     "mona-uninstall: installed Mona version: 0.1.0",
     "mona-uninstall: the following package-owned paths will be removed:",
-    "mona-uninstall:   /var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p23-uninstall-FTHszc/root/Applications/Mona.app",
-    "mona-uninstall:   /var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p23-uninstall-FTHszc/root/Library/Services/Mona.service",
-    "mona-uninstall:   /var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p23-uninstall-FTHszc/root/Library/Application Support/Mona/install-receipt.json",
-    "mona-uninstall:   /var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p23-uninstall-FTHszc/root/Library/Application Support/Mona/owned-paths.json",
-    "mona-uninstall:   /var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p23-uninstall-FTHszc/root/Library/Application Support/Mona/uninstall-mona.sh",
+    "mona-uninstall:   /var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p23-uninstall-gAT41m/root/Applications/Mona.app",
+    "mona-uninstall:   /var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p23-uninstall-gAT41m/root/Library/Services/Mona.service",
+    "mona-uninstall:   /var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p23-uninstall-gAT41m/root/Library/Application Support/Mona/install-receipt.json",
+    "mona-uninstall:   /var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p23-uninstall-gAT41m/root/Library/Application Support/Mona/owned-paths.json",
+    "mona-uninstall:   /var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p23-uninstall-gAT41m/root/Library/Application Support/Mona/uninstall-mona.sh",
     "mona-uninstall: preserved: this and every user's state, projects, credentials, external Codewhale",
     "mona-uninstall: dry run: nothing was removed"
   ],
   "removal_stdout": [
     "mona-uninstall: installed Mona version: 0.1.0",
     "mona-uninstall: the following package-owned paths will be removed:",
-    "mona-uninstall:   /var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p23-uninstall-FTHszc/root/Applications/Mona.app",
-    "mona-uninstall:   /var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p23-uninstall-FTHszc/root/Library/Services/Mona.service",
-    "mona-uninstall:   /var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p23-uninstall-FTHszc/root/Library/Application Support/Mona/install-receipt.json",
-    "mona-uninstall:   /var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p23-uninstall-FTHszc/root/Library/Application Support/Mona/owned-paths.json",
-    "mona-uninstall:   /var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p23-uninstall-FTHszc/root/Library/Application Support/Mona/uninstall-mona.sh",
+    "mona-uninstall:   /var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p23-uninstall-gAT41m/root/Applications/Mona.app",
+    "mona-uninstall:   /var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p23-uninstall-gAT41m/root/Library/Services/Mona.service",
+    "mona-uninstall:   /var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p23-uninstall-gAT41m/root/Library/Application Support/Mona/install-receipt.json",
+    "mona-uninstall:   /var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p23-uninstall-gAT41m/root/Library/Application Support/Mona/owned-paths.json",
+    "mona-uninstall:   /var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p23-uninstall-gAT41m/root/Library/Application Support/Mona/uninstall-mona.sh",
     "mona-uninstall: preserved: this and every user's state, projects, credentials, external Codewhale",
-    "mona-uninstall: removed /var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p23-uninstall-FTHszc/root/Applications/Mona.app",
-    "mona-uninstall: removed /var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p23-uninstall-FTHszc/root/Library/Services/Mona.service",
-    "mona-uninstall: removed /var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p23-uninstall-FTHszc/root/Library/Application Support/Mona/install-receipt.json",
-    "mona-uninstall: removed /var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p23-uninstall-FTHszc/root/Library/Application Support/Mona/owned-paths.json"
+    "mona-uninstall: removed /var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p23-uninstall-gAT41m/root/Applications/Mona.app",
+    "mona-uninstall: removed /var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p23-uninstall-gAT41m/root/Library/Services/Mona.service",
+    "mona-uninstall: removed /var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p23-uninstall-gAT41m/root/Library/Application Support/Mona/install-receipt.json",
+    "mona-uninstall: removed /var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p23-uninstall-gAT41m/root/Library/Application Support/Mona/owned-paths.json"
   ]
 }

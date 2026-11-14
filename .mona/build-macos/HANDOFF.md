@@ -4,13 +4,20 @@
 1282) · `monabuild validate` clean · `npm run ci` 24/24 steps, 1,121 tests
 **History rewritten 2026-11-13 (D-101)** — old SHAs are gone; the mapping is in
 D-101.
-**Current state:** 25 of 28 prompts finished — P22 blocked on EXT-SIGNING,
-**P24 now blocked** on EXT-SIGNING + EXT-RECIPIENT-HOST (harness and matrix
-finished), P26 pending on P24, P27 on P26.
-**Studio review queue:** `R00–R12` and `R15` complete; `R13` blocked on one
-admin-authorized install; `R14` blocked on Developer ID/notary credentials. The
-review handoff is `docs/evidence/macos/review-studio/R15-final-handoff.md`.
-**Next exact action (Victor):** any of these three, in any order —
+**Current state:** 26 of 28 prompts settled — **P22 and P24 are `skipped` by
+owner decision** (D-103: no Apple Developer account, distribution is local and
+build-it-yourself; the P24 harness and matrix were finished and are retained).
+**P26 and P27 are the only pending prompts, and P26 is eligible.**
+**Studio review queue:** 14 complete, R13 blocked on one admin-authorized
+install, R14 skipped by the same decision. The review handoff is
+`docs/evidence/macos/review-studio/R15-final-handoff.md`.
+**Installing the latest build is one command:** `npm run mac:install` — it
+builds, packages, installs with `sudo` on your terminal, then runs the
+install-side gates against the installed copy. A disk image is on request only
+(`npm run mac:package:dmg`), not on every build (D-107).
+
+**Next exact action:** P26 (whole-product QA) is eligible. The blocked items are
+closed — see below for the historic record.
 
 ```sh
 sudo installer -pkg packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg -target /

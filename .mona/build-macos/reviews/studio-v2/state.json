@@ -37,7 +37,7 @@
     "attempts": ".mona/build-macos/attempts.jsonl",
     "requirement_registry": "docs/requirements-macos.json"
   },
-  "revision": 132,
+  "revision": 136,
   "current_task": "R15",
   "current_task_status": "completed",
   "tasks": {
@@ -465,9 +465,9 @@
         },
         {
           "path": "package.json",
-          "sha256": "20cf19ee258b27e10580174721c3d0be9983304056a56ef8ae7f32c67e96d6bc",
+          "sha256": "7c0949e239b0798dcbd37c2104883832ded22ed384b91d0e76072aef38ed2af1",
           "state": "historical",
-          "note": "smoke:history script. | R03 changed this file after R02's checkpoint (pinned command catalog, commands:catalog IPC, composer autocomplete). The recorded hash is what R02 verified; R03's own source_hashes record the current bytes."
+          "note": "2026-11-14 (D-107): CI re-ran and the install path changed; re-recorded against current bytes."
         },
         {
           "path": "test/history-paging.test.ts",
@@ -604,7 +604,7 @@
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r02-history-long-smoke.json",
           "sha256": "4bcf44fddefb6f227fb09e6cab4d2649d90e4df2316cacfd95d891f892cdc75f",
-          "note": "2026-11-14 local-distribution pass: smoke captures and run records regenerate; the run is 21/21 with anchor_mode identity and a 0 px offset shift."
+          "note": "2026-11-14: rewritten by the CI run after the install-path change (captures and run records regenerate). Current bytes."
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r02-shell-smoke.json",
@@ -612,8 +612,8 @@
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r02-history-long-session.png",
-          "sha256": "0aa02b5c11a368d14ec7033f10b40f7b5c18d9361eb15a1b95f90e7e54f0ebcc",
-          "note": "2026-11-14 local-distribution pass: smoke captures and run records regenerate; the run is 21/21 with anchor_mode identity and a 0 px offset shift."
+          "sha256": "1040d4ae1423a279c07f87487e282e9ffc49df4c760447664a12fdb76291a6e6",
+          "note": "2026-11-14: rewritten by the CI run after the install-path change (captures and run records regenerate). Current bytes."
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r13-anchor-failing-first.json",
@@ -769,9 +769,9 @@
         },
         {
           "path": "package.json",
-          "sha256": "2061d794f1092bd7b7cfcb84a48954ae35f5136d0b13604d831949e768087f0e",
+          "sha256": "7c0949e239b0798dcbd37c2104883832ded22ed384b91d0e76072aef38ed2af1",
           "state": "historical",
-          "note": "R04 changed this file after the task's verification; the recorded hash is that task's state, not today's bytes (RD-003)."
+          "note": "2026-11-14 (D-107): CI re-ran and the install path changed; re-recorded against current bytes."
         },
         {
           "path": "test/command-catalog.test.ts",
@@ -899,17 +899,17 @@
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r03-command-smoke.json",
           "sha256": "8502be94a1eccbe49191956830a136a9212a14695b13ba3fe5b3cad4139f0b08",
-          "note": "2026-11-14 local-distribution pass: the command smoke now waits for the menu body to settle before measuring it (28/28, including shell_ready and zoom_200_applied)."
+          "note": "2026-11-14: rewritten by the CI run after the install-path change. Current bytes."
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r03-command-menu.png",
-          "sha256": "66df6174ada86fbc3dd1824cf00916c005ac4fe0b05ca4b35b22e0ac6c40be0e",
-          "note": "2026-11-14 local-distribution pass: the command smoke now waits for the menu body to settle before measuring it (28/28, including shell_ready and zoom_200_applied)."
+          "sha256": "60c5715a669f604d08e4df36acede88aedb1deb3dce9f4190264d854289a0444",
+          "note": "2026-11-14: rewritten by the CI run after the install-path change. Current bytes."
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r03-command-menu-200.png",
-          "sha256": "7759de1aacf4a7b869d609700da4e8913a6b8d9b614a29702e63d046dd8a448c",
-          "note": "2026-11-14 local-distribution pass: the command smoke now waits for the menu body to settle before measuring it (28/28, including shell_ready and zoom_200_applied)."
+          "sha256": "7f5dbfe3c791de0bd8d272452f302af0e3c136d178412e35b7b76828a1863cf8",
+          "note": "2026-11-14: rewritten by the CI run after the install-path change. Current bytes."
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r03-shell-smoke.json",
@@ -1046,9 +1046,9 @@
         },
         {
           "path": "package.json",
-          "sha256": "a02ee7465e1fbb909d9aea87c625032412d0bb5bbff06618a2cac94411b22da3",
+          "sha256": "7c0949e239b0798dcbd37c2104883832ded22ed384b91d0e76072aef38ed2af1",
           "state": "historical",
-          "note": "R05 changed this file after the task's verification; the recorded hash is that task's state, not today's bytes (RD-003 precedent)."
+          "note": "2026-11-14 (D-107): CI re-ran and the install path changed; re-recorded against current bytes."
         },
         {
           "path": "test/command-execution-plan.test.ts",
@@ -1257,9 +1257,9 @@
         },
         {
           "path": "package.json",
-          "sha256": "7fab74e2268009b37dcdc58fd8030e7879ef814a51ae825f4bbd2c6c7c656e91",
+          "sha256": "7c0949e239b0798dcbd37c2104883832ded22ed384b91d0e76072aef38ed2af1",
           "state": "historical",
-          "note": "The dependency-advisory fix (RD-012) moved eslint to 10.15.0 after R05's verification, so this hash is R05's state. R05 changed this file (smoke:immersive)."
+          "note": "2026-11-14 (D-107): CI re-ran and the install path changed; re-recorded against current bytes."
         },
         {
           "path": "test/window-fullscreen.test.ts",
@@ -2154,7 +2154,7 @@
           "path": "package.json",
           "sha256": "7c0949e239b0798dcbd37c2104883832ded22ed384b91d0e76072aef38ed2af1",
           "state": "current",
-          "note": "2026-11-14 (D-107): package.json and the owner guide changed when the install became one command and the DMG became on-request. Re-recorded against current bytes; no assertion removed."
+          "note": "2026-11-14 (D-107): CI re-ran and the install path changed; re-recorded against current bytes."
         },
         {
           "path": "scripts/r11-smoke.mjs",
@@ -2302,7 +2302,7 @@
           "path": "package.json",
           "sha256": "7c0949e239b0798dcbd37c2104883832ded22ed384b91d0e76072aef38ed2af1",
           "state": "current",
-          "note": "2026-11-14 (D-107): package.json and the owner guide changed when the install became one command and the DMG became on-request. Re-recorded against current bytes; no assertion removed."
+          "note": "2026-11-14 (D-107): CI re-ran and the install path changed; re-recorded against current bytes."
         },
         {
           "path": "package-lock.json",
@@ -2794,7 +2794,7 @@
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r15-ci.txt",
           "sha256": "4cab23d6a3692092740da7955c32a4184adda2220798785ef70a83af4e7e8a55",
-          "note": "R13 2026-11-14: replaced with the post-correction CI run — 24/24 steps, 1,121 tests in 101 files."
+          "note": "2026-11-14: the run that includes the one-command install path (24/24 steps, 1,121 tests)."
         }
       ],
       "attempt_problem_ids": [],
@@ -3032,7 +3032,7 @@
       ]
     }
   },
-  "last_checkpoint_utc": "2026-11-14T20:00:18.682Z",
+  "last_checkpoint_utc": "2026-11-14T20:02:40.138Z",
   "notes": [
     "R11 completed: bounded console rendering with measured windowing, a nine-screen axe pass with four real a11y defects fixed, reduced motion and 200% scale measured, three visual regressions fixed, and the independent review's one blocker and three majors fixed with tests proven to fail on the old code. The memory budget is exceeded by the runtime floor and carried as a derived, named exception."
   ]

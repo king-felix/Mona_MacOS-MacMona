@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "label": "P20 — failure injection across durable boundaries",
-  "captured_at": "2026-11-14T18:56:00.923Z",
+  "captured_at": "2026-11-14T20:01:51.990Z",
   "ok": true,
   "checks": {
     "stale_revision_refused": {
