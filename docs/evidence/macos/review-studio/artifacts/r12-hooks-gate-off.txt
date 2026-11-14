@@ -1,5 +1,5 @@
 
- RUN  v5.1.0 /Users/basestar/DS_Projects/Mona
+ RUN  v5.1.0 <user>/DS_Projects/Mona
 
  ❯ test/lint-hooks-gate.test.ts (3 tests | 2 failed) 279ms
    ❯ react-hooks lint gate (3)

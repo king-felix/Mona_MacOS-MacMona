@@ -7,6 +7,32 @@ blocker — the runtime's own floor is 356 MiB against a 350 MiB target, so no
 application code can satisfy it on this host. R00's four behavioral fixes were reproduced,
 fixed and regression-tested inside one task, so no problem became open.
 
+## R13 is blocked on one admin-authorized install (EXT-INSTALL)
+
+Build 147 is assembled and its payload is verified, but `/Applications/Mona.app`
+still holds build 104. The packaging build stops at `installed_copy` by design,
+and `sudo -n` refuses in this session, so the installed candidate cannot be
+qualified without Victor.
+
+**Exact help needed** — one command, with administrator authorization:
+
+```sh
+sudo installer -pkg packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg -target /
+```
+
+Then R13 resumes with `node scripts/r13-candidate-verify.mjs --smoke --launch`
+against `/Applications/Mona.app`, the interactive pass its acceptance names, and
+`npm run mac:package:local` (whose install gates then run for the new build).
+R14 depends on R13 and stays pending until then. Nothing about this is
+attempt-counted: no hypothesis failed, a privilege is missing.
+
+Measured while blocked: a `ditto` copy at `/Applications/Mona-r13-candidate.app`
+passed the app's own acceptance sample and launched through LaunchServices, but
+will not quit — the product refuses a packaged copy outside `/Applications`
+while the installed copy exists (`-[NSAlert runModal]` observed in a stack
+sample). That is the rule working, and the reason the interactive checks need
+the install.
+
 ## External prerequisites carried from the product ledger
 
 These are not blocked review work and are not attempt-counted. Their full

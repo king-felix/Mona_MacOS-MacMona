@@ -640,3 +640,31 @@ D-001…D-103) and never replace them.
   are 20 → 0 and the same four tests still pass.
 - **Consequence:** a fixture that returns the wrong shape now fails visibly
   rather than hiding behind a warning that everyone had learned to ignore.
+
+## RD-027 — A candidate is qualified from its own bytes; the install is a privilege
+
+- **Date:** 2026-11-14 (R13)
+- **Context:** R13 must qualify the *installed* artifact, and this session has no
+  administrator authorization (`sudo -n` → "a password is required"). The build
+  stops at `installed_copy` by design; weakening that gate to obtain a passing
+  run would be the exact opposite of the task.
+- **Decision — add a verifier that reads the artifact, not the build's
+  intentions.** `scripts/r13-candidate-verify.mjs` takes a bundle (staged,
+  copied, or installed) and proves: bundle identity and build number against
+  `git rev-list --count HEAD`, every component in the bundle's own manifest
+  (size + sha256), every Mach-O header (arm64 only; app-owned minimum 14.0), the
+  native helpers, the acceptance sample, the review's own channel names in the
+  shipped bundles, and the payload's hygiene. It is re-runnable after the install.
+- **Decision — the duplicate-copy notice is a fact to report, not a failure to
+  hide.** A packaged copy outside `/Applications/Mona.app` raises a modal notice
+  while the installed copy exists and will not quit until someone answers it
+  (`-[NSAlert runModal]` observed in a sample). The verifier records
+  `duplicate_copy_notice` and marks `graceful_shutdown` *not testable at this
+  location*. The installed build 104 quits on `SIGTERM` in 1 s on the same host,
+  which is what isolates the cause.
+- **Decision — the task is `blocked`, not `completed-with-exceptions`.** The
+  prompt's acceptance names the installed app exercised through
+  LaunchServices/Finder; an uninstalled copy cannot do that. The blocker records
+  the exact one-line command and is not attempt-counted: no hypothesis failed.
+- **Consequence:** R14 stays ineligible until R13 completes, which keeps the
+  release task behind a real artifact instead of a simulated one.

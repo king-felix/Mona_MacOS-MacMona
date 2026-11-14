@@ -179,10 +179,19 @@ status moved in R12. `monabuild index --write` rewrote the hash index.
   test files; format clean.
 - `monabuild validate` — green at revision 1211; `monabuild review validate` —
   green after the R08/R09 capture and R11 source-hash refresh.
-- `monabuild secrets` — **705 files, 0 findings**. The review document's note
-  about scanner noise in `scripts/terminal-smoke.mjs` and
-  `test/settings-workbench.test.ts` is now historical: both fixtures are redacted
-  inputs that prove redaction, and the scanner no longer reports them.
+- `monabuild secrets` — **705 files, 0 findings at the time of the R12 commit**.
+  The review document's note about scanner noise in
+  `scripts/terminal-smoke.mjs` and `test/settings-workbench.test.ts` is now
+  historical: both fixtures are redacted inputs that prove redaction, and the
+  scanner no longer reports them.
+- **One correction, found at R13:** the scanner walks tracked files, and R12's
+  pre-commit run happened before staging, so the newly written
+  `r12-hooks-gate-off.txt` (which carries vitest's `RUN … /Users/<host>/…` line)
+  was not in its set. Once tracked, the scan reported exactly that:
+  `machine-home-path`, line 2. The path is now `<user>`, the artifact and this
+  document are re-recorded, and the scan is clean at 711 files. The lesson is
+  mechanical, not moral: run the scan after `git add`, which is what the ledger
+  rules ask for and what this note exists to make sure the next session does.
 
 ## 7. Evidence
 

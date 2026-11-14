@@ -7,13 +7,15 @@ D-101.
 **Current state:** 25 of 28 prompts are finished — P23 completed, **P22 blocked
 on EXT-SIGNING**, **P25 completed**. `monabuild next` now reports **no eligible
 prompt**: P24 needs P22's signed artifact, P26 needs P24+P25, and P27 needs P26.
-The Studio review queue is at **R12 completed** (regression, ledger and evidence
-reconciliation); **R13 (native installed-artifact qualification) is the only
-eligible review task**, and it needs an administrator install from Victor before
-its `installed_copy` gate can pass. R14 follows and also needs EXT-SIGNING.
-**Next exact action:** R13 — build the local arm64 candidate, then
+The Studio review queue is at **R13 blocked on EXT-INSTALL**: build 147 is
+assembled and its payload verified, but `/Applications/Mona.app` still holds
+build 104 and installing needs administrator authorization. R14 depends on R13
+and stays pending; it also needs EXT-SIGNING.
+**Next exact action (Victor):**
 `sudo installer -pkg packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg -target /`
-with Victor's authorization. P22 resumes the moment Victor provides the two
+then `node scripts/r13-candidate-verify.mjs --smoke --launch` and the interactive
+pass; re-running `npm run mac:package:local` afterwards makes its install gates
+execute for build 147. P22 resumes the moment Victor provides the two
 Developer ID identities and a notary credential —
 `npm run mac:release:preflight` names the gap exactly; see BLOCKERS.md.
 

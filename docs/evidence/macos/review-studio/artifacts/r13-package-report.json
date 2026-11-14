@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "product": "Mona",
+  "version": "0.1.0",
+  "build": "147",
+  "channel": "local",
+  "package": "Mona-0.1.0-macOS-arm64-local.pkg",
+  "package_sha256": "e54b2cffd62e6697b74ad65efad19d4b613df88965d6da7169fafd7947d435f9",
+  "package_size": 163804045,
+  "verified_at": "2026-11-14T17:17:24.980Z",
+  "gates": {
+    "declared_metadata": {
+      "ok": true,
+      "problems": [],
+      "declares": [
+        "package id com.mona.workbench.pkg",
+        "version 0.1.0",
+        "build 147",
+        "bundles com.mona.workbench + com.mona.workbench.service",
+        "arm64 only",
+        "macOS 14.0+"
+      ]
+    },
+    "architecture": {
+      "ok": true
+    },
+    "dependencies": {
+      "ok": true
+    },
+    "secrets": {
+      "ok": true
+    },
+    "payload_expand": {
+      "ok": true,
+      "files": 673,
+      "links": 14
+    },
+    "install_rehearsal": {
+      "ok": true,
+      "idempotent_reinstall": true
+    },
+    "uninstall_rehearsal": {
+      "ok": true,
+      "check": {
+        "dry_run_exit": 0,
+        "dry_run_changed_nothing": true,
+        "dry_run_lists_owned": true,
+        "missing_manifest_refused": true,
+        "foreign_bundle_refused": true,
+        "user_data_removed_for_the_named_home": true,
+        "projects_preserved_by_user_data_removal": true,
+        "home_outside_rehearsal_root_refused": true,
+        "removal_exit": 0,
+        "removed_owned_paths": true,
+        "unrelated_content_preserved": true
+      }
+    }
+  },
+  "pending": [
+    "package smoke against /Applications",
+    "LaunchServices GUI launch"
+  ],
+  "note": "These gates concern the package bytes and passed without administrator authorization. The install gates below require an authorized install; re-run after installing to complete the record."
+}

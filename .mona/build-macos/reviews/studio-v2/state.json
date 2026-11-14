@@ -37,9 +37,9 @@
     "attempts": ".mona/build-macos/attempts.jsonl",
     "requirement_registry": "docs/requirements-macos.json"
   },
-  "revision": 85,
-  "current_task": "R12",
-  "current_task_status": "completed",
+  "revision": 93,
+  "current_task": "R13",
+  "current_task_status": "blocked",
   "tasks": {
     "R00": {
       "status": "completed",
@@ -2431,7 +2431,7 @@
         },
         {
           "path": "docs/evidence/macos/review-studio/R12-regression-and-evidence.md",
-          "sha256": "e0b3efd75388dddc5dbde6cd536c2a240d61e5806fb014b1790d42b3910afa55",
+          "sha256": "a91991d7f9a945c68872a25887b1ca5d659d29def75cb4cc89a991294252070b",
           "note": "R12 validation record: what the gate found, the three defects fixed at their own layer, the contract-coverage audit, and the 61 evidence hashes reconciled with notes."
         },
         {
@@ -2451,7 +2451,7 @@
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r12-hooks-gate-off.txt",
-          "sha256": "e4071fd541999b64d096a23da302bc9c207b495c95638b299831bb8226cfbe1f",
+          "sha256": "01972c4c31a2ff4081ca57918c58652878f8584b95338ebaddf002c0c983e2f4",
           "note": "R12 validation record: what the gate found, the three defects fixed at their own layer, the contract-coverage audit, and the 61 evidence hashes reconciled with notes."
         }
       ],
@@ -2467,7 +2467,7 @@
       ]
     },
     "R13": {
-      "status": "pending",
+      "status": "blocked",
       "title": "Native installed-artifact qualification",
       "prerequisites": [
         "R12"
@@ -2478,23 +2478,79 @@
         "MONA-028"
       ],
       "feature_ids": [],
-      "source_hashes": [],
-      "acceptance_completed": [],
-      "acceptance_remaining": [
+      "source_hashes": [
+        {
+          "path": "scripts/r13-candidate-verify.mjs",
+          "sha256": "82d819936419688fe0a22b162a5d0348b578c2ffa51fffd304a3495f85afef69",
+          "state": "current",
+          "note": "R13 verifier: reads the bundle manifest, hashes every listed component, decodes every Mach-O header, searches the shipped bundles for the review channel names, and optionally runs the app's own acceptance sample and a LaunchServices launch."
+        }
+      ],
+      "acceptance_completed": [
         "Native arm64 local candidate built and its exact payload verified",
-        "Installed app exercised through LaunchServices/Finder: project, thread, autocomplete/dispatch, newline/Command-Enter, focus/fullscreen, follow-up/pending reply, costs, export/restore, shutdown",
-        "Live route used only for the few necessary real interactions; no automatic provider switch",
         "Update/restore/uninstall rehearsals run under isolated-root guards without risking the owner's app or data",
         "Payload contains required native binaries and new resources, without developer paths or secrets",
-        "Reinstall/reverification after changes; old screenshots never certify new artifacts",
         "Build ID, hash, macOS version, architecture and signing tier recorded; Git/CLT prerequisites reported honestly"
       ],
-      "tests": [],
-      "evidence": [],
+      "acceptance_remaining": [
+        "Installed app exercised through LaunchServices/Finder: project, thread, autocomplete/dispatch, newline/Command-Enter, focus/fullscreen, follow-up/pending reply, costs, export/restore, shutdown",
+        "Live route used only for the few necessary real interactions; no automatic provider switch",
+        "Reinstall/reverification after changes; old screenshots never certify new artifacts"
+      ],
+      "tests": [
+        {
+          "command": "npm run mac:package:local",
+          "result": "failed",
+          "detail": "Every package gate passed; stopped at installed_copy with the expected refusal. Build 147, package sha256 e54b2cff…, assembled from cf433aa with a clean tree, 673 payload files + 14 links. (Build 146, built from the uncommitted R12 tree, was withdrawn: the commit-count build number no longer described it.)",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r13-package-report.json",
+          "captured_utc": "2026-11-14T17:35:00.000Z"
+        },
+        {
+          "command": "node scripts/r13-candidate-verify.mjs --app /Applications/Mona-r13-candidate.app --smoke --launch",
+          "result": "passed",
+          "detail": "16 checks true against the /Applications copy of build 147 at cf433aa: identity, build number vs a clean checkout, 13 component digests, arm64 only, minimum OS, native components, review feature markers, no developer paths, the in-app acceptance sample, the LaunchServices launch and the duplicate-copy notice. Graceful shutdown marked not testable at that location.",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r13-candidate-verify.json",
+          "captured_utc": "2026-11-14T17:35:00.000Z"
+        },
+        {
+          "command": "npm run mac:doctor",
+          "result": "passed",
+          "detail": "All host checks green; 0 Developer ID identities; 29.8 GiB free.",
+          "evidence": "docs/evidence/macos/review-studio/R13-installed-candidate.md",
+          "captured_utc": "2026-11-14T17:35:00.000Z"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/review-studio/R13-installed-candidate.md",
+          "sha256": "9c43e9927619c42e10410fe9bb0ba134dabdf5ced43f60683daf0baa79c36fc4",
+          "note": "R13 record for build 147 (commit cf433aa, clean tree): the verifier's 16 checks, the build's gate report and the uninstall rehearsal. Build 146 was withdrawn after the commits that describe it moved the commit-count build number past it."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r13-candidate-verify.json",
+          "sha256": "56bb466eec84e4461b0c29445eae3822be6d74012ab8ee90915535b1b55e3935",
+          "note": "R13 record for build 147 (commit cf433aa, clean tree): the verifier's 16 checks, the build's gate report and the uninstall rehearsal. Build 146 was withdrawn after the commits that describe it moved the commit-count build number past it."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r13-package-report.json",
+          "sha256": "2d66042f0a3deb34e3a038fdd44aa415311f4fa71fb151c292aa7417f7e2528d",
+          "note": "R13 record for build 147 (commit cf433aa, clean tree): the verifier's 16 checks, the build's gate report and the uninstall rehearsal. Build 146 was withdrawn after the commits that describe it moved the commit-count build number past it."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r13-uninstall-rehearsal.json",
+          "sha256": "990681b6630e3044195d023922ab063e48f9729a584ad429ef180f589c184fd9",
+          "note": "R13 record for build 147 (commit cf433aa, clean tree): the verifier's 16 checks, the build's gate report and the uninstall rehearsal. Build 146 was withdrawn after the commits that describe it moved the commit-count build number past it."
+        }
+      ],
       "attempt_problem_ids": [],
       "platform": "darwin-arm64",
-      "next_action": "Read the packaging/local install flow and component manifests; free disk and install prerequisites as needed.",
-      "notes": []
+      "next_action": "Install the candidate with administrator authorization (`sudo installer -pkg packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg -target /`), then run `node scripts/r13-candidate-verify.mjs --smoke --launch` against /Applications/Mona.app and the interactive pass named in R13 acceptance item 2.",
+      "notes": [
+        "Build 147 (sha256 e54b2cff…) is assembled from commit cf433aa with a clean tree and its payload verified, but /Applications still holds build 104 (installed 2026-11-13T15:33:41Z). The candidate cannot replace it without administrator authorization; `sudo -n` refuses in this session.",
+        "A ditto copy at /Applications/Mona-r13-candidate.app ran the in-app acceptance sample with every check true, and launched through LaunchServices (main + renderer + state). It will not quit: the product refuses a packaged copy outside /Applications/Mona.app while the installed copy exists, and the modal notice was observed in a stack sample (`-[NSAlert runModal]`). The installed build 104 quits on SIGTERM in 1 s on the same host, so the difference is that notice, not the shutdown path. The copy was removed and unregistered afterwards.",
+        "Signing tier is ad-hoc (`TeamIdentifier=not set`, pkgutil reports no installer signature), which is what a local candidate is; Gatekeeper rejects it by definition and no bypass is offered.",
+        "The build numbers itself by `git rev-list --count HEAD`, so an artifact built from an uncommitted tree is passed by the commits that describe it. The first build (146) was withdrawn for exactly that reason, and the verifier now refuses the tie when `git status --porcelain` is non-empty."
+      ]
     },
     "R14": {
       "status": "pending",
@@ -2786,7 +2842,7 @@
       ]
     }
   },
-  "last_checkpoint_utc": "2026-11-14T17:04:20.981Z",
+  "last_checkpoint_utc": "2026-11-14T17:18:09.432Z",
   "notes": [
     "R11 completed: bounded console rendering with measured windowing, a nine-screen axe pass with four real a11y defects fixed, reduced motion and 200% scale measured, three visual regressions fixed, and the independent review's one blocker and three majors fixed with tests proven to fail on the old code. The memory budget is exceeded by the runtime floor and carried as a derived, named exception."
   ]

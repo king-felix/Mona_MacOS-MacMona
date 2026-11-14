@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-14T17:04:43.449Z",
+  "generated_utc": "2026-11-14T17:18:26.430Z",
   "git": {
     "available": true,
-    "commit": "e299dc891402b443a5c5a1cd3712f1c42fc37d8c",
+    "commit": "cf433aa29062ec21188c0abb903e5cfdf73cb81e",
     "dirty": true
   },
-  "digest": "0bf0b0c7fadbfc3755052553f3139dbad276c368f0fbd4df8f8eb70eea9cadc1",
+  "digest": "ca3da1cde21738b08f0881519d4f40587aa1508b9cc2de7d02611d3d2eeab830",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,8 +15,8 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "df6cfc5bbcacdc1abaec6a0d31b1b355b9442326bab3ba37f6e5c06453237ddb",
-      "bytes": 197543
+      "sha256": "c73a4bf2114e4112b2fccc5d841c876cf87c8aab4a0025d72dfcb4957330b2f7",
+      "bytes": 197833
     },
     {
       "path": "AGENTS.md",
@@ -1315,13 +1315,28 @@
     },
     {
       "path": "docs/evidence/macos/review-studio/artifacts/r12-hooks-gate-off.txt",
-      "sha256": "e4071fd541999b64d096a23da302bc9c207b495c95638b299831bb8226cfbe1f",
-      "bytes": 1771
+      "sha256": "01972c4c31a2ff4081ca57918c58652878f8584b95338ebaddf002c0c983e2f4",
+      "bytes": 1762
     },
     {
       "path": "docs/evidence/macos/review-studio/artifacts/r12-shell-smoke.json",
       "sha256": "c571acacdd832cc9b904b61e34113dee526f65403abc6bf60fe237150026289d",
       "bytes": 14503
+    },
+    {
+      "path": "docs/evidence/macos/review-studio/artifacts/r13-candidate-verify.json",
+      "sha256": "56bb466eec84e4461b0c29445eae3822be6d74012ab8ee90915535b1b55e3935",
+      "bytes": 8960
+    },
+    {
+      "path": "docs/evidence/macos/review-studio/artifacts/r13-package-report.json",
+      "sha256": "2d66042f0a3deb34e3a038fdd44aa415311f4fa71fb151c292aa7417f7e2528d",
+      "bytes": 1783
+    },
+    {
+      "path": "docs/evidence/macos/review-studio/artifacts/r13-uninstall-rehearsal.json",
+      "sha256": "990681b6630e3044195d023922ab063e48f9729a584ad429ef180f589c184fd9",
+      "bytes": 3175
     },
     {
       "path": "docs/evidence/macos/review-studio/R00-baseline.md",
@@ -1385,8 +1400,13 @@
     },
     {
       "path": "docs/evidence/macos/review-studio/R12-regression-and-evidence.md",
-      "sha256": "e0b3efd75388dddc5dbde6cd536c2a240d61e5806fb014b1790d42b3910afa55",
-      "bytes": 12346
+      "sha256": "a91991d7f9a945c68872a25887b1ca5d659d29def75cb4cc89a991294252070b",
+      "bytes": 12988
+    },
+    {
+      "path": "docs/evidence/macos/review-studio/R13-installed-candidate.md",
+      "sha256": "9c43e9927619c42e10410fe9bb0ba134dabdf5ced43f60683daf0baa79c36fc4",
+      "bytes": 11348
     },
     {
       "path": "docs/evidence/macos/runtime-store-coexistence.md",

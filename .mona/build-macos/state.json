@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 1215,
+  "revision": 1217,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -2249,8 +2249,8 @@
         },
         {
           "path": ".mona/build-macos/HANDOFF.md",
-          "sha256": "a4274b5174ea6fc5aede01d08d04db6d7d10171a2bb02ebd39dafe3d30dd52c4",
-          "note": "Re-recorded after R08/R09/P22/P25 updated the handoff; the report describes the state at its own checkpoint."
+          "sha256": "155c94d83c4116cb3d02f93624a1c097a7cf4d82677ad4b21738ed65f003d323",
+          "note": "R13 2026-11-14: re-recorded after the handoff gained the R13 section. The R12 resume pointer and the R13 blocked on EXT-INSTALL state are the only content changes; the build it names is 147 (sha256 e54b2cff…), assembled from cf433aa with a clean tree."
         }
       ],
       "blocker_ids": []
@@ -2479,8 +2479,8 @@
         },
         {
           "path": ".mona/build-macos/HANDOFF.md",
-          "sha256": "a4274b5174ea6fc5aede01d08d04db6d7d10171a2bb02ebd39dafe3d30dd52c4",
-          "note": "Re-recorded after R08/R09/P22/P25 updated the handoff; the report describes the state at its own checkpoint."
+          "sha256": "155c94d83c4116cb3d02f93624a1c097a7cf4d82677ad4b21738ed65f003d323",
+          "note": "R13 2026-11-14: re-recorded after the handoff gained the R13 section. The R12 resume pointer and the R13 blocked on EXT-INSTALL state are the only content changes; the build it names is 147 (sha256 e54b2cff…), assembled from cf433aa with a clean tree."
         },
         {
           "path": "test/work-git.test.ts",
@@ -2684,7 +2684,7 @@
     "P22",
     "P25"
   ],
-  "last_checkpoint_utc": "2026-11-14T17:04:41.251Z",
+  "last_checkpoint_utc": "2026-11-14T17:18:21.597Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

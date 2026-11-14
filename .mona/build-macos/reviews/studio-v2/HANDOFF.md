@@ -1,7 +1,7 @@
 # Handoff — Studio review (studio-v2)
 
-**Registry:** `.mona/build-macos/reviews/studio-v2/state.json` (revision 85, after R12)
-**Current task:** R12 — completed · **Next eligible:** R13 (needs R12)
+**Registry:** `.mona/build-macos/reviews/studio-v2/state.json` (revision 87, after R13)
+**Current task:** R13 — **blocked on EXT-INSTALL** · **Next eligible:** none (R14 needs R13)
 **Review document:** `MacMona_Studio_Review_PROMPTS.md` (sha256
 `7e1e16d1…`) · **Hotfix:** `MacMona_Review_Hotfix.patch` (sha256
 `a253a05e…`, applied unmodified)
@@ -9,6 +9,51 @@
 `.mona/build-macos/state.json` is at P23 completed; P22/P25 remain its eligible
 prompts. Nothing in this review queue resets P00–P27 or the attempt counts
 (`attempts.jsonl` is still empty; no problem consumed an attempt).
+
+## R13 — installed-candidate qualification: built and verified, blocked on the install (2026-11-14)
+
+- **Build 147 is assembled.** `npm run mac:package:local` passed every package
+  gate — declared metadata, architecture, dependencies, secrets, 673-file payload
+  expansion, install rehearsal (idempotent reinstall) and the 11-check uninstall
+  rehearsal — then stopped at `installed_copy` with the expected refusal, because
+  `/Applications/Mona.app` is build **104** (installed 2026-11-13T15:33:41Z).
+  Package: `Mona-0.1.0-macOS-arm64-local.pkg`, sha256 `e54b2cff…`, 163.8 MB,
+  ad-hoc (no installer signature).
+- **The payload is verified from its own bytes.** `scripts/r13-candidate-verify.mjs`
+  reads the bundle's component manifest, hashes all 13 listed components, decodes
+  every Mach-O header (arm64 only; app-owned 14.0; the pinned engine keeps its
+  own 11.0), checks the native helpers and the app's own acceptance sample, and
+  searches the shipped bundles for the review's channel names —
+  `projects:history-item`, `commands:execute`, `window:fullscreen:set`,
+  `studio:answer-pending`, `studio:follow-up-add`, plus "Load earlier events",
+  "Jump to latest" and "Vivid" in the renderer. 16/16 checks true.
+- **The one thing an uninstalled copy cannot prove, and why.** A `ditto` copy at
+  `/Applications/Mona-r13-candidate.app` launches through LaunchServices (main +
+  renderer + state) but never quits: `src/main/install-location.ts` refuses a
+  packaged copy outside `/Applications/Mona.app` while the installed copy exists,
+  and the modal notice was observed in a stack sample. The installed build 104
+  quits on `SIGTERM` in 1 s, which isolates the cause. The verifier records
+  `duplicate_copy_notice` and marks `graceful_shutdown` not testable there. The
+  copy was removed and unregistered.
+- **Prerequisites measured:** `mac:doctor` green (29.8 GiB free, 0 identities);
+  Apple Git 2.39.3 via `/Library/Developer/CommandLineTools` (real, not the stub);
+  host macOS 26.5.1 against a declared 14.0 floor that no 14.x host has executed;
+  signing tier ad-hoc with Gatekeeper rejecting it, as labelled.
+- Evidence: `docs/evidence/macos/review-studio/R13-installed-candidate.md`,
+  `artifacts/r13-candidate-verify.json`, and the build's own
+  `packaging/macos/out/{package-report,uninstall-rehearsal}.json`.
+
+### The exact help needed
+
+```sh
+sudo installer -pkg packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg -target /
+```
+
+Then: verify against `/Applications/Mona.app` with `--smoke --launch`, run the
+interactive pass (project, archived thread, autocomplete/dispatch, newline vs
+Command-Enter, focus/fullscreen, follow-up or pending reply, costs, export and
+restore, quit), and re-run `npm run mac:package:local` so its install gates
+execute for the new build.
 
 ## R12 — regression suite, ledger and evidence reconciliation (2026-11-14)
 
@@ -506,22 +551,15 @@ pass that failed the first versions and was fixed before checkpointing.
 
 ## Exact next action
 
-**R13 — qualify the installed Mac candidate.** Next actions, in order:
+**R13 — resume after the install.** The candidate is built and verified; the
+only missing step is administrator authorization:
 
-1. Read `packaging/macos/build.mjs`, the component manifest and
-   `packaging/macos/out/verification.json`; run `npm run mac:doctor` first.
-2. Build the local arm64 candidate (`npm run mac:package:local`). Every gate up to
-   `installed_copy` passes; that gate refuses until the candidate is installed with
-   administrator authorization, which R13 needs from Victor:
-   `sudo installer -pkg packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg -target /`
-3. Exercise the installed app through LaunchServices (not `npm start`): project,
-   thread selection, autocomplete and dispatch, newline vs Command-Enter,
-   focus/fullscreen, a queued follow-up or pending reply, costs, export/restore,
-   graceful shutdown. Use the authorized Flash route only for the few real
-   interactions; no provider switch.
-4. Record build ID, digest, macOS version, architecture, signing tier (ad-hoc
-   local), and the honest Git/CLT and 14.x-floor state. Reinstall/reverify after
-   any change; old screenshots never certify new artifacts.
+```sh
+sudo installer -pkg packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg -target /
+```
+
+then `node scripts/r13-candidate-verify.mjs --smoke --launch`, the interactive
+pass, and `npm run mac:package:local` (its install gates run for build 147).
 
 **R14–R15 follow.** R14 can remain externally blocked on EXT-SIGNING; nothing in this
 queue invents credentials. **Do not re-run `smoke:shell` without re-recording the
