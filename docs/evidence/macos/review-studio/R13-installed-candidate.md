@@ -132,6 +132,45 @@ else unchanged, the smoke fails exactly one check and reports the fallback:
 (`artifacts/r13-anchor-failing-first.json`). Restored, it passes with
 `anchor_mode: "identity"`.
 
+### A second review pass found the mount guarantee had no expiry
+
+`heldKey` is what keeps the card mounted, so it is also the thing that can strand
+the console: a page read that **fails**, or that finds no cursor, increments no
+counter, so the pin never runs and the window stays forced onto one card. The
+review said so and it was verified by reading `history.ts`: the failure path does
+set `loading: false`, but the no-cursor path returns before `loading` is ever set
+and changes nothing the pin scopes on.
+
+Fixed with one release path and a deadline:
+
+- `releaseHold()` clears the timer, the anchor and `heldKey`. Every abandon routes
+  through it — settle on a superseded click, `followRef`, a project change, jump
+  to latest, a settled read that moved no counter, and unmount.
+- `loadOlder` arms a **5 s deadline**, so no failure mode can leave the window
+  pinned.
+- The pin is the only place that clears its own anchor
+  (`anchorRef.current === anchor`), so a second click cannot have its anchor
+  erased by the first one settling.
+- `data-anchor-mode` is cleared before the scenario, so the assertion cannot be
+  satisfied by an earlier pin.
+
+The same pass also corrected two claims this document had made: the tall block in
+the prepended page is **realism, not a discriminator** (an inserted region that is
+entirely unmeasured corrects identically under both forms — the failing-first
+artifact shows `height_delta: 0`), and `older_page_rendered_once` now also
+requires the painted frames to be older-page frames (`newest <= 9650`).
+
+### The gate was racing too
+
+Putting `smoke:history` into `npm run ci` exposed two real races in
+`smoke:commands`, which was already in CI: a single synthetic project click that
+a re-render could drop (observed once in CI as `studio_opened: false`), and a
+200 % menu geometry measured before layout settled (observed once under three
+concurrent runs). Both are fixed at the cause — readiness is now an asserted
+check, the click is retried inside the deadline, the zoom is confirmed through
+`getZoomFactor()` rather than `devicePixelRatio`, and the rectangle is measured
+once it stops moving. No assertion was removed and no tolerance was widened.
+
 Verified after the correction:
 
 - `node scripts/history-smoke.mjs` — **20/20, three consecutive runs**; the

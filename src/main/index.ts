@@ -2505,6 +2505,13 @@ async function runHistorySmoke(window: BrowserWindow): Promise<void> {
     // can never hold exactly (measured 115.5 px of drift on build 151). What the
     // reader actually experiences is the anchored card staying where it was, so
     // the check names that card and measures its offset from the pane's top.
+    // Clear the marker first: a mode left over from any earlier pin would let
+    // the assertion below be satisfied by work this scenario did not do.
+    await window.webContents.executeJavaScript(`(() => {
+      const node = document.querySelector('[data-testid="studio-timeline"]');
+      if (node) delete node.dataset.anchorMode;
+      return true;
+    })()`);
     // The reader is placed *inside* the newest page, not at its top edge. R13
     // found the old position (300 px) landed the anchor above the insertion
     // point, so the card could not move and the check passed without the
@@ -2649,15 +2656,21 @@ async function runHistorySmoke(window: BrowserWindow): Promise<void> {
         counts.set(match[1], (counts.get(match[1]) ?? 0) + 1);
       }
       const values = [...counts.values()];
+      const numbers = [...counts.keys()].map(Number);
       return {
         frames: counts.size,
         repeated: values.filter((value) => value > 1).length,
         max: values.length > 0 ? Math.max(...values) : 0,
+        newest: numbers.length > 0 ? Math.max(...numbers) : null,
       };
     })()`);
     phase("painted", painted);
     checks.older_page_rendered_once =
-      painted?.frames >= 5 && painted?.repeated === 0 && painted?.max === 1;
+      painted?.frames >= 5 &&
+      painted?.repeated === 0 &&
+      painted?.max === 1 &&
+      painted?.newest !== null &&
+      painted.newest <= 9650;
 
     await window.webContents.executeJavaScript(
       `document.querySelector('[data-testid="studio-jump-latest"]')?.click(); true`,
@@ -3566,12 +3579,27 @@ async function runCommandSmoke(window: BrowserWindow): Promise<void> {
     })()`);
   try {
     report.project = commandSmokeProjectId;
-    await waitFor("document.body.dataset.ready === 'true'");
+    // Readiness is a precondition, so it is asserted rather than waited for and
+    // discarded: when it fails, the report says so instead of blaming the first
+    // check that depended on it.
+    checks.shell_ready = await waitFor("document.body.dataset.ready === 'true'", 30_000);
     checks.catalog_rendered = await waitFor(
       "document.querySelectorAll('[data-project-id]').length > 0",
+      30_000,
     );
-    await evaluate("document.querySelector('[data-project-id]')?.click(); true");
-    checks.studio_opened = await waitFor("document.documentElement.dataset.screen === 'studio'");
+    // One synthetic click at one instant is a race, not a contract: under load
+    // the catalog can re-render between the query and the click, and a dropped
+    // click then looked like "the Studio never opens". The assertion is that the
+    // Studio opens, so the click is retried inside the deadline.
+    checks.studio_opened = await (async () => {
+      const deadline = Date.now() + 30_000;
+      while (Date.now() < deadline) {
+        if (await evaluate("document.documentElement.dataset.screen === 'studio'")) return true;
+        await evaluate("document.querySelector('[data-project-id]')?.click(); true");
+        await new Promise((resolve) => setTimeout(resolve, 200));
+      }
+      return false;
+    })();
     await waitFor("document.querySelector('textarea') !== null");
     await typeText("/");
     checks.menu_opens = await waitFor("document.querySelector('.command-menu') !== null");
@@ -3693,13 +3721,50 @@ async function runCommandSmoke(window: BrowserWindow): Promise<void> {
     // 200% page zoom: the floating list must stay inside the window and keep
     // its own scrolling, instead of pushing the composer or the page sideways.
     window.webContents.setZoomFactor(2);
-    await new Promise((resolve) => setTimeout(resolve, 250));
+    // Wait for the zoom to have actually been applied rather than for a fixed
+    // delay: Electron applies the factor asynchronously, and under load a
+    // measurement taken too early describes the previous layout. `innerWidth`
+    // halving is the observable consequence of 200 % page zoom.
+    // `setZoomFactor` lands on the RenderWidgetHostView before the next IPC
+    // round trip, so comparing `innerWidth` against a value read afterwards
+    // could never see the change. The zoom is confirmed where it lives —
+    // `getZoomFactor()` — and the *layout* is confirmed by the geometry settle
+    // loop below, which is the part that was actually racing.
+    const zoomApplied = await (async () => {
+      const deadline = Date.now() + 10_000;
+      while (Date.now() < deadline) {
+        if (window.webContents.getZoomFactor() >= 1.9) return true;
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+      return false;
+    })();
+    checks.zoom_200_applied = zoomApplied;
+    facts.zoom_200_probe = {
+      applied: zoomApplied,
+      factor: window.webContents.getZoomFactor(),
+      width_after: await evaluate<number>("window.innerWidth"),
+    };
     // A user at 200% zooms to the composer before typing; focus/scroll bring the
     // textarea into the viewport, and the list must then fit beside it.
     await evaluate("document.querySelector('textarea')?.scrollIntoView({ block: 'center' }); true");
     await new Promise((resolve) => setTimeout(resolve, 200));
     await typeText("/");
-    await new Promise((resolve) => setTimeout(resolve, 200));
+    // The list is laid out from the composer's position, so its rectangle moves
+    // for a few frames after the zoom. Measure once it has stopped moving; the
+    // assertion itself is unchanged.
+    await (async () => {
+      const deadline = Date.now() + 10_000;
+      let previous = "";
+      while (Date.now() < deadline) {
+        const current = await evaluate<string>(`(() => {
+          const rect = document.querySelector(".command-menu")?.getBoundingClientRect();
+          return rect ? [rect.left, rect.top, rect.width, rect.height].map(Math.round).join(",") : "none";
+        })()`);
+        if (current !== "none" && current === previous) return;
+        previous = current;
+        await new Promise((resolve) => setTimeout(resolve, 120));
+      }
+    })();
     const zoomed = await evaluate<Record<string, unknown>>(`(() => {
       const menu = document.querySelector(".command-menu");
       const rect = menu?.getBoundingClientRect();
@@ -6517,13 +6582,14 @@ if (!gotLock) {
           });
           while (seq <= total) {
             const frame = seq;
-            // R13: one block of frames in the second page is deliberately tall.
-            // Prepending a page whose cards differ in height from the ones the
-            // console has already measured is exactly the case a height-based
-            // anchor gets wrong: those cards are above the viewport, so their
-            // height is an estimate, and the error is the whole page's worth.
-            // Without heterogeneity the old height form happens to be exact here
-            // and the check could not fail.
+            // R13: one block of frames in the first prepended page is tall, so
+            // the history is not uniform. It is realism, not a discriminator:
+            // those cards are above the viewport and unmounted, so both the
+            // height form and the identity form correct by the same amount when
+            // the inserted region is entirely unmeasured (the failing-first run
+            // shows height_delta 0 for exactly that reason). The discriminator
+            // is `anchor_card_stayed_mounted`: the identity path needs the card
+            // in the DOM, and the height path does not.
             const tall = frame >= 9_700 && frame < 9_750;
             await productState.recordEvent({
               threadId: thread.id,

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 1319,
+  "revision": 1333,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -290,8 +290,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "4e28ae3777cf1205e743551d834e042831844de5981570b56aa2c5d43ac1f5e1",
-          "note": "R13 2026-11-14 (second correction): re-recorded after the review-found anchor fixes — the smoke fixture (archived thread timestamped last, a tall block in the prepended page, the reader at 3,000 px), the anchor-mode assertion, and the heldKey mount guarantee all touch these files. npm run ci passed 24/24 steps (1,121 tests in 101 files) on these bytes; no assertion was removed and no requirement was lowered."
+          "sha256": "8bea20843109c78355173369cb59bec24c99ae522f33d66e2d445392bdc80c00",
+          "note": "R13 2026-11-14 (third correction): re-recorded after the second review — the bounded releaseHold/5 s deadline in Studio.tsx, and the de-raced smoke:commands readiness click and 200 % measurement in src/main/index.ts. npm run ci passed 24/24 steps (1,121 tests in 101 files) on these bytes; no assertion was removed and no requirement was lowered."
         },
         {
           "path": "src/main/ipc-contract.ts",
@@ -702,8 +702,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "4e28ae3777cf1205e743551d834e042831844de5981570b56aa2c5d43ac1f5e1",
-          "note": "R13 2026-11-14 (second correction): re-recorded after the review-found anchor fixes — the smoke fixture (archived thread timestamped last, a tall block in the prepended page, the reader at 3,000 px), the anchor-mode assertion, and the heldKey mount guarantee all touch these files. npm run ci passed 24/24 steps (1,121 tests in 101 files) on these bytes; no assertion was removed and no requirement was lowered."
+          "sha256": "8bea20843109c78355173369cb59bec24c99ae522f33d66e2d445392bdc80c00",
+          "note": "R13 2026-11-14 (third correction): re-recorded after the second review — the bounded releaseHold/5 s deadline in Studio.tsx, and the de-raced smoke:commands readiness click and 200 % measurement in src/main/index.ts. npm run ci passed 24/24 steps (1,121 tests in 101 files) on these bytes; no assertion was removed and no requirement was lowered."
         },
         {
           "path": "src/main/engine/runtime-process.ts",
@@ -1195,8 +1195,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "4e28ae3777cf1205e743551d834e042831844de5981570b56aa2c5d43ac1f5e1",
-          "note": "R13 2026-11-14 (second correction): re-recorded after the review-found anchor fixes — the smoke fixture (archived thread timestamped last, a tall block in the prepended page, the reader at 3,000 px), the anchor-mode assertion, and the heldKey mount guarantee all touch these files. npm run ci passed 24/24 steps (1,121 tests in 101 files) on these bytes; no assertion was removed and no requirement was lowered."
+          "sha256": "8bea20843109c78355173369cb59bec24c99ae522f33d66e2d445392bdc80c00",
+          "note": "R13 2026-11-14 (third correction): re-recorded after the second review — the bounded releaseHold/5 s deadline in Studio.tsx, and the de-raced smoke:commands readiness click and 200 % measurement in src/main/index.ts. npm run ci passed 24/24 steps (1,121 tests in 101 files) on these bytes; no assertion was removed and no requirement was lowered."
         },
         {
           "path": "src/main/desktop-lifecycle.ts",
@@ -1383,8 +1383,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "4e28ae3777cf1205e743551d834e042831844de5981570b56aa2c5d43ac1f5e1",
-          "note": "R13 2026-11-14 (second correction): re-recorded after the review-found anchor fixes — the smoke fixture (archived thread timestamped last, a tall block in the prepended page, the reader at 3,000 px), the anchor-mode assertion, and the heldKey mount guarantee all touch these files. npm run ci passed 24/24 steps (1,121 tests in 101 files) on these bytes; no assertion was removed and no requirement was lowered."
+          "sha256": "8bea20843109c78355173369cb59bec24c99ae522f33d66e2d445392bdc80c00",
+          "note": "R13 2026-11-14 (third correction): re-recorded after the second review — the bounded releaseHold/5 s deadline in Studio.tsx, and the de-raced smoke:commands readiness click and 200 % measurement in src/main/index.ts. npm run ci passed 24/24 steps (1,121 tests in 101 files) on these bytes; no assertion was removed and no requirement was lowered."
         },
         {
           "path": "src/preload/index.ts",
@@ -1819,7 +1819,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p16-settings-smoke.json",
-          "sha256": "779302641e60f0c21fc44f8081cfa62b2446a23442699425e666458f30f1dbef",
+          "sha256": "ae245f33fbaa8ca05a0ff96281ede9c92121520fabee9f7f9f9cba29d1ca0543",
           "note": "R13 2026-11-14: this is a run record; the post-correction CI run rewrote it (documented class, items 97/98/117). 1,121 tests in 101 files passed on these bytes."
         },
         {
@@ -1862,7 +1862,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p17-extensions-smoke.json",
-          "sha256": "ee2783f8c61c532de452c8821b278fc8c75817aead5d7b31131a9d328cccd9e1",
+          "sha256": "7da82891074dfd1c00169264aaaf8ad27eeb06177d5c1e973fbd0021e0fa4481",
           "note": "R13 2026-11-14: this is a run record; the post-correction CI run rewrote it (documented class, items 97/98/117). 1,121 tests in 101 files passed on these bytes."
         },
         {
@@ -1910,22 +1910,22 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-terminal-smoke.json",
-          "sha256": "666401db55459c4d5803785c31b9eb60c4ce6253dbe720b61fd1387d3a749d3c",
+          "sha256": "f7d104ab862d3844146ba625863af9f63baee64c05c9e28459e4cb1c62af1cf9",
           "note": "R13 2026-11-14: this is a run record; the post-correction CI run rewrote it (documented class, items 97/98/117). 1,121 tests in 101 files passed on these bytes."
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capability-smoke.json",
-          "sha256": "50a9115daff945e60b3b212326928fdc8f87bd7e830d05023333297c451809d8",
+          "sha256": "1f3f0775cadefc4ac83560ec1acef96b375b21a2d5bbc01dfe579fecde588a4e",
           "note": "R13 2026-11-14: this is a run record; the post-correction CI run rewrote it (documented class, items 97/98/117). 1,121 tests in 101 files passed on these bytes."
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capability-coverage.md",
-          "sha256": "255da5df1d947de77885758581621b9f0447605e4931ac63c8e6e0436a33a4b0",
+          "sha256": "37547fb57180550c0d0dc2dd192b814c39d2361a1dda8493383a5175a9e66acd",
           "note": "R13 2026-11-14: this is a run record; the post-correction CI run rewrote it (documented class, items 97/98/117). 1,121 tests in 101 files passed on these bytes."
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capability-coverage.json",
-          "sha256": "b993035d3c65506dcac35b1be0afff45b077baa7d4b64635c929f1e6f9b0ce53",
+          "sha256": "6b5d0e329c88d680f7f69fdc95718d8f6a0b6f797d1d06fa483f4bc08cf03fe9",
           "note": "R13 2026-11-14: this is a run record; the post-correction CI run rewrote it (documented class, items 97/98/117). 1,121 tests in 101 files passed on these bytes."
         },
         {
@@ -2047,8 +2047,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "4e28ae3777cf1205e743551d834e042831844de5981570b56aa2c5d43ac1f5e1",
-          "note": "R13 2026-11-14 (second correction): re-recorded after the review-found anchor fixes — the smoke fixture (archived thread timestamped last, a tall block in the prepended page, the reader at 3,000 px), the anchor-mode assertion, and the heldKey mount guarantee all touch these files. npm run ci passed 24/24 steps (1,121 tests in 101 files) on these bytes; no assertion was removed and no requirement was lowered."
+          "sha256": "8bea20843109c78355173369cb59bec24c99ae522f33d66e2d445392bdc80c00",
+          "note": "R13 2026-11-14 (third correction): re-recorded after the second review — the bounded releaseHold/5 s deadline in Studio.tsx, and the de-raced smoke:commands readiness click and 200 % measurement in src/main/index.ts. npm run ci passed 24/24 steps (1,121 tests in 101 files) on these bytes; no assertion was removed and no requirement was lowered."
         },
         {
           "path": "src/renderer/shell/Shell.tsx",
@@ -2154,7 +2154,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p19-memory-smoke.json",
-          "sha256": "ae397057527707ef7f9551cd6597de2e5ac46af721007311388513cc40f8f7d6",
+          "sha256": "51b00ce214343ffd71a9b904fcbf3b4c1454e77eb33dd3759fa0615711f3fe88",
           "note": "R13 2026-11-14: this is a run record; the post-correction CI run rewrote it (documented class, items 97/98/117). 1,121 tests in 101 files passed on these bytes."
         },
         {
@@ -2289,7 +2289,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p20-failure-smoke.json",
-          "sha256": "c5202ece59f33437c45b7a60909a5415be45691b321fd871412e92fc431475f0",
+          "sha256": "5d217a15a69b7ea240fdee558d70cc9c9f94bd8bffb480333d40e0d5a3c82fc6",
           "note": "R13 2026-11-14: this is a run record; the post-correction CI run rewrote it (documented class, items 97/98/117). 1,121 tests in 101 files passed on these bytes."
         },
         {
@@ -2576,7 +2576,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p23-lifecycle-smoke.json",
-          "sha256": "b58094a3045b67242594f3cf1a14775e8d228236bf9428bb430a4ee6f7844b58",
+          "sha256": "b0906afc84d67f53b4019bfe279518a55b4307981840075402430d4dce8bd531",
           "note": "R13 2026-11-14: this is a run record; the post-correction CI run rewrote it (documented class, items 97/98/117). 1,121 tests in 101 files passed on these bytes."
         },
         {
@@ -2718,7 +2718,7 @@
     "P22",
     "P25"
   ],
-  "last_checkpoint_utc": "2026-11-14T18:44:58.542Z",
+  "last_checkpoint_utc": "2026-11-14T18:56:48.860Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

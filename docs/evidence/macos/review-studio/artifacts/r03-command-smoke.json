@@ -2,6 +2,7 @@
   "schema_version": 1,
   "ok": true,
   "checks": {
+    "shell_ready": true,
     "catalog_rendered": true,
     "studio_opened": true,
     "menu_opens": true,
@@ -24,6 +25,7 @@
     "engine_still_not_started": true,
     "unfiltered_list_restored": true,
     "menu_inside_viewport_at_default": true,
+    "zoom_200_applied": true,
     "zoom_200_menu_inside_viewport": true,
     "zoom_200_no_page_overflow": true,
     "zoom_200_list_usable": true,
@@ -47,18 +49,23 @@
       "value": "/help "
     },
     "ambiguous_notice": "\"he\" is ambiguous (/help). Tab accepts the highlighted command; nothing was sent.",
-    "tui_only_notice": "/help is a Codewhale command, not a prompt. TUI-only: Renders the TUI help surface. Mona browses this catalog locally instead; R04 owns the local help action.",
+    "tui_only_notice": "TUI-only. The CLI prints its own command help. Nothing was run. The terminal pane is prefilled with the command above and waits for you to launch it.",
     "normal": {
       "top": 16,
-      "bottom": 415.09375,
-      "height": 399.09375,
-      "composer_top": 307.09375,
+      "bottom": 384.09375,
+      "height": 368.09375,
+      "composer_top": 276.09375,
       "composer_height": 319,
       "viewport_height": 875,
       "header": "Codewhale commands79 matches · 109 catalogued",
       "detail_height": 156,
-      "body_height": 166.59375,
+      "body_height": 135.59375,
       "placement": "command-menu command-menu--above"
+    },
+    "zoom_200_probe": {
+      "applied": true,
+      "factor": 2,
+      "width_after": 640
     },
     "zoomed": {
       "inside": true,
@@ -75,7 +82,7 @@
       "options": 79
     }
   },
-  "project": "prj_336f75a184ffe280",
+  "project": "prj_c1431d633cc02643",
   "screenshots": [
     "r03-command-menu.png",
     "r03-command-menu-200.png"

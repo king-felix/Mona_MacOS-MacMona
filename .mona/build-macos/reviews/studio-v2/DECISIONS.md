@@ -755,3 +755,39 @@ D-001…D-103) and never replace them.
   (`artifacts/r13-anchor-failing-first.json`). Restored, it passes with
   `identity` across three runs. A check that cannot fail is now treated as a
   defect in the check, not as evidence.
+
+## RD-031 — A correction device must expire, and a gate must not race
+
+- **Date:** 2026-11-14 (R13, after the second independent review)
+- **Context:** the review confirmed both earlier blockers were fixed but found
+  that `heldKey` had no expiry: a page read that fails, or that finds no cursor
+  (`history.ts` sets `loading: false` on the failure path but the no-cursor path
+  never enters loading at all), increments nothing, so the pin never runs and the
+  window stays forced onto one card — a blank console instead of a held place.
+  It also showed the earlier claim about the tall block was wrong: an inserted
+  region that is entirely unmeasured corrects identically under both forms, so
+  the tall block is realism, not a discriminator.
+- **Decision — one release path, with a deadline.** `releaseHold()` clears the
+  timer, the anchor and `heldKey`; every abandon routes through it (settle on a
+  superseded click, followRef, project change, jump to latest, a settled read
+  that moved no counter, unmount). `loadOlder` additionally arms a 5 s deadline,
+  so no failure mode can leave the window pinned. The pin itself is the only
+  place that may clear its own anchor (`anchorRef.current === anchor`).
+- **Decision — state the discriminator honestly.** What proves the identity path
+  ran is `anchor_card_stayed_mounted` (`data-anchor-mode === "identity"`), and the
+  failing-first artifact shows the height path coexisting with a 0 px delta. The
+  fixture comment and the tall block are described as realism; nothing claims they
+  discriminate.
+- **Decision — de-race the checks that the gate now depends on.** Putting
+  `smoke:history` in CI exposed two real races in `smoke:commands` (it was
+  already in CI): a single synthetic click that a re-render could drop, and a
+  200 % geometry measured before layout settled. Readiness is now an asserted
+  check (`shell_ready`), the project click is retried inside the deadline, the
+  zoom is confirmed through `getZoomFactor()` (page zoom is not
+  `devicePixelRatio`, and `setZoomFactor` lands before the next round trip), and
+  the menu rectangle is measured once it stops moving. No assertion was removed
+  and no tolerance was widened.
+- **Consequence:** three concurrent command smokes and a concurrent
+  command+history pair are green; the anchor smoke is green with
+  `anchor_mode: identity` and a 0 px offset shift while the viewport moves
+  22,000 px.

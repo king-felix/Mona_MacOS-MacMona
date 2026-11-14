@@ -1,4 +1,13 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, memo, type JSX } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  memo,
+  type JSX,
+} from "react";
 import type {
   ProjectDetail,
   StoredEventSummary,
@@ -1299,6 +1308,24 @@ export function StudioScreen(props: StudioProps): JSX.Element {
   // only the ref below, because the window has to keep that card *mounted*; see
   // the pin's comment for why the identity is otherwise unreachable.
   const [heldKey, setHeldKey] = useState<string | null>(null);
+  // The mount guarantee is a transient correction device, so it gets a deadline.
+  // A page read that fails (or that finds no cursor and so never enters the
+  // loading state) would otherwise leave the window forced onto that one card
+  // forever — a blank console instead of a held place (`history.ts` sets
+  // `loading: false` only on the paths that go through it).
+  const holdTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // One release path for both halves of the correction. Every abandon — settle,
+  // a superseded click, a jump to the live edge, a project switch, a read that
+  // failed, or the deadline below — goes through here, so there is no state in
+  // which the window stays forced onto a card the reader has left.
+  const releaseHold = useCallback((): void => {
+    if (holdTimerRef.current !== null) {
+      clearTimeout(holdTimerRef.current);
+      holdTimerRef.current = null;
+    }
+    anchorRef.current = null;
+    setHeldKey(null);
+  }, []);
   const [caret, setCaret] = useState(0);
   const [selection, setSelection] = useState({ start: 0, end: 0 });
   const [composing, setComposing] = useState(false);
@@ -1521,8 +1548,7 @@ export function StudioScreen(props: StudioProps): JSX.Element {
     setAtLatest(true);
     setUnread(0);
     lastCountRef.current = 0;
-    anchorRef.current = null;
-    setHeldKey(null);
+    releaseHold();
     const node = timelineRef.current;
     if (node) node.scrollTop = node.scrollHeight;
   }, [detail?.project.id, history?.threadId]);
@@ -1551,15 +1577,13 @@ export function StudioScreen(props: StudioProps): JSX.Element {
     // switch abandons it rather than scrolling the new conversation to a position
     // that meant something in the old one.
     if (anchor.projectId !== (detail?.project.id ?? null)) {
-      anchorRef.current = null;
-      setHeldKey(null);
+      releaseHold();
       return;
     }
     // A reader who jumped to the live edge has left the older page deliberately;
     // a pending correction must not drag them back.
     if (followRef.current) {
-      anchorRef.current = null;
-      setHeldKey(null);
+      releaseHold();
       return;
     }
     let cancelled = false;
@@ -1568,9 +1592,9 @@ export function StudioScreen(props: StudioProps): JSX.Element {
     // Only this pin may clear its own anchor: a second "Load earlier" click
     // supersedes it, and the newer pin owns the ref by then.
     const settle = (): void => {
+      // A newer click owns the ref by then; only this pin may release its own.
       if (anchorRef.current !== anchor) return;
-      anchorRef.current = null;
-      setHeldKey(null);
+      releaseHold();
     };
     const pin = (): void => {
       if (cancelled) return;
@@ -1614,11 +1638,32 @@ export function StudioScreen(props: StudioProps): JSX.Element {
     };
   }, [events, history?.olderLoads]);
 
+  // A timer that outlives the screen would call setState on an unmounted
+  // component; clearing it here keeps the deadline inside the component's life.
+  useEffect(
+    () => () => {
+      if (holdTimerRef.current !== null) clearTimeout(holdTimerRef.current);
+    },
+    [],
+  );
+
+  // A pending anchor must not outlive the read that was supposed to satisfy it.
+  // If a page read finishes without a new page (an error, an empty response, or
+  // a duplicate), the pin effect never runs — and `heldKey` would then keep the
+  // window forced onto that card while the reader scrolls elsewhere, which is a
+  // stuck console, not a held place. So: once a load has settled and the counter
+  // still has not moved, drop both the anchor and the mount guarantee.
+  useEffect(() => {
+    const anchor = anchorRef.current;
+    if (!anchor || historyLoading) return;
+    if ((history?.olderLoads ?? 0) !== anchor.loads) return;
+    releaseHold();
+  }, [historyLoading, history?.olderLoads, releaseHold]);
+
   const loadOlder = (): void => {
     const node = timelineRef.current;
     if (!node) {
-      anchorRef.current = null;
-      setHeldKey(null);
+      releaseHold();
     } else {
       const paneTop = node.getBoundingClientRect().top;
       const cards = Array.from(node.querySelectorAll<HTMLElement>("[data-card-key]"));
@@ -1633,6 +1678,8 @@ export function StudioScreen(props: StudioProps): JSX.Element {
         projectId: detail?.project.id ?? null,
       };
       setHeldKey(key);
+      if (holdTimerRef.current !== null) clearTimeout(holdTimerRef.current);
+      holdTimerRef.current = setTimeout(releaseHold, 5_000);
     }
     followRef.current = false;
     setAtLatest(false);
@@ -1644,8 +1691,7 @@ export function StudioScreen(props: StudioProps): JSX.Element {
     setAtLatest(true);
     setUnread(0);
     // The reader asked for the live edge; nothing is left to hold.
-    anchorRef.current = null;
-    setHeldKey(null);
+    releaseHold();
     const node = timelineRef.current;
     if (!node) return;
     node.scrollTop = node.scrollHeight;

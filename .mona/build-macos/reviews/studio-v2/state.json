@@ -37,7 +37,7 @@
     "attempts": ".mona/build-macos/attempts.jsonl",
     "requirement_registry": "docs/requirements-macos.json"
   },
-  "revision": 116,
+  "revision": 121,
   "current_task": "R15",
   "current_task_status": "completed",
   "tasks": {
@@ -603,8 +603,8 @@
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r02-history-long-smoke.json",
-          "sha256": "9fc3d3cc4c2093f6e8a7201ebdaf2b72684557d70f9b0626a126a3546aca56b6",
-          "note": "R13 2026-11-14: the corrected smoke is 20/20 across three runs, anchor offset shift 0 px while the viewport moved 22,000 px, anchor_mode identity. r13-anchor-failing-first.json is the same run with the mount guarantee removed: it fails anchor_card_stayed_mounted and reports anchor_mode height, which is the proof the check can fail."
+          "sha256": "4bcf44fddefb6f227fb09e6cab4d2649d90e4df2316cacfd95d891f892cdc75f",
+          "note": "R13 2026-11-14: the post-correction run — 21 checks, anchor_mode identity, offset shift 0 px while the viewport moved 22,000 px, and the painted-page check now requires older-page frames."
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r02-shell-smoke.json",
@@ -612,8 +612,8 @@
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r02-history-long-session.png",
-          "sha256": "a22e4eb57191429bd95be6f90cafe854bde274ba38c46f427e9f4ccd274c8699",
-          "note": "R13 2026-11-14: the corrected smoke is 20/20 across three runs, anchor offset shift 0 px while the viewport moved 22,000 px, anchor_mode identity. r13-anchor-failing-first.json is the same run with the mount guarantee removed: it fails anchor_card_stayed_mounted and reports anchor_mode height, which is the proof the check can fail."
+          "sha256": "0aa02b5c11a368d14ec7033f10b40f7b5c18d9361eb15a1b95f90e7e54f0ebcc",
+          "note": "R13 2026-11-14: the post-correction run — 21 checks, anchor_mode identity, offset shift 0 px while the viewport moved 22,000 px, and the painted-page check now requires older-page frames."
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r13-anchor-failing-first.json",
@@ -898,18 +898,18 @@
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r03-command-smoke.json",
-          "sha256": "e64d20fd0db2aa29d069e90ceb427db227b8fb6100b91057ae597aae2a153700",
-          "note": "R03: pinned 0.10.2 /v1/commands capture, offline coverage check, focused and full tests, gates, real-Electron command smoke (25/25), and the 100%/200% captures."
+          "sha256": "8502be94a1eccbe49191956830a136a9212a14695b13ba3fe5b3cad4139f0b08",
+          "note": "R13 2026-11-14: the de-raced command smoke — 28 checks including shell_ready and zoom_200_applied, green three times concurrently."
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r03-command-menu.png",
-          "sha256": "7929397d9d93483406e1c2ef517df3832097a17bca72d452dee2c841672440ba",
-          "note": "R13 2026-11-14: rewritten by the post-correction CI run. Current bytes; 26/26 checks."
+          "sha256": "4bea48fa6db55c59b3846151a6da7e65952b599cc7366ccac1879ae3558e3625",
+          "note": "R13 2026-11-14: the de-raced command smoke — 28 checks including shell_ready and zoom_200_applied, green three times concurrently."
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r03-command-menu-200.png",
-          "sha256": "e9aa57eeb31076141ccc9fe30834077893dda3bc7fde63a924bbc8c596487ef0",
-          "note": "R13 2026-11-14: rewritten by the post-correction CI run. Current bytes; 26/26 checks."
+          "sha256": "ba3c5fc242be0007ab637e8d7230fc7a9ecb2723a8bde5c64dda7e6ffdb79f8e",
+          "note": "R13 2026-11-14: the de-raced command smoke — 28 checks including shell_ready and zoom_200_applied, green three times concurrently."
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r03-shell-smoke.json",
@@ -2092,9 +2092,9 @@
         },
         {
           "path": "src/renderer/shell/Studio.tsx",
-          "sha256": "76ed69eb9a70bdb844359006afce603424039641d2e8168d2aaeb73e31ded358",
+          "sha256": "81c873329442945caea051b277ff8e46d9360d0cb9f40791de9b46566ea3b0c9",
           "state": "current",
-          "note": "R13 2026-11-14: the review-found anchor corrections (heldKey mount guarantee, settle ownership, followRef guard, project guard, anchor-mode marker; the heterogeneous fixture and the strengthened assertions) changed these files. Three smoke runs 20/20 with anchor_mode identity; npm run ci 24/24 steps, 1,121 tests."
+          "note": "R13 2026-11-14: final correction — one release path with a 5 s deadline (no failure mode can leave the console pinned) and de-raced smoke:commands readiness/zoom. Three concurrent command smokes and a command+history pair are green; npm run ci 24/24, 1,121 tests."
         },
         {
           "path": "src/renderer/shell/Shell.tsx",
@@ -2122,9 +2122,9 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "4e28ae3777cf1205e743551d834e042831844de5981570b56aa2c5d43ac1f5e1",
+          "sha256": "8bea20843109c78355173369cb59bec24c99ae522f33d66e2d445392bdc80c00",
           "state": "current",
-          "note": "R13 2026-11-14: the review-found anchor corrections (heldKey mount guarantee, settle ownership, followRef guard, project guard, anchor-mode marker; the heterogeneous fixture and the strengthened assertions) changed these files. Three smoke runs 20/20 with anchor_mode identity; npm run ci 24/24 steps, 1,121 tests."
+          "note": "R13 2026-11-14: final correction — one release path with a 5 s deadline (no failure mode can leave the console pinned) and de-raced smoke:commands readiness/zoom. Three concurrent command smokes and a command+history pair are green; npm run ci 24/24, 1,121 tests."
         },
         {
           "path": "src/renderer/shell/Capabilities.tsx",
@@ -2553,8 +2553,8 @@
       "evidence": [
         {
           "path": "docs/evidence/macos/review-studio/R13-installed-candidate.md",
-          "sha256": "86214a8fc5dc6d36e50b2c7ae1e0e7ab5075eccf9e85f45b26de8a40a8ec5e00",
-          "note": "R13 2026-11-14: updated with the independent review's two findings (unreachable identity path, vacuous check), the mechanical fixes, and the failing-first proof."
+          "sha256": "b9ff254416a89229dd7e7ffa72b9fa115bf74414bf21bc740fdcfb7cd5140db0",
+          "note": "R13 2026-11-14: updated with the second review's finding (the mount guarantee had no expiry), the bounded release path, the corrected tall-block claim, and the two smoke races the new gate exposed."
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r13-candidate-verify.json",
@@ -2786,7 +2786,7 @@
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r15-ci.txt",
-          "sha256": "592384818548104a66719b9cd4d0627bfe548693f9f93bc820964f30854f8bcd",
+          "sha256": "4cab23d6a3692092740da7955c32a4184adda2220798785ef70a83af4e7e8a55",
           "note": "R13 2026-11-14: replaced with the post-correction CI run — 24/24 steps, 1,121 tests in 101 files."
         }
       ],
@@ -3024,7 +3024,7 @@
       ]
     }
   },
-  "last_checkpoint_utc": "2026-11-14T18:45:05.585Z",
+  "last_checkpoint_utc": "2026-11-14T18:56:52.387Z",
   "notes": [
     "R11 completed: bounded console rendering with measured windowing, a nine-screen axe pass with four real a11y defects fixed, reduced motion and 200% scale measured, three visual regressions fixed, and the independent review's one blocker and three majors fixed with tests proven to fail on the old code. The memory budget is exceeded by the runtime floor and carried as a derived, named exception."
   ]

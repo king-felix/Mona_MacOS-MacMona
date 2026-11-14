@@ -41,6 +41,24 @@ it would work — and it would leave the package receipt describing a different
 payload, which is the opposite of what this task proves.
 
 
+## Resolved at R13: the anchor was wrong twice, and both are fixed
+
+Not blocked work — recorded because the attempt counts stay meaningful. The
+history anchor took two independent reviews to get right, and neither failure was
+lowered to a passing check:
+
+1. The identity pin was unreachable (the anchored card was unmounted when the pin
+   ran), so it silently used the estimate it existed to replace.
+2. The check that was supposed to prove it could not fail: the fixture placed the
+   anchor above the insertion point, so 0 px was geometry.
+3. The reviewer's third pass found the mount guarantee had no expiry, so a failed
+   page read could pin the console forever.
+
+All three are fixed with mechanisms (a mounted `heldKey`, `anchor-mode` on the
+element, one `releaseHold()` with a 5 s deadline) and a failing-first artifact
+(`artifacts/r13-anchor-failing-first.json`). No attempt was counted: each round
+made material progress inside one task.
+
 ## R14 is blocked on EXT-SIGNING (credentials, not code)
 
 The release pipeline is finished and refuses to pretend otherwise:

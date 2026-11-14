@@ -46,7 +46,7 @@
       "before": {
         "top": 3084.5,
         "height": 22020,
-        "anchor_key": "thr_32bbbf355ed89028:thr_32bbbf355ed89028-9882",
+        "anchor_key": "thr_fe3465738abe9d5b:thr_fe3465738abe9d5b-9882",
         "anchor_offset": -102,
         "windowed": "true",
         "rendered": 16,
@@ -89,7 +89,8 @@
       "name": "painted",
       "frames": 10,
       "repeated": 0,
-      "max": 1
+      "max": 1,
+      "newest": 9464
     },
     {
       "name": "jump",
@@ -98,7 +99,7 @@
       "scope": "600 shown · 10054 stored · older pages available · 10 painted"
     }
   ],
-  "project": "prj_2934937434024b8c",
+  "project": "prj_0759b2ffce08ffa1",
   "stored_total": 10054,
   "screenshot": "docs/evidence/macos/review-studio/artifacts/r02-history-long-session.png",
   "electron": {
