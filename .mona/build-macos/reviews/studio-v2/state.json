@@ -37,7 +37,7 @@
     "attempts": ".mona/build-macos/attempts.jsonl",
     "requirement_registry": "docs/requirements-macos.json"
   },
-  "revision": 121,
+  "revision": 122,
   "current_task": "R15",
   "current_task_status": "completed",
   "tasks": {
@@ -2553,8 +2553,8 @@
       "evidence": [
         {
           "path": "docs/evidence/macos/review-studio/R13-installed-candidate.md",
-          "sha256": "b9ff254416a89229dd7e7ffa72b9fa115bf74414bf21bc740fdcfb7cd5140db0",
-          "note": "R13 2026-11-14: updated with the second review's finding (the mount guarantee had no expiry), the bounded release path, the corrected tall-block claim, and the two smoke races the new gate exposed."
+          "sha256": "451c8f6b9efdb9401f463f70714b1a49ed06e2f951c7fc211ac8dd8938babd0b",
+          "note": "R13 2026-11-14: added the build-on-disk note — the package was rebuilt from cd0cef9 as build 160 after the review corrections, so the installed candidate and this document's 152 are different artifacts. No result changed; the 152 qualification stands for 152."
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r13-candidate-verify.json",
@@ -3024,7 +3024,7 @@
       ]
     }
   },
-  "last_checkpoint_utc": "2026-11-14T18:56:52.387Z",
+  "last_checkpoint_utc": "2026-11-14T19:00:50.846Z",
   "notes": [
     "R11 completed: bounded console rendering with measured windowing, a nine-screen axe pass with four real a11y defects fixed, reduced motion and 200% scale measured, three visual regressions fixed, and the independent review's one blocker and three majors fixed with tests proven to fail on the old code. The memory budget is exceeded by the runtime floor and carried as a derived, named exception."
   ]

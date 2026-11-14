@@ -235,6 +235,15 @@ different payload and would bypass the install path this task exists to prove.
 
 ## 7. The one remaining step
 
+**Read this before installing.** The package in `out/` is rebuilt at every
+`npm run mac:package:local`, and its digest changes with the source. The
+candidate described above (build 152, `c9745dc`) was the one verified from its
+own bytes; the corrections that came out of the two reviews landed afterwards, so
+the package on disk was rebuilt from `cd0cef9` as **build 160**, sha256
+`11adba522ff49728e2903b021b8bc62156b9941e3624980f5c6e63f72d456068`,
+163,806,373 bytes. Install that one, and read the digest from the file rather
+than from this document if it has been rebuilt again.
+
 ```sh
 sudo installer -pkg packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg -target /
 ```
@@ -242,9 +251,9 @@ sudo installer -pkg packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg -target
 Then, in this order:
 
 1. `node scripts/r13-candidate-verify.mjs --smoke --launch` — 16 checks against
-   build 152 at the standard path.
+   build 160 at the standard path.
 2. `node scripts/r13-installed-pass.mjs` — shell/command/immersive/history from
-   the installed bytes; history must show 19/19.
+   the installed bytes; history must now show 21/21 with `anchor_mode: identity`.
 3. `npm run mac:package:local` — its `installed_copy`, `package_smoke` and
    `gui_launch` gates then execute for build 152 and close the package report.
 
