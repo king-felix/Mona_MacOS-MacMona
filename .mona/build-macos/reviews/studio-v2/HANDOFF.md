@@ -1,7 +1,7 @@
 # Handoff — Studio review (studio-v2)
 
-**Registry:** `.mona/build-macos/reviews/studio-v2/state.json` (revision 24)
-**Current task:** R02 — completed · **Next eligible:** R03, R05, R07
+**Registry:** `.mona/build-macos/reviews/studio-v2/state.json` (revision after the R03 checkpoint)
+**Current task:** R03 — completed (review pass applied) · **Next eligible:** R04, R05, R07
 **Review document:** `MacMona_Studio_Review_PROMPTS.md` (sha256
 `7e1e16d1…`) · **Hotfix:** `MacMona_Review_Hotfix.patch` (sha256
 `a253a05e…`, applied unmodified)
@@ -9,6 +9,53 @@
 `.mona/build-macos/state.json` is at P23 completed; P22/P25 remain its
 eligible prompts. Nothing in this review queue resets P00–P27 or the attempt
 counts (`attempts.jsonl` is empty; no problem consumed an attempt).
+
+## Where R03 landed
+
+- **RV-09 / UX-COMMANDS catalogued.** The catalog is the pinned engine's own
+  `GET /v1/commands` response, captured from `codewhale 0.10.2` (`ff466b2ed0bf`,
+  binary `da022961…`) through an isolated runtime. The TUI slash registry is not
+  the CLI subcommand list; only this endpoint enumerates the composer surface.
+  `scripts/command-catalog.mjs --capture` is the only path that starts a
+  process and makes no turn; `--check` validates the pin, the capture digest,
+  unique spellings, descriptions, usage prefixes, and one annotation per row.
+- **109 rows, explicitly annotated.** 35 have a documented Runtime API route
+  for R04; 69 are TUI-only; 5 are unavailable on 0.10.2 (`/workflow`,
+  `/workflows`, `/lane`, `/remote-env`, `/attach`). `/lane` is the one hidden
+  row and is reachable only by filtering. `/new` carries its verified
+  `session/new.rs` semantics: fresh saved session, refuses while runtime work
+  is active, `--force` discards draft/queued input only.
+- **Descriptive autocomplete.** `src/renderer/shell/composer-commands.ts` owns
+  position detection and ranking; `CommandMenu.tsx` is the labelled listbox and
+  detail panel; `Studio.tsx` wires arrows/Tab/Escape/pointer/IME and a measured
+  placement; `Shell.tsx` intercepts a recognised command before submission and
+  reports its route. Enter stays a newline. A path, escaped slash, indented
+  line, fenced paste, or ordinary prose stays prompt text.
+- **No execution in R03.** A command is never sent to the model as a prompt;
+  the composer explains the route and leaves the draft. R04 owns
+  operation-specific IPC and `/new` lifecycle.
+- Evidence: `docs/evidence/macos/review-studio/R03-command-catalog.md` with
+  `artifacts/r03-commands-capture.json`, `r03-catalog-check.txt`,
+  `r03-focused-tests.txt` (96 tests in 5 files), `r03-full-tests.txt` (885 in
+  85), `r03-gates.txt`, `r03-command-smoke.json` (25/25), and the captures
+  `r03-command-menu.png` / `r03-command-menu-200.png`.
+- Gates on the final bytes: typecheck clean, lint 0 errors (3 pre-existing
+  `any` warnings), format clean, full suite **891 tests in 85 files**, shell
+  smoke **127/127**, command smoke **25/25**. `catalog:check` also runs in
+  `npm run ci`. The 24 shell captures the smoke rewrote were re-recorded; some
+  screenshot bytes are run-dependent and are committed as this run's record.
+- **Independent review (FAIL → fixed).** The verdict failed on evidence, not
+  behaviour: the first shell-smoke report predated the final composer bytes.
+  Five real defects were also found and fixed with tests: description matches
+  made prose "ambiguous" (`/the release is broken`); `aria-controls` pointed at
+  a listbox that renders only with rows; arrow keys were swallowed with no rows;
+  a replaced draft left a stale caret; the measured panel floor could exceed the
+  room available. Both smokes were then re-run on the final bytes and every
+  affected hash re-recorded before this checkpoint.
+- Ledger hygiene: shared-file evidence in P02, P03, P04, P09, P10 and P18 was
+  re-recorded with the R03 full-suite result after the command catalog IPC and
+  composer changed those bytes. No assertion was removed and no requirement
+  status was lowered.
 
 ## Where R02 landed
 
@@ -105,25 +152,30 @@ counts (`attempts.jsonl` is empty; no problem consumed an attempt).
 
 Three tasks are eligible now:
 
-- **R03 — verified slash-command catalog and descriptive autocomplete.** Read
-  the pinned 0.10.2 slash-command registry before writing a catalog; never
-  generate descriptions from memory or with a model. R04 depends on it.
-- **R05 — focus Studio and native fullscreen.** R01 and R02 are complete; read
-  the existing Focus Mode paths, `menu-template.ts`, `window.ts`, and IPC sender
-  validation.
-- **R07 — in-app pending input and approvals.** R01 and R02 are complete; read
-  `work/studio.ts` `pendingInputFor`/`ingest`/`snapshot` and probe the pinned
-  engine's request/reply endpoints.
+- **R04 — execute commands correctly and make `/new` real.** Read the R03
+  catalog (`src/shared/commands/pinned-commands.json` + `annotations.json`) and
+  the documented `/v1` routes on the `runtime-api` rows. Dispatch through
+  operation-specific IPC; never send a recognised command to the model. `/new`
+  must be tested idle, busy, disconnected, response-lost, restart, and
+  project-switch.
+- **R05 — focus Studio and native fullscreen.** Read the existing Focus Mode
+  paths, `menu-template.ts`, `window.ts`, and IPC sender validation.
+- **R07 — in-app pending input and approvals.** Read `work/studio.ts`
+  `pendingInputFor`/`ingest`/`snapshot` and probe the pinned engine's
+  request/reply endpoints.
 
 ```sh
-node tools/monabuild/cli.mjs review status   # next_eligible: R03, R05, R07
+node tools/monabuild/cli.mjs review status   # next_eligible: R04, R05, R07
 ```
 
-Do not start R04 (needs R03), R06 (needs R05), R08 (needs R04+R07) or R09–R15.
+Do not start R06 (needs R05), R08 (needs R04+R07) or R09–R15.
 
 ## Rules that still bind
 
 - Enter is newline; Command-Enter submits; no background inference on UI paths.
+- A recognised Codewhale command is never submitted as a prompt. R03 explains
+  its route; R04 executes it through a validated native operation. Filtering,
+  help, and catalog reads make no process, socket, or model call.
 - History reads are state reads: `projects:history` and
   `projects:history-item` start no runtime and ask no model. Page cursors are
   storage positions, never engine sequence numbers; loss is only `event_gaps`.

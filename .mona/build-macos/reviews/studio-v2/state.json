@@ -37,8 +37,8 @@
     "attempts": ".mona/build-macos/attempts.jsonl",
     "requirement_registry": "docs/requirements-macos.json"
   },
-  "revision": 24,
-  "current_task": "R02",
+  "revision": 34,
+  "current_task": "R03",
   "current_task_status": "completed",
   "tasks": {
     "R00": {
@@ -388,8 +388,8 @@
         {
           "path": "src/main/index.ts",
           "sha256": "ac6b7be8e1d3a76e234880956384b925e629e8a392fd496f8d29a823a5b20bf1",
-          "state": "current",
-          "note": "--history-smoke long-session runner; runtime smoke gating."
+          "state": "historical",
+          "note": "--history-smoke long-session runner; runtime smoke gating. | R03 changed this file after R02's checkpoint (pinned command catalog, commands:catalog IPC, composer autocomplete). The recorded hash is what R02 verified; R03's own source_hashes record the current bytes."
         },
         {
           "path": "src/shared/contracts/events.ts",
@@ -406,26 +406,26 @@
         {
           "path": "src/shared/contracts/bridge.ts",
           "sha256": "5064fe5ca10aaa7a5793b5808edb150eff36ee8994e8404279807507f14abb79",
-          "state": "current",
-          "note": "projectHistory / projectHistoryItem bridge surface."
+          "state": "historical",
+          "note": "projectHistory / projectHistoryItem bridge surface. | R03 changed this file after R02's checkpoint (pinned command catalog, commands:catalog IPC, composer autocomplete). The recorded hash is what R02 verified; R03's own source_hashes record the current bytes."
         },
         {
           "path": "src/main/ipc-contract.ts",
           "sha256": "d74f9735f71ce74a81c8427bc91b6a4eeb1b02844c7e0997b0955ea7f3dfe0f3",
-          "state": "current",
-          "note": "strict schemas for projects:history and projects:history-item."
+          "state": "historical",
+          "note": "strict schemas for projects:history and projects:history-item. | R03 changed this file after R02's checkpoint (pinned command catalog, commands:catalog IPC, composer autocomplete). The recorded hash is what R02 verified; R03's own source_hashes record the current bytes."
         },
         {
           "path": "src/main/ipc.ts",
           "sha256": "3be0a225aed3c5a145a6ecece29ecb79654620bbf43de44b28510346be9260da",
-          "state": "current",
-          "note": "handlers for the two history reads."
+          "state": "historical",
+          "note": "handlers for the two history reads. | R03 changed this file after R02's checkpoint (pinned command catalog, commands:catalog IPC, composer autocomplete). The recorded hash is what R02 verified; R03's own source_hashes record the current bytes."
         },
         {
           "path": "src/preload/index.ts",
           "sha256": "d522abe17137397ce28f8a2ef1e4dbd5586b3903b618696fc04fe724988ae15c",
-          "state": "current",
-          "note": "preload passthrough for the two history reads."
+          "state": "historical",
+          "note": "preload passthrough for the two history reads. | R03 changed this file after R02's checkpoint (pinned command catalog, commands:catalog IPC, composer autocomplete). The recorded hash is what R02 verified; R03's own source_hashes record the current bytes."
         },
         {
           "path": "src/renderer/shell/history.ts",
@@ -442,20 +442,20 @@
         {
           "path": "src/renderer/shell/Studio.tsx",
           "sha256": "b545ff44c3b0adb2ae2afa6943bfff7dca09088609e049e7a27271d329edf9da",
-          "state": "current",
-          "note": "paged toolbar, anchored older-page insertion, jump-to-latest, thread selector, partial affordance."
+          "state": "historical",
+          "note": "paged toolbar, anchored older-page insertion, jump-to-latest, thread selector, partial affordance. | R03 changed this file after R02's checkpoint (pinned command catalog, commands:catalog IPC, composer autocomplete). The recorded hash is what R02 verified; R03's own source_hashes record the current bytes."
         },
         {
           "path": "src/renderer/shell/Shell.tsx",
           "sha256": "1f6def4b0ebc975b4ff886ef913b499dacea828e9c7b2b17c41a3e0f3ad1139d",
-          "state": "current",
-          "note": "history pager wiring scoped to the selection epoch; live merge."
+          "state": "historical",
+          "note": "history pager wiring scoped to the selection epoch; live merge. | R03 changed this file after R02's checkpoint (pinned command catalog, commands:catalog IPC, composer autocomplete). The recorded hash is what R02 verified; R03's own source_hashes record the current bytes."
         },
         {
           "path": "src/renderer/styles.css",
           "sha256": "4c9af4955fb8c7e3d7cfc50be7a009b45ad68f64b4a59e5057a002351d60d405",
-          "state": "current",
-          "note": "toolbar/partial styles; smooth scrolling removed for follow-scroll."
+          "state": "historical",
+          "note": "toolbar/partial styles; smooth scrolling removed for follow-scroll. | R03 changed this file after R02's checkpoint (pinned command catalog, commands:catalog IPC, composer autocomplete). The recorded hash is what R02 verified; R03's own source_hashes record the current bytes."
         },
         {
           "path": "scripts/history-smoke.mjs",
@@ -466,8 +466,8 @@
         {
           "path": "package.json",
           "sha256": "20cf19ee258b27e10580174721c3d0be9983304056a56ef8ae7f32c67e96d6bc",
-          "state": "current",
-          "note": "smoke:history script."
+          "state": "historical",
+          "note": "smoke:history script. | R03 changed this file after R02's checkpoint (pinned command catalog, commands:catalog IPC, composer autocomplete). The recorded hash is what R02 verified; R03's own source_hashes record the current bytes."
         },
         {
           "path": "test/history-paging.test.ts",
@@ -490,20 +490,20 @@
         {
           "path": "test/studio-screen.test.tsx",
           "sha256": "713d9fc693b7671f86de480551785084a59d204e9a05dc57a701422b7e7fd382",
-          "state": "current",
-          "note": "paging toolbar, jump-to-latest, thread labels, partial/truncated cards, anchoring."
+          "state": "historical",
+          "note": "paging toolbar, jump-to-latest, thread labels, partial/truncated cards, anchoring. | R03 changed this file after R02's checkpoint (pinned command catalog, commands:catalog IPC, composer autocomplete). The recorded hash is what R02 verified; R03's own source_hashes record the current bytes."
         },
         {
           "path": "test/shell-races.test.tsx",
           "sha256": "041529a8b03ac12dd691492812e8b049a29f9969ed1f25219b0230710304a68c",
-          "state": "current",
-          "note": "real-Shell paged read with deferred IPC and anchored prepend."
+          "state": "historical",
+          "note": "real-Shell paged read with deferred IPC and anchored prepend. | R03 changed this file after R02's checkpoint (pinned command catalog, commands:catalog IPC, composer autocomplete). The recorded hash is what R02 verified; R03's own source_hashes record the current bytes."
         },
         {
           "path": "test/ipc-contract.test.ts",
           "sha256": "3f8df8d0d9870cfa93bb968fd1998bc2db79ce82bda3b357bc84ed934cec6e58",
-          "state": "current",
-          "note": "history channel validation."
+          "state": "historical",
+          "note": "history channel validation. | R03 changed this file after R02's checkpoint (pinned command catalog, commands:catalog IPC, composer autocomplete). The recorded hash is what R02 verified; R03's own source_hashes record the current bytes."
         },
         {
           "path": "test/state-database.test.ts",
@@ -631,7 +631,7 @@
       ]
     },
     "R03": {
-      "status": "pending",
+      "status": "completed",
       "title": "Verified slash-command catalog and descriptive autocomplete",
       "prerequisites": [
         "R00",
@@ -645,9 +645,165 @@
         "RV-09",
         "UX-COMMANDS"
       ],
-      "source_hashes": [],
-      "acceptance_completed": [],
-      "acceptance_remaining": [
+      "source_hashes": [
+        {
+          "path": "src/shared/contracts/commands.ts",
+          "sha256": "9cf7a670c305127792977d31c4c3edd289e1d48c372f17f13087626aa03815be",
+          "state": "current",
+          "note": "new: catalog, annotation, provenance and snapshot schemas (strict for IPC)."
+        },
+        {
+          "path": "src/shared/commands/pinned-commands.json",
+          "sha256": "549b8b82d1c4d005bdfc0333858c65e3c119701f9bc25845e1c434d024c0e004",
+          "state": "current",
+          "note": "generated: 109 rows from GET /v1/commands on codewhale 0.10.2 (ff466b2ed0bf); includes capture provenance."
+        },
+        {
+          "path": "src/shared/commands/annotations.json",
+          "sha256": "10a803a63795dad6eba50eb7745e55722485f7c98ad96568e0f5ec2fae484869",
+          "state": "current",
+          "note": "curated: one explicit scope/effects/cost/support/route entry per captured command."
+        },
+        {
+          "path": "src/shared/commands/catalog.ts",
+          "sha256": "42aa41956c053fa39ada3acbf5edec7ccbe66d66bf1cf4e88fd8df3ecbe4b501",
+          "state": "current",
+          "note": "validates the pinned capture and annotations, rejects missing/extra rows, builds the snapshot."
+        },
+        {
+          "path": "src/main/work/commands.ts",
+          "sha256": "176350d4e4bb6d86417e9857c47780fe8e406191f87489737e544cab2b5e118c",
+          "state": "current",
+          "note": "CommandCatalogService: a local, validated, process-free read."
+        },
+        {
+          "path": "src/main/ipc.ts",
+          "sha256": "4b1a5c2f11a2b527b234f0f6d5a949dfca5eb535a3724d6324b9dccec0062b67",
+          "state": "current",
+          "note": "commands:catalog handler; no engine call."
+        },
+        {
+          "path": "src/main/ipc-contract.ts",
+          "sha256": "4670e7b11f42871520813d32684632594b14845e1af675aa2df2b3b4fce61a3d",
+          "state": "current",
+          "note": "strict empty request for commands:catalog."
+        },
+        {
+          "path": "src/main/index.ts",
+          "sha256": "357d32a8310201257f58fc1c0879a1ebec2ec2e08d7f5a8782c2deff697d19bf",
+          "state": "current",
+          "note": "--command-smoke runner and catalog service wiring."
+        },
+        {
+          "path": "src/preload/index.ts",
+          "sha256": "44f1588504bddcd442211c4329295221025f09db9068f9c9987b95349e8a778e",
+          "state": "current",
+          "note": "commandCatalog bridge passthrough."
+        },
+        {
+          "path": "src/shared/contracts/bridge.ts",
+          "sha256": "43ce3ea0fd2037d1ceae8fa5b3c92034cc9fc1761e93a01127a939b67197172a",
+          "state": "current",
+          "note": "commandCatalog bridge type."
+        },
+        {
+          "path": "src/shared/contracts/index.ts",
+          "sha256": "34d31540b43de6f237977ca2766fced2619dbad2a0605a1edd2f37afaa43af36",
+          "state": "current",
+          "note": "exports the commands contract."
+        },
+        {
+          "path": "src/renderer/design/primitives.tsx",
+          "sha256": "aa3d0dba4ee7f0595363b0301a48820e096777c1e35eebaa87aa921286362917",
+          "state": "current",
+          "note": "TextArea accepts a ref so the composer can restore the caret after accepting."
+        },
+        {
+          "path": "src/renderer/shell/composer-commands.ts",
+          "sha256": "1bcccfc35d7c686ff5b2a97bb8efc70b5cfe93986c34ca1b1575a07c4f629945",
+          "state": "current",
+          "note": "new: pure command-position detection, ranking, acceptance, and submission intents. Ambiguity requires a bare name/alias prefix; description matches never block prose."
+        },
+        {
+          "path": "src/renderer/shell/CommandMenu.tsx",
+          "sha256": "bc07826f8f2b63b9c292cef647cdd02f2abfbc4395a00ad1844f03970247441f",
+          "state": "current",
+          "note": "new: labelled listbox, compact detail panel, compact mode for a short viewport, polite live region for the zero-match state."
+        },
+        {
+          "path": "src/renderer/shell/Studio.tsx",
+          "sha256": "acf972f3840a24cb04545ae669868b817137c3edb5d66004be0ddaef400cba84",
+          "state": "current",
+          "note": "menu wiring: keyboard/pointer/IME, listbox-consistent ARIA, caret clamp on draft replacement, measured placement capped to the viewport."
+        },
+        {
+          "path": "src/renderer/shell/Shell.tsx",
+          "sha256": "afcb22490bff29b28e6824cd8538ab65420a2df038541c8e0693c20a4fb0b87d",
+          "state": "current",
+          "note": "loads the catalog once; intercepts recognised commands before submission; fails closed on single-line slash text when the catalog is unreadable."
+        },
+        {
+          "path": "src/renderer/styles.css",
+          "sha256": "b3eaa284e8e0db6e8aaf52ab67cb2b70738087359e86cffdc52dd19e6f3f69d3",
+          "state": "current",
+          "note": "command menu, detail, support badges, placement and compact styles."
+        },
+        {
+          "path": "scripts/command-catalog.mjs",
+          "sha256": "9b48d235675c17ed65cdba805d8d7c20e873ed07c4c3b24e5601ba21e84dfc07",
+          "state": "current",
+          "note": "isolated capture, offline coverage check (support must match route kind), coverage table; formatted output satisfies the repo format gate."
+        },
+        {
+          "path": "scripts/command-smoke.mjs",
+          "sha256": "32b6692d26d774588db4ed79c497832ed73288f9bbf827c624c0296367accbee",
+          "state": "current",
+          "note": "real-Electron autocomplete smoke driver."
+        },
+        {
+          "path": "package.json",
+          "sha256": "2061d794f1092bd7b7cfcb84a48954ae35f5136d0b13604d831949e768087f0e",
+          "state": "current",
+          "note": "catalog and smoke:commands scripts."
+        },
+        {
+          "path": "test/command-catalog.test.ts",
+          "sha256": "b336a536be32775b377990d0377ed19e3a7e3bcd0f47bb236dffaa1aed18267f",
+          "state": "current",
+          "note": "new: provenance, coverage, pin and no-process assertions."
+        },
+        {
+          "path": "test/composer-commands.test.ts",
+          "sha256": "6d1e3cccb2f8121bcd78956119a9fb0770b82b7dd1ca19840a47e0808ea3f8a5",
+          "state": "current",
+          "note": "R03 position/literal/ranking/intent/ambiguity/fail-closed tests."
+        },
+        {
+          "path": "test/studio-screen.test.tsx",
+          "sha256": "89637e2bccede40006c82a464b72730a7d9703564f183775144a8d7120dfa81c",
+          "state": "current",
+          "note": "R03 listbox, keyboard, pointer, IME, selection, empty-filter ARIA, caret clamp, axe audit."
+        },
+        {
+          "path": "test/shell-races.test.tsx",
+          "sha256": "e5b731286b1e7d9aeda9d2344d553f00cf958104140590bd95023160e07047a1",
+          "state": "current",
+          "note": "R03 real-Shell interception (commands never submitted; catalog-unavailable fail-closed)."
+        },
+        {
+          "path": "test/ipc-contract.test.ts",
+          "sha256": "f78760e2c755548631a3c4fc6e7fc74d658ea59881a55a3d3dec34966fb14619",
+          "state": "current",
+          "note": "commands:catalog validation."
+        },
+        {
+          "path": "scripts/ci.mjs",
+          "sha256": "381a252dbd012bb926aa1fd187002431d137ee8a31fd56ea17eb46ea6a2e4d74",
+          "state": "current",
+          "note": "R03: catalog gate runs in local CI after typecheck (offline; validates the pin, capture digest, and annotations)."
+        }
+      ],
+      "acceptance_completed": [
         "Catalog has canonical slash name, aliases, description, arguments, scope, side effects, cost class, provenance, route and support state",
         "Every command in the pinned 0.10.2 registry is enumerated and reconciled; nothing is hard-coded from memory",
         "Typing / at a command position opens an accessible filtered suggestion list with description and arguments",
@@ -657,12 +813,112 @@
         "Lookup/filter/help make zero provider requests; ordinary text is never classified as a command",
         "Missing execution routes stay visible with an explanation"
       ],
-      "tests": [],
-      "evidence": [],
+      "acceptance_remaining": [],
+      "tests": [
+        {
+          "command": "npx vitest run test/command-catalog.test.ts test/composer-commands.test.ts test/studio-screen.test.tsx test/shell-races.test.tsx test/ipc-contract.test.ts",
+          "result": "passed",
+          "detail": "102 tests in 5 files: catalog provenance/coverage, pure parser and ranking, ambiguity and fail-closed rules, listbox/keyboard/pointer/IME/selection/ARIA/axe, IPC validation, real-Shell interception",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r03-focused-tests.txt",
+          "captured_utc": "2026-11-14T05:48:46.802Z"
+        },
+        {
+          "command": "npx vitest run",
+          "result": "passed",
+          "detail": "891 tests in 85 files (was 852 in 83 at R02)",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r03-full-tests.txt",
+          "captured_utc": "2026-11-14T05:48:46.802Z"
+        },
+        {
+          "command": "npm run typecheck && npm run lint && npx prettier --check .",
+          "result": "passed",
+          "detail": "typecheck clean; lint 0 errors (3 pre-existing no-explicit-any warnings); formatting clean",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r03-gates.txt",
+          "captured_utc": "2026-11-14T05:48:46.802Z"
+        },
+        {
+          "command": "node scripts/command-catalog.mjs --check",
+          "result": "passed",
+          "detail": "pin, capture digest, 109 commands, one annotation each; 69 terminal-only, 5 unavailable",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r03-catalog-check.txt",
+          "captured_utc": "2026-11-14T05:48:46.802Z"
+        },
+        {
+          "command": "node scripts/command-smoke.mjs (npm run smoke:commands)",
+          "result": "passed",
+          "detail": "25/25 real-Electron checks: listbox, filter, Tab acceptance, Escape priority, Enter newline, ambiguous/TUI-only notices, no runtime start, 200% zoom geometry",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r03-command-smoke.json",
+          "captured_utc": "2026-11-14T05:48:46.802Z"
+        },
+        {
+          "command": "node scripts/shell-smoke.mjs (npm run smoke:shell)",
+          "result": "passed",
+          "detail": "127/127 checks with Electron exit 0 on the R03 composer",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r03-shell-smoke.json",
+          "captured_utc": "2026-11-14T05:48:46.802Z"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/review-studio/R03-command-catalog.md",
+          "sha256": "cfa6bc488a755a657b367ef616dc293ad8a53f2b4c6abb60bd365f6ded5c297f",
+          "note": "R03: pinned 0.10.2 /v1/commands capture, offline coverage check, focused and full tests, gates, real-Electron command smoke (25/25), and the 100%/200% captures."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r03-commands-capture.json",
+          "sha256": "69bb8c021a0e7f558a43a96f24c0fdb7cad75bcf61e4a6d353de92572c235511",
+          "note": "R03: pinned 0.10.2 /v1/commands capture, offline coverage check, focused and full tests, gates, real-Electron command smoke (25/25), and the 100%/200% captures."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r03-catalog-check.txt",
+          "sha256": "ad4a1c5f3fa46ae8b358832152fb595bf02396a27c05d646f5f6917d2cee59a8",
+          "note": "R03: pinned 0.10.2 /v1/commands capture, offline coverage check, focused and full tests, gates, real-Electron command smoke (25/25), and the 100%/200% captures."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r03-focused-tests.txt",
+          "sha256": "0d4f9216c1fdd96e7d47e9878ade47753165208e2874386b7aa00624e287dda2",
+          "note": "R03: pinned 0.10.2 /v1/commands capture, offline coverage check, focused and full tests, gates, real-Electron command smoke (25/25), and the 100%/200% captures."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r03-full-tests.txt",
+          "sha256": "a2cba7f7a5936c02a464936036b709175c55b421f13c509af898bbc0f38220a0",
+          "note": "R03: pinned 0.10.2 /v1/commands capture, offline coverage check, focused and full tests, gates, real-Electron command smoke (25/25), and the 100%/200% captures."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r03-gates.txt",
+          "sha256": "690c35d0e43774b2372880189aff6b2e0664f1c76048fbf4f8194e179e477999",
+          "note": "R03: pinned 0.10.2 /v1/commands capture, offline coverage check, focused and full tests, gates, real-Electron command smoke (25/25), and the 100%/200% captures."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r03-command-smoke.json",
+          "sha256": "c1e3b3cfa2bf04b3c392aa9435af9741ad9090c7e7a1613bfdbc1bc860405c0f",
+          "note": "R03: pinned 0.10.2 /v1/commands capture, offline coverage check, focused and full tests, gates, real-Electron command smoke (25/25), and the 100%/200% captures."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r03-command-menu.png",
+          "sha256": "6cde692dac65991bbe7471c78b9f5fc503ce2413e98606b536bad2cd7e32c8ca",
+          "note": "R03: pinned 0.10.2 /v1/commands capture, offline coverage check, focused and full tests, gates, real-Electron command smoke (25/25), and the 100%/200% captures."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r03-command-menu-200.png",
+          "sha256": "37a76abf5128be8e1150e28f31fa4f6e1b493405183412227ede62f22d2464f7",
+          "note": "R03: pinned 0.10.2 /v1/commands capture, offline coverage check, focused and full tests, gates, real-Electron command smoke (25/25), and the 100%/200% captures."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r03-shell-smoke.json",
+          "sha256": "6c95d1353f7f90b1d74791cae4d914673ebbe638491ecf86ebc5a19a17c25585",
+          "note": "Existing shell smoke on the R03 composer: 127/127 checks, Electron exit 0."
+        }
+      ],
       "attempt_problem_ids": [],
       "platform": "darwin-arm64",
-      "next_action": "Inspect the pinned engine's slash-command registry and the existing capability inventory before writing the catalog.",
-      "notes": []
+      "next_action": "R04: dispatch the runtime-api rows through validated operation-specific native operations and make /new real (idle, busy, disconnected, response-lost, restart, project switch). R03 catalogues routes; it never executes them.",
+      "notes": [
+        "Every recognised command is intercepted before submission and never reaches the model as a prompt.",
+        "The catalog is pinned to 0.10.2 (ff466b2ed0bf); a live version/commit difference is shown as drift and is not re-qualified.",
+        "Support=runtime-api names a documented operation for R04; it is not a claim that Mona has executed it.",
+        "Independent review: FAIL on stale evidence (fixed by re-running both smokes on the final bytes); five behavioural defects found and fixed with tests (bare-prefix ambiguity, ARIA/listbox agreement, arrow keys with no rows, stale caret after draft replacement, over-tall panel floor)."
+      ]
     },
     "R04": {
       "status": "pending",
@@ -1161,10 +1417,17 @@
     "RV-09": {
       "title": "No descriptive slash-command autocomplete in Studio",
       "priority": "user-request",
-      "status": "open",
+      "status": "verified",
       "task": "R03",
-      "evidence": [],
-      "notes": []
+      "evidence": [
+        "docs/evidence/macos/review-studio/R03-command-catalog.md",
+        "docs/evidence/macos/review-studio/artifacts/r03-command-smoke.json",
+        "docs/evidence/macos/review-studio/artifacts/r03-command-menu.png",
+        "docs/evidence/macos/review-studio/artifacts/r03-command-menu-200.png"
+      ],
+      "notes": [
+        "R03 delivers the catalog and the descriptive autocomplete. Execution is R04 and is not claimed here."
+      ]
     },
     "RV-10": {
       "title": "In-app approval/clarification replies are missing",
@@ -1218,7 +1481,9 @@
       "status": "open",
       "task": "R03",
       "evidence": [],
-      "notes": []
+      "notes": [
+        "R03 delivered the descriptive command catalog and autocomplete. Safe execution and the /new lifecycle are R04, so the feature is not verified yet."
+      ]
     },
     "UX-COMPOSER": {
       "title": "Enter inserts a newline, Command-Enter submits",
@@ -1249,7 +1514,7 @@
       "notes": []
     }
   },
-  "last_checkpoint_utc": "2026-11-14T05:07:51.119Z",
+  "last_checkpoint_utc": "2026-11-14T05:48:46.855Z",
   "notes": [
     "Subordinate ledger. The P00–P27 registry remains authoritative for product requirements; this registry tracks review tasks and findings only.",
     "Attempts continue in the shared attempts.jsonl; a review task ID never resets a count."

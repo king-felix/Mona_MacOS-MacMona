@@ -120,3 +120,42 @@ D-001…D-103) and never replace them.
 - **Consequence:** R04's `/new` can create additional threads and the Studio
   will label them archived until one becomes current. R11 owns rendering
   performance once a reader has loaded many pages.
+
+## RD-006 — The command catalog is captured from the engine, and R03 does not execute it
+
+- **Decision:** the slash-command catalog is the pinned engine's own
+  `GET /v1/commands` response, captured from `codewhale 0.10.2` (commit
+  `ff466b2ed0bf`, binary sha256 `da022961…`) through an isolated runtime. The
+  TUI slash registry is not the CLI subcommand list: `codewhale --help`
+  enumerates `serve`, `review`, `fleet` and other processes, while the runtime
+  endpoint enumerates `/goal`, `/new`, `/mcp`, `/anchor` and the rest of the
+  composer surface. `scripts/command-catalog.mjs --check` reproduces the
+  coverage and the capture digest offline; `--capture` is the only path that
+  starts a process, and it makes no turn.
+- **Decision:** every row carries an explicit annotation — scope, side effects,
+  cost class, support, and route. `support=runtime-api` names documented `/v1`
+  operations for R04 to wire; `terminal-only` means only the TUI implements it;
+  `unavailable` means this engine version exposes no route. A missing or extra
+  annotation is a gate failure, not a default. 109 rows resolve to 35 / 69 / 5,
+  with `/lane` the one hidden row.
+- **Decision:** R03 catalogues and explains; it does not execute. A recognised
+  command is intercepted before the submission gate and never reaches the
+  engine as a prompt. This keeps RV-09's "never send `/new` to the model
+  pretending it is a local action" true while R04 owns operation-specific IPC,
+  effects, and receipts.
+- **Decision:** recognition is exact. Only a canonical name or alias becomes a
+  command; a prefix with matches is reported as ambiguous and selects nothing;
+  a path (`/Users/…`), an escaped slash, an indented line, fenced pasted code,
+  and ordinary prose remain prompt text. `Enter` stays a newline; `Tab` accepts;
+  `Escape` closes the list before Focus Mode; `⌘Enter` explains an incomplete or
+  ambiguous command.
+- **Decision:** the list is anchored to the composer input, on the side with
+  measured room, and clamped to the viewport. At 200% page zoom it keeps a
+  scrollable list and drops the detail/footer rather than overflowing the
+  window or covering the composer. The measure listens to resize, scroll, and
+  `visualViewport` changes because Electron page zoom changes the CSS viewport
+  without a window resize.
+- **Consequence:** R04 consumes this registry instead of inventing routes; a
+  real execution result that contradicts an annotation must revise the
+  annotation rather than preserve it. The catalog is pinned, so a live engine
+  version/commit difference is shown as drift and is never silently accepted.

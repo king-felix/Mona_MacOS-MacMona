@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 883,
+  "revision": 981,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -238,8 +238,8 @@
         },
         {
           "path": "package.json",
-          "sha256": "20cf19ee258b27e10580174721c3d0be9983304056a56ef8ae7f32c67e96d6bc",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them."
+          "sha256": "2061d794f1092bd7b7cfcb84a48954ae35f5136d0b13604d831949e768087f0e",
+          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": "package-lock.json",
@@ -267,8 +267,8 @@
         },
         {
           "path": "scripts/ci.mjs",
-          "sha256": "200ecd1bcc8ac746b464dbae78b2b008a3c4cb809a96c568fe3d701346d6ad69",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run"
+          "sha256": "381a252dbd012bb926aa1fd187002431d137ee8a31fd56ea17eb46ea6a2e4d74",
+          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after the R03 review pass (bare-prefix ambiguity, ARIA/listbox agreement, arrow-key and caret fixes) changed these bytes; the R03 full suite (891 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": "scripts/smoke.mjs",
@@ -288,18 +288,18 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "ac6b7be8e1d3a76e234880956384b925e629e8a392fd496f8d29a823a5b20bf1",
-          "note": "P15 shell-smoke driver: Agents screen capture and honest capability-gated launch assertion | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them."
+          "sha256": "357d32a8310201257f58fc1c0879a1ebec2ec2e08d7f5a8782c2deff697d19bf",
+          "note": "P15 shell-smoke driver: Agents screen capture and honest capability-gated launch assertion | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": "src/main/ipc-contract.ts",
-          "sha256": "d74f9735f71ce74a81c8427bc91b6a4eeb1b02844c7e0997b0955ea7f3dfe0f3",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them."
+          "sha256": "4670e7b11f42871520813d32684632594b14845e1af675aa2df2b3b4fce61a3d",
+          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": "src/main/ipc.ts",
-          "sha256": "3be0a225aed3c5a145a6ecece29ecb79654620bbf43de44b28510346be9260da",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them."
+          "sha256": "4b1a5c2f11a2b527b234f0f6d5a949dfca5eb535a3724d6324b9dccec0062b67",
+          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": "src/main/menu.ts",
@@ -328,8 +328,8 @@
         },
         {
           "path": "src/preload/index.ts",
-          "sha256": "d522abe17137397ce28f8a2ef1e4dbd5586b3903b618696fc04fe724988ae15c",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them."
+          "sha256": "44f1588504bddcd442211c4329295221025f09db9068f9c9987b95349e8a778e",
+          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": "src/renderer/App.tsx",
@@ -349,13 +349,13 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "4c9af4955fb8c7e3d7cfc50be7a009b45ad68f64b4a59e5057a002351d60d405",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them."
+          "sha256": "b3eaa284e8e0db6e8aaf52ab67cb2b70738087359e86cffdc52dd19e6f3f69d3",
+          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": "src/shared/contracts/bridge.ts",
-          "sha256": "5064fe5ca10aaa7a5793b5808edb150eff36ee8994e8404279807507f14abb79",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them."
+          "sha256": "43ce3ea0fd2037d1ceae8fa5b3c92034cc9fc1761e93a01127a939b67197172a",
+          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": "src/shared/contracts/engine.ts",
@@ -372,8 +372,8 @@
         },
         {
           "path": "src/shared/contracts/index.ts",
-          "sha256": "143a13cfaa5aae6860db5483c38dd73ab1d5cb6dde0421a3fae86e57f7ae6c3e",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run"
+          "sha256": "34d31540b43de6f237977ca2766fced2619dbad2a0605a1edd2f37afaa43af36",
+          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": "src/shared/contracts/project.ts",
@@ -409,8 +409,8 @@
         },
         {
           "path": "test/ipc-contract.test.ts",
-          "sha256": "3f8df8d0d9870cfa93bb968fd1998bc2db79ce82bda3b357bc84ed934cec6e58",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them."
+          "sha256": "f78760e2c755548631a3c4fc6e7fc74d658ea59881a55a3d3dec34966fb14619",
+          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": "test/navigation.test.ts",
@@ -568,8 +568,8 @@
         },
         {
           "path": "package.json",
-          "sha256": "20cf19ee258b27e10580174721c3d0be9983304056a56ef8ae7f32c67e96d6bc",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them."
+          "sha256": "2061d794f1092bd7b7cfcb84a48954ae35f5136d0b13604d831949e768087f0e",
+          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
@@ -661,8 +661,8 @@
         },
         {
           "path": "scripts/ci.mjs",
-          "sha256": "200ecd1bcc8ac746b464dbae78b2b008a3c4cb809a96c568fe3d701346d6ad69",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run"
+          "sha256": "381a252dbd012bb926aa1fd187002431d137ee8a31fd56ea17eb46ea6a2e4d74",
+          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after the R03 review pass (bare-prefix ambiguity, ARIA/listbox agreement, arrow-key and caret fixes) changed these bytes; the R03 full suite (891 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": "src/main/supervisor/identity.ts",
@@ -699,8 +699,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "ac6b7be8e1d3a76e234880956384b925e629e8a392fd496f8d29a823a5b20bf1",
-          "note": "P15 shell-smoke driver updated; supervisor paths unchanged | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them."
+          "sha256": "357d32a8310201257f58fc1c0879a1ebec2ec2e08d7f5a8782c2deff697d19bf",
+          "note": "P15 shell-smoke driver updated; supervisor paths unchanged | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": "src/main/engine/runtime-process.ts",
@@ -751,8 +751,8 @@
         },
         {
           "path": "package.json",
-          "sha256": "20cf19ee258b27e10580174721c3d0be9983304056a56ef8ae7f32c67e96d6bc",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them."
+          "sha256": "2061d794f1092bd7b7cfcb84a48954ae35f5136d0b13604d831949e768087f0e",
+          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
@@ -970,23 +970,23 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p07-shell-home.png",
-          "sha256": "288f0f0a6db1413d6666da08fe43b89f43ce4b1a51502a9d30083c15a09b4fa3",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell."
+          "sha256": "c30e9f9f581fa865e16304adf8b068b0cc44ffbeef3d55693e63db22a0c15353",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the R03 shell smoke rewrote this capture on the changed composer; the 127/127 run passed and this is its committed bytes. A later run may rewrite it again (screenshots are run records). | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
         },
         {
           "path": "docs/evidence/macos/artifacts/p07-shell-studio.png",
-          "sha256": "c24893aa379d0f639197c32070ac5211d16cdbd95e42df2af22bf5eec7931bba",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell."
+          "sha256": "0b3730cf1c3f05f0ac976d3627cadbb57a27821c694fc2af03aad536ae1c367d",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the R03 shell smoke rewrote this capture on the changed composer; the 127/127 run passed and this is its committed bytes. A later run may rewrite it again (screenshots are run records). | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
         },
         {
           "path": "docs/evidence/macos/artifacts/p07-shell-board.png",
-          "sha256": "d6c1c7dda243274b08908905f8442062d4449ae4d7b05d41e934820ad0109e44",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell."
+          "sha256": "60694c927fafab4068239081fdd93aa9c1552dabd8e7a4aba3e19e95dd864241",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the R03 shell smoke rewrote this capture on the changed composer; the 127/127 run passed and this is its committed bytes. A later run may rewrite it again (screenshots are run records). | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
         },
         {
           "path": "docs/evidence/macos/artifacts/p07-shell-settings.png",
-          "sha256": "046ea8cd76f6de90d9ade08d93a86cdc7ceb71e9ad1180c76b13429905c5b58b",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell."
+          "sha256": "de62c5d469b632bf5f17e438aed8ca06cd44dd091e2c1452d7467be997bab8b8",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the R03 shell smoke rewrote this capture on the changed composer; the 127/127 run passed and this is its committed bytes. A later run may rewrite it again (screenshots are run records). | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
         },
         {
           "path": "docs/evidence/macos/artifacts/p07-interface-scale.json",
@@ -1170,13 +1170,13 @@
         },
         {
           "path": "scripts/ci.mjs",
-          "sha256": "200ecd1bcc8ac746b464dbae78b2b008a3c4cb809a96c568fe3d701346d6ad69",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run"
+          "sha256": "381a252dbd012bb926aa1fd187002431d137ee8a31fd56ea17eb46ea6a2e4d74",
+          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after the R03 review pass (bare-prefix ambiguity, ARIA/listbox agreement, arrow-key and caret fixes) changed these bytes; the R03 full suite (891 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": "package.json",
-          "sha256": "20cf19ee258b27e10580174721c3d0be9983304056a56ef8ae7f32c67e96d6bc",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them."
+          "sha256": "2061d794f1092bd7b7cfcb84a48954ae35f5136d0b13604d831949e768087f0e",
+          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": "src/main/open/folder-request.ts",
@@ -1192,8 +1192,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "ac6b7be8e1d3a76e234880956384b925e629e8a392fd496f8d29a823a5b20bf1",
-          "note": "P15 shell-smoke driver updated; Finder handoff unchanged | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them."
+          "sha256": "357d32a8310201257f58fc1c0879a1ebec2ec2e08d7f5a8782c2deff697d19bf",
+          "note": "P15 shell-smoke driver updated; Finder handoff unchanged | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": "src/main/desktop-lifecycle.ts",
@@ -1201,13 +1201,13 @@
         },
         {
           "path": "src/main/ipc.ts",
-          "sha256": "3be0a225aed3c5a145a6ecece29ecb79654620bbf43de44b28510346be9260da",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them."
+          "sha256": "4b1a5c2f11a2b527b234f0f6d5a949dfca5eb535a3724d6324b9dccec0062b67",
+          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": "src/main/ipc-contract.ts",
-          "sha256": "d74f9735f71ce74a81c8427bc91b6a4eeb1b02844c7e0997b0955ea7f3dfe0f3",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them."
+          "sha256": "4670e7b11f42871520813d32684632594b14845e1af675aa2df2b3b4fce61a3d",
+          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": "src/main/projects/service.ts",
@@ -1216,8 +1216,8 @@
         },
         {
           "path": "src/preload/index.ts",
-          "sha256": "d522abe17137397ce28f8a2ef1e4dbd5586b3903b618696fc04fe724988ae15c",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them."
+          "sha256": "44f1588504bddcd442211c4329295221025f09db9068f9c9987b95349e8a778e",
+          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": "src/shared/contracts/open.ts",
@@ -1225,13 +1225,13 @@
         },
         {
           "path": "src/shared/contracts/bridge.ts",
-          "sha256": "5064fe5ca10aaa7a5793b5808edb150eff36ee8994e8404279807507f14abb79",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them."
+          "sha256": "43ce3ea0fd2037d1ceae8fa5b3c92034cc9fc1761e93a01127a939b67197172a",
+          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": "src/renderer/shell/Shell.tsx",
-          "sha256": "1f6def4b0ebc975b4ff886ef913b499dacea828e9c7b2b17c41a3e0f3ad1139d",
-          "note": "R01 review pass: Shell.tsx now owns drafts through a journal and selection through an epoch. Hash re-recorded after the full 819-test suite and the 127/127 shell smoke passed on the new bytes; no assertion or requirement status changed | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them."
+          "sha256": "afcb22490bff29b28e6824cd8538ab65420a2df038541c8e0693c20a4fb0b87d",
+          "note": "R01 review pass: Shell.tsx now owns drafts through a journal and selection through an epoch. Hash re-recorded after the full 819-test suite and the 127/127 shell smoke passed on the new bytes; no assertion or requirement status changed | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (888 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them. | Re-recorded after the R03 review pass (bare-prefix ambiguity, ARIA/listbox agreement, arrow-key and caret fixes) changed these bytes; the R03 full suite (891 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": "src/renderer/shell/drop.ts",
@@ -1248,8 +1248,8 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "4c9af4955fb8c7e3d7cfc50be7a009b45ad68f64b4a59e5057a002351d60d405",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them."
+          "sha256": "b3eaa284e8e0db6e8aaf52ab67cb2b70738087359e86cffdc52dd19e6f3f69d3",
+          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": "test/folder-request.test.ts",
@@ -1269,8 +1269,8 @@
         },
         {
           "path": "test/ipc-contract.test.ts",
-          "sha256": "3f8df8d0d9870cfa93bb968fd1998bc2db79ce82bda3b357bc84ed934cec6e58",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them."
+          "sha256": "f78760e2c755548631a3c4fc6e7fc74d658ea59881a55a3d3dec34966fb14619",
+          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
@@ -1365,28 +1365,28 @@
         },
         {
           "path": "src/shared/contracts/bridge.ts",
-          "sha256": "5064fe5ca10aaa7a5793b5808edb150eff36ee8994e8404279807507f14abb79",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them."
+          "sha256": "43ce3ea0fd2037d1ceae8fa5b3c92034cc9fc1761e93a01127a939b67197172a",
+          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": "src/main/ipc-contract.ts",
-          "sha256": "d74f9735f71ce74a81c8427bc91b6a4eeb1b02844c7e0997b0955ea7f3dfe0f3",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them."
+          "sha256": "4670e7b11f42871520813d32684632594b14845e1af675aa2df2b3b4fce61a3d",
+          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": "src/main/ipc.ts",
-          "sha256": "3be0a225aed3c5a145a6ecece29ecb79654620bbf43de44b28510346be9260da",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them."
+          "sha256": "4b1a5c2f11a2b527b234f0f6d5a949dfca5eb535a3724d6324b9dccec0062b67",
+          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "ac6b7be8e1d3a76e234880956384b925e629e8a392fd496f8d29a823a5b20bf1",
-          "note": "P15 shell-smoke driver updated; board paths unchanged | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them."
+          "sha256": "357d32a8310201257f58fc1c0879a1ebec2ec2e08d7f5a8782c2deff697d19bf",
+          "note": "P15 shell-smoke driver updated; board paths unchanged | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": "src/preload/index.ts",
-          "sha256": "d522abe17137397ce28f8a2ef1e4dbd5586b3903b618696fc04fe724988ae15c",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them."
+          "sha256": "44f1588504bddcd442211c4329295221025f09db9068f9c9987b95349e8a778e",
+          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": "src/renderer/shell/Board.tsx",
@@ -1395,12 +1395,13 @@
         },
         {
           "path": "src/renderer/design/primitives.tsx",
-          "sha256": "ca75cbc305342b0919d76471eef3d714bca25ed01abdd2e72ae03e45639fc489"
+          "sha256": "aa3d0dba4ee7f0595363b0301a48820e096777c1e35eebaa87aa921286362917",
+          "note": "Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "4c9af4955fb8c7e3d7cfc50be7a009b45ad68f64b4a59e5057a002351d60d405",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them."
+          "sha256": "b3eaa284e8e0db6e8aaf52ab67cb2b70738087359e86cffdc52dd19e6f3f69d3",
+          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": "test/work-board.test.ts",
@@ -1469,13 +1470,13 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p11-shell-board.png",
-          "sha256": "d6c1c7dda243274b08908905f8442062d4449ae4d7b05d41e934820ad0109e44",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell."
+          "sha256": "60694c927fafab4068239081fdd93aa9c1552dabd8e7a4aba3e19e95dd864241",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the R03 shell smoke rewrote this capture on the changed composer; the 127/127 run passed and this is its committed bytes. A later run may rewrite it again (screenshots are run records). | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
         },
         {
           "path": "docs/evidence/macos/artifacts/p11-shell-attempts.png",
-          "sha256": "348c9238b42c4457f3f38dde2a885ea9640ac4c6dfaca96479cea8601ddb99a5",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell."
+          "sha256": "8b5a7783b9ecb9ab92d2deb922c932e6f0e3868ea63f27b320bb893afcea8e6c",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the R03 shell smoke rewrote this capture on the changed composer; the 127/127 run passed and this is its committed bytes. A later run may rewrite it again (screenshots are run records). | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
         },
         {
           "path": "docs/evidence/macos/artifacts/p11-ci.txt",
@@ -1540,13 +1541,13 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p12-shell-cost.png",
-          "sha256": "73722319f90b1a6aec012bafb93ad5a0614dc8005af3e3fcd2b33ee309b4c00f",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell."
+          "sha256": "a90b4d652035c09ede96139a41cc531a5ead3db34f14fe495ce3b5c2dd9b5e21",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
         },
         {
           "path": "docs/evidence/macos/artifacts/p12-shell-cost-detail.png",
-          "sha256": "ed08a93307ab382e05b9a3229c0d387d0c109806009d2b4ea0510816f022a7d2",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell."
+          "sha256": "aa07f19d32139b0cc69210c8690e82857f80514d8ff035c7826a0895c66da10d",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the R03 shell smoke rewrote this capture on the changed composer; the 127/127 run passed and this is its committed bytes. A later run may rewrite it again (screenshots are run records). | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
         },
         {
           "path": "docs/evidence/macos/artifacts/p12-schema.txt",
@@ -1599,8 +1600,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p13-shell-changes.png",
-          "sha256": "78fd1ca2ce4fd367cc380d078008af9b90d43b1ac7daddc9006e2fb2e0adc260",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell."
+          "sha256": "887ee4a583b5035a25a3db89d72a27c00ac4300b3ebf1adca36217808a86279b",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
         },
         {
           "path": "docs/evidence/macos/artifacts/p13-schema.txt",
@@ -1616,8 +1617,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p13-shell-changes-file.png",
-          "sha256": "a29ee05aae7baed87152f44004752c36f1019757181c9c2445f2144ed6d0bece",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell."
+          "sha256": "d2d2c36f5b9e919c8eb497a9b3cdf7bcca2e57253deed4d144137f82773d3f71",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
         }
       ],
       "blocker_ids": []
@@ -1666,28 +1667,28 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p14-home-daybreak.png",
-          "sha256": "288f0f0a6db1413d6666da08fe43b89f43ce4b1a51502a9d30083c15a09b4fa3",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell."
+          "sha256": "c30e9f9f581fa865e16304adf8b068b0cc44ffbeef3d55693e63db22a0c15353",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the R03 shell smoke rewrote this capture on the changed composer; the 127/127 run passed and this is its committed bytes. A later run may rewrite it again (screenshots are run records). | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
         },
         {
           "path": "docs/evidence/macos/artifacts/p14-settings-attention.png",
-          "sha256": "e52bc9de62f4e2c89279d9bfa158575f5a69cbf33c890e3e61d545facb7a4973",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell."
+          "sha256": "7c166480211f7d54cfb642456d67d23370d5c2f44a2d4b17419fbaacd72691af",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
         },
         {
           "path": "docs/evidence/macos/artifacts/p14-settings-attention-native.png",
-          "sha256": "53da35bcc381641ac0d969fc80aa6ccbd0967c19c7865b843452d3e2e3885d9c",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell."
+          "sha256": "ce5d38d79b3f79223957b45f7bd1909d9336ff9d0e4dc8e2837730dddfb25306",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
         },
         {
           "path": "docs/evidence/macos/artifacts/p14-settings-receipts.png",
-          "sha256": "b68c3c80cff2bd0ab2d141f17db0f0cac1b94d49223b1b496db4f0d380c948f7",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell."
+          "sha256": "1301c7ae43fb617cc8245d6429fa297a281edbdd1c19d5c362615ab798b6d4a8",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the R03 shell smoke rewrote this capture on the changed composer; the 127/127 run passed and this is its committed bytes. A later run may rewrite it again (screenshots are run records). | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
         },
         {
           "path": "docs/evidence/macos/artifacts/p14-studio-focus-afterglow.png",
-          "sha256": "1720ee7f6af2f5932b64f0059ab3fabeb09af5430efbf4e67ef250512fc35ad2",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell."
+          "sha256": "53e5d46c868689db85d73cdc17870c48c684a683d373f0e7124e9c56d62cbbbb",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the R03 shell smoke rewrote this capture on the changed composer; the 127/127 run passed and this is its committed bytes. A later run may rewrite it again (screenshots are run records). | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
         },
         {
           "path": "docs/evidence/macos/artifacts/p14-ci.txt",
@@ -1768,18 +1769,18 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p15-agents-daybreak.png",
-          "sha256": "144597340b756cdc0da55d899a3a40efddf9e4e66b7acc8073bfe87ab9c766cc",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell."
+          "sha256": "2aed09862403c1f3753d1db22e510679be70499568dae1f8d911599f483212aa",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
         },
         {
           "path": "docs/evidence/macos/artifacts/p15-agents-afterglow.png",
-          "sha256": "fd74177f73230f31e1cdc1e9123c51f057bc5c13e96a5ea1a6e70dba97443f1a",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell."
+          "sha256": "de24f8ace883e1eb7d0876f49109684328de5877bf70f5594239273e713ca4a0",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
         },
         {
           "path": "docs/evidence/macos/artifacts/p15-agents-inspector.png",
-          "sha256": "1538b0d601abb8923c9ed09ae386480e0cc3686f2628f46c1e43bd2e8908d54e",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell."
+          "sha256": "d739b8de8d47ecb0a51d229fda2213d23eadb66dfb3209c5ec13c73b21c0a6e0",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the R03 shell smoke rewrote this capture on the changed composer; the 127/127 run passed and this is its committed bytes. A later run may rewrite it again (screenshots are run records). | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
         }
       ],
       "blocker_ids": []
@@ -1819,8 +1820,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p16-settings-route.png",
-          "sha256": "76d9f968bcc143b26ac3043e86ad8b9df76cf4fd1061c026a1b99055036a1adb",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell."
+          "sha256": "eb75d2db46aeb2b461a8e659c5da3bcb78299c109c2ab1ee5920f89e1cb895ff",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
         },
         {
           "path": "docs/evidence/macos/artifacts/p16-p17-ci.txt",
@@ -1861,8 +1862,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p17-settings-extensions.png",
-          "sha256": "2702cb69e97896b82d0fec0e7d3d645707008aab3d82b3068fc37cf83b51ed27",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell."
+          "sha256": "29a7ca7b1e585bba77b26b90530adacd5cd31d30ea65a542925ea6e5bdf12fda",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
         },
         {
           "path": "docs/evidence/macos/artifacts/p16-p17-ci.txt",
@@ -1932,13 +1933,13 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-terminal.png",
-          "sha256": "eeffa142785655485e0181c5b0acbd65a9f0ed9fa6b7f7b676c1610ff510e127",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell."
+          "sha256": "d88dca5d77e00dab375efb7c14cb4b35b243afc3bb35ce14c1ae5a8db069049a",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the R03 shell smoke rewrote this capture on the changed composer; the 127/127 run passed and this is its committed bytes. A later run may rewrite it again (screenshots are run records). | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capabilities.png",
-          "sha256": "197ed3d97bd124824a89589186c3fe542523401d27d0e553d503bc3e840e2b17",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell."
+          "sha256": "29c9410f3ba419eb08797eee163c2be44bf7a55381b2805e5492fe7a5dbe98ef",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
         },
         {
           "path": "native/macos-pty/main.swift",
@@ -2010,37 +2011,38 @@
         },
         {
           "path": "src/main/ipc.ts",
-          "sha256": "3be0a225aed3c5a145a6ecece29ecb79654620bbf43de44b28510346be9260da",
-          "note": "Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them."
+          "sha256": "4b1a5c2f11a2b527b234f0f6d5a949dfca5eb535a3724d6324b9dccec0062b67",
+          "note": "Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": "src/main/ipc-contract.ts",
-          "sha256": "d74f9735f71ce74a81c8427bc91b6a4eeb1b02844c7e0997b0955ea7f3dfe0f3",
-          "note": "Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them."
+          "sha256": "4670e7b11f42871520813d32684632594b14845e1af675aa2df2b3b4fce61a3d",
+          "note": "Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": "src/preload/index.ts",
-          "sha256": "d522abe17137397ce28f8a2ef1e4dbd5586b3903b618696fc04fe724988ae15c",
-          "note": "Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them."
+          "sha256": "44f1588504bddcd442211c4329295221025f09db9068f9c9987b95349e8a778e",
+          "note": "Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": "src/shared/contracts/bridge.ts",
-          "sha256": "5064fe5ca10aaa7a5793b5808edb150eff36ee8994e8404279807507f14abb79",
-          "note": "Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them."
+          "sha256": "43ce3ea0fd2037d1ceae8fa5b3c92034cc9fc1761e93a01127a939b67197172a",
+          "note": "Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": "src/shared/contracts/index.ts",
-          "sha256": "143a13cfaa5aae6860db5483c38dd73ab1d5cb6dde0421a3fae86e57f7ae6c3e"
+          "sha256": "34d31540b43de6f237977ca2766fced2619dbad2a0605a1edd2f37afaa43af36",
+          "note": "Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "ac6b7be8e1d3a76e234880956384b925e629e8a392fd496f8d29a823a5b20bf1",
-          "note": "Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them."
+          "sha256": "357d32a8310201257f58fc1c0879a1ebec2ec2e08d7f5a8782c2deff697d19bf",
+          "note": "Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": "src/renderer/shell/Shell.tsx",
-          "sha256": "1f6def4b0ebc975b4ff886ef913b499dacea828e9c7b2b17c41a3e0f3ad1139d",
-          "note": "R01 review pass: Shell.tsx now owns drafts through a journal and selection through an epoch. Hash re-recorded after the full 819-test suite and the 127/127 shell smoke passed on the new bytes; no assertion or requirement status changed | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them."
+          "sha256": "afcb22490bff29b28e6824cd8538ab65420a2df038541c8e0693c20a4fb0b87d",
+          "note": "R01 review pass: Shell.tsx now owns drafts through a journal and selection through an epoch. Hash re-recorded after the full 819-test suite and the 127/127 shell smoke passed on the new bytes; no assertion or requirement status changed | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (888 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them. | Re-recorded after the R03 review pass (bare-prefix ambiguity, ARIA/listbox agreement, arrow-key and caret fixes) changed these bytes; the R03 full suite (891 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": "src/renderer/shell/Settings.tsx",
@@ -2052,8 +2054,8 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "4c9af4955fb8c7e3d7cfc50be7a009b45ad68f64b4a59e5057a002351d60d405",
-          "note": "Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them."
+          "sha256": "b3eaa284e8e0db6e8aaf52ab67cb2b70738087359e86cffdc52dd19e6f3f69d3",
+          "note": "Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": "test/terminal-buffer.test.ts",
@@ -2085,17 +2087,18 @@
         },
         {
           "path": "test/ipc-contract.test.ts",
-          "sha256": "3f8df8d0d9870cfa93bb968fd1998bc2db79ce82bda3b357bc84ed934cec6e58",
-          "note": "Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them."
+          "sha256": "f78760e2c755548631a3c4fc6e7fc74d658ea59881a55a3d3dec34966fb14619",
+          "note": "Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": "scripts/ci.mjs",
-          "sha256": "200ecd1bcc8ac746b464dbae78b2b008a3c4cb809a96c568fe3d701346d6ad69"
+          "sha256": "381a252dbd012bb926aa1fd187002431d137ee8a31fd56ea17eb46ea6a2e4d74",
+          "note": "Re-recorded after the R03 review pass (bare-prefix ambiguity, ARIA/listbox agreement, arrow-key and caret fixes) changed these bytes; the R03 full suite (891 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": "package.json",
-          "sha256": "20cf19ee258b27e10580174721c3d0be9983304056a56ef8ae7f32c67e96d6bc",
-          "note": "Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them."
+          "sha256": "2061d794f1092bd7b7cfcb84a48954ae35f5136d0b13604d831949e768087f0e",
+          "note": "Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
@@ -2146,13 +2149,13 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p19-memory-search.png",
-          "sha256": "4f49a28fa46a7b555c154a9a09109ede6fff5287d9dc5b9b3858ca18493cb651",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell."
+          "sha256": "20c957475c5e5a692f18a75069d2bcbfb55469f693e570e9ee57a75bae138d72",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the R03 shell smoke rewrote this capture on the changed composer; the 127/127 run passed and this is its committed bytes. A later run may rewrite it again (screenshots are run records). | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
         },
         {
           "path": "docs/evidence/macos/artifacts/p19-memory-handoff.png",
-          "sha256": "e061a67506ba91d5a56c3373479a82a39e8dadfc5055578b98a860e223bad925",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell."
+          "sha256": "09550d8a33a573a7803cf68c9ac8da7a91f8900cff69b67197a744227fac99eb",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
         },
         {
           "path": "docs/decisions/ADR-013-memory-and-handoff.md",
@@ -2230,8 +2233,8 @@
         },
         {
           "path": ".mona/build-macos/HANDOFF.md",
-          "sha256": "20202069679a485a17378978ab54ac5d7ab9b837d138080f24ef437cdb529384",
-          "note": "R01 review adoption updated the handoff (Studio review R01 outcome); hash re-recorded, nothing removed | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them."
+          "sha256": "b5dd2ccf0a477b5e0589d11c991a8e1590226ecf17c133edaef5ef6ef477f9e0",
+          "note": "R01 review adoption updated the handoff (Studio review R01 outcome); hash re-recorded, nothing removed | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (888 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         }
       ],
       "blocker_ids": []
@@ -2455,8 +2458,8 @@
         },
         {
           "path": ".mona/build-macos/HANDOFF.md",
-          "sha256": "20202069679a485a17378978ab54ac5d7ab9b837d138080f24ef437cdb529384",
-          "note": "R01 review adoption updated the handoff (Studio review R01 outcome); hash re-recorded, nothing removed | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them."
+          "sha256": "b5dd2ccf0a477b5e0589d11c991a8e1590226ecf17c133edaef5ef6ef477f9e0",
+          "note": "R01 review adoption updated the handoff (Studio review R01 outcome); hash re-recorded, nothing removed | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (888 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
         },
         {
           "path": "test/work-git.test.ts",
@@ -2582,7 +2585,7 @@
     "P22",
     "P25"
   ],
-  "last_checkpoint_utc": "2026-11-14T05:07:43.828Z",
+  "last_checkpoint_utc": "2026-11-14T05:48:33.582Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

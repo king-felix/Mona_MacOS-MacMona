@@ -36,3 +36,8 @@ tasks that consume them.
 - **Native fullscreen, VoiceOver and physical display scaling cannot be proven
   from jsdom.** R05/R11 must either observe them on this Mac or record them as
   pending human checks.
+
+- **R03 route claims are not execution.** R03 proves the catalog and the
+  autocomplete; `support=runtime-api` names a documented operation R04 may call,
+  not a qualified Mona action. A row that execution contradicts must be revised
+  in R04, not defended.

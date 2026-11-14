@@ -37,9 +37,18 @@ P00–P27 board, its requirements or its attempt counts.
   Electron smoke paged a 10,054-event project without a runtime or model call;
   849 tests in 83 files, shell smoke 127/127. Evidence:
   `docs/evidence/macos/review-studio/R02-identity-aware-history.md`.
-- **Next review task:** R03 (slash-command catalog), R05 (focus/fullscreen) or
-  R07 (pending input) — all eligible now. `.mona/build-macos/reviews/
-  studio-v2/HANDOFF.md` carries the exact first action.
+- **R03 completed (2026-11-14):** the composer now opens a descriptive
+  autocomplete built from the pinned engine's own `GET /v1/commands` response
+  (109 commands, `codewhale 0.10.2` / `ff466b2ed0bf`), with per-row scope,
+  effects, cost, route and support. A recognised command is intercepted before
+  submission and never sent to the model; R04 owns execution. Real Electron
+  command smoke 25/25 (including 200% zoom), full suite 885 tests in 85 files,
+  shell smoke 127/127. Evidence:
+  `docs/evidence/macos/review-studio/R03-command-catalog.md`.
+- **Next review task:** R04 (execute commands and make `/new` real), R05
+  (focus/fullscreen) or R07 (pending input) — all eligible now.
+  `.mona/build-macos/reviews/studio-v2/HANDOFF.md` carries the exact first
+  action.
 - **Original ledger hygiene:** P10/P19 `store.ts` evidence hashes were
   re-recorded only after the suite passed on the new bytes and carry a note
   saying the original reports describe the pre-review bytes; R02's shell smoke
