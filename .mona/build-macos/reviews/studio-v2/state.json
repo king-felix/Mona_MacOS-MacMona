@@ -37,7 +37,7 @@
     "attempts": ".mona/build-macos/attempts.jsonl",
     "requirement_registry": "docs/requirements-macos.json"
   },
-  "revision": 10,
+  "revision": 11,
   "current_task": "R01",
   "current_task_status": "completed",
   "tasks": {
@@ -339,7 +339,8 @@
       "notes": [
         "Writes are serialized per draft key in the renderer instead of adding a revision column in main: it is the only layer that knows the newest text, and it also fixes the late-acknowledgement half of RV-01, which a main-side CAS cannot.",
         "A stale failure is still shown, labelled with its project name; a stale success notice is labelled the same way. Nothing is hidden to keep the UI tidy.",
-        "Favorite insertion, the quit dialog and project switches all go through the journal (flush before the key is replaced)."
+        "Favorite insertion, the quit dialog and project switches all go through the journal (flush before the key is replaced).",
+        "Verified and committed at f7b744a; both ledgers validate and the secret scan is clean (571 files, 0 findings)."
       ],
       "updated_utc": "2026-11-14T04:45:00.000Z"
     },
@@ -993,7 +994,7 @@
       "notes": []
     }
   },
-  "last_checkpoint_utc": "2026-11-14T04:37:53.376Z",
+  "last_checkpoint_utc": "2026-11-14T04:38:04.638Z",
   "notes": [
     "Subordinate ledger. The P00–P27 registry remains authoritative for product requirements; this registry tracks review tasks and findings only.",
     "Attempts continue in the shared attempts.jsonl; a review task ID never resets a count."

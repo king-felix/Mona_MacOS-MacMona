@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-14T04:37:46.887Z",
+  "generated_utc": "2026-11-14T04:38:04.727Z",
   "git": {
     "available": true,
-    "commit": "180f86d686e3dbf9bc6a23c85703240d3ded6dbb",
+    "commit": "f7b744a27e3d763c2fed3d7eaea6883b2411cdb1",
     "dirty": true
   },
-  "digest": "10c764fc8be62c458e0fb66ceb21916b71c230fcf458140ffec2799eeb698b95",
+  "digest": "4edfccec8c5a8d689440ac23a1bfc2a88dee125e6f3645e0930e2f2b565b9e7e",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,7 +15,7 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "da53b3346f825b71a913bbce192602b5678a2bb2c180f1b23acf10335afb659a",
+      "sha256": "fa2002439020816ac27cad579ef525f39a77d180ebfd46e13e774da595e9cf79",
       "bytes": 144772
     },
     {
@@ -1010,8 +1010,8 @@
     },
     {
       "path": "docs/evidence/macos/review-studio/artifacts/r01-prefix-races.txt",
-      "sha256": "c92ffbf0435b308373d686ff94fc1d65af126bbb7c49011bc306d38cce1e8eca",
-      "bytes": 5156
+      "sha256": "103e88cbf193c90b21af889d6cd9308111a8377d6688d035f3ccfe59e610e6ab",
+      "bytes": 5142
     },
     {
       "path": "docs/evidence/macos/review-studio/artifacts/r01-shell-smoke.json",
@@ -1020,8 +1020,8 @@
     },
     {
       "path": "docs/evidence/macos/review-studio/artifacts/r01-tests.txt",
-      "sha256": "8c752f9f4f5a84fb2ca82bdda72859adb8a04c8f7b3772dfbbf77ba611543829",
-      "bytes": 19146
+      "sha256": "1a0f352722c91922a6cec046655e270a410b1ab0abbb7884b7ad1d6a23c2e12f",
+      "bytes": 19132
     },
     {
       "path": "docs/evidence/macos/review-studio/R00-baseline.md",
