@@ -42,6 +42,11 @@ for (const script of [
   "smoke:extensions",
   "smoke:terminal",
   "smoke:capability",
+  // R13: the command smoke was the only place that read the TUI-only receipt
+  // copy, and it was not in this list — so R04's wording drift survived every
+  // green run until an installed-artifact pass found it. A real window, no
+  // engine, no model request.
+  "smoke:commands",
   "smoke:memory",
   "smoke:failure",
   "smoke:p23",

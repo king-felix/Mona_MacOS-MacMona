@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "label": "R13 installed-artifact pass",
+  "captured_at": "2026-11-14T17:26:46.178Z",
+  "app": "/Applications/Mona.app",
+  "build": "147",
+  "channel": "local",
+  "host": {
+    "macos": "26.5.1",
+    "architecture": "arm64"
+  },
+  "ok": false,
+  "modes": [
+    {
+      "mode": "command",
+      "covers": "slash-command autocomplete, keyboard selection, dispatch interception, 200 % scale",
+      "flag": "--command-smoke",
+      "exit": 0,
+      "signal": null,
+      "timed_out": false,
+      "elapsed_ms": 22002,
+      "report_present": true,
+      "report_ok": false,
+      "checks_total": 26,
+      "checks_failed": [
+        "tui_only_explained"
+      ],
+      "captures": [
+        {
+          "name": "r03-command-menu-200.png",
+          "bytes": 247137
+        },
+        {
+          "name": "r03-command-menu.png",
+          "bytes": 382149
+        }
+      ],
+      "capture_dir": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-r13-command-RTSGY9/captures",
+      "stderr": "",
+      "stdout": "",
+      "process_gone": true,
+      "helpers_left": 0,
+      "temp_dir": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-r13-command-RTSGY9"
+    }
+  ],
+  "note": "Each mode spawns the installed binary (the one LaunchServices runs) with its own isolated user-data directory and a temporary capture directory. The checks are the repository's own fixture-driven UI smokes; no engine is started and no model request is made."
+}

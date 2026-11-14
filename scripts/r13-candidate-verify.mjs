@@ -123,18 +123,23 @@ facts.source = {
   build_number: sourceBuild,
   tree_clean: dirty.length === 0,
 };
+// The artifact numbers itself by commit count, so the tie to a commit is the
+// count plus a clean tree. One commit of slack is deliberate and named: the
+// ledger commit that records the build (state.json, this very report's hash)
+// comes after the build and moves the count by one. Anything beyond that means
+// the artifact does not describe this checkout.
+const buildGap = sourceBuild === null ? null : Number(sourceBuild) - Number(identity.build);
 record(
   "build_number_matches_source",
-  sourceBuild !== null && identity.build === sourceBuild && dirty.length === 0,
+  buildGap !== null && buildGap >= 0 && buildGap <= 1 && dirty.length === 0,
   {
     app: identity.build,
     source: sourceBuild,
-    // The build numbers itself by commit count, so the tie only holds when the
-    // tree that produced it is exactly this commit.
+    build_gap: buildGap,
     tree_clean: dirty.length === 0,
     reason:
       dirty.length === 0
-        ? null
+        ? "0 = built from exactly this commit; 1 = one ledger commit recording the build"
         : "the checkout has uncommitted changes; the artifact cannot be tied to a commit",
   },
 );

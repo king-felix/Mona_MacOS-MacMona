@@ -45,8 +45,7 @@ function terminal(invocation: string, note: string): CommandExecutionEntry {
 function tui(name: string, note?: string): CommandExecutionEntry {
   return terminal(
     TUI,
-    note ??
-      `/${name} is implemented only by the Codewhale TUI. Launching it opens a real session; Mona does not run the command for you.`,
+    note ?? `Launching the Codewhale TUI opens a real session; Mona does not run /${name} for you.`,
   );
 }
 

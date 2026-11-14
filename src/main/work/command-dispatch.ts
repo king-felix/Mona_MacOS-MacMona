@@ -31,6 +31,13 @@ export interface CommandDispatchDeps {
 
 const TERMINAL_NOTE =
   "Nothing was run. The terminal pane is prefilled with the command above and waits for you to launch it.";
+// The classification comes first, in the same words the capability row and the
+// command list use. R04's receipt described only the consequence ("the CLI
+// prints its own help"), and the command smoke — which `npm run ci` does not
+// run — kept failing on it from R04 until R13 noticed. A reader who sees
+// "TUI-only" learns what the command is; the sentence after it says what Mona
+// did instead.
+const TUI_CLASSIFICATION = "TUI-only.";
 
 export class CommandDispatchService {
   constructor(private readonly deps: CommandDispatchDeps) {}
@@ -68,7 +75,7 @@ export class CommandDispatchService {
       return {
         ...base,
         status: "deferred",
-        note: `${entry.note} ${TERMINAL_NOTE}`,
+        note: `${TUI_CLASSIFICATION} ${entry.note} ${TERMINAL_NOTE}`,
         target: { screen: null, settingsTab: null, invocation: entry.invocation },
       };
     }

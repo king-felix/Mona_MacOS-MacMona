@@ -1305,7 +1305,7 @@ export function StudioScreen(props: StudioProps): JSX.Element {
   // pixel height would survive a window shrink, a zoom change or a focus
   // transition and then take the live turn off screen, which is exactly what
   // the bound exists to prevent.
-  const [stageSize, setStageSize] = useState({ height: 0, chrome: 96 });
+  const [stageSize, setStageSize] = useState({ height: 0, chrome: 96, other: 0 });
   useLayoutEffect(() => {
     if (!props.focusMode) return;
     const stage = stageRef.current;
@@ -1316,8 +1316,18 @@ export function StudioScreen(props: StudioProps): JSX.Element {
       const box = field.closest(".composer") as HTMLElement | null;
       const chrome =
         box && box.offsetHeight > 0 ? Math.max(0, box.offsetHeight - field.offsetHeight) : 96;
+      // What the stage holds besides the console and the composer: the search
+      // panel, the conversation toolbar, the gaps and the padding. The composer
+      // bound has to subtract it, or "42% of the stage" quietly becomes "42% of
+      // the stage after the console" (R13 measured 197 px of console against a
+      // 248 px composer that way).
+      const timeline = timelineRef.current;
+      const other =
+        timeline && box ? Math.max(0, height - timeline.offsetHeight - box.offsetHeight) : 0;
       setStageSize((previous) =>
-        previous.height === height && previous.chrome === chrome ? previous : { height, chrome },
+        previous.height === height && previous.chrome === chrome && previous.other === other
+          ? previous
+          : { height, chrome, other },
       );
     };
     measure();
@@ -1455,12 +1465,16 @@ export function StudioScreen(props: StudioProps): JSX.Element {
 
   const composerLimits = useMemo(() => {
     const stage = stageSize.height > 0 ? stageSize.height : window.innerHeight || 800;
-    // The composer never takes more than 42% of the stage, so the live turn
-    // always keeps the rest of the viewport. The maximum is the stage budget
-    // minus the composer's own chrome (the mode row, the hint and the action
-    // row are part of the box).
-    const cap = Math.round(stage * 0.42);
-    return { min: 72, max: Math.max(72, cap - stageSize.chrome) };
+    // The bound applies to the composer BOX, not to the text area. That
+    // distinction was the defect R13 measured: `0.42 x stage` was compared
+    // against the text area, so the box — mode row, hint and action row
+    // included, 152 px of chrome on this host — could reach 64% of the stage
+    // while the check still read "bounded". The text area's maximum is
+    // whatever the box has left after that chrome. A three-line composer is a
+    // requirement, so the bound never pushes the text area below its 72 px
+    // floor; below that the stage is too short and the page scrolls instead.
+    const boxCap = Math.round(stage * 0.42);
+    return { min: 72, max: Math.max(72, boxCap - stageSize.chrome) };
   }, [stageSize]);
   // Re-clamp whenever the stage changes: a shrink must not leave a height the
   // new stage cannot afford.

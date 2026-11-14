@@ -5,7 +5,7 @@
 // The runner records what the window reported, what the renderer received, the
 // measured layout, and four screenshots. No engine is started and no model
 // request is made anywhere in this script or the app run it launches.
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { createRequire } from "node:module";
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -17,6 +17,21 @@ const ROOT = resolve(new URL("..", import.meta.url).pathname);
 const outDir = await mkdtemp(join(tmpdir(), "mona-immersive-smoke-"));
 const outFile = join(outDir, "report.json");
 const userDataDir = await mkdtemp(join(tmpdir(), "mona-immersive-smoke-userdata-"));
+
+// macOS refuses a full-screen transition while the console session is locked,
+// and no app can take focus then. Recorded here so a failing full-screen check
+// can be told apart from a broken product: the check still fails, the report
+// says why.
+function screenLocked() {
+  try {
+    const out = spawnSync("/usr/sbin/ioreg", ["-n", "Root", "-d1", "-a"], {
+      encoding: "utf8",
+    }).stdout;
+    return out.includes("<key>CGSSessionScreenIsLocked</key>") && out.includes("<true/>");
+  } catch {
+    return null;
+  }
+}
 
 const child = spawn(electron, [".", "--immersive-smoke", `--user-data-dir=${userDataDir}`], {
   cwd: ROOT,
@@ -55,6 +70,10 @@ try {
 
 const output = {
   ...report,
+  gui_session: {
+    screen_locked: screenLocked(),
+    note: "A locked console session refuses full-screen transitions; the full-screen checks are then unverifiable, not passing.",
+  },
   electron: {
     exit: code,
     stdout: stdout.slice(0, 2000),
