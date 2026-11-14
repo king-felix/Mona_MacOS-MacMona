@@ -1,7 +1,7 @@
 # Handoff — Studio review (studio-v2)
 
-**Registry:** `.mona/build-macos/reviews/studio-v2/state.json` (revision 72, after R08)
-**Current task:** R08 — completed · **Next eligible:** R09 (needs R05+R08, both done)
+**Registry:** `.mona/build-macos/reviews/studio-v2/state.json` (revision 77, after R09)
+**Current task:** R09 — completed · **Next eligible:** R11 (needs R06, R08, R09, R10 — all done)
 **Review document:** `MacMona_Studio_Review_PROMPTS.md` (sha256
 `7e1e16d1…`) · **Hotfix:** `MacMona_Review_Hotfix.patch` (sha256
 `a253a05e…`, applied unmodified)
@@ -9,6 +9,23 @@
 `.mona/build-macos/state.json` is at P23 completed; P22/P25 remain its eligible
 prompts. Nothing in this review queue resets P00–P27 or the attempt counts
 (`attempts.jsonl` is still empty; no problem consumed an attempt).
+
+## R09 — slim usage HUD (2026-11-14)
+
+- **Three labelled scopes** on every snapshot: the active turn, the current
+  conversation, and the project. `summarizeUsageScoped` narrows the same
+  aggregate query; the project scope adds the cost residual so the HUD and the
+  Cost screen cannot disagree, while narrower scopes never carry it.
+- **Five states, none of them `$0.00` for "unknown":** waiting, empty, unpriced,
+  partial (with a lower-bound label and a count of unpriced turns), complete.
+- **Cached input is subtracted only when the native count is inclusive;** mixed
+  or unknown semantics refuse the subtraction and say so.
+- **No polling.** The HUD is a projection computed during `snapshot()`; tokens
+  appear when the engine receipts them. Provenance, budgets, model, permission
+  and connection state live behind one disclosure so the strip stays small.
+- **Verified:** 13 usage tests (including replayed receipts, imported unassigned
+  history and Cost-screen agreement), full suite 1,089 in 98 files, shell smoke
+  137/137 with four new checks, `p-r09-usage.png`.
 
 ## R08 — follow-ups, qualified steering, current activity (2026-11-14)
 

@@ -4,6 +4,7 @@ import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ProjectDetail, StoredEventSummary } from "../src/shared/contracts/project-bridge";
 import type { StudioSnapshot } from "../src/shared/contracts/studio";
+import { emptyStudioUsageView } from "../src/shared/contracts/usage-hud";
 import { buildCommandCatalog } from "../src/shared/commands/catalog";
 import { StudioScreen } from "../src/renderer/shell/Studio";
 import axe from "axe-core";
@@ -157,6 +158,7 @@ function studio(overrides: Partial<StudioSnapshot> = {}): StudioSnapshot {
     diagnostics: [],
     followUps: [],
     steering: { available: false, reason: "test fixture: no steer route", requiredRoute: null },
+    usage: emptyStudioUsageView(),
     pendingRequests: [],
     canSubmit: true,
     cannotSubmitReason: null,

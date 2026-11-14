@@ -10,6 +10,7 @@ import type {
   ProjectSummary,
 } from "../src/shared/contracts/project-bridge";
 import type { StudioSnapshot, StudioSubmitResult } from "../src/shared/contracts/studio";
+import { emptyStudioUsageView } from "../src/shared/contracts/usage-hud";
 import type { MonaBridge, WindowFullscreenView } from "../src/shared/contracts/bridge";
 import { Shell } from "../src/renderer/shell/Shell";
 import { buildCommandCatalog } from "../src/shared/commands/catalog";
@@ -172,6 +173,7 @@ function studioSnapshot(id: ProjectId): StudioSnapshot {
     diagnostics: [],
     followUps: [],
     steering: { available: false, reason: "test fixture: no steer route", requiredRoute: null },
+    usage: emptyStudioUsageView(),
     pendingRequests: [],
     canSubmit: true,
     cannotSubmitReason: null,

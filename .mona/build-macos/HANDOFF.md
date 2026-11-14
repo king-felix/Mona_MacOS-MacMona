@@ -7,10 +7,11 @@ D-101.
 **Current state:** 25 of 28 prompts are finished — P23 completed, **P22 blocked
 on EXT-SIGNING**, **P25 completed**. `monabuild next` now reports **no eligible
 prompt**: P24 needs P22's signed artifact, P26 needs P24+P25, and P27 needs P26.
-The Studio review queue is at **R08 completed**; **R09 is the only eligible
-review task**.
-**Next exact action:** R09 (slim usage dashboard) can start now. P22 resumes the
-moment Victor provides the two Developer ID identities and a notary credential —
+The Studio review queue is at **R09 completed**; **R11 (performance,
+accessibility and visual regression) is the only eligible review task**. R12–R15
+follow it; R14 also needs EXT-SIGNING.
+**Next exact action:** R11 can start now. P22 resumes the moment Victor provides
+the two Developer ID identities and a notary credential —
 `npm run mac:release:preflight` names the gap exactly; see BLOCKERS.md.
 
 ### P22, P25 and R08 — the 2026-11-14 queue
@@ -30,12 +31,18 @@ moment Victor provides the two Developer ID identities and a notary credential �
   per-component entitlements (never `--deep`), `productsign` for the package,
   `notarytool` submit/log, stapler, spctl, and a digest-bound receipt. Local
   packaging was re-verified (build 139) after the refactor.
+- **R09 (review ledger, revision 77).** `StudioSnapshot.usage` carries three
+  labelled scopes (turn / conversation / project) read from stored receipts.
+  Five honest states — waiting, empty, unpriced, partial, complete — and cached
+  input is subtracted only when the native count is inclusive. The project scope
+  includes the cost residual so it agrees with the Cost screen. 13 tests, shell
+  smoke 137/137 with four new checks.
 - **P25 (completed).** No Windows checkout or `.mona/build` ledger exists, so the
   deliverable is an interface audit and handoff, not a merge.
   `tools/p25-audit.mjs` proves the shared core is platform-free (31 files, 0
   violations), classifies the 14 macOS-bound main modules, and records the
   baseline. MAC-008 stays `partial`.
-- **Ledger hygiene:** 49 evidence hashes across P00/P02/P03/P04/P09/P10/P18/P19/
+- **Ledger hygiene:** 67 evidence hashes across P00/P02/P03/P04/P09/P10/P18/P19/
   P20/P21 were re-recorded after the suite passed on the new shared bytes, with
   a note on each entry; no status was lowered and no assertion removed. The 24
   hash-pinned shell captures were restored to their committed bytes — R12 owns

@@ -40,6 +40,7 @@ import type { OwnedEndpoint, RuntimeStatus } from "../supervisor/runtime-supervi
 import { ChangeLedger, type ChangeEngineAccess } from "./changes";
 import { WorkController } from "./control";
 import { CostLedger } from "./costs";
+import { projectUsageScope } from "./usage-hud";
 import {
   loadExecutionProfile,
   postureFor,
@@ -2244,6 +2245,46 @@ export class WorkStudio {
       profile = profileView(loaded.profile, loaded.source);
     }
     const usage = await this.store.summarizeUsage(projectId);
+    // R09: three scopes over the same receipts. A missing scope is "empty" or
+    // "waiting", never zero.
+    const usageThreadId =
+      session?.active?.binding.localThreadId ??
+      session?.bindings[session?.lastMode ?? "work"]?.localThreadId ??
+      null;
+    const usageTurnId = session?.active?.turnId ?? null;
+    const [threadUsage, turnUsage, scopedProject, budgets] = await Promise.all([
+      usageThreadId
+        ? this.store.summarizeUsageScoped(projectId, { threadId: usageThreadId })
+        : Promise.resolve(null),
+      usageTurnId
+        ? this.store.summarizeUsageScoped(projectId, { turnId: usageTurnId })
+        : Promise.resolve(null),
+      this.store.summarizeUsageScoped(projectId),
+      this.ledger
+        .evaluateBudgets(projectId, this.now().toISOString(), {
+          threadId: usageThreadId,
+        })
+        .catch(() => []),
+    ]);
+    const emptySummary = {
+      turns: 0,
+      inputTokens: 0,
+      outputTokens: 0,
+      cachedTokens: 0,
+      cacheMissTokens: 0,
+      reasoningTokens: 0,
+      costUsd: 0,
+      costPicoUsd: 0,
+      costComplete: false,
+      observed: false,
+      reportedTurns: 0,
+      estimatedTurns: 0,
+      unknownTurns: 0,
+      missingTurns: 0,
+      unallocatedTurns: 0,
+      residualPicoUsd: 0,
+      semantics: [] as string[],
+    };
     const submissions = await this.store.listSubmissions(projectId, 1);
     const submissionKey = session?.lastSubmissionKey ?? submissions[0]?.operationKey ?? null;
     const submission = submissionKey
@@ -2350,6 +2391,24 @@ export class WorkStudio {
         followUpView(row, { canDispatchNow: this.canDispatchFollowUps(session) }),
       ),
       steering: STEERING_CAPABILITY,
+      usage: {
+        turn: projectUsageScope({
+          scope: "turn",
+          summary: turnUsage ?? emptySummary,
+          active: session?.active !== null && session !== null,
+        }),
+        thread: projectUsageScope({
+          scope: "thread",
+          summary: threadUsage ?? emptySummary,
+        }),
+        project: projectUsageScope({ scope: "project", summary: scopedProject }),
+        budgets,
+        provenance: {
+          readAt: this.now().toISOString(),
+          source: "stored_usage",
+          note: "Read from stored usage receipts. Tokens appear when the engine reports them; nothing here is polled or estimated live.",
+        },
+      },
       canSubmit: block === null,
       cannotSubmitReason: block,
       controls: {

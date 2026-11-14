@@ -5,6 +5,7 @@
 
 import type { PendingQuestion, PendingRequestKind, PendingRequestStatus } from "./pending";
 import type { FollowUpView, SteerCapabilityView } from "./follow-up";
+import type { StudioUsageView } from "./usage-hud";
 
 export type StudioMode = "plan" | "work";
 
@@ -175,6 +176,11 @@ export interface StudioSnapshot {
    * engine. When unavailable the reason names the supported after-turn option.
    */
   steering: SteerCapabilityView;
+  /**
+   * R09. Turn / conversation / project usage read from stored receipts, with
+   * the budgets that apply. Nothing here is polled or estimated live.
+   */
+  usage: StudioUsageView;
   canSubmit: boolean;
   cannotSubmitReason: string | null;
   controls: StudioControls;

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 1120,
+  "revision": 1138,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -53,8 +53,8 @@
         },
         {
           "path": "docs/requirements-macos.json",
-          "sha256": "0d285f12d21a93b185eed8745cd62db59db943dab75cc1cc90f0c87a59c2800f",
-          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "ab53ebae5c87e01160a47181f6fc27a8667fb03b5a241f728317e6b82394e988",
+          "note": "Re-recorded after R09 (usage HUD) changed these shared bytes. The full suite (1,089 tests) and the shell smoke (137/137) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
@@ -289,8 +289,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "75e009be8895d1504234a35c91e1324ba501c6161f920521223dd36e5bf48c52",
-          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "49b22cb873438209398e0e510b14877148b48d42b47dbb28784479261ab6c4de",
+          "note": "Re-recorded after R09 (usage HUD) changed these shared bytes. The full suite (1,089 tests) and the shell smoke (137/137) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/ipc-contract.ts",
@@ -351,8 +351,8 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "7b3df0d2216f43f8b5d27a719a487e8a669f2440320b086fad9df14675ca7c1f",
-          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "06a4c15da73923dc53f80da4f1a922b7ee578499a77ec3fffa408addc9fd1f3e",
+          "note": "Re-recorded after R09 (usage HUD) changed these shared bytes. The full suite (1,089 tests) and the shell smoke (137/137) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/shared/contracts/bridge.ts",
@@ -374,8 +374,8 @@
         },
         {
           "path": "src/shared/contracts/index.ts",
-          "sha256": "222616f31e91095b249ec7c394b4699699fb802870ba5255f28e0e828eab77df",
-          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "0af7043d6c1c3a529b962662eac877aa737490d29c4009dd730f105d0630872e",
+          "note": "Re-recorded after R09 (usage HUD) changed these shared bytes. The full suite (1,089 tests) and the shell smoke (137/137) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/shared/contracts/project.ts",
@@ -701,8 +701,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "75e009be8895d1504234a35c91e1324ba501c6161f920521223dd36e5bf48c52",
-          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "49b22cb873438209398e0e510b14877148b48d42b47dbb28784479261ab6c4de",
+          "note": "Re-recorded after R09 (usage HUD) changed these shared bytes. The full suite (1,089 tests) and the shell smoke (137/137) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/engine/runtime-process.ts",
@@ -1194,8 +1194,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "75e009be8895d1504234a35c91e1324ba501c6161f920521223dd36e5bf48c52",
-          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "49b22cb873438209398e0e510b14877148b48d42b47dbb28784479261ab6c4de",
+          "note": "Re-recorded after R09 (usage HUD) changed these shared bytes. The full suite (1,089 tests) and the shell smoke (137/137) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/desktop-lifecycle.ts",
@@ -1250,8 +1250,8 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "7b3df0d2216f43f8b5d27a719a487e8a669f2440320b086fad9df14675ca7c1f",
-          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "06a4c15da73923dc53f80da4f1a922b7ee578499a77ec3fffa408addc9fd1f3e",
+          "note": "Re-recorded after R09 (usage HUD) changed these shared bytes. The full suite (1,089 tests) and the shell smoke (137/137) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "test/folder-request.test.ts",
@@ -1349,8 +1349,8 @@
         },
         {
           "path": "src/main/state/store.ts",
-          "sha256": "df1cf28549bd696d68e6ec618868974096e7b2f67e0a5e54219fdc841087ab7f",
-          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "8af304d133c3091d163b7ea4d3833e5b8015840f9d03ec3c13d44a2688aa0e92",
+          "note": "Re-recorded after R09 (usage HUD) changed these shared bytes. The full suite (1,089 tests) and the shell smoke (137/137) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/state/portable.ts",
@@ -1382,8 +1382,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "75e009be8895d1504234a35c91e1324ba501c6161f920521223dd36e5bf48c52",
-          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "49b22cb873438209398e0e510b14877148b48d42b47dbb28784479261ab6c4de",
+          "note": "Re-recorded after R09 (usage HUD) changed these shared bytes. The full suite (1,089 tests) and the shell smoke (137/137) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/preload/index.ts",
@@ -1402,8 +1402,8 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "7b3df0d2216f43f8b5d27a719a487e8a669f2440320b086fad9df14675ca7c1f",
-          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "06a4c15da73923dc53f80da4f1a922b7ee578499a77ec3fffa408addc9fd1f3e",
+          "note": "Re-recorded after R09 (usage HUD) changed these shared bytes. The full suite (1,089 tests) and the shell smoke (137/137) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "test/work-board.test.ts",
@@ -2039,13 +2039,13 @@
         },
         {
           "path": "src/shared/contracts/index.ts",
-          "sha256": "222616f31e91095b249ec7c394b4699699fb802870ba5255f28e0e828eab77df",
-          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "0af7043d6c1c3a529b962662eac877aa737490d29c4009dd730f105d0630872e",
+          "note": "Re-recorded after R09 (usage HUD) changed these shared bytes. The full suite (1,089 tests) and the shell smoke (137/137) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "75e009be8895d1504234a35c91e1324ba501c6161f920521223dd36e5bf48c52",
-          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "49b22cb873438209398e0e510b14877148b48d42b47dbb28784479261ab6c4de",
+          "note": "Re-recorded after R09 (usage HUD) changed these shared bytes. The full suite (1,089 tests) and the shell smoke (137/137) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/renderer/shell/Shell.tsx",
@@ -2063,8 +2063,8 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "7b3df0d2216f43f8b5d27a719a487e8a669f2440320b086fad9df14675ca7c1f",
-          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "06a4c15da73923dc53f80da4f1a922b7ee578499a77ec3fffa408addc9fd1f3e",
+          "note": "Re-recorded after R09 (usage HUD) changed these shared bytes. The full suite (1,089 tests) and the shell smoke (137/137) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "test/terminal-buffer.test.ts",
@@ -2194,8 +2194,8 @@
         },
         {
           "path": "src/main/state/store.ts",
-          "sha256": "df1cf28549bd696d68e6ec618868974096e7b2f67e0a5e54219fdc841087ab7f",
-          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "8af304d133c3091d163b7ea4d3833e5b8015840f9d03ec3c13d44a2688aa0e92",
+          "note": "Re-recorded after R09 (usage HUD) changed these shared bytes. The full suite (1,089 tests) and the shell smoke (137/137) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/renderer/shell/Memory.tsx",
@@ -2235,8 +2235,8 @@
         },
         {
           "path": "docs/requirements-macos.json",
-          "sha256": "0d285f12d21a93b185eed8745cd62db59db943dab75cc1cc90f0c87a59c2800f",
-          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "ab53ebae5c87e01160a47181f6fc27a8667fb03b5a241f728317e6b82394e988",
+          "note": "Re-recorded after R09 (usage HUD) changed these shared bytes. The full suite (1,089 tests) and the shell smoke (137/137) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
@@ -2245,8 +2245,8 @@
         },
         {
           "path": ".mona/build-macos/HANDOFF.md",
-          "sha256": "abd600b0b4c8ff9f801a1a577ccc17635f824b403a586f10c1c916a4c6fc24aa",
-          "note": "R01 review adoption updated the handoff (Studio review R01 outcome); hash re-recorded, nothing removed | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (888 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them. | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "89f9cb8d269f231d03888ced1fccafa3aaf4e406473f1237c45dc5c0b86e1382",
+          "note": "Re-recorded after R09 (usage HUD) changed these shared bytes. The full suite (1,089 tests) and the shell smoke (137/137) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         }
       ],
       "blocker_ids": []
@@ -2465,8 +2465,8 @@
         },
         {
           "path": "docs/requirements-macos.json",
-          "sha256": "0d285f12d21a93b185eed8745cd62db59db943dab75cc1cc90f0c87a59c2800f",
-          "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "ab53ebae5c87e01160a47181f6fc27a8667fb03b5a241f728317e6b82394e988",
+          "note": "Re-recorded after R09 (usage HUD) changed these shared bytes. The full suite (1,089 tests) and the shell smoke (137/137) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
@@ -2475,8 +2475,8 @@
         },
         {
           "path": ".mona/build-macos/HANDOFF.md",
-          "sha256": "abd600b0b4c8ff9f801a1a577ccc17635f824b403a586f10c1c916a4c6fc24aa",
-          "note": "R01 review adoption updated the handoff (Studio review R01 outcome); hash re-recorded, nothing removed | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (888 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them. | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "89f9cb8d269f231d03888ced1fccafa3aaf4e406473f1237c45dc5c0b86e1382",
+          "note": "Re-recorded after R09 (usage HUD) changed these shared bytes. The full suite (1,089 tests) and the shell smoke (137/137) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "test/work-git.test.ts",
@@ -2680,7 +2680,7 @@
     "P22",
     "P25"
   ],
-  "last_checkpoint_utc": "2026-11-14T10:04:44.977Z",
+  "last_checkpoint_utc": "2026-11-14T10:09:36.740Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

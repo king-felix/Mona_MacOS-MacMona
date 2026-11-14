@@ -47,6 +47,7 @@ import { engineBadge, formatTokens, projectAccent, projectMonogram, relativeTime
 import { Markdown } from "./markdown";
 import { projectTimeline, type TimelineEntry } from "./timeline";
 import { projectActivity } from "./activity";
+import { UsageHud } from "./UsageHud";
 import { CommandMenu } from "./CommandMenu";
 import {
   acceptCommand,
@@ -1917,6 +1918,20 @@ export function StudioScreen(props: StudioProps): JSX.Element {
       ) : null}
 
       <ActivityStrip activity={activity} filterThreadId={history?.threadId ?? null} />
+      <UsageHud
+        usage={studio?.usage}
+        profile={profile}
+        connection={studio?.connection ?? null}
+        readAtLabel={
+          studio?.usage?.provenance.readAt
+            ? new Date(studio.usage.provenance.readAt).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+              })
+            : undefined
+        }
+      />
 
       <div className="studio" ref={stageRef}>
         {/* Paging controls stay outside the scrolling console, so Jump to

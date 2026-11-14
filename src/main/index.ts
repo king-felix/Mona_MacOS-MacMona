@@ -1039,6 +1039,14 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
     queue_control: Boolean(document.querySelector('[data-testid="queue-follow-up"]')),
     follow_up_queue: Boolean(document.querySelector('[data-testid="follow-up-queue"]')),
     steer_absent: !document.body.textContent.includes('Steer this run'),
+    // R09: three labelled usage scopes, read from stored receipts, and the
+    // provenance disclosure that carries budgets, model and permission.
+    usage_hud: Boolean(document.querySelector('[data-testid="usage-hud"]')),
+    usage_scopes: ['turn', 'thread', 'project'].filter(function (scope) {
+      return Boolean(document.querySelector('[data-testid="usage-' + scope + '"]'));
+    }).length,
+    usage_detail: Boolean(document.querySelector('[data-testid="usage-detail"]')),
+    usage_turn_state: document.querySelector('[data-testid="usage-turn"]')?.getAttribute('data-state') ?? null,
     horizontal_overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
     // P23 polish: the agent console is the wide surface, and the task /
     // requirements / context inspector sits beside the prompt box, not beside
@@ -1098,6 +1106,9 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
   // engine not started. The strip reports Idle from stored state; the queue is
   // empty and says so rather than showing a placeholder row.
   writeFileSync(join(outDir, "p-r08-activity.png"), studioShot.toPNG());
+  // R09: the usage HUD with its three scopes and the closed provenance
+  // disclosure, in the real shell with no engine started.
+  writeFileSync(join(outDir, "p-r09-usage.png"), studioShot.toPNG());
 
   window.webContents.sendInputEvent({ type: "keyDown", keyCode: "3", modifiers: ["meta"] });
   window.webContents.sendInputEvent({ type: "keyUp", keyCode: "3", modifiers: ["meta"] });
@@ -2087,6 +2098,10 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
     queue_control_present: studio.queue_control === true,
     follow_up_queue_present: studio.follow_up_queue === true,
     steer_not_offered: studio.steer_absent === true,
+    usage_hud_present: studio.usage_hud === true,
+    usage_scopes_labelled: studio.usage_scopes === 3,
+    usage_detail_reachable: studio.usage_detail === true,
+    usage_turn_is_empty_not_zero: studio.usage_turn_state === "empty",
     zoom_menu_registered:
       zoomMenu.registered &&
       zoomMenu.plus === "CmdOrCtrl+Plus" &&

@@ -250,6 +250,7 @@ async function setup(options: { gateFirstTurn?: boolean } = {}): Promise<Harness
 
   const ledger = {
     recordTurn: async () => undefined,
+    evaluateBudgets: async () => [],
     dispatchGate: async () =>
       budgetStop
         ? {

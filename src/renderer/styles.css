@@ -6055,3 +6055,82 @@ a {
   gap: 6px;
   flex-wrap: wrap;
 }
+
+/* R09 — the usage HUD.
+
+   One labelled row for the turn, the conversation, and the project. The strip
+   shows numbers only; provenance, budgets, model and permission live in the
+   disclosure beneath it so the console stays readable. Everything wraps, so an
+   enlarged text size reflows instead of clipping a control. */
+.usage-hud {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font-size: var(--text-xs);
+}
+
+.usage-hud__title {
+  font-weight: 600;
+  font-size: var(--text-sm);
+}
+
+.usage-scope {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-sunken, var(--surface));
+}
+
+.usage-scope__name {
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.usage-scope__value {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.usage-scope--partial,
+.usage-scope--unpriced,
+.usage-scope--waiting {
+  border-style: dashed;
+}
+
+.usage-hud__detail {
+  margin-left: auto;
+}
+
+.usage-hud__detail summary {
+  cursor: pointer;
+  color: var(--muted);
+  padding: 2px 4px;
+  border-radius: var(--radius-sm);
+}
+
+.usage-hud__panel {
+  position: absolute;
+  z-index: 20;
+  right: 24px;
+  max-width: min(560px, calc(100vw - 48px));
+  margin-top: 6px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised, var(--surface));
+  box-shadow: var(--shadow-card);
+}
+
+.usage-hud__panel .detail-row {
+  align-items: flex-start;
+}

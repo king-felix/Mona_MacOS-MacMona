@@ -37,8 +37,8 @@
     "attempts": ".mona/build-macos/attempts.jsonl",
     "requirement_registry": "docs/requirements-macos.json"
   },
-  "revision": 72,
-  "current_task": "R08",
+  "revision": 77,
+  "current_task": "R09",
   "current_task_status": "completed",
   "tasks": {
     "R00": {
@@ -1799,7 +1799,7 @@
       ]
     },
     "R09": {
-      "status": "pending",
+      "status": "completed",
       "title": "Slim factual usage dashboard",
       "prerequisites": [
         "R05",
@@ -1813,8 +1813,7 @@
         "UX-AGENT-COMMS"
       ],
       "source_hashes": [],
-      "acceptance_completed": [],
-      "acceptance_remaining": [
+      "acceptance_completed": [
         "HUD labels scope for current turn, current thread and project totals",
         "Stored native usage/cost projections are reused; tokens update only at receipt time",
         "Input/output/cache figures match native definitions and do not double-count cached input",
@@ -1824,12 +1823,52 @@
         "Accounting fixtures cover missing/partial/cache/replayed usage, imported history, new-thread boundaries, reconnect and no active run",
         "HUD agrees with the Cost screen and creates zero inference calls"
       ],
-      "tests": [],
-      "evidence": [],
+      "acceptance_remaining": [],
+      "tests": [
+        {
+          "command": "npx vitest run test/usage-hud.test.ts",
+          "result": "passed",
+          "detail": "13 tests: empty vs waiting; inclusive subtraction; exclusive counts; mixed semantics refuse subtraction; partial labels and lower-bound notes; unpriced distinct from zero; unknown semantics; a missing row is not a priced turn; scoped thread/turn isolation; project scope agrees with the Cost screen; imported unassigned history excluded from thread scope; a replayed receipt is not double-counted; an idle turn is empty.",
+          "captured_utc": "2026-11-14T10:12:00Z"
+        },
+        {
+          "command": "npx vitest run",
+          "result": "passed",
+          "detail": "1,089 tests in 98 files passed.",
+          "captured_utc": "2026-11-14T10:12:00Z"
+        },
+        {
+          "command": "npm run typecheck && npm run lint && npm run format:check",
+          "result": "passed",
+          "detail": "Typecheck clean; lint 0 errors (3 pre-existing test warnings); Prettier clean.",
+          "captured_utc": "2026-11-14T10:12:00Z"
+        },
+        {
+          "command": "npm run smoke:shell",
+          "result": "passed",
+          "detail": "137/137 in the real Electron shell, including usage_hud_present, usage_scopes_labelled (3), usage_detail_reachable and usage_turn_is_empty_not_zero. The pinned captures were restored afterwards.",
+          "captured_utc": "2026-11-14T10:12:00Z"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/review-studio/R09-usage-hud.md",
+          "sha256": "54a508625f4b4b0507338722da7e20d6d97432dc6ecedaf7fc2a532d289d3f10",
+          "note": "R09: three labelled scopes over stored receipts, five honest states, cached-input arithmetic, and a provenance/budget disclosure."
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/p-r09-usage.png",
+          "sha256": "254f10b64aacaebfaebe1ad5e9fce7cadb0384bed24654825425d7b39279cfc8",
+          "note": "The real Electron shell: usage HUD with three scopes and the closed detail disclosure, no engine started."
+        }
+      ],
       "attempt_problem_ids": [],
       "platform": "darwin-arm64",
-      "next_action": "Read the cost ledger/contracts and Studio cost fields; define the HUD scope contract.",
-      "notes": []
+      "next_action": "R11 (performance, accessibility and visual regression).",
+      "notes": [
+        "Project scope includes the cost residual so the HUD agrees with the Cost screen; narrower scopes never carry it.",
+        "13 usage tests; shell smoke 137/137 with four new checks."
+      ]
     },
     "R10": {
       "status": "completed",
@@ -2450,7 +2489,7 @@
       ]
     }
   },
-  "last_checkpoint_utc": "2026-11-14T09:57:21.792Z",
+  "last_checkpoint_utc": "2026-11-14T10:09:25.829Z",
   "notes": [
     "Subordinate ledger. The P00–P27 registry remains authoritative for product requirements; this registry tracks review tasks and findings only.",
     "Attempts continue in the shared attempts.jsonl; a review task ID never resets a count."

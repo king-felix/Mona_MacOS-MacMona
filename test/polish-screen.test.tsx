@@ -4,6 +4,7 @@ import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ProjectDetail, ProjectSummary } from "../src/shared/contracts/project-bridge";
 import type { StudioSnapshot } from "../src/shared/contracts/studio";
+import { emptyStudioUsageView } from "../src/shared/contracts/usage-hud";
 import type { PolishDigestView, PolishStatusView } from "../src/shared/contracts/polish";
 import { defaultPolishPreferences } from "../src/shared/contracts/polish";
 import { HomeScreen } from "../src/renderer/shell/Home";
@@ -233,6 +234,7 @@ function studio(overrides: Partial<StudioSnapshot> = {}): StudioSnapshot {
     diagnostics: [],
     followUps: [],
     steering: { available: false, reason: "test fixture: no steer route", requiredRoute: null },
+    usage: emptyStudioUsageView(),
     pendingRequests: [],
     canSubmit: true,
     cannotSubmitReason: null,

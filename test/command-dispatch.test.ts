@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { StudioSnapshot } from "../src/shared/contracts/studio";
+import { emptyStudioUsageView } from "../src/shared/contracts/usage-hud";
 import type {
   CommandExecuteRequest,
   CommandReceipt,
@@ -52,6 +53,7 @@ const SNAPSHOT = {
   diagnostics: [],
   followUps: [],
   steering: { available: false, reason: "test fixture: no steer route", requiredRoute: null },
+  usage: emptyStudioUsageView(),
   pendingRequests: [],
   canSubmit: true,
   cannotSubmitReason: null,

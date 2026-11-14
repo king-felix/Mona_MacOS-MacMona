@@ -4788,6 +4788,106 @@ export class StateStore {
     });
   }
 
+  /**
+   * R09 — the same totals narrowed to one conversation or one turn.
+   *
+   * The residual (a cumulative thread total that could not be split per turn)
+   * is deliberately project-scope only: attributing it to a single turn would
+   * invent an allocation the ledger refused to make.
+   */
+  async summarizeUsageScoped(
+    projectId: ProjectId,
+    options: { threadId?: string | null; turnId?: string | null } = {},
+  ): Promise<UsageSummary & { semantics: string[] }> {
+    return this.read((db) => {
+      const where = ["project_id = ?"];
+      const params: Array<string> = [projectId];
+      if (options.threadId) {
+        where.push("thread_id = ?");
+        params.push(options.threadId);
+      }
+      if (options.turnId) {
+        where.push("turn_id = ?");
+        params.push(options.turnId);
+      }
+      const clause = where.join(" AND ");
+      const row = db
+        .prepare(
+          `SELECT COUNT(*) AS turns,
+                  COALESCE(SUM(input_tokens), 0) AS input_tokens,
+                  COALESCE(SUM(output_tokens), 0) AS output_tokens,
+                  COALESCE(SUM(cached_tokens), 0) AS cached_tokens,
+                  COALESCE(SUM(cache_miss_tokens), 0) AS cache_miss_tokens,
+                  COALESCE(SUM(reasoning_tokens), 0) AS reasoning_tokens,
+                  COALESCE(SUM(cost_pico_usd), 0) AS cost_pico_usd,
+                  SUM(CASE WHEN cost_state = 'reported' THEN 1 ELSE 0 END) AS reported_rows,
+                  SUM(CASE WHEN cost_state = 'estimated' THEN 1 ELSE 0 END) AS estimated_rows,
+                  SUM(CASE WHEN cost_state = 'unknown_price' THEN 1 ELSE 0 END) AS unknown_rows,
+                  SUM(CASE WHEN cost_state = 'missing_usage' THEN 1 ELSE 0 END) AS missing_rows,
+                  SUM(CASE WHEN cost_state = 'unallocated' THEN 1 ELSE 0 END) AS unallocated_rows,
+                  SUM(CASE WHEN input_tokens IS NOT NULL THEN 1 ELSE 0 END) AS token_rows,
+                  SUM(CASE WHEN token_semantics = 'inclusive_input' THEN 1 ELSE 0 END) AS inclusive_rows,
+                  SUM(CASE WHEN token_semantics = 'exclusive_input' THEN 1 ELSE 0 END) AS exclusive_rows
+           FROM usage_records WHERE ${clause}`,
+        )
+        .get(...params) as DbRow;
+      const turns = asNumber(row.turns);
+      const definite = asNumber(row.reported_rows) + asNumber(row.estimated_rows);
+      const tokenRows = asNumber(row.token_rows);
+      const inclusive = asNumber(row.inclusive_rows);
+      const exclusive = asNumber(row.exclusive_rows);
+      const semantics =
+        tokenRows === 0
+          ? []
+          : inclusive > 0 && exclusive > 0
+            ? ["mixed"]
+            : inclusive > 0
+              ? ["inclusive_input"]
+              : exclusive > 0
+                ? ["exclusive_input"]
+                : ["unknown"];
+      // The project scope must agree with the Cost screen, which adds the
+      // residual a cumulative thread total could not split. A narrower scope
+      // never carries it: attributing a residual to one thread or turn would
+      // invent an allocation the ledger refused to make.
+      let residualPico = 0;
+      if (!options.threadId && !options.turnId) {
+        const residual = db
+          .prepare(
+            `SELECT COALESCE(SUM(residual), 0) AS residual FROM (
+               SELECT MAX(0, m.reported_total_pico -
+                 COALESCE((SELECT SUM(u.cost_pico_usd) FROM usage_records u
+                           WHERE u.thread_id = m.thread_id), 0)) AS residual
+               FROM cost_thread_marks m JOIN threads t ON t.id = m.thread_id
+               WHERE t.project_id = ? AND m.reported_total_pico IS NOT NULL
+             )`,
+          )
+          .get(projectId) as DbRow;
+        residualPico = asNumber(residual.residual);
+      }
+      const costPico = asNumber(row.cost_pico_usd) + residualPico;
+      return {
+        turns,
+        inputTokens: asNumber(row.input_tokens),
+        outputTokens: asNumber(row.output_tokens),
+        cachedTokens: asNumber(row.cached_tokens),
+        cacheMissTokens: asNumber(row.cache_miss_tokens),
+        reasoningTokens: asNumber(row.reasoning_tokens),
+        costUsd: costPico / 1_000_000_000_000,
+        costPicoUsd: costPico,
+        costComplete: turns > 0 && definite === turns && residualPico === 0,
+        observed: turns > 0,
+        reportedTurns: asNumber(row.reported_rows),
+        estimatedTurns: asNumber(row.estimated_rows),
+        unknownTurns: asNumber(row.unknown_rows),
+        missingTurns: asNumber(row.missing_rows),
+        unallocatedTurns: asNumber(row.unallocated_rows),
+        residualPicoUsd: residualPico,
+        semantics,
+      };
+    });
+  }
+
   // ------------------------------------------------------------ cost marks
 
   async getThread(id: string): Promise<StoredThread | null> {

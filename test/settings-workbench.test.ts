@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { StudioSnapshot } from "../src/shared/contracts/studio";
+import { emptyStudioUsageView } from "../src/shared/contracts/usage-hud";
 import type {
   EngineModelCatalog,
   EngineProviderCatalog,
@@ -217,6 +218,7 @@ function studioSnapshot(route: {
     diagnostics: [],
     followUps: [],
     steering: { available: false, reason: "test fixture: no steer route", requiredRoute: null },
+    usage: emptyStudioUsageView(),
     pendingRequests: [],
     canSubmit: true,
     cannotSubmitReason: null,
