@@ -1,0 +1,316 @@
+
+> mona@0.1.0-p02 pretest
+> node scripts/build-supervisor.mjs && node scripts/build-pty.mjs
+
+{
+  "schema_version": 1,
+  "ok": true,
+  "binary": "native/macos-supervisor/build/mona-supervisor",
+  "target": "arm64-apple-macos14.0",
+  "arch": "arm64",
+  "sha256": "15db348b18d6b31ab5cc236b94248db9c29d0605e06a4ecdf246d91cb3d422ce",
+  "size": 201920,
+  "compiler": "Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)",
+  "file": "native/macos-supervisor/build/mona-supervisor: Mach-O 64-bit executable arm64",
+  "signature": "ad-hoc",
+  "signed": true,
+  "verified": true,
+  "built_at": "2026-11-14T04:19:51.466Z"
+}
+{
+  "schema_version": 1,
+  "ok": true,
+  "binary": "native/macos-pty/build/mona-pty",
+  "target": "arm64-apple-macos14.0",
+  "arch": "arm64",
+  "sha256": "9c23d0387e4fe3de0b743385b224c37e06ba8cbb5c56af5e6b0f71faeadea68b",
+  "size": 105136,
+  "compiler": "Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)",
+  "file": "native/macos-pty/build/mona-pty: Mach-O 64-bit executable arm64",
+  "signature": "ad-hoc",
+  "signed": true,
+  "verified": true,
+  "built_at": "2026-11-14T04:19:52.444Z"
+}
+
+> mona@0.1.0-p02 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.1.0 [39m[90m~/DS_Projects/Mona[39m
+
+Switched to a new branch 'left'
+Switched to branch 'main'
+ [32m✓[39m test/capability.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 922[2mms[22m[39m
+ [32m✓[39m test/work-attempts.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 966[2mms[22m[39m
+Preparing worktree (new branch 'linked-branch')
+ [32m✓[39m test/update-coordinator.test.ts [2m([22m[2m23 tests[22m[2m)[22m[33m 1134[2mms[22m[39m
+ [32m✓[39m test/work-studio.test.ts [2m([22m[2m20 tests[22m[2m)[22m[33m 1354[2mms[22m[39m
+ [32m✓[39m test/settings-workbench.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 894[2mms[22m[39m
+ [32m✓[39m test/work-changes.test.ts [2m([22m[2m20 tests[22m[2m)[22m[33m 2015[2mms[22m[39m
+   [32m✓[39m stage and commit through the ledger [2m(2)[22m
+     [33m[2m✓[22m[39m keeps unrelated staged work and refuses mixed staging without an explicit choice[33m 754[2mms[22m[39m
+ [32m✓[39m test/runtime-store.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 936[2mms[22m[39m
+   [32m✓[39m start preflight [2m(3)[22m
+     [33m[2m✓[22m[39m refuses a start when another Codewhale host owns the store, and names it[33m 411[2mms[22m[39m
+     [33m[2m✓[22m[39m names Mona's own leftover runtime as the owner[33m 410[2mms[22m[39m
+ [32m✓[39m test/work-agents.test.ts [2m([22m[2m17 tests[22m[2m)[22m[33m 597[2mms[22m[39m
+ [32m✓[39m test/projects-service.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 854[2mms[22m[39m
+ [32m✓[39m test/supervisor-native.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 2345[2mms[22m[39m
+   [32m✓[39m native supervisor [2m(9)[22m
+     [33m[2m✓[22m[39m stops the entire owned tree and leaves unrelated processes alone[33m 382[2mms[22m[39m
+     [33m[2m✓[22m[39m records the escaped process group and stops it by identity[33m 364[2mms[22m[39m
+     [33m[2m✓[22m[39m escalates a TERM-ignoring tree to a bounded SIGKILL[33m 816[2mms[22m[39m
+ [32m✓[39m test/work-git.test.ts [2m([22m[2m17 tests[22m[2m)[22m[33m 2392[2mms[22m[39m
+   [32m✓[39m GitService status [2m(6)[22m
+     [33m[2m✓[22m[39m reports a merge conflict honestly[33m 322[2mms[22m[39m
+   [32m✓[39m GitService staging and selected commits [2m(5)[22m
+     [33m[2m✓[22m[39m stages and commits only the selected path, preserving unrelated staged work[33m 317[2mms[22m[39m
+     [33m[2m✓[22m[39m never hands Mona's provider secrets to a repository hook[33m 436[2mms[22m[39m
+ [32m✓[39m test/extensions-workbench.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 444[2mms[22m[39m
+ [32m✓[39m test/terminal-manager.test.ts [2m([22m[2m16 tests[22m[2m)[22m[33m 746[2mms[22m[39m
+   [32m✓[39m native pty helper [2m(2)[22m
+     [33m[2m✓[22m[39m runs a real shell, honors resize, and reports the exit code[33m 493[2mms[22m[39m
+ [32m✓[39m test/work-costs.test.ts [2m([22m[2m19 tests[22m[2m)[22m[33m 554[2mms[22m[39m
+ [32m✓[39m test/work-digest.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 519[2mms[22m[39m
+ [32m✓[39m test/runtime-process.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 769[2mms[22m[39m
+   [32m✓[39m runtime startup states are actionable [2m(9)[22m
+     [33m[2m✓[22m[39m stops a verified orphan record before starting a new owner[33m 358[2mms[22m[39m
+Not implemented: HTMLCanvasElement's getContext() method: without installing the @napi-rs/canvas npm package
+ [32m✓[39m test/state-database.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 1169[2mms[22m[39m
+   [32m✓[39m crash injection [2m(1)[22m
+     [33m[2m✓[22m[39m survives a crash before, during, and after a transaction[33m 328[2mms[22m[39m
+ [32m✓[39m test/design-components.test.tsx [2m([22m[2m17 tests[22m[2m)[22m[33m 839[2mms[22m[39m
+ [32m✓[39m test/memory-shelf.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 732[2mms[22m[39m
+ [32m✓[39m test/work-preferences.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 457[2mms[22m[39m
+ [32m✓[39m test/work-notifications.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 428[2mms[22m[39m
+ [32m✓[39m test/memory-search.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 680[2mms[22m[39m
+ [32m✓[39m test/memory-handoff.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 969[2mms[22m[39m
+ [32m✓[39m test/state-artifacts.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 445[2mms[22m[39m
+ [32m✓[39m test/memory-screen.test.tsx [2m([22m[2m10 tests[22m[2m)[22m[33m 330[2mms[22m[39m
+ [32m✓[39m test/settings-restore.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 409[2mms[22m[39m
+ [32m✓[39m test/update-recovery.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 939[2mms[22m[39m
+ [32m✓[39m test/work-polish-service.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 376[2mms[22m[39m
+ [32m✓[39m test/state-catalog.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 937[2mms[22m[39m
+ [32m✓[39m test/work-board.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 1033[2mms[22m[39m
+ [32m✓[39m test/runtime-supervisor.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 149[2mms[22m[39m
+ [32m✓[39m test/state-portable.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 745[2mms[22m[39m
+ [32m✓[39m test/terminal-screen.test.tsx [2m([22m[2m10 tests[22m[2m)[22m[32m 210[2mms[22m[39m
+ [32m✓[39m test/update-screen.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[32m 143[2mms[22m[39m
+ [32m✓[39m test/p20-failure-matrix.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 90[2mms[22m[39m
+ [32m✓[39m test/agents-screen.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 168[2mms[22m[39m
+ [32m✓[39m test/board-plan-status.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 69[2mms[22m[39m
+ [32m✓[39m test/capability-screen.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[32m 189[2mms[22m[39m
+ [32m✓[39m test/changes-screen.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 108[2mms[22m[39m
+ [32m✓[39m test/boundary.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 58[2mms[22m[39m
+ [32m✓[39m test/polish-screen.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 116[2mms[22m[39m
+ [32m✓[39m test/open-coordinator.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 73[2mms[22m[39m
+ [32m✓[39m test/work-profile.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 59[2mms[22m[39m
+ [32m✓[39m test/engine-adapter.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 52[2mms[22m[39m
+ [32m✓[39m test/ipc-contract.test.ts [2m([22m[2m33 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m test/engine-orchestration.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 43[2mms[22m[39m
+[90mstderr[2m | test/settings-screen.test.tsx[2m > [22m[2minterface scale control[2m > [22m[2mshows the current percentage from the main process
+[22m[39mAn update to FinderIntegration inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to FinderIntegration inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+[90mstderr[2m | test/settings-screen.test.tsx[2m > [22m[2minterface scale control[2m > [22m[2mshows the current percentage from the main process
+[22m[39mAn update to UpdateSettings inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to UpdateSettings inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to UpdateSettings inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ [32m✓[39m test/cost-screen.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 106[2mms[22m[39m
+[90mstderr[2m | test/settings-screen.test.tsx[2m > [22m[2minterface scale control[2m > [22m[2msteps up and down one rung and can return to actual size
+[22m[39mAn update to FinderIntegration inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to FinderIntegration inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+[90mstderr[2m | test/settings-screen.test.tsx[2m > [22m[2minterface scale control[2m > [22m[2msteps up and down one rung and can return to actual size
+[22m[39mAn update to UpdateSettings inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to UpdateSettings inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to UpdateSettings inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+[90mstderr[2m | test/settings-screen.test.tsx[2m > [22m[2minterface scale control[2m > [22m[2mdisables the end stops instead of pretending they do something
+[22m[39mAn update to FinderIntegration inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to FinderIntegration inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+[90mstderr[2m | test/settings-screen.test.tsx[2m > [22m[2minterface scale control[2m > [22m[2mdisables the end stops instead of pretending they do something
+[22m[39mAn update to UpdateSettings inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to UpdateSettings inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to UpdateSettings inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ [32m✓[39m test/settings-screen.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 61[2mms[22m[39m
+ [32m✓[39m test/tool-discovery.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+ [32m✓[39m test/update-trust.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m test/supervisor-records.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m test/work-control.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m test/contracts.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m test/state-paths.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m test/studio-screen.test.tsx [2m([22m[2m10 tests[22m[2m)[22m[32m 134[2mms[22m[39m
+ [32m✓[39m test/update-uninstall.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m test/engine-sse.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m test/folder-request.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m test/safe-archive.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m test/ansi.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m test/fixtures.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m test/zoom.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m test/update-version.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m test/studio-render.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m test/engine-artifacts.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m test/work-attention.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m test/design-no-network.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m test/engine-compat.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m test/open-service-status.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m test/package-macos.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m test/palette.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m test/open-drop.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m test/supervisor-identity.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m test/design-tokens.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m test/supervisor-restart.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m test/terminal-buffer.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m test/menu-template.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m test/navigation.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m test/install-location.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m79 passed[39m[22m[90m (79)[39m
+[2m      Tests [22m [1m[32m796 passed[39m[22m[90m (796)[39m
+[2m   Start at [22m 21:19:52
+[2m   Duration [22m 6.62s[2m (tests 80%, import 10%, environment 8%, transform 1%, worker 1%)[22m
+
+[2m    Isolate [22m [33m79 workers spawned[39m[2m · ~142ms startup each (spawn + environment, per file)[22m
+[2m            [22m [2mat least ~1.46s faster with [22m[33misolate: false[39m[2m — reuses workers across files instead of one per file[22m
+
+exit=0

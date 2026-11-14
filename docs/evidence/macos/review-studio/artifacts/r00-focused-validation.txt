@@ -1,0 +1,26 @@
+# R00 focused validation 2026-11-14T04:23:01Z
+
+$ npx vitest run test/state-portable.test.ts test/studio-screen.test.tsx test/studio-render.test.tsx
+
+ RUN  v5.1.0 ~/DS_Projects/Mona
+
+ ✓ test/studio-render.test.tsx (12 tests) 8ms
+ ✓ test/state-portable.test.ts (7 tests) 329ms
+ ✓ test/studio-screen.test.tsx (10 tests) 67ms
+
+ Test Files  3 passed (3)
+      Tests  29 passed (29)
+   Start at  21:23:02
+   Duration  560ms (tests 42%, environment 37%, import 16%, transform 5%, worker 1%)
+
+
+$ npm run typecheck
+> mona@0.1.0-p02 typecheck
+> tsc -p tsconfig.main.json --noEmit && tsc -p tsconfig.renderer.json --noEmit
+
+
+$ npm run lint
+  236:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 3 problems (0 errors, 3 warnings)
+

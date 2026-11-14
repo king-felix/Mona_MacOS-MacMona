@@ -5828,6 +5828,15 @@ export class StateStore {
     db.prepare(
       "DELETE FROM event_gaps WHERE thread_id IN (SELECT id FROM threads WHERE project_id = ?)",
     ).run(projectId);
+    // These journal tables deliberately have no thread foreign key. Clear them
+    // before deleting threads so replacement imports cannot resurrect old frames
+    // or retain a cursor that skips fresh/replayed events for a reused thread id.
+    db.prepare(
+      "DELETE FROM events WHERE thread_id IN (SELECT id FROM threads WHERE project_id = ?)",
+    ).run(projectId);
+    db.prepare(
+      "DELETE FROM event_cursors WHERE thread_id IN (SELECT id FROM threads WHERE project_id = ?)",
+    ).run(projectId);
     db.prepare(
       "DELETE FROM turns WHERE thread_id IN (SELECT id FROM threads WHERE project_id = ?)",
     ).run(projectId);

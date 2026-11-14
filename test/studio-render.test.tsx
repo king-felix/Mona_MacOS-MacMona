@@ -67,6 +67,26 @@ describe("safe Markdown rendering", () => {
 });
 
 describe("timeline projection", () => {
+  it("keeps interleaved threads separate, even when sequence numbers match", () => {
+    const result = projectTimeline([
+      event(1, "item.delta", { kind: "agent_message", delta: "ALPHA" }, { threadId: "thread-a" }),
+      event(1, "item.delta", { kind: "agent_message", delta: "BETA" }, { threadId: "thread-b" }),
+    ]);
+    expect(result.entries.map((e) => e.body)).toEqual(["ALPHA", "BETA"]);
+    expect(new Set(result.entries.map((e) => e.key)).size).toBe(2);
+  });
+
+  it("does not split streamed text at heartbeat or other plumbing frames", () => {
+    const result = projectTimeline([
+      event(1, "item.delta", { kind: "agent_message", delta: "ALPHA" }),
+      event(2, "operation.heartbeat", {}),
+      event(3, "item.delta", { kind: "agent_message", delta: "BETA" }),
+      event(4, "item.completed", { item: { kind: "agent_message", detail: "ALPHABETA" } }),
+    ]);
+    expect(result.entries.map((e) => e.body)).toEqual(["ALPHABETA"]);
+    expect(result.internalActivity).toBe(1);
+  });
+
   it("merges deltas into one message and ignores duplicate sequences", () => {
     const events = [
       event(2, "turn.started", { permission_posture: "full_access" }),

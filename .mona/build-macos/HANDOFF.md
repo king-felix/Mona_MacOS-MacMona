@@ -9,6 +9,31 @@ original `f755d8a` is now `6a492d0`; the full mapping is in D-101.
 coordination) as eligible. P24 and P26–P27 wait on P22. P22 needs the Developer
 ID prerequisite (EXT-SIGNING) from `BLOCKERS.md`; P25 is fully independent.
 
+### Studio review pass — 2026-11-14 (D-103)
+
+Victor supplied `MacMona_Studio_Review_PROMPTS.md` and
+`MacMona_Review_Hotfix.patch` and asked for the review sequence **R00–R15**.
+That sequence now runs in a subordinate ledger and does **not** replace the
+P00–P27 board, its requirements or its attempt counts.
+
+- **Review ledger:** `.mona/build-macos/reviews/studio-v2/` — `state.json`
+  written only through `monabuild review checkpoint|evidence`, plus its own
+  `HANDOFF.md`, `DECISIONS.md`, `BLOCKERS.md`. Evidence lives under
+  `docs/evidence/macos/review-studio/`.
+- **R00 completed:** baseline reconciled (HEAD `656b12a`; the reviewed commit
+  `10d8375` is local `4d893fc`), hotfix applied unmodified, and the five
+  regression tests confirmed to fail without the fixes and pass with them.
+  Focused 24 → 29 tests, full suite 791 → 796 in 79 files, typecheck clean,
+  lint 0 errors, format:check green, `smoke:shell` 127/127.
+- **Next review task:** R01 (lossless drafts and async navigation) or R02
+  (identity-aware history), both eligible. `.mona/build-macos/reviews/
+  studio-v2/HANDOFF.md` carries the exact first action.
+- **Original ledger hygiene:** P10/P19 `store.ts` evidence hashes were
+  re-recorded only after the suite passed on the new bytes and carry a note
+  saying the original reports describe the pre-review bytes; 19 rewritten
+  shell captures were re-recorded per task with notes. No assertion removed,
+  no requirement status lowered, `attempts.jsonl` still empty.
+
 ### Operator-requested repair — 2026-11-13 (D-098)
 
 Not a prompt. Victor asked whether Mona tracks only the Codewhale instances it

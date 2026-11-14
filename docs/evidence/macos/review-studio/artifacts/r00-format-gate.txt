@@ -1,0 +1,13 @@
+# R00 gate capture 2026-11-14T04:21:23Z
+
+$ npx prettier --check src/main/engine/adapter.ts src/main/ipc.ts src/renderer/shell/Settings.tsx test/runtime-process.test.ts
+Checking formatting...
+All matched files use Prettier code style!
+
+$ npm run format:check
+
+Checking formatting...
+All matched files use Prettier code style!
+
+$ git log --oneline -1 -- src/main/engine/adapter.ts src/main/ipc.ts src/renderer/shell/Settings.tsx test/runtime-process.test.ts
+4411ef1 Build: format the four files that kept CI red, and refresh the run records

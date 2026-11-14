@@ -1,0 +1,165 @@
+# R00 pre-fix observation 2026-11-14T04:24:19Z
+
+Source fixes stashed; the hotfix regression tests kept in place.
+$ npx vitest run test/state-portable.test.ts test/studio-screen.test.tsx test/studio-render.test.tsx
+
+ RUN  v5.1.0 ~/DS_Projects/Mona
+
+ ❯ test/studio-render.test.tsx (12 tests | 2 failed) 11ms
+   ✓ safe Markdown rendering (4)
+     ✓ renders raw HTML as text and never creates a script or image 4ms
+     ✓ renders fenced code as pre/code without executing its contents 0ms
+     ✓ renders links inertly and refuses non-http schemes 0ms
+     ✓ supports headings, lists, emphasis, and inline code 0ms
+   ❯ timeline projection (5)
+     × keeps interleaved threads separate, even when sequence numbers match 4ms
+     × does not split streamed text at heartbeat or other plumbing frames 0ms
+     ✓ merges deltas into one message and ignores duplicate sequences 0ms
+     ✓ keeps unknown engine events visible instead of hiding them 0ms
+     ✓ shows tool calls and failures separately from assistant prose 0ms
+   ✓ engine activity is counted, not hidden (3)
+     ✓ counts an operation heartbeat instead of printing an unrecognized-event card 0ms
+     ✓ projects interrupt and artifact frames it used to call unrecognized 0ms
+     ✓ collapses plumbing events while keeping the count and unknown kinds visible 0ms
+ ❯ test/studio-screen.test.tsx (10 tests | 2 failed) 66ms
+   ❯ studio screen honesty and safety (10)
+     × submits with Command-Enter only, leaving plain Enter and IME alone 30ms
+     × uses the same disabled gate for shortcut and send button 6ms
+     ✓ says a silent stream is silent instead of showing a live-looking turn 4ms
+     ✓ does not cry stall while events are still arriving 3ms
+     ✓ shows exactly which engine events are missing from the record 3ms
+     ✓ shows the saved profile and observed effective route separately 3ms
+     ✓ keeps execution controls visible with a truthful disabled state 3ms
+     ✓ renders adversarial model output as inert text inside a large-output control 8ms
+     ✓ states an unknown submission outcome instead of claiming success 3ms
+     ✓ shows the engine's approval wait as a real wait, not a hang 3ms
+ ❯ test/state-portable.test.ts (7 tests | 1 failed) 291ms
+   ❯ portable project export (7)
+     × replacement clears old events, cursors and gaps without touching another project 48ms
+     ✓ produces a digest-stable bundle without bindings, secrets, or artifact bytes 30ms
+     ✓ imports atomically into a fresh store and preserves counts 52ms
+     ✓ rejects a tampered bundle and leaves valid state untouched 30ms
+     ✓ requires replace mode and refuses a stale or unexpected revision 52ms
+     ✓ fails closed when the target folder is missing 52ms
+     ✓ keeps ids branded and typed through the bundle boundary 27ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/state-portable.test.ts > portable project export > replacement clears old events, cursors and gaps without touching another project
+AssertionError: expected [ { threadId: 'thr_abcdefgh', …(6) } ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   {
++     "kind": "turn.completed",
++     "payload": {
++       "marker": "old",
++     },
++     "recordedAt": "2026-11-11T00:00:43.000Z",
++     "seq": 77,
++     "threadId": "thr_abcdefgh",
++     "timestamp": "2026-11-13T00:00:00Z",
++     "turnId": null,
++   },
++ ]
+
+ ❯ test/state-portable.test.ts:118:61
+    116|       expectedRevision: source.project.revision,
+    117|     });
+    118|     expect(await source.store.readEvents(source.thread.id)).toEqual([]…
+       |                                                             ^
+    119|     expect(await source.store.getCursor(source.thread.id)).toBe(0);
+    120|     expect(await source.store.readEvents(otherThread.id)).toHaveLength…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  test/studio-render.test.tsx > timeline projection > keeps interleaved threads separate, even when sequence numbers match
+AssertionError: expected [ 'ALPHABETA' ] to deeply equal [ 'ALPHA', 'BETA' ]
+
+- Expected
++ Received
+
+  [
+-   "ALPHA",
+-   "BETA",
++   "ALPHABETA",
+  ]
+
+ ❯ test/studio-render.test.tsx:75:47
+     73|       event(1, "item.delta", { kind: "agent_message", delta: "BETA" },…
+     74|     ]);
+     75|     expect(result.entries.map((e) => e.body)).toEqual(["ALPHA", "BETA"…
+       |                                               ^
+     76|     expect(new Set(result.entries.map((e) => e.key)).size).toBe(2);
+     77|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  test/studio-render.test.tsx > timeline projection > does not split streamed text at heartbeat or other plumbing frames
+AssertionError: expected [ 'ALPHA', 'ALPHABETA' ] to deeply equal [ 'ALPHABETA' ]
+
+- Expected
++ Received
+
+  [
++   "ALPHA",
+    "ALPHABETA",
+  ]
+
+ ❯ test/studio-render.test.tsx:86:47
+     84|       event(4, "item.completed", { item: { kind: "agent_message", deta…
+     85|     ]);
+     86|     expect(result.entries.map((e) => e.body)).toEqual(["ALPHABETA"]);
+       |                                               ^
+     87|     expect(result.internalActivity).toBe(1);
+     88|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  test/studio-screen.test.tsx > studio screen honesty and safety > submits with Command-Enter only, leaving plain Enter and IME alone
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ test/studio-screen.test.tsx:210:53
+    208|     key({ metaKey: true, repeat: true });
+    209|     expect(onSubmit).not.toHaveBeenCalled();
+    210|     expect(key({ metaKey: true }).defaultPrevented).toBe(true);
+       |                                                     ^
+    211|     expect(onSubmit).toHaveBeenCalledTimes(1);
+    212|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  test/studio-screen.test.tsx > studio screen honesty and safety > uses the same disabled gate for shortcut and send button
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ test/studio-screen.test.tsx:224:9
+    222|       expect(
+    223|         (container!.querySelector('[data-testid="studio-send"]') as HT…
+    224|       ).toBe(true);
+       |         ^
+    225|       act(() => {
+    226|         container!.querySelector("textarea")!.dispatchEvent(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  3 failed (3)
+      Tests  5 failed | 24 passed (29)
+   Start at  21:24:19
+   Duration  444ms (tests 52%, environment 26%, import 17%, transform 4%, worker 1%)
+

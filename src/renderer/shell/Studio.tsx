@@ -229,7 +229,8 @@ export function StudioScreen(props: StudioProps): JSX.Element {
     null;
   const profile = studio?.profile ?? null;
   const effective = profile?.effective ?? null;
-  const sendBlocked = props.studioBusy || (studio !== null && !studio.canSubmit);
+  const sendBlocked =
+    props.draft.trim().length === 0 || props.studioBusy || (studio !== null && !studio.canSubmit);
   const sendReason =
     studio?.cannotSubmitReason ??
     (studio === null ? "Mona starts the engine when you submit an explicit task." : null);
@@ -566,11 +567,24 @@ export function StudioScreen(props: StudioProps): JSX.Element {
               </div>
               <TextArea
                 label="Task prompt"
-                hint="Saved locally for this project and thread. Rendering Markdown is safe: raw HTML never executes."
+                hint="Enter adds a line break. ⌘Enter sends. Saved locally for this project and thread."
                 placeholder="Describe one concrete outcome, its boundaries, and how to verify it…"
                 rows={3}
                 value={props.draft}
                 onChange={(event) => props.onDraft(event.target.value)}
+                onKeyDown={(event) => {
+                  if (
+                    event.key !== "Enter" ||
+                    !event.metaKey ||
+                    event.shiftKey ||
+                    event.altKey ||
+                    event.ctrlKey ||
+                    event.nativeEvent.isComposing
+                  )
+                    return;
+                  event.preventDefault();
+                  if (!event.repeat && !sendBlocked) props.onSubmit();
+                }}
               />
               <div className="composer__actions">
                 <div className="composer__left">

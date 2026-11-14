@@ -40,3 +40,6 @@ docs/requirements-macos.json.bak
 *.tsbuildinfo
 .vite/
 coverage/
+.mona/build-macos/reviews/*/state.json.bak
+.mona/build-macos/reviews/*/*.lock/
+.mona/build-macos/reviews/*/.*.tmp-*

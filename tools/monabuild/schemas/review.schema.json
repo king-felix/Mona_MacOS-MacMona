@@ -1,0 +1,217 @@
+{
+  "$id": "mona/review-state@1",
+  "title": "Mona subordinate review ledger (studio-v2)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "review",
+    "title",
+    "platform",
+    "review_document",
+    "hotfix",
+    "baseline",
+    "derived_from",
+    "revision",
+    "current_task",
+    "current_task_status",
+    "tasks",
+    "issues",
+    "last_checkpoint_utc"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "review": { "const": "studio-v2" },
+    "title": { "type": "string", "minLength": 1 },
+    "platform": { "const": "darwin-arm64" },
+    "review_document": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "reviewed_remote_commit"],
+      "properties": {
+        "path": { "const": "MacMona_Studio_Review_PROMPTS.md" },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "reviewed_remote_commit": { "type": "string", "pattern": "^[a-f0-9]{7,40}$" }
+      }
+    },
+    "hotfix": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "declared_sha256", "adapted"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "declared_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "adapted": { "type": "boolean" },
+        "notes": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "baseline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["captured_utc", "head_commit", "baseline_commit", "dirty_files", "original_ledger_revision"],
+      "properties": {
+        "captured_utc": { "type": "string", "minLength": 20 },
+        "head_commit": { "type": "string", "pattern": "^[a-f0-9]{7,40}$" },
+        "baseline_commit": { "type": "string", "pattern": "^[a-f0-9]{7,40}$" },
+        "baseline_remote_commit": { "type": "string", "pattern": "^[a-f0-9]{7,40}$" },
+        "dirty_files": { "type": "array", "items": { "type": "string" } },
+        "original_ledger_revision": { "type": "integer", "minimum": 1 },
+        "notes": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "derived_from": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ledger", "attempts", "requirement_registry"],
+      "properties": {
+        "ledger": { "const": ".mona/build-macos/state.json" },
+        "attempts": { "const": ".mona/build-macos/attempts.jsonl" },
+        "requirement_registry": { "const": "docs/requirements-macos.json" }
+      }
+    },
+    "revision": { "type": "integer", "minimum": 1 },
+    "current_task": { "type": "string", "pattern": "^R\\d{2}$" },
+    "current_task_status": {
+      "enum": ["pending", "running", "verifying", "completed", "blocked", "interrupted", "skipped"]
+    },
+    "tasks": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 16,
+      "maxProperties": 16,
+      "patternProperties": {
+        "^R\\d{2}$": { "$ref": "#/definitions/task" }
+      }
+    },
+    "issues": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 18,
+      "maxProperties": 18,
+      "patternProperties": {
+        "^(RV-\\d{2}|UX-[A-Z-]+)$": { "$ref": "#/definitions/issue" }
+      }
+    },
+    "last_checkpoint_utc": { "type": "string", "minLength": 20 },
+    "notes": { "type": "array", "items": { "type": "string" } }
+  },
+  "definitions": {
+    "task": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "title",
+        "prerequisites",
+        "requirements",
+        "source_hashes",
+        "acceptance_completed",
+        "acceptance_remaining",
+        "tests",
+        "evidence",
+        "attempt_problem_ids",
+        "platform",
+        "next_action",
+        "notes"
+      ],
+      "properties": {
+        "status": {
+          "enum": ["pending", "running", "verifying", "completed", "blocked", "interrupted", "skipped"]
+        },
+        "title": { "type": "string", "minLength": 1 },
+        "prerequisites": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^R\\d{2}$" }
+        },
+        "requirements": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^(MONA|MAC)-\\d{3}$" }
+        },
+        "feature_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^(RV-\\d{2}|UX-[A-Z-]+)$" }
+        },
+        "source_hashes": {
+          "type": "array",
+          "uniqueBy": "path",
+          "items": { "$ref": "#/definitions/source_hash" }
+        },
+        "acceptance_completed": { "type": "array", "items": { "type": "string" } },
+        "acceptance_remaining": { "type": "array", "items": { "type": "string" } },
+        "tests": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/test_run" }
+        },
+        "evidence": {
+          "type": "array",
+          "uniqueBy": "path",
+          "items": { "$ref": "#/definitions/evidence" }
+        },
+        "attempt_problem_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9-]{2,40}$" }
+        },
+        "platform": {
+          "enum": ["darwin-arm64", "fixture", "static-review", "human-observation"]
+        },
+        "next_action": { "type": "string" },
+        "started_utc": { "type": "string" },
+        "updated_utc": { "type": "string" },
+        "notes": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "issue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "priority", "status", "task", "evidence", "notes"],
+      "properties": {
+        "title": { "type": "string", "minLength": 1 },
+        "priority": { "enum": ["high", "medium", "low", "user-request"] },
+        "status": {
+          "enum": ["open", "applied", "verified", "deferred", "blocked", "wontfix"]
+        },
+        "task": { "type": "string", "pattern": "^R\\d{2}$" },
+        "evidence": { "type": "array", "items": { "type": "string" } },
+        "notes": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "source_hash": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "state"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "state": { "enum": ["current", "invalidated", "historical"] },
+        "note": { "type": "string" }
+      }
+    },
+    "test_run": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["command", "result", "captured_utc"],
+      "properties": {
+        "command": { "type": "string", "minLength": 1 },
+        "result": { "enum": ["passed", "failed", "not-run"] },
+        "detail": { "type": "string" },
+        "evidence": { "type": "string" },
+        "captured_utc": { "type": "string", "minLength": 20 }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "sha256": { "type": ["string", "null"], "pattern": "^[a-f0-9]{64}$" },
+        "note": { "type": "string" }
+      }
+    }
+  }
+}

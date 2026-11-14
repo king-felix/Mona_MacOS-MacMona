@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
-import { afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ProjectDetail } from "../src/shared/contracts/project-bridge";
 import type { StudioSnapshot } from "../src/shared/contracts/studio";
 import { StudioScreen } from "../src/renderer/shell/Studio";
@@ -187,6 +187,55 @@ function render(props: Partial<Parameters<typeof StudioScreen>[0]> = {}): void {
 }
 
 describe("studio screen honesty and safety", () => {
+  it("submits with Command-Enter only, leaving plain Enter and IME alone", () => {
+    const onSubmit = vi.fn();
+    render({ draft: "Do work", onSubmit });
+    const textarea = container!.querySelector("textarea")!;
+    function key(options: KeyboardEventInit = {}) {
+      const event = new KeyboardEvent("keydown", {
+        key: "Enter",
+        bubbles: true,
+        cancelable: true,
+        ...options,
+      });
+      act(() => {
+        textarea.dispatchEvent(event);
+      });
+      return event;
+    }
+    expect(key().defaultPrevented).toBe(false);
+    expect(key({ metaKey: true, isComposing: true }).defaultPrevented).toBe(false);
+    key({ metaKey: true, repeat: true });
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(key({ metaKey: true }).defaultPrevented).toBe(true);
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+  });
+
+  it("uses the same disabled gate for shortcut and send button", () => {
+    const onSubmit = vi.fn();
+    for (const props of [
+      { draft: "   " },
+      { draft: "Do work", studioBusy: true },
+      { draft: "Do work", studio: studio({ canSubmit: false }) },
+    ]) {
+      render({ onSubmit, ...props });
+      expect(
+        (container!.querySelector('[data-testid="studio-send"]') as HTMLButtonElement).disabled,
+      ).toBe(true);
+      act(() => {
+        container!.querySelector("textarea")!.dispatchEvent(
+          new KeyboardEvent("keydown", {
+            key: "Enter",
+            metaKey: true,
+            bubbles: true,
+            cancelable: true,
+          }),
+        );
+      });
+    }
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
   it("says a silent stream is silent instead of showing a live-looking turn", () => {
     render({
       studio: studio({

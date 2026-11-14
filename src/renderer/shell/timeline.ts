@@ -57,6 +57,37 @@ export interface TimelineProjection {
  * kinds stay visible instead of vanishing. No text is invented here.
  */
 export function projectTimeline(events: StoredEventSummary[]): TimelineProjection {
+  // A project includes multiple native/local threads. Stream accumulation and
+  // completion matching must never cross those identities, even if their item
+  // kinds or sequence numbers happen to match.
+  const threads = new Map<string, StoredEventSummary[]>();
+  for (const event of events) {
+    const group = threads.get(event.threadId) ?? [];
+    group.push(event);
+    threads.set(event.threadId, group);
+  }
+  const entries: TimelineEntry[] = [];
+  const unprojected = new Set<string>();
+  let internalActivity = 0;
+  for (const [threadId, frames] of threads) {
+    const projection = projectThreadTimeline(frames);
+    entries.push(
+      ...projection.entries.map((entry) => ({
+        ...entry,
+        key: `${threadId}:${entry.key}`,
+      })),
+    );
+    internalActivity += projection.internalActivity;
+    for (const kind of projection.unprojected) unprojected.add(kind);
+  }
+  entries.sort((left, right) => {
+    if (left.timestamp === right.timestamp) return left.seq - right.seq;
+    return Date.parse(left.timestamp) - Date.parse(right.timestamp);
+  });
+  return { entries, internalActivity, unprojected: [...unprojected].sort() };
+}
+
+function projectThreadTimeline(events: StoredEventSummary[]): TimelineProjection {
   const entries: TimelineEntry[] = [];
   let internalActivity = 0;
   const unprojected = new Set<string>();
@@ -102,7 +133,8 @@ export function projectTimeline(events: StoredEventSummary[]): TimelineProjectio
     const payload = record(event.payload);
     const key = `${event.threadId}-${event.seq}`;
     if (isEnginePlumbingKind(event.kind)) {
-      if (event.kind !== "item.started") flushDelta();
+      // Liveness/accounting does not end a message. Flushing here strands a
+      // partial card beside the later completed answer.
       internalActivity += 1;
       continue;
     }

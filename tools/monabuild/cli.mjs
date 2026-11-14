@@ -39,6 +39,14 @@ import {
 import { buildIndex, compareIndex, readIndex } from "./lib/index.mjs";
 import { gitTrackedFiles, scanFiles } from "./lib/secrets.mjs";
 import { validateEverything } from "./lib/validate.mjs";
+import {
+  REVIEW_ID,
+  reviewCheckpoint,
+  reviewEvidence,
+  reviewNext,
+  reviewStatus,
+  validateReview,
+} from "./lib/review.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const DEFAULT_ROOT = resolve(HERE, "..", "..");
@@ -314,6 +322,61 @@ function commandEvidence(args) {
   }
 }
 
+// Subordinate review ledger (MacMona Studio review). The original P00–P27
+// ledger stays the product authority; this family never edits it.
+function commandReview(args) {
+  const [sub] = args._.slice(1);
+  const root = rootFrom(args);
+  const id = args.flags.id ?? REVIEW_ID;
+  const readPatch = () => {
+    if (args.flags["patch-json"]) return JSON.parse(args.flags["patch-json"]);
+    if (args.flags["patch-file"]) return readJsonStrict(resolve(root, args.flags["patch-file"]));
+    return {};
+  };
+  try {
+    switch (sub) {
+      case "status":
+        printJson(reviewStatus(root, id));
+        break;
+      case "validate": {
+        const report = validateReview(root, id);
+        printJson(report);
+        if (!report.ok) process.exitCode = EXIT.invalid;
+        break;
+      }
+      case "next":
+        printJson(reviewNext(root, id));
+        break;
+      case "checkpoint": {
+        const expected = Number(args.flags["expect-revision"]);
+        if (!Number.isInteger(expected)) {
+          return fail("usage: monabuild review checkpoint --expect-revision N [--patch-json J | --patch-file F]", EXIT.usage);
+        }
+        const result = reviewCheckpoint(root, id, { expectRevision: expected, patch: readPatch() });
+        printJson({ ok: true, revision: result.revision, created: result.created });
+        break;
+      }
+      case "evidence": {
+        const task = args.flags.task;
+        const files = args._.slice(2);
+        if (!task || files.length === 0) {
+          return fail("usage: monabuild review evidence --task R00 <path>... [--note N]", EXIT.usage);
+        }
+        const result = reviewEvidence(root, id, { task, paths: files, note: args.flags.note });
+        printJson({ ok: true, revision: result.revision, evidence: result.evidence });
+        break;
+      }
+      default:
+        return fail(
+          "usage: monabuild review <status|validate|next|checkpoint|evidence> [--id studio-v2]",
+          EXIT.usage,
+        );
+    }
+  } catch (error) {
+    fail(error.message, error.code === "ECONFLICT" || error.code === "ELOCKED" ? EXIT.refused : EXIT.invalid);
+  }
+}
+
 function usage() {
   process.stdout.write(
     [
@@ -332,6 +395,7 @@ function usage() {
       "  index [--write]              Print or write the hash index",
       "  secrets [path...]            Scan tracked files for credential patterns",
       "  hash <path>                  Print a file's SHA-256",
+      "  review <sub> [--id studio-v2]  Subordinate Studio review ledger (status|validate|next|checkpoint|evidence)",
       "",
       "All commands accept --root <dir>.",
     ].join("\n") + "\n",
@@ -351,6 +415,7 @@ const commands = {
   evidence: commandEvidence,
   index: commandIndex,
   secrets: commandSecrets,
+  review: commandReview,
   hash: (args) => {
     const file = args._[1];
     if (!file) return fail("usage: monabuild hash <path>", EXIT.usage);

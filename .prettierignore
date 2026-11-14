@@ -15,3 +15,6 @@ docs/discovery-macos.md
 .mona/
 tools/monabuild/
 tools/p01-spike/
+
+# Review law supplied by the owner (companion audit document); never reformatted.
+MacMona_Studio_Review_PROMPTS.md

@@ -89,6 +89,47 @@ async function seededStore() {
 }
 
 describe("portable project export", () => {
+  it("replacement clears old events, cursors and gaps without touching another project", async () => {
+    const source = await seededStore();
+    const bundle = await source.store.exportProject(source.project.id);
+    const otherFolder = join(source.dir, "unrelated");
+    mkdirSync(otherFolder);
+    const other = await source.store.createProject({ name: "Other", rootPath: otherFolder });
+    const otherThread = await source.store.upsertThread({
+      id: "thr_other123",
+      projectId: other.id,
+      title: "Other",
+    });
+    for (const threadId of [source.thread.id, otherThread.id]) {
+      await source.store.recordEvent({
+        threadId,
+        seq: 77,
+        kind: "turn.completed",
+        payload: { marker: "old" },
+        timestamp: "2026-11-13T00:00:00Z",
+      });
+      await source.store.recordEventGap({ threadId, from: 50, to: 60 });
+    }
+    await source.store.importProject(bundle, {
+      rootPath: source.folder,
+      mode: "replace",
+      expectedRevision: source.project.revision,
+    });
+    expect(await source.store.readEvents(source.thread.id)).toEqual([]);
+    expect(await source.store.getCursor(source.thread.id)).toBe(0);
+    expect(await source.store.readEvents(otherThread.id)).toHaveLength(1);
+    expect(await source.store.getCursor(otherThread.id)).toBe(77);
+    const replay = await source.store.recordEvent({
+      threadId: source.thread.id,
+      seq: 77,
+      kind: "turn.completed",
+      payload: { marker: "fresh" },
+      timestamp: "2026-11-13T00:00:00Z",
+    });
+    expect(replay.recorded).toBe(true);
+    await source.store.close();
+  });
+
   it("produces a digest-stable bundle without bindings, secrets, or artifact bytes", async () => {
     const { store, project, task, folder } = await seededStore();
     const bundle = await store.exportProject(project.id);

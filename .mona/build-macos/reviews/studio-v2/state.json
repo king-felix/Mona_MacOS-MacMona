@@ -1,0 +1,899 @@
+{
+  "schema_version": 1,
+  "review": "studio-v2",
+  "title": "MacMona Studio review — repository review and Studio evolution",
+  "platform": "darwin-arm64",
+  "review_document": {
+    "path": "MacMona_Studio_Review_PROMPTS.md",
+    "sha256": "7e1e16d1646193c540d3886f9d4cb8c511376eb6f57768861f6fe859566bfca0",
+    "reviewed_remote_commit": "10d8375e9644c0563178a9d4b645d1a0ef8c999a"
+  },
+  "hotfix": {
+    "path": "MacMona_Review_Hotfix.patch",
+    "sha256": "a253a05e5205438b01492d8ff7840291189605d8aee99f4f7516c4b4182aa4fb",
+    "declared_sha256": "a253a05e5205438b01492d8ff7840291189605d8aee99f4f7516c4b4182aa4fb",
+    "adapted": false,
+    "notes": [
+      "Applied unmodified with `git apply`; the patch's six files were unchanged since the reviewed baseline."
+    ]
+  },
+  "baseline": {
+    "captured_utc": "2026-11-14T04:22:38.296Z",
+    "head_commit": "656b12a69e01e32242edcf234ea0a2478a3c20e9",
+    "baseline_commit": "4d893fc663addd790a20b4c997c9f52104c3755f",
+    "baseline_remote_commit": "10d8375e9644c0563178a9d4b645d1a0ef8c999a",
+    "dirty_files": [
+      "MacMona_Review_Hotfix.patch",
+      "MacMona_Studio_Review_PROMPTS.md"
+    ],
+    "original_ledger_revision": 764,
+    "notes": [
+      "Local 4d893fc carries the reviewed remote commit's content under the rewritten history (D-101 mapping).",
+      "Five later commits touch only formatting, secret fixtures, evidence and the ledger — no overlap with the hotfix files."
+    ]
+  },
+  "derived_from": {
+    "ledger": ".mona/build-macos/state.json",
+    "attempts": ".mona/build-macos/attempts.jsonl",
+    "requirement_registry": "docs/requirements-macos.json"
+  },
+  "revision": 5,
+  "current_task": "R00",
+  "current_task_status": "completed",
+  "tasks": {
+    "R00": {
+      "status": "completed",
+      "title": "Adopt the review, reconcile the baseline, apply verified hotfixes",
+      "prerequisites": [],
+      "requirements": [
+        "MONA-007",
+        "MONA-010",
+        "MONA-016"
+      ],
+      "feature_ids": [
+        "RV-03",
+        "RV-04",
+        "RV-05",
+        "RV-07",
+        "RV-11",
+        "UX-COMPOSER"
+      ],
+      "source_hashes": [
+        {
+          "path": "src/main/state/store.ts",
+          "sha256": "7f0ba831e758513922f4d9912708f9af04d34abaf7ec08981ede5c594606d07a",
+          "state": "current",
+          "note": "Reviewed baseline (local 4d893fc / remote 10d8375) sha256 89944463f5ac097ece0ad55fd7f3a66e8e279a3157585c72777828acae2d3d49; changed by the verified hotfix during R00"
+        },
+        {
+          "path": "src/renderer/shell/Studio.tsx",
+          "sha256": "e25bf79505f44da9ab09c8eaf4818120c0c7986d965dec45b4f733de37df3e34",
+          "state": "current",
+          "note": "Reviewed baseline (local 4d893fc / remote 10d8375) sha256 c275429b3dbe3b8b4d8daab19513f8ce3acaf38ba72b853a6e497d1e67a1d8c3; changed by the verified hotfix during R00"
+        },
+        {
+          "path": "src/renderer/shell/timeline.ts",
+          "sha256": "c0ee1ac7e67742e345791e154d62b6b64a5b6ff9fb45526d8c56fbce766a5813",
+          "state": "current",
+          "note": "Reviewed baseline (local 4d893fc / remote 10d8375) sha256 b883985527095bab56f211b771921db765229e4bbe46875c5c328f57df654595; changed by the verified hotfix during R00"
+        },
+        {
+          "path": "test/state-portable.test.ts",
+          "sha256": "e6f011415b2064a1c445e75b3dd66177f44d1dec975b643c224f67472285cd41",
+          "state": "current",
+          "note": "Reviewed baseline (local 4d893fc / remote 10d8375) sha256 cd675c9fc2224419672f6f6cef47294bbac07e2d56fea3b13c81cbbf92954144; changed by the verified hotfix during R00"
+        },
+        {
+          "path": "test/studio-render.test.tsx",
+          "sha256": "587d43624b6d86ee4f1ef4fcf607f4b4d2049625753e68da08e1323f633e9eb3",
+          "state": "current",
+          "note": "Reviewed baseline (local 4d893fc / remote 10d8375) sha256 e92e287dd49706bf1c5a293019cb0f82ebfe77e183c11f3c9670cb8d608b1d86; changed by the verified hotfix during R00"
+        },
+        {
+          "path": "test/studio-screen.test.tsx",
+          "sha256": "0b347c2292d84c2dc554dee280cd4c421e4fb3652014031bf616383839b220d5",
+          "state": "current",
+          "note": "Reviewed baseline (local 4d893fc / remote 10d8375) sha256 a6fd61683358895095c7f20b547fd1ae7d000e4182545ce5470ce2c31eb0d346; changed by the verified hotfix during R00"
+        }
+      ],
+      "acceptance_completed": [
+        "Replacement clears old events/cursors and leaves another project intact",
+        "The same sequence can be recorded afresh after replacement",
+        "Separate threads cannot merge streamed text",
+        "A heartbeat between deltas does not create a duplicate answer",
+        "Enter remains newline; Command-Enter submits only with valid gate/IME/repeat state",
+        "Three focused test files and typecheck pass; actual Mac baseline checks established",
+        "Formatting cleanup for the four pre-existing files kept separate from behavioral edits",
+        "Native source-hash evidence invalidated by the patch is recorded, not rehashed"
+      ],
+      "acceptance_remaining": [],
+      "tests": [
+        {
+          "command": "npx vitest run test/state-portable.test.ts test/studio-screen.test.tsx test/studio-render.test.tsx (before the patch)",
+          "result": "passed",
+          "detail": "24 tests in 3 files",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r00-focused-validation.txt",
+          "captured_utc": "2026-11-14T04:19:16.000Z"
+        },
+        {
+          "command": "npx vitest run test/state-portable.test.ts test/studio-screen.test.tsx test/studio-render.test.tsx (after the patch)",
+          "result": "passed",
+          "detail": "29 tests in 3 files; 5 new regression tests",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r00-focused-validation.txt",
+          "captured_utc": "2026-11-14T04:23:02.000Z"
+        },
+        {
+          "command": "npm test (before the patch)",
+          "result": "passed",
+          "detail": "791 tests in 79 files",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r00-baseline-tests.txt",
+          "captured_utc": "2026-11-14T04:19:23.000Z"
+        },
+        {
+          "command": "npm test (after the patch)",
+          "result": "passed",
+          "detail": "796 tests in 79 files",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r00-patched-tests.txt",
+          "captured_utc": "2026-11-14T04:19:52.000Z"
+        },
+        {
+          "command": "npm run typecheck",
+          "result": "passed",
+          "detail": "main and renderer, no errors",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r00-focused-validation.txt",
+          "captured_utc": "2026-11-14T04:23:05.000Z"
+        },
+        {
+          "command": "npm run lint",
+          "result": "passed",
+          "detail": "0 errors, 3 pre-existing no-explicit-any warnings",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r00-focused-validation.txt",
+          "captured_utc": "2026-11-14T04:23:10.000Z"
+        },
+        {
+          "command": "npm run format:check",
+          "result": "passed",
+          "detail": "all files clean after ignoring the owner-supplied review document",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r00-format-gate.txt",
+          "captured_utc": "2026-11-14T04:21:23.000Z"
+        },
+        {
+          "command": "npm run smoke:shell",
+          "result": "passed",
+          "detail": "127/127 checks, Electron exit 0, 24 captures refreshed",
+          "evidence": "docs/evidence/macos/review-studio/artifacts/r00-shell-smoke.json",
+          "captured_utc": "2026-11-14T04:22:01.000Z"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/review-studio/R00-baseline.md",
+          "sha256": "c24beb7cad48b16cdae7d1affda47e71a8b8eccabdbcab03f495e8923d39a32c"
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r00-baseline-host.txt",
+          "sha256": "66f79d2891ea200b24ea0d0c488b2270d0ab1c3dd1090fef606fb0fe8616d795"
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r00-baseline-tests.txt",
+          "sha256": "3c599f7417216bef1de6e551dcb54bbcf95373ccddb2e4b322ba2d82e3bcac62"
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r00-patched-tests.txt",
+          "sha256": "7079d1e8c2c0f893528c34921e9c3f06f503b0d52d6dc32ffc3ccf506cc5c406"
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r00-focused-validation.txt",
+          "sha256": "90977a7b3210a0a9fc843259b36fa2d25f638bb6655dc0e100f32489de39f24c"
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r00-format-gate.txt",
+          "sha256": "2ecc14dd5a8198887c9ef3cad23a068a38cc367591e2ce8d44bde532d9025271"
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r00-shell-smoke.json",
+          "sha256": "afcce3f73bfb535f8de544d1e578626ee6b067db58aba54e776d26e5d593f672"
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r00-prefix-failures.txt",
+          "sha256": "a63121a8e433e6f61803d5caeb508a36000e3c4cb722a3d733b76bab53e0c6c5"
+        }
+      ],
+      "attempt_problem_ids": [],
+      "platform": "darwin-arm64",
+      "next_action": "",
+      "notes": [
+        "HEAD at adoption was 656b12a; the only source changes since the reviewed baseline (4d893fc) are formatting fixes for adapter.ts, ipc.ts, Settings.tsx and runtime-process.test.ts (4411ef1) plus shortened secret-scan fixtures (5b15c66). No overlap with the hotfix files, so the patch applied unmodified.",
+        "Hotfix applied unmodified (git apply); no adaptation was needed because the six files were unchanged since the reviewed baseline.",
+        "Formatting cleanup for the four CI-blocking files was already closed at 4411ef1 and kept separate from this behavioral patch; format:check is green.",
+        "P10/P19 store.ts evidence hashes were re-recorded only after the full suite passed on the new bytes; the original reports still describe the pre-review bytes.",
+        "19 shell captures rewritten by the R00 shell-smoke run; hashes re-recorded per task (P07/P11/P12/P13/P14/P15/P18/P19) with notes."
+      ],
+      "updated_utc": "2026-11-14T04:30:00.000Z"
+    },
+    "R01": {
+      "status": "pending",
+      "title": "Make drafts and asynchronous navigation lossless",
+      "prerequisites": [
+        "R00"
+      ],
+      "requirements": [
+        "MONA-007",
+        "MONA-010",
+        "MONA-016"
+      ],
+      "feature_ids": [
+        "RV-01",
+        "RV-02"
+      ],
+      "source_hashes": [],
+      "acceptance_completed": [],
+      "acceptance_remaining": [
+        "Selection/load epochs discard out-of-date detail and studio responses, including A→B→A",
+        "Async busy/error/notice updates are scoped to the selection that produced them",
+        "Immutable submission identity (project, thread, draft revision, text, mode) captured before the first await",
+        "Synchronous single-flight guard claims before the first await; repeated click/Command-Enter never double-dispatch",
+        "Acceptance clears only the submitted draft revision, never newer text or another project's draft",
+        "Draft saves serialize per key or are revision/CAS ordered; an older write never marks newer text saved",
+        "Rejected/uncertain submissions preserve text; save failures are surfaced and cleaned up in try/finally",
+        "Deferred-promise tests cover typing during send, switch during send, reversed responses, delayed save acks, rejected IPC, duplicate submit, A→B→A and restart"
+      ],
+      "tests": [],
+      "evidence": [],
+      "attempt_problem_ids": [],
+      "platform": "darwin-arm64",
+      "next_action": "Read Shell.tsx draft/submit paths and project bridge, then implement the epoch + single-flight submission contract with deferred-promise tests.",
+      "notes": []
+    },
+    "R02": {
+      "status": "pending",
+      "title": "Build complete, identity-aware history and stable streaming",
+      "prerequisites": [
+        "R00"
+      ],
+      "requirements": [
+        "MONA-007",
+        "MONA-010",
+        "MONA-016",
+        "MONA-030"
+      ],
+      "feature_ids": [
+        "RV-04",
+        "RV-06"
+      ],
+      "source_hashes": [],
+      "acceptance_completed": [],
+      "acceptance_remaining": [
+        "Paginated/cursor history API replaces the inaccessible fixed raw-event tail",
+        "Thread/turn/item identity is preserved through persistence and IPC; deltas are never matched by kind alone",
+        "Schema migration only where needed, with backups and explicit unknown identities for old rows",
+        "Streamed and completed cards share stable keys; thread isolation from R00 is preserved",
+        "Loss is never inferred from arithmetic global-sequence holes",
+        "An item whose beginning predates the page is reconstructed or shown with an honest partial-item affordance",
+        "Older-page insertion and Jump-to-latest do not drag a reader down; project follow/show-history state resets",
+        "Long session (>2,000 raw frames, >10,000 stored events) remains reachable without a model request"
+      ],
+      "tests": [],
+      "evidence": [],
+      "attempt_problem_ids": [],
+      "platform": "darwin-arm64",
+      "next_action": "Read projects/service.ts, store event queries, project-bridge and timeline; define the paginated history contract.",
+      "notes": []
+    },
+    "R03": {
+      "status": "pending",
+      "title": "Verified slash-command catalog and descriptive autocomplete",
+      "prerequisites": [
+        "R00",
+        "R01"
+      ],
+      "requirements": [
+        "MONA-022",
+        "MONA-030"
+      ],
+      "feature_ids": [
+        "RV-09",
+        "UX-COMMANDS"
+      ],
+      "source_hashes": [],
+      "acceptance_completed": [],
+      "acceptance_remaining": [
+        "Catalog has canonical slash name, aliases, description, arguments, scope, side effects, cost class, provenance, route and support state",
+        "Every command in the pinned 0.10.2 registry is enumerated and reconciled; nothing is hard-coded from memory",
+        "Typing / at a command position opens an accessible filtered suggestion list with description and arguments",
+        "Cursor/selection, IME composition, multiline text, literal slash paths, fenced pasted code and escaped slashes are respected",
+        "Arrow keys choose, Tab accepts, plain Enter inserts a newline, Escape closes the list first",
+        "Command-Enter on an incomplete/ambiguous command explains what remains instead of selecting silently",
+        "Lookup/filter/help make zero provider requests; ordinary text is never classified as a command",
+        "Missing execution routes stay visible with an explanation"
+      ],
+      "tests": [],
+      "evidence": [],
+      "attempt_problem_ids": [],
+      "platform": "darwin-arm64",
+      "next_action": "Inspect the pinned engine's slash-command registry and the existing capability inventory before writing the catalog.",
+      "notes": []
+    },
+    "R04": {
+      "status": "pending",
+      "title": "Safe command execution and a real /new thread lifecycle",
+      "prerequisites": [
+        "R02",
+        "R03"
+      ],
+      "requirements": [
+        "MONA-022",
+        "MONA-030",
+        "MONA-003"
+      ],
+      "feature_ids": [
+        "UX-COMMANDS"
+      ],
+      "source_hashes": [],
+      "acceptance_completed": [],
+      "acceptance_remaining": [
+        "Typed commands dispatch through validated operation-specific IPC; no shell injection and no model fallback for local commands",
+        "Aliases share validation; TUI-only commands get an honest route and explicit terminal launch where that is the only semantics",
+        "Destructive or permission/model-changing commands use existing review boundaries and show effects",
+        "/new creates fresh engine conversation identity while preserving old thread/history/draft/usage/attempt evidence",
+        "Active work is refused or handled with an explicit wait/interrupt choice; a running turn is never detached and called moved",
+        "Durable operation keys make retry/acknowledgement loss safe",
+        "Literal slash text remains available to a user who wants to discuss a command",
+        "Every executable catalog row has positive and negative routing tests"
+      ],
+      "tests": [],
+      "evidence": [],
+      "attempt_problem_ids": [],
+      "platform": "darwin-arm64",
+      "next_action": "Read the R03 catalog and engine adapter thread routes; design the typed command IPC contract.",
+      "notes": []
+    },
+    "R05": {
+      "status": "pending",
+      "title": "Focus Studio and native fullscreen",
+      "prerequisites": [
+        "R01",
+        "R02"
+      ],
+      "requirements": [
+        "MONA-006",
+        "MONA-029"
+      ],
+      "feature_ids": [
+        "RV-08",
+        "UX-FULLSCREEN"
+      ],
+      "source_hashes": [],
+      "acceptance_completed": [],
+      "acceptance_remaining": [
+        "Focus Studio hides rail/inspector/nonessential chrome while retaining essentials",
+        "Enter Full Screen uses native macOS fullscreen through a narrow window-scoped IPC; observed events, not an optimistic boolean, drive UI",
+        "View preference is stored separately from OS fullscreen state and never forces fullscreen on restore",
+        "Slim dashboard (44–56 px) shows project, thread/agent, honest activity, elapsed, model, scoped cost/tokens and reachable Pause/Interrupt",
+        "Timeline fills the viewport; composer is bounded/resizable and never pushes the live turn off-screen",
+        "Draft focus/selection, scroll anchor, active turn and in-flight controls survive focus/fullscreen/resize/project navigation",
+        "Escape dismisses autocomplete/dialogs before leaving focus; no double toggle between menu accelerator and DOM shortcut",
+        "No Studio/runtime remount when the layout changes"
+      ],
+      "tests": [],
+      "evidence": [],
+      "attempt_problem_ids": [],
+      "platform": "darwin-arm64",
+      "next_action": "Read the existing Focus Mode paths, menu-template.ts, window.ts and IPC sender validation.",
+      "notes": []
+    },
+    "R06": {
+      "status": "pending",
+      "title": "Aurora Studio visual identity",
+      "prerequisites": [
+        "R05"
+      ],
+      "requirements": [
+        "MONA-006",
+        "MONA-029"
+      ],
+      "feature_ids": [
+        "UX-AURORA"
+      ],
+      "source_hashes": [],
+      "acceptance_completed": [],
+      "acceptance_remaining": [
+        "Daybreak and Afterglow palettes applied in the production shell, not only design/demo screens",
+        "Project plaque, vivid active selection, gradient separators, turn hierarchy and clean tool cards in both themes",
+        "Decorative tokens centralized; measured contrast for text pairs preserved until replacements pass",
+        "Vivid/Quiet appearance preference persisted locally; both remain fully usable",
+        "Activity animation follows genuine state and stops under reduced motion; a disconnected agent never looks busy",
+        "Captures for both themes and intensities, normal and immersive, long output, empty/error/pending states and 200% layouts",
+        "No idle animation CPU regression and no informational loss"
+      ],
+      "tests": [],
+      "evidence": [],
+      "attempt_problem_ids": [],
+      "platform": "darwin-arm64",
+      "next_action": "Read design tokens, the production Studio/Shell/styles, and the contrast tests before touching paint.",
+      "notes": []
+    },
+    "R07": {
+      "status": "pending",
+      "title": "In-app pending input and approvals",
+      "prerequisites": [
+        "R01",
+        "R02"
+      ],
+      "requirements": [
+        "MONA-002",
+        "MONA-019"
+      ],
+      "feature_ids": [
+        "RV-10",
+        "UX-AGENT-COMMS"
+      ],
+      "source_hashes": [],
+      "acceptance_completed": [],
+      "acceptance_remaining": [
+        "Pending questions/approvals persist as structured requests with IDs, project/thread/turn, options, status and acknowledgement",
+        "The actual question/tool/action and permissions involved are shown",
+        "Native answers use typed, authenticated IPC where the pinned engine supports it",
+        "Expired, answered, cancelled and duplicate responses are handled; reconnect restores outstanding requests",
+        "Guidance suggesting switching to Full Access as a workaround is removed; the chosen mode is preserved",
+        "An absent reply API is reported as exact unsupported scope after bounded investigation; no replacement engine and no fake ordinary-message answer",
+        "Reply-sent requires acknowledgement; cancelling never silently approves; state survives restart beside an unsent draft"
+      ],
+      "tests": [],
+      "evidence": [],
+      "attempt_problem_ids": [],
+      "platform": "darwin-arm64",
+      "next_action": "Read work/studio.ts pendingInputFor/ingest/snapshot and probe the pinned engine's request/reply endpoints.",
+      "notes": []
+    },
+    "R08": {
+      "status": "pending",
+      "title": "Follow-ups, qualified steering and agent activity view",
+      "prerequisites": [
+        "R04",
+        "R07"
+      ],
+      "requirements": [
+        "MONA-018",
+        "MONA-019"
+      ],
+      "feature_ids": [
+        "UX-AGENT-COMMS"
+      ],
+      "source_hashes": [],
+      "acceptance_completed": [],
+      "acceptance_remaining": [
+        "Follow-ups are explicitly queued for after the current turn with immutable target identity and edit/cancel",
+        "Nothing auto-sends a half-written draft on completion; only the authorized queue dispatches under existing budget/attempt controls",
+        "No second scheduler competing with native agents or board tasks",
+        "Steer this run appears only with verified native capability and a separate receipt/status; otherwise the after-turn option is named",
+        "Current-activity strip, expandable tool cards, duration/status, agent/thread filter and Needs-you indicator derive from native events",
+        "Queued and delivered remain distinct; no fabricated thoughts, progress or background narration calls",
+        "Tests cover completing-while-composing, cancel-before-dispatch, switch/new thread, pause/budget stop, uncertain send, restart and child agents"
+      ],
+      "tests": [],
+      "evidence": [],
+      "attempt_problem_ids": [],
+      "platform": "darwin-arm64",
+      "next_action": "Read R01/R02/R04/R07 outcomes plus the work controller and agent observatory.",
+      "notes": []
+    },
+    "R09": {
+      "status": "pending",
+      "title": "Slim factual usage dashboard",
+      "prerequisites": [
+        "R05",
+        "R08"
+      ],
+      "requirements": [
+        "MONA-013",
+        "MONA-029"
+      ],
+      "feature_ids": [
+        "UX-AGENT-COMMS"
+      ],
+      "source_hashes": [],
+      "acceptance_completed": [],
+      "acceptance_remaining": [
+        "HUD labels scope for current turn, current thread and project totals",
+        "Stored native usage/cost projections are reused; tokens update only at receipt time",
+        "Input/output/cache figures match native definitions and do not double-count cached input",
+        "“Waiting for usage”, “unpriced” and partial totals remain distinct from zero; no fabricated live counter",
+        "Elapsed time comes from actual state; a heartbeat never becomes “the agent is thinking”",
+        "Popovers expose provenance and budget; controls remain reachable at enlarged text",
+        "Accounting fixtures cover missing/partial/cache/replayed usage, imported history, new-thread boundaries, reconnect and no active run",
+        "HUD agrees with the Cost screen and creates zero inference calls"
+      ],
+      "tests": [],
+      "evidence": [],
+      "attempt_problem_ids": [],
+      "platform": "darwin-arm64",
+      "next_action": "Read the cost ledger/contracts and Studio cost fields; define the HUD scope contract.",
+      "notes": []
+    },
+    "R10": {
+      "status": "pending",
+      "title": "Everyday composition and review conveniences",
+      "prerequisites": [
+        "R03",
+        "R04",
+        "R05"
+      ],
+      "requirements": [
+        "MONA-007",
+        "MONA-014",
+        "MONA-024"
+      ],
+      "feature_ids": [
+        "RV-13"
+      ],
+      "source_hashes": [],
+      "acceptance_completed": [],
+      "acceptance_remaining": [
+        "Copy message/code succeeds only after a clipboard acknowledgement; exact text and selection/focus are preserved",
+        "Local conversation search with anchored results and a clear Jump-to-latest/unread affordance",
+        "Resizable composer, keyboard shortcut help, and prompt favorites/history insertion that never discards unsent text",
+        "Safe project-file mentions only through a verified context mechanism; size/token implications stated and submission explicit",
+        "Binary attachments stay honestly unavailable; no bypass of file containment or whole-repository sends",
+        "Tool/change cards open the existing scoped Changes view; model output paths are treated as untrusted input",
+        "Escaped/Unicode paths, large snippets, clipboard failure, search after pagination, switches and keyboard-only use are tested"
+      ],
+      "tests": [],
+      "evidence": [],
+      "attempt_problem_ids": [],
+      "platform": "darwin-arm64",
+      "next_action": "Read the prompt shelf, changes panel, Markdown/clipboard boundary and preferences.",
+      "notes": []
+    },
+    "R11": {
+      "status": "pending",
+      "title": "Responsiveness, accessibility and display QA",
+      "prerequisites": [
+        "R06",
+        "R08",
+        "R09",
+        "R10"
+      ],
+      "requirements": [
+        "MONA-006",
+        "MONA-028"
+      ],
+      "feature_ids": [
+        "UX-AURORA",
+        "UX-AGENT-COMMS"
+      ],
+      "source_hashes": [],
+      "acceptance_completed": [],
+      "acceptance_remaining": [
+        "Rendering is bounded by real pagination/virtualization and measurement-justified memoization; no whole raw history in the renderer",
+        "VoiceOver announcements, focus navigation, IME, reduced motion, 200% scale, display scaling, both themes and multiple monitors are tested or explicitly pending",
+        "Streaming does not repeatedly announce the whole conversation; command suggestions expose descriptions and selection state",
+        "No global key handler submits from dialogs/terminal or breaks textarea editing",
+        "Packaged cold/warm startup, idle CPU/memory, active stream responsiveness and layout results are reported with comparable workloads",
+        "Existing performance targets are preserved or an explicit exception is obtained"
+      ],
+      "tests": [],
+      "evidence": [],
+      "attempt_problem_ids": [],
+      "platform": "darwin-arm64",
+      "next_action": "Read the original performance/accessibility requirements and the new surfaces' tests.",
+      "notes": []
+    },
+    "R12": {
+      "status": "pending",
+      "title": "Regression suite, ledger and evidence reconciliation",
+      "prerequisites": [
+        "R11"
+      ],
+      "requirements": [
+        "MONA-028",
+        "MONA-010",
+        "MONA-011"
+      ],
+      "feature_ids": [
+        "RV-01",
+        "RV-02",
+        "RV-03",
+        "RV-04",
+        "RV-05",
+        "RV-06",
+        "RV-07",
+        "RV-08",
+        "RV-09",
+        "RV-10",
+        "RV-11",
+        "RV-12",
+        "RV-13"
+      ],
+      "source_hashes": [],
+      "acceptance_completed": [],
+      "acceptance_remaining": [
+        "Focused/native tests and `npm run ci` run on the M3 and pass, or the report names the exact blocker",
+        "Formatting-only edits stay separate; React async warnings are fixed at act/await boundaries, not silenced",
+        "New public contracts have regression coverage, not implementation-shaped assertions",
+        "Stale requirement evidence is updated through supported ledger tools only after the affected validation is rerun",
+        "Historical evidence keeps its commit/artifact association; P22/P24/P26/P27 prerequisites stay explicit",
+        "Review graph, state schema, hashes, source changes, generated requirements and secret scan validate",
+        "No forced-green hash refresh, removed assertion or hidden skip"
+      ],
+      "tests": [],
+      "evidence": [],
+      "attempt_problem_ids": [],
+      "platform": "darwin-arm64",
+      "next_action": "Run the full gate and reconcile evidence only for files the review actually changed.",
+      "notes": []
+    },
+    "R13": {
+      "status": "pending",
+      "title": "Native installed-artifact qualification",
+      "prerequisites": [
+        "R12"
+      ],
+      "requirements": [
+        "MAC-004",
+        "MAC-006",
+        "MONA-028"
+      ],
+      "feature_ids": [],
+      "source_hashes": [],
+      "acceptance_completed": [],
+      "acceptance_remaining": [
+        "Native arm64 local candidate built and its exact payload verified",
+        "Installed app exercised through LaunchServices/Finder: project, thread, autocomplete/dispatch, newline/Command-Enter, focus/fullscreen, follow-up/pending reply, costs, export/restore, shutdown",
+        "Live route used only for the few necessary real interactions; no automatic provider switch",
+        "Update/restore/uninstall rehearsals run under isolated-root guards without risking the owner's app or data",
+        "Payload contains required native binaries and new resources, without developer paths or secrets",
+        "Reinstall/reverification after changes; old screenshots never certify new artifacts",
+        "Build ID, hash, macOS version, architecture and signing tier recorded; Git/CLT prerequisites reported honestly"
+      ],
+      "tests": [],
+      "evidence": [],
+      "attempt_problem_ids": [],
+      "platform": "darwin-arm64",
+      "next_action": "Read the packaging/local install flow and component manifests; free disk and install prerequisites as needed.",
+      "notes": []
+    },
+    "R14": {
+      "status": "pending",
+      "title": "Shareable Mac release prerequisites and pipeline",
+      "prerequisites": [
+        "R13"
+      ],
+      "requirements": [
+        "MAC-005",
+        "MONA-027",
+        "MAC-007"
+      ],
+      "feature_ids": [
+        "RV-12"
+      ],
+      "source_hashes": [],
+      "acceptance_completed": [],
+      "acceptance_remaining": [
+        "Developer ID signing/notarization/stapling/release verification path completed with authorized credentials, or an explicit blocked shareable-release status",
+        "Release trust model and native helper signing requirements preserved",
+        "No publication, enrollment purchase, agreement acceptance or invented hosting",
+        "Release mode never succeeds by removing its safeguard",
+        "Minimum tested OS and clean-host Git/tool prerequisites reconciled with the original release scope",
+        "No bypass-Gatekeeper recipe is presented as recipient readiness"
+      ],
+      "tests": [],
+      "evidence": [],
+      "attempt_problem_ids": [],
+      "platform": "darwin-arm64",
+      "next_action": "Confirm the Developer ID identities in EXT-SIGNING before touching release mode.",
+      "notes": []
+    },
+    "R15": {
+      "status": "pending",
+      "title": "Final review handoff and exact artifacts",
+      "prerequisites": [
+        "R13",
+        "R14"
+      ],
+      "requirements": [
+        "MONA-027",
+        "MONA-028",
+        "MAC-008"
+      ],
+      "feature_ids": [],
+      "source_hashes": [],
+      "acceptance_completed": [],
+      "acceptance_remaining": [
+        "Every defect and requested feature has an outcome, tests and correct status",
+        "Owner documentation and shortcuts refreshed, including literal slash text, Enter/Command-Enter, focus vs fullscreen, steering vs follow-up and cost scope",
+        "Before/after production captures and concise release notes included",
+        "Exact tested artifact bytes promoted; no rebuild after qualification with old hashes",
+        "Coherent local commits after the secret scan; no release publication",
+        "Reviewed patch history traceable without claiming the patch alone implemented the sequence",
+        "Working features, tests, source commit, installed build, artifact paths, signing tier and next action reported",
+        "Three-attempt ledger preserved and original unfinished macOS prompts not reset"
+      ],
+      "tests": [],
+      "evidence": [],
+      "attempt_problem_ids": [],
+      "platform": "darwin-arm64",
+      "next_action": "Audit the review matrix only after R13/R14 outcomes are recorded.",
+      "notes": []
+    }
+  },
+  "issues": {
+    "RV-01": {
+      "title": "Accepted send can erase newer draft text, including another project's draft",
+      "priority": "high",
+      "status": "open",
+      "task": "R01",
+      "evidence": [],
+      "notes": [
+        "Source-level race noted at Shell.tsx:796 in the reviewed baseline; not reproduced on this Mac."
+      ]
+    },
+    "RV-02": {
+      "title": "Stale async project/runtime results can overwrite current UI",
+      "priority": "high",
+      "status": "open",
+      "task": "R01",
+      "evidence": [],
+      "notes": []
+    },
+    "RV-03": {
+      "title": "Replacement imports retain old journal rows and cursors",
+      "priority": "high",
+      "status": "verified",
+      "task": "R00",
+      "evidence": [
+        "docs/evidence/macos/review-studio/R00-baseline.md"
+      ],
+      "notes": [
+        "Fixed by the verified hotfix: deleteProjectContents removes events and event_cursors before threads, transactionally; unrelated projects preserved by test."
+      ]
+    },
+    "RV-04": {
+      "title": "Timeline merges separate threads into one answer",
+      "priority": "high",
+      "status": "verified",
+      "task": "R00",
+      "evidence": [
+        "docs/evidence/macos/review-studio/R00-baseline.md"
+      ],
+      "notes": [
+        "Hotfix isolates accumulation per thread; R02 extends isolation to item/turn identity."
+      ]
+    },
+    "RV-05": {
+      "title": "Heartbeat splits streaming text into duplicate-looking cards",
+      "priority": "medium",
+      "status": "verified",
+      "task": "R00",
+      "evidence": [
+        "docs/evidence/macos/review-studio/R00-baseline.md"
+      ],
+      "notes": [
+        "Plumbing frames no longer end an open message."
+      ]
+    },
+    "RV-06": {
+      "title": "Older conversation is not truly pageable",
+      "priority": "high",
+      "status": "open",
+      "task": "R02",
+      "evidence": [],
+      "notes": []
+    },
+    "RV-07": {
+      "title": "No composer Command-Enter handler; send allows empty text",
+      "priority": "user-request",
+      "status": "verified",
+      "task": "R00",
+      "evidence": [
+        "docs/evidence/macos/review-studio/R00-baseline.md"
+      ],
+      "notes": [
+        "Enter stays newline and Command-Enter submits behind the shared gate, with IME/repeat guards. R01 adds single-flight protection."
+      ]
+    },
+    "RV-08": {
+      "title": "Focus Mode is not immersive fullscreen",
+      "priority": "user-request",
+      "status": "open",
+      "task": "R05",
+      "evidence": [],
+      "notes": []
+    },
+    "RV-09": {
+      "title": "No descriptive slash-command autocomplete in Studio",
+      "priority": "user-request",
+      "status": "open",
+      "task": "R03",
+      "evidence": [],
+      "notes": []
+    },
+    "RV-10": {
+      "title": "In-app approval/clarification replies are missing",
+      "priority": "high",
+      "status": "open",
+      "task": "R07",
+      "evidence": [],
+      "notes": []
+    },
+    "RV-11": {
+      "title": "Source formatting blocks the full CI entrypoint",
+      "priority": "medium",
+      "status": "verified",
+      "task": "R00",
+      "evidence": [
+        "docs/evidence/macos/review-studio/artifacts/r00-format-gate.txt"
+      ],
+      "notes": [
+        "Closed before R00 by commit 4411ef1 (format-only change to the four files); R00 confirmed the gate green and kept formatting separate from behavioral edits."
+      ]
+    },
+    "RV-12": {
+      "title": "Local package is not a friend-ready signed distribution",
+      "priority": "low",
+      "status": "open",
+      "task": "R14",
+      "evidence": [],
+      "notes": [
+        "Documented in the original MAC-005/EXT-SIGNING blocker; R14 owns completion or an explicit blocked status."
+      ]
+    },
+    "RV-13": {
+      "title": "Attachments disabled",
+      "priority": "low",
+      "status": "open",
+      "task": "R10",
+      "evidence": [],
+      "notes": []
+    },
+    "UX-FULLSCREEN": {
+      "title": "Immersive Studio: focus and native fullscreen",
+      "priority": "user-request",
+      "status": "open",
+      "task": "R05",
+      "evidence": [],
+      "notes": []
+    },
+    "UX-COMMANDS": {
+      "title": "Descriptive command autocomplete and safe command execution",
+      "priority": "user-request",
+      "status": "open",
+      "task": "R03",
+      "evidence": [],
+      "notes": []
+    },
+    "UX-COMPOSER": {
+      "title": "Enter inserts a newline, Command-Enter submits",
+      "priority": "user-request",
+      "status": "verified",
+      "task": "R00",
+      "evidence": [
+        "docs/evidence/macos/review-studio/R00-baseline.md"
+      ],
+      "notes": [
+        "Landed with the verified hotfix at R00. R01 owns lossless single-flight submission; R05 owns composer resizing."
+      ]
+    },
+    "UX-AURORA": {
+      "title": "Aurora Studio visual direction (splashier, cooler, more fun)",
+      "priority": "user-request",
+      "status": "open",
+      "task": "R06",
+      "evidence": [],
+      "notes": []
+    },
+    "UX-AGENT-COMMS": {
+      "title": "Watch and talk to agents: pending replies, follow-ups, steering, activity",
+      "priority": "user-request",
+      "status": "open",
+      "task": "R08",
+      "evidence": [],
+      "notes": []
+    }
+  },
+  "last_checkpoint_utc": "2026-11-14T04:25:06.899Z",
+  "notes": [
+    "Subordinate ledger. The P00–P27 registry remains authoritative for product requirements; this registry tracks review tasks and findings only.",
+    "Attempts continue in the shared attempts.jsonl; a review task ID never resets a count."
+  ]
+}

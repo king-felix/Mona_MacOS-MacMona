@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 764,
+  "revision": 784,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -83,8 +83,8 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "145da14c35ff8c8d2dd1077547b42dc2e83c6cb054ad522463696b3e1fe16d54",
-          "note": "P15 appended D-037..D-041; earlier entries unchanged"
+          "sha256": "e07c660eac56dba6d53c8c751f914259cc3f9fed0b700f93ac6e81b3224b73f0",
+          "note": "R00 review adoption updated this ledger document (D-103 and the studio-v2 review pointer); hash re-recorded at the R00 checkpoint, nothing removed"
         },
         {
           "path": "docs/evidence/macos/artifacts/p00-test-run.txt",
@@ -755,8 +755,8 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "145da14c35ff8c8d2dd1077547b42dc2e83c6cb054ad522463696b3e1fe16d54",
-          "note": "P15 appended D-037..D-041; earlier entries unchanged"
+          "sha256": "e07c660eac56dba6d53c8c751f914259cc3f9fed0b700f93ac6e81b3224b73f0",
+          "note": "R00 review adoption updated this ledger document (D-103 and the studio-v2 review pointer); hash re-recorded at the R00 checkpoint, nothing removed"
         }
       ],
       "blocker_ids": [],
@@ -969,23 +969,23 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p07-shell-home.png",
-          "sha256": "9d657297e25fdc64344da03705e5d343ddc173503acb0bdeff9b1563754526a5",
-          "note": "P15's smoke run rewrote this capture because the rail gained a 7th screen; the screen itself is unchanged and verified"
+          "sha256": "0340b40778d28c29a8561a69e681b7371ffe4695fafa5486291c9984f39c2ef6",
+          "note": "R00 review shell-smoke run (2026-11-14) rewrote this capture after the composer hint and Command-Enter shortcut landed; hash re-recorded from the current bytes, assertions unchanged (127/127)"
         },
         {
           "path": "docs/evidence/macos/artifacts/p07-shell-studio.png",
-          "sha256": "8ee98c9d0397ea4822635747f321cfcc57cc1c0d52cf6886f973f5dcb22d07d4",
-          "note": "P15's smoke run rewrote this capture because the rail gained a 7th screen; the screen itself is unchanged and verified"
+          "sha256": "3c1e1beb665499f5ea0c6cc29bed6d2c2373275afc4817e839777dfb4ea58950",
+          "note": "R00 review shell-smoke run (2026-11-14) rewrote this capture after the composer hint and Command-Enter shortcut landed; hash re-recorded from the current bytes, assertions unchanged (127/127)"
         },
         {
           "path": "docs/evidence/macos/artifacts/p07-shell-board.png",
-          "sha256": "5fad0066213925b5c7d08beede722dcb428f2d6a0caa7e5faabb8a9cf40f580b",
-          "note": "P15's smoke run rewrote this capture because the rail gained a 7th screen; the screen itself is unchanged and verified"
+          "sha256": "ec0c6e76d1493be14efd9c6baec0a0f8f3690914ffc7d560cbdfa5c9cf520fce",
+          "note": "R00 review shell-smoke run (2026-11-14) rewrote this capture after the composer hint and Command-Enter shortcut landed; hash re-recorded from the current bytes, assertions unchanged (127/127)"
         },
         {
           "path": "docs/evidence/macos/artifacts/p07-shell-settings.png",
-          "sha256": "aa97e600c41e667b84657f797ef800c3850cdcc08f57ce54e5e7f3d979e38c20",
-          "note": "P15's smoke run rewrote this capture because the rail gained a 7th screen; the screen itself is unchanged and verified"
+          "sha256": "28f7928a0c8e06df9a9c6fc1f253556c2c9c8556bacf9020e9e118575c887d5b",
+          "note": "R00 review shell-smoke run (2026-11-14) rewrote this capture after the composer hint and Command-Enter shortcut landed; hash re-recorded from the current bytes, assertions unchanged (127/127)"
         },
         {
           "path": "docs/evidence/macos/artifacts/p07-interface-scale.json",
@@ -1272,8 +1272,8 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "145da14c35ff8c8d2dd1077547b42dc2e83c6cb054ad522463696b3e1fe16d54",
-          "note": "P15 appended D-037..D-041; earlier entries unchanged"
+          "sha256": "e07c660eac56dba6d53c8c751f914259cc3f9fed0b700f93ac6e81b3224b73f0",
+          "note": "R00 review adoption updated this ledger document (D-103 and the studio-v2 review pointer); hash re-recorded at the R00 checkpoint, nothing removed"
         },
         {
           "path": "docs/evidence/macos/artifacts/p09-finder-panel.png",
@@ -1345,8 +1345,8 @@
         },
         {
           "path": "src/main/state/store.ts",
-          "sha256": "89944463f5ac097ece0ad55fd7f3a66e8e279a3157585c72777828acae2d3d49",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run"
+          "sha256": "7f0ba831e758513922f4d9912708f9af04d34abaf7ec08981ede5c594606d07a",
+          "note": "R00 review pass: the verified hotfix added events/event_cursors cleanup to deleteProjectContents. Hash re-recorded after the full 796-test suite passed on the new bytes; the original P10/P19 report still describes the pre-review bytes"
         },
         {
           "path": "src/main/state/portable.ts",
@@ -1467,13 +1467,13 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p11-shell-board.png",
-          "sha256": "5fad0066213925b5c7d08beede722dcb428f2d6a0caa7e5faabb8a9cf40f580b",
-          "note": "P15's smoke run rewrote this capture because the rail gained a 7th screen; attempt assertions still pass"
+          "sha256": "ec0c6e76d1493be14efd9c6baec0a0f8f3690914ffc7d560cbdfa5c9cf520fce",
+          "note": "R00 review shell-smoke run (2026-11-14) rewrote this capture after the composer hint and Command-Enter shortcut landed; hash re-recorded from the current bytes, assertions unchanged (127/127)"
         },
         {
           "path": "docs/evidence/macos/artifacts/p11-shell-attempts.png",
-          "sha256": "0b886481f8c9ba5189caca9aaaf8cbc988679f6558464ffcbc23956decc2ccd2",
-          "note": "P15's smoke run rewrote this capture because the rail gained a 7th screen; attempt assertions still pass"
+          "sha256": "a9cc4b279f96e9b249ecdeb5c9c607b3891c233a8a92d31de45912edca1d4306",
+          "note": "R00 review shell-smoke run (2026-11-14) rewrote this capture after the composer hint and Command-Enter shortcut landed; hash re-recorded from the current bytes, assertions unchanged (127/127)"
         },
         {
           "path": "docs/evidence/macos/artifacts/p11-ci.txt",
@@ -1538,13 +1538,13 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p12-shell-cost.png",
-          "sha256": "516ff611e9b84cc95a56189a152e013622f294ae34782ed3844d14b80796d063",
-          "note": "P15's smoke run rewrote this capture because the rail gained a 7th screen; cost assertions still pass"
+          "sha256": "5cbd4864aefd8549d8b6cc3d69ad6269d5f8d057c7c2beb07945a03f067631ba",
+          "note": "R00 review shell-smoke run (2026-11-14) rewrote this capture after the composer hint and Command-Enter shortcut landed; hash re-recorded from the current bytes, assertions unchanged (127/127)"
         },
         {
           "path": "docs/evidence/macos/artifacts/p12-shell-cost-detail.png",
-          "sha256": "5def6fb0aa7ccfc24e61dd7c88b814339f1dc13f5e79770b3366f76ee5a6241b",
-          "note": "P15's smoke run rewrote this capture because the rail gained a 7th screen; cost assertions still pass"
+          "sha256": "6da0025a6cdd6a91425461fb6c8e5b4e07233b4ddf78c798c9892b30496e48ef",
+          "note": "R00 review shell-smoke run (2026-11-14) rewrote this capture after the composer hint and Command-Enter shortcut landed; hash re-recorded from the current bytes, assertions unchanged (127/127)"
         },
         {
           "path": "docs/evidence/macos/artifacts/p12-schema.txt",
@@ -1597,8 +1597,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p13-shell-changes.png",
-          "sha256": "5eb984da4bfd8ae3953544ede165b001a181a7bde7e13937ddca745e4ba71046",
-          "note": "P15's smoke run rewrote this capture because the rail gained a 7th screen; changes assertions still pass"
+          "sha256": "8c8eb6d9d2b7877e1de1ebac1e9d451f592398b011b8616cb9e6f841df38faca",
+          "note": "R00 review shell-smoke run (2026-11-14) rewrote this capture after the composer hint and Command-Enter shortcut landed; hash re-recorded from the current bytes, assertions unchanged (127/127)"
         },
         {
           "path": "docs/evidence/macos/artifacts/p13-schema.txt",
@@ -1614,8 +1614,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p13-shell-changes-file.png",
-          "sha256": "4c4c2f3d85da1dbaa1fe9033fcc039863ba4f8611374b54819f2a4137735dd94",
-          "note": "P15's smoke run rewrote this capture because the rail gained a 7th screen; changes assertions still pass"
+          "sha256": "6f6e605c1ff78e65729726dafc958e3eca876446f8d05066b92b0232011c1832",
+          "note": "R00 review shell-smoke run (2026-11-14) rewrote this capture after the composer hint and Command-Enter shortcut landed; hash re-recorded from the current bytes, assertions unchanged (127/127)"
         }
       ],
       "blocker_ids": []
@@ -1664,8 +1664,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p14-home-daybreak.png",
-          "sha256": "9d657297e25fdc64344da03705e5d343ddc173503acb0bdeff9b1563754526a5",
-          "note": "P15's smoke run rewrote this capture because the rail gained a 7th screen; polish assertions still pass"
+          "sha256": "0340b40778d28c29a8561a69e681b7371ffe4695fafa5486291c9984f39c2ef6",
+          "note": "R00 review shell-smoke run (2026-11-14) rewrote this capture after the composer hint and Command-Enter shortcut landed; hash re-recorded from the current bytes, assertions unchanged (127/127)"
         },
         {
           "path": "docs/evidence/macos/artifacts/p14-settings-attention.png",
@@ -1679,13 +1679,13 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p14-settings-receipts.png",
-          "sha256": "9db2a822fcfd73c82dcd76bd2e92eeae437e2c819cb0634f8e3cea7572fcf5a3",
-          "note": "P15's smoke run rewrote this capture because the rail gained a 7th screen; polish assertions still pass"
+          "sha256": "33c27574e59459155a57f671f98f28ff0029e919f91b895318224099dd9bad94",
+          "note": "R00 review shell-smoke run (2026-11-14) rewrote this capture after the composer hint and Command-Enter shortcut landed; hash re-recorded from the current bytes, assertions unchanged (127/127)"
         },
         {
           "path": "docs/evidence/macos/artifacts/p14-studio-focus-afterglow.png",
-          "sha256": "d60feed6c361426f545f1bfce63648498f2089ad958657e75e52e7ab286fae8f",
-          "note": "P15's smoke run rewrote this capture because the rail gained a 7th screen; polish assertions still pass"
+          "sha256": "a8013d08d1689c0057ebf0d813db835d268c54ff3a2e6f41c2e5e6e409726e07",
+          "note": "R00 review shell-smoke run (2026-11-14) rewrote this capture after the composer hint and Command-Enter shortcut landed; hash re-recorded from the current bytes, assertions unchanged (127/127)"
         },
         {
           "path": "docs/evidence/macos/artifacts/p14-ci.txt",
@@ -1766,18 +1766,18 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p15-agents-daybreak.png",
-          "sha256": "1fe0875df66d6c40dcf7477c3826ce3291ea223fd23836271ad8a74381a8eeb7",
-          "note": "P15 evidence after the D-041 review pass"
+          "sha256": "f5529820988633b803f8357c47e984e1cef6939a13a220f039e48f447186baf2",
+          "note": "R00 review shell-smoke run (2026-11-14) rewrote this capture after the composer hint and Command-Enter shortcut landed; hash re-recorded from the current bytes, assertions unchanged (127/127)"
         },
         {
           "path": "docs/evidence/macos/artifacts/p15-agents-afterglow.png",
-          "sha256": "babd99e0a93a383d449004e807874a1d64cd0871a3f79e264aa12f800c1af960",
-          "note": "P15 evidence after the D-041 review pass"
+          "sha256": "761873c03045b2c731573e92d8f0d8f28a3b18db1cf5187268aadf992f758df1",
+          "note": "R00 review shell-smoke run (2026-11-14) rewrote this capture after the composer hint and Command-Enter shortcut landed; hash re-recorded from the current bytes, assertions unchanged (127/127)"
         },
         {
           "path": "docs/evidence/macos/artifacts/p15-agents-inspector.png",
-          "sha256": "7b95609cdb633d64aaf18fba82c989191cb94176ab17aeacefd0753aed324902",
-          "note": "P15 evidence after the D-041 review pass"
+          "sha256": "f7a433708b342e05abd89549761a502b1f30075c2607ec9fe962d4cc2b50bd53",
+          "note": "R00 review shell-smoke run (2026-11-14) rewrote this capture after the composer hint and Command-Enter shortcut landed; hash re-recorded from the current bytes, assertions unchanged (127/127)"
         }
       ],
       "blocker_ids": []
@@ -1928,7 +1928,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-terminal.png",
-          "sha256": "3fb0f647b0905b8e084dbc0d66f248592559a5355f554ff9bcba2b0326c87482"
+          "sha256": "1a56ba9ac1a8981b83d687a9f5a981e032bf010c616d499c462dc4d28077c27d",
+          "note": "R00 review shell-smoke run (2026-11-14) rewrote this capture after the composer hint and Command-Enter shortcut landed; hash re-recorded from the current bytes, assertions unchanged (127/127)"
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capabilities.png",
@@ -2088,7 +2089,8 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "145da14c35ff8c8d2dd1077547b42dc2e83c6cb054ad522463696b3e1fe16d54"
+          "sha256": "e07c660eac56dba6d53c8c751f914259cc3f9fed0b700f93ac6e81b3224b73f0",
+          "note": "R00 review adoption updated this ledger document (D-103 and the studio-v2 review pointer); hash re-recorded at the R00 checkpoint, nothing removed"
         }
       ],
       "blocker_ids": []
@@ -2130,11 +2132,13 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p19-memory-search.png",
-          "sha256": "cf0aa5e1fa65001ffd3364f900bdbd6d6a6abe5e1e221e10c2bed95c18c7b3e8"
+          "sha256": "06cef92c42b6c691d17b0708700a37acc9659783f22820f64ac9aa06abbdc71f",
+          "note": "R00 review shell-smoke run (2026-11-14) rewrote this capture after the composer hint and Command-Enter shortcut landed; hash re-recorded from the current bytes, assertions unchanged (127/127)"
         },
         {
           "path": "docs/evidence/macos/artifacts/p19-memory-handoff.png",
-          "sha256": "bf44a0a54559ee8fc97405052e986785a4f181a46fd84ea4afd3dc12d541abaf"
+          "sha256": "877043b8105e98275028e47631d40bd80d1418fc4d7b88b0796b4023eec1ecd6",
+          "note": "R00 review shell-smoke run (2026-11-14) rewrote this capture after the composer hint and Command-Enter shortcut landed; hash re-recorded from the current bytes, assertions unchanged (127/127)"
         },
         {
           "path": "docs/decisions/ADR-013-memory-and-handoff.md",
@@ -2162,7 +2166,8 @@
         },
         {
           "path": "src/main/state/store.ts",
-          "sha256": "89944463f5ac097ece0ad55fd7f3a66e8e279a3157585c72777828acae2d3d49"
+          "sha256": "7f0ba831e758513922f4d9912708f9af04d34abaf7ec08981ede5c594606d07a",
+          "note": "R00 review pass: the verified hotfix added events/event_cursors cleanup to deleteProjectContents. Hash re-recorded after the full 796-test suite passed on the new bytes; the original P10/P19 report still describes the pre-review bytes"
         },
         {
           "path": "src/renderer/shell/Memory.tsx",
@@ -2206,11 +2211,13 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "145da14c35ff8c8d2dd1077547b42dc2e83c6cb054ad522463696b3e1fe16d54"
+          "sha256": "e07c660eac56dba6d53c8c751f914259cc3f9fed0b700f93ac6e81b3224b73f0",
+          "note": "R00 review adoption updated this ledger document (D-103 and the studio-v2 review pointer); hash re-recorded at the R00 checkpoint, nothing removed"
         },
         {
           "path": ".mona/build-macos/HANDOFF.md",
-          "sha256": "2232703dcef19e496f5e9fa3de746bcbe357ec3fca16b9e649590419d3ff7ad7"
+          "sha256": "48567a3d2c6c06176de4fabd8fd5118cbc6c563156fda51bdabfc28f78cda8b3",
+          "note": "R00 review adoption updated this ledger document (D-103 and the studio-v2 review pointer); hash re-recorded at the R00 checkpoint, nothing removed"
         }
       ],
       "blocker_ids": []
@@ -2270,6 +2277,11 @@
         {
           "path": "test/p20-failure-matrix.test.ts",
           "sha256": "9ef67c7dcb1677108ac5775c335b3bf0986b781c2e20f85b3ba484828c573c5b"
+        },
+        {
+          "path": ".mona/build-macos/DECISIONS.md",
+          "sha256": "e07c660eac56dba6d53c8c751f914259cc3f9fed0b700f93ac6e81b3224b73f0",
+          "note": "R00 review adoption updated this ledger document (D-103 and the studio-v2 review pointer); hash re-recorded at the R00 checkpoint, nothing removed"
         }
       ],
       "blocker_ids": []
@@ -2424,11 +2436,13 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "145da14c35ff8c8d2dd1077547b42dc2e83c6cb054ad522463696b3e1fe16d54"
+          "sha256": "e07c660eac56dba6d53c8c751f914259cc3f9fed0b700f93ac6e81b3224b73f0",
+          "note": "R00 review adoption updated this ledger document (D-103 and the studio-v2 review pointer); hash re-recorded at the R00 checkpoint, nothing removed"
         },
         {
           "path": ".mona/build-macos/HANDOFF.md",
-          "sha256": "2232703dcef19e496f5e9fa3de746bcbe357ec3fca16b9e649590419d3ff7ad7"
+          "sha256": "48567a3d2c6c06176de4fabd8fd5118cbc6c563156fda51bdabfc28f78cda8b3",
+          "note": "R00 review adoption updated this ledger document (D-103 and the studio-v2 review pointer); hash re-recorded at the R00 checkpoint, nothing removed"
         },
         {
           "path": "test/work-git.test.ts",
@@ -2551,9 +2565,10 @@
     }
   },
   "next_eligible_prompts": [
-    "P14"
+    "P22",
+    "P25"
   ],
-  "last_checkpoint_utc": "2026-11-14T04:16:27.990Z",
+  "last_checkpoint_utc": "2026-11-14T04:24:51.154Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",
@@ -2629,6 +2644,7 @@
   },
   "notes": [
     "P00 accepted: clean-room verification captured in docs/evidence/macos/artifacts/p00-cleanroom-verification.txt",
-    "P20 hardening: six defects found and fixed with reproducible cases (repository-hook secret leak, silent event-stream gaps, symlinked extraction parent, unnamed missing artifact, prefix home redaction, and a supervisor receipt write that orphaned the runtime tree on main-process death)."
+    "P20 hardening: six defects found and fixed with reproducible cases (repository-hook secret leak, silent event-stream gaps, symlinked extraction parent, unnamed missing artifact, prefix home redaction, and a supervisor receipt write that orphaned the runtime tree on main-process death).",
+    "R00 (Studio review): subordinate ledger created at .mona/build-macos/reviews/studio-v2/; reviewed hotfix applied unmodified to store.ts, Studio.tsx and timeline.ts with its five regression tests; P10/P19 store.ts evidence re-recorded after 796 tests passed; 19 shell captures refreshed and re-hashed. See D-103."
   ]
 }

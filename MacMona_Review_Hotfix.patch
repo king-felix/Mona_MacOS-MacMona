@@ -1,0 +1,264 @@
+diff --git a/src/main/state/store.ts b/src/main/state/store.ts
+index a0f020c..a2f337c 100644
+--- a/src/main/state/store.ts
++++ b/src/main/state/store.ts
+@@ -5828,6 +5828,15 @@ export class StateStore {
+     db.prepare(
+       "DELETE FROM event_gaps WHERE thread_id IN (SELECT id FROM threads WHERE project_id = ?)",
+     ).run(projectId);
++    // These journal tables deliberately have no thread foreign key. Clear them
++    // before deleting threads so replacement imports cannot resurrect old frames
++    // or retain a cursor that skips fresh/replayed events for a reused thread id.
++    db.prepare(
++      "DELETE FROM events WHERE thread_id IN (SELECT id FROM threads WHERE project_id = ?)",
++    ).run(projectId);
++    db.prepare(
++      "DELETE FROM event_cursors WHERE thread_id IN (SELECT id FROM threads WHERE project_id = ?)",
++    ).run(projectId);
+     db.prepare(
+       "DELETE FROM turns WHERE thread_id IN (SELECT id FROM threads WHERE project_id = ?)",
+     ).run(projectId);
+diff --git a/src/renderer/shell/Studio.tsx b/src/renderer/shell/Studio.tsx
+index 6c1e9b7..abc453a 100644
+--- a/src/renderer/shell/Studio.tsx
++++ b/src/renderer/shell/Studio.tsx
+@@ -229,7 +229,8 @@ export function StudioScreen(props: StudioProps): JSX.Element {
+     null;
+   const profile = studio?.profile ?? null;
+   const effective = profile?.effective ?? null;
+-  const sendBlocked = props.studioBusy || (studio !== null && !studio.canSubmit);
++  const sendBlocked =
++    props.draft.trim().length === 0 || props.studioBusy || (studio !== null && !studio.canSubmit);
+   const sendReason =
+     studio?.cannotSubmitReason ??
+     (studio === null ? "Mona starts the engine when you submit an explicit task." : null);
+@@ -566,11 +567,24 @@ export function StudioScreen(props: StudioProps): JSX.Element {
+               </div>
+               <TextArea
+                 label="Task prompt"
+-                hint="Saved locally for this project and thread. Rendering Markdown is safe: raw HTML never executes."
++                hint="Enter adds a line break. ⌘Enter sends. Saved locally for this project and thread."
+                 placeholder="Describe one concrete outcome, its boundaries, and how to verify it…"
+                 rows={3}
+                 value={props.draft}
+                 onChange={(event) => props.onDraft(event.target.value)}
++                onKeyDown={(event) => {
++                  if (
++                    event.key !== "Enter" ||
++                    !event.metaKey ||
++                    event.shiftKey ||
++                    event.altKey ||
++                    event.ctrlKey ||
++                    event.nativeEvent.isComposing
++                  )
++                    return;
++                  event.preventDefault();
++                  if (!event.repeat && !sendBlocked) props.onSubmit();
++                }}
+               />
+               <div className="composer__actions">
+                 <div className="composer__left">
+diff --git a/src/renderer/shell/timeline.ts b/src/renderer/shell/timeline.ts
+index dd2f57a..90e9e68 100644
+--- a/src/renderer/shell/timeline.ts
++++ b/src/renderer/shell/timeline.ts
+@@ -57,6 +57,37 @@ export interface TimelineProjection {
+  * kinds stay visible instead of vanishing. No text is invented here.
+  */
+ export function projectTimeline(events: StoredEventSummary[]): TimelineProjection {
++  // A project includes multiple native/local threads. Stream accumulation and
++  // completion matching must never cross those identities, even if their item
++  // kinds or sequence numbers happen to match.
++  const threads = new Map<string, StoredEventSummary[]>();
++  for (const event of events) {
++    const group = threads.get(event.threadId) ?? [];
++    group.push(event);
++    threads.set(event.threadId, group);
++  }
++  const entries: TimelineEntry[] = [];
++  const unprojected = new Set<string>();
++  let internalActivity = 0;
++  for (const [threadId, frames] of threads) {
++    const projection = projectThreadTimeline(frames);
++    entries.push(
++      ...projection.entries.map((entry) => ({
++        ...entry,
++        key: `${threadId}:${entry.key}`,
++      })),
++    );
++    internalActivity += projection.internalActivity;
++    for (const kind of projection.unprojected) unprojected.add(kind);
++  }
++  entries.sort((left, right) => {
++    if (left.timestamp === right.timestamp) return left.seq - right.seq;
++    return Date.parse(left.timestamp) - Date.parse(right.timestamp);
++  });
++  return { entries, internalActivity, unprojected: [...unprojected].sort() };
++}
++
++function projectThreadTimeline(events: StoredEventSummary[]): TimelineProjection {
+   const entries: TimelineEntry[] = [];
+   let internalActivity = 0;
+   const unprojected = new Set<string>();
+@@ -102,7 +133,8 @@ export function projectTimeline(events: StoredEventSummary[]): TimelineProjectio
+     const payload = record(event.payload);
+     const key = `${event.threadId}-${event.seq}`;
+     if (isEnginePlumbingKind(event.kind)) {
+-      if (event.kind !== "item.started") flushDelta();
++      // Liveness/accounting does not end a message. Flushing here strands a
++      // partial card beside the later completed answer.
+       internalActivity += 1;
+       continue;
+     }
+diff --git a/test/state-portable.test.ts b/test/state-portable.test.ts
+index 781a5a1..312cc81 100644
+--- a/test/state-portable.test.ts
++++ b/test/state-portable.test.ts
+@@ -89,6 +89,47 @@ async function seededStore() {
+ }
+ 
+ describe("portable project export", () => {
++  it("replacement clears old events, cursors and gaps without touching another project", async () => {
++    const source = await seededStore();
++    const bundle = await source.store.exportProject(source.project.id);
++    const otherFolder = join(source.dir, "unrelated");
++    mkdirSync(otherFolder);
++    const other = await source.store.createProject({ name: "Other", rootPath: otherFolder });
++    const otherThread = await source.store.upsertThread({
++      id: "thr_other123",
++      projectId: other.id,
++      title: "Other",
++    });
++    for (const threadId of [source.thread.id, otherThread.id]) {
++      await source.store.recordEvent({
++        threadId,
++        seq: 77,
++        kind: "turn.completed",
++        payload: { marker: "old" },
++        timestamp: "2026-11-13T00:00:00Z",
++      });
++      await source.store.recordEventGap({ threadId, from: 50, to: 60 });
++    }
++    await source.store.importProject(bundle, {
++      rootPath: source.folder,
++      mode: "replace",
++      expectedRevision: source.project.revision,
++    });
++    expect(await source.store.readEvents(source.thread.id)).toEqual([]);
++    expect(await source.store.getCursor(source.thread.id)).toBe(0);
++    expect(await source.store.readEvents(otherThread.id)).toHaveLength(1);
++    expect(await source.store.getCursor(otherThread.id)).toBe(77);
++    const replay = await source.store.recordEvent({
++      threadId: source.thread.id,
++      seq: 77,
++      kind: "turn.completed",
++      payload: { marker: "fresh" },
++      timestamp: "2026-11-13T00:00:00Z",
++    });
++    expect(replay.recorded).toBe(true);
++    await source.store.close();
++  });
++
+   it("produces a digest-stable bundle without bindings, secrets, or artifact bytes", async () => {
+     const { store, project, task, folder } = await seededStore();
+     const bundle = await store.exportProject(project.id);
+diff --git a/test/studio-render.test.tsx b/test/studio-render.test.tsx
+index ea8ab81..cbd83c5 100644
+--- a/test/studio-render.test.tsx
++++ b/test/studio-render.test.tsx
+@@ -67,6 +67,26 @@ describe("safe Markdown rendering", () => {
+ });
+ 
+ describe("timeline projection", () => {
++  it("keeps interleaved threads separate, even when sequence numbers match", () => {
++    const result = projectTimeline([
++      event(1, "item.delta", { kind: "agent_message", delta: "ALPHA" }, { threadId: "thread-a" }),
++      event(1, "item.delta", { kind: "agent_message", delta: "BETA" }, { threadId: "thread-b" }),
++    ]);
++    expect(result.entries.map((e) => e.body)).toEqual(["ALPHA", "BETA"]);
++    expect(new Set(result.entries.map((e) => e.key)).size).toBe(2);
++  });
++
++  it("does not split streamed text at heartbeat or other plumbing frames", () => {
++    const result = projectTimeline([
++      event(1, "item.delta", { kind: "agent_message", delta: "ALPHA" }),
++      event(2, "operation.heartbeat", {}),
++      event(3, "item.delta", { kind: "agent_message", delta: "BETA" }),
++      event(4, "item.completed", { item: { kind: "agent_message", detail: "ALPHABETA" } }),
++    ]);
++    expect(result.entries.map((e) => e.body)).toEqual(["ALPHABETA"]);
++    expect(result.internalActivity).toBe(1);
++  });
++
+   it("merges deltas into one message and ignores duplicate sequences", () => {
+     const events = [
+       event(2, "turn.started", { permission_posture: "full_access" }),
+diff --git a/test/studio-screen.test.tsx b/test/studio-screen.test.tsx
+index f21e4e0..6042bf6 100644
+--- a/test/studio-screen.test.tsx
++++ b/test/studio-screen.test.tsx
+@@ -1,7 +1,7 @@
+ // @vitest-environment jsdom
+ import { act } from "react";
+ import { createRoot, type Root } from "react-dom/client";
+-import { afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
++import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+ import type { ProjectDetail } from "../src/shared/contracts/project-bridge";
+ import type { StudioSnapshot } from "../src/shared/contracts/studio";
+ import { StudioScreen } from "../src/renderer/shell/Studio";
+@@ -187,6 +187,55 @@ function render(props: Partial<Parameters<typeof StudioScreen>[0]> = {}): void {
+ }
+ 
+ describe("studio screen honesty and safety", () => {
++  it("submits with Command-Enter only, leaving plain Enter and IME alone", () => {
++    const onSubmit = vi.fn();
++    render({ draft: "Do work", onSubmit });
++    const textarea = container!.querySelector("textarea")!;
++    function key(options: KeyboardEventInit = {}) {
++      const event = new KeyboardEvent("keydown", {
++        key: "Enter",
++        bubbles: true,
++        cancelable: true,
++        ...options,
++      });
++      act(() => {
++        textarea.dispatchEvent(event);
++      });
++      return event;
++    }
++    expect(key().defaultPrevented).toBe(false);
++    expect(key({ metaKey: true, isComposing: true }).defaultPrevented).toBe(false);
++    key({ metaKey: true, repeat: true });
++    expect(onSubmit).not.toHaveBeenCalled();
++    expect(key({ metaKey: true }).defaultPrevented).toBe(true);
++    expect(onSubmit).toHaveBeenCalledTimes(1);
++  });
++
++  it("uses the same disabled gate for shortcut and send button", () => {
++    const onSubmit = vi.fn();
++    for (const props of [
++      { draft: "   " },
++      { draft: "Do work", studioBusy: true },
++      { draft: "Do work", studio: studio({ canSubmit: false }) },
++    ]) {
++      render({ onSubmit, ...props });
++      expect(
++        (container!.querySelector('[data-testid="studio-send"]') as HTMLButtonElement).disabled,
++      ).toBe(true);
++      act(() => {
++        container!.querySelector("textarea")!.dispatchEvent(
++          new KeyboardEvent("keydown", {
++            key: "Enter",
++            metaKey: true,
++            bubbles: true,
++            cancelable: true,
++          }),
++        );
++      });
++    }
++    expect(onSubmit).not.toHaveBeenCalled();
++  });
++
+   it("says a silent stream is silent instead of showing a live-looking turn", () => {
+     render({
+       studio: studio({

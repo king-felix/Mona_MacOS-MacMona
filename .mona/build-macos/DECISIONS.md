@@ -1823,3 +1823,44 @@ and the smoke measures it rather than asserting it is pretty.
   unreachable-by-ref commits (destructive, needs `delete_repo`), and deleting
   `/tmp/git-backup-pre-rewrite` (the only local copy of the pre-rewrite history).
   Both need the operator's word.
+
+## D-103 — The Studio review runs in a subordinate, code-enforced ledger
+
+- **Date:** 2026-11-14 (R00)
+- **Context:** Victor supplied `MacMona_Studio_Review_PROMPTS.md` (review 1.0,
+  reviewed remote commit `10d8375`, local equivalent `4d893fc`) and
+  `MacMona_Review_Hotfix.patch` (sha256 `a253a05e…`), and asked for R00 first.
+  The review requires a subordinate plan under
+  `.mona/build-macos/reviews/studio-v2/` with revision checks and evidence
+  hashes, and forbids restarting P00 or resetting attempt counts.
+- **Decision:** R00–R15 and findings RV-01…RV-13 plus UX-FULLSCREEN,
+  UX-COMMANDS, UX-COMPOSER, UX-AURORA and UX-AGENT-COMMS are tracked in
+  `reviews/studio-v2/state.json`, written only by `monabuild review`
+  (`tools/monabuild/lib/review.mjs` + `schemas/review.schema.json`). The
+  original P00–P27 state stays authoritative for product requirements.
+- **Why mechanism, not prose:** the review CLI enforces schema, exact task/issue
+  sets, prerequisite cycles, `current_task` agreement, a completed task with
+  remaining acceptance, evidence-file existence and hashes, and — through the
+  shared `attempts.jsonl` — that a task naming a blocked problem cannot be
+  completed. Atomic replacement, a single-writer lock and `--expect-revision`
+  are inherited from the same utilities as the product ledger.
+- **Hotfix:** applied with `git apply`, unmodified. The only commits between the
+  reviewed baseline and HEAD are the format-only cleanup of four other files
+  (`4411ef1`), shortened secret fixtures (`5b15c66`), and ledger/evidence
+  updates; the six hotfix files were byte-identical, so no adaptation was
+  needed and none was invented. With the three source fixes stashed and the
+  regression tests kept, exactly the five expected tests fail (24 pass), so the
+  tests demonstrably catch the defects they claim.
+- **Evidence hashes:** `store.ts` changed, invalidating the P10/P19 recorded
+  hash `89944463…`. It was re-recorded only after the full suite passed on the
+  new bytes, with a note saying the original reports describe the pre-review
+  bytes. The 19 shell captures rewritten by the R00 smoke were re-recorded per
+  task with notes. No old report was rewritten and no assertion was removed.
+- **Findings disposition at R00:** RV-03/04/05/07 and UX-COMPOSER verified;
+  RV-11 verified (already closed at `4411ef1`, confirmed green); RV-01/02/06/08/
+  09/10/12/13 and the remaining UX IDs stay open on their owning tasks.
+- **Not claimed:** drafts/navigation lossless (R01), history paging (R02),
+  slash commands (R03/R04), immersive/fullscreen Studio (R05), Aurora visuals
+  (R06), approvals (R07), follow-ups/steering (R08), HUD (R09), conveniences
+  (R10), accessibility/perf matrix (R11), installed artifact (R13), signed
+  release (R14). `--mode release` still fails closed.
