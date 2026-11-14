@@ -16,6 +16,7 @@ import {
   GoalThreadSchema,
 } from "../shared/contracts/agents";
 import { ExtensionActionIdSchema } from "../shared/contracts/extensions";
+import { CommandExecuteRequestSchema } from "../shared/contracts/command-execution";
 import {
   ContextSelectionRequestSchema,
   DiagnosticsPreviewRequestSchema,
@@ -58,6 +59,11 @@ export const IpcRequests = {
   // an arbitrary factor from a caller is normalized rather than trusted.
   "app:zoom": z.strictObject({}),
   "app:zoom:set": z.strictObject({ factor: z.number().finite().min(0.5).max(3) }),
+  // Native full screen for the window that made the request. There is no
+  // window identifier in the payload: the sender decides which window is
+  // affected, so a renderer cannot reach another one.
+  "window:fullscreen": z.strictObject({}),
+  "window:fullscreen:set": z.strictObject({ fullscreen: z.boolean() }),
   "tools:discover": z.strictObject({
     names: z
       .array(z.string().regex(/^[a-z0-9][a-z0-9.-]{0,63}$/))
@@ -519,6 +525,9 @@ export const IpcRequests = {
   // R03: the pinned slash-command catalog. A local read of checked-in data;
   // filtering and help in the renderer make no IPC call and no model call.
   "commands:catalog": z.strictObject({}),
+  // R04: execute one catalogued command. The request is typed and bounded; the
+  // dispatcher resolves the spelling against the catalog again in main.
+  "commands:execute": CommandExecuteRequestSchema,
 
   "extensions:install": z.strictObject({
     projectId: ProjectId,

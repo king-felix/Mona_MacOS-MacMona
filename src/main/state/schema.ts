@@ -719,6 +719,35 @@ CREATE INDEX events_item ON events (thread_id, item_id);
 CREATE INDEX events_recorded ON events (recorded_at);
 `;
 
+// v11 gives a project's conversations a durable identity beyond the one
+// deterministic row per mode. `/new` starts a new generation: a new engine
+// thread and a new local row, while every earlier generation keeps its events,
+// turns, drafts and receipts. `mode` is nullable so every thread written before
+// this migration is explicitly unknown rather than guessed at.
+//
+// `command_operations` is the durable half of command dispatch. An operation key
+// is recorded before the engine write and updated after it, so a lost response,
+// a repeat click, or a restart resolves the same intent instead of creating a
+// second conversation. Nothing here is a second source of truth about the
+// engine: the row records what Mona asked and what the engine answered.
+const V11 = `
+ALTER TABLE threads ADD COLUMN mode TEXT;
+ALTER TABLE threads ADD COLUMN generation INTEGER NOT NULL DEFAULT 0;
+CREATE INDEX threads_mode ON threads (project_id, mode, generation);
+
+CREATE TABLE command_operations (
+  operation_key  TEXT PRIMARY KEY,
+  project_id     TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  command        TEXT NOT NULL,
+  target_id      TEXT,
+  status         TEXT NOT NULL,
+  result_json    TEXT,
+  created_at     TEXT NOT NULL,
+  updated_at     TEXT NOT NULL
+);
+CREATE INDEX command_operations_project ON command_operations (project_id, created_at);
+`;
+
 export const MIGRATIONS: readonly Migration[] = [
   { version: 1, name: "core-project-state", sql: V1 },
   { version: 2, name: "project-identity-fields", sql: V2 },
@@ -730,6 +759,7 @@ export const MIGRATIONS: readonly Migration[] = [
   { version: 8, name: "installer-update-intents", sql: V8 },
   { version: 9, name: "engine-event-gaps", sql: V9 },
   { version: 10, name: "event-item-identity", sql: V10 },
+  { version: 11, name: "thread-generations-and-command-operations", sql: V11 },
 ];
 
 export const CURRENT_SCHEMA_VERSION = MIGRATIONS[MIGRATIONS.length - 1]?.version ?? 0;
@@ -740,6 +770,7 @@ export const REQUIRED_TABLES: readonly string[] = [
   "budgets",
   "capability_snapshots",
   "change_files",
+  "command_operations",
   "change_sets",
   "commit_receipts",
   "cost_thread_marks",
@@ -792,10 +823,12 @@ const V7_TABLES: readonly string[] = [
 ];
 const V8_TABLES: readonly string[] = ["update_intents"];
 const V9_TABLES: readonly string[] = ["event_gaps"];
+const V11_TABLES: readonly string[] = ["command_operations"];
 
 /** Tables a database at `version` must have. Older targets predate v3–v7. */
 export function requiredTablesFor(version: number): readonly string[] {
   let tables: readonly string[] = REQUIRED_TABLES;
+  if (version < 11) tables = tables.filter((t) => !V11_TABLES.includes(t));
   if (version < 9) tables = tables.filter((t) => !V9_TABLES.includes(t));
   if (version < 8) tables = tables.filter((t) => !V8_TABLES.includes(t));
   if (version < 7) tables = tables.filter((t) => !V7_TABLES.includes(t));

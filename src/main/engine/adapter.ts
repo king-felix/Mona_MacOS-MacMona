@@ -77,6 +77,10 @@ import type {
   WorkspaceFileWindow,
   WorkspaceWriteReceipt,
   FleetCreateSpec,
+  ForkedThreadReceipt,
+  RetryReceipt,
+  ThreadCompactReceipt,
+  ThreadRenameReceipt,
 } from "./types";
 import { HttpRuntimeTransport, type RuntimeTransport, type TransportResponse } from "./transport";
 import {
@@ -779,6 +783,119 @@ export class CodewhaleAdapter implements EngineAdapter {
       threadId: asThreadId(thread.id, "thread create"),
       workspace: thread.workspace ?? input.workspace,
       created: response.status === 201,
+    };
+  }
+
+  /**
+   * R04: retitle the engine thread. `PATCH /v1/threads/{id}` also accepts
+   * permission and model fields, but Mona sends only `title`: a command that
+   * happens to be named rename must never change a route or a permission.
+   */
+  async renameThread(input: { threadId: ThreadId; title: string }): Promise<ThreadRenameReceipt> {
+    const title = input.title.trim();
+    if (title.length === 0) {
+      throw new AdapterError("MALFORMED_RESPONSE", "a thread title must not be empty");
+    }
+    const response = await this.request("PATCH", `/v1/threads/${input.threadId}`, { title });
+    this.throwForAuth(response, "thread rename");
+    this.expectOk(response, "thread rename");
+    // The patch receipt may carry the thread, only the changed fields, or a bare
+    // confirmation. The title we asked for is the title the engine accepted.
+    return { threadId: input.threadId, title };
+  }
+
+  /**
+   * R04: manual compaction. The engine owns the summary and may call the model;
+   * Mona reports what the engine answered and nothing more.
+   */
+  async compactThread(input: { threadId: ThreadId }): Promise<ThreadCompactReceipt> {
+    const response = await this.request("POST", `/v1/threads/${input.threadId}/compact`, {});
+    this.throwForAuth(response, "thread compact");
+    this.expectOk(response, "thread compact");
+    const body = response.json as { message?: unknown; summary?: unknown } | null;
+    const message =
+      body && typeof body === "object" && typeof body.message === "string"
+        ? body.message.trim()
+        : "";
+    return {
+      threadId: input.threadId,
+      note: message.length > 0 ? message : "the engine accepted manual compaction",
+    };
+  }
+
+  /**
+   * R04: fork the thread into a sibling. The source thread and its workspace
+   * are untouched; the fork is a new engine conversation.
+   */
+  async forkThread(input: {
+    threadId: ThreadId;
+    operationKey?: OperationKey;
+  }): Promise<ForkedThreadReceipt> {
+    const body: Record<string, unknown> = {};
+    if (input.operationKey) body.operation_key = input.operationKey;
+    const response = await this.request("POST", `/v1/threads/${input.threadId}/fork`, body);
+    this.throwForAuth(response, "thread fork");
+    if (response.status !== 200 && response.status !== 201) {
+      throw new AdapterError(
+        "MALFORMED_RESPONSE",
+        `thread fork returned ${response.status}`,
+        false,
+        {
+          body: response.text.slice(0, 500),
+        },
+      );
+    }
+    return this.parseForkReceipt(response, "thread fork");
+  }
+
+  /**
+   * R04: retry forks with the last `depth` turns removed and immediately starts
+   * a turn. It is not an idempotent in-place retry: a lost response leaves a
+   * real fork behind, so the caller must not blindly call it again.
+   */
+  async retryThread(input: { threadId: ThreadId; depth?: number }): Promise<RetryReceipt> {
+    const depth = input.depth ?? 0;
+    const response = await this.request("POST", `/v1/threads/${input.threadId}/retry`, { depth });
+    this.throwForAuth(response, "thread retry");
+    if (response.status !== 200 && response.status !== 201) {
+      throw new AdapterError(
+        "MALFORMED_RESPONSE",
+        `thread retry returned ${response.status}`,
+        false,
+        { body: response.text.slice(0, 500) },
+      );
+    }
+    const fork = this.parseForkReceipt(response, "thread retry");
+    const body = response.json as { turn?: unknown } | null;
+    let turnId: TurnId | null = null;
+    if (body && typeof body === "object" && body.turn) {
+      const turn = parseWith(WireTurn, body.turn, "thread retry turn");
+      turnId = asTurnId(turn.id, "thread retry turn");
+    }
+    return { ...fork, turnId };
+  }
+
+  private parseForkReceipt(response: TransportResponse, context: string): ForkedThreadReceipt {
+    const body = response.json as {
+      thread?: unknown;
+      original_user_text?: unknown;
+      originalUserText?: unknown;
+    } | null;
+    const candidate =
+      body && typeof body === "object" && "thread" in body ? body.thread : response.json;
+    const thread = parseWith(WireThread, candidate, context);
+    const original = body && typeof body === "object" ? body : null;
+    const originalUserText =
+      original && typeof original.original_user_text === "string"
+        ? original.original_user_text
+        : original && typeof original.originalUserText === "string"
+          ? original.originalUserText
+          : null;
+    return {
+      threadId: asThreadId(thread.id, context),
+      workspace: thread.workspace ?? null,
+      status: response.status,
+      originalUserText,
     };
   }
 

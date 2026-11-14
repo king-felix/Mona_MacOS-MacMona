@@ -3544,23 +3544,341 @@ a {
   white-space: nowrap;
 }
 
-/* Focus Mode: one task, the console, the composer, and the emergency strip. */
-.screen--studio-focus .studio__work {
+/* Focus Studio: one task, the console, the composer, and the emergency strip.
+   The immersive layout is a column that fills the window: a 44–56 px dashboard,
+   a timeline that takes every remaining pixel, and a bounded composer. The old
+   clamped 48vh console is deliberately gone — in this mode the log is the
+   screen, not a window inside it. */
+.shell--focus {
   grid-template-columns: minmax(0, 1fr);
 }
 
-.screen--studio-focus .context-bar__facts .fact:nth-child(1),
-.screen--studio-focus .context-bar__facts .fact:nth-child(3),
-.screen--studio-focus .context-bar__facts .fact:nth-child(4) {
+.shell--focus .rail {
   display: none;
 }
 
-.screen--studio-focus .context-bar__title {
-  max-width: 60ch;
+/* The workspace breadcrumb and the palette/terminal buttons are chrome: the
+   dashboard carries the identity and every action they offered stays on the
+   keyboard (Command-K, Command-J, Command-1…9). */
+.shell--focus .shell-topbar,
+.shell--focus .harness__footer {
+  display: none;
+}
+
+.shell--focus .harness__main {
+  max-width: none;
+  /* min-height, not height: at a normal scale the column fills the window, and
+     at 200% it grows and the document scrolls. A fixed height would instead
+     shrink the console to its floor and let the composer take the rest — the
+     one thing this layout must never do. */
+  min-height: 100vh;
+  padding: 46px 14px 12px;
+  /* No overflow here on purpose: it would clip the command list, which is
+     absolutely positioned above the composer. */
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+}
+
+.shell--focus .harness__main > .screen--studio {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.screen--studio-focus {
+  padding-bottom: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.screen--studio-focus .context-bar,
+.screen--studio-focus .favorites,
+.screen--studio-focus .control-strip {
+  display: none;
+}
+
+.screen--studio-focus .studio {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .screen--studio-focus .studio__timeline {
-  height: clamp(280px, 48vh, 660px);
+  height: auto;
+  flex: 1 1 auto;
+  /* The console keeps a real working height at every viewport. Below this the
+     page scrolls rather than the transcript collapsing to a sliver. */
+  min-height: 160px;
+}
+
+/* The stored-event counts are a diagnostic. In the immersive layout they move
+   to the console's own empty state and the drawer, so the toolbar keeps only
+   the conversation selector and the paging actions. */
+.screen--studio-focus .timeline__toolbar > .hint-line {
+  display: none;
+}
+
+.screen--studio-focus .studio__work {
+  flex: 0 0 auto;
+  /* The inspector is not rendered here, so the composer takes the full width
+     instead of leaving a 350 px hole where it used to be. */
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.screen--studio-focus .studio__main {
+  gap: 0;
+}
+
+/* The composer is never a scroll container in this layout: the command list is
+   absolutely positioned above it, and an `overflow` here clips that list out of
+   sight. The text area carries the bound instead — it is the part that grows. */
+.screen--studio-focus .composer {
+  padding: 10px 12px;
+  gap: 8px;
+  max-height: none;
+  overflow: visible;
+}
+
+.screen--studio-focus .composer .input--area {
+  max-height: 42vh;
+  overflow-y: auto;
+}
+
+/* A short viewport — a split pane, or 200% scale on a laptop. Everything still
+   has to be reachable, so the parts give up height in a fixed order: the
+   console keeps a working minimum, then the composer's text area shrinks. */
+@media (max-height: 640px) {
+  /* A short viewport — a split pane, or 200% scale on a laptop. The console
+     keeps a usable floor and the page scrolls; the composer's text area is what
+     gives up height, and the Send row is never cut off inside a scroller. */
+  .screen--studio-focus .studio__timeline {
+    min-height: 140px;
+  }
+
+  .screen--studio-focus .composer {
+    padding: 8px 10px;
+    gap: 6px;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .screen--studio-focus .composer .input--area {
+    min-height: 60px;
+    max-height: 30vh;
+  }
+}
+
+/* ------------------------------------------------------------------ focus bar */
+
+.focus-bar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 52px;
+  min-height: 44px;
+  padding: 0 8px 0 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  /* The More drawer is absolutely placed below the bar, so the bar itself must
+     not clip it. */
+  overflow: visible;
+}
+
+.focus-bar__identity {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 0 1 auto;
+}
+
+.focus-bar__names {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.2;
+}
+
+.focus-bar__project {
+  font-weight: 650;
+  font-size: var(--text-sm);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 18ch;
+}
+
+.focus-bar__thread {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 32ch;
+}
+
+.focus-bar__facts {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+
+.focus-bar__facts .fact {
+  flex: 0 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.focus-bar__facts .fact__value {
+  max-width: 24ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.focus-bar__actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  margin-left: auto;
+}
+
+.focus-bar__more {
+  position: relative;
+}
+
+.focus-bar__more-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 26px;
+  padding: 0 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface-raised);
+  color: var(--muted);
+  font-size: var(--text-xs);
+  cursor: pointer;
+  list-style: none;
+}
+
+.focus-bar__more-toggle::-webkit-details-marker {
+  display: none;
+}
+
+.focus-bar__more-toggle:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.focus-bar__drawer {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 40;
+  width: min(400px, 82vw);
+  padding: 12px;
+  display: none;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.focus-bar__more[open] .focus-bar__drawer {
+  display: block;
+}
+
+.focus-bar__drawer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+/* The dashboard must stay one row. At a narrow window — a small display, a
+   split view, or 200% scale — the least urgent facts step aside into the More
+   drawer rather than wrapping the bar or pushing a button out of reach. */
+@media (max-width: 1400px) {
+  .focus-bar__facts .fact[data-testid="focus-tokens"] {
+    display: none;
+  }
+}
+
+@media (max-width: 940px) {
+  .focus-bar__facts .fact[data-testid="focus-cost"],
+  .focus-bar__facts .fact[data-testid="focus-model"] {
+    display: none;
+  }
+
+  /* At this width the labels cost more than they explain: the status dot, the
+     clock icon and the values still read. They stay in the accessibility tree
+     rather than being withdrawn from it. */
+  .focus-bar__facts .fact[data-testid="focus-activity"] .fact__label,
+  .focus-bar__facts .fact[data-testid="focus-elapsed"] .fact__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .focus-bar__thread {
+    max-width: 18ch;
+  }
+}
+
+.composer-grip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 12px;
+  flex: none;
+  cursor: row-resize;
+  touch-action: none;
+  border-radius: 4px;
+}
+
+.composer-grip__bar {
+  width: 46px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--border);
+}
+
+.composer-grip:hover .composer-grip__bar,
+.composer-grip:focus-visible .composer-grip__bar {
+  background: var(--primary);
+}
+
+/* The ring belongs on the handle, not on the full-width strip: a 1,250 px
+   outline reads as a page border rather than a control. */
+.composer-grip:focus-visible {
+  outline: none;
+}
+
+.composer-grip:focus-visible .composer-grip__bar {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+  background: var(--primary);
 }
 
 .favorites {

@@ -1,6 +1,6 @@
-import { mkdirSync, mkdtempSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { tempDir } from "./temp";
 import { StateStore, type StateStoreOptions } from "../../src/main/state/store";
 
 export interface TestStoreHandle {
@@ -9,9 +9,7 @@ export interface TestStoreHandle {
   store: StateStore;
 }
 
-export function tempDir(prefix = "mona-state-"): string {
-  return mkdtempSync(join(tmpdir(), prefix));
-}
+export { tempDir };
 
 export function makeClock(
   start = "2026-11-11T00:00:00.000Z",

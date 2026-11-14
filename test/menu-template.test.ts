@@ -43,6 +43,18 @@ describe("application menu zoom entries", () => {
     expect(calls).toEqual(["reset", "in", "in", "out"]);
   });
 
+  it("keeps native full screen on the AppKit role with no second accelerator", () => {
+    const items = viewItems(false);
+    const fullscreen = items.filter(
+      (item) => item.role === "togglefullscreen" || item.id === "toggle-fullscreen",
+    );
+    expect(fullscreen).toHaveLength(1);
+    expect(fullscreen[0]).toMatchObject({ id: "toggle-fullscreen", role: "togglefullscreen" });
+    // AppKit supplies Control-Command-F for the role. A custom accelerator here
+    // would be a second binding for one action in the same menu.
+    expect(fullscreen[0]?.accelerator).toBeUndefined();
+  });
+
   it("only offers Developer Tools when the build enables them", () => {
     expect(viewItems(true).some((item) => item.role === "toggleDevTools")).toBe(true);
     expect(viewItems(false).some((item) => item.role === "toggleDevTools")).toBe(false);

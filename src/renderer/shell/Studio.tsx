@@ -1,10 +1,11 @@
-import { useEffect, useLayoutEffect, useRef, useState, type JSX } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type JSX } from "react";
 import type {
   ProjectDetail,
   StoredEventSummary,
   ThreadSummary,
 } from "../../shared/contracts/project-bridge";
 import type { StudioMode, StudioSnapshot } from "../../shared/contracts/studio";
+import type { WindowFullscreenView } from "../../shared/contracts/bridge";
 import type { CommandCatalogEntry, CommandCatalogSnapshot } from "../../shared/contracts/commands";
 import type { PromptFavorite } from "../../shared/contracts/polish";
 import {
@@ -24,13 +25,16 @@ import {
 import {
   BranchIcon,
   CheckIcon,
+  ChevronDownIcon,
   ClockIcon,
   CostIcon,
   FolderIcon,
+  FullscreenIcon,
   InfoIcon,
   LockIcon,
   PauseIcon,
   PlayIcon,
+  RestoreIcon,
   SparkIcon,
   StopIcon,
   TerminalIcon,
@@ -81,6 +85,15 @@ export interface StudioProps {
   inspectorTab: string;
   onInspectorTab: (tab: string) => void;
   focusMode: boolean;
+  /**
+   * The stored Focus Studio *preference*. `focusMode` is the layout actually on
+   * screen, which is also true while the window is in native full screen — the
+   * OS state is never written into the preference.
+   */
+  focusPreference?: boolean;
+  /** Native full screen as the window reported it; absent in plain embedders. */
+  windowFullscreen?: WindowFullscreenView | null;
+  onToggleFullscreen?: () => void;
   favorites: PromptFavorite[];
   onToggleFocus: () => void;
   onUseFavorite: (favorite: PromptFavorite) => void;
@@ -259,6 +272,368 @@ function formatDuration(seconds: number): string {
   return `${minutes}m`;
 }
 
+/** Wall-clock elapsed, from a timestamp the studio actually recorded. */
+function formatElapsed(seconds: number): string {
+  if (seconds < 60) return `${seconds}s`;
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const rest = seconds % 60;
+  if (hours > 0)
+    return `${hours}:${String(minutes).padStart(2, "0")}:${String(rest).padStart(2, "0")}`;
+  return `${minutes}:${String(rest).padStart(2, "0")}`;
+}
+
+/**
+ * Elapsed time since the studio entered its current state, read from the
+ * snapshot's own `since`. A running turn's `since` is the moment the connection
+ * changed to "running", which is the turn's start; nothing here invents a
+ * start time, and an unreadable timestamp says so instead of showing 0s.
+ *
+ * It keeps its own one-second timer so a long turn does not re-render the
+ * transcript once per second.
+ */
+function Elapsed({ since, live }: { since: string; live: boolean }): JSX.Element {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!live) return;
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, [live]);
+  // With no session — or one that has not started — `since` is when the
+  // snapshot was built, not when anything began. A clock there would be a
+  // fabricated one, so the fact says so instead.
+  if (!live) return <span>—</span>;
+  const started = Date.parse(since);
+  if (!Number.isFinite(started)) return <span>unknown</span>;
+  return <span>{formatElapsed(Math.max(0, Math.round((now - started) / 1000)))}</span>;
+}
+
+interface FocusBarProps {
+  detail: ProjectDetail;
+  studio: StudioSnapshot | null;
+  health: { label: string; tone: "neutral" | "success" | "attention" | "danger" };
+  focusPreference: boolean;
+  fullscreen: WindowFullscreenView | null;
+  canStart: boolean;
+  onStart: () => void;
+  onPause: () => void;
+  onResumeQueue: () => void;
+  onInterrupt: () => void;
+  onCancelQueued: () => void;
+  onStop: () => void;
+  onShowBoard: () => void;
+  onToggleFocus: () => void;
+  onToggleFullscreen?: () => void;
+}
+
+/**
+ * The immersive dashboard: one row between 44 and 56 logical pixels that keeps
+ * the identity, the honest activity state, the elapsed clock, the model, the
+ * scoped spend and tokens, and the emergency controls on screen. Everything
+ * else moves into the popover, which is opened by a real button rather than a
+ * hover, so keyboard and screen-reader users reach it too.
+ */
+function FocusBar(props: FocusBarProps): JSX.Element {
+  const drawerRef = useRef<HTMLDetailsElement | null>(null);
+  const { detail, studio, health, fullscreen } = props;
+  const { project, usage } = detail;
+  const profile = studio?.profile ?? null;
+  const effective = profile?.effective ?? null;
+  const state = studio?.connection.state ?? "not_started";
+  const blockedTasks = detail.tasks.filter((task) => task.status === "blocked").length;
+  const thread = studio?.engineThreadId ?? studio?.threadId ?? null;
+  // One derivation per fact, so the narrow layout can move a value into the
+  // drawer without ever computing a second, differently-worded answer.
+  const modelText = effective
+    ? `${effective.provider} / ${effective.model}`
+    : profile
+      ? `${profile.provider} / ${profile.model}`
+      : "not reported yet";
+  const spendText = studio?.cost.observed
+    ? `${studio.cost.costComplete ? "" : "at least "}$${studio.cost.costUsd.toFixed(4)} · ${studio.cost.turns}t`
+    : "not recorded";
+  const tokensText = usage.observed
+    ? `${formatTokens(usage.inputTokens)} in · ${formatTokens(usage.outputTokens)} out · ${formatTokens(usage.cachedTokens)} cached`
+    : "no usage recorded";
+  const live = state === "running" || state === "connected";
+  return (
+    <header className="focus-bar" data-testid="studio-focus-bar">
+      <div className="focus-bar__identity">
+        <span
+          className={`monogram monogram--${projectAccent(project)} monogram--tiny`}
+          aria-hidden="true"
+        >
+          {projectMonogram(project)}
+        </span>
+        <div className="focus-bar__names">
+          <span className="focus-bar__project" title={project.rootPath}>
+            {project.name}
+          </span>
+          <span className="focus-bar__thread" title={thread ?? "No engine conversation yet"}>
+            {thread ? `Conversation ${thread.slice(-10)}` : "No engine conversation yet"}
+            {studio?.activeTurnId ? ` · turn ${studio.activeTurnId.slice(-8)}` : ""}
+          </span>
+        </div>
+      </div>
+
+      <div className="focus-bar__facts">
+        <span className="fact" data-testid="focus-activity">
+          <span
+            className={`status-dot ${
+              health.tone === "success"
+                ? "status-dot--success"
+                : health.tone === "danger"
+                  ? "status-dot--danger"
+                  : "status-dot--attention"
+            }`}
+            aria-hidden="true"
+          />
+          <span className="fact__label">Engine</span>
+          <span className="fact__value">{health.label}</span>
+        </span>
+        <span
+          className="fact"
+          data-testid="focus-elapsed"
+          title="Time since the studio entered this state. For a running turn that is the turn's start, as the engine session recorded it."
+        >
+          <ClockIcon size={14} />
+          <span className="fact__label">{state === "running" ? "Turn" : "Elapsed"}</span>
+          <span className="fact__value">
+            {studio ? <Elapsed since={studio.connection.since} live={live} /> : "no session"}
+          </span>
+        </span>
+        <span
+          className="fact"
+          data-testid="focus-model"
+          title={
+            effective
+              ? `Observed on the last turn: ${effective.provider} / ${effective.model}`
+              : profile
+                ? `Configured: ${profile.provider} / ${profile.model}`
+                : "No route has been reported yet"
+          }
+        >
+          <SparkIcon size={14} />
+          <span className="fact__label">Model</span>
+          <span className="fact__value">
+            {effective?.model ?? profile?.model ?? "not reported yet"}
+          </span>
+          {effective ? (
+            <Badge tone={effective.usedFallback ? "attention" : "neutral"}>Observed</Badge>
+          ) : null}
+        </span>
+        <span
+          className="fact"
+          data-testid="focus-cost"
+          title={`Project scope, from stored turn receipts: ${studio?.cost.label ?? "no usage recorded"}. An unpriced turn is never counted as $0.00.`}
+        >
+          <CostIcon size={14} />
+          <span className="fact__label">Project spend</span>
+          <span className="fact__value">{spendText}</span>
+        </span>
+        <span
+          className="fact"
+          data-testid="focus-tokens"
+          title="Project scope: input, output and cached tokens as the engine reported them at each completed turn."
+        >
+          <span className="fact__label">Tokens</span>
+          <span className="fact__value">{tokensText}</span>
+        </span>
+      </div>
+
+      <div className="focus-bar__actions">
+        {props.canStart ? (
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={props.onStart}
+            title="Start the owned runtime for this workspace. Submitting a task also starts it."
+          >
+            Start
+          </Button>
+        ) : null}
+        {studio?.pauseAfterTask ? (
+          <Button
+            size="sm"
+            variant="secondary"
+            icon={<PlayIcon size={14} />}
+            onClick={props.onResumeQueue}
+          >
+            Resume queue
+          </Button>
+        ) : (
+          <Button
+            size="sm"
+            variant="secondary"
+            icon={<PauseIcon size={14} />}
+            disabled={!studio?.controls.canPause}
+            title={
+              studio?.controls.canPause
+                ? "Finish the active task, then start nothing new"
+                : "Pause is a queue boundary; start the engine first"
+            }
+            onClick={props.onPause}
+          >
+            Pause
+          </Button>
+        )}
+        <Button
+          size="sm"
+          variant="danger"
+          icon={<StopIcon size={14} />}
+          disabled={!studio?.controls.canInterrupt}
+          title={
+            studio?.controls.canInterrupt
+              ? "Ask the engine to interrupt the active turn"
+              : "No active turn to interrupt"
+          }
+          onClick={props.onInterrupt}
+        >
+          Interrupt
+        </Button>
+        <details
+          className="focus-bar__more"
+          ref={drawerRef}
+          onKeyDown={(event) => {
+            // The drawer is the first thing Escape closes. Without this the
+            // shell's handler would take the whole focused layout away and
+            // unmount the very panel the reader was in.
+            if (event.key !== "Escape") return;
+            event.preventDefault();
+            event.stopPropagation();
+            if (drawerRef.current) drawerRef.current.open = false;
+          }}
+        >
+          <summary className="focus-bar__more-toggle" data-testid="focus-more">
+            More <ChevronDownIcon size={13} />
+          </summary>
+          <div className="focus-bar__drawer" role="group" aria-label="More Studio controls">
+            <div className="focus-bar__drawer-actions">
+              <Button
+                size="sm"
+                variant="ghost"
+                disabled={!studio?.controls.canCancelQueued}
+                onClick={props.onCancelQueued}
+              >
+                Cancel queued
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                disabled={!studio?.controls.canStop}
+                onClick={props.onStop}
+              >
+                Stop engine
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                icon={<WarningIcon size={14} />}
+                onClick={props.onShowBoard}
+              >
+                {blockedTasks > 0 ? `Blockers (${blockedTasks})` : "Blockers"}
+              </Button>
+            </div>
+            <dl className="detail-list detail-list--tight">
+              {/* A narrow window hides some facts from the bar rather than
+                  wrapping it. They are never lost: the same values are here,
+                  with the same wording, so nothing becomes unreachable. */}
+              <div className="detail-row">
+                <dt>Model</dt>
+                <dd data-testid="focus-drawer-model">{modelText}</dd>
+              </div>
+              <div className="detail-row">
+                <dt>Spend</dt>
+                <dd data-testid="focus-drawer-cost">{spendText}</dd>
+              </div>
+              <div className="detail-row">
+                <dt>Tokens</dt>
+                <dd data-testid="focus-drawer-tokens">{tokensText}</dd>
+              </div>
+              <div className="detail-row">
+                <dt>Full screen</dt>
+                <dd data-testid="focus-fullscreen-state">
+                  {fullscreen === null
+                    ? "not reported by this build"
+                    : !fullscreen.available
+                      ? "unavailable on this platform"
+                      : fullscreen.pending
+                        ? "requested; waiting for macOS to report the transition"
+                        : fullscreen.fullscreen
+                          ? `native, observed ${fullscreen.epoch} transition${fullscreen.epoch === 1 ? "" : "s"} ago`
+                          : "windowed"}
+                </dd>
+              </div>
+              <div className="detail-row">
+                <dt>Layout</dt>
+                <dd>
+                  {props.focusPreference
+                    ? "Focus Studio preference on; stored with the project view and restored as a layout, never as full screen"
+                    : "Focused layout from native full screen; the stored preference is off"}
+                </dd>
+              </div>
+              <div className="detail-row">
+                <dt>Scope</dt>
+                <dd>
+                  Spend and tokens are project totals from stored turn receipts
+                  {usage.turns > 0 ? ` (${usage.turns} turn${usage.turns === 1 ? "" : "s"})` : ""}.
+                  {usage.observed && !usage.costComplete ? " Some turns are unpriced." : ""}
+                </dd>
+              </div>
+              {studio && studio.diagnostics.length > 0 ? (
+                <div className="detail-row">
+                  <dt>Diagnostics</dt>
+                  <dd>{studio.diagnostics.slice(-3).join(" · ")}</dd>
+                </div>
+              ) : null}
+            </dl>
+          </div>
+        </details>
+        <Button
+          size="sm"
+          variant="ghost"
+          aria-label="Leave Focus Studio"
+          title={
+            fullscreen?.fullscreen
+              ? "Native full screen is providing this layout. Leave full screen first (Control-Command-F or the green button), then this turns the stored preference off."
+              : props.focusPreference
+                ? "Leave Focus Studio (Escape also leaves it when the composer and dialogs are closed)"
+                : "Focus Studio is not on for this project"
+          }
+          disabled={!props.focusPreference || fullscreen?.fullscreen === true}
+          onClick={props.onToggleFocus}
+          data-testid="focus-exit"
+        >
+          <RestoreIcon size={14} />
+        </Button>
+        <Button
+          size="sm"
+          variant="ghost"
+          aria-label={fullscreen?.fullscreen ? "Exit Full Screen" : "Enter Full Screen"}
+          aria-pressed={fullscreen?.fullscreen === true}
+          aria-busy={fullscreen?.pending === true}
+          title={
+            fullscreen === null
+              ? "This build has no window full screen control"
+              : !fullscreen.available
+                ? "Native full screen is only offered on macOS"
+                : fullscreen.pending
+                  ? "Waiting for macOS to report the transition"
+                  : fullscreen.fullscreen
+                    ? "Leave native full screen (Control-Command-F)"
+                    : "Enter native full screen (Control-Command-F)"
+          }
+          disabled={!fullscreen?.available || fullscreen?.pending === true}
+          onClick={props.onToggleFullscreen}
+          data-testid="focus-fullscreen"
+        >
+          <FullscreenIcon size={14} />
+        </Button>
+      </div>
+    </header>
+  );
+}
+
 export function StudioScreen(props: StudioProps): JSX.Element {
   const timelineRef = useRef<HTMLDivElement | null>(null);
   const composerRef = useRef<HTMLTextAreaElement | null>(null);
@@ -276,6 +651,68 @@ export function StudioScreen(props: StudioProps): JSX.Element {
     placement: "above",
     maxHeight: 360,
   });
+  // R05: the immersive composer is bounded and resizable. The height is a
+  // component value, so it survives focus, full screen and a project switch
+  // without a remount and without a new persisted preference.
+  const stageRef = useRef<HTMLDivElement | null>(null);
+  const gripRef = useRef<{ y: number; height: number } | null>(null);
+  const [composerHeight, setComposerHeight] = useState<number | null>(null);
+  // The stage and the composer's own chrome are observed, not assumed. A fixed
+  // pixel height would survive a window shrink, a zoom change or a focus
+  // transition and then take the live turn off screen, which is exactly what
+  // the bound exists to prevent.
+  const [stageSize, setStageSize] = useState({ height: 0, chrome: 96 });
+  useLayoutEffect(() => {
+    if (!props.focusMode) return;
+    const stage = stageRef.current;
+    const field = composerRef.current;
+    if (!stage || !field) return;
+    const measure = (): void => {
+      const height = stage.clientHeight > 0 ? stage.clientHeight : window.innerHeight;
+      const box = field.closest(".composer") as HTMLElement | null;
+      const chrome =
+        box && box.offsetHeight > 0 ? Math.max(0, box.offsetHeight - field.offsetHeight) : 96;
+      setStageSize((previous) =>
+        previous.height === height && previous.chrome === chrome ? previous : { height, chrome },
+      );
+    };
+    measure();
+    // A ResizeObserver sees window resize, zoom, and a layout change that a
+    // window `resize` event does not announce.
+    const observer =
+      typeof ResizeObserver === "function" ? new ResizeObserver(() => measure()) : null;
+    observer?.observe(stage);
+    window.addEventListener("resize", measure);
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, [props.focusMode]);
+  const composerLimits = useMemo(() => {
+    const stage = stageSize.height > 0 ? stageSize.height : window.innerHeight || 800;
+    // The composer never takes more than 42% of the stage, so the live turn
+    // always keeps the rest of the viewport. The maximum is the stage budget
+    // minus the composer's own chrome (the mode row, the hint and the action
+    // row are part of the box).
+    const cap = Math.round(stage * 0.42);
+    return { min: 72, max: Math.max(72, cap - stageSize.chrome) };
+  }, [stageSize]);
+  // Re-clamp whenever the stage changes: a shrink must not leave a height the
+  // new stage cannot afford.
+  useEffect(() => {
+    setComposerHeight((current) =>
+      current === null
+        ? current
+        : Math.min(composerLimits.max, Math.max(composerLimits.min, current)),
+    );
+  }, [composerLimits]);
+  const clampComposer = (value: number): number =>
+    Math.min(composerLimits.max, Math.max(composerLimits.min, Math.round(value)));
+  const resizeComposer = (delta: number): void => {
+    setComposerHeight((current) =>
+      clampComposer((current ?? (composerRef.current?.offsetHeight || 96)) + delta),
+    );
+  };
 
   const { detail, studio, history } = props;
   const events = history?.events ?? detail?.events ?? [];
@@ -486,11 +923,20 @@ export function StudioScreen(props: StudioProps): JSX.Element {
     null;
   const profile = studio?.profile ?? null;
   const effective = profile?.effective ?? null;
+  // The composer is bound to the studio's current conversation. Reading an
+  // older one is a stored read; a send would go to the current conversation,
+  // so a task typed here would start somewhere the reader is not looking.
+  const sendTargetThread = studio?.threadId ?? detail.currentThreadId;
+  const viewingArchivedThread = history?.threadId != null && history.threadId !== sendTargetThread;
   const sendBlocked =
-    props.draft.trim().length === 0 || props.studioBusy || (studio !== null && !studio.canSubmit);
-  const sendReason =
-    studio?.cannotSubmitReason ??
-    (studio === null ? "Mona starts the engine when you submit an explicit task." : null);
+    props.draft.trim().length === 0 ||
+    props.studioBusy ||
+    viewingArchivedThread ||
+    (studio !== null && !studio.canSubmit);
+  const sendReason = viewingArchivedThread
+    ? "You are reading an earlier conversation. Select Current in the conversation list to send here; this draft belongs to the current conversation."
+    : (studio?.cannotSubmitReason ??
+      (studio === null ? "Mona starts the engine when you submit an explicit task." : null));
   const sendDisabled = commandLine ? props.draft.trim().length === 0 : sendBlocked;
   const sendTitle = commandLine
     ? "This line is a Codewhale command. Send explains its route; it is never sent to the model."
@@ -509,6 +955,25 @@ export function StudioScreen(props: StudioProps): JSX.Element {
       className={`screen screen--studio ${props.focusMode ? "screen--studio-focus" : ""}`}
       data-focus-mode={props.focusMode ? "on" : "off"}
     >
+      {props.focusMode ? (
+        <FocusBar
+          detail={detail}
+          studio={studio}
+          health={health}
+          focusPreference={props.focusPreference ?? props.focusMode}
+          fullscreen={props.windowFullscreen ?? null}
+          canStart={canStart}
+          onStart={props.onStart}
+          onPause={props.onPause}
+          onResumeQueue={props.onResumeQueue}
+          onInterrupt={props.onInterrupt}
+          onCancelQueued={props.onCancelQueued}
+          onStop={props.onStop}
+          onShowBoard={props.onShowBoard}
+          onToggleFocus={props.onToggleFocus}
+          onToggleFullscreen={props.onToggleFullscreen}
+        />
+      ) : null}
       <div className="context-bar">
         <div className="context-bar__identity">
           <span className={`monogram monogram--${projectAccent(project)}`} aria-hidden="true">
@@ -530,6 +995,34 @@ export function StudioScreen(props: StudioProps): JSX.Element {
             aria-pressed={props.focusMode}
           >
             {props.focusMode ? "Focus Mode on" : "Focus Mode"}
+          </Button>
+          {/* Native full screen is a separate control from the stored layout:
+              it is the OS state, and the menu's Control-Command-F is the same
+              action. One press cannot reach both, because only the menu binds
+              that key. */}
+          <Button
+            size="sm"
+            variant="ghost"
+            icon={<FullscreenIcon size={14} />}
+            aria-label={
+              props.windowFullscreen?.fullscreen ? "Exit Full Screen" : "Enter Full Screen"
+            }
+            aria-pressed={props.windowFullscreen?.fullscreen === true}
+            aria-busy={props.windowFullscreen?.pending === true}
+            title={
+              props.windowFullscreen === null || props.windowFullscreen === undefined
+                ? "This build has no window full screen control"
+                : !props.windowFullscreen.available
+                  ? "Native full screen is only offered on macOS"
+                  : props.windowFullscreen.pending
+                    ? "Waiting for macOS to report the transition"
+                    : "Native macOS full screen (Control-Command-F). The focused layout follows the window's own event."
+            }
+            disabled={!props.windowFullscreen?.available || props.windowFullscreen.pending === true}
+            onClick={props.onToggleFullscreen}
+            data-testid="studio-fullscreen"
+          >
+            {props.windowFullscreen?.fullscreen ? "Exit Full Screen" : "Full Screen"}
           </Button>
         </div>
         <div className="context-bar__facts">
@@ -594,7 +1087,7 @@ export function StudioScreen(props: StudioProps): JSX.Element {
         </div>
       </div>
 
-      {connectionState === "failed" ? (
+      {props.focusMode ? null : connectionState === "failed" ? (
         <Callout
           tone="danger"
           title="The live studio could not connect"
@@ -714,7 +1207,7 @@ export function StudioScreen(props: StudioProps): JSX.Element {
         </Callout>
       ) : null}
 
-      <div className="studio">
+      <div className="studio" ref={stageRef}>
         {/* Paging controls stay outside the scrolling console, so Jump to
             latest is reachable without scrolling and Load earlier is never
             hidden by the very history it loads. */}
@@ -826,6 +1319,72 @@ export function StudioScreen(props: StudioProps): JSX.Element {
             narrow column beside the inspector. */}
         <div className="studio__work">
           <section className="studio__main" aria-label="Task prompt">
+            {/* The immersive composer is bounded and resizable. The grip is a
+                real separator: pointer drag, Arrow keys, Home and End, and it
+                reports its bounds, so it is reachable without a mouse. It is
+                rendered only in the focused layout, which keeps the everyday
+                Studio exactly as it was. */}
+            {props.focusMode ? (
+              <div
+                className="composer-grip"
+                role="separator"
+                aria-orientation="horizontal"
+                aria-label="Resize the prompt composer"
+                aria-valuemin={composerLimits.min}
+                aria-valuemax={composerLimits.max}
+                aria-valuenow={composerHeight ?? composerLimits.min}
+                tabIndex={0}
+                data-testid="composer-grip"
+                onPointerDown={(event) => {
+                  gripRef.current = {
+                    y: event.clientY,
+                    height: composerRef.current?.offsetHeight || 96,
+                  };
+                  setComposerHeight(clampComposer(gripRef.current.height));
+                  try {
+                    event.currentTarget.setPointerCapture?.(event.pointerId);
+                  } catch {
+                    // A host without pointer capture still resizes; the pointer
+                    // simply leaves this element mid-drag.
+                  }
+                  event.preventDefault();
+                }}
+                onPointerMove={(event) => {
+                  const grip = gripRef.current;
+                  if (!grip) return;
+                  setComposerHeight(clampComposer(grip.height - (event.clientY - grip.y)));
+                }}
+                onPointerUp={(event) => {
+                  gripRef.current = null;
+                  try {
+                    event.currentTarget.releasePointerCapture?.(event.pointerId);
+                  } catch {
+                    // Nothing was captured.
+                  }
+                }}
+                onPointerCancel={() => {
+                  gripRef.current = null;
+                }}
+                onKeyDown={(event) => {
+                  const step = event.shiftKey ? 64 : 24;
+                  if (event.key === "ArrowUp") {
+                    event.preventDefault();
+                    resizeComposer(step);
+                  } else if (event.key === "ArrowDown") {
+                    event.preventDefault();
+                    resizeComposer(-step);
+                  } else if (event.key === "Home") {
+                    event.preventDefault();
+                    setComposerHeight(clampComposer(composerLimits.min));
+                  } else if (event.key === "End") {
+                    event.preventDefault();
+                    setComposerHeight(clampComposer(composerLimits.max));
+                  }
+                }}
+              >
+                <span className="composer-grip__bar" aria-hidden="true" />
+              </div>
+            ) : null}
             <div className="composer">
               <div className="composer__mode">
                 <SegmentedControl
@@ -894,6 +1453,7 @@ export function StudioScreen(props: StudioProps): JSX.Element {
                   hint="Enter adds a line break. ⌘Enter sends. Type / at line start for Codewhale commands."
                   placeholder="Describe one concrete outcome, its boundaries, and how to verify it…"
                   rows={3}
+                  style={composerHeight === null ? undefined : { height: `${composerHeight}px` }}
                   value={props.draft}
                   role="combobox"
                   aria-haspopup="listbox"

@@ -22,6 +22,7 @@ import type {
 } from "./terminal";
 import type { CapabilitySnapshot } from "./capability";
 import type { CommandCatalogSnapshot } from "./commands";
+import type { CommandExecuteRequest, CommandReceipt } from "./command-execution";
 import type {
   ContextSelectionPreview,
   ContextSlot,
@@ -135,6 +136,13 @@ export interface MonaBridge {
   zoom(): Promise<ZoomView>;
   /** Set an exact factor from the build's ladder; returns what was applied. */
   setZoom(factor: number): Promise<ZoomView>;
+  /** The invoking window's observed native-fullscreen state. */
+  windowFullscreen(): Promise<WindowFullscreenView>;
+  /**
+   * Ask the invoking window for native full screen. The reply is the state the
+   * window reports, so a caller cannot treat the request as the outcome.
+   */
+  setWindowFullscreen(fullscreen: boolean): Promise<WindowFullscreenView>;
   discoverTools(names?: string[]): Promise<ToolDiscovery[]>;
 
   listProjects(query?: string, includeArchived?: boolean): Promise<IpcResult<ProjectSummary[]>>;
@@ -504,6 +512,11 @@ export interface MonaBridge {
   onPolishFocus(callback: (target: PolishFocusTarget) => void): () => void;
   /** Native Work → Toggle Focus Mode menu item. */
   onToggleFocus(callback: () => void): () => void;
+  /**
+   * Every observed native-fullscreen transition for this window, including the
+   * ones the green button and Control-Command-F produce.
+   */
+  onFullscreenChanged(callback: (view: WindowFullscreenView) => void): () => void;
 
   // Native orchestration. Reads are local or read-only engine routes; every
   // control is an explicit action scoped to the project's live runtime.
@@ -598,6 +611,11 @@ export interface MonaBridge {
    * filtering and help in the renderer make no further request.
    */
   commandCatalog(): Promise<IpcResult<CommandCatalogSnapshot>>;
+  /**
+   * R04: execute one catalogued command through the main-process dispatcher.
+   * The renderer never spawns a process and never sends a command to a model.
+   */
+  executeCommand(input: CommandExecuteRequest): Promise<IpcResult<CommandReceipt>>;
 
   // P19: project memory, prompt shelf, portable handoff, and diagnostics.
   // Every method here is a local read or an inert local write. None accepts a
@@ -731,6 +749,26 @@ export interface ZoomView {
   steps: number[];
   min: number;
   max: number;
+}
+
+/**
+ * Native macOS full screen, as the window itself reports it.
+ *
+ * `fullscreen` is an observation, never an intention: main reads it back from
+ * the window in the `enter-full-screen` / `leave-full-screen` handlers, so a
+ * click that macOS refuses cannot look like a state change. `pending` says a
+ * request is in flight and has not been observed yet, which is why the UI can
+ * say "entering full screen" without claiming it happened.
+ */
+export interface WindowFullscreenView {
+  /** The OS state the window last reported. */
+  fullscreen: boolean;
+  /** A request was accepted and no transition has been observed yet. */
+  pending: boolean;
+  /** Whether this build can ask for native full screen at all. */
+  available: boolean;
+  /** Increments on every observed transition, so a UI can tell one from another. */
+  epoch: number;
 }
 
 export interface AppPathInfo {

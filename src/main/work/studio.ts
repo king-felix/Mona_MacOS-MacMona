@@ -101,7 +101,31 @@ export class StudioError extends Error {
 
 interface ModeBinding {
   localThreadId: string;
-  engineThreadId: ThreadId;
+  /**
+   * Null only for a conversation created while the studio was disconnected or
+   * the engine thread could not be created yet. The next submission creates it
+   * with the same deterministic operation key.
+   */
+  engineThreadId: ThreadId | null;
+  mode: StudioMode;
+  generation: number;
+}
+
+/** One conversation switch, as the command dispatcher reports it. */
+export interface StudioCommandResult {
+  status: "completed" | "deferred" | "busy" | "failed";
+  note: string;
+  thread: {
+    mode: StudioMode;
+    generation: number;
+    localThreadId: string;
+    engineThreadId: string | null;
+    previousLocalThreadId: string | null;
+    previousEngineThreadId: string | null;
+  } | null;
+  turnId: string | null;
+  duplicate: boolean;
+  snapshot: StudioSnapshot;
 }
 
 interface ActiveTurn {
@@ -184,16 +208,66 @@ function terminalStatus(kind: string): "completed" | "failed" | "interrupted" | 
   return null;
 }
 
-function threadRowId(projectId: ProjectId, mode: StudioMode): string {
-  return `thr_${createHash("sha256").update(`${projectId}:engine:${mode}`).digest("hex").slice(0, 16)}`;
+function threadRowId(projectId: ProjectId, mode: StudioMode, generation = 0): string {
+  return `thr_${createHash("sha256")
+    .update(`${projectId}:engine:${mode}:${generation}`)
+    .digest("hex")
+    .slice(0, 16)}`;
+}
+
+/**
+ * The id a project's first conversation used before schema v11. A project that
+ * already has a conversation must keep it: the new generation-aware id is
+ * different, so adoption looks for this exact legacy id rather than assuming
+ * generation 0's current formula.
+ */
+function legacyThreadRowId(projectId: ProjectId, mode: StudioMode): string {
+  return `thr_${createHash("sha256")
+    .update(`${projectId}:engine:${mode}`)
+    .digest("hex")
+    .slice(0, 16)}`;
 }
 
 function shellThreadId(projectId: ProjectId): string {
   return `thr_${createHash("sha256").update(projectId).digest("hex").slice(0, 16)}`;
 }
 
-function threadKey(projectId: ProjectId, mode: StudioMode): string {
-  return `thread-${projectId}-${mode}`;
+function threadKey(projectId: ProjectId, mode: StudioMode, generation = 0): string {
+  return `thread-${projectId}-${mode}-${generation}`;
+}
+
+function threadTitle(projectName: string, mode: StudioMode, generation: number): string {
+  return generation === 0
+    ? `${projectName} — ${mode}`
+    : `${projectName} — ${mode} ${generation + 1}`;
+}
+
+function asThreadIdOrNull(value: string): ThreadId | null {
+  const parsed = ThreadIdSchema.safeParse(value);
+  return parsed.success ? parsed.data : null;
+}
+
+function storedThreadReceipt(value: unknown): StudioCommandResult["thread"] {
+  if (value === null || typeof value !== "object") return null;
+  const record = value as Record<string, unknown>;
+  const mode = record.mode;
+  if (mode !== "plan" && mode !== "work") return null;
+  if (typeof record.localThreadId !== "string" || record.localThreadId.length === 0) return null;
+  if (typeof record.generation !== "number" || !Number.isInteger(record.generation)) return null;
+  const engine =
+    typeof record.engineThreadId === "string" ? asThreadIdOrNull(record.engineThreadId) : null;
+  return {
+    mode,
+    generation: record.generation,
+    localThreadId: record.localThreadId,
+    engineThreadId: engine,
+    previousLocalThreadId:
+      typeof record.previousLocalThreadId === "string" ? record.previousLocalThreadId : null,
+    previousEngineThreadId:
+      typeof record.previousEngineThreadId === "string"
+        ? asThreadIdOrNull(record.previousEngineThreadId)
+        : null,
+  };
 }
 
 function stillWorkspace(status: RuntimeStatus, project: StoredProject): boolean {
@@ -488,7 +562,12 @@ export class WorkStudio {
       });
     }
 
-    const binding = await this.ensureModeThread(session, input.mode);
+    const initial = await this.ensureModeThread(session, input.mode);
+    const binding = await this.ensureEngineThread(session, initial);
+    const engineThreadId = binding.engineThreadId;
+    if (!engineThreadId) {
+      throw new StudioError("RUNTIME_UNAVAILABLE", "the engine thread could not be created");
+    }
     const posture = postureFor(input.mode, session.profile);
     const operationKey = `op-${randomUUID()}`;
     session.submitting = true;
@@ -496,7 +575,7 @@ export class WorkStudio {
     this.push(session, "submission", "sending");
     try {
       const receipt = await session.adapter.submitTurn({
-        threadId: binding.engineThreadId,
+        threadId: engineThreadId,
         prompt,
         operationKey,
         requested: {
@@ -606,9 +685,11 @@ export class WorkStudio {
   // ------------------------------------------------------------------ events
 
   private async startPump(session: StudioSession, binding: ModeBinding): Promise<void> {
-    if (session.pumpActive && session.pumpKey === binding.engineThreadId) return;
+    const engineThreadId = binding.engineThreadId;
+    if (!engineThreadId) return;
+    if (session.pumpActive && session.pumpKey === engineThreadId) return;
     await this.stopPump(session);
-    session.pumpKey = binding.engineThreadId;
+    session.pumpKey = engineThreadId;
     session.pumpActive = true;
     session.pump = this.runPump(session, binding).finally(() => {
       session.pumpActive = false;
@@ -634,6 +715,8 @@ export class WorkStudio {
   }
 
   private async runPump(session: StudioSession, binding: ModeBinding): Promise<void> {
+    const engineThreadId = binding.engineThreadId;
+    if (!engineThreadId) return;
     let attempts = 0;
     while (!session.stopped && !this.closed) {
       // `since_seq` is exclusive: resuming from the accepted cursor asks for
@@ -655,7 +738,7 @@ export class WorkStudio {
       let sawEvent = false;
       try {
         for await (const item of session.adapter.subscribe({
-          threadId: binding.engineThreadId,
+          threadId: engineThreadId,
           sinceSeq: since,
           signal: controller.signal,
           idleMs: this.streamIdleMs,
@@ -766,10 +849,18 @@ export class WorkStudio {
     event: EventEnvelope,
   ): Promise<{ terminal: boolean; rewind: boolean }> {
     let rewind = false;
-    if (event.thread_id !== binding.engineThreadId) {
+    const engineThreadId = binding.engineThreadId;
+    if (!engineThreadId) {
       this.diagnose(
         session,
-        `ignored an event for ${event.thread_id}; this studio is bound to ${binding.engineThreadId}`,
+        `ignored an event for ${event.thread_id}; this conversation has no engine thread yet`,
+      );
+      return { terminal: false, rewind };
+    }
+    if (event.thread_id !== engineThreadId) {
+      this.diagnose(
+        session,
+        `ignored an event for ${event.thread_id}; this studio is bound to ${engineThreadId}`,
       );
       return { terminal: false, rewind };
     }
@@ -833,7 +924,7 @@ export class WorkStudio {
         await this.changes.captureArtifactsEvent({
           projectId: session.projectId,
           threadId: binding.localThreadId,
-          engineThreadId: binding.engineThreadId,
+          engineThreadId,
           turnId: event.turn_id,
           payload: event.payload,
         });
@@ -882,12 +973,14 @@ export class WorkStudio {
     binding: ModeBinding,
     event: EventEnvelope,
   ): Promise<void> {
+    const engineThreadId = binding.engineThreadId;
+    if (!engineThreadId) return;
     const status = terminalStatus(event.kind) ?? "failed";
     const turnId = event.turn_id ?? session.active?.turnId ?? null;
     let effective: StudioSnapshot["profile"]["effective"] = null;
     let turnRecord = null;
     try {
-      const history = await session.adapter.readHistory({ threadId: binding.engineThreadId });
+      const history = await session.adapter.readHistory({ threadId: engineThreadId });
       turnRecord = turnId ? (history.turns.find((turn) => turn.id === turnId) ?? null) : null;
       if (turnRecord) {
         await this.store.upsertTurn({
@@ -904,7 +997,7 @@ export class WorkStudio {
           const posture = postureFor(session.lastMode ?? "work", session.profile);
           try {
             const observed = await session.adapter.getEffectiveProfile({
-              threadId: binding.engineThreadId,
+              threadId: engineThreadId,
               turnId: turnRecord.id,
               requested: {
                 provider: session.profile.provider,
@@ -939,7 +1032,7 @@ export class WorkStudio {
         await this.changes.captureTurn({
           projectId: session.projectId,
           threadId: binding.localThreadId,
-          engineThreadId: binding.engineThreadId,
+          engineThreadId,
           turnId,
           adapter: session.adapter,
           payload: event.payload,
@@ -1015,6 +1108,8 @@ export class WorkStudio {
     _timestamp: string,
   ): Promise<void> {
     if (session.usageRecorded.has(turn.id)) return;
+    const engineThreadId = binding.engineThreadId;
+    if (!engineThreadId) return;
     const provider = turn.effectiveProvider ?? session.profile.provider;
     const model = turn.effectiveModel ?? session.profile.model;
     // The engine's aggregate is cumulative for a stable window, so the ledger
@@ -1022,7 +1117,7 @@ export class WorkStudio {
     let aggregate: { costUsd: number; costComplete: boolean } | null = null;
     try {
       const report = await session.adapter.readUsage({ groupBy: "thread" });
-      const bucket = report.buckets.find((entry) => entry.key === binding.engineThreadId);
+      const bucket = report.buckets.find((entry) => entry.key === engineThreadId);
       if (bucket) {
         aggregate = { costUsd: bucket.costUsd, costComplete: bucket.costComplete };
       }
@@ -1266,7 +1361,7 @@ export class WorkStudio {
       };
     }
     const binding = session.active?.binding;
-    if (!binding) {
+    if (!binding?.engineThreadId) {
       return { interrupted: false, turn: null, note: "no active turn to interrupt" };
     }
     try {
@@ -1298,21 +1393,22 @@ export class WorkStudio {
   }> {
     const session = this.requireSession(projectId);
     const binding = session.active?.binding ?? this.latestBinding(session);
-    if (!binding) {
+    if (!binding?.engineThreadId) {
       throw new StudioError("NOT_CONNECTED", "no engine thread is bound yet");
     }
+    const engineThreadId = binding.engineThreadId;
     let ingested = 0;
     let duplicates = 0;
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 20_000);
     try {
       for await (const item of session.adapter.subscribe({
-        threadId: binding.engineThreadId,
+        threadId: engineThreadId,
         sinceSeq: 0,
         signal: controller.signal,
       })) {
         if (item.type === "event") {
-          if (item.event.thread_id !== binding.engineThreadId) {
+          if (item.event.thread_id !== engineThreadId) {
             duplicates += 1;
             continue;
           }
@@ -1419,9 +1515,18 @@ export class WorkStudio {
     return {
       projectId,
       connection,
+      // The conversation the user is in is the one their last mode selected:
+      // `/new` can switch either mode, so preferring `work` would mislabel a
+      // plan conversation as current.
       threadId:
-        session?.bindings.work?.localThreadId ?? session?.bindings.plan?.localThreadId ?? null,
-      engineThreadId: session?.active?.binding.engineThreadId ?? null,
+        session?.bindings[session?.lastMode ?? "work"]?.localThreadId ??
+        session?.bindings.work?.localThreadId ??
+        session?.bindings.plan?.localThreadId ??
+        null,
+      engineThreadId:
+        session?.active?.binding.engineThreadId ??
+        session?.bindings[session?.lastMode ?? "work"]?.engineThreadId ??
+        null,
       activeTurnId: session?.active?.turnId ?? null,
       lastMode: session?.lastMode ?? null,
       pauseAfterTask: work.pauseAfterTask,
@@ -1492,25 +1597,36 @@ export class WorkStudio {
     return null;
   }
 
+  /**
+   * Bind the studio to the newest conversation of this mode. A project's older
+   * generations stay in the store, so restarting the app resumes the
+   * conversation the user was actually in — not a fresh one, and not a guess
+   * made from `updated_at` (which an old thread can win).
+   */
   private async ensureModeThread(session: StudioSession, mode: StudioMode): Promise<ModeBinding> {
     const existing = session.bindings[mode];
     if (existing) return existing;
-    const localThreadId = threadRowId(session.projectId, mode);
-    const threads = await this.store.listThreads(session.projectId);
-    const row = threads.find((thread) => thread.id === localThreadId);
-    if (row?.engineThreadId) {
-      const parsed = ThreadIdSchema.safeParse(row.engineThreadId);
-      if (parsed.success) {
-        const binding: ModeBinding = { localThreadId, engineThreadId: parsed.data };
-        session.bindings[mode] = binding;
-        return binding;
-      }
+    const threads = await this.conversationThreads(session.projectId, mode);
+    const newest = threads[0];
+    if (newest) {
+      const parsed = newest.engineThreadId ? ThreadIdSchema.safeParse(newest.engineThreadId) : null;
+      const binding: ModeBinding = {
+        localThreadId: newest.id,
+        engineThreadId: parsed?.success ? parsed.data : null,
+        mode,
+        generation: newest.generation,
+      };
+      session.bindings[mode] = binding;
+      return binding;
     }
+    const generation = 0;
+    const localThreadId = threadRowId(session.projectId, mode, generation);
+    const title = threadTitle(session.project.name, mode, generation);
     const posture: ModePosture = postureFor(mode, session.profile);
     const thread = await session.adapter.createOrOpenThread({
       workspace: session.project.canonicalPath,
-      title: `${session.project.name} — ${mode}`,
-      operationKey: threadKey(session.projectId, mode),
+      title,
+      operationKey: threadKey(session.projectId, mode, generation),
       execute: {
         autoApprove: posture.autoApprove,
         trustMode: posture.trustMode,
@@ -1521,11 +1637,671 @@ export class WorkStudio {
       id: localThreadId,
       projectId: session.projectId,
       engineThreadId: thread.threadId,
-      title: `${session.project.name} — ${mode}`,
+      title,
+      mode,
+      generation,
     });
-    const binding: ModeBinding = { localThreadId, engineThreadId: thread.threadId };
+    const binding: ModeBinding = {
+      localThreadId,
+      engineThreadId: thread.threadId,
+      mode,
+      generation,
+    };
     session.bindings[mode] = binding;
     return binding;
+  }
+
+  /**
+   * A thread created without an engine identity (offline, or a failed create)
+   * gets one here, with the operation key derived from its generation. The key
+   * is stable, so a lost response cannot create a second engine conversation.
+   */
+  private async ensureEngineThread(
+    session: StudioSession,
+    binding: ModeBinding,
+  ): Promise<ModeBinding> {
+    if (binding.engineThreadId) return binding;
+    const title = threadTitle(session.project.name, binding.mode, binding.generation);
+    const posture: ModePosture = postureFor(binding.mode, session.profile);
+    const thread = await session.adapter.createOrOpenThread({
+      workspace: session.project.canonicalPath,
+      title,
+      operationKey: threadKey(session.projectId, binding.mode, binding.generation),
+      execute: {
+        autoApprove: posture.autoApprove,
+        trustMode: posture.trustMode,
+        allowShell: posture.allowShell,
+      },
+    });
+    await this.store.upsertThread({
+      id: binding.localThreadId,
+      projectId: session.projectId,
+      engineThreadId: thread.threadId,
+      title,
+      mode: binding.mode,
+      generation: binding.generation,
+    });
+    const updated: ModeBinding = { ...binding, engineThreadId: thread.threadId };
+    session.bindings[binding.mode] = updated;
+    return updated;
+  }
+
+  /**
+   * Every conversation of this mode, newest first. Rows written before schema
+   * v11 have no mode; only a row with a real engine identity is adopted as
+   * generation 0, and it is relabelled in place rather than duplicated.
+   */
+  private async conversationThreads(projectId: ProjectId, mode: StudioMode) {
+    const rows = await this.store.listModeThreads(projectId, mode);
+    if (rows.length > 0) return rows;
+    const legacy = await this.store.getThread(legacyThreadRowId(projectId, mode));
+    if (!legacy || legacy.mode !== null || !legacy.engineThreadId) return [];
+    const adopted = await this.store.upsertThread({
+      id: legacy.id,
+      projectId,
+      engineThreadId: legacy.engineThreadId,
+      title: legacy.title,
+      mode,
+      generation: 0,
+    });
+    return [adopted];
+  }
+
+  /**
+   * R04 `/new`: start a new conversation while every earlier conversation keeps
+   * its rows, events, turns, usage and drafts.
+   *
+   * The operation key is the durable half. The key's target thread is recorded
+   * before the engine call, the engine create key is derived from (project,
+   * mode, generation), and a repeat with the same key resumes that target
+   * instead of allocating another generation. A lost response, a double click,
+   * or a restart therefore cannot fork the conversation twice.
+   */
+  async newThread(
+    projectId: ProjectId,
+    options: { mode: StudioMode; operationKey: string; resolveBusy?: "interrupt" },
+  ): Promise<StudioCommandResult> {
+    if (options.mode !== "plan" && options.mode !== "work") {
+      throw new StudioError("INVALID_INPUT", "mode must be plan or work");
+    }
+    const project = await this.store.getProject(projectId);
+    if (!project)
+      throw new StudioError("NOT_FOUND", "project is not in the catalog", { projectId });
+    const session =
+      this.active && this.active.projectId === projectId && !this.active.stopped
+        ? this.active
+        : null;
+
+    const existing = await this.store.getCommandOperation(options.operationKey);
+    if (existing && (existing.projectId !== projectId || existing.command !== "new")) {
+      throw new StudioError(
+        "INVALID_INPUT",
+        "that operation key was already used for a different command or project",
+        { operationKey: options.operationKey },
+      );
+    }
+    if (existing?.status === "completed" && existing.result) {
+      const stored = existing.result as {
+        note?: unknown;
+        thread?: unknown;
+        status?: unknown;
+      };
+      const thread = storedThreadReceipt(stored.thread);
+      if (thread) {
+        // The same intent, already resolved. Return the first receipt and put
+        // the live session back on the conversation it created.
+        if (session) {
+          session.bindings[thread.mode] = {
+            localThreadId: thread.localThreadId,
+            engineThreadId: thread.engineThreadId ? asThreadIdOrNull(thread.engineThreadId) : null,
+            mode: thread.mode,
+            generation: thread.generation,
+          };
+          session.lastMode = thread.mode;
+        }
+        return {
+          status: stored.status === "deferred" ? "deferred" : "completed",
+          note:
+            typeof stored.note === "string"
+              ? stored.note
+              : `Conversation ${thread.localThreadId} already exists for this operation key.`,
+          thread,
+          turnId: null,
+          duplicate: true,
+          snapshot: await this.snapshot(projectId),
+        };
+      }
+    }
+
+    let localThreadId: string;
+    let generation: number;
+    let previousLocalThreadId: string | null = null;
+    let previousEngineThreadId: ThreadId | null = null;
+    let resumed = false;
+
+    if (existing?.targetId) {
+      // A retry of the same intent. Its target was fixed before the first
+      // attempt, so resuming it cannot allocate a second generation. It may
+      // still meet a turn that started after the first attempt, so the same
+      // busy rule applies: never detach a running turn.
+      localThreadId = existing.targetId;
+      const row = await this.store.getThread(localThreadId);
+      // A crash between recording the key and writing the row leaves the
+      // pending record with its generation and no row. Falling back to
+      // generation 0 would then reuse the first conversation's engine key, so
+      // the recorded generation wins, and a last-resort allocation is fresh.
+      const pendingMeta = existing.result as {
+        generation?: unknown;
+        thread?: unknown;
+      } | null;
+      const recordedThread = storedThreadReceipt(pendingMeta?.thread ?? null);
+      const recordedGeneration =
+        typeof pendingMeta?.generation === "number" && Number.isInteger(pendingMeta.generation)
+          ? pendingMeta.generation
+          : (recordedThread?.generation ?? null);
+      if (row) {
+        generation = row.generation;
+      } else if (recordedGeneration !== null) {
+        generation = recordedGeneration;
+      } else {
+        const allocated = await this.conversationThreads(projectId, options.mode);
+        generation = allocated.reduce((max, entry) => Math.max(max, entry.generation), -1) + 1;
+      }
+      if (!row) {
+        // The identity this key fixes must exist before the engine call, or a
+        // second crash would allocate again.
+        await this.store.upsertThread({
+          id: localThreadId,
+          projectId,
+          title: threadTitle(project.name, options.mode, generation),
+          mode: options.mode,
+          generation,
+        });
+      }
+      resumed = true;
+      const active = session?.active ?? null;
+      if (active && active.binding.localThreadId !== localThreadId) {
+        if (options.resolveBusy !== "interrupt") {
+          return {
+            status: "busy",
+            note: `A ${active.binding.mode} turn is running (${active.turnId}). Wait for it to finish, or choose Interrupt and start a new conversation. Mona will not detach a running turn and call it moved.`,
+            thread: null,
+            turnId: active.turnId,
+            duplicate: true,
+            snapshot: await this.snapshot(projectId),
+          };
+        }
+        const receipt = await this.interrupt(projectId);
+        if (receipt.confirmed !== true) {
+          return {
+            status: "failed",
+            note: `The running turn (${active.turnId}) did not confirm an interrupt: ${receipt.note} The recorded /new operation was not resumed.`,
+            thread: null,
+            turnId: active.turnId,
+            duplicate: true,
+            snapshot: await this.snapshot(projectId),
+          };
+        }
+        this.clearInterruptedTurn(session);
+      }
+    } else {
+      const active = session?.active ?? null;
+      if (active && options.resolveBusy !== "interrupt") {
+        return {
+          status: "busy",
+          note: `A ${active.binding.mode} turn is running (${active.turnId}). Wait for it to finish, or choose Interrupt and start a new conversation. Mona will not detach a running turn and call it moved.`,
+          thread: null,
+          turnId: active.turnId,
+          duplicate: false,
+          snapshot: await this.snapshot(projectId),
+        };
+      }
+      if (active && options.resolveBusy === "interrupt") {
+        const receipt = await this.interrupt(projectId);
+        if (receipt.confirmed !== true) {
+          return {
+            status: "failed",
+            note: `The running turn (${active.turnId}) did not confirm an interrupt: ${receipt.note} No new conversation was created.`,
+            thread: null,
+            turnId: active.turnId,
+            duplicate: false,
+            snapshot: await this.snapshot(projectId),
+          };
+        }
+        // Only a confirmed interrupt clears the in-memory turn. The old
+        // thread's final frame is stored when that conversation is next
+        // opened; the receipt says so rather than claiming it moved.
+        this.clearInterruptedTurn(session);
+      }
+      const threads = await this.conversationThreads(projectId, options.mode);
+      const newest = threads[0] ?? null;
+      const bound = session?.bindings[options.mode] ?? null;
+      generation = threads.reduce((max, row) => Math.max(max, row.generation), -1) + 1;
+      localThreadId = threadRowId(projectId, options.mode, generation);
+      previousLocalThreadId = bound?.localThreadId ?? newest?.id ?? null;
+      previousEngineThreadId =
+        bound?.engineThreadId ??
+        (newest?.engineThreadId ? asThreadIdOrNull(newest.engineThreadId) : null);
+      // Recorded before the engine write: a lost response leaves a target that
+      // a retry can resume, not a gap that a retry fills with a second thread.
+      await this.store.putCommandOperation({
+        operationKey: options.operationKey,
+        projectId,
+        command: "new",
+        targetId: localThreadId,
+        status: "pending",
+        // The generation travels with the key: if the row write is lost, a
+        // resume still knows which conversation this intent allocated.
+        result: { generation, mode: options.mode },
+      });
+      await this.store.upsertThread({
+        id: localThreadId,
+        projectId,
+        title: threadTitle(project.name, options.mode, generation),
+        mode: options.mode,
+        generation,
+      });
+      if (session) {
+        if (previousEngineThreadId && session.pumpKey === previousEngineThreadId) {
+          await this.stopPump(session);
+        }
+        if (session.active?.binding.localThreadId === previousLocalThreadId) session.active = null;
+      }
+    }
+
+    const row = await this.store.getThread(localThreadId);
+    let engineThreadId: ThreadId | null = row?.engineThreadId
+      ? asThreadIdOrNull(row.engineThreadId)
+      : null;
+    let status: StudioCommandResult["status"] = "completed";
+    let note: string;
+
+    if (engineThreadId === null) {
+      if (session && (session.connection === "connected" || session.connection === "running")) {
+        const posture = postureFor(options.mode, session.profile);
+        try {
+          const thread = await session.adapter.createOrOpenThread({
+            workspace: project.canonicalPath,
+            title: threadTitle(project.name, options.mode, generation),
+            operationKey: threadKey(projectId, options.mode, generation),
+            execute: {
+              autoApprove: posture.autoApprove,
+              trustMode: posture.trustMode,
+              allowShell: posture.allowShell,
+            },
+          });
+          engineThreadId = thread.threadId;
+          await this.store.upsertThread({
+            id: localThreadId,
+            projectId,
+            engineThreadId,
+            title: threadTitle(project.name, options.mode, generation),
+            mode: options.mode,
+            generation,
+          });
+          note = `New ${options.mode} conversation created: local ${localThreadId}, engine ${engineThreadId}. The earlier conversation, its events, drafts and usage are unchanged.`;
+        } catch (error) {
+          status = "deferred";
+          note = `New ${options.mode} conversation started locally (${localThreadId}), but the engine thread was not created yet: ${errorMessage(error)} It will be created with the next turn, with the same operation key.`;
+        }
+      } else {
+        status = "deferred";
+        note = `New ${options.mode} conversation started locally (${localThreadId}). The engine thread will be created when the studio connects; the earlier conversation is unchanged.`;
+      }
+    } else {
+      note = `New ${options.mode} conversation created: local ${localThreadId}, engine ${engineThreadId}. The earlier conversation, its events, drafts and usage are unchanged.`;
+    }
+    if (resumed) note = `Resumed the recorded /new operation. ${note}`;
+
+    const binding: ModeBinding = { localThreadId, engineThreadId, mode: options.mode, generation };
+    if (session) {
+      session.bindings[options.mode] = binding;
+      session.lastMode = options.mode;
+    }
+    const thread = {
+      mode: options.mode,
+      generation,
+      localThreadId,
+      engineThreadId,
+      previousLocalThreadId,
+      previousEngineThreadId,
+    };
+    // A deferred conversation is a real local generation with a pending engine
+    // identity. Keeping the operation pending is what lets the same key resume
+    // it later; marking it completed would make a retry replay the failure.
+    if (status === "deferred") {
+      await this.store.putCommandOperation({
+        operationKey: options.operationKey,
+        projectId,
+        command: "new",
+        targetId: localThreadId,
+        status: "pending",
+        // The generation travels with the key on every write. A deferred
+        // conversation is exactly the case a crash-window resume has to
+        // recognise, so dropping it here would empty the rung that exists for
+        // it.
+        result: { note, thread, status, generation, mode: options.mode },
+      });
+    } else {
+      await this.store.completeCommandOperation({
+        operationKey: options.operationKey,
+        projectId,
+        command: "new",
+        targetId: localThreadId,
+        status: "completed",
+        result: { note, thread, status },
+      });
+    }
+    this.pushControl(projectId, "thread_new", "control", {});
+    return {
+      status,
+      note,
+      thread,
+      turnId: null,
+      duplicate: existing !== null,
+      snapshot: await this.snapshot(projectId),
+    };
+  }
+
+  /**
+   * R04 native operations that act on the current conversation. Each requires
+   * a live, bound conversation: none of them invents an engine turn or a
+   * thread identity to look successful.
+   */
+  private requireLiveThread(
+    projectId: ProjectId,
+    mode: StudioMode,
+  ): { session: StudioSession; binding: ModeBinding & { engineThreadId: ThreadId } } {
+    const session = this.requireSession(projectId);
+    if (session.connection !== "connected" && session.connection !== "running") {
+      throw new StudioError(
+        "NOT_CONNECTED",
+        `the studio is ${session.connection}: ${session.reason}`,
+      );
+    }
+    const binding = session.bindings[mode] ?? session.active?.binding ?? null;
+    if (!binding) {
+      throw new StudioError(
+        "NOT_CONNECTED",
+        "this project has no bound conversation yet; send a task or run /new first",
+      );
+    }
+    const engineThreadId = binding.engineThreadId;
+    if (!engineThreadId) {
+      throw new StudioError(
+        "NOT_CONNECTED",
+        "this conversation has no engine thread yet; send a task first so the engine creates it",
+      );
+    }
+    return { session, binding: { ...binding, engineThreadId } };
+  }
+
+  /** `/rename <title>` — the engine's own title patch, mirrored locally. */
+  async renameConversation(
+    projectId: ProjectId,
+    options: { mode: StudioMode; title: string; operationKey: string },
+  ): Promise<StudioCommandResult> {
+    const { session, binding } = this.requireLiveThread(projectId, options.mode);
+    const title = options.title.trim();
+    if (title.length === 0) {
+      throw new StudioError("INVALID_INPUT", "a title is required");
+    }
+    if (title.length > 200) {
+      throw new StudioError("INVALID_INPUT", "a title is limited to 200 characters");
+    }
+    const receipt = await session.adapter.renameThread({
+      threadId: binding.engineThreadId,
+      title,
+    });
+    await this.store.upsertThread({
+      id: binding.localThreadId,
+      projectId,
+      title: receipt.title,
+      mode: options.mode,
+      generation: binding.generation,
+    });
+    const note = `Renamed this conversation to “${receipt.title}”.`;
+    const thread = this.threadReceipt(binding, binding);
+    await this.store.completeCommandOperation({
+      operationKey: options.operationKey,
+      projectId,
+      command: "rename",
+      targetId: binding.localThreadId,
+      status: "completed",
+      result: { note, thread, status: "completed" },
+    });
+    this.pushControl(projectId, "thread_renamed", "control", {});
+    return {
+      status: "completed",
+      note,
+      thread,
+      turnId: null,
+      duplicate: false,
+      snapshot: await this.snapshot(projectId),
+    };
+  }
+
+  /** `/compact` — manual compaction. The engine may call the model. */
+  async compactConversation(
+    projectId: ProjectId,
+    options: { mode: StudioMode; operationKey: string },
+  ): Promise<StudioCommandResult> {
+    const { session, binding } = this.requireLiveThread(projectId, options.mode);
+    if (session.active) {
+      throw new StudioError(
+        "TURN_ACTIVE",
+        `a turn is active (${session.active.turnId}); compaction waits for it to finish`,
+      );
+    }
+    const receipt = await session.adapter.compactThread({
+      threadId: binding.engineThreadId,
+    });
+    const note = `Compaction: ${receipt.note}`;
+    await this.store.completeCommandOperation({
+      operationKey: options.operationKey,
+      projectId,
+      command: "compact",
+      targetId: binding.localThreadId,
+      status: "completed",
+      result: { note, thread: null, status: "completed" },
+    });
+    return {
+      status: "completed",
+      note,
+      thread: null,
+      turnId: null,
+      duplicate: false,
+      snapshot: await this.snapshot(projectId),
+    };
+  }
+
+  /** `/fork` — a sibling conversation. The source thread is untouched. */
+  async forkConversation(
+    projectId: ProjectId,
+    options: { mode: StudioMode; operationKey: string },
+  ): Promise<StudioCommandResult> {
+    const { session, binding } = this.requireLiveThread(projectId, options.mode);
+    if (session.active) {
+      // Adopting a fork rebinds the conversation, so an active turn would lose
+      // its reader. Refuse rather than detach it and call it moved.
+      throw new StudioError(
+        "TURN_ACTIVE",
+        `a turn is active (${session.active.turnId}); fork waits for it to finish`,
+      );
+    }
+    const receipt = await session.adapter.forkThread({
+      threadId: binding.engineThreadId,
+      operationKey: options.operationKey,
+    });
+    const adopted = await this.adoptConversation(
+      session,
+      options.mode,
+      receipt.threadId,
+      `${session.project.name} — ${options.mode} fork`,
+    );
+    const note = `Forked this conversation (${binding.engineThreadId}) into a new ${options.mode} conversation (${receipt.threadId}). The source thread and its events are unchanged.${
+      receipt.originalUserText
+        ? ` The engine kept the source prompt: “${receipt.originalUserText.slice(0, 200)}”.`
+        : ""
+    }`;
+    const thread = this.threadReceipt(adopted.binding, adopted.previous);
+    await this.store.completeCommandOperation({
+      operationKey: options.operationKey,
+      projectId,
+      command: "fork",
+      targetId: adopted.binding.localThreadId,
+      status: "completed",
+      result: { note, thread, status: "completed" },
+    });
+    this.pushControl(projectId, "thread_new", "control", {});
+    return {
+      status: "completed",
+      note,
+      thread,
+      turnId: null,
+      duplicate: false,
+      snapshot: await this.snapshot(projectId),
+    };
+  }
+
+  /**
+   * `/retry` — the engine forks with the last turn removed and immediately
+   * starts a turn. It is not an in-place retry: the conversation becomes the
+   * fork, and the source conversation stays readable.
+   */
+  async retryConversation(
+    projectId: ProjectId,
+    options: { mode: StudioMode; operationKey: string },
+  ): Promise<StudioCommandResult> {
+    const { session, binding } = this.requireLiveThread(projectId, options.mode);
+    if (session.active) {
+      throw new StudioError(
+        "TURN_ACTIVE",
+        `a turn is active (${session.active.turnId}); retry waits for it to finish`,
+      );
+    }
+    const prior = await this.store.getCommandOperation(options.operationKey);
+    if (prior) {
+      // The same key was already attempted. A retry endpoint starts work and
+      // may have forked, so a repeat cannot be answered by calling it again.
+      throw new StudioError(
+        "INVALID_INPUT",
+        "this retry was already attempted; a repeat could fork a second conversation. Check the thread list before trying again.",
+        { operationKey: options.operationKey },
+      );
+    }
+    await this.store.putCommandOperation({
+      operationKey: options.operationKey,
+      projectId,
+      command: "retry",
+      targetId: binding.localThreadId,
+      status: "pending",
+    });
+    const receipt = await session.adapter.retryThread({
+      threadId: binding.engineThreadId,
+      depth: 0,
+    });
+    const adopted = await this.adoptConversation(
+      session,
+      options.mode,
+      receipt.threadId,
+      `${session.project.name} — ${options.mode} retry`,
+    );
+    if (receipt.turnId) {
+      this.activate(session, adopted.binding, receipt.turnId, "accepted", options.operationKey);
+    }
+    await this.startPump(session, adopted.binding);
+    const note = receipt.turnId
+      ? `Retried in a forked conversation (${receipt.threadId}); turn ${receipt.turnId} is running.`
+      : `Retried in a forked conversation (${receipt.threadId}); the engine started a turn and its events are being read.`;
+    const thread = this.threadReceipt(adopted.binding, adopted.previous);
+    await this.store.completeCommandOperation({
+      operationKey: options.operationKey,
+      projectId,
+      command: "retry",
+      targetId: adopted.binding.localThreadId,
+      status: "completed",
+      result: { note, thread, status: "completed" },
+    });
+    return {
+      status: "completed",
+      note,
+      thread,
+      turnId: receipt.turnId,
+      duplicate: false,
+      snapshot: await this.snapshot(projectId),
+    };
+  }
+
+  private async adoptConversation(
+    session: StudioSession,
+    mode: StudioMode,
+    engineThreadId: ThreadId,
+    titleBase: string,
+  ): Promise<{ binding: ModeBinding; previous: ModeBinding | null }> {
+    const threads = await this.conversationThreads(session.projectId, mode);
+    const newest = threads[0] ?? null;
+    const previous: ModeBinding | null =
+      session.bindings[mode] ??
+      (newest
+        ? {
+            localThreadId: newest.id,
+            engineThreadId: newest.engineThreadId ? asThreadIdOrNull(newest.engineThreadId) : null,
+            mode,
+            generation: newest.generation,
+          }
+        : null);
+    const generation = threads.reduce((max, row) => Math.max(max, row.generation), -1) + 1;
+    const localThreadId = threadRowId(session.projectId, mode, generation);
+    const title = generation === 0 ? titleBase : `${titleBase} ${generation + 1}`;
+    await this.store.upsertThread({
+      id: localThreadId,
+      projectId: session.projectId,
+      engineThreadId,
+      title,
+      mode,
+      generation,
+    });
+    if (previous?.engineThreadId && session.pumpKey === previous.engineThreadId) {
+      await this.stopPump(session);
+    }
+    if (session.active?.binding.localThreadId === previous?.localThreadId) session.active = null;
+    const binding: ModeBinding = { localThreadId, engineThreadId, mode, generation };
+    session.bindings[mode] = binding;
+    session.lastMode = mode;
+    return { binding, previous };
+  }
+
+  private threadReceipt(
+    binding: ModeBinding,
+    previous: ModeBinding | null,
+  ): NonNullable<StudioCommandResult["thread"]> {
+    return {
+      mode: binding.mode,
+      generation: binding.generation,
+      localThreadId: binding.localThreadId,
+      engineThreadId: binding.engineThreadId,
+      previousLocalThreadId: previous?.localThreadId ?? null,
+      previousEngineThreadId: previous?.engineThreadId ?? null,
+    };
+  }
+
+  /**
+   * A confirmed interrupt means the engine is no longer running that turn, so
+   * the session may stop claiming it is. The connection returns to
+   * `connected` only when it really was `running`; a failed or reconnecting
+   * session is left exactly as it is.
+   */
+  private clearInterruptedTurn(session: StudioSession | null): void {
+    if (!session) return;
+    session.active = null;
+    if (session.connection === "running") {
+      this.setConnection(
+        session,
+        "connected",
+        "the interrupted turn stopped; a new conversation is current",
+      );
+    }
   }
 
   private async ensureShellThread(project: StoredProject): Promise<void> {
@@ -1621,6 +2397,11 @@ export class WorkStudio {
       await this.stopPump(session);
     }
     this.active = null;
+  }
+
+  /** R04: the durable record of one command intent, for retry detection. */
+  async commandOperation(operationKey: string) {
+    return this.store.getCommandOperation(operationKey);
   }
 
   /** Testing/verification helper: which project holds the session. */

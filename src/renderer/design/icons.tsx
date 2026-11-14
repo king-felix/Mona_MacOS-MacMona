@@ -287,3 +287,21 @@ export function ArrowUpRightIcon(props: IconProps): JSX.Element {
     </svg>
   );
 }
+
+/** Native full screen: four corners opening out. */
+export function FullscreenIcon(props: IconProps): JSX.Element {
+  return (
+    <svg {...iconProps(props)}>
+      <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" />
+    </svg>
+  );
+}
+
+/** Leave the immersive layout: the same corners closing in. */
+export function RestoreIcon(props: IconProps): JSX.Element {
+  return (
+    <svg {...iconProps(props)}>
+      <path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5" />
+    </svg>
+  );
+}

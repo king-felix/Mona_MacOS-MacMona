@@ -315,6 +315,18 @@ export interface EngineAdapter {
   shutdownOwnedRuntime(handle: RuntimeHandle): Promise<{ stopped: boolean }>;
   createOrOpenThread(input: ThreadRequest): Promise<ThreadRef>;
   submitTurn(input: SubmitTurnInput): Promise<SubmissionReceipt>;
+  /**
+   * R04 native slash-command operations. Each one is the engine's own
+   * documented route for that command; none is inferred from a title, a prompt
+   * or a TUI-only behaviour.
+   */
+  renameThread(input: { threadId: ThreadId; title: string }): Promise<ThreadRenameReceipt>;
+  compactThread(input: { threadId: ThreadId }): Promise<ThreadCompactReceipt>;
+  forkThread(input: {
+    threadId: ThreadId;
+    operationKey?: OperationKey;
+  }): Promise<ForkedThreadReceipt>;
+  retryThread(input: { threadId: ThreadId; depth?: number }): Promise<RetryReceipt>;
   reconcileSubmission(input: { submission: SubmissionState }): Promise<ReconcileResult>;
   subscribe(input: SubscribeInput): AsyncIterable<SubscriptionItem>;
   interrupt(input: { threadId: ThreadId; turnId: TurnId }): Promise<InterruptReceipt>;
@@ -395,6 +407,28 @@ export interface EngineAdapter {
     truncated: boolean;
     content: unknown;
   }>;
+}
+
+/** R04 — receipts for the native thread operations. */
+export interface ThreadRenameReceipt {
+  threadId: ThreadId;
+  title: string;
+}
+
+export interface ThreadCompactReceipt {
+  threadId: ThreadId;
+  note: string;
+}
+
+export interface ForkedThreadReceipt {
+  threadId: ThreadId;
+  workspace: string | null;
+  status: number;
+  originalUserText: string | null;
+}
+
+export interface RetryReceipt extends ForkedThreadReceipt {
+  turnId: TurnId | null;
 }
 
 // ------------------------------------------------------- P15 orchestration

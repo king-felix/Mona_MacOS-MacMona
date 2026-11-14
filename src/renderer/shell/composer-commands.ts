@@ -194,7 +194,13 @@ export function couldBeCommandText(text: string): boolean {
 
 export type CommandIntent =
   | { kind: "prompt" }
-  | { kind: "command"; entry: CommandCatalogEntry; args: string }
+  | {
+      kind: "command";
+      entry: CommandCatalogEntry;
+      args: string;
+      /** The exact spelling the user typed (canonical name or alias). */
+      spelling: string;
+    }
   | {
       kind: "incomplete";
       entry: CommandCatalogEntry;
@@ -254,7 +260,7 @@ export function classifyComposerText(
     if (entry.requiresRequiredArgument && args.length === 0) {
       return { kind: "incomplete", entry, args, reason: "required-argument" };
     }
-    return { kind: "command", entry, args };
+    return { kind: "command", entry, args, spelling: query };
   }
   // A command being typed has no arguments yet; words after the token make it
   // prose. Without this, `/the release is broken` would be refused because
@@ -269,10 +275,10 @@ export function classifyComposerText(
 export function describeCommandSupport(entry: CommandCatalogEntry): string {
   const { route, support } = entry.annotation;
   if (support === "runtime-api" && route.kind === "runtime-api") {
-    return `Runtime route: ${route.endpoints.join(", ")}. Execution is wired in R04; this build only catalogues it.`;
+    return `Runtime route: ${route.endpoints.join(", ")}. Command-Enter dispatches it through Mona's typed route; either the operation runs and reports its receipt, or Mona opens the screen that owns it.`;
   }
   if (support === "terminal-only" && route.kind === "tui-local") {
-    return `TUI-only: ${route.note}`;
+    return `TUI-only: ${route.note} Command-Enter prefills the terminal for you to launch; Mona never runs it for you.`;
   }
   if (support === "unavailable" && route.kind === "unavailable") {
     return `Unavailable on the pinned engine: ${route.note}`;
@@ -282,7 +288,7 @@ export function describeCommandSupport(entry: CommandCatalogEntry): string {
 
 export function describeCommandIntent(intent: CommandIntent): string | null {
   if (intent.kind === "command") {
-    return `/${intent.entry.name} is a Codewhale command, not a prompt. ${describeCommandSupport(intent.entry)}`;
+    return `/${intent.entry.name} is a Codewhale command, not a prompt. ${describeCommandSupport(intent.entry)} To send it as text instead, start the line with a space.`;
   }
   if (intent.kind === "incomplete") {
     return `/${intent.entry.name} needs an argument. Usage: ${intent.entry.usage}`;

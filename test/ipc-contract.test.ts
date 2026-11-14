@@ -511,6 +511,55 @@ describe("R03 command catalog IPC validation", () => {
   });
 });
 
+describe("R04 command execution IPC validation", () => {
+  const base = {
+    projectId: "prj_0123456789abcdef",
+    mode: "work",
+    spelling: "new",
+    arguments: "",
+    operationKey: "cmd-0123456789",
+  } as const;
+
+  it("accepts one typed command request", () => {
+    expect(validateIpc("commands:execute", base)).toEqual(base);
+    expect(
+      validateIpc("commands:execute", { ...base, confirm: true, resolveBusy: "interrupt" }),
+    ).toMatchObject({ confirm: true, resolveBusy: "interrupt" });
+  });
+
+  it("rejects a slash, a shell word, or a free-form command", () => {
+    for (const spelling of [
+      "/new",
+      "new; rm -rf /",
+      "new arg",
+      "",
+      "$(id)",
+      "new\nrm",
+      "new|cat",
+      "../../etc/passwd",
+    ]) {
+      expect(() => validateIpc("commands:execute", { ...base, spelling })).toThrow();
+    }
+  });
+
+  it("accepts the engine's own non-ASCII and punctuation aliases", () => {
+    // The pinned catalog really answers to these; a rule that rejected them
+    // would make a catalogued command undispatchesable.
+    for (const spelling of ["语音", "语音控制", "语音发送", "帮助", "接力", "?"]) {
+      expect(validateIpc("commands:execute", { ...base, spelling })).toMatchObject({ spelling });
+    }
+  });
+
+  it("rejects an unbounded argument, a bad operation key and unknown fields", () => {
+    expect(() =>
+      validateIpc("commands:execute", { ...base, arguments: "x".repeat(4097) }),
+    ).toThrow();
+    expect(() => validateIpc("commands:execute", { ...base, operationKey: "bad key!" })).toThrow();
+    expect(() => validateIpc("commands:execute", { ...base, prompt: "hello" })).toThrow();
+    expect(() => validateIpc("commands:execute", { ...base, resolveBusy: "force" })).toThrow();
+  });
+});
+
 describe("history IPC validation", () => {
   const projectId = "prj_0123456789abcdef";
 
@@ -555,5 +604,27 @@ describe("history IPC validation", () => {
     expect(() =>
       validateIpc("projects:history-item", { projectId, threadId: "thr_x", itemId: "" }),
     ).toThrow();
+  });
+});
+
+describe("window IPC validation", () => {
+  it("accepts a read and a boolean full-screen request", () => {
+    expect(validateIpc("window:fullscreen", {})).toEqual({});
+    expect(validateIpc("window:fullscreen:set", { fullscreen: true })).toEqual({
+      fullscreen: true,
+    });
+    expect(validateIpc("window:fullscreen:set", { fullscreen: false })).toEqual({
+      fullscreen: false,
+    });
+  });
+
+  it("refuses a window selector and a non-boolean state", () => {
+    // The invoking sender decides the window; a caller-supplied id would let
+    // one renderer put another window into full screen.
+    expect(() => validateIpc("window:fullscreen:set", { fullscreen: true, windowId: 1 })).toThrow(
+      /malformed/i,
+    );
+    expect(() => validateIpc("window:fullscreen:set", { fullscreen: "yes" })).toThrow();
+    expect(() => validateIpc("window:fullscreen", { fullscreen: true })).toThrow(/malformed/i);
   });
 });

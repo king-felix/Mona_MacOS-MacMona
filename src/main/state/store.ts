@@ -141,6 +141,23 @@ export interface StoredThread {
   projectId: ProjectId;
   engineThreadId: string | null;
   title: string | null;
+  /** `work`/`plan` for a studio conversation; null is an older or local row. */
+  mode: string | null;
+  /** 0 for the first conversation of a mode; `/new` increments it. */
+  generation: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type CommandOperationStatus = "pending" | "completed" | "failed";
+
+export interface StoredCommandOperation {
+  operationKey: string;
+  projectId: ProjectId;
+  command: string;
+  targetId: string | null;
+  status: CommandOperationStatus;
+  result: Record<string, unknown> | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -628,6 +645,47 @@ function costMarkFromRow(row: DbRow): CostThreadMark {
     windowSince: asString(row.window_since),
     reportedTotalPico: asNumberOrNull(row.reported_total_pico),
     costComplete: Number(row.cost_complete) === 1,
+    updatedAt: asString(row.updated_at),
+  };
+}
+
+function threadFromRow(row: DbRow): StoredThread {
+  return {
+    id: asString(row.id),
+    projectId: asString(row.project_id) as ProjectId,
+    engineThreadId: asNullableString(row.engine_thread_id),
+    title: asNullableString(row.title),
+    mode: asNullableString(row.mode),
+    generation: asNumber(row.generation ?? 0),
+    createdAt: asString(row.created_at),
+    updatedAt: asString(row.updated_at),
+  };
+}
+
+function commandOperationFromRow(row: DbRow): StoredCommandOperation {
+  const raw = asNullableString(row.result_json);
+  let result: Record<string, unknown> | null = null;
+  if (raw !== null) {
+    try {
+      const parsed = JSON.parse(raw) as unknown;
+      result =
+        parsed !== null && typeof parsed === "object" && !Array.isArray(parsed)
+          ? (parsed as Record<string, unknown>)
+          : null;
+    } catch {
+      // A damaged result is reported as absent; the operation row itself is a
+      // fact (it says what was attempted and its status), the payload is not.
+      result = null;
+    }
+  }
+  return {
+    operationKey: asString(row.operation_key),
+    projectId: asString(row.project_id) as ProjectId,
+    command: asString(row.command),
+    targetId: asNullableString(row.target_id),
+    status: asString(row.status) as CommandOperationStatus,
+    result,
+    createdAt: asString(row.created_at),
     updatedAt: asString(row.updated_at),
   };
 }
@@ -1492,24 +1550,37 @@ export class StateStore {
     projectId: ProjectId;
     engineThreadId?: string | null;
     title?: string | null;
+    mode?: string | null;
+    generation?: number;
   }): Promise<StoredThread> {
     return this.write((db, now) => {
       this.requireProjectRow(db, input.projectId);
+      // A later write may fill in the engine identity of a thread that was
+      // created while Mona was offline; an existing identity is never erased by
+      // a null, because a lost binding would orphan the real conversation.
       db.prepare(
-        "INSERT INTO threads (id, project_id, engine_thread_id, title, created_at, updated_at) " +
-          "VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET " +
-          "engine_thread_id = excluded.engine_thread_id, title = COALESCE(excluded.title, threads.title), " +
+        "INSERT INTO threads (id, project_id, engine_thread_id, title, mode, generation, created_at, updated_at) " +
+          "VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET " +
+          "engine_thread_id = COALESCE(excluded.engine_thread_id, threads.engine_thread_id), " +
+          "title = COALESCE(excluded.title, threads.title), " +
+          "mode = COALESCE(excluded.mode, threads.mode), " +
+          // Generations only move forward: a later write that omits the
+          // generation (an older caller, a shell thread) cannot rewind the
+          // conversation identity an earlier one established.
+          "generation = MAX(excluded.generation, threads.generation), " +
           "updated_at = excluded.updated_at",
-      ).run(input.id, input.projectId, input.engineThreadId ?? null, input.title ?? null, now, now);
+      ).run(
+        input.id,
+        input.projectId,
+        input.engineThreadId ?? null,
+        input.title ?? null,
+        input.mode ?? null,
+        input.generation ?? 0,
+        now,
+        now,
+      );
       const row = db.prepare("SELECT * FROM threads WHERE id = ?").get(input.id) as DbRow;
-      return {
-        id: asString(row.id),
-        projectId: asString(row.project_id) as ProjectId,
-        engineThreadId: asNullableString(row.engine_thread_id),
-        title: asNullableString(row.title),
-        createdAt: asString(row.created_at),
-        updatedAt: asString(row.updated_at),
-      };
+      return threadFromRow(row);
     });
   }
 
@@ -1518,14 +1589,103 @@ export class StateStore {
       const rows = db
         .prepare("SELECT * FROM threads WHERE project_id = ? ORDER BY updated_at DESC")
         .all(projectId) as DbRow[];
-      return rows.map((row) => ({
-        id: asString(row.id),
-        projectId: asString(row.project_id) as ProjectId,
-        engineThreadId: asNullableString(row.engine_thread_id),
-        title: asNullableString(row.title),
-        createdAt: asString(row.created_at),
-        updatedAt: asString(row.updated_at),
-      }));
+      return rows.map(threadFromRow);
+    });
+  }
+
+  /**
+   * Conversations of one mode, newest generation first. Rows written before
+   * schema v11 have `mode = NULL`, so a caller that finds none here falls back
+   * to its own deterministic first-generation id instead of inventing a match.
+   */
+  async listModeThreads(projectId: ProjectId, mode: string): Promise<StoredThread[]> {
+    return this.read((db) => {
+      const rows = db
+        .prepare(
+          "SELECT * FROM threads WHERE project_id = ? AND mode = ? " +
+            "ORDER BY generation DESC, updated_at DESC",
+        )
+        .all(projectId, mode) as DbRow[];
+      return rows.map(threadFromRow);
+    });
+  }
+
+  // ------------------------------------------------------ command operations
+
+  async putCommandOperation(input: {
+    operationKey: string;
+    projectId: ProjectId;
+    command: string;
+    targetId?: string | null;
+    status: CommandOperationStatus;
+    result?: Record<string, unknown> | null;
+  }): Promise<StoredCommandOperation> {
+    return this.write((db, now) => {
+      this.requireProjectRow(db, input.projectId);
+      db.prepare(
+        "INSERT INTO command_operations (operation_key, project_id, command, target_id, status, result_json, created_at, updated_at) " +
+          "VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(operation_key) DO UPDATE SET " +
+          "status = excluded.status, result_json = excluded.result_json, " +
+          "target_id = COALESCE(excluded.target_id, command_operations.target_id), " +
+          "updated_at = excluded.updated_at",
+      ).run(
+        input.operationKey,
+        input.projectId,
+        input.command,
+        input.targetId ?? null,
+        input.status,
+        input.result ? JSON.stringify(input.result) : null,
+        now,
+        now,
+      );
+      const row = db
+        .prepare("SELECT * FROM command_operations WHERE operation_key = ?")
+        .get(input.operationKey) as DbRow;
+      return commandOperationFromRow(row);
+    });
+  }
+
+  async getCommandOperation(operationKey: string): Promise<StoredCommandOperation | null> {
+    return this.read((db) => {
+      const row = db
+        .prepare("SELECT * FROM command_operations WHERE operation_key = ?")
+        .get(operationKey) as DbRow | undefined;
+      return row ? commandOperationFromRow(row) : null;
+    });
+  }
+
+  async completeCommandOperation(input: {
+    operationKey: string;
+    projectId: ProjectId;
+    command: string;
+    targetId?: string | null;
+    status: Exclude<CommandOperationStatus, "pending">;
+    result?: Record<string, unknown> | null;
+  }): Promise<StoredCommandOperation> {
+    return this.write((db, now) => {
+      // Insert-or-update. A command that has no recorded pending row (a rename,
+      // a compact, a fork) still needs a durable completed receipt, or the
+      // retry-safe lookup has nothing to find and a repeat would run again.
+      db.prepare(
+        "INSERT INTO command_operations (operation_key, project_id, command, target_id, status, result_json, created_at, updated_at) " +
+          "VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(operation_key) DO UPDATE SET " +
+          "status = excluded.status, result_json = COALESCE(excluded.result_json, command_operations.result_json), " +
+          "target_id = COALESCE(excluded.target_id, command_operations.target_id), " +
+          "updated_at = excluded.updated_at",
+      ).run(
+        input.operationKey,
+        input.projectId,
+        input.command,
+        input.targetId ?? null,
+        input.status,
+        input.result ? JSON.stringify(input.result) : null,
+        now,
+        now,
+      );
+      const row = db
+        .prepare("SELECT * FROM command_operations WHERE operation_key = ?")
+        .get(input.operationKey) as DbRow;
+      return commandOperationFromRow(row);
     });
   }
 
@@ -4136,15 +4296,7 @@ export class StateStore {
   async getThread(id: string): Promise<StoredThread | null> {
     return this.read((db) => {
       const row = db.prepare("SELECT * FROM threads WHERE id = ?").get(id) as DbRow | undefined;
-      if (!row) return null;
-      return {
-        id: asString(row.id),
-        projectId: asString(row.project_id) as ProjectId,
-        engineThreadId: asNullableString(row.engine_thread_id),
-        title: asNullableString(row.title),
-        createdAt: asString(row.created_at),
-        updatedAt: asString(row.updated_at),
-      };
+      return row ? threadFromRow(row) : null;
     });
   }
 

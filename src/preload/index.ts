@@ -5,6 +5,7 @@ import type {
   MonaBridge,
   ToolDiscovery,
   ZoomView,
+  WindowFullscreenView,
 } from "../shared/contracts/bridge";
 import type { ProjectId } from "../shared/contracts/ids";
 import type {
@@ -115,6 +116,7 @@ import type {
 } from "../shared/contracts/terminal";
 import type { CapabilitySnapshot } from "../shared/contracts/capability";
 import type { CommandCatalogSnapshot } from "../shared/contracts/commands";
+import type { CommandExecuteRequest, CommandReceipt } from "../shared/contracts/command-execution";
 import type {
   ContextSelectionPreview,
   ContextSlotView,
@@ -149,6 +151,10 @@ const bridge: MonaBridge = {
   getPaths: (): Promise<AppPathInfo> => ipcRenderer.invoke("app:paths", {}),
   zoom: (): Promise<ZoomView> => ipcRenderer.invoke("app:zoom", {}),
   setZoom: (factor: number): Promise<ZoomView> => ipcRenderer.invoke("app:zoom:set", { factor }),
+  windowFullscreen: (): Promise<WindowFullscreenView> =>
+    ipcRenderer.invoke("window:fullscreen", {}),
+  setWindowFullscreen: (fullscreen: boolean): Promise<WindowFullscreenView> =>
+    ipcRenderer.invoke("window:fullscreen:set", { fullscreen }),
   discoverTools: (names?: string[]): Promise<ToolDiscovery[]> =>
     ipcRenderer.invoke("tools:discover", names === undefined ? {} : { names }),
 
@@ -401,6 +407,23 @@ const bridge: MonaBridge = {
     ipcRenderer.on("polish:toggle-focus", listener);
     return () => ipcRenderer.removeListener("polish:toggle-focus", listener);
   },
+  onFullscreenChanged: (callback: (view: WindowFullscreenView) => void): (() => void) => {
+    const listener = (_event: unknown, payload: unknown) => {
+      // Main only ever sends a view it read back from the window; anything else
+      // is not an observation and is dropped rather than guessed at.
+      if (!payload || typeof payload !== "object") return;
+      const view = payload as Partial<WindowFullscreenView>;
+      if (typeof view.fullscreen !== "boolean" || typeof view.epoch !== "number") return;
+      callback({
+        fullscreen: view.fullscreen,
+        pending: view.pending === true,
+        available: view.available === true,
+        epoch: view.epoch,
+      });
+    };
+    ipcRenderer.on("window:fullscreen-changed", listener);
+    return () => ipcRenderer.removeListener("window:fullscreen-changed", listener);
+  },
 
   agentObservatory: (projectId: ProjectId): Promise<IpcResult<ObservatoryView>> =>
     ipcRenderer.invoke("agents:observatory", { projectId }),
@@ -590,6 +613,8 @@ const bridge: MonaBridge = {
     ipcRenderer.invoke("capability:report", {}),
   commandCatalog: (): Promise<IpcResult<CommandCatalogSnapshot>> =>
     ipcRenderer.invoke("commands:catalog", {}),
+  executeCommand: (input: CommandExecuteRequest): Promise<IpcResult<CommandReceipt>> =>
+    ipcRenderer.invoke("commands:execute", input),
 
   // P19. Each call is one validated channel; no generic filesystem or exec
   // reach is added, and dialog-driven paths are chosen in the main process.

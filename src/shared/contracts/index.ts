@@ -17,5 +17,6 @@ export * from "./extensions";
 export * from "./terminal";
 export * from "./capability";
 export * from "./commands";
+export * from "./command-execution";
 export * from "./memory";
 export * from "./update";

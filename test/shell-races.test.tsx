@@ -10,10 +10,14 @@ import type {
   ProjectSummary,
 } from "../src/shared/contracts/project-bridge";
 import type { StudioSnapshot, StudioSubmitResult } from "../src/shared/contracts/studio";
-import type { MonaBridge } from "../src/shared/contracts/bridge";
+import type { MonaBridge, WindowFullscreenView } from "../src/shared/contracts/bridge";
 import { Shell } from "../src/renderer/shell/Shell";
 import { buildCommandCatalog } from "../src/shared/commands/catalog";
 import type { CommandCatalogSnapshot } from "../src/shared/contracts/commands";
+import type {
+  CommandExecuteRequest,
+  CommandReceipt,
+} from "../src/shared/contracts/command-execution";
 
 /**
  * R01 acceptance at the component boundary: real Shell, real StudioScreen, a
@@ -197,6 +201,16 @@ interface SubmitCall {
   mode: string;
 }
 
+interface CommandCall {
+  projectId: string;
+  mode: string;
+  spelling: string;
+  arguments: string;
+  operationKey: string;
+  confirm?: boolean;
+  resolveBusy?: "interrupt";
+}
+
 interface Gate<T> {
   promise: Promise<T>;
   resolve: (value: T) => void;
@@ -224,6 +238,17 @@ interface World {
   submitResult: IpcResult<StudioSubmitResult> | null;
   historyGate: Gate<IpcResult<HistoryPage>> | null;
   catalogResult: IpcResult<CommandCatalogSnapshot> | null;
+  commandCalls: CommandCall[];
+  commandResult: ((input: CommandCall) => IpcResult<CommandReceipt>) | null;
+  /** When set, executeCommand waits for this gate before answering. */
+  commandGate: Gate<IpcResult<CommandReceipt>> | null;
+  historyThreadCalls: Array<string | null>;
+  /** R05: the window's observed native-fullscreen state and its listeners. */
+  fullscreenView: WindowFullscreenView;
+  fullscreenWrites: boolean[];
+  fullscreenListeners: Array<(view: WindowFullscreenView) => void>;
+  toggleFocusListeners: Array<() => void>;
+  savedViews: Array<Record<string, unknown>>;
 }
 
 function world(projects: ProjectSummary[]): World {
@@ -240,6 +265,35 @@ function world(projects: ProjectSummary[]): World {
     submitResult: null,
     historyGate: null,
     catalogResult: null,
+    commandCalls: [],
+    commandResult: null,
+    commandGate: null,
+    historyThreadCalls: [],
+    fullscreenView: { fullscreen: false, pending: false, available: true, epoch: 0 },
+    fullscreenWrites: [],
+    fullscreenListeners: [],
+    toggleFocusListeners: [],
+    savedViews: [],
+  };
+}
+
+/** A receipt shaped exactly like the main-process dispatcher's. */
+function receipt(overrides: Partial<CommandReceipt> = {}): CommandReceipt {
+  return {
+    command: "help",
+    spelling: "help",
+    route: "terminal",
+    status: "deferred",
+    note: "The CLI prints its own command help. Nothing was run. The terminal pane is prefilled.",
+    detail: [],
+    cost: "none",
+    sideEffects: ["none"],
+    target: { screen: null, settingsTab: null, invocation: "codewhale help" },
+    thread: null,
+    operationKey: "cmd-receipt-0001",
+    duplicate: false,
+    snapshot: null,
+    ...overrides,
   };
 }
 
@@ -271,7 +325,8 @@ function install(state: World): void {
       return ok(value);
     },
     studioState: async (id: string) => ok(studioSnapshot(id as ProjectId)),
-    projectHistory: async () => {
+    projectHistory: async (_projectId: string, options?: { threadId?: string | null }) => {
+      state.historyThreadCalls.push(options?.threadId ?? null);
       if (state.historyGate) return state.historyGate.promise;
       return ok({
         events: [],
@@ -297,13 +352,46 @@ function install(state: World): void {
       return state.saveResult ?? ok({ saved: true });
     },
     commandCatalog: async () => state.catalogResult ?? ok(buildCommandCatalog()),
+    executeCommand: async (input: CommandExecuteRequest) => {
+      const call: CommandCall = {
+        projectId: input.projectId,
+        mode: input.mode,
+        spelling: input.spelling,
+        arguments: input.arguments,
+        operationKey: input.operationKey,
+        ...(input.confirm ? { confirm: true } : {}),
+        ...(input.resolveBusy ? { resolveBusy: input.resolveBusy } : {}),
+      };
+      state.commandCalls.push(call);
+      if (state.commandGate) return state.commandGate.promise;
+      if (state.commandResult) return state.commandResult(call);
+      return ok(receipt({ spelling: input.spelling, operationKey: input.operationKey }));
+    },
     submitTask: async (projectId: string, prompt: string, mode: string) => {
       state.submitCalls.push({ projectId, prompt, mode });
       if (state.submitGate) return state.submitGate.promise;
       return state.submitResult ?? ok(acceptedResult(projectId as ProjectId));
     },
     markPolishSeen: async () => ok({ marked: true }),
-    saveProjectView: async () => ok({ saved: true }),
+    saveProjectView: async (_id: string, view: Record<string, unknown>) => {
+      state.savedViews.push(view);
+      return ok({ saved: true });
+    },
+    windowFullscreen: async () => state.fullscreenView,
+    setWindowFullscreen: async (value: boolean) => {
+      state.fullscreenWrites.push(value);
+      // Main answers with what the window has observed, which is still the old
+      // state until the transition event arrives.
+      return state.fullscreenView;
+    },
+    onFullscreenChanged: (callback: (view: WindowFullscreenView) => void) => {
+      state.fullscreenListeners.push(callback);
+      return () => undefined;
+    },
+    onToggleFocus: (callback: () => void) => {
+      state.toggleFocusListeners.push(callback);
+      return () => undefined;
+    },
   };
   const bridge = new Proxy(
     {},
@@ -753,14 +841,14 @@ describe("R03 commands never reach the model", () => {
     return state;
   }
 
-  it("explains a complete TUI-only command instead of submitting it", async () => {
+  it("dispatches a TUI-only command instead of submitting it as a prompt", async () => {
     const state = await openStudio();
     type("/help");
     commandEnter();
-    await tick(4);
+    await tick(8);
     expect(state.submitCalls).toHaveLength(0);
-    expect(noticeText()).toContain("/help");
-    expect(noticeText()).toContain("TUI-only");
+    expect(state.commandCalls.map((call) => call.spelling)).toEqual(["help"]);
+    expect(noticeText()).toContain("Nothing was run");
     expect(textarea().value).toBe("/help");
   });
 
@@ -816,5 +904,553 @@ describe("R03 commands never reach the model", () => {
     await tick(6);
     expect(state.submitCalls).toHaveLength(1);
     expect(state.submitCalls[0]?.prompt).toBe("/Users/example/notes.md");
+  });
+});
+
+function clickButtonContaining(text: string): void {
+  const buttons = Array.from(container!.querySelectorAll<HTMLButtonElement>("button"));
+  const button = buttons.find((candidate) => (candidate.textContent ?? "").includes(text));
+  if (!button) throw new Error(`no button containing "${text}"`);
+  act(() => {
+    button.click();
+  });
+}
+
+describe("R04 commands dispatch through the typed IPC route", () => {
+  async function openStudio(): Promise<World> {
+    const state = world([project(C, "Start")]);
+    state.details.set(C, detail(state.catalog[0]!));
+    await boot(state);
+    await openProject(C, "Start");
+    return state;
+  }
+
+  it("sends an alias-free spelling and the typed argument to main, not to the model", async () => {
+    const state = await openStudio();
+    type("/rename Payment retry");
+    commandEnter();
+    await tick(8);
+    expect(state.submitCalls).toHaveLength(0);
+    expect(state.commandCalls).toHaveLength(1);
+    expect(state.commandCalls[0]).toMatchObject({
+      projectId: C,
+      mode: "work",
+      spelling: "rename",
+      arguments: "Payment retry",
+    });
+  });
+
+  it("keeps the composer text for a command that is not /new", async () => {
+    const state = await openStudio();
+    type("/cost");
+    commandEnter();
+    await tick(8);
+    expect(state.submitCalls).toHaveLength(0);
+    expect(state.commandCalls[0]?.spelling).toBe("cost");
+    expect(textarea().value).toBe("/cost");
+  });
+
+  it("renders a confirmation for a possible spend and reuses the same operation key", async () => {
+    const state = await openStudio();
+    state.commandResult = (call) =>
+      ok(
+        receipt({
+          command: "compact",
+          spelling: call.spelling,
+          route: "native",
+          status: call.confirm ? "completed" : "confirmation-required",
+          note: call.confirm
+            ? "Compaction: compacted 12 turns"
+            : "Compacts the current conversation. Confirm to run /compact.",
+          detail: call.confirm ? [] : ["Nothing has been sent yet."],
+          operationKey: call.operationKey,
+        }),
+      );
+    type("/compact");
+    commandEnter();
+    await tick(8);
+    expect(state.commandCalls).toHaveLength(1);
+    expect(container!.textContent).toContain("Nothing has been sent yet.");
+    clickButtonContaining("Run /compact");
+    await tick(8);
+    expect(state.commandCalls).toHaveLength(2);
+    expect(state.commandCalls[1]?.operationKey).toBe(state.commandCalls[0]?.operationKey);
+    expect(state.commandCalls[1]?.confirm).toBe(true);
+    expect(noticeText()).toContain("compacted 12 turns");
+    expect(state.submitCalls).toHaveLength(0);
+  });
+
+  it("offers the wait/interrupt choice when /new meets a running turn", async () => {
+    const state = await openStudio();
+    state.commandResult = (call) =>
+      ok(
+        receipt({
+          command: "new",
+          spelling: "new",
+          route: "native",
+          status: call.resolveBusy ? "completed" : "busy",
+          note: call.resolveBusy
+            ? "New work conversation created."
+            : "A work turn is running (turn_abc). Wait for it to finish, or choose Interrupt.",
+          detail: call.resolveBusy
+            ? []
+            : ["Choose Wait, or choose Interrupt and start a new conversation."],
+          operationKey: call.operationKey,
+        }),
+      );
+    type("/new");
+    commandEnter();
+    await tick(8);
+    expect(state.commandCalls).toHaveLength(1);
+    expect(container!.textContent).toContain("Wait");
+    clickButtonContaining("Interrupt and start a new conversation");
+    await tick(8);
+    expect(state.commandCalls).toHaveLength(2);
+    expect(state.commandCalls[1]).toMatchObject({
+      resolveBusy: "interrupt",
+      operationKey: state.commandCalls[0]?.operationKey,
+    });
+  });
+
+  it("keeps text typed while a /new dispatch is in flight", async () => {
+    const state = await openStudio();
+    const pending = gate<IpcResult<CommandReceipt>>();
+    state.commandGate = pending;
+    type("/new");
+    commandEnter();
+    await tick(2);
+    expect(state.commandCalls).toHaveLength(1);
+    // The user keeps typing before the engine answers. Those bytes were never
+    // part of the dispatched revision and must survive it.
+    type("/new then do X");
+    pending.resolve(
+      ok(
+        receipt({
+          command: "new",
+          spelling: "new",
+          route: "native",
+          status: "completed",
+          note: "New work conversation created.",
+          thread: {
+            mode: "work",
+            generation: 1,
+            localThreadId: "thr_new0000000000000",
+            engineThreadId: "thr_engine00000000000",
+            previousLocalThreadId: "thr_old0000000000000",
+            previousEngineThreadId: "thr_older000000000000",
+            preserved: { draft: true, history: true, usage: true },
+          },
+          operationKey: state.commandCalls[0]!.operationKey,
+        }),
+      ),
+    );
+    await tick(10);
+    expect(state.submitCalls).toHaveLength(0);
+    expect(textarea().value).toBe("/new then do X");
+    // The notice says the newer text was kept, like the submit path does.
+    expect(noticeText()).toContain("Text typed since sending was kept");
+  });
+
+  it("will not send into a conversation the reader is not looking at", async () => {
+    const state = world([project(C, "Start")]);
+    const base = detail(state.catalog[0]!);
+    base.threads = [
+      {
+        id: "thr_current00000000",
+        title: "Current",
+        engineThreadId: "thr_e_current",
+        updatedAt: "2026-11-11T00:00:00.000Z",
+      },
+      {
+        id: "thr_archived0000000",
+        title: "Earlier",
+        engineThreadId: "thr_e_archived",
+        updatedAt: "2026-11-10T00:00:00.000Z",
+      },
+    ];
+    base.currentThreadId = "thr_current00000000";
+    state.details.set(C, base);
+    await boot(state);
+    await openProject(C, "Start");
+
+    const selector = container!.querySelector<HTMLSelectElement>(
+      '[data-testid="studio-thread-select"]',
+    );
+    expect(selector).not.toBeNull();
+    type("do the next thing");
+    act(() => {
+      const setter = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, "value")?.set;
+      setter?.call(selector, "thr_archived0000000");
+      selector!.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    await tick(8);
+
+    const send = container!.querySelector<HTMLButtonElement>('[data-testid="studio-send"]');
+    expect(send?.disabled).toBe(true);
+    expect(container!.textContent).toContain("You are reading an earlier conversation");
+    clickSend();
+    await tick(6);
+    expect(state.submitCalls).toHaveLength(0);
+    // The draft is still there: blocking a send never discards text.
+    expect(textarea().value).toBe("do the next thing");
+  });
+
+  it("keeps the command line when /new is refused as busy", async () => {
+    const state = await openStudio();
+    state.commandResult = (call) =>
+      ok(
+        receipt({
+          command: "new",
+          spelling: "new",
+          route: "native",
+          status: "busy",
+          note: "A work turn is running. Wait, or choose Interrupt.",
+          operationKey: call.operationKey,
+        }),
+      );
+    type("/new");
+    commandEnter();
+    await tick(8);
+    // A refusal is not a success: the line the user typed is still theirs.
+    expect(textarea().value).toBe("/new");
+    expect(state.submitCalls).toHaveLength(0);
+    clickButtonContaining("Wait");
+    await tick(4);
+    expect(textarea().value).toBe("/new");
+    expect(state.commandCalls).toHaveLength(1);
+  });
+
+  it("does not offer an interrupt for a command that cannot use one", async () => {
+    const state = await openStudio();
+    state.commandResult = (call) =>
+      ok(
+        receipt({
+          command: "fork",
+          spelling: "fork",
+          route: "native",
+          status: "busy",
+          note: "a turn is active (turn_abc); fork waits for it to finish",
+          operationKey: call.operationKey,
+        }),
+      );
+    type("/fork");
+    commandEnter();
+    await tick(8);
+    expect(state.commandCalls).toHaveLength(1);
+    expect(container!.textContent).toContain("fork waits for it to finish");
+    expect(container!.textContent).not.toContain("Interrupt and start a new conversation");
+    clickButtonContaining("Close");
+    await tick(4);
+    expect(state.commandCalls).toHaveLength(1);
+  });
+
+  it("clears only the dispatched /new line and moves the reader to the new conversation", async () => {
+    const state = await openStudio();
+    state.commandResult = (call) =>
+      ok(
+        receipt({
+          command: "new",
+          spelling: "new",
+          route: "native",
+          status: "completed",
+          note: "New work conversation created: local thr_new, engine thr_engine. The earlier conversation is unchanged.",
+          thread: {
+            mode: "work",
+            generation: 1,
+            localThreadId: "thr_new0000000000000",
+            engineThreadId: "thr_engine00000000000",
+            previousLocalThreadId: "thr_old0000000000000",
+            previousEngineThreadId: "thr_older000000000000",
+            preserved: { draft: true, history: true, usage: true },
+          },
+          operationKey: call.operationKey,
+        }),
+      );
+    type("/new");
+    commandEnter();
+    await tick(8);
+    expect(state.commandCalls[0]?.spelling).toBe("new");
+    expect(state.submitCalls).toHaveLength(0);
+    expect(textarea().value).toBe("");
+    expect(noticeText()).toContain("New work conversation created");
+    expect(state.historyThreadCalls).toContain("thr_new0000000000000");
+  });
+
+  it("keys the draft to the new conversation after /new", async () => {
+    const state = await openStudio();
+    const before = `thr_${C.slice(4)}`;
+    state.commandResult = (call) =>
+      ok(
+        receipt({
+          command: "new",
+          spelling: "new",
+          route: "native",
+          status: "completed",
+          note: "New work conversation created.",
+          thread: {
+            mode: "work",
+            generation: 1,
+            localThreadId: "thr_newconversation1",
+            engineThreadId: "thr_engine00000000000",
+            previousLocalThreadId: before,
+            previousEngineThreadId: "thr_older000000000000",
+            preserved: { draft: true, history: true, usage: true },
+          },
+          operationKey: call.operationKey,
+        }),
+      );
+    type("/new");
+    commandEnter();
+    await tick(8);
+    expect(textarea().value).toBe("");
+
+    // The next keystroke belongs to the new conversation, not the old one.
+    type("fix the flaky test");
+    await wait(600);
+    const saves = state.saveCalls.filter((call) => call.text === "fix the flaky test");
+    expect(saves.length).toBeGreaterThan(0);
+    expect(saves.at(-1)?.threadId).toBe("thr_newconversation1");
+    expect(saves.some((call) => call.threadId === before)).toBe(false);
+  });
+
+  it("refuses a conversation-rewriting command while an earlier conversation is selected", async () => {
+    const state = world([project(C, "Start")]);
+    const base = detail(state.catalog[0]!);
+    base.threads = [
+      {
+        id: "thr_current00000000",
+        title: "Current",
+        engineThreadId: "thr_e_current",
+        updatedAt: "2026-11-11T00:00:00.000Z",
+      },
+      {
+        id: "thr_archived0000000",
+        title: "Earlier",
+        engineThreadId: "thr_e_archived",
+        updatedAt: "2026-11-10T00:00:00.000Z",
+      },
+    ];
+    base.currentThreadId = "thr_current00000000";
+    state.details.set(C, base);
+    await boot(state);
+    await openProject(C, "Start");
+
+    const selector = container!.querySelector<HTMLSelectElement>(
+      '[data-testid="studio-thread-select"]',
+    );
+    act(() => {
+      const setter = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, "value")?.set;
+      setter?.call(selector, "thr_archived0000000");
+      selector!.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    await tick(8);
+
+    type("/rename Payment retry");
+    commandEnter();
+    await tick(8);
+    // Nothing was rewritten: the command names a conversation on screen.
+    expect(state.commandCalls).toHaveLength(0);
+    expect(noticeText()).toContain("earlier one");
+    expect(noticeText()).toContain("Nothing was sent");
+
+    // `/cost` opens a screen, so it is still allowed from an archive view.
+    type("/cost");
+    commandEnter();
+    await tick(8);
+    expect(state.commandCalls.map((call) => call.spelling)).toEqual(["cost"]);
+  });
+
+  it("keeps a leading space as literal text, so a command can still be discussed", async () => {
+    const state = await openStudio();
+    type(" /new is a command I want to ask about");
+    commandEnter();
+    await tick(8);
+    expect(state.commandCalls).toHaveLength(0);
+    expect(state.submitCalls).toHaveLength(1);
+    expect(state.submitCalls[0]?.prompt).toBe(" /new is a command I want to ask about");
+  });
+
+  it("dispatches one command exactly once for a repeated Command-Enter", async () => {
+    const state = await openStudio();
+    type("/compact");
+    commandEnter();
+    commandEnter();
+    await tick(8);
+    expect(state.commandCalls).toHaveLength(1);
+  });
+});
+
+/**
+ * R05 at the Shell boundary. The rules under test are the ones a component
+ * test cannot see: the layout follows an observed window transition, the stored
+ * view preference never learns the OS state, one key press cannot toggle twice
+ * through the menu accelerator and the DOM handler, and none of it remounts the
+ * Studio, which would drop the draft caret and the live turn.
+ */
+describe("focus Studio and native full screen", () => {
+  async function openStudioInFocus(): Promise<World> {
+    const state = world([project(C, "Start")]);
+    state.details.set(C, detail(state.catalog[0]!));
+    await boot(state);
+    await openProject(C, "Start");
+    return state;
+  }
+
+  function pressFocusShortcut(): void {
+    act(() => {
+      document.dispatchEvent(
+        new KeyboardEvent("keydown", {
+          key: "f",
+          metaKey: true,
+          shiftKey: true,
+          bubbles: true,
+          cancelable: true,
+        }),
+      );
+    });
+  }
+
+  it("follows the window's transition, not the request", async () => {
+    const state = await openStudioInFocus();
+    const control = container!.querySelector<HTMLButtonElement>(
+      '[data-testid="studio-fullscreen"]',
+    );
+    expect(control).not.toBeNull();
+    act(() => control!.click());
+    await tick(4);
+    // The ask reached main exactly once.
+    expect(state.fullscreenWrites).toEqual([true]);
+    // Main answered with the state the window still reports, so nothing moved.
+    expect(document.documentElement.dataset.fullscreen).toBe("off");
+    expect(container!.querySelector(".shell--focus")).toBeNull();
+
+    // Now the window reports the transition.
+    state.fullscreenView = { fullscreen: true, pending: false, available: true, epoch: 1 };
+    act(() => {
+      for (const listener of state.fullscreenListeners) listener(state.fullscreenView);
+    });
+    await tick(4);
+    expect(document.documentElement.dataset.fullscreen).toBe("on");
+    expect(container!.querySelector(".shell--focus")).not.toBeNull();
+    expect(container!.querySelector('[data-testid="studio-focus-bar"]')).not.toBeNull();
+    // Leaving full screen removes the immersive layout again.
+    state.fullscreenView = { fullscreen: false, pending: false, available: true, epoch: 2 };
+    act(() => {
+      for (const listener of state.fullscreenListeners) listener(state.fullscreenView);
+    });
+    await tick(4);
+    expect(container!.querySelector(".shell--focus")).toBeNull();
+    expect(container!.querySelector('[data-testid="studio-focus-bar"]')).toBeNull();
+  });
+
+  it("keeps the composer element, text and selection across a layout change", async () => {
+    await openStudioInFocus();
+    type("half-written plan");
+    const before = textarea();
+    before.focus();
+    before.setSelectionRange(4, 9);
+    pressFocusShortcut();
+    await tick(4);
+    expect(document.documentElement.dataset.focusMode).toBe("on");
+    const after = container!.querySelector("textarea");
+    expect(after).toBe(before);
+    expect(after?.value).toBe("half-written plan");
+    expect(after?.selectionStart).toBe(4);
+    expect(after?.selectionEnd).toBe(9);
+    expect(document.activeElement).toBe(before);
+    // No submit, no runtime start: a layout change is not an action.
+    expect(container!.querySelector('[data-testid="studio-send"]')).not.toBeNull();
+  });
+
+  it("turns one deliberate press into one toggle", async () => {
+    const state = await openStudioInFocus();
+    pressFocusShortcut();
+    await tick(2);
+    expect(document.documentElement.dataset.focusMode).toBe("on");
+    // The menu accelerator observes the same physical press and delivers its
+    // event immediately after the DOM handler; the guard is what stops the
+    // second observation from toggling back.
+    act(() => {
+      for (const listener of state.toggleFocusListeners) listener();
+    });
+    await tick(2);
+    expect(document.documentElement.dataset.focusMode).toBe("on");
+    // A later, deliberate second press does toggle off.
+    await wait(240);
+    act(() => {
+      for (const listener of state.toggleFocusListeners) listener();
+    });
+    await tick(2);
+    expect(document.documentElement.dataset.focusMode).toBe("off");
+  });
+
+  it("says so when macOS refuses the transition instead of failing silently", async () => {
+    const state = await openStudioInFocus();
+    act(() => {
+      container!.querySelector<HTMLButtonElement>('[data-testid="studio-fullscreen"]')!.click();
+    });
+    await tick(3);
+    // Main publishes the pending observation, then drops the intent: the window
+    // never reported the state that was asked for.
+    act(() => {
+      for (const listener of state.fullscreenListeners) {
+        listener({ fullscreen: false, pending: true, available: true, epoch: 0 });
+      }
+    });
+    await tick(2);
+    expect(
+      container!.querySelector('[data-testid="studio-fullscreen"]')?.getAttribute("aria-busy"),
+    ).toBe("true");
+    act(() => {
+      for (const listener of state.fullscreenListeners) {
+        listener({ fullscreen: false, pending: false, available: true, epoch: 0 });
+      }
+    });
+    await tick(2);
+    expect(noticeText()).toContain("did not report a full screen transition");
+    expect(document.documentElement.dataset.fullscreen).toBe("off");
+  });
+
+  it("stores the layout preference and never the OS full-screen state", async () => {
+    const state = await openStudioInFocus();
+    state.fullscreenView = { fullscreen: true, pending: false, available: true, epoch: 1 };
+    act(() => {
+      for (const listener of state.fullscreenListeners) listener(state.fullscreenView);
+    });
+    await tick(4);
+    await wait(360);
+    const stored = state.savedViews.at(-1);
+    expect(stored).toBeDefined();
+    expect(stored?.focusMode).toBe(false);
+    expect(Object.keys(stored ?? {})).not.toContain("fullscreen");
+  });
+
+  it("leaves focus on Escape from the timeline, but not from the composer", async () => {
+    await openStudioInFocus();
+    pressFocusShortcut();
+    await tick(4);
+    expect(document.documentElement.dataset.focusMode).toBe("on");
+
+    // The composer keeps Escape for its own command list; a keystroke there
+    // must not drop the user out of the layout mid-sentence.
+    textarea().focus();
+    act(() => {
+      textarea().dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }),
+      );
+    });
+    await tick(2);
+    expect(document.documentElement.dataset.focusMode).toBe("on");
+
+    // Keyboard-only exit: Escape from the console does leave the layout, and it
+    // never stops work.
+    act(() => {
+      container!.querySelector<HTMLElement>('[data-testid="studio-timeline"]')?.focus();
+      document.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }),
+      );
+    });
+    await tick(2);
+    expect(document.documentElement.dataset.focusMode).toBe("off");
   });
 });

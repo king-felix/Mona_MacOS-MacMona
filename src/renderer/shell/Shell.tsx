@@ -1,5 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent, type JSX } from "react";
-import type { AppInfo, AppPathInfo, ToolDiscovery, ZoomView } from "../../shared/contracts/bridge";
+import type {
+  AppInfo,
+  AppPathInfo,
+  ToolDiscovery,
+  WindowFullscreenView,
+  ZoomView,
+} from "../../shared/contracts/bridge";
 import type { ProjectId, TaskId } from "../../shared/contracts/ids";
 import type { StudioActionResult, StudioMode, StudioSnapshot } from "../../shared/contracts/studio";
 import type {
@@ -13,6 +19,7 @@ import type { OpenResult } from "../../shared/contracts/open";
 import { stepZoom } from "../../shared/zoom";
 import type { CapabilitySnapshot } from "../../shared/contracts/capability";
 import type { CommandCatalogSnapshot } from "../../shared/contracts/commands";
+import type { CommandReceipt } from "../../shared/contracts/command-execution";
 import type { TaskView } from "../../shared/contracts/board";
 import {
   POLISH_ACCENTS,
@@ -89,6 +96,21 @@ const SCREENS: Array<{ id: ScreenId; label: string; icon: JSX.Element }> = [
 
 const SCREEN_IDS = SCREENS.map((screen) => screen.id);
 
+/**
+ * The fullscreen view is only accepted when it carries the facts the UI acts
+ * on. Main sends exactly this shape; anything else is not an observation.
+ */
+function isWindowFullscreenView(value: unknown): value is WindowFullscreenView {
+  if (!value || typeof value !== "object") return false;
+  const view = value as Partial<WindowFullscreenView>;
+  return (
+    typeof view.fullscreen === "boolean" &&
+    typeof view.pending === "boolean" &&
+    typeof view.available === "boolean" &&
+    typeof view.epoch === "number"
+  );
+}
+
 function isScreen(value: unknown): value is ScreenId {
   return typeof value === "string" && (SCREEN_IDS as string[]).includes(value);
 }
@@ -99,6 +121,17 @@ type DialogState =
   | { kind: "rename"; project: ProjectSummary; name: string }
   | { kind: "remove"; project: ProjectSummary }
   | null;
+
+/** R04: one dispatched command waiting on an explicit user choice. */
+interface CommandDialogState {
+  projectId: ProjectId;
+  projectName: string;
+  mode: StudioMode;
+  spelling: string;
+  args: string;
+  operationKey: string;
+  receipt: CommandReceipt;
+}
 
 interface PaletteAction extends PaletteEntry {
   icon: JSX.Element;
@@ -170,6 +203,10 @@ export function Shell(): JSX.Element {
   // R03: the pinned command catalog. One local read at launch; opening the
   // list, filtering it, and reading help make no further call.
   const [commandCatalog, setCommandCatalog] = useState<CommandCatalogSnapshot | null>(null);
+  // R04: a command that needs a confirmation or a busy choice. The operation
+  // key is kept here so the second dispatch resumes the same intent.
+  const [commandDialog, setCommandDialog] = useState<CommandDialogState | null>(null);
+  const commandInFlight = useRef(false);
   const [studio, setStudio] = useState<StudioSnapshot | null>(null);
   const [studioMode, setStudioMode] = useState<StudioMode>("work");
   const [studioBusy, setStudioBusy] = useState(false);
@@ -177,6 +214,11 @@ export function Shell(): JSX.Element {
   const [digest, setDigest] = useState<PolishDigestView | null>(null);
   const [polishStatus, setPolishStatus] = useState<PolishStatusView | null>(null);
   const [focusMode, setFocusMode] = useState(false);
+  // R05: native full screen as the window reports it. Seeded by one read at
+  // mount and then driven only by observed transitions, so a request that macOS
+  // has not carried out yet cannot look like it happened.
+  const [windowFullscreen, setWindowFullscreen] = useState<WindowFullscreenView | null>(null);
+  const fullscreenIntent = useRef<boolean | null>(null);
   const [favorites, setFavorites] = useState<PromptFavorite[]>([]);
   const [polishFocus, setPolishFocus] = useState<{
     taskId: TaskId | null;
@@ -280,6 +322,13 @@ export function Shell(): JSX.Element {
   useEffect(() => {
     document.documentElement.dataset.focusMode = focusMode ? "on" : "off";
   }, [focusMode]);
+  // The window's real OS state, published for styling and for the smoke that
+  // proves the transition was observed rather than assumed.
+  const nativeFullscreen = windowFullscreen?.fullscreen === true;
+  const focusLayout = focusMode || nativeFullscreen;
+  useEffect(() => {
+    document.documentElement.dataset.fullscreen = nativeFullscreen ? "on" : "off";
+  }, [nativeFullscreen]);
 
   const refreshCatalog = useCallback(async (): Promise<void> => {
     const result = await window.mona.listProjects(
@@ -360,6 +409,14 @@ export function Shell(): JSX.Element {
     [writeDraft],
   );
 
+  const setFocusLayout = useCallback((next: boolean): void => {
+    // One writer, so the ref that the keyboard handler reads and the state the
+    // UI renders can never disagree.
+    focusModeRef.current = next;
+    setFocusMode(next);
+    if (next) setScreen("studio");
+  }, []);
+
   const selectProject = useCallback(
     async (project: ProjectSummary, target?: ScreenId): Promise<void> => {
       // The epoch is claimed before the first await, so any older in-flight load
@@ -402,7 +459,7 @@ export function Shell(): JSX.Element {
         } | null;
         setInspectorTab(typeof view?.inspectorTab === "string" ? view.inspectorTab : "task");
         setStudioMode(view?.studioMode === "plan" ? "plan" : "work");
-        setFocusMode(view?.focusMode === true);
+        setFocusLayout(view?.focusMode === true);
         setScreen(target ?? (isScreen(view?.screen) ? view.screen : "studio"));
         setDigest(digestResult.ok ? digestResult.value : null);
         localStorage.setItem("mona.lastProject", detail.project.id);
@@ -420,7 +477,7 @@ export function Shell(): JSX.Element {
         endBusy();
       }
     },
-    [beginBusy, drafts, endBusy, epoch, flushDraft, history],
+    [beginBusy, drafts, endBusy, epoch, flushDraft, history, setFocusLayout],
   );
 
   const refreshSelected = useCallback(async (): Promise<void> => {
@@ -445,18 +502,33 @@ export function Shell(): JSX.Element {
   }, [epoch, history]);
 
   const focusToggleAt = useRef(0);
+  const focusModeRef = useRef(false);
+  focusModeRef.current = focusMode;
   const toggleFocusMode = useCallback((): void => {
     // The Work menu accelerator and the in-window shortcut can both observe one
     // deliberate key press; one press must never toggle twice.
     const at = Date.now();
     if (at - focusToggleAt.current < 200) return;
     focusToggleAt.current = at;
-    setFocusMode((previous) => {
-      const next = !previous;
-      if (next) setScreen("studio");
-      return next;
-    });
-  }, []);
+    // The updater stays pure: StrictMode may invoke it twice, and a screen
+    // change belongs to the event that asked for it, not to the reducer.
+    setFocusLayout(!focusModeRef.current);
+  }, [setFocusLayout]);
+
+  /**
+   * Ask for native full screen. The reply is deliberately ignored: the UI moves
+   * when the window reports a transition, never when the request is made.
+   */
+  const toggleWindowFullscreen = useCallback((): void => {
+    const bridge = window.mona as Partial<typeof window.mona>;
+    const write = bridge.setWindowFullscreen;
+    if (typeof write !== "function") return;
+    const desired = windowFullscreen?.fullscreen !== true;
+    // Recorded before the call: the reply is the *current* observation, and the
+    // answer that matters is the transition event.
+    fullscreenIntent.current = desired;
+    void Promise.resolve(write.call(window.mona, desired)).catch(() => undefined);
+  }, [windowFullscreen?.fullscreen]);
 
   /** Step or set the interface scale; main applies and persists it. */
   const applyZoom = useCallback(async (factor: number): Promise<void> => {
@@ -731,6 +803,48 @@ export function Shell(): JSX.Element {
     };
   }, [selectProject]);
 
+  // R05: native full screen. One read seeds the state; from then on only the
+  // window's own transitions move it. The subscription also catches the green
+  // button, Control-Command-F and anything else AppKit decides to do, which a
+  // boolean we set on click never could.
+  useEffect(() => {
+    let cancelled = false;
+    const bridge = window.mona as Partial<typeof window.mona>;
+    const read = bridge.windowFullscreen;
+    const listen = bridge.onFullscreenChanged;
+    // A host without the surface (the design harness, an older preload, a
+    // test double) reports nothing, so the control stays unavailable instead
+    // of being driven by a shape nobody validated.
+    const accept = (view: unknown): void => {
+      if (!isWindowFullscreenView(view)) return;
+      if (cancelled) return;
+      // A request that resolves without reaching the state it asked for is a
+      // real outcome — macOS declined or ignored it — so it is said out loud
+      // rather than silently leaving the button unchanged.
+      const intent = fullscreenIntent.current;
+      if (intent !== null && !view.pending) {
+        fullscreenIntent.current = null;
+        if (view.fullscreen !== intent) {
+          setNoticeTone("attention");
+          setNotice(
+            `macOS did not report a full screen transition. The window is still ${
+              view.fullscreen ? "in full screen" : "windowed"
+            }.`,
+          );
+        }
+      }
+      setWindowFullscreen(view);
+    };
+    if (typeof read === "function") {
+      void Promise.resolve(read.call(window.mona)).then(accept, () => undefined);
+    }
+    const off = typeof listen === "function" ? listen.call(window.mona, accept) : null;
+    return () => {
+      cancelled = true;
+      off?.();
+    };
+  }, []);
+
   useEffect(() => {
     if (!selected) return;
     const projectId = selected.project.id;
@@ -968,6 +1082,141 @@ export function Shell(): JSX.Element {
     }
   }, [epoch, refreshSelected, reportError, reportNotice]);
 
+  /**
+   * R04: dispatch one catalogued command through main. The renderer never
+   * spawns a process, never interpolates the text into a shell, and never
+   * follows a command with a model request.
+   */
+  const dispatchCommand = useCallback(
+    async (request: {
+      projectId: ProjectId;
+      mode: StudioMode;
+      spelling: string;
+      args: string;
+      operationKey: string;
+      confirm?: boolean;
+      resolveBusy?: "interrupt";
+    }): Promise<CommandReceipt | null> => {
+      const current = selectedRef.current;
+      if (!current || current.project.id !== request.projectId) return null;
+      const token = epoch.current();
+      const name = current.project.name;
+      // A command that rewrites a conversation must act on the one on screen.
+      // Reading an earlier one is a stored read, so those commands wait until
+      // the reader is back on the current conversation. `/new` is allowed: it
+      // creates a conversation rather than rewriting one.
+      const selectedThread = history.view().threadId;
+      if (selectedThread) {
+        const target = studio?.threadId ?? current.currentThreadId;
+        const rewritesConversation = ["rename", "compact", "fork", "retry"];
+        const canonical =
+          commandCatalog?.commands.find((entry) =>
+            [entry.name, ...entry.aliases].some(
+              (spelling) => spelling.toLowerCase() === request.spelling.toLowerCase(),
+            ),
+          )?.name ?? request.spelling;
+        if (selectedThread !== target && rewritesConversation.includes(canonical)) {
+          reportNotice(
+            token,
+            name,
+            `/${canonical} would act on the current conversation, and you are reading an earlier one. Select Current in the conversation list and run it again. Nothing was sent.`,
+            "attention",
+          );
+          return null;
+        }
+      }
+      // The dispatch identity is captured before the first await. `/new` clears
+      // exactly the line that was dispatched: text typed while the engine call
+      // was in flight changes the revision, so the journal reports `preserved`
+      // and keeps it.
+      const dispatched = drafts.current();
+      let dispatchNote: string | null = null;
+      setStudioBusy(true);
+      try {
+        const result = await window.mona.executeCommand({
+          projectId: request.projectId,
+          mode: request.mode,
+          spelling: request.spelling,
+          arguments: request.args,
+          operationKey: request.operationKey,
+          ...(request.confirm ? { confirm: true } : {}),
+          ...(request.resolveBusy ? { resolveBusy: request.resolveBusy } : {}),
+        });
+        if (!result.ok) {
+          reportError(token, name, result.error);
+          return null;
+        }
+        const receipt = result.value;
+        if (!epoch.isCurrent(token)) return receipt;
+        if (receipt.snapshot) setStudio(receipt.snapshot);
+        if (receipt.target.screen) {
+          setScreen(receipt.target.screen);
+          if (receipt.target.settingsTab) setSettingsTab(receipt.target.settingsTab);
+        }
+        if (receipt.target.invocation) {
+          setTerminalCommand(receipt.target.invocation);
+          setTerminalMode("shell");
+          setTerminalOpen(true);
+        }
+        if (receipt.status === "confirmation-required" || receipt.status === "busy") {
+          setCommandDialog({
+            projectId: request.projectId,
+            projectName: name,
+            mode: request.mode,
+            spelling: request.spelling,
+            args: request.args,
+            operationKey: request.operationKey,
+            receipt,
+          });
+          return receipt;
+        }
+        const createdThread =
+          receipt.command === "new" &&
+          receipt.thread !== null &&
+          (receipt.status === "completed" || receipt.status === "deferred")
+            ? receipt.thread.localThreadId
+            : null;
+        if (createdThread !== null && dispatched && dispatched.projectId === request.projectId) {
+          // Clear only the line that was dispatched. Text typed since, or
+          // another project's draft, is preserved by the journal. Earlier
+          // conversations keep their own rows, events and usage.
+          const cleared = drafts.acceptSent({
+            projectId: dispatched.projectId,
+            threadId: dispatched.threadId,
+            draftRevision: dispatched.revision,
+            text: dispatched.text,
+            mode: request.mode,
+          });
+          if (cleared === "cleared") {
+            // The composer now belongs to the new conversation, so its draft
+            // key moves with it. Otherwise the next keystroke is stored against
+            // the previous thread and is invisible on the next load.
+            drafts.open(request.projectId, createdThread, "");
+          } else {
+            dispatchNote =
+              "Text typed since sending was kept, and belongs to the earlier conversation.";
+          }
+        }
+        reportNotice(
+          token,
+          name,
+          dispatchNote ? `${receipt.note} ${dispatchNote}` : receipt.note,
+          receipt.status === "completed" ? "success" : "attention",
+        );
+        const newThread = createdThread;
+        await refreshSelected();
+        // `/new` means the reader is now in a new conversation: show that
+        // thread, not the archived transcript, once the project refresh has
+        // made its row visible. Selecting a thread is a stored read.
+        if (newThread) await history.selectThread(newThread);
+        return receipt;
+      } finally {
+        setStudioBusy(false);
+      }
+    },
+    [commandCatalog, drafts, epoch, history, refreshSelected, reportError, reportNotice, studio],
+  );
+
   const submitTask = useCallback(async (): Promise<void> => {
     const current = selectedRef.current;
     const view = drafts.current();
@@ -991,6 +1240,24 @@ export function Shell(): JSX.Element {
       return;
     }
     const intent = commandCatalog ? classifyComposerText(view.text, commandCatalog) : null;
+    if (intent && intent.kind === "command") {
+      // Single-flight before the first await, so a double click or a repeated
+      // Command-Enter cannot dispatch the same command twice.
+      if (commandInFlight.current) return;
+      commandInFlight.current = true;
+      try {
+        await dispatchCommand({
+          projectId: current.project.id,
+          mode: studioMode,
+          spelling: intent.spelling,
+          args: intent.args,
+          operationKey: `cmd-${crypto.randomUUID()}`,
+        });
+      } finally {
+        commandInFlight.current = false;
+      }
+      return;
+    }
     if (intent && intent.kind !== "prompt") {
       const explanation = describeCommandIntent(intent);
       if (explanation) reportNotice(token, name, explanation, "attention");
@@ -1049,6 +1316,7 @@ export function Shell(): JSX.Element {
     }
   }, [
     commandCatalog,
+    dispatchCommand,
     drafts,
     epoch,
     flushDraft,
@@ -1394,7 +1662,9 @@ export function Shell(): JSX.Element {
           event.target.tagName === "TEXTAREA" ||
           event.target.isContentEditable);
       if (event.key === "Escape" && !typing && !document.querySelector('[role="dialog"]')) {
-        setFocusMode(false);
+        // A popover inside the focused layout closes itself and stops the event;
+        // reaching here means nothing else claimed it.
+        setFocusLayout(false);
         return;
       }
       // Command-modified digits are never text input, so screen switching
@@ -1428,7 +1698,7 @@ export function Shell(): JSX.Element {
 
   return (
     <div
-      className={`harness shell ${dropActive ? "shell--drop-active" : ""}`}
+      className={`harness shell ${focusLayout && screen === "studio" ? "shell--focus" : ""} ${dropActive ? "shell--drop-active" : ""}`}
       onDragOver={(event) => {
         if (event.dataTransfer?.types?.includes("Files")) {
           event.preventDefault();
@@ -1666,7 +1936,10 @@ export function Shell(): JSX.Element {
             onCancelQueued={() => void runStudioAction((id) => window.mona.cancelQueued(id))}
             onStop={() => void runStudioAction((id) => window.mona.stopStudio(id))}
             onReconcile={() => void reconcileStudio()}
-            focusMode={focusMode}
+            focusMode={focusLayout}
+            focusPreference={focusMode}
+            windowFullscreen={windowFullscreen}
+            onToggleFullscreen={toggleWindowFullscreen}
             favorites={favorites}
             onToggleFocus={toggleFocusMode}
             onUseFavorite={useFavorite}
@@ -2131,6 +2404,83 @@ export function Shell(): JSX.Element {
             </pre>
           </div>
         ) : null}
+      </Dialog>
+
+      <Dialog
+        open={commandDialog !== null}
+        title={
+          commandDialog?.receipt.status === "busy"
+            ? "A turn is running"
+            : `Run /${commandDialog?.receipt.command ?? ""}?`
+        }
+        description={commandDialog?.receipt.note ?? ""}
+        onClose={() => setCommandDialog(null)}
+        footer={
+          commandDialog?.receipt.status === "busy" ? (
+            // Only `/new` can resolve busy work by interrupting: it moves to a
+            // different conversation. Any other command waits, and the note
+            // says so rather than offering an action that would not help.
+            commandDialog.receipt.command === "new" ? (
+              <>
+                <Button variant="ghost" onClick={() => setCommandDialog(null)}>
+                  Wait
+                </Button>
+                <Button
+                  variant="danger"
+                  onClick={() => {
+                    const pending = commandDialog;
+                    setCommandDialog(null);
+                    if (!pending) return;
+                    void dispatchCommand({
+                      projectId: pending.projectId,
+                      mode: pending.mode,
+                      spelling: pending.spelling,
+                      args: pending.args,
+                      operationKey: pending.operationKey,
+                      resolveBusy: "interrupt",
+                    });
+                  }}
+                >
+                  Interrupt and start a new conversation
+                </Button>
+              </>
+            ) : (
+              <Button variant="ghost" onClick={() => setCommandDialog(null)}>
+                Close
+              </Button>
+            )
+          ) : (
+            <>
+              <Button variant="ghost" onClick={() => setCommandDialog(null)}>
+                Cancel
+              </Button>
+              <Button
+                variant="primary"
+                onClick={() => {
+                  const pending = commandDialog;
+                  setCommandDialog(null);
+                  if (!pending) return;
+                  void dispatchCommand({
+                    projectId: pending.projectId,
+                    mode: pending.mode,
+                    spelling: pending.spelling,
+                    args: pending.args,
+                    operationKey: pending.operationKey,
+                    confirm: true,
+                  });
+                }}
+              >
+                Run /{commandDialog?.receipt.command}
+              </Button>
+            </>
+          )
+        }
+      >
+        {(commandDialog?.receipt.detail ?? []).map((line) => (
+          <p className="hint-line" key={line}>
+            {line}
+          </p>
+        ))}
       </Dialog>
 
       <Dialog

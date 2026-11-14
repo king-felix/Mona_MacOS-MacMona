@@ -16,6 +16,7 @@ import { createMainWindow } from "./window";
 import { hardenSession } from "./security";
 import { installApplicationMenu, type ApplicationMenuHandle } from "./menu";
 import { ZoomController, zoomStore } from "./zoom";
+import { NativeFullscreen } from "./window-fullscreen";
 import { registerIpc } from "./ipc";
 import { discoverTools } from "./tool-discovery";
 import { resolveAppPaths } from "./paths";
@@ -95,6 +96,7 @@ const IS_STUDIO_SMOKE = process.argv.includes("--studio-smoke");
 const IS_OPEN_SMOKE = process.argv.includes("--open-smoke");
 const IS_HISTORY_SMOKE = process.argv.includes("--history-smoke");
 const IS_COMMAND_SMOKE = process.argv.includes("--command-smoke");
+const IS_IMMERSIVE_SMOKE = process.argv.includes("--immersive-smoke");
 const IS_PACKAGE_SMOKE = process.argv.includes("--package-smoke");
 const PACKAGE_SMOKE_OUT = (() => {
   const inline = process.argv.find((argument) => argument.startsWith("--package-smoke-out="));
@@ -131,12 +133,18 @@ let updateCoordinator: UpdateCoordinator | null = null;
 let polishMenu: ApplicationMenuHandle | null = null;
 /** Interface scale survives relaunch through the settings table. */
 let zoomController: ZoomController | null = null;
+/**
+ * Native full screen, one controller per window. Keyed by the web contents id
+ * the IPC sender carries, so a request can only reach the window that made it.
+ */
+const fullscreenControllers = new Map<number, NativeFullscreen>();
 let keepAwake: KeepAwake | null = null;
 let activeProjectId: StudioProjectId | null = null;
 let studioSmokeProjectId: string | null = null;
 let studioSmokeRoot: string | null = null;
 let historySmokeProjectId: string | null = null;
 let commandSmokeProjectId: string | null = null;
+let immersiveSmokeProjectId: string | null = null;
 let openCoordinator: OpenCoordinator | null = null;
 let resolveCoordinatorReady: (() => void) | null = null;
 interface EngineIdentity {
@@ -257,7 +265,19 @@ function openWindow(): BrowserWindow {
   // The saved scale is applied to every window this launch creates, including a
   // Dock reopen, so the interface never comes back at a different size.
   zoomController?.apply(window);
+  // Native full screen is observed per window and never restored: a relaunch
+  // opens a normal window even when the last one was in its own Space.
+  const contentsId = window.webContents.id;
+  fullscreenControllers.set(
+    contentsId,
+    new NativeFullscreen({
+      window,
+      warn: (message: string) => process.stderr.write(`fullscreen: ${message}\n`),
+    }),
+  );
   window.on("closed", () => {
+    fullscreenControllers.get(contentsId)?.dispose();
+    fullscreenControllers.delete(contentsId);
     if (mainWindow === window) mainWindow = null;
   });
   if (IS_SMOKE) {
@@ -303,6 +323,16 @@ function openWindow(): BrowserWindow {
       void runHistorySmoke(window)
         .catch((error: unknown) => {
           process.stderr.write(`history smoke failed: ${String(error)}\n`);
+          process.exitCode = 1;
+        })
+        .finally(() => app.quit());
+    });
+  }
+  if (IS_IMMERSIVE_SMOKE) {
+    window.webContents.once("did-finish-load", () => {
+      void runImmersiveSmoke(window)
+        .catch((error: unknown) => {
+          process.stderr.write(`immersive smoke failed: ${String(error)}\n`);
           process.exitCode = 1;
         })
         .finally(() => app.quit());
@@ -2703,6 +2733,615 @@ async function runCommandSmoke(window: BrowserWindow): Promise<void> {
   if (report.ok !== true) process.exitCode = 1;
 }
 
+// ---------------------------------------------------------- immersive smoke
+
+/**
+ * R05 evidence runner. Real Electron, a real window, a real AppKit full-screen
+ * transition. It proves the things a jsdom test cannot: the dashboard is 44–56
+ * logical pixels, the timeline takes the rest of the window, the rail is gone,
+ * the composer cannot swallow the live turn, macOS itself reports the
+ * transition, and no element is remounted — so the draft, its selection, the
+ * console and the connection all survive the layout change.
+ *
+ * Nothing here starts an engine or asks a model anything.
+ */
+async function runImmersiveSmoke(window: BrowserWindow): Promise<void> {
+  const outDir =
+    process.env.MONA_IMMERSIVE_SMOKE_OUT_DIR ??
+    join(process.cwd(), "docs", "evidence", "macos", "review-studio", "artifacts");
+  mkdirSync(outDir, { recursive: true });
+  window.setSize(1280, 800);
+  const report: Record<string, unknown> = {
+    schema_version: 1,
+    label: "R05 FOCUS STUDIO AND NATIVE FULL SCREEN — no engine, no model request",
+    captured_at: new Date().toISOString(),
+    ok: false,
+    checks: {} as Record<string, boolean>,
+    facts: {} as Record<string, unknown>,
+    native_events: [] as Array<Record<string, unknown>>,
+    screenshots: [] as string[],
+  };
+  const checks = report.checks as Record<string, boolean>;
+  const facts = report.facts as Record<string, unknown>;
+  const nativeEvents = report.native_events as Array<Record<string, unknown>>;
+  const screenshots = report.screenshots as string[];
+  const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
+  const evaluate = async (expression: string): Promise<unknown> =>
+    window.webContents.executeJavaScript(expression);
+  const waitFor = async (expression: string, timeoutMs = 15_000): Promise<boolean> => {
+    const deadline = Date.now() + timeoutMs;
+    while (Date.now() < deadline) {
+      if (await evaluate(expression)) return true;
+      await sleep(80);
+    }
+    return false;
+  };
+  const poll = async (predicate: () => boolean, timeoutMs: number): Promise<boolean> => {
+    const deadline = Date.now() + timeoutMs;
+    while (Date.now() < deadline) {
+      if (predicate()) return true;
+      await sleep(40);
+    }
+    return predicate();
+  };
+  const layoutScript = `(() => {
+    const box = (selector) => {
+      const node = document.querySelector(selector);
+      if (!node) return null;
+      const r = node.getBoundingClientRect();
+      return { x: r.x, y: r.y, width: r.width, height: r.height, bottom: r.bottom, right: r.right };
+    };
+    const stage = box(".studio");
+    const timeline = box(".studio__timeline");
+    const composer = box(".composer");
+    const textareaBox = box("textarea");
+    const bar = box('[data-testid="studio-focus-bar"]');
+    const rail = document.querySelector(".rail");
+    const topbar = document.querySelector(".shell-topbar");
+    const textarea = document.querySelector("textarea");
+    const visible = (selector) => {
+      const node = document.querySelector(selector);
+      if (!node) return false;
+      const r = node.getBoundingClientRect();
+      return r.width > 0 && r.height > 0 && r.bottom <= window.innerHeight + 1 && r.right <= window.innerWidth + 1;
+    };
+    return {
+      screen: document.documentElement.dataset.screen,
+      fullscreen: document.documentElement.dataset.fullscreen,
+      focus: document.documentElement.dataset.focusMode,
+      shell_focus: document.querySelector(".shell--focus") !== null,
+      rail_display: rail ? getComputedStyle(rail).display : null,
+      topbar_display: topbar ? getComputedStyle(topbar).display : null,
+      stage, timeline, composer, bar, textarea: textareaBox,
+      bar_height: bar ? bar.height : null,
+      timeline_share: stage && timeline && stage.height > 0 ? timeline.height / stage.height : null,
+      composer_share: stage && composer && stage.height > 0 ? composer.height / stage.height : null,
+      textarea_value: textarea ? textarea.value : null,
+      selection: textarea ? [textarea.selectionStart, textarea.selectionEnd] : null,
+      same_studio: Boolean(window.__r05 && window.__r05.studio === document.querySelector(".studio")),
+      same_textarea: Boolean(window.__r05 && window.__r05.textarea === textarea),
+      overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+      connection:
+        document.querySelector('[data-testid="focus-activity"]')?.textContent ??
+        document.querySelector('[data-testid="studio-connection"]')?.textContent ??
+        null,
+      reachable: {
+        send: visible('[data-testid="studio-send"]'),
+        fullscreen: visible('[data-testid="studio-fullscreen"]') || visible('[data-testid="focus-fullscreen"]'),
+        grip: visible('[data-testid="composer-grip"]'),
+        exit: visible('[data-testid="focus-exit"]'),
+        interrupt: visible('[data-testid="studio-focus-bar"] .button--danger'),
+        timeline: visible('[data-testid="studio-timeline"]'),
+      },
+      scroll_y: (document.scrollingElement ?? document.documentElement).scrollTop,
+      views: window.__r05views ?? [],
+      active_element: (() => {
+        const node = document.activeElement;
+        return node ? String(node.tagName) + (node.id ? "#" + node.id : "") + "." + String(node.className) : null;
+      })(),
+    };
+  })()`;
+  const layout = (): Promise<Record<string, unknown>> =>
+    evaluate(layoutScript) as Promise<Record<string, unknown>>;
+
+  const record = (name: string) => () => {
+    nativeEvents.push({
+      event: name,
+      at: new Date().toISOString(),
+      is_fullscreen: window.isFullScreen(),
+      bounds: window.getBounds(),
+    });
+  };
+  const onEnter = record("enter-full-screen");
+  const onLeave = record("leave-full-screen");
+  window.on("enter-full-screen", onEnter);
+  window.on("leave-full-screen", onLeave);
+
+  try {
+    if (!immersiveSmokeProjectId) throw new Error("the immersive smoke has no project");
+    report.project = immersiveSmokeProjectId;
+    await waitFor("document.body.dataset.ready === 'true'");
+    checks.catalog_rendered = await waitFor(
+      "document.querySelectorAll('[data-project-id]').length > 0",
+    );
+    await evaluate("document.querySelector('[data-project-id]')?.click(); true");
+    checks.studio_opened = await waitFor("document.documentElement.dataset.screen === 'studio'");
+    await waitFor("document.querySelector('textarea') !== null");
+    await sleep(300);
+
+    // Record the two nodes whose identity proves nothing was remounted, and
+    // the bridge's own observation stream.
+    await evaluate(`(() => {
+      window.__r05views = [];
+      window.mona.onFullscreenChanged((view) => window.__r05views.push(view));
+      window.__r05 = {
+        studio: document.querySelector(".studio"),
+        textarea: document.querySelector("textarea"),
+      };
+      return true;
+    })()`);
+
+    const boundsBefore = window.getBounds();
+    const normal = await layout();
+    facts.normal = normal;
+    checks.normal_layout_is_windowed =
+      normal.fullscreen === "off" && normal.shell_focus === false && normal.rail_display !== "none";
+    checks.normal_has_no_dashboard = normal.bar === null;
+    const normalShot = await window.webContents.capturePage();
+    writeFileSync(join(outDir, "r05-studio-normal.png"), normalShot.toPNG());
+    screenshots.push("r05-studio-normal.png");
+
+    // A draft with a deliberate selection, so "preserved" means bytes and caret.
+    await evaluate(`(() => {
+      const element = document.querySelector("textarea");
+      element.focus();
+      const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value")?.set;
+      setter?.call(element, "Refactor the retry path and keep the draft intact");
+      element.dispatchEvent(new Event("input", { bubbles: true }));
+      element.setSelectionRange(6, 19);
+      return element.value;
+    })()`);
+
+    // Focus Studio through its real control.
+    checks.focus_control_clicked =
+      (await evaluate(`(() => {
+      const button = Array.from(document.querySelectorAll("button")).find(
+        (node) => (node.textContent ?? "").trim() === "Focus Mode",
+      );
+      if (!(button instanceof HTMLElement)) return false;
+      button.click();
+      return true;
+    })()`)) === true;
+    checks.focus_layout_entered = await waitFor("document.querySelector('.shell--focus') !== null");
+    await sleep(300);
+    const focus = await layout();
+    facts.focus = focus;
+    checks.focus_dashboard_present = focus.bar !== null;
+    checks.focus_dashboard_is_slim =
+      typeof focus.bar_height === "number" && focus.bar_height >= 44 && focus.bar_height <= 56;
+    checks.focus_rail_hidden = focus.rail_display === "none";
+    checks.focus_topbar_hidden = focus.topbar_display === "none";
+    // The console takes the rest of the stage and dominates the composer. It is
+    // not asked to be 100% of the window: the prompt box is part of the tool.
+    checks.focus_timeline_fills_viewport =
+      typeof focus.timeline_share === "number" &&
+      focus.timeline_share > 0.5 &&
+      focus.stage !== null &&
+      focus.timeline !== null &&
+      (focus.timeline as { bottom: number }).bottom <=
+        (focus.stage as { bottom: number }).bottom + 1 &&
+      (focus.timeline as { height: number }).height > (focus.composer as { height: number }).height;
+    checks.focus_composer_bounded =
+      typeof focus.composer_share === "number" && focus.composer_share <= 0.42;
+    checks.focus_keeps_essentials =
+      focus.reachable !== null &&
+      Object.values(focus.reachable as Record<string, boolean>).every(Boolean);
+    checks.focus_no_page_overflow = focus.overflow === false;
+    checks.draft_preserved_into_focus =
+      focus.textarea_value === "Refactor the retry path and keep the draft intact" &&
+      JSON.stringify(focus.selection) === JSON.stringify([6, 19]);
+    checks.focus_did_not_remount = focus.same_studio === true && focus.same_textarea === true;
+    // Read the stored preference while the layout is on: reading it after the
+    // exit could not tell "stored false" from "never stored at all".
+    await sleep(450);
+    const storedInFocus = (await projectService?.detail(
+      immersiveSmokeProjectId as StudioProjectId,
+    )) as { view?: Record<string, unknown> | null } | undefined;
+    facts.stored_view_in_focus = storedInFocus?.view ?? null;
+    checks.stored_view_recorded_focus_on = storedInFocus?.view?.focusMode === true;
+    checks.stored_view_carries_no_fullscreen_key =
+      storedInFocus?.view != null && !Object.keys(storedInFocus.view).includes("fullscreen");
+    checks.focus_reports_no_runtime = String(focus.connection ?? "").includes("Not started");
+    const focusShot = await window.webContents.capturePage();
+    writeFileSync(join(outDir, "r05-focus-windowed.png"), focusShot.toPNG());
+    screenshots.push("r05-focus-windowed.png");
+
+    // The command list is absolutely positioned above the composer. In this
+    // layout the composer must not be a scroll container, or the list is
+    // clipped away — the regression an earlier version shipped.
+    await evaluate(`(() => {
+      const element = document.querySelector("textarea");
+      element.focus();
+      const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value")?.set;
+      setter?.call(element, "/");
+      element.dispatchEvent(new Event("input", { bubbles: true }));
+      return true;
+    })()`);
+    checks.focus_command_menu_opens = await waitFor(
+      "document.querySelector('.command-menu') !== null",
+    );
+    const menu = await evaluate(`(() => {
+      const node = document.querySelector(".command-menu");
+      if (!node) return null;
+      const rect = node.getBoundingClientRect();
+      // A point just inside the panel's top-left corner: if an ancestor clips
+      // it, that point resolves to the clipping ancestor instead.
+      const probe = document.elementFromPoint(
+        Math.max(1, Math.min(window.innerWidth - 2, rect.left + 24)),
+        Math.max(1, Math.min(window.innerHeight - 2, rect.top + 12)),
+      );
+      const scrollers = [];
+      for (let node2 = node.parentElement; node2; node2 = node2.parentElement) {
+        const style = getComputedStyle(node2);
+        if (style.overflow !== "visible" || style.overflowY !== "visible") {
+          scrollers.push(
+            node2.className + " " + style.overflow + "/" + style.overflowY,
+          );
+        }
+      }
+      return {
+        height: rect.height,
+        top: rect.top,
+        bottom: rect.bottom,
+        inside_viewport: rect.top >= 0 && rect.bottom <= window.innerHeight + 1,
+        hit_is_menu: Boolean(probe && node.contains(probe)),
+        clipped_by: scrollers,
+      };
+    })()`);
+    facts.focus_command_menu = menu;
+    checks.focus_command_menu_readable =
+      menu !== null &&
+      Number((menu as { height: number }).height) > 80 &&
+      (menu as { inside_viewport: boolean }).inside_viewport === true;
+    checks.focus_command_menu_not_clipped =
+      menu !== null && (menu as { hit_is_menu: boolean }).hit_is_menu === true;
+    const menuShot = await window.webContents.capturePage();
+    writeFileSync(join(outDir, "r05-focus-command-menu.png"), menuShot.toPNG());
+    screenshots.push("r05-focus-command-menu.png");
+    // Escape closes the list and keeps the layout: the draft stays a draft.
+    const escapedMenu = await evaluate(`(() => {
+      const element = document.querySelector("textarea");
+      const event = new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true });
+      element.dispatchEvent(event);
+      return { prevented: event.defaultPrevented, value: element.value };
+    })()`);
+    checks.focus_escape_closes_menu_first =
+      (escapedMenu as { prevented: boolean }).prevented === true;
+    checks.focus_escape_keeps_focus_layout =
+      (await evaluate("document.documentElement.dataset.focusMode === 'on'")) === true;
+    checks.focus_command_menu_closed = await waitFor(
+      "document.querySelector('.command-menu') === null",
+    );
+    // Restore the draft the rest of the run measures.
+    await evaluate(`(() => {
+      const element = document.querySelector("textarea");
+      const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value")?.set;
+      setter?.call(element, "Refactor the retry path and keep the draft intact");
+      element.dispatchEvent(new Event("input", { bubbles: true }));
+      element.setSelectionRange(6, 19);
+      return true;
+    })()`);
+
+    // The More popover: it must carry the values the narrow bar elides, and
+    // Escape must close it before it can leave the layout.
+    checks.focus_drawer_opens =
+      (await evaluate(`(() => {
+      const summary = document.querySelector('[data-testid="focus-more"]');
+      if (!(summary instanceof HTMLElement)) return false;
+      summary.click();
+      return document.querySelector('.focus-bar__more')?.hasAttribute('open') === true;
+    })()`)) === true;
+    await sleep(200);
+    const drawer = await evaluate(`(() => {
+      const text = document.querySelector('.focus-bar__drawer')?.textContent ?? "";
+      const box = document.querySelector('.focus-bar__drawer')?.getBoundingClientRect() ?? null;
+      return {
+        text,
+        visible: Boolean(box && box.width > 0 && box.height > 0 && box.bottom <= window.innerHeight + 1),
+        inside_viewport: Boolean(box && box.right <= window.innerWidth + 1 && box.bottom <= window.innerHeight + 1),
+      };
+    })()`);
+    facts.focus_drawer = drawer;
+    const drawerText = String((drawer as { text: string }).text);
+    checks.focus_drawer_shows_values =
+      drawerText.includes("deepseek / deepseek-flash") &&
+      drawerText.includes("Spend") &&
+      drawerText.includes("Tokens") &&
+      // This project has no usage at all, so the honest wording is the absence
+      // of a price — never $0.00.
+      /(no usage recorded|not recorded|\$)/.test(drawerText) &&
+      !drawerText.includes("$0.0000");
+    checks.focus_drawer_visible = (drawer as { visible: boolean }).visible === true;
+    const drawerShot = await window.webContents.capturePage();
+    writeFileSync(join(outDir, "r05-focus-drawer.png"), drawerShot.toPNG());
+    screenshots.push("r05-focus-drawer.png");
+    const drawerClosed = await evaluate(`(() => {
+      const details = document.querySelector('.focus-bar__more');
+      if (!(details instanceof HTMLElement)) return null;
+      const event = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true });
+      details.dispatchEvent(event);
+      return {
+        prevented: event.defaultPrevented,
+        open: details.hasAttribute('open'),
+        focus_mode: document.documentElement.dataset.focusMode,
+      };
+    })()`);
+    facts.focus_drawer_escape = drawerClosed;
+    checks.focus_drawer_escape_closes_only_drawer =
+      (drawerClosed as { prevented: boolean }).prevented === true &&
+      (drawerClosed as { open: boolean }).open === false &&
+      (drawerClosed as { focus_mode: string }).focus_mode === "on";
+
+    // Composer resize from the keyboard, and the bound it may not pass.
+    const beforeGrip = (await layout()) as { composer: { height: number } };
+    checks.composer_grip_present =
+      (await evaluate(`(() => {
+      const grip = document.querySelector('[data-testid="composer-grip"]');
+      if (!(grip instanceof HTMLElement)) return false;
+      grip.focus();
+      grip.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowUp", bubbles: true, cancelable: true }));
+      return true;
+    })()`)) === true;
+    await sleep(150);
+    const afterGrip = (await layout()) as {
+      composer: { height: number };
+      timeline: { height: number };
+    };
+    facts.composer_resize = {
+      before: beforeGrip.composer?.height ?? null,
+      after: afterGrip.composer?.height ?? null,
+      timeline_after: afterGrip.timeline?.height ?? null,
+    };
+    checks.composer_grows_on_arrow =
+      (afterGrip.composer?.height ?? 0) > (beforeGrip.composer?.height ?? 0) + 8;
+    checks.timeline_survives_resize = (afterGrip.timeline?.height ?? 0) >= 120;
+
+    // The extreme the pointer could reach: End asks for the largest allowed
+    // composer. The live turn must still be on screen.
+    await evaluate(`(() => {
+      const grip = document.querySelector('[data-testid="composer-grip"]');
+      grip?.dispatchEvent(new KeyboardEvent("keydown", { key: "End", bubbles: true, cancelable: true }));
+      return true;
+    })()`);
+    await sleep(200);
+    const atMax = await layout();
+    facts.composer_max = atMax;
+    checks.composer_max_keeps_timeline =
+      typeof atMax.composer_share === "number" &&
+      atMax.composer_share <= 0.42 &&
+      (atMax.timeline as { height: number }).height >= 120;
+
+    // Native full screen: the window's own transition, not a renderer boolean.
+    // macOS defers the transition for an app that is not active, so the runner
+    // asks for activation first and records every attempt it makes.
+    // macOS ignores a full-screen request from an inactive app, so the runner
+    // makes the window active first — and waits for it, because another app
+    // (or the shell that launched this run) can take focus back.
+    const activation: boolean[] = [];
+    for (let attempt = 0; attempt < 12 && !window.isFocused(); attempt += 1) {
+      app.focus({ steal: true });
+      window.show();
+      window.focus();
+      await sleep(250);
+      activation.push(window.isFocused());
+    }
+    facts.fullscreen_activation = {
+      attempts: activation.length,
+      focused: window.isFocused(),
+      visible: window.isVisible(),
+    };
+    facts.fullscreen_preconditions = {
+      visible: window.isVisible(),
+      focused: window.isFocused(),
+    };
+    // The flag flips before AppKit reports the transition, so the event — not
+    // isFullScreen() — is what this waits for. One request only: a second one
+    // while AppKit is animating is a toggle, not a retry.
+    const attempts: Array<Record<string, unknown>> = [];
+    // The real path: the renderer clicks the control, which invokes
+    // window:fullscreen:set, which resolves THIS window from its sender. The
+    // smoke never calls setFullScreen itself, so the narrow IPC, its sender
+    // scoping and the controller are all in the loop.
+    checks.fullscreen_control_clicked =
+      (await evaluate(`(() => {
+      const button = document.querySelector('[data-testid="focus-fullscreen"]');
+      if (!(button instanceof HTMLElement) || button.hasAttribute("disabled")) return false;
+      button.click();
+      return true;
+    })()`)) === true;
+    await sleep(250);
+    attempts.push({ attempt: 1, at: new Date().toISOString(), focused: window.isFocused() });
+    // While the request is in flight the controller publishes pending, and the
+    // control says so instead of pretending the transition happened.
+    facts.fullscreen_pending_view = await evaluate(`(() => {
+      const node = document.querySelector('[data-testid="focus-fullscreen"]');
+      return {
+        busy: node?.getAttribute("aria-busy") ?? null,
+        pressed: node?.getAttribute("aria-pressed") ?? null,
+        disabled: node instanceof HTMLButtonElement ? node.disabled : null,
+        fullscreen_dataset: document.documentElement.dataset.fullscreen,
+      };
+    })()`);
+    const entered = await poll(
+      () => nativeEvents.some((entry) => entry.event === "enter-full-screen"),
+      15_000,
+    );
+    attempts.push({ attempt: 1, settled: true, entered, is_fullscreen: window.isFullScreen() });
+    facts.fullscreen_attempts = attempts;
+    checks.fullscreen_event_recorded = entered;
+    checks.fullscreen_observed_by_macos = window.isFullScreen();
+    checks.fullscreen_reported_to_ui = await waitFor(
+      "document.documentElement.dataset.fullscreen === 'on'",
+      8_000,
+    );
+    await sleep(500);
+    const full = await layout();
+    facts.fullscreen = full;
+    checks.fullscreen_keeps_focus_layout =
+      full.shell_focus === true && full.bar !== null && full.rail_display === "none";
+    checks.fullscreen_timeline_still_fills =
+      typeof full.timeline_share === "number" && full.timeline_share > 0.5;
+    checks.fullscreen_preserved_draft =
+      full.textarea_value === "Refactor the retry path and keep the draft intact" &&
+      JSON.stringify(full.selection) === JSON.stringify([6, 19]);
+    checks.fullscreen_did_not_remount = full.same_studio === true && full.same_textarea === true;
+    checks.fullscreen_renderer_saw_observed_view =
+      Array.isArray(full.views) &&
+      (full.views as Array<{ fullscreen: boolean; pending: boolean; epoch: number }>).some(
+        (view) => view.fullscreen === true && view.pending === false && view.epoch >= 1,
+      );
+    const fullShot = await window.webContents.capturePage();
+    writeFileSync(join(outDir, "r05-native-fullscreen.png"), fullShot.toPNG());
+    screenshots.push("r05-native-fullscreen.png");
+
+    // 200% scale inside the immersive layout: no feature may fall out of reach.
+    // At 200% the logical viewport is about 640x366. The window's own controls
+    // must still be reachable: the dashboard at the top of the scroll, the
+    // composer at the bottom, and no horizontal overflow anywhere. Scrolling is
+    // allowed here; a control that cannot be brought on screen is not.
+    window.webContents.setZoomFactor(2);
+    await sleep(700);
+    // At this scale the document itself scrolls — the focus column is no longer
+    // a fixed-height box — so the runner scrolls the real scroller, not the
+    // main element.
+    const scrollDocument = async (where: "top" | "bottom"): Promise<number> =>
+      (await evaluate(`(() => {
+      const scroller = document.scrollingElement ?? document.documentElement;
+      scroller.scrollTop = ${where === "top" ? "0" : "scroller.scrollHeight"};
+      return scroller.scrollTop;
+    })()`)) as number;
+    await scrollDocument("top");
+    await sleep(250);
+    const zoomTop = await layout();
+    const zoomScrolled = await scrollDocument("bottom");
+    await sleep(250);
+    const zoomBottom = await layout();
+    facts.zoom_200_scroll = {
+      top: (zoomTop as { scrollY?: number }).scrollY ?? 0,
+      bottom: zoomScrolled,
+    };
+    facts.zoom_200 = { top: zoomTop, bottom: zoomBottom };
+    const topReach = (zoomTop.reachable ?? {}) as Record<string, boolean>;
+    const bottomReach = (zoomBottom.reachable ?? {}) as Record<string, boolean>;
+    checks.zoom_200_dashboard_reachable =
+      topReach.fullscreen === true && topReach.exit === true && topReach.interrupt === true;
+    checks.zoom_200_composer_reachable =
+      bottomReach.send === true && bottomReach.grip === true && bottomReach.timeline === true;
+    checks.zoom_200_no_page_overflow = zoomTop.overflow === false && zoomBottom.overflow === false;
+    // Enlarged text may scroll, but the console must still be a console: the
+    // earlier failure was a 72 px transcript under a 77% composer.
+    checks.zoom_200_timeline_kept_share =
+      (zoomTop.timeline as { height: number }).height >= 140 &&
+      (zoomTop.timeline as { height: number }).height >
+        (zoomTop.composer as { height: number }).height * 0.4;
+    const zoomShot = await window.webContents.capturePage();
+    writeFileSync(join(outDir, "r05-focus-200.png"), zoomShot.toPNG());
+    screenshots.push("r05-focus-200.png");
+    await scrollDocument("top");
+    window.webContents.setZoomFactor(1);
+    await sleep(400);
+
+    // Leave native full screen; the stored layout preference is still on, so the
+    // focused layout remains, and the window returns to the bounds it had.
+    // Leaving goes through the same control, now showing the observed state.
+    checks.fullscreen_exit_control_clicked =
+      (await evaluate(`(() => {
+      const button = document.querySelector('[data-testid="focus-fullscreen"]');
+      if (!(button instanceof HTMLElement)) return false;
+      if (button.getAttribute("aria-label") !== "Exit Full Screen") return false;
+      button.click();
+      return true;
+    })()`)) === true;
+    checks.fullscreen_exit_event_recorded = await poll(
+      () => nativeEvents.some((entry) => entry.event === "leave-full-screen"),
+      15_000,
+    );
+    // Never quit mid-transition: the next launch would inherit a stuck Space.
+    await poll(() => !window.isFullScreen(), 8_000);
+    await waitFor("document.documentElement.dataset.fullscreen === 'off'", 8_000);
+    await sleep(500);
+    checks.fullscreen_exit_observed_by_macos = !window.isFullScreen();
+    const afterExit = await layout();
+    facts.after_exit = afterExit;
+    checks.exit_reported_to_ui = afterExit.fullscreen === "off";
+    checks.focus_survives_fullscreen_exit =
+      afterExit.shell_focus === true && afterExit.bar !== null;
+    const boundsAfter = window.getBounds();
+    checks.window_bounds_restored =
+      boundsAfter.x === boundsBefore.x &&
+      boundsAfter.y === boundsBefore.y &&
+      boundsAfter.width === boundsBefore.width &&
+      boundsAfter.height === boundsBefore.height;
+    facts.bounds = { before: boundsBefore, after: boundsAfter };
+
+    // Escape priority: the composer keeps it, the console gives it back.
+    checks.escape_in_composer_keeps_focus =
+      (await evaluate(`(() => {
+      const element = document.querySelector("textarea");
+      element.focus();
+      element.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }));
+      return document.documentElement.dataset.focusMode === "on";
+    })()`)) === true;
+    checks.escape_in_timeline_leaves_focus =
+      (await evaluate(`(() => {
+      const timeline = document.querySelector('[data-testid="studio-timeline"]');
+      timeline.focus();
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }));
+      return true;
+    })()`)) === true;
+    checks.focus_layout_left = await waitFor("document.querySelector('.shell--focus') === null");
+    await sleep(400);
+    const back = await layout();
+    facts.after_escape = back;
+    checks.rail_restored = back.rail_display !== "none";
+    checks.draft_survives_layout_exit =
+      back.textarea_value === "Refactor the retry path and keep the draft intact";
+
+    // The stored preference is a layout, never the OS state.
+    await sleep(400);
+    const stored = await projectService?.detail(immersiveSmokeProjectId as StudioProjectId);
+    const storedView = (stored?.view ?? null) as Record<string, unknown> | null;
+    facts.stored_view = storedView;
+    checks.stored_view_keeps_focus_preference = storedView?.focusMode === false;
+    checks.stored_view_has_no_fullscreen_binding =
+      storedView !== null && !Object.keys(storedView).includes("fullscreen");
+
+    // The run never submitted anything: the connection stayed "Not started" for
+    // the whole sequence, so no turn and no model request exists to account for.
+    facts.engine_state = supervisor?.status().state ?? null;
+    checks.no_runtime_or_model =
+      String(back.connection ?? "").includes("Not started") &&
+      (supervisor?.status().state ?? "stopped") !== "running";
+    report.ok = Object.values(checks).every(Boolean);
+  } catch (error) {
+    const candidate = error as { message?: string; stack?: string };
+    report.ok = false;
+    report.error = { message: candidate.message ?? String(error), stack: candidate.stack ?? null };
+  } finally {
+    window.removeListener("enter-full-screen", onEnter);
+    window.removeListener("leave-full-screen", onLeave);
+    if (window.isFullScreen()) {
+      // Leave cleanly and give AppKit its animation: quitting mid-transition
+      // leaves the next launch with a Space that refuses to change.
+      window.setFullScreen(false);
+      await poll(() => !window.isFullScreen(), 8_000);
+    }
+  }
+  const out = process.env.MONA_IMMERSIVE_SMOKE_OUT;
+  if (out) writeFileSync(out, JSON.stringify(report, null, 2) + "\n");
+  if (report.ok !== true) process.exitCode = 1;
+}
+
 async function runStudioSmoke(window: BrowserWindow): Promise<void> {
   const outDir =
     process.env.MONA_STUDIO_SMOKE_DIR ??
@@ -3510,7 +4149,8 @@ if (!gotLock) {
         IS_STUDIO_SMOKE ||
         IS_OPEN_SMOKE ||
         IS_HISTORY_SMOKE ||
-        IS_COMMAND_SMOKE;
+        IS_COMMAND_SMOKE ||
+        IS_IMMERSIVE_SMOKE;
       const stateRoot = smokeState
         ? mkdtempSync(join(tmpdir(), "mona-product-state-"))
         : appPaths.state;
@@ -3810,7 +4450,8 @@ if (!gotLock) {
             !IS_LIFECYCLE_SMOKE &&
             !IS_SHELL_SMOKE &&
             !IS_HISTORY_SMOKE &&
-            !IS_COMMAND_SMOKE,
+            !IS_COMMAND_SMOKE &&
+            !IS_IMMERSIVE_SMOKE,
           // A successful handoff is the one point where quitting is correct:
           // every active item was checked first, so nothing is interrupted.
           afterHandoff: () => {
@@ -4271,6 +4912,18 @@ if (!gotLock) {
       commandSmokeProjectId = opened?.project.id ?? null;
     }
 
+    if (IS_IMMERSIVE_SMOKE && projectService && productState) {
+      // R05 evidence. A real store and a real folder, opened in the real shell;
+      // the runner enters Focus Studio and then native full screen. No runtime
+      // is started and no model is asked anything.
+      const base = mkdtempSync(join(tmpdir(), "mona-immersive-smoke-project-"));
+      const root = join(base, "Immersive smoke");
+      mkdirSync(root, { recursive: true });
+      writeFileSync(join(root, "README.md"), "# Immersive smoke\n", "utf8");
+      const opened = await projectService.open(root);
+      immersiveSmokeProjectId = opened?.project.id ?? null;
+    }
+
     if (IS_STUDIO_SMOKE && projectService && productState) {
       const base = mkdtempSync(join(tmpdir(), "mona-studio-smoke-project-"));
       const root = join(base, "Studio smoke project");
@@ -4380,6 +5033,7 @@ if (!gotLock) {
         set: async (factor: number) =>
           zoomController ? zoomController.set(factor) : new ZoomController().view(),
       },
+      windowFullscreen: (webContentsId: number) => fullscreenControllers.get(webContentsId) ?? null,
       studio: workStudio,
       board: taskBoard,
       cost: costLedger,
@@ -4666,7 +5320,8 @@ if (!gotLock) {
       !IS_SHELL_SMOKE &&
       !IS_STUDIO_SMOKE &&
       !IS_HISTORY_SMOKE &&
-      !IS_COMMAND_SMOKE
+      !IS_COMMAND_SMOKE &&
+      !IS_IMMERSIVE_SMOKE
     ) {
       const choice = await dialog.showMessageBox({
         type: "warning",

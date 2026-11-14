@@ -122,7 +122,12 @@ export function applicationMenuTemplate(
           click: () => options.onZoomOut?.(),
         },
         { type: "separator" },
-        { role: "togglefullscreen" },
+        // Native macOS full screen. The item is a role rather than a handler:
+        // AppKit owns the transition, the Space, and the Control-Command-F
+        // accelerator, and the id lets the smoke and the audit find it. There
+        // is deliberately no renderer shortcut for the same action, so one key
+        // press cannot toggle twice.
+        { id: "toggle-fullscreen", role: "togglefullscreen" },
       ],
     },
     { role: "windowMenu" },

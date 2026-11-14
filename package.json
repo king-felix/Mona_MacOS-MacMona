@@ -33,6 +33,8 @@
     "smoke:shell": "npm run build && node scripts/shell-smoke.mjs",
     "smoke:history": "npm run build && node scripts/history-smoke.mjs",
     "smoke:commands": "npm run build && node scripts/command-smoke.mjs",
+    "smoke:immersive": "npm run build && node scripts/immersive-smoke.mjs",
+    "smoke:commands:live": "npm run build:main && node scripts/command-execute-smoke.mjs",
     "smoke:studio": "npm run build && node scripts/studio-smoke.mjs",
     "smoke:service": "node scripts/service-smoke.mjs",
     "smoke:open": "node scripts/open-smoke.mjs",

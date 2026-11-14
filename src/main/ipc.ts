@@ -15,6 +15,7 @@ import type { RouteWorkbench } from "./work/settings";
 import type { ExtensionWorkbench } from "./work/extensions";
 import type { CapabilityExplorer } from "./work/capability";
 import type { CommandCatalogService } from "./work/commands";
+import { CommandDispatchService } from "./work/command-dispatch";
 import type { ProjectMemory } from "./work/memory";
 import type { PromptShelf } from "./work/shelf";
 import type { ProjectHandoff } from "./work/handoff";
@@ -27,6 +28,7 @@ import type {
 } from "../shared/contracts/memory";
 import type { ImportPlanResult } from "../shared/contracts/board";
 import type { ZoomView } from "../shared/contracts/bridge";
+import type { NativeFullscreen } from "./window-fullscreen";
 import type { IpcResult, RuntimeStatusView, StateFacts } from "../shared/contracts/project-bridge";
 import type {
   FolderRequestSource,
@@ -63,6 +65,12 @@ export interface IpcDependencies {
     view: () => ZoomView;
     set: (factor: number) => Promise<ZoomView>;
   };
+  /**
+   * Native full screen, resolved from the invoking renderer's window. A null
+   * answer means the request did not come from a window this process created,
+   * and the handler refuses instead of guessing.
+   */
+  windowFullscreen: (webContentsId: number) => NativeFullscreen | null;
   /** Read-only recovery facts, plus one explicit verified-snapshot restore. */
   recovery: () => RecoveryView;
   restoreRecoverySnapshot: (input: {
@@ -164,6 +172,21 @@ export function registerIpc(rendererRoot: string, dependencies: IpcDependencies)
       return handler(validateIpc(channel, raw));
     });
   };
+  // The two window-scoped channels need the invoking sender: full screen is
+  // applied to the window that asked, never to a process-global one.
+  const scoped = (channel: IpcChannel, handler: (input: unknown, senderId: number) => unknown) => {
+    ipcMain.handle(channel, async (event, raw) => {
+      if (!senderIsTrusted(event, rendererRoot)) {
+        throw new Error("untrusted IPC sender");
+      }
+      return handler(validateIpc(channel, raw), event.sender.id);
+    });
+  };
+  const fullscreenFor = (senderId: number): NativeFullscreen => {
+    const target = dependencies.windowFullscreen(senderId);
+    if (!target) throw new Error("no Mona window owns this window request");
+    return target;
+  };
 
   handle("app:info", () => ({
     name: app.getName(),
@@ -178,6 +201,10 @@ export function registerIpc(rendererRoot: string, dependencies: IpcDependencies)
 
   handle("app:zoom", () => dependencies.zoom.view());
   handle("app:zoom:set", (input) => dependencies.zoom.set((input as { factor: number }).factor));
+  scoped("window:fullscreen", (_input, senderId) => fullscreenFor(senderId).view());
+  scoped("window:fullscreen:set", (input, senderId) =>
+    fullscreenFor(senderId).request((input as { fullscreen: boolean }).fullscreen),
+  );
 
   handle("app:paths", () => {
     const paths = resolveAppPaths();
@@ -1061,6 +1088,18 @@ export function registerIpc(rendererRoot: string, dependencies: IpcDependencies)
       });
     }
     return envelope(() => catalog.snapshot());
+  });
+  handle("commands:execute", (input) => {
+    const catalog = dependencies.commands;
+    if (!catalog) {
+      throw Object.assign(new Error("the command catalog is unavailable"), {
+        code: "RUNTIME_UNAVAILABLE",
+      });
+    }
+    const dispatch = new CommandDispatchService({ catalog, studio: requireStudio() });
+    return envelope(() =>
+      dispatch.execute(input as Parameters<CommandDispatchService["execute"]>[0]),
+    );
   });
 
   // P19: project memory, prompt shelf, handoff, and diagnostics. Each handler
