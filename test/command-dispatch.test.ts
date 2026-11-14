@@ -50,7 +50,7 @@ const SNAPSHOT = {
   cost: { observed: false, costUsd: 0, costComplete: false, turns: 0, label: "No usage recorded" },
   submission: null,
   diagnostics: [],
-  pendingInput: null,
+  pendingRequests: [],
   canSubmit: true,
   cannotSubmitReason: null,
   controls: {

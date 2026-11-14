@@ -1,4 +1,4 @@
-import { app, ipcMain } from "electron";
+import { app, clipboard, ipcMain } from "electron";
 import { discoverTools } from "./tool-discovery";
 import { resolveAppPaths } from "./paths";
 import { validateIpc, type IpcChannel } from "./ipc-contract";
@@ -188,6 +188,24 @@ export function registerIpc(rendererRoot: string, dependencies: IpcDependencies)
     return target;
   };
 
+  handle("clipboard:write", (input) => {
+    const value = input as { text: string; label: "message" | "code" | "prompt" };
+    return envelope(async () => {
+      // writeText rejects when the platform clipboard is unavailable (a locked
+      // session, a headless CI host). That failure is returned, not swallowed.
+      await clipboard.writeText(value.text);
+      const readBack = await clipboard.readText();
+      return {
+        written: readBack === value.text,
+        label: value.label,
+        characters: value.text.length,
+        note:
+          readBack === value.text
+            ? `Copied ${value.text.length} character${value.text.length === 1 ? "" : "s"} to the clipboard.`
+            : "The clipboard did not hold the copied text; nothing was lost from the document.",
+      };
+    });
+  });
   handle("app:info", () => ({
     name: app.getName(),
     version: app.getVersion(),
@@ -281,6 +299,20 @@ export function registerIpc(rendererRoot: string, dependencies: IpcDependencies)
     return envelope(() =>
       dependencies.projects.history(value.projectId, {
         before: value.before ?? null,
+        limit: value.limit,
+        threadId: value.threadId ?? null,
+      }),
+    );
+  });
+  handle("projects:search", (input) => {
+    const value = input as {
+      projectId: never;
+      query: string;
+      limit?: number;
+      threadId?: string | null;
+    };
+    return envelope(() =>
+      dependencies.projects.searchEvents(value.projectId, value.query, {
         limit: value.limit,
         threadId: value.threadId ?? null,
       }),
@@ -403,6 +435,20 @@ export function registerIpc(rendererRoot: string, dependencies: IpcDependencies)
   handle("studio:stop", (input) =>
     envelope(() => requireStudio().stop((input as { projectId: never }).projectId)),
   );
+  handle("studio:file-preview", (input) => {
+    const value = input as { projectId: never; path: string };
+    return envelope(() => requireStudio().previewFile(value.projectId, value.path));
+  });
+  handle("studio:answer-pending", (input) => {
+    const value = input as {
+      projectId: never;
+      requestId: string;
+      response: Parameters<WorkStudio["answerPending"]>[2];
+    };
+    return envelope(() =>
+      requireStudio().answerPending(value.projectId, value.requestId, value.response),
+    );
+  });
 
   const requireSettings = (): RouteWorkbench => {
     const workbench = dependencies.settings;

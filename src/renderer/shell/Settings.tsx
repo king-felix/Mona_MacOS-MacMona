@@ -39,7 +39,7 @@ import { FinderIntegration } from "./FinderIntegration";
 import { RouteSettings } from "./RouteSettings";
 import { ExtensionsSettings } from "./ExtensionsSettings";
 import { UpdateSettings } from "./UpdateSettings";
-import type { Density, ThemeName } from "../design/tokens";
+import type { Density, Intensity, ThemeName } from "../design/tokens";
 
 export function SettingsScreen({
   app,
@@ -50,9 +50,11 @@ export function SettingsScreen({
   tools,
   theme,
   density,
+  intensity,
   zoom,
   onTheme,
   onDensity,
+  onIntensity,
   onZoom,
   polish,
   onPatchPreferences,
@@ -69,10 +71,13 @@ export function SettingsScreen({
   tools: ToolDiscovery[];
   theme: ThemeName;
   density: Density;
+  /** R06 decoration intensity. Absent only in older embedders. */
+  intensity?: Intensity;
   /** Null until the main process reports; a caller may omit it entirely. */
   zoom?: ZoomView | null;
   onTheme: (theme: ThemeName) => void;
   onDensity: (density: Density) => void;
+  onIntensity?: (intensity: Intensity) => void;
   onZoom: (factor: number) => void;
   polish: PolishStatusView | null;
   onPatchPreferences: (patch: PolishPreferencesPatch) => void;
@@ -180,7 +185,23 @@ export function SettingsScreen({
                   { value: "dense", label: "Dense" },
                 ]}
               />
+              <span className="harness-controls__label">Intensity</span>
+              <SegmentedControl
+                label="Decoration intensity"
+                value={intensity ?? "vivid"}
+                onChange={(value) => onIntensity?.(value as Intensity)}
+                options={[
+                  { value: "vivid", label: "Vivid" },
+                  { value: "quiet", label: "Quiet" },
+                ]}
+              />
             </div>
+            <p className="hint-line" data-testid="intensity-hint">
+              Vivid is the Aurora Studio treatment: an iris-to-cyan plaque, a luminous rail edge and
+              coloured turn surfaces. Quiet keeps the same layout and the same measured text colours
+              with calmer chrome. Neither changes what any screen tells you, and neither animates
+              while nothing is happening.
+            </p>
             <div className="inline-facts" data-testid="settings-scale">
               <span className="harness-controls__label">Scale</span>
               <Button

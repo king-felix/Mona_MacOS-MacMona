@@ -71,6 +71,12 @@
   --border-interactive: #7c8aa3;
   --focus: #6346df;
   --overlay: rgba(16, 24, 48, 0.45);
+  --aurora-a: #795cff;
+  --aurora-b: #c16cff;
+  --aurora-c: #38cfe8;
+  --selection: #edeaff;
+  --selection-ink: #3a2a9e;
+  --glow: rgba(121, 92, 255, 0.28);
 }
 
 [data-density="dense"] {
@@ -195,6 +201,270 @@ a {
 ::selection {
   background: var(--primary);
   color: var(--on-primary);
+}
+
+/* ------------------------------------------------------- aurora (R06)
+
+   One decorative layer, applied by `[data-intensity="vivid"]`. It never
+   replaces a semantic colour: text always sits on `--surface`, `--canvas` or
+   `--surface-sunken`, and the wash lives behind an opaque content layer or in a
+   border. That is why Vivid and Quiet can share one contrast table.
+
+   The rules are written so Quiet needs no separate palette: with the attribute
+   absent or `quiet`, the wash is not applied and the same markup renders as
+   plain raised surfaces. */
+.rail,
+.context-bar,
+.focus-bar,
+.project-card,
+.card {
+  position: relative;
+}
+
+[data-intensity="vivid"] .rail {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--aurora-a) 10%, var(--surface)),
+    var(--surface) 220px
+  );
+  border-right-color: color-mix(in srgb, var(--aurora-a) 26%, var(--border));
+}
+
+/* A one-pixel gradient rule under the brand: identity, not decoration for its
+   own sake, and it is the only continuously coloured line in the rail. */
+[data-intensity="vivid"] .rail__brand {
+  border-bottom: 0;
+  padding-bottom: var(--space-3);
+  background-image: linear-gradient(90deg, var(--aurora-a), var(--aurora-b), var(--aurora-c));
+  background-repeat: no-repeat;
+  background-size: 100% 1px;
+  background-position: 0 100%;
+}
+
+[data-intensity="vivid"] .brand-mark {
+  filter: drop-shadow(0 2px 6px var(--glow));
+}
+
+[data-intensity="vivid"] .rail__item--current {
+  background: var(--selection);
+  color: var(--selection-ink);
+}
+
+[data-intensity="vivid"] .rail__item--current .rail__icon {
+  color: var(--aurora-a);
+}
+
+/* The active item keeps a coloured edge; the item padding is unchanged, so the
+   rail does not shift by a pixel when the selection moves. */
+[data-intensity="vivid"] .rail__item--current {
+  box-shadow: inset 2px 0 0 var(--aurora-a);
+}
+
+[data-intensity="vivid"] .rail__project--current {
+  background: var(--selection);
+  color: var(--selection-ink);
+}
+
+/* The project plaque: a wash behind an opaque text layer. The title and path
+   never sit on the gradient itself. */
+[data-intensity="vivid"] .context-bar {
+  border: 1px solid color-mix(in srgb, var(--aurora-a) 24%, var(--border));
+  background: linear-gradient(
+    100deg,
+    color-mix(in srgb, var(--aurora-a) 14%, var(--surface)),
+    color-mix(in srgb, var(--aurora-b) 10%, var(--surface)) 58%,
+    color-mix(in srgb, var(--aurora-c) 12%, var(--surface))
+  );
+  box-shadow: var(--shadow-card);
+}
+
+[data-intensity="vivid"] .context-bar__identity {
+  padding: 6px 10px 6px 6px;
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+[data-intensity="vivid"] .monogram {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--aurora-a) 30%, transparent);
+}
+
+[data-intensity="vivid"] .context-bar__title {
+  letter-spacing: -0.015em;
+}
+
+/* Turn hierarchy: the reader can tell who spoke from the surface, not only from
+   a 10 px label. Agent prose stays on a plain raised surface for readability;
+   only the frame changes. */
+[data-intensity="vivid"] .timeline-event--user .timeline-event__body,
+[data-intensity="vivid"] .timeline-event--assistant .timeline-event__body {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  background: var(--surface);
+}
+
+[data-intensity="vivid"] .timeline-event--user .timeline-event__body {
+  border-left: 3px solid color-mix(in srgb, var(--aurora-a) 70%, var(--border));
+  background: color-mix(in srgb, var(--selection) 55%, var(--surface));
+}
+
+[data-intensity="vivid"] .timeline-event--assistant .timeline-event__body {
+  border-left: 3px solid color-mix(in srgb, var(--aurora-c) 65%, var(--border));
+}
+
+[data-intensity="vivid"] .timeline-event--tool .timeline-event__body {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+  background: var(--surface-sunken);
+}
+
+[data-intensity="vivid"] .timeline-event--error .timeline-event__body {
+  border: 1px solid color-mix(in srgb, var(--danger) 45%, var(--border));
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  background: var(--danger-soft);
+}
+
+/* A live surface gets one luminous edge. It is static: a pulsing border would
+   claim activity on its own schedule rather than the engine's. */
+[data-intensity="vivid"] .composer:focus-within {
+  box-shadow:
+    0 0 0 1px var(--focus),
+    0 0 18px -6px var(--glow);
+}
+
+[data-intensity="vivid"] .focus-bar {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--aurora-a) 12%, var(--surface)),
+    var(--surface)
+  );
+  border-bottom-color: color-mix(in srgb, var(--aurora-a) 28%, var(--border));
+}
+
+[data-intensity="vivid"] .focus-bar__project {
+  color: var(--selection-ink);
+}
+
+/* The production Home renders `.project-row`; `.project-card` belongs to the
+   design harness. Both are styled so the identity cannot be a demo-only change
+   — the R06 smoke measures the production row and fails if it is plain. */
+[data-intensity="vivid"] .project-row {
+  border-color: color-mix(in srgb, var(--aurora-a) 18%, var(--border));
+}
+
+[data-intensity="vivid"] .project-row:hover {
+  border-color: color-mix(in srgb, var(--aurora-a) 45%, var(--border));
+  box-shadow:
+    var(--shadow-card),
+    0 0 22px -14px var(--glow);
+}
+
+[data-intensity="vivid"] .project-row--selected {
+  border-color: color-mix(in srgb, var(--aurora-a) 62%, var(--primary));
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--aurora-a) 55%, var(--primary)),
+    0 0 24px -14px var(--glow),
+    var(--shadow-card);
+}
+
+[data-intensity="vivid"] .project-card {
+  border-color: color-mix(in srgb, var(--aurora-a) 18%, var(--border));
+}
+
+[data-intensity="vivid"] .project-card:hover {
+  border-color: color-mix(in srgb, var(--aurora-a) 45%, var(--border));
+  box-shadow:
+    var(--shadow-card),
+    0 0 22px -14px var(--glow);
+}
+
+[data-intensity="vivid"] .card {
+  border-color: color-mix(in srgb, var(--aurora-a) 14%, var(--border));
+}
+
+/* Live state, driven by the class the shell sets from the connection state. A
+   pulse exists only on `.status-dot--live`, which is rendered only while the
+   engine reports a running turn — never for "connected", never for "stopped",
+   never while idle. */
+.status-dot--live {
+  position: relative;
+}
+
+[data-intensity="vivid"] .status-dot--live::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 999px;
+  border: 2px solid currentColor;
+  opacity: 0;
+  animation: status-live 1.8s var(--ease) infinite;
+}
+
+@keyframes status-live {
+  0% {
+    opacity: 0.45;
+    transform: scale(0.85);
+  }
+  70% {
+    opacity: 0;
+    transform: scale(1.35);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.35);
+  }
+}
+
+/* A completion is one short, non-repeating transition, and only while the
+   document is visible. */
+@keyframes turn-settled {
+  from {
+    background-color: color-mix(in srgb, var(--success-soft) 80%, var(--surface));
+  }
+  to {
+    background-color: transparent;
+  }
+}
+
+/* Reduced motion removes every decorative animation and transform; the meaning
+   survives because the state is also carried by text and by a static dot. */
+@media (prefers-reduced-motion: reduce) {
+  [data-intensity="vivid"] .status-dot--live::after {
+    animation: none;
+    opacity: 0;
+  }
+
+  [data-intensity="vivid"] .project-card:hover {
+    transform: none;
+  }
+}
+
+[data-reduced-motion="true"] .status-dot--live::after {
+  animation: none;
+  opacity: 0;
+}
+
+/* Quiet keeps the structure and removes the wash, the glow and the coloured
+   turn surfaces, leaving plain raised cards. It is not a lower-contrast mode:
+   the same semantic tokens are in force. */
+[data-intensity="quiet"] .context-bar,
+[data-intensity="quiet"] .focus-bar {
+  background: var(--surface);
+  box-shadow: none;
+}
+
+[data-intensity="quiet"] .rail__item--current,
+[data-intensity="quiet"] .rail__project--current {
+  box-shadow: none;
+}
+
+/* Hidden windows must not animate: Electron keeps a background window's
+   compositor alive, and an invisible pulse is pure heat. */
+[data-document-hidden="true"] .status-dot--live::after {
+  animation: none;
+  opacity: 0;
 }
 
 /* ------------------------------------------------------------- app shell */
@@ -5162,6 +5432,292 @@ a {
   border-radius: var(--radius-sm);
   color: var(--muted);
   font-size: var(--text-xs);
+}
+
+/* R07 — an engine ask, answered in place.
+
+   The card sits above the console rather than inside it: a pending approval is
+   an interruption of the work, and burying it in a scrollback the reader may not
+   be following is how a "real wait" looks like a hang. It is a card, not a modal
+   — the conversation stays readable and the composer stays usable. */
+.pending-requests {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pending-requests__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pending-request {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--attention);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+}
+
+.pending-request--answered {
+  border-left-color: var(--success);
+}
+
+.pending-request--expired,
+.pending-request--cancelled {
+  border-left-color: var(--border-interactive);
+}
+
+.pending-request--unknown {
+  border-left-color: var(--danger);
+}
+
+.pending-request__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.pending-request__eyebrow {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--muted);
+}
+
+.pending-request__title {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.pending-request__disclosure {
+  align-self: flex-start;
+  border: 0;
+  padding: 0;
+  background: none;
+  color: var(--primary);
+  font-size: var(--text-sm);
+  text-decoration: underline;
+}
+
+.pending-request__input {
+  max-height: 220px;
+  overflow: auto;
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+  font-size: var(--text-xs);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.pending-request__questions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pending-request__question {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.pending-request__question legend {
+  padding: 0 4px;
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.pending-request__option {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: var(--text-sm);
+}
+
+.pending-request__option-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.pending-request__option-hint {
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+
+.pending-request__option--free {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.pending-request__option--free input {
+  margin-top: 4px;
+  padding: 6px 8px;
+  border: 1px solid var(--border-interactive);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.pending-request__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pending-request__remember {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--text-xs);
+  color: var(--muted);
+  flex: 1 1 320px;
+}
+
+/* In the immersive layout the console and the composer must stay on screen. A
+   stack of pending cards is bounded and scrolls inside its own region, so an
+   approval can never push the live turn — or the box the user types in — out of
+   the window. The normal layout keeps natural height and the page scrolls. */
+.screen--studio-focus .pending-requests {
+  max-height: 38vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 2px;
+}
+
+.pending-request__malformed {
+  color: var(--danger-ink);
+}
+
+/* R10 — conversation search, copy controls and the file mention.
+
+   Search results are anchored: each row is a button that scrolls the console to
+   the stored frame, so a match is a place to go rather than a paragraph with no
+   context. */
+.history-search {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  padding: 8px 2px;
+}
+
+.history-search__field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.history-search input {
+  min-width: 240px;
+  padding: 5px 8px;
+  border: 1px solid var(--border-interactive);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.history-search__results {
+  flex: 1 1 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 190px;
+  overflow-y: auto;
+}
+
+.history-search__hit {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  text-align: left;
+}
+
+.history-search__hit:hover {
+  background: var(--surface-sunken);
+}
+
+.history-search__snippet {
+  font-size: var(--text-sm);
+  overflow-wrap: anywhere;
+}
+
+.timeline-event--anchored {
+  outline: 2px solid var(--focus);
+  outline-offset: 4px;
+  border-radius: var(--radius-md);
+}
+
+.timeline-event__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.md-code {
+  position: relative;
+}
+
+.md-code__copy {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--surface-raised, var(--surface));
+  color: var(--muted);
+  font-size: var(--text-xs);
+  opacity: 0;
+  transition: opacity var(--motion-fast) var(--ease);
+}
+
+.md-code:hover .md-code__copy,
+.md-code__copy:focus-visible {
+  opacity: 1;
+}
+
+.mention-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.mention-preview__text {
+  max-height: 200px;
+  overflow: auto;
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+  font-size: var(--text-xs);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 /* R03 — the composer's Codewhale command list. It floats above the composer so

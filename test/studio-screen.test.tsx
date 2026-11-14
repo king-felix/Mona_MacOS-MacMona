@@ -155,7 +155,7 @@ function studio(overrides: Partial<StudioSnapshot> = {}): StudioSnapshot {
     },
     submission: null,
     diagnostics: [],
-    pendingInput: null,
+    pendingRequests: [],
     canSubmit: true,
     cannotSubmitReason: null,
     controls: { canInterrupt: false, canPause: true, canCancelQueued: false, canStop: true },
@@ -353,14 +353,121 @@ describe("studio screen honesty and safety", () => {
     expect(container?.textContent).toContain("Reconcile lookup");
   });
 
-  it("shows the engine's approval wait as a real wait, not a hang", () => {
+  it("offers the engine's approval as an answerable card, not a dead wait", () => {
+    const answered: Array<{ id: string; response: unknown }> = [];
     render({
       studio: studio({
-        pendingInput:
-          "The engine is waiting for an approval decision Mona cannot answer yet. Switch to Work with your saved Full Access profile, or answer in Codewhale. It will wait here rather than spin.",
+        pendingRequests: [
+          {
+            id: "prq_0123456789abcdef",
+            kind: "approval",
+            projectId: "prj_test",
+            threadId: "thr_test",
+            turnId: "turn_test",
+            toolName: "bash",
+            title: "Run `npm test` in the project root",
+            summary: "Run `npm test` in the project root",
+            input: { command: "npm test" },
+            questions: [],
+            decisions: ["allow", "deny"],
+            status: "pending",
+            decision: null,
+            decidedBy: null,
+            acknowledgement: null,
+            note: null,
+            createdAt: "2026-11-11T00:00:00.000Z",
+            settledAt: null,
+            canAnswer: true,
+            cannotAnswerReason: null,
+          },
+        ],
       }),
+      onAnswerPending: (id, response) => answered.push({ id, response }),
     });
-    expect(container?.textContent).toContain("waiting for input Mona cannot answer");
+    expect(container?.textContent).toContain("Approval requested");
+    expect(container?.textContent).toContain("Run `npm test` in the project root");
+    // The old text told the user to leave Mona or widen the permission mode;
+    // answering in place replaces that advice entirely.
+    expect(container?.textContent).not.toContain("cannot answer");
+    expect(container?.textContent).not.toContain("Switch to Work");
+
+    const approve = container?.querySelector('[data-testid="pending-approve"]');
+    act(() => (approve as HTMLElement | null)?.click());
+    expect(answered).toEqual([
+      {
+        id: "prq_0123456789abcdef",
+        response: { kind: "approval", decision: "allow", remember: false },
+      },
+    ]);
+  });
+
+  it("shows a question's options and sends only a complete answer", () => {
+    const answered: Array<{ id: string; response: unknown }> = [];
+    render({
+      studio: studio({
+        pendingRequests: [
+          {
+            id: "prq_fedcba9876543210",
+            kind: "user_input",
+            projectId: "prj_test",
+            threadId: "thr_test",
+            turnId: "turn_test",
+            toolName: null,
+            title: "Which package manager?",
+            summary: null,
+            input: null,
+            questions: [
+              {
+                id: "q1",
+                header: "Package manager",
+                question: "Which package manager should I use?",
+                options: [
+                  { label: "npm", description: "the repository's lockfile" },
+                  { label: "pnpm", description: null },
+                ],
+                multiSelect: false,
+                malformed: false,
+              },
+            ],
+            decisions: [],
+            status: "pending",
+            decision: null,
+            decidedBy: null,
+            acknowledgement: null,
+            note: null,
+            createdAt: "2026-11-11T00:00:00.000Z",
+            settledAt: null,
+            canAnswer: true,
+            cannotAnswerReason: null,
+          },
+        ],
+      }),
+      onAnswerPending: (id, response) => answered.push({ id, response }),
+    });
+    const submit = container?.querySelector(
+      '[data-testid="pending-submit"]',
+    ) as HTMLButtonElement | null;
+    expect(submit?.disabled).toBe(true);
+    const radio = container?.querySelector('input[type="radio"]') as HTMLInputElement | null;
+    act(() => radio?.click());
+    // React state settles synchronously enough for a jsdom click; the button
+    // must become available only once an answer exists.
+    expect(
+      (container?.querySelector('[data-testid="pending-submit"]') as HTMLButtonElement | null)
+        ?.disabled,
+    ).toBe(false);
+    act(() =>
+      (container?.querySelector('[data-testid="pending-submit"]') as HTMLElement | null)?.click(),
+    );
+    expect(answered).toEqual([
+      {
+        id: "prq_fedcba9876543210",
+        response: {
+          kind: "user_input",
+          answers: [{ questionId: "q1", label: "npm", value: "npm" }],
+        },
+      },
+    ]);
   });
 });
 
@@ -878,5 +985,197 @@ describe("R03 descriptive command autocomplete", () => {
       (violation) => violation.impact === "serious" || violation.impact === "critical",
     );
     expect(blocking.map((violation) => `${violation.id}: ${violation.help}`)).toEqual([]);
+  });
+});
+
+describe("R10 review conveniences", () => {
+  const hit = {
+    threadId: "thr_test",
+    seq: 4,
+    itemId: "item_test",
+    kind: "item.completed",
+    timestamp: "2026-11-11T00:00:04.000Z",
+    snippet: "…the parser drops unicode…",
+  };
+
+  it("copies a card's exact body and offers code copy in prose", () => {
+    const copied: Array<{ text: string; label: string }> = [];
+    render({
+      detail: detail([
+        {
+          threadId: "thr_test",
+          seq: 4,
+          kind: "item.completed",
+          payload: {
+            item: {
+              id: "item_test",
+              kind: "agent_message",
+              detail: "Here is the fix:\n\n```ts\nexport const answer = 42;\n```",
+            },
+          },
+          timestamp: "2026-11-11T00:00:04.000Z",
+          turnId: "turn_test",
+          itemId: "item_test",
+        },
+      ]),
+      onCopy: (text, label) => copied.push({ text, label }),
+    });
+    const cardCopy = container?.querySelector('[data-testid="copy-message"]');
+    act(() => (cardCopy as HTMLElement | null)?.click());
+    expect(copied[0]?.label).toBe("message");
+    expect(copied[0]?.text).toContain("export const answer = 42;");
+    const codeCopy = container?.querySelector('[data-testid="copy-code"]');
+    act(() => (codeCopy as HTMLElement | null)?.click());
+    // Code copy must hand back the block's source, not the surrounding prose.
+    expect(copied[1]).toEqual({ text: "export const answer = 42;", label: "code" });
+  });
+
+  it("shows search results, jumps to one, and states the search scope", () => {
+    const searched: string[] = [];
+    const jumped: string[] = [];
+    render({
+      search: {
+        query: "unicode",
+        hits: [hit],
+        busy: false,
+        error: null,
+        anchor: null,
+        onQuery: (value) => searched.push(value),
+        onJump: (value) => jumped.push(value.snippet),
+        onClear: () => searched.push(""),
+      },
+    });
+    expect(container?.textContent).toContain("1 match");
+    expect(container?.textContent).toContain("Local read only");
+    const result = container?.querySelector(".history-search__hit");
+    act(() => (result as HTMLElement | null)?.click());
+    expect(jumped).toEqual([hit.snippet]);
+    const field = container?.querySelector(".history-search input") as HTMLInputElement | null;
+    expect(field?.value).toBe("unicode");
+  });
+
+  it("marks the card a search jumped to, and asks for an older page when it is not loaded", () => {
+    const loads: number[] = [];
+    const older = {
+      threadId: "thr_test",
+      seq: 1,
+      kind: "item.completed",
+      payload: { item: { id: "item_old", kind: "agent_message", detail: "older text" } },
+      timestamp: "2026-11-11T00:00:01.000Z",
+      turnId: null,
+      itemId: "item_old",
+    };
+    render({
+      detail: detail({ events: [older] }),
+      search: {
+        query: "unicode",
+        hits: [hit],
+        busy: false,
+        error: null,
+        anchor: { itemId: "item_missing", seq: 99 },
+        onQuery: () => undefined,
+        onJump: () => undefined,
+        onClear: () => undefined,
+      },
+      history: {
+        events: [older],
+        storedTotal: 400,
+        hasMore: true,
+        loading: false,
+        error: null,
+        threadId: null,
+        truncatedItems: {},
+        completeItems: {},
+        olderLoads: 0,
+        onLoadOlder: () => loads.push(1),
+      },
+    });
+    // The hit is not in the loaded window, so the console asks for one more
+    // page instead of pretending the match is on screen.
+    expect(loads.length).toBeGreaterThan(0);
+  });
+
+  it("offers a verified file mention and keeps binary attachment unavailable", () => {
+    render({ onMentionFile: () => undefined });
+    expect(container?.querySelector('[data-testid="mention-file"]')).not.toBeNull();
+    const attach = container?.querySelector(
+      '[data-testid="attach-file"]',
+    ) as HTMLButtonElement | null;
+    expect(attach?.disabled).toBe(true);
+    expect(attach?.title).toContain("unavailable");
+  });
+
+  it("offers Open Changes from a tool card without following model paths", () => {
+    const opened: number[] = [];
+    render({
+      detail: detail([
+        {
+          threadId: "thr_test",
+          seq: 9,
+          kind: "item.completed",
+          payload: {
+            item: {
+              id: "item_tool",
+              kind: "command_execution",
+              detail: "cat /Users/someone/secret.txt",
+            },
+          },
+          timestamp: "2026-11-11T00:00:09.000Z",
+          turnId: "turn_test",
+          itemId: "item_tool",
+        },
+      ]),
+      onShowChanges: () => opened.push(1),
+    });
+    const button = container?.querySelector('[data-testid="open-changes"]');
+    expect(button).not.toBeNull();
+    act(() => (button as HTMLElement | null)?.click());
+    expect(opened).toEqual([1]);
+    // A model-mentioned absolute path is rendered as text, never as a link.
+    expect(container?.querySelector('.timeline-event--tool a[href^="file"]')).toBeNull();
+  });
+
+  it("shows unread events while the reader is scrolled back", () => {
+    const first = {
+      threadId: "thr_test",
+      seq: 1,
+      kind: "item.completed",
+      payload: { item: { id: "item_a", kind: "agent_message", detail: "first" } },
+      timestamp: "2026-11-11T00:00:01.000Z",
+      turnId: null,
+      itemId: "item_a",
+    };
+    const second = {
+      ...first,
+      seq: 2,
+      itemId: "item_b",
+      payload: { item: { id: "item_b", kind: "agent_message", detail: "second" } },
+      timestamp: "2026-11-11T00:00:02.000Z",
+    };
+    const base = {
+      storedTotal: 2,
+      hasMore: false,
+      loading: false,
+      error: null,
+      threadId: null,
+      truncatedItems: {},
+      completeItems: {},
+      olderLoads: 0,
+    };
+    render({ history: { ...base, events: [first] } });
+    const timeline = container?.querySelector('[data-testid="studio-timeline"]') as HTMLElement;
+    // Simulating a reader who scrolled up: the console is no longer following.
+    act(() => {
+      Object.defineProperty(timeline, "scrollHeight", { value: 1200, configurable: true });
+      Object.defineProperty(timeline, "clientHeight", { value: 400, configurable: true });
+      Object.defineProperty(timeline, "scrollTop", {
+        value: 0,
+        configurable: true,
+        writable: true,
+      });
+      timeline.dispatchEvent(new Event("scroll", { bubbles: true }));
+    });
+    render({ history: { ...base, events: [first, second] } });
+    expect(container?.textContent).toMatch(/new event/);
   });
 });

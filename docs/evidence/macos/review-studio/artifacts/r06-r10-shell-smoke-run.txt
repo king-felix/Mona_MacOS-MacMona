@@ -1,0 +1,468 @@
+
+> mona@0.1.0-p02 smoke:shell
+> npm run build && node scripts/shell-smoke.mjs
+
+
+> mona@0.1.0-p02 build
+> npm run clean && npm run build:main && npm run build:renderer
+
+
+> mona@0.1.0-p02 clean
+> rm -rf dist coverage
+
+
+> mona@0.1.0-p02 build:main
+> tsc -p tsconfig.main.json
+
+
+> mona@0.1.0-p02 build:renderer
+> vite build
+
+vite v8.3.8 building client environment for production...
+transforming...
+✓ 155 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/renderer/index.html                       0.76 kB │ gzip:   0.41 kB
+dist/renderer/assets/mona-mark-ChAj1Hvn.png   27.56 kB
+dist/renderer/assets/index-weN0p_Xi.css       81.16 kB │ gzip:  13.69 kB
+dist/renderer/assets/index-DuamnSZY.js       763.09 kB │ gzip: 207.84 kB
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 119ms
+{
+  "schema_version": 1,
+  "captured_at": "2026-11-14T09:15:02.454Z",
+  "ok": true,
+  "checks": {
+    "ready": true,
+    "cards": true,
+    "home_screen": true,
+    "nav_count": true,
+    "fixture_label_absent": true,
+    "home_theme_daybreak": true,
+    "version_rendered": true,
+    "keyboard_studio": true,
+    "home_returned": true,
+    "studio_ready": true,
+    "studio_title": true,
+    "engine_state_reported": true,
+    "draft_present": true,
+    "draft_preserved": true,
+    "send_enabled": true,
+    "mode_controls": true,
+    "profile_reported": true,
+    "offline_event": true,
+    "no_fake_percent": true,
+    "zoom_menu_registered": true,
+    "zoom_applies_through_menu": true,
+    "zoom_persisted": true,
+    "composer_above_strip": true,
+    "board_ready": true,
+    "task_visible": true,
+    "board_lanes": true,
+    "attempt_detail_open": true,
+    "blocked_problem_panel": true,
+    "attempt_counters_rendered": true,
+    "attempt_records_rendered": true,
+    "acknowledge_keeps_count_label": true,
+    "reopen_control_present": true,
+    "resolve_control_present": true,
+    "blocked_help_in_detail": true,
+    "start_refused_while_blocked": true,
+    "victor_handoff_rendered": true,
+    "blocked_attempt_counters": true,
+    "blocked_help_card": true,
+    "changes_screen": true,
+    "changes_receipt_rendered": true,
+    "changes_attribution": true,
+    "changes_missing_restore_point": true,
+    "changes_restore_unavailable": true,
+    "changes_git_state": true,
+    "changes_no_horizontal_overflow": true,
+    "changes_lazy_text_window": true,
+    "cost_screen": true,
+    "cost_known_spend": true,
+    "cost_incomplete_disclosed": true,
+    "cost_unknown_state_label": true,
+    "cost_budget_rendered": true,
+    "cost_no_balance_claim": true,
+    "cost_export_controls": true,
+    "settings_ready": true,
+    "database_visible": true,
+    "runtime_panel": true,
+    "palette_open": true,
+    "palette_focus": true,
+    "palette_project_action": true,
+    "palette_escape": true,
+    "studio_console_spans_width": true,
+    "studio_console_is_tall": true,
+    "studio_console_above_composer": true,
+    "studio_inspector_beside_composer": true,
+    "no_horizontal_overflow": true,
+    "resume_brief_rendered": true,
+    "resume_brief_has_next_action": true,
+    "resume_brief_shows_blocker": true,
+    "resume_brief_facts": true,
+    "resume_brief_no_percentage": true,
+    "resume_brief_no_model_call": true,
+    "since_you_left_rendered": true,
+    "attention_settings_ready": true,
+    "attention_keep_awake_control": true,
+    "attention_launch_at_login_off": true,
+    "attention_menu_bar_reported": true,
+    "attention_test_control": true,
+    "afterglow_selected": true,
+    "focus_mode_on": true,
+    "focus_mode_hides_inspector": true,
+    "focus_mode_keeps_controls": true,
+    "focus_mode_no_overflow": true,
+    "focus_mode_composer_usable": true,
+    "notification_test_receipt": true,
+    "shortcuts_open": true,
+    "shortcuts_cover_focus_and_interrupt": true,
+    "shortcuts_escape": true,
+    "notification_click_focuses_project": true,
+    "agents_screen": true,
+    "agents_header": true,
+    "agents_disconnected_honest": true,
+    "agents_stored_agent_row": true,
+    "agents_stored_spend_unknown": true,
+    "agents_stored_goal_locked": true,
+    "agents_serial_boundary": true,
+    "agents_gaps_visible": true,
+    "agents_launch_refused": true,
+    "agents_no_fake_percent": true,
+    "agents_no_horizontal_overflow": true,
+    "agents_afterglow": true,
+    "agents_inspector_open": true,
+    "agents_inspector_identity": true,
+    "agents_inspector_honest_spend": true,
+    "agents_inspector_tests_and_tools": true,
+    "agents_inspector_terminal_cancel_disabled": true,
+    "palette_capabilities": true,
+    "capabilities_explorer": true,
+    "capabilities_gap_named": true,
+    "capability_entry_navigates": true,
+    "memory_screen": true,
+    "memory_index_honest": true,
+    "memory_search": true,
+    "memory_search_redacts": true,
+    "memory_resume": true,
+    "memory_context": true,
+    "memory_shelf": true,
+    "memory_handoff": true,
+    "terminal_panel": true,
+    "terminal_session": true,
+    "terminal_output": true,
+    "terminal_link_inert": true,
+    "terminal_resize_reaches_child": true,
+    "terminal_environment_stated": true,
+    "terminal_exit_observed": true,
+    "settings_returned": true,
+    "settings_route_offline": true,
+    "settings_extensions_categories": true
+  },
+  "facts": {
+    "home": {
+      "cards": 1,
+      "screen": "home",
+      "fixture_label": false,
+      "nav_count": 9,
+      "version": "Mona 0.1.0-p02",
+      "theme": "daybreak",
+      "horizontal_overflow": false
+    },
+    "studio": {
+      "screen": "studio",
+      "title": "Shell smoke project",
+      "engine": false,
+      "engine_not_started": true,
+      "draft_present": true,
+      "draft_text": "Keep this draft local to the shell smoke project.",
+      "send_enabled": true,
+      "mode_controls": true,
+      "profile_reported": true,
+      "event_present": true,
+      "fake_percent": false,
+      "horizontal_overflow": false,
+      "layout": {
+        "ok": true,
+        "console_share": 1,
+        "console_height": 352,
+        "console_above_composer": true,
+        "inspector_beside_composer": true,
+        "inspector_width": 350,
+        "composer_width": 632
+      }
+    },
+    "board": {
+      "screen": "board",
+      "task_present": true,
+      "lanes": 6,
+      "victor_handoff": true,
+      "blocked_attempts": true,
+      "help_card": true,
+      "horizontal_overflow": false
+    },
+    "attempts": {
+      "blocked_problem_visible": true,
+      "total_consecutive": true,
+      "attempt_records": 3,
+      "audit_actions": true,
+      "reopen_control": true,
+      "resolve_control": true,
+      "blocked_help": true,
+      "start_disabled": true
+    },
+    "cost": {
+      "screen": "cost",
+      "empty_usage": false,
+      "known_spend": true,
+      "incomplete": true,
+      "unknown_state": true,
+      "budget_row": true,
+      "no_balance_claim": true,
+      "export_controls": true,
+      "horizontal_overflow": false
+    },
+    "settings": {
+      "screen": "settings",
+      "database_visible": true,
+      "runtime_visible": true,
+      "horizontal_overflow": false
+    },
+    "routeFacts": {
+      "screen": "settings",
+      "heading": true,
+      "offline_stated": true,
+      "no_fake_route": true,
+      "policy_locked": true,
+      "horizontal_overflow": false
+    },
+    "extensionsFacts": {
+      "screen": "settings",
+      "categories": true,
+      "offline_stated": true,
+      "gaps_stated": true,
+      "no_fake_health": true,
+      "horizontal_overflow": false
+    },
+    "palette": {
+      "open": true,
+      "focus_inside": true,
+      "has_project_action": true
+    },
+    "composerFits": {
+      "ok": true,
+      "send_bottom": 536,
+      "strip_top": 565,
+      "covered": false
+    },
+    "resume": {
+      "brief": true,
+      "heading": true,
+      "next_action": true,
+      "blocker": true,
+      "since_present": true,
+      "since_entries": 4,
+      "no_completion_percent": true,
+      "no_model_call": true,
+      "facts": 5
+    },
+    "attention": {
+      "ready": true,
+      "keep_awake": true,
+      "login_off": true,
+      "menu_bar_state": true,
+      "test_button": true,
+      "receipts": false
+    },
+    "focus": {
+      "focus_on": true,
+      "inspector_hidden": true,
+      "control_strip": true,
+      "interrupt_visible": true,
+      "favorites": 1,
+      "no_overflow": true
+    },
+    "focusComposer": {
+      "ok": true,
+      "reachable": true,
+      "inViewport": true,
+      "covered_by_strip": false,
+      "strip_visible": false
+    },
+    "notification": {
+      "receipt": true,
+      "text": "system refused completion · the system did not accept the notification 11/14/2026, 2:14:59 AM",
+      "shown": false,
+      "handed_over": false,
+      "refused": true,
+      "suppressed_with_reason": false
+    },
+    "shortcuts": {
+      "open": true,
+      "rows": 13,
+      "focus_mode": true,
+      "deliberate_interrupt": true
+    },
+    "focusLanded": {
+      "screen": "changes",
+      "change_screen": true,
+      "focus_mode_remaining": "on"
+    },
+    "agents": {
+      "screen": "agents",
+      "header": true,
+      "not_connected": true,
+      "detached_reason": true,
+      "stored_run": true,
+      "stored_worker": true,
+      "stored_agent": true,
+      "stored_spend_unknown": true,
+      "serial_boundary": true,
+      "gap_rows": 7,
+      "parallel_checks": 4,
+      "launch_refused": true,
+      "stored_goal": true,
+      "goal_control_locked": true,
+      "no_fake_percent": true,
+      "horizontal_overflow": false
+    },
+    "agentInspector": {
+      "open": true,
+      "identity": true,
+      "parent": true,
+      "spend": true,
+      "tests": true,
+      "tools": true,
+      "artifacts": true,
+      "cancel_disabled": true,
+      "no_additive_total": true
+    },
+    "paletteCapabilities": {
+      "open": true,
+      "ranked_locally": true,
+      "has_settings": true,
+      "has_prompt": false,
+      "has_capability": true,
+      "detail_badges": 4,
+      "counts": {
+        "settings": "29 matches · showing the first 16 · ranked locally",
+        "doctor": "3 matches · ranked locally",
+        "workflow": "1 match · ranked locally"
+      }
+    },
+    "capabilities": {
+      "screen": "capabilities",
+      "rows": 75,
+      "verdict": "Full parity is not claimed: required gaps remain.",
+      "drift_matches": true,
+      "drift_stated": true,
+      "features": 19,
+      "counts": "75 of 75 rows",
+      "horizontal_overflow": false
+    },
+    "gapDetail": {
+      "text": "MONA-CAP-018 · cliworkflowRun checked-in Workflows through a Lane Runtime backendblocked_gapEntry pointNo in-app route · not exercisedExact routecodewhale workflow <name>Classificationwrite executes repository workflowsCost classBillable model turns.ArgumentsnoneHelp sourcecodewhale workflow --helpVersion / platform0.10.2 · macOS 26.5.1, arm64 (native)TestProbed: no /v1/workflow* route exists on the pinned build (P15).GapChecked-in JS workflows run through a Lane Runtime with no HTTP route, so Mona cannot launch or inspect them. A terminal entry would not fulfill MONA-019; full parity stays blocked until the engine exposes a route or Victor narrows scope.No in-app route for this rowShowing what this build can actually reach. A row is never hidden to make the coverage look complete.",
+      "no_open_button": true
+    },
+    "memoryIndexFacts": {
+      "index_present": true,
+      "no_credentials": true,
+      "on_demand": true,
+      "not_persisted": true,
+      "excluded_rows": 17,
+      "no_model_call": true
+    },
+    "memorySearchFacts": {
+      "hits": 2,
+      "has_decision": true,
+      "summary_not_persisted": true,
+      "redacted": true,
+      "redaction_stated": true,
+      "summary": "stored recordsResults2 hit(s) across 11 record(s) · 1 ms · 1 redaction(s) · not persistedDecisionsResume packet formatThe resume packet is plain text assembled from stored records. A rejected sample key was sk-[redacted].4 occurrence(s)Prom"
+    },
+    "memoryResumeFacts": {
+      "has_text": true,
+      "states_limit": true,
+      "names_project": true,
+      "no_secret": true
+    },
+    "memoryContextFacts": {
+      "present": true,
+      "states_provider_limit": true,
+      "bytes_stated": true,
+      "slot_rows": 7
+    },
+    "memoryShelfFacts": {
+      "has_seeded": true,
+      "preview_present": true,
+      "keeps_unfilled_token": true,
+      "states_inert": true,
+      "limits_stated": true
+    },
+    "shelfPreviewReady": true,
+    "memoryHandoffFacts": {
+      "present": true,
+      "names_limits": true,
+      "has_checks": true,
+      "no_secret": true
+    },
+    "terminalInert": {
+      "clickme": true,
+      "no_href": true,
+      "no_url": true,
+      "no_escape": true
+    },
+    "terminalFacts": {
+      "environment_stated": true,
+      "limits_stated": true,
+      "status": "running",
+      "cols_rows": [
+        "running",
+        "",
+        "running",
+        "120×40",
+        "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-shell-smoke-project-6i4pfV/Shell smoke project",
+        "1 KiB"
+      ]
+    }
+  },
+  "screenshots": [
+    "docs/evidence/macos/artifacts/p07-shell-home.png",
+    "docs/evidence/macos/artifacts/p07-shell-studio.png",
+    "docs/evidence/macos/artifacts/p07-shell-board.png",
+    "docs/evidence/macos/artifacts/p11-shell-board.png",
+    "docs/evidence/macos/artifacts/p11-shell-attempts.png",
+    "docs/evidence/macos/artifacts/p07-shell-settings.png",
+    "docs/evidence/macos/artifacts/p13-shell-changes.png",
+    "docs/evidence/macos/artifacts/p13-shell-changes-file.png",
+    "docs/evidence/macos/artifacts/p12-shell-cost.png",
+    "docs/evidence/macos/artifacts/p12-shell-cost-detail.png",
+    "docs/evidence/macos/artifacts/p14-home-daybreak.png",
+    "docs/evidence/macos/artifacts/p14-settings-attention.png",
+    "docs/evidence/macos/artifacts/p14-settings-attention-native.png",
+    "docs/evidence/macos/artifacts/p14-settings-receipts.png",
+    "docs/evidence/macos/artifacts/p14-studio-focus-afterglow.png",
+    "docs/evidence/macos/artifacts/p15-agents-daybreak.png",
+    "docs/evidence/macos/artifacts/p15-agents-afterglow.png",
+    "docs/evidence/macos/artifacts/p15-agents-inspector.png",
+    "docs/evidence/macos/artifacts/p16-settings-route.png",
+    "docs/evidence/macos/artifacts/p17-settings-extensions.png",
+    "docs/evidence/macos/artifacts/p18-capabilities.png",
+    "docs/evidence/macos/artifacts/p18-terminal.png",
+    "docs/evidence/macos/artifacts/p19-memory-search.png",
+    "docs/evidence/macos/artifacts/p19-memory-handoff.png"
+  ],
+  "electron": {
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+}

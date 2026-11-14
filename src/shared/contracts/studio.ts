@@ -3,6 +3,8 @@
  * token, base URL, and runtime executable never do.
  */
 
+import type { PendingQuestion, PendingRequestKind, PendingRequestStatus } from "./pending";
+
 export type StudioMode = "plan" | "work";
 
 export type StudioConnectionState =
@@ -56,6 +58,18 @@ export interface StudioCostView {
   label: string;
 }
 
+/** R10 file mention: a verified workspace read, never an attachment. */
+export interface StudioFilePreview {
+  path: string;
+  availability: "available" | "binary" | "oversized" | "missing" | "forbidden" | "error";
+  content: string | null;
+  sizeBytes: number | null;
+  truncated: boolean;
+  /** bytes/4, explicitly an estimate of this provider's tokenizer. */
+  estimatedTokens: number | null;
+  note: string;
+}
+
 export interface StudioSubmissionView {
   operationKey: string;
   status: string;
@@ -72,6 +86,65 @@ export interface StudioControls {
   canStop: boolean;
 }
 
+/**
+ * One engine ask as the screen sees it. `id` is Mona's own row id; the engine's
+ * single-use capability stays in main, so a renderer cannot answer an approval
+ * it did not receive from this application.
+ */
+export interface PendingRequestView {
+  id: string;
+  kind: PendingRequestKind;
+  projectId: string;
+  threadId: string;
+  turnId: string | null;
+  toolName: string | null;
+  title: string;
+  summary: string | null;
+  /** Captured tool input for an approval; null when the engine captured none. */
+  input: unknown;
+  questions: PendingQuestion[];
+  /** Decisions the engine's own payload named. */
+  decisions: Array<"allow" | "deny">;
+  status: PendingRequestStatus;
+  decision: "allow" | "deny" | null;
+  decidedBy: string | null;
+  /** What the runtime answered when Mona sent the reply, verbatim enough to audit. */
+  acknowledgement: string | null;
+  note: string | null;
+  createdAt: string;
+  settledAt: string | null;
+  /** True when Mona can send an answer for this row right now. */
+  canAnswer: boolean;
+  /** Why it cannot be answered, when it cannot. */
+  cannotAnswerReason: string | null;
+}
+
+/** One answer to one question, in the shape the Runtime accepts. */
+export interface PendingAnswerInput {
+  questionId: string;
+  label: string;
+  value: string;
+}
+
+export type PendingResponseInput =
+  | { kind: "approval"; decision: "allow" | "deny"; remember: boolean }
+  | { kind: "user_input"; answers: PendingAnswerInput[] };
+
+export interface StudioPendingResult {
+  request: PendingRequestView;
+  /** True only when the Runtime accepted the reply (2xx), not when it was sent. */
+  acknowledged: boolean;
+  /**
+   * `answered` means the Runtime accepted the decision; `expired` means the
+   * capability was no longer pending (already answered, timed out, or settled
+   * by another client) and nothing was sent; `unknown` means the reply may or
+   * may not have arrived.
+   */
+  outcome: "answered" | "expired" | "unknown" | "refused";
+  note: string;
+  snapshot: StudioSnapshot;
+}
+
 export interface StudioSnapshot {
   projectId: string;
   connection: StudioConnection;
@@ -86,8 +159,11 @@ export interface StudioSnapshot {
   submission: StudioSubmissionView | null;
   /** Bounded, user-facing diagnostics (unsupported input, schema drift). */
   diagnostics: string[];
-  /** A real engine wait Mona cannot answer, described honestly. */
-  pendingInput: string | null;
+  /**
+   * Engine requests waiting on a person, newest first. Empty is a fact; the
+   * screen renders nothing rather than a placeholder prompt.
+   */
+  pendingRequests: PendingRequestView[];
   canSubmit: boolean;
   cannotSubmitReason: string | null;
   controls: StudioControls;

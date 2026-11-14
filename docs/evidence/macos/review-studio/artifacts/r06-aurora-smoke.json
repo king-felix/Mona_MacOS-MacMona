@@ -1,0 +1,978 @@
+{
+  "schema_version": 1,
+  "label": "R06 AURORA STUDIO — production shell, no engine, no model request",
+  "captured_at": "2026-11-14T09:33:42.487Z",
+  "ok": true,
+  "checks": {
+    "normal_layout_daybreak_vivid": true,
+    "focus_entered_daybreak": true,
+    "focus_exited_daybreak": true,
+    "normal_layout_daybreak_quiet": true,
+    "normal_layout_afterglow_vivid": true,
+    "focus_entered_afterglow": true,
+    "focus_exited_afterglow": true,
+    "normal_layout_afterglow_quiet": true,
+    "both_themes_and_intensities_rendered": true,
+    "vivid_plaque_carries_a_wash": true,
+    "quiet_plaque_is_plain": true,
+    "vivid_rail_is_washed": true,
+    "quiet_rail_is_plain": true,
+    "vivid_rail_selection_is_not_the_plain_surface": true,
+    "vivid_turns_have_distinct_surfaces": true,
+    "vivid_tool_card_is_framed": true,
+    "pending_approval_rendered": true,
+    "measured_contrast_holds": true,
+    "painted_contrast_holds": true,
+    "home_row_rendered": true,
+    "vivid_home_row_is_treated": true,
+    "vivid_home_selection_is_treated": true,
+    "no_idle_animation": true,
+    "no_horizontal_overflow": true,
+    "normal_layout_before_long_output": true,
+    "long_output_rendered": true,
+    "error_card_rendered": true,
+    "captures_are_distinct": true,
+    "normal_layout_before_zoom": true,
+    "zoom_200_no_overflow": true,
+    "zoom_200_keeps_identity": true
+  },
+  "facts": {
+    "home_daybreak_vivid": {
+      "theme": "daybreak",
+      "intensity": "vivid",
+      "home_ready": true,
+      "rows": 1,
+      "harness_cards": 0,
+      "row_border": "color(srgb 0.441725 0.328 0.952314)",
+      "row_shadow": "color(srgb 0.435686 0.321961 0.943529) 0px 0px 0px 1px, rgba(121, 92, 255, 0.28) 0px 0px 24px -14px, rgba(16, 24, 48, 0.05) 0px 1px 2px 0px, rgba(16, 24, 48, 0.05) 0px 8px 24px 0px",
+      "selected_border": "color(srgb 0.441725 0.328 0.952314)"
+    },
+    "normal_daybreak_vivid": {
+      "theme": "daybreak",
+      "intensity": "vivid",
+      "density": "comfortable",
+      "screen": "studio",
+      "focus": "off",
+      "hidden": null,
+      "plaque": {
+        "background_image": "linear-gradient(100deg, color(srgb 0.926431 0.91051 1), color(srgb 0.975686 0.942353 1) 58%, color(srgb 0.906353 0.977412 0.989176))",
+        "background_color": "rgba(0, 0, 0, 0)",
+        "color": "rgb(24, 33, 59)",
+        "border_color": "color(srgb 0.769569 0.760157 0.952314)",
+        "box_shadow": "rgba(16, 24, 48, 0.05) 0px 1px 2px 0px, rgba(16, 24, 48, 0.05) 0px 8px 24px 0px",
+        "border_left_width": "1px"
+      },
+      "plaque_identity": {
+        "background_image": "none",
+        "background_color": "rgb(255, 255, 255)",
+        "color": "rgb(24, 33, 59)",
+        "border_color": "rgb(24, 33, 59)",
+        "box_shadow": "none",
+        "border_left_width": "0px"
+      },
+      "rail": {
+        "background_image": "linear-gradient(color(srgb 0.947451 0.936078 1), rgb(255, 255, 255) 220px)",
+        "background_color": "rgba(0, 0, 0, 0)",
+        "color": "rgb(24, 33, 59)",
+        "border_color": "rgb(24, 33, 59) color(srgb 0.761804 0.749647 0.953569) rgb(24, 33, 59) rgb(24, 33, 59)",
+        "box_shadow": "none",
+        "border_left_width": "0px"
+      },
+      "rail_current": {
+        "background_image": "none",
+        "background_color": "rgb(237, 234, 255)",
+        "color": "rgb(58, 42, 158)",
+        "border_color": "rgb(58, 42, 158)",
+        "box_shadow": "rgb(121, 92, 255) 2px 0px 0px 0px inset",
+        "border_left_width": "0px"
+      },
+      "user_turn": {
+        "background_image": "none",
+        "background_color": "color(srgb 0.961176 0.954706 1)",
+        "color": "rgb(24, 33, 59)",
+        "border_color": "rgb(220, 226, 239) rgb(220, 226, 239) rgb(220, 226, 239) color(srgb 0.59098 0.518431 0.981176)",
+        "box_shadow": "none",
+        "border_left_width": "3px"
+      },
+      "agent_turn": {
+        "background_image": "none",
+        "background_color": "rgb(255, 255, 255)",
+        "color": "rgb(24, 33, 59)",
+        "border_color": "rgb(220, 226, 239) rgb(220, 226, 239) rgb(220, 226, 239) color(srgb 0.444706 0.837843 0.919412)",
+        "box_shadow": "none",
+        "border_left_width": "3px"
+      },
+      "tool_turn": {
+        "background_image": "none",
+        "background_color": "rgb(238, 241, 248)",
+        "color": "rgb(24, 33, 59)",
+        "border_color": "rgb(220, 226, 239)",
+        "box_shadow": "none",
+        "border_left_width": "1px"
+      },
+      "focus_bar": null,
+      "card": null,
+      "mono": {
+        "background_image": "none",
+        "background_color": "rgb(99, 70, 223)",
+        "color": "rgb(255, 255, 255)",
+        "border_color": "rgb(255, 255, 255)",
+        "box_shadow": "color(srgb 0.47451 0.360784 1 / 0.3) 0px 0px 0px 1px",
+        "border_left_width": "0px"
+      },
+      "running_animations": 0,
+      "live_dot": false,
+      "pending_cards": 2,
+      "pending_answerable": 3,
+      "contrast": {
+        "ink_on_surface": 15.914709402480087,
+        "ink_on_canvas": 14.99578425160238,
+        "muted_on_surface": 6.252408320347633
+      },
+      "painted": {
+        "user_turn": {
+          "ratio": 14.510222882438097,
+          "fg": "rgb(24, 33, 59)",
+          "bg": "rgb(245, 243, 255)"
+        },
+        "agent_turn": {
+          "ratio": 15.914709402480087,
+          "fg": "rgb(24, 33, 59)",
+          "bg": "rgb(255, 255, 255)"
+        },
+        "tool_turn": {
+          "ratio": 14.075430921298027,
+          "fg": "rgb(24, 33, 59)",
+          "bg": "rgb(238, 241, 248)"
+        },
+        "error_turn": {
+          "ratio": 13.560060123450807,
+          "fg": "rgb(24, 33, 59)",
+          "bg": "rgb(252, 232, 236)"
+        },
+        "rail_current": {
+          "ratio": 8.885609451442406,
+          "fg": "rgb(58, 42, 158)",
+          "bg": "rgb(237, 234, 255)"
+        },
+        "plaque_title": {
+          "ratio": 15.914709402480087,
+          "fg": "rgb(24, 33, 59)",
+          "bg": "rgb(255, 255, 255)"
+        }
+      },
+      "overflow": false,
+      "shot_ready": true
+    },
+    "focus_daybreak": {
+      "theme": "daybreak",
+      "intensity": "vivid",
+      "density": "comfortable",
+      "screen": "studio",
+      "focus": "on",
+      "hidden": null,
+      "plaque": {
+        "background_image": "linear-gradient(100deg, color(srgb 0.926431 0.91051 1), color(srgb 0.975686 0.942353 1) 58%, color(srgb 0.906353 0.977412 0.989176))",
+        "background_color": "rgba(0, 0, 0, 0)",
+        "color": "rgb(24, 33, 59)",
+        "border_color": "color(srgb 0.769569 0.760157 0.952314)",
+        "box_shadow": "rgba(16, 24, 48, 0.05) 0px 1px 2px 0px, rgba(16, 24, 48, 0.05) 0px 8px 24px 0px",
+        "border_left_width": "1px"
+      },
+      "plaque_identity": {
+        "background_image": "none",
+        "background_color": "rgb(255, 255, 255)",
+        "color": "rgb(24, 33, 59)",
+        "border_color": "rgb(24, 33, 59)",
+        "box_shadow": "none",
+        "border_left_width": "0px"
+      },
+      "rail": {
+        "background_image": "linear-gradient(color(srgb 0.947451 0.936078 1), rgb(255, 255, 255) 220px)",
+        "background_color": "rgba(0, 0, 0, 0)",
+        "color": "rgb(24, 33, 59)",
+        "border_color": "rgb(24, 33, 59) color(srgb 0.761804 0.749647 0.953569) rgb(24, 33, 59) rgb(24, 33, 59)",
+        "box_shadow": "none",
+        "border_left_width": "0px"
+      },
+      "rail_current": {
+        "background_image": "none",
+        "background_color": "rgb(237, 234, 255)",
+        "color": "rgb(58, 42, 158)",
+        "border_color": "rgb(58, 42, 158)",
+        "box_shadow": "rgb(121, 92, 255) 2px 0px 0px 0px inset",
+        "border_left_width": "0px"
+      },
+      "user_turn": {
+        "background_image": "none",
+        "background_color": "color(srgb 0.961176 0.954706 1)",
+        "color": "rgb(24, 33, 59)",
+        "border_color": "rgb(220, 226, 239) rgb(220, 226, 239) rgb(220, 226, 239) color(srgb 0.59098 0.518431 0.981176)",
+        "box_shadow": "none",
+        "border_left_width": "3px"
+      },
+      "agent_turn": {
+        "background_image": "none",
+        "background_color": "rgb(255, 255, 255)",
+        "color": "rgb(24, 33, 59)",
+        "border_color": "rgb(220, 226, 239) rgb(220, 226, 239) rgb(220, 226, 239) color(srgb 0.444706 0.837843 0.919412)",
+        "box_shadow": "none",
+        "border_left_width": "3px"
+      },
+      "tool_turn": {
+        "background_image": "none",
+        "background_color": "rgb(238, 241, 248)",
+        "color": "rgb(24, 33, 59)",
+        "border_color": "rgb(220, 226, 239)",
+        "box_shadow": "none",
+        "border_left_width": "1px"
+      },
+      "focus_bar": {
+        "background_image": "linear-gradient(color(srgb 0.936941 0.923294 1), rgb(255, 255, 255))",
+        "background_color": "rgba(0, 0, 0, 0)",
+        "color": "rgb(24, 33, 59)",
+        "border_color": "rgb(220, 226, 239) rgb(220, 226, 239) color(srgb 0.754039 0.739137 0.954824)",
+        "box_shadow": "rgba(16, 24, 48, 0.05) 0px 1px 2px 0px, rgba(16, 24, 48, 0.05) 0px 8px 24px 0px",
+        "border_left_width": "1px"
+      },
+      "card": null,
+      "mono": {
+        "background_image": "none",
+        "background_color": "rgb(99, 70, 223)",
+        "color": "rgb(255, 255, 255)",
+        "border_color": "rgb(255, 255, 255)",
+        "box_shadow": "color(srgb 0.47451 0.360784 1 / 0.3) 0px 0px 0px 1px",
+        "border_left_width": "0px"
+      },
+      "running_animations": 0,
+      "live_dot": false,
+      "pending_cards": 2,
+      "pending_answerable": 3,
+      "contrast": {
+        "ink_on_surface": 15.914709402480087,
+        "ink_on_canvas": 14.99578425160238,
+        "muted_on_surface": 6.252408320347633
+      },
+      "painted": {
+        "user_turn": {
+          "ratio": 14.510222882438097,
+          "fg": "rgb(24, 33, 59)",
+          "bg": "rgb(245, 243, 255)"
+        },
+        "agent_turn": {
+          "ratio": 15.914709402480087,
+          "fg": "rgb(24, 33, 59)",
+          "bg": "rgb(255, 255, 255)"
+        },
+        "tool_turn": {
+          "ratio": 14.075430921298027,
+          "fg": "rgb(24, 33, 59)",
+          "bg": "rgb(238, 241, 248)"
+        },
+        "error_turn": {
+          "ratio": 13.560060123450807,
+          "fg": "rgb(24, 33, 59)",
+          "bg": "rgb(252, 232, 236)"
+        },
+        "rail_current": {
+          "ratio": 8.885609451442406,
+          "fg": "rgb(58, 42, 158)",
+          "bg": "rgb(237, 234, 255)"
+        },
+        "plaque_title": {
+          "ratio": 15.914709402480087,
+          "fg": "rgb(24, 33, 59)",
+          "bg": "rgb(255, 255, 255)"
+        }
+      },
+      "overflow": false,
+      "shot_ready": true
+    },
+    "home_daybreak_quiet": {
+      "theme": "daybreak",
+      "intensity": "quiet",
+      "home_ready": true,
+      "rows": 1,
+      "harness_cards": 0,
+      "row_border": "rgb(99, 70, 223)",
+      "row_shadow": "rgb(99, 70, 223) 0px 0px 0px 1px, rgba(16, 24, 48, 0.05) 0px 1px 2px 0px, rgba(16, 24, 48, 0.05) 0px 8px 24px 0px",
+      "selected_border": "rgb(99, 70, 223)"
+    },
+    "normal_daybreak_quiet": {
+      "theme": "daybreak",
+      "intensity": "quiet",
+      "density": "comfortable",
+      "screen": "studio",
+      "focus": "off",
+      "hidden": "true",
+      "plaque": {
+        "background_image": "none",
+        "background_color": "rgb(255, 255, 255)",
+        "color": "rgb(24, 33, 59)",
+        "border_color": "rgb(220, 226, 239)",
+        "box_shadow": "none",
+        "border_left_width": "1px"
+      },
+      "plaque_identity": {
+        "background_image": "none",
+        "background_color": "rgba(0, 0, 0, 0)",
+        "color": "rgb(24, 33, 59)",
+        "border_color": "rgb(24, 33, 59)",
+        "box_shadow": "none",
+        "border_left_width": "0px"
+      },
+      "rail": {
+        "background_image": "none",
+        "background_color": "rgb(255, 255, 255)",
+        "color": "rgb(24, 33, 59)",
+        "border_color": "rgb(24, 33, 59) rgb(220, 226, 239) rgb(24, 33, 59) rgb(24, 33, 59)",
+        "box_shadow": "none",
+        "border_left_width": "0px"
+      },
+      "rail_current": {
+        "background_image": "none",
+        "background_color": "rgb(238, 241, 248)",
+        "color": "rgb(24, 33, 59)",
+        "border_color": "rgb(24, 33, 59)",
+        "box_shadow": "none",
+        "border_left_width": "0px"
+      },
+      "user_turn": {
+        "background_image": "none",
+        "background_color": "rgba(0, 0, 0, 0)",
+        "color": "rgb(24, 33, 59)",
+        "border_color": "rgb(24, 33, 59)",
+        "box_shadow": "none",
+        "border_left_width": "0px"
+      },
+      "agent_turn": {
+        "background_image": "none",
+        "background_color": "rgba(0, 0, 0, 0)",
+        "color": "rgb(24, 33, 59)",
+        "border_color": "rgb(24, 33, 59)",
+        "box_shadow": "none",
+        "border_left_width": "0px"
+      },
+      "tool_turn": {
+        "background_image": "none",
+        "background_color": "rgba(0, 0, 0, 0)",
+        "color": "rgb(24, 33, 59)",
+        "border_color": "rgb(24, 33, 59)",
+        "box_shadow": "none",
+        "border_left_width": "0px"
+      },
+      "focus_bar": null,
+      "card": null,
+      "mono": {
+        "background_image": "none",
+        "background_color": "rgb(99, 70, 223)",
+        "color": "rgb(255, 255, 255)",
+        "border_color": "rgb(255, 255, 255)",
+        "box_shadow": "none",
+        "border_left_width": "0px"
+      },
+      "running_animations": 0,
+      "live_dot": false,
+      "pending_cards": 2,
+      "pending_answerable": 3,
+      "contrast": {
+        "ink_on_surface": 15.914709402480087,
+        "ink_on_canvas": 14.99578425160238,
+        "muted_on_surface": 6.252408320347633
+      },
+      "painted": {
+        "user_turn": {
+          "ratio": 15.914709402480087,
+          "fg": "rgb(24, 33, 59)",
+          "bg": "rgb(255, 255, 255)"
+        },
+        "agent_turn": {
+          "ratio": 15.914709402480087,
+          "fg": "rgb(24, 33, 59)",
+          "bg": "rgb(255, 255, 255)"
+        },
+        "tool_turn": {
+          "ratio": 15.914709402480087,
+          "fg": "rgb(24, 33, 59)",
+          "bg": "rgb(255, 255, 255)"
+        },
+        "error_turn": {
+          "ratio": 15.914709402480087,
+          "fg": "rgb(24, 33, 59)",
+          "bg": "rgb(255, 255, 255)"
+        },
+        "rail_current": {
+          "ratio": 14.075430921298027,
+          "fg": "rgb(24, 33, 59)",
+          "bg": "rgb(238, 241, 248)"
+        },
+        "plaque_title": {
+          "ratio": 15.914709402480087,
+          "fg": "rgb(24, 33, 59)",
+          "bg": "rgb(255, 255, 255)"
+        }
+      },
+      "overflow": false,
+      "shot_ready": true
+    },
+    "home_afterglow_vivid": {
+      "theme": "afterglow",
+      "intensity": "vivid",
+      "home_ready": true,
+      "rows": 1,
+      "harness_cards": 0,
+      "row_border": "color(srgb 0.718118 0.469725 0.992549)",
+      "row_shadow": "color(srgb 0.71098 0.478235 0.991176) 0px 0px 0px 1px, rgba(193, 108, 255, 0.32) 0px 0px 24px -14px, rgba(16, 24, 48, 0.05) 0px 1px 2px 0px, rgba(16, 24, 48, 0.05) 0px 8px 24px 0px",
+      "selected_border": "color(srgb 0.718118 0.469725 0.992549)"
+    },
+    "normal_afterglow_vivid": {
+      "theme": "afterglow",
+      "intensity": "vivid",
+      "density": "comfortable",
+      "screen": "studio",
+      "focus": "off",
+      "hidden": null,
+      "plaque": {
+        "background_image": "linear-gradient(100deg, color(srgb 0.19702 0.160471 0.335608), color(srgb 0.142745 0.141961 0.304706) 58%, color(srgb 0.133176 0.210353 0.284392))",
+        "background_color": "rgba(0, 0, 0, 0)",
+        "color": "rgb(237, 235, 255)",
+        "border_color": "color(srgb 0.333647 0.265569 0.523137)",
+        "box_shadow": "rgba(16, 24, 48, 0.05) 0px 1px 2px 0px, rgba(16, 24, 48, 0.05) 0px 8px 24px 0px",
+        "border_left_width": "1px"
+      },
+      "plaque_identity": {
+        "background_image": "none",
+        "background_color": "rgb(27, 30, 58)",
+        "color": "rgb(237, 235, 255)",
+        "border_color": "rgb(237, 235, 255)",
+        "box_shadow": "none",
+        "border_left_width": "0px"
+      },
+      "rail": {
+        "background_image": "linear-gradient(color(srgb 0.17098 0.148235 0.304706), rgb(27, 30, 58) 220px)",
+        "background_color": "rgba(0, 0, 0, 0)",
+        "color": "rgb(237, 235, 255)",
+        "border_color": "rgb(237, 235, 255) color(srgb 0.344784 0.269726 0.535686) rgb(237, 235, 255) rgb(237, 235, 255)",
+        "box_shadow": "none",
+        "border_left_width": "0px"
+      },
+      "rail_current": {
+        "background_image": "none",
+        "background_color": "rgb(44, 42, 85)",
+        "color": "rgb(228, 222, 255)",
+        "border_color": "rgb(228, 222, 255)",
+        "box_shadow": "rgb(193, 108, 255) 2px 0px 0px 0px inset",
+        "border_left_width": "0px"
+      },
+      "user_turn": {
+        "background_image": "none",
+        "background_color": "color(srgb 0.142549 0.143529 0.285686)",
+        "color": "rgb(237, 235, 255)",
+        "border_color": "rgb(51, 55, 95) rgb(51, 55, 95) rgb(51, 55, 95) color(srgb 0.589804 0.361176 0.811765)",
+        "box_shadow": "none",
+        "border_left_width": "3px"
+      },
+      "agent_turn": {
+        "background_image": "none",
+        "background_color": "rgb(27, 30, 58)",
+        "color": "rgb(237, 235, 255)",
+        "border_color": "rgb(51, 55, 95) rgb(51, 55, 95) rgb(51, 55, 95) color(srgb 0.286667 0.654118 0.586667)",
+        "box_shadow": "none",
+        "border_left_width": "3px"
+      },
+      "tool_turn": {
+        "background_image": "none",
+        "background_color": "rgb(13, 15, 32)",
+        "color": "rgb(237, 235, 255)",
+        "border_color": "rgb(51, 55, 95)",
+        "box_shadow": "none",
+        "border_left_width": "1px"
+      },
+      "focus_bar": null,
+      "card": null,
+      "mono": {
+        "background_image": "none",
+        "background_color": "rgb(167, 139, 250)",
+        "color": "rgb(26, 18, 51)",
+        "border_color": "rgb(26, 18, 51)",
+        "box_shadow": "color(srgb 0.756863 0.423529 1 / 0.3) 0px 0px 0px 1px",
+        "border_left_width": "0px"
+      },
+      "running_animations": 0,
+      "live_dot": false,
+      "pending_cards": 2,
+      "pending_answerable": 3,
+      "contrast": {
+        "ink_on_surface": 13.861225072922373,
+        "ink_on_canvas": 15.46583713854852,
+        "muted_on_surface": 7.947851886420832
+      },
+      "painted": {
+        "user_turn": {
+          "ratio": 12.48616139971713,
+          "fg": "rgb(237, 235, 255)",
+          "bg": "rgb(36, 37, 73)"
+        },
+        "agent_turn": {
+          "ratio": 13.861225072922373,
+          "fg": "rgb(237, 235, 255)",
+          "bg": "rgb(27, 30, 58)"
+        },
+        "tool_turn": {
+          "ratio": 16.205590344689874,
+          "fg": "rgb(237, 235, 255)",
+          "bg": "rgb(13, 15, 32)"
+        },
+        "error_turn": {
+          "ratio": 12.94503614997178,
+          "fg": "rgb(237, 235, 255)",
+          "bg": "rgb(58, 29, 39)"
+        },
+        "rail_current": {
+          "ratio": 10.316510633003645,
+          "fg": "rgb(228, 222, 255)",
+          "bg": "rgb(44, 42, 85)"
+        },
+        "plaque_title": {
+          "ratio": 13.861225072922373,
+          "fg": "rgb(237, 235, 255)",
+          "bg": "rgb(27, 30, 58)"
+        }
+      },
+      "overflow": false,
+      "shot_ready": true
+    },
+    "focus_afterglow": {
+      "theme": "afterglow",
+      "intensity": "vivid",
+      "density": "comfortable",
+      "screen": "studio",
+      "focus": "on",
+      "hidden": null,
+      "plaque": {
+        "background_image": "linear-gradient(100deg, color(srgb 0.19702 0.160471 0.335608), color(srgb 0.142745 0.141961 0.304706) 58%, color(srgb 0.133176 0.210353 0.284392))",
+        "background_color": "rgba(0, 0, 0, 0)",
+        "color": "rgb(237, 235, 255)",
+        "border_color": "color(srgb 0.333647 0.265569 0.523137)",
+        "box_shadow": "rgba(16, 24, 48, 0.05) 0px 1px 2px 0px, rgba(16, 24, 48, 0.05) 0px 8px 24px 0px",
+        "border_left_width": "1px"
+      },
+      "plaque_identity": {
+        "background_image": "none",
+        "background_color": "rgb(27, 30, 58)",
+        "color": "rgb(237, 235, 255)",
+        "border_color": "rgb(237, 235, 255)",
+        "box_shadow": "none",
+        "border_left_width": "0px"
+      },
+      "rail": {
+        "background_image": "linear-gradient(color(srgb 0.17098 0.148235 0.304706), rgb(27, 30, 58) 220px)",
+        "background_color": "rgba(0, 0, 0, 0)",
+        "color": "rgb(237, 235, 255)",
+        "border_color": "rgb(237, 235, 255) color(srgb 0.344784 0.269726 0.535686) rgb(237, 235, 255) rgb(237, 235, 255)",
+        "box_shadow": "none",
+        "border_left_width": "0px"
+      },
+      "rail_current": {
+        "background_image": "none",
+        "background_color": "rgb(44, 42, 85)",
+        "color": "rgb(228, 222, 255)",
+        "border_color": "rgb(228, 222, 255)",
+        "box_shadow": "rgb(193, 108, 255) 2px 0px 0px 0px inset",
+        "border_left_width": "0px"
+      },
+      "user_turn": {
+        "background_image": "none",
+        "background_color": "color(srgb 0.142549 0.143529 0.285686)",
+        "color": "rgb(237, 235, 255)",
+        "border_color": "rgb(51, 55, 95) rgb(51, 55, 95) rgb(51, 55, 95) color(srgb 0.589804 0.361176 0.811765)",
+        "box_shadow": "none",
+        "border_left_width": "3px"
+      },
+      "agent_turn": {
+        "background_image": "none",
+        "background_color": "rgb(27, 30, 58)",
+        "color": "rgb(237, 235, 255)",
+        "border_color": "rgb(51, 55, 95) rgb(51, 55, 95) rgb(51, 55, 95) color(srgb 0.286667 0.654118 0.586667)",
+        "box_shadow": "none",
+        "border_left_width": "3px"
+      },
+      "tool_turn": {
+        "background_image": "none",
+        "background_color": "rgb(13, 15, 32)",
+        "color": "rgb(237, 235, 255)",
+        "border_color": "rgb(51, 55, 95)",
+        "box_shadow": "none",
+        "border_left_width": "1px"
+      },
+      "focus_bar": {
+        "background_image": "linear-gradient(color(srgb 0.184 0.154353 0.320157), rgb(27, 30, 58))",
+        "background_color": "rgba(0, 0, 0, 0)",
+        "color": "rgb(237, 235, 255)",
+        "border_color": "rgb(51, 55, 95) rgb(51, 55, 95) color(srgb 0.355922 0.273882 0.548235)",
+        "box_shadow": "rgba(16, 24, 48, 0.05) 0px 1px 2px 0px, rgba(16, 24, 48, 0.05) 0px 8px 24px 0px",
+        "border_left_width": "1px"
+      },
+      "card": null,
+      "mono": {
+        "background_image": "none",
+        "background_color": "rgb(167, 139, 250)",
+        "color": "rgb(26, 18, 51)",
+        "border_color": "rgb(26, 18, 51)",
+        "box_shadow": "color(srgb 0.756863 0.423529 1 / 0.3) 0px 0px 0px 1px",
+        "border_left_width": "0px"
+      },
+      "running_animations": 0,
+      "live_dot": false,
+      "pending_cards": 2,
+      "pending_answerable": 3,
+      "contrast": {
+        "ink_on_surface": 13.861225072922373,
+        "ink_on_canvas": 15.46583713854852,
+        "muted_on_surface": 7.947851886420832
+      },
+      "painted": {
+        "user_turn": {
+          "ratio": 12.48616139971713,
+          "fg": "rgb(237, 235, 255)",
+          "bg": "rgb(36, 37, 73)"
+        },
+        "agent_turn": {
+          "ratio": 13.861225072922373,
+          "fg": "rgb(237, 235, 255)",
+          "bg": "rgb(27, 30, 58)"
+        },
+        "tool_turn": {
+          "ratio": 16.205590344689874,
+          "fg": "rgb(237, 235, 255)",
+          "bg": "rgb(13, 15, 32)"
+        },
+        "error_turn": {
+          "ratio": 12.94503614997178,
+          "fg": "rgb(237, 235, 255)",
+          "bg": "rgb(58, 29, 39)"
+        },
+        "rail_current": {
+          "ratio": 10.316510633003645,
+          "fg": "rgb(228, 222, 255)",
+          "bg": "rgb(44, 42, 85)"
+        },
+        "plaque_title": {
+          "ratio": 13.861225072922373,
+          "fg": "rgb(237, 235, 255)",
+          "bg": "rgb(27, 30, 58)"
+        }
+      },
+      "overflow": false,
+      "shot_ready": true
+    },
+    "home_afterglow_quiet": {
+      "theme": "afterglow",
+      "intensity": "quiet",
+      "home_ready": true,
+      "rows": 1,
+      "harness_cards": 0,
+      "row_border": "rgb(167, 139, 250)",
+      "row_shadow": "rgb(167, 139, 250) 0px 0px 0px 1px, rgba(16, 24, 48, 0.05) 0px 1px 2px 0px, rgba(16, 24, 48, 0.05) 0px 8px 24px 0px",
+      "selected_border": "rgb(167, 139, 250)"
+    },
+    "normal_afterglow_quiet": {
+      "theme": "afterglow",
+      "intensity": "quiet",
+      "density": "comfortable",
+      "screen": "studio",
+      "focus": "off",
+      "hidden": null,
+      "plaque": {
+        "background_image": "none",
+        "background_color": "rgb(27, 30, 58)",
+        "color": "rgb(237, 235, 255)",
+        "border_color": "rgb(51, 55, 95)",
+        "box_shadow": "none",
+        "border_left_width": "1px"
+      },
+      "plaque_identity": {
+        "background_image": "none",
+        "background_color": "rgba(0, 0, 0, 0)",
+        "color": "rgb(237, 235, 255)",
+        "border_color": "rgb(237, 235, 255)",
+        "box_shadow": "none",
+        "border_left_width": "0px"
+      },
+      "rail": {
+        "background_image": "none",
+        "background_color": "rgb(27, 30, 58)",
+        "color": "rgb(237, 235, 255)",
+        "border_color": "rgb(237, 235, 255) rgb(51, 55, 95) rgb(237, 235, 255) rgb(237, 235, 255)",
+        "box_shadow": "none",
+        "border_left_width": "0px"
+      },
+      "rail_current": {
+        "background_image": "none",
+        "background_color": "rgb(13, 15, 32)",
+        "color": "rgb(237, 235, 255)",
+        "border_color": "rgb(237, 235, 255)",
+        "box_shadow": "none",
+        "border_left_width": "0px"
+      },
+      "user_turn": {
+        "background_image": "none",
+        "background_color": "rgba(0, 0, 0, 0)",
+        "color": "rgb(237, 235, 255)",
+        "border_color": "rgb(237, 235, 255)",
+        "box_shadow": "none",
+        "border_left_width": "0px"
+      },
+      "agent_turn": {
+        "background_image": "none",
+        "background_color": "rgba(0, 0, 0, 0)",
+        "color": "rgb(237, 235, 255)",
+        "border_color": "rgb(237, 235, 255)",
+        "box_shadow": "none",
+        "border_left_width": "0px"
+      },
+      "tool_turn": {
+        "background_image": "none",
+        "background_color": "rgba(0, 0, 0, 0)",
+        "color": "rgb(237, 235, 255)",
+        "border_color": "rgb(237, 235, 255)",
+        "box_shadow": "none",
+        "border_left_width": "0px"
+      },
+      "focus_bar": null,
+      "card": null,
+      "mono": {
+        "background_image": "none",
+        "background_color": "rgb(167, 139, 250)",
+        "color": "rgb(26, 18, 51)",
+        "border_color": "rgb(26, 18, 51)",
+        "box_shadow": "none",
+        "border_left_width": "0px"
+      },
+      "running_animations": 0,
+      "live_dot": false,
+      "pending_cards": 2,
+      "pending_answerable": 3,
+      "contrast": {
+        "ink_on_surface": 13.861225072922373,
+        "ink_on_canvas": 15.46583713854852,
+        "muted_on_surface": 7.947851886420832
+      },
+      "painted": {
+        "user_turn": {
+          "ratio": 13.861225072922373,
+          "fg": "rgb(237, 235, 255)",
+          "bg": "rgb(27, 30, 58)"
+        },
+        "agent_turn": {
+          "ratio": 13.861225072922373,
+          "fg": "rgb(237, 235, 255)",
+          "bg": "rgb(27, 30, 58)"
+        },
+        "tool_turn": {
+          "ratio": 13.861225072922373,
+          "fg": "rgb(237, 235, 255)",
+          "bg": "rgb(27, 30, 58)"
+        },
+        "error_turn": {
+          "ratio": 13.861225072922373,
+          "fg": "rgb(237, 235, 255)",
+          "bg": "rgb(27, 30, 58)"
+        },
+        "rail_current": {
+          "ratio": 16.205590344689874,
+          "fg": "rgb(237, 235, 255)",
+          "bg": "rgb(13, 15, 32)"
+        },
+        "plaque_title": {
+          "ratio": 13.861225072922373,
+          "fg": "rgb(237, 235, 255)",
+          "bg": "rgb(27, 30, 58)"
+        }
+      },
+      "overflow": false,
+      "shot_ready": true
+    },
+    "painted_failures": [],
+    "contrast": {
+      "daybreak_vivid": {
+        "ink_on_surface": 15.914709402480087,
+        "ink_on_canvas": 14.99578425160238,
+        "muted_on_surface": 6.252408320347633
+      },
+      "daybreak_quiet": {
+        "ink_on_surface": 15.914709402480087,
+        "ink_on_canvas": 14.99578425160238,
+        "muted_on_surface": 6.252408320347633
+      },
+      "afterglow_vivid": {
+        "ink_on_surface": 13.861225072922373,
+        "ink_on_canvas": 15.46583713854852,
+        "muted_on_surface": 7.947851886420832
+      },
+      "afterglow_quiet": {
+        "ink_on_surface": 13.861225072922373,
+        "ink_on_canvas": 15.46583713854852,
+        "muted_on_surface": 7.947851886420832
+      }
+    },
+    "timeline_states": {
+      "tool_text": "tool callcompleted02:00 AMrg -n \"readProjectEvents\" src/main src/renderer | head -40Copy commandOpen Changes",
+      "tool_font": "-apple-system, \"system-ui\", \"SF Pro Text\", \"Helvetica Neue\", Arial, sans-serif",
+      "user_bg": "color(srgb 0.961176 0.954706 1)",
+      "agent_bg": "rgb(255, 255, 255)",
+      "tool_bg": "rgb(238, 241, 248)",
+      "error_present": true
+    },
+    "capture_digests": {
+      "r06-daybreak-vivid-home.png": "5667cb524fa65709096bace2f1d3973494e9aef865a11bad3014c88aec92d1cc",
+      "r06-daybreak-vivid-studio.png": "5b6f6916139df8299eddc336d7eb4b20ab8279a1aab30be46f7a2d863b55879c",
+      "r06-daybreak-vivid-focus.png": "1930283e4814fdb35fd72dba0aba8e1bf705cf6d918720e130ba89ae0f30074d",
+      "r06-daybreak-quiet-home.png": "21db6dec6423ae206dded96e23e4f33ecbf8b5880d66ab03e929951ecb1dd20a",
+      "r06-daybreak-quiet-studio.png": "1130fc70604af161704cc9e5129b9da21c25245e7e50a2e25813f98f3db1de8f",
+      "r06-afterglow-vivid-home.png": "4b1c2c6d8881d02945d4cb4153ada26ab2637ba249bdae406a5d9b144b77826a",
+      "r06-afterglow-vivid-studio.png": "96dd581fee7a1c2656d66610ec7527287732ebeb49c2822a7f850b4eb4368f27",
+      "r06-afterglow-vivid-focus.png": "c9a842e9c660892f1cf3a21978204059d2e7b357830e3bbbd0708e98150cfacb",
+      "r06-afterglow-quiet-home.png": "b7f3288162df8ae2e52ade20036c923e53b575bc13de40543173653366713755",
+      "r06-afterglow-quiet-studio.png": "378486b4fb2571842127613ecf85ef61297119879dde4051875692b6db209c98",
+      "r06-daybreak-vivid-timeline.png": "c4bc73476cb85d2fba5a1a197809c97887cef67ba2840c471f519db3c61173cb"
+    },
+    "zoom_200": {
+      "theme": "daybreak",
+      "intensity": "vivid",
+      "density": "comfortable",
+      "screen": "studio",
+      "focus": "off",
+      "hidden": null,
+      "plaque": {
+        "background_image": "linear-gradient(100deg, color(srgb 0.926431 0.91051 1), color(srgb 0.975686 0.942353 1) 58%, color(srgb 0.906353 0.977412 0.989176))",
+        "background_color": "rgba(0, 0, 0, 0)",
+        "color": "rgb(24, 33, 59)",
+        "border_color": "color(srgb 0.769569 0.760157 0.952314)",
+        "box_shadow": "rgba(16, 24, 48, 0.05) 0px 1px 2px 0px, rgba(16, 24, 48, 0.05) 0px 8px 24px 0px",
+        "border_left_width": "1px"
+      },
+      "plaque_identity": {
+        "background_image": "none",
+        "background_color": "rgb(255, 255, 255)",
+        "color": "rgb(24, 33, 59)",
+        "border_color": "rgb(24, 33, 59)",
+        "box_shadow": "none",
+        "border_left_width": "0px"
+      },
+      "rail": {
+        "background_image": "linear-gradient(color(srgb 0.947451 0.936078 1), rgb(255, 255, 255) 220px)",
+        "background_color": "rgba(0, 0, 0, 0)",
+        "color": "rgb(24, 33, 59)",
+        "border_color": "rgb(24, 33, 59) color(srgb 0.761804 0.749647 0.953569) rgb(220, 226, 239) rgb(24, 33, 59)",
+        "box_shadow": "none",
+        "border_left_width": "0px"
+      },
+      "rail_current": {
+        "background_image": "none",
+        "background_color": "rgb(237, 234, 255)",
+        "color": "rgb(58, 42, 158)",
+        "border_color": "rgb(58, 42, 158)",
+        "box_shadow": "rgb(121, 92, 255) 2px 0px 0px 0px inset",
+        "border_left_width": "0px"
+      },
+      "user_turn": {
+        "background_image": "none",
+        "background_color": "color(srgb 0.961176 0.954706 1)",
+        "color": "rgb(24, 33, 59)",
+        "border_color": "rgb(220, 226, 239) rgb(220, 226, 239) rgb(220, 226, 239) color(srgb 0.59098 0.518431 0.981176)",
+        "box_shadow": "none",
+        "border_left_width": "3px"
+      },
+      "agent_turn": {
+        "background_image": "none",
+        "background_color": "rgb(255, 255, 255)",
+        "color": "rgb(24, 33, 59)",
+        "border_color": "rgb(220, 226, 239) rgb(220, 226, 239) rgb(220, 226, 239) color(srgb 0.444706 0.837843 0.919412)",
+        "box_shadow": "none",
+        "border_left_width": "3px"
+      },
+      "tool_turn": {
+        "background_image": "none",
+        "background_color": "rgb(238, 241, 248)",
+        "color": "rgb(24, 33, 59)",
+        "border_color": "rgb(220, 226, 239)",
+        "box_shadow": "none",
+        "border_left_width": "1px"
+      },
+      "focus_bar": null,
+      "card": null,
+      "mono": {
+        "background_image": "none",
+        "background_color": "rgb(99, 70, 223)",
+        "color": "rgb(255, 255, 255)",
+        "border_color": "rgb(255, 255, 255)",
+        "box_shadow": "color(srgb 0.47451 0.360784 1 / 0.3) 0px 0px 0px 1px",
+        "border_left_width": "0px"
+      },
+      "running_animations": 0,
+      "live_dot": false,
+      "pending_cards": 2,
+      "pending_answerable": 3,
+      "contrast": {
+        "ink_on_surface": 15.914709402480087,
+        "ink_on_canvas": 14.99578425160238,
+        "muted_on_surface": 6.252408320347633
+      },
+      "painted": {
+        "user_turn": {
+          "ratio": 14.510222882438097,
+          "fg": "rgb(24, 33, 59)",
+          "bg": "rgb(245, 243, 255)"
+        },
+        "agent_turn": {
+          "ratio": 15.914709402480087,
+          "fg": "rgb(24, 33, 59)",
+          "bg": "rgb(255, 255, 255)"
+        },
+        "tool_turn": {
+          "ratio": 14.075430921298027,
+          "fg": "rgb(24, 33, 59)",
+          "bg": "rgb(238, 241, 248)"
+        },
+        "error_turn": {
+          "ratio": 13.560060123450807,
+          "fg": "rgb(24, 33, 59)",
+          "bg": "rgb(252, 232, 236)"
+        },
+        "rail_current": {
+          "ratio": 8.885609451442406,
+          "fg": "rgb(58, 42, 158)",
+          "bg": "rgb(237, 234, 255)"
+        },
+        "plaque_title": {
+          "ratio": 15.914709402480087,
+          "fg": "rgb(24, 33, 59)",
+          "bg": "rgb(255, 255, 255)"
+        }
+      },
+      "overflow": false,
+      "shot_ready": true
+    }
+  },
+  "screenshots": [
+    "r06-daybreak-vivid-home.png",
+    "r06-daybreak-vivid-studio.png",
+    "r06-daybreak-vivid-focus.png",
+    "r06-daybreak-quiet-home.png",
+    "r06-daybreak-quiet-studio.png",
+    "r06-afterglow-vivid-home.png",
+    "r06-afterglow-vivid-studio.png",
+    "r06-afterglow-vivid-focus.png",
+    "r06-afterglow-quiet-home.png",
+    "r06-afterglow-quiet-studio.png",
+    "r06-daybreak-vivid-timeline.png",
+    "r06-daybreak-vivid-200.png"
+  ],
+  "project": "prj_eda9ad61b866b54c",
+  "electron": {
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+}

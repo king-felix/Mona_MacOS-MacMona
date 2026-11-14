@@ -3,6 +3,7 @@ import type {
   HistoryCursor,
   HistoryItemPage,
   HistoryPage,
+  HistorySearchResult,
   IpcResult,
   OpenProjectResult,
   ProjectDetail,
@@ -75,9 +76,20 @@ import type {
   TaskSelection,
   TaskView,
 } from "./board";
+/** R10 clipboard acknowledgement. */
+export interface ClipboardReceipt {
+  written: boolean;
+  label: "message" | "code" | "prompt";
+  characters: number;
+  note: string;
+}
+
 import type {
+  PendingResponseInput,
+  StudioFilePreview,
   StudioActionResult,
   StudioMode,
+  StudioPendingResult,
   StudioPush,
   StudioReconcileResult,
   StudioSnapshot,
@@ -203,6 +215,26 @@ export interface MonaBridge {
   serviceStatus(): Promise<ServiceStatus>;
   refreshService(): Promise<ServiceStatus>;
   openServiceSettings(): Promise<IpcResult<{ opened: boolean }>>;
+  /**
+   * R10. Write text to the system clipboard. `written` is read back from the
+   * clipboard itself, so a caller may only report success when it is true.
+   */
+  /**
+   * R10. Read one workspace-relative file through the engine's contained route.
+   * The result states availability, size and a labelled token estimate; nothing
+   * is inserted until the user asks.
+   */
+  previewWorkspaceFile(projectId: ProjectId, path: string): Promise<IpcResult<StudioFilePreview>>;
+  /** R10 conversation search over stored events. Reads only; never inference. */
+  searchHistory(
+    projectId: ProjectId,
+    query: string,
+    options?: { limit?: number; threadId?: string | null },
+  ): Promise<IpcResult<HistorySearchResult>>;
+  copyToClipboard(
+    text: string,
+    label: "message" | "code" | "prompt",
+  ): Promise<IpcResult<ClipboardReceipt>>;
   /** Every external open attempt, accepted or refused, for honest reporting. */
   onOpenResult(callback: (result: OpenResult) => void): () => void;
 
@@ -220,6 +252,16 @@ export interface MonaBridge {
   cancelQueued(projectId: ProjectId): Promise<IpcResult<StudioActionResult>>;
   reconcileSubmission(projectId: ProjectId): Promise<IpcResult<StudioReconcileResult>>;
   stopStudio(projectId: ProjectId): Promise<IpcResult<StudioActionResult>>;
+  /**
+   * R07. Answer one engine approval or question. `requestId` is Mona's own row;
+   * the engine's single-use capability never reaches the renderer. The result
+   * reports the Runtime's acknowledgement — not that a click happened.
+   */
+  answerPendingRequest(
+    projectId: ProjectId,
+    requestId: string,
+    response: PendingResponseInput,
+  ): Promise<IpcResult<StudioPendingResult>>;
   /** Live connection, event, submission, and control updates from main. */
   onStudioChanged(callback: (push: StudioPush) => void): () => void;
 

@@ -97,3 +97,46 @@ describe("interface scale control", () => {
     expect(buttons[0]?.disabled).toBe(false);
   });
 });
+
+describe("R06 decoration intensity", () => {
+  it("offers Vivid and Quiet and reports the chosen one", () => {
+    const chosen: string[] = [];
+    act(() => {
+      root?.render(
+        <SettingsScreen
+          app={null}
+          paths={null}
+          facts={null}
+          runtime={null}
+          detail={null}
+          tools={[]}
+          theme="daybreak"
+          density="comfortable"
+          intensity="quiet"
+          zoom={null}
+          onTheme={() => undefined}
+          onDensity={() => undefined}
+          onIntensity={(value) => chosen.push(value)}
+          onZoom={() => undefined}
+          polish={null}
+          onPatchPreferences={() => undefined}
+          onTestNotification={() => undefined}
+          onQuit={() => undefined}
+          onOpenStudio={() => undefined}
+          openTab="appearance"
+        />,
+      );
+    });
+    const pressed = Array.from(container?.querySelectorAll('[aria-pressed="true"]') ?? []).map(
+      (node) => (node.textContent ?? "").trim(),
+    );
+    expect(pressed).toContain("Quiet");
+    const vivid = Array.from(container?.querySelectorAll("button") ?? []).find(
+      (node) => (node.textContent ?? "").trim() === "Vivid",
+    );
+    act(() => vivid?.click());
+    expect(chosen).toEqual(["vivid"]);
+    // The hint must not promise a different design or lower contrast.
+    expect(container?.textContent).toContain("same measured text colours");
+  });
+});

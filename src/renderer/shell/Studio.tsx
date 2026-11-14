@@ -7,6 +7,8 @@ import type {
 import type { StudioMode, StudioSnapshot } from "../../shared/contracts/studio";
 import type { WindowFullscreenView } from "../../shared/contracts/bridge";
 import type { CommandCatalogEntry, CommandCatalogSnapshot } from "../../shared/contracts/commands";
+import type { HistorySearchHit } from "../../shared/contracts/project-bridge";
+import type { PendingRequestView, PendingResponseInput } from "../../shared/contracts/studio";
 import type { PromptFavorite } from "../../shared/contracts/polish";
 import {
   Badge,
@@ -111,6 +113,36 @@ export interface StudioProps {
   onCancelQueued: () => void;
   onStop: () => void;
   onReconcile: () => void;
+  /**
+   * R07. Answer one engine approval or question. The reply is acknowledged by
+   * the Runtime, so the card only says "sent" after `acknowledged`.
+   */
+  onAnswerPending?: (requestId: string, response: PendingResponseInput) => void;
+  /** The request whose answer is in flight, if any. */
+  pendingAnswerId?: string | null;
+  /**
+   * R10. Copy exact text to the clipboard. The shell owns the IPC and reports
+   * only what the clipboard acknowledged, so this component never claims a copy.
+   */
+  onCopy?: (text: string, label: "message" | "code" | "prompt") => void;
+  /** Local conversation search over stored events, anchored to cards. */
+  search?: StudioSearchProps | null;
+  /** Open the project's scoped Changes view. */
+  onShowChanges?: () => void;
+  /** Open the composer's file-mention picker (a verified read, not an upload). */
+  onMentionFile?: () => void;
+}
+
+export interface StudioSearchProps {
+  query: string;
+  hits: HistorySearchHit[];
+  busy: boolean;
+  error: string | null;
+  /** The hit being navigated to, so the matched card can be marked. */
+  anchor: { itemId: string | null; seq: number } | null;
+  onQuery: (query: string) => void;
+  onJump: (hit: HistorySearchHit) => void;
+  onClear: () => void;
 }
 
 const LONG_BODY = 4_000;
@@ -120,6 +152,26 @@ function threadLabel(thread: ThreadSummary, currentThreadId: string | null | und
   // "Current" is the thread this Studio is bound to; everything else is
   // archived conversation and is labelled as such instead of looking live.
   return `${title} · ${thread.id === currentThreadId ? "current" : "archived"}`;
+}
+
+/**
+ * The one place a status dot gains the `live` modifier.
+ *
+ * Vivid decoration may pulse that modifier, so it must mean exactly one thing:
+ * the engine reports a running turn right now. A disconnected or stopped agent
+ * keeps its plain dot and looks static no matter which intensity is on.
+ */
+function statusDotClass(
+  tone: "neutral" | "success" | "attention" | "danger",
+  live: boolean,
+): string {
+  const variant =
+    tone === "success"
+      ? "status-dot--success"
+      : tone === "danger"
+        ? "status-dot--danger"
+        : "status-dot--attention";
+  return `status-dot ${variant}${live ? " status-dot--live" : ""}`;
 }
 
 function connectionLabel(studio: StudioSnapshot | null, detail: ProjectDetail): string {
@@ -159,20 +211,277 @@ function connectionTone(
   return "neutral";
 }
 
+/**
+ * One engine ask, answered in place.
+ *
+ * The card shows exactly what the engine asked — the tool and the arguments it
+ * captured, or the question and its options — plus the permission posture the
+ * turn is running under. Approving here changes no posture: "Allow once" answers
+ * this one call, and the session grant is a separate, explicit checkbox.
+ *
+ * Nothing claims delivery before the Runtime acknowledges it: an approval the
+ * engine no longer holds renders as expired with its note, and a failed send
+ * leaves the card answerable only after the engine's own list says so.
+ */
+function PendingRequestCard({
+  request,
+  busy,
+  posture,
+  onAnswer,
+  onRecheck,
+}: {
+  request: PendingRequestView;
+  busy: boolean;
+  posture: string;
+  onAnswer?: (requestId: string, response: PendingResponseInput) => void;
+  /** Re-read the engine's own pending list after an unconfirmed delivery. */
+  onRecheck?: () => void;
+}): JSX.Element {
+  const [remember, setRemember] = useState(false);
+  const [choices, setChoices] = useState<Record<string, string[]>>({});
+  const [freeText, setFreeText] = useState<Record<string, string>>({});
+  const [showInput, setShowInput] = useState(false);
+  const open = request.status === "pending" || request.status === "sending";
+  const answers = request.questions.flatMap((question) => {
+    const selected = choices[question.id] ?? [];
+    const other = (freeText[question.id] ?? "").trim();
+    return [
+      ...selected.map((label) => ({ questionId: question.id, label, value: label })),
+      ...(other ? [{ questionId: question.id, label: "Other", value: other }] : []),
+    ];
+  });
+  const complete =
+    request.questions.length > 0 &&
+    request.questions.every((question) => {
+      const count =
+        (choices[question.id] ?? []).length + ((freeText[question.id] ?? "").trim() ? 1 : 0);
+      return question.malformed ? false : question.multiSelect ? count > 0 : count === 1;
+    });
+  const toggle = (questionId: string, label: string, multi: boolean): void => {
+    setChoices((current) => {
+      const selected = current[questionId] ?? [];
+      const next = multi
+        ? selected.includes(label)
+          ? selected.filter((entry) => entry !== label)
+          : [...selected, label]
+        : [label];
+      return { ...current, [questionId]: next };
+    });
+  };
+  const statusLabel: Record<PendingRequestView["status"], string> = {
+    pending: "Waiting for you",
+    sending: "Sending…",
+    answered: "Answered",
+    expired: "Expired",
+    cancelled: "Cancelled",
+    unknown: "Delivery unknown",
+  };
+  return (
+    <li
+      className={`pending-request pending-request--${request.kind} pending-request--${request.status}`}
+      data-testid={`pending-request-${request.kind}`}
+      data-status={request.status}
+    >
+      <div className="pending-request__head">
+        <span className="pending-request__eyebrow">
+          {request.kind === "approval" ? "Approval requested" : "Input required"}
+          {request.toolName ? ` · ${request.toolName}` : ""}
+        </span>
+        <Badge
+          tone={
+            request.status === "answered"
+              ? "success"
+              : open
+                ? "attention"
+                : request.status === "expired" || request.status === "cancelled"
+                  ? "neutral"
+                  : "danger"
+          }
+        >
+          {statusLabel[request.status]}
+        </Badge>
+      </div>
+      <p className="pending-request__title">{request.title}</p>
+      <p className="hint-line">
+        Permission posture {posture}
+        {request.turnId ? ` · turn ${request.turnId}` : ""}
+        {request.decidedBy ? ` · decided by ${request.decidedBy}` : ""}
+      </p>
+      {request.input !== null && request.input !== undefined ? (
+        <>
+          <button
+            type="button"
+            className="pending-request__disclosure"
+            aria-expanded={showInput}
+            onClick={() => setShowInput((value) => !value)}
+          >
+            {showInput ? "Hide the captured arguments" : "Show the captured arguments"}
+          </button>
+          {showInput ? (
+            <pre className="pending-request__input mono">
+              {typeof request.input === "string"
+                ? request.input
+                : JSON.stringify(request.input, null, 2)}
+            </pre>
+          ) : null}
+        </>
+      ) : null}
+
+      {request.kind === "user_input" && open ? (
+        <div className="pending-request__questions">
+          {request.questions.map((question) => (
+            <fieldset className="pending-request__question" key={question.id}>
+              <legend>{question.header ?? question.question}</legend>
+              {question.header ? <p className="hint-line">{question.question}</p> : null}
+              {question.options.map((option) => (
+                <label className="pending-request__option" key={option.label}>
+                  <input
+                    type={question.multiSelect ? "checkbox" : "radio"}
+                    name={`${request.id}-${question.id}`}
+                    checked={(choices[question.id] ?? []).includes(option.label)}
+                    disabled={!request.canAnswer || busy}
+                    onChange={() => toggle(question.id, option.label, question.multiSelect)}
+                  />
+                  <span className="pending-request__option-text">
+                    {option.label}
+                    {option.description ? (
+                      <small className="pending-request__option-hint">{option.description}</small>
+                    ) : null}
+                  </span>
+                </label>
+              ))}
+              {/* The engine validates a label against the options it offered, so
+                  free text is only answerable for a question that offered none.
+                  Showing the field otherwise would let the user type an answer
+                  Mona cannot submit. */}
+              {question.options.length === 0 ? (
+                <label className="pending-request__option pending-request__option--free">
+                  <span>Your answer</span>
+                  <input
+                    type="text"
+                    aria-label={`${question.header ?? question.question} answer`}
+                    value={freeText[question.id] ?? ""}
+                    disabled={!request.canAnswer || busy}
+                    onChange={(event) =>
+                      setFreeText((current) => ({
+                        ...current,
+                        [question.id]: event.target.value,
+                      }))
+                    }
+                  />
+                </label>
+              ) : null}
+              {question.malformed ? (
+                <p className="hint-line pending-request__malformed">
+                  This question has no answerable identity, so Mona will not guess one.
+                </p>
+              ) : null}
+            </fieldset>
+          ))}
+        </div>
+      ) : null}
+
+      {open ? (
+        <div className="pending-request__actions">
+          {request.kind === "approval" ? (
+            <>
+              <Button
+                size="sm"
+                variant="primary"
+                disabled={!request.canAnswer || busy || !request.decisions.includes("allow")}
+                onClick={() =>
+                  onAnswer?.(request.id, { kind: "approval", decision: "allow", remember })
+                }
+                data-testid="pending-approve"
+              >
+                Allow once
+              </Button>
+              <Button
+                size="sm"
+                variant="danger"
+                disabled={!request.canAnswer || busy || !request.decisions.includes("deny")}
+                onClick={() =>
+                  onAnswer?.(request.id, { kind: "approval", decision: "deny", remember: false })
+                }
+                data-testid="pending-deny"
+              >
+                Deny
+              </Button>
+              <label className="pending-request__remember">
+                <input
+                  type="checkbox"
+                  checked={remember}
+                  disabled={!request.canAnswer || busy}
+                  onChange={(event) => setRemember(event.target.checked)}
+                />
+                <span>
+                  Remember this class for the session (a grant never changes the permission posture)
+                </span>
+              </label>
+            </>
+          ) : (
+            <Button
+              size="sm"
+              variant="primary"
+              disabled={!request.canAnswer || busy || !complete}
+              onClick={() => onAnswer?.(request.id, { kind: "user_input", answers })}
+              title={complete ? "Send these answers to the engine" : "Answer every question first"}
+              data-testid="pending-submit"
+            >
+              Send answers
+            </Button>
+          )}
+          {busy ? <span className="hint-line">Waiting for the engine to acknowledge…</span> : null}
+        </div>
+      ) : null}
+      {!request.canAnswer && request.cannotAnswerReason && open ? (
+        <p className="hint-line">{request.cannotAnswerReason}</p>
+      ) : null}
+      {request.status === "unknown" && onRecheck ? (
+        <div className="pending-request__actions">
+          <Button size="sm" variant="secondary" onClick={onRecheck} data-testid="pending-recheck">
+            Read the engine's list again
+          </Button>
+        </div>
+      ) : null}
+      {request.acknowledgement ? (
+        <p className="hint-line" data-testid="pending-acknowledgement">
+          {request.acknowledgement}
+        </p>
+      ) : null}
+      {request.note ? <p className="hint-line">{request.note}</p> : null}
+    </li>
+  );
+}
+
 function TimelineCard({
   entry,
   truncated,
   onLoadItem,
+  onCopy,
+  onShowChanges,
+  anchored,
 }: {
   entry: TimelineEntry;
   truncated?: { returned: number; stored: number } | null;
   onLoadItem?: (threadId: string, itemId: string) => void;
+  onCopy?: (text: string, label: "message" | "code" | "prompt") => void;
+  onShowChanges?: () => void;
+  /** True when this card is the result the reader jumped to. */
+  anchored?: boolean;
 }): JSX.Element {
   const [expanded, setExpanded] = useState(false);
   const tooLong = entry.body.length > LONG_BODY;
   const body = tooLong && !expanded ? `${entry.body.slice(0, LONG_BODY)}\n…` : entry.body;
   return (
-    <li className={`timeline-event timeline-event--${entry.kind}`}>
+    <li
+      className={`timeline-event timeline-event--${entry.kind}${
+        anchored ? " timeline-event--anchored" : ""
+      }`}
+      data-item-id={entry.itemId ?? undefined}
+      data-seq={entry.seq}
+      data-anchored={anchored ? "true" : undefined}
+    >
       <span className="timeline-event__rail" aria-hidden="true">
         <span className="timeline-event__icon">
           {entry.kind === "tool" ? (
@@ -206,7 +515,10 @@ function TimelineCard({
         {body ? (
           entry.kind === "assistant" || entry.kind === "user" ? (
             <div className="timeline-event__prose">
-              <Markdown text={body} />
+              <Markdown
+                text={body}
+                onCopyCode={onCopy ? (source) => onCopy(source, "code") : undefined}
+              />
             </div>
           ) : (
             <pre className="timeline-event__output">{body}</pre>
@@ -241,11 +553,35 @@ function TimelineCard({
             Showing {truncated.returned} of {truncated.stored} stored frames for this message.
           </span>
         ) : null}
-        {tooLong ? (
-          <Button size="sm" variant="ghost" onClick={() => setExpanded(!expanded)}>
-            {expanded ? "Collapse long output" : `Show full output (${entry.body.length} chars)`}
-          </Button>
-        ) : null}
+        <div className="timeline-event__actions">
+          {tooLong ? (
+            <Button size="sm" variant="ghost" onClick={() => setExpanded(!expanded)}>
+              {expanded ? "Collapse long output" : `Show full output (${entry.body.length} chars)`}
+            </Button>
+          ) : null}
+          {onCopy && entry.body.length > 0 ? (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => onCopy(entry.body, entry.kind === "tool" ? "code" : "message")}
+              title="Copy this card's exact text. Success is reported only after the clipboard holds it."
+              data-testid="copy-message"
+            >
+              {entry.kind === "tool" ? "Copy command" : "Copy"}
+            </Button>
+          ) : null}
+          {onShowChanges && (entry.kind === "tool" || entry.kind === "error") ? (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={onShowChanges}
+              title="Open this project's Changes view. Paths in model output are shown as text, never followed from here."
+              data-testid="open-changes"
+            >
+              Open Changes
+            </Button>
+          ) : null}
+        </div>
       </div>
     </li>
   );
@@ -379,13 +715,7 @@ function FocusBar(props: FocusBarProps): JSX.Element {
       <div className="focus-bar__facts">
         <span className="fact" data-testid="focus-activity">
           <span
-            className={`status-dot ${
-              health.tone === "success"
-                ? "status-dot--success"
-                : health.tone === "danger"
-                  ? "status-dot--danger"
-                  : "status-dot--attention"
-            }`}
+            className={statusDotClass(health.tone, studio?.connection.state === "running")}
             aria-hidden="true"
           />
           <span className="fact__label">Engine</span>
@@ -640,6 +970,8 @@ export function StudioScreen(props: StudioProps): JSX.Element {
   const composerBoxRef = useRef<HTMLDivElement | null>(null);
   const followRef = useRef(true);
   const anchorRef = useRef<{ height: number; top: number; loads: number } | null>(null);
+  const lastCountRef = useRef(0);
+  const [unread, setUnread] = useState(0);
   const [atLatest, setAtLatest] = useState(true);
   const [caret, setCaret] = useState(0);
   const [selection, setSelection] = useState({ start: 0, end: 0 });
@@ -688,6 +1020,52 @@ export function StudioScreen(props: StudioProps): JSX.Element {
       window.removeEventListener("resize", measure);
     };
   }, [props.focusMode]);
+  const { detail, studio, history } = props;
+  const events = history?.events ?? detail?.events ?? [];
+  const eventCount = events.length;
+  const historyComplete = history ? !history.hasMore : detail?.history.hasMore === false;
+
+  // The hit the reader jumped to. Scrolling happens after the card exists: a hit
+  // in an older page is found by loading pages, never by pretending it is here.
+  const searchAnchor = props.search?.anchor ?? null;
+  const anchorKey =
+    searchAnchor === null ? null : `${searchAnchor.itemId ?? ""}:${searchAnchor.seq}`;
+  // The load callback is read through a ref: `history` is rebuilt on every Shell
+  // render, and an effect keyed on the object would ask for another page on each
+  // one. Only a completed page read (the event count or `hasMore`) retries.
+  const loadOlderRef = useRef<(() => void) | null>(null);
+  const appliedAnchorRef = useRef<string | null>(null);
+  loadOlderRef.current = props.history?.onLoadOlder ?? null;
+  const historyHasMore = props.history?.hasMore ?? false;
+  const historyLoading = props.history?.loading ?? false;
+  const historyPages = props.history?.olderLoads ?? 0;
+  useEffect(() => {
+    if (searchAnchor === null) return;
+    const node = timelineRef.current;
+    if (!node) return;
+    const selector =
+      searchAnchor.itemId !== null
+        ? `[data-item-id="${CSS.escape(searchAnchor.itemId)}"]`
+        : `[data-seq="${searchAnchor.seq}"]`;
+    const card = node.querySelector(selector);
+    if (card) {
+      followRef.current = false;
+      setAtLatest(false);
+      // Once per anchor: the effect also runs on every later page or live frame,
+      // and re-scrolling each time would drag a reader who has moved on.
+      if (appliedAnchorRef.current !== anchorKey) {
+        appliedAnchorRef.current = anchorKey;
+        card.scrollIntoView({ block: "center" });
+      }
+      return;
+    }
+    // Not in the loaded window yet: ask for one more page, bounded by the
+    // history the project actually holds. When the last page has been read and
+    // the card still is not here, the loop ends — an absent hit is reported as
+    // absent rather than hidden behind an endless load.
+    if (historyHasMore && !historyLoading) loadOlderRef.current?.();
+  }, [anchorKey, searchAnchor, historyHasMore, historyLoading, historyPages, eventCount]);
+
   const composerLimits = useMemo(() => {
     const stage = stageSize.height > 0 ? stageSize.height : window.innerHeight || 800;
     // The composer never takes more than 42% of the stage, so the live turn
@@ -714,10 +1092,6 @@ export function StudioScreen(props: StudioProps): JSX.Element {
     );
   };
 
-  const { detail, studio, history } = props;
-  const events = history?.events ?? detail?.events ?? [];
-  const historyComplete = history ? !history.hasMore : detail?.history.hasMore === false;
-
   // Follow new engine events, but never fight a reader who scrolled up.
   useEffect(() => {
     const node = timelineRef.current;
@@ -730,6 +1104,8 @@ export function StudioScreen(props: StudioProps): JSX.Element {
   useEffect(() => {
     followRef.current = true;
     setAtLatest(true);
+    setUnread(0);
+    lastCountRef.current = 0;
     anchorRef.current = null;
     const node = timelineRef.current;
     if (node) node.scrollTop = node.scrollHeight;
@@ -765,9 +1141,25 @@ export function StudioScreen(props: StudioProps): JSX.Element {
   const jumpToLatest = (): void => {
     followRef.current = true;
     setAtLatest(true);
+    setUnread(0);
     const node = timelineRef.current;
     if (node) node.scrollTop = node.scrollHeight;
   };
+
+  // R10 unread count. The reader scrolled back deliberately, so new frames are
+  // counted instead of yanking the viewport. The unit is stated as "events"
+  // because that is what this counts: a heartbeat is an event, and calling it a
+  // message would be a nicer number and a worse fact.
+  useEffect(() => {
+    const previous = lastCountRef.current;
+    lastCountRef.current = eventCount;
+    if (followRef.current) {
+      setUnread(0);
+      return;
+    }
+    // Count the delta, not one per render: a burst of frames is several events.
+    setUnread((current) => current + Math.max(0, eventCount - previous));
+  }, [eventCount]);
 
   const commandProbe =
     props.commandCatalog && !composing
@@ -915,6 +1307,15 @@ export function StudioScreen(props: StudioProps): JSX.Element {
     completeItems: new Set(Object.keys(history?.completeItems ?? {})),
   });
   const scope = history?.storedTotal ?? detail.history.storedTotal;
+  // A settled request is history, not a waiting prompt. Only open asks render as
+  // an interruption; the rest stay in the stored record and the diagnostics.
+  // An `unknown` row is still an ask the engine may be waiting on, so it stays on
+  // screen with its reason and a way to re-read the engine's list. Only settled
+  // rows (answered, expired, cancelled) drop out of the attention area.
+  const openPending = (studio?.pendingRequests ?? []).filter(
+    (request) =>
+      request.status === "pending" || request.status === "sending" || request.status === "unknown",
+  );
   const blockedTasks = detail.tasks.filter((task) => task.status === "blocked");
   const currentTask =
     detail.tasks.find((task) => task.status === "running") ??
@@ -1033,13 +1434,7 @@ export function StudioScreen(props: StudioProps): JSX.Element {
           </span>
           <span className="fact" data-testid="studio-connection">
             <span
-              className={`status-dot ${
-                health.tone === "success"
-                  ? "status-dot--success"
-                  : health.tone === "danger"
-                    ? "status-dot--danger"
-                    : "status-dot--attention"
-              }`}
+              className={statusDotClass(health.tone, connectionState === "running")}
               aria-hidden="true"
             />
             <span className="fact__label">Engine</span>
@@ -1172,10 +1567,25 @@ export function StudioScreen(props: StudioProps): JSX.Element {
         </Callout>
       )}
 
-      {studio?.pendingInput ? (
-        <Callout tone="attention" title="The engine is waiting for input Mona cannot answer">
-          {studio.pendingInput}
-        </Callout>
+      {openPending.length > 0 ? (
+        <section className="pending-requests" aria-label="Engine requests waiting for you">
+          <ul className="pending-requests__list">
+            {openPending.map((request) => (
+              <PendingRequestCard
+                key={request.id}
+                request={request}
+                busy={props.pendingAnswerId === request.id}
+                posture={
+                  studio?.profile.effective?.permissionPosture ??
+                  studio?.profile.permissionPosture ??
+                  "unknown"
+                }
+                onAnswer={props.onAnswerPending}
+                onRecheck={props.onStart}
+              />
+            ))}
+          </ul>
+        </section>
       ) : null}
 
       {studio?.submission?.status === "outcome_unknown" ? (
@@ -1211,6 +1621,54 @@ export function StudioScreen(props: StudioProps): JSX.Element {
         {/* Paging controls stay outside the scrolling console, so Jump to
             latest is reachable without scrolling and Load earlier is never
             hidden by the very history it loads. */}
+        {props.search ? (
+          <div className="history-search" data-testid="studio-search">
+            <label className="history-search__field">
+              <span className="hint-line">Search conversation</span>
+              <input
+                type="search"
+                value={props.search.query}
+                placeholder="Match stored text in this project"
+                onChange={(event) => props.search?.onQuery(event.target.value)}
+                aria-describedby="history-search-scope"
+              />
+            </label>
+            <span className="hint-line" id="history-search-scope" data-testid="search-scope">
+              {props.search.busy
+                ? "Searching stored events…"
+                : props.search.error
+                  ? `Search failed: ${props.search.error}`
+                  : props.search.query.trim().length === 0
+                    ? "Matches this project's stored text."
+                    : `${props.search.hits.length} match${props.search.hits.length === 1 ? "" : "es"} in stored text.`}
+              {" Local read only; nothing is sent to the engine."}
+            </span>
+            {props.search.query.trim().length > 0 ? (
+              <Button size="sm" variant="ghost" onClick={props.search.onClear}>
+                Clear search
+              </Button>
+            ) : null}
+            {props.search.hits.length > 0 ? (
+              <ul className="history-search__results" aria-label="Search results">
+                {props.search.hits.slice(0, 8).map((hit) => (
+                  <li key={`${hit.threadId}:${hit.seq}`}>
+                    <button
+                      type="button"
+                      className="history-search__hit"
+                      onClick={() => props.search?.onJump(hit)}
+                    >
+                      <span className="history-search__snippet">{hit.snippet}</span>
+                      <span className="hint-line">
+                        {hit.kind} · {new Date(hit.timestamp).toLocaleTimeString()}
+                        {hit.itemId ? "" : " · frame without item identity"}
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
+        ) : null}
         <div className="timeline__toolbar" data-testid="studio-history-toolbar">
           <label className="timeline__thread">
             <span className="hint-line">Conversation</span>
@@ -1250,9 +1708,16 @@ export function StudioScreen(props: StudioProps): JSX.Element {
                 variant="primary"
                 onClick={jumpToLatest}
                 data-testid="studio-jump-latest"
+                title="Return to the newest stored event. New events are counted while you read older ones."
               >
-                Jump to latest
+                {unread > 0
+                  ? `Jump to latest · ${unread} new event${unread === 1 ? "" : "s"}`
+                  : "Jump to latest"}
               </Button>
+            ) : unread > 0 ? (
+              <span className="hint-line" data-testid="studio-unread">
+                {unread} new event{unread === 1 ? "" : "s"}
+              </span>
             ) : null}
           </span>
         </div>
@@ -1306,6 +1771,14 @@ export function StudioScreen(props: StudioProps): JSX.Element {
                         : null
                     }
                     onLoadItem={history?.onLoadItem}
+                    onCopy={props.onCopy}
+                    onShowChanges={props.onShowChanges}
+                    anchored={
+                      searchAnchor !== null &&
+                      (searchAnchor.itemId !== null
+                        ? entry.itemId === searchAnchor.itemId
+                        : entry.seq === searchAnchor.seq)
+                    }
                   />
                 ))}
               </ol>
@@ -1319,12 +1792,11 @@ export function StudioScreen(props: StudioProps): JSX.Element {
             narrow column beside the inspector. */}
         <div className="studio__work">
           <section className="studio__main" aria-label="Task prompt">
-            {/* The immersive composer is bounded and resizable. The grip is a
-                real separator: pointer drag, Arrow keys, Home and End, and it
-                reports its bounds, so it is reachable without a mouse. It is
-                rendered only in the focused layout, which keeps the everyday
-                Studio exactly as it was. */}
-            {props.focusMode ? (
+            {/* R10: the composer is resizable in every layout, not only the
+                immersive one. The grip is a real separator — pointer drag,
+                Arrow keys, Home and End — and reports its bounds, so it is
+                reachable without a mouse. */}
+            {
               <div
                 className="composer-grip"
                 role="separator"
@@ -1384,7 +1856,7 @@ export function StudioScreen(props: StudioProps): JSX.Element {
               >
                 <span className="composer-grip__bar" aria-hidden="true" />
               </div>
-            ) : null}
+            }
             <div className="composer">
               <div className="composer__mode">
                 <SegmentedControl
@@ -1565,13 +2037,25 @@ export function StudioScreen(props: StudioProps): JSX.Element {
                   </span>
                 </div>
                 <div className="composer__right">
+                  {props.onMentionFile ? (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={props.onMentionFile}
+                      title="Insert a workspace file's text into the composer as an explicit, reviewable block. Sizes and an estimated token cost are shown before you insert it."
+                      data-testid="mention-file"
+                    >
+                      Mention file…
+                    </Button>
+                  ) : null}
                   <Button
                     variant="ghost"
                     size="sm"
                     disabled
-                    title="The pinned adapter does not support attachments; Mona will not fabricate one"
+                    title="Binary attachments are unavailable in the pinned adapter: it accepts text context, not file uploads. Mona will not fabricate one."
+                    data-testid="attach-file"
                   >
-                    Attach file
+                    Attach binary
                   </Button>
                   <Button
                     variant="primary"
@@ -1736,13 +2220,7 @@ export function StudioScreen(props: StudioProps): JSX.Element {
       <div className="control-strip" role="region" aria-label="Execution controls">
         <div className="control-strip__status">
           <span
-            className={`status-dot ${
-              health.tone === "success"
-                ? "status-dot--success"
-                : health.tone === "danger"
-                  ? "status-dot--danger"
-                  : "status-dot--attention"
-            }`}
+            className={statusDotClass(health.tone, studio?.connection.state === "running")}
             aria-hidden="true"
           />
           <span>

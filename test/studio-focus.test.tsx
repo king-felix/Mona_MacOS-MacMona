@@ -154,7 +154,7 @@ function studio(overrides: Partial<StudioSnapshot> = {}): StudioSnapshot {
     },
     submission: null,
     diagnostics: [],
-    pendingInput: null,
+    pendingRequests: [],
     canSubmit: true,
     cannotSubmitReason: null,
     controls: { canInterrupt: false, canPause: true, canCancelQueued: false, canStop: true },
@@ -407,13 +407,17 @@ describe("native full screen control", () => {
 });
 
 describe("bounded resizable composer", () => {
-  it("only appears in the immersive layout", () => {
+  it("is present in every layout (R10 widened it) and describes itself", () => {
+    // R05 shipped the grip inside the immersive layout only. R10 makes the
+    // composer resizable where it is actually used, so the same control is now
+    // rendered in the ordinary Studio too — a deliberate, tested change rather
+    // than a regression of the R05 rule.
     render({ focusMode: false });
-    expect(container!.querySelector('[data-testid="composer-grip"]')).toBeNull();
-    render({ focusMode: true, windowFullscreen: WINDOWED });
-    expect(grip()).not.toBeNull();
+    expect(container!.querySelector('[data-testid="composer-grip"]')).not.toBeNull();
     expect(grip().getAttribute("role")).toBe("separator");
     expect(grip().getAttribute("aria-orientation")).toBe("horizontal");
+    render({ focusMode: true, windowFullscreen: WINDOWED });
+    expect(grip()).not.toBeNull();
   });
 
   it("resizes from the keyboard and stops at its bounds", () => {

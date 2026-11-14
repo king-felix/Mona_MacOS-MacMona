@@ -2,6 +2,7 @@ import { contextBridge, ipcRenderer, webUtils } from "electron";
 import type {
   AppInfo,
   AppPathInfo,
+  ClipboardReceipt,
   MonaBridge,
   ToolDiscovery,
   ZoomView,
@@ -12,6 +13,7 @@ import type {
   HistoryCursor,
   HistoryItemPage,
   HistoryPage,
+  HistorySearchResult,
   IpcResult,
   OpenProjectResult,
   ProjectDetail,
@@ -60,8 +62,11 @@ import type {
   UpdateStatusView,
 } from "../shared/contracts/update";
 import type {
+  PendingResponseInput,
+  StudioFilePreview,
   StudioActionResult,
   StudioMode,
+  StudioPendingResult,
   StudioPush,
   StudioReconcileResult,
   StudioSnapshot,
@@ -230,6 +235,26 @@ const bridge: MonaBridge = {
     return () => ipcRenderer.removeListener("open:result", listener);
   },
 
+  previewWorkspaceFile: (
+    projectId: ProjectId,
+    path: string,
+  ): Promise<IpcResult<StudioFilePreview>> =>
+    ipcRenderer.invoke("studio:file-preview", { projectId, path }),
+  searchHistory: (
+    projectId: ProjectId,
+    query: string,
+    options?: { limit?: number; threadId?: string | null },
+  ): Promise<IpcResult<HistorySearchResult>> =>
+    ipcRenderer.invoke("projects:search", {
+      projectId,
+      query,
+      ...(options?.limit === undefined ? {} : { limit: options.limit }),
+      ...(options?.threadId === undefined ? {} : { threadId: options.threadId }),
+    }),
+  copyToClipboard: (
+    text: string,
+    label: "message" | "code" | "prompt",
+  ): Promise<IpcResult<ClipboardReceipt>> => ipcRenderer.invoke("clipboard:write", { text, label }),
   studioState: (projectId: ProjectId): Promise<IpcResult<StudioSnapshot>> =>
     ipcRenderer.invoke("studio:state", { projectId }),
   startStudio: (projectId: ProjectId): Promise<IpcResult<StudioSnapshot>> =>
@@ -252,6 +277,12 @@ const bridge: MonaBridge = {
     ipcRenderer.invoke("studio:reconcile", { projectId }),
   stopStudio: (projectId: ProjectId): Promise<IpcResult<StudioActionResult>> =>
     ipcRenderer.invoke("studio:stop", { projectId }),
+  answerPendingRequest: (
+    projectId: ProjectId,
+    requestId: string,
+    response: PendingResponseInput,
+  ): Promise<IpcResult<StudioPendingResult>> =>
+    ipcRenderer.invoke("studio:answer-pending", { projectId, requestId, response }),
   boardSnapshot: (projectId: ProjectId): Promise<IpcResult<BoardSnapshot>> =>
     ipcRenderer.invoke("board:snapshot", { projectId }),
   createBoardTask: (input): Promise<IpcResult<TaskView>> =>

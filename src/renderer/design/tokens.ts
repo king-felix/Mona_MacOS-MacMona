@@ -8,6 +8,13 @@
  */
 export type ThemeName = "daybreak" | "afterglow";
 export type Density = "comfortable" | "dense";
+/**
+ * R06 decoration intensity. It is *only* decoration: the semantic foreground and
+ * background roles are identical in both intensities, so Quiet is not a
+ * lower-contrast mode and Vivid is not a second design. What changes is the
+ * wash, the luminous edges, the plaque and how much surface carries colour.
+ */
+export type Intensity = "vivid" | "quiet";
 
 export interface ThemeTokens {
   canvas: string;
@@ -37,6 +44,21 @@ export interface ThemeTokens {
   borderInteractive: string;
   focus: string;
   overlay: string;
+  /**
+   * Decorative roles. They are never used for text on a surface and are
+   * therefore measured as *ornament*, not as a text pair: a gradient stop may
+   * sit behind an opaque content layer, a border, or a rail mark. Where one of
+   * them must carry a glyph, the glyph uses the measured `ink`/`onPrimary`
+   * roles on an opaque chip instead.
+   */
+  auroraA: string;
+  auroraB: string;
+  auroraC: string;
+  /** A selected rail/project chip that is not the primary action. */
+  selection: string;
+  selectionInk: string;
+  /** Luminous edge colour for a focused or live surface. */
+  glow: string;
 }
 
 export const THEMES: Record<ThemeName, ThemeTokens> = {
@@ -68,6 +90,13 @@ export const THEMES: Record<ThemeName, ThemeTokens> = {
     borderInteractive: "#7C8AA3",
     focus: "#6346DF",
     overlay: "rgba(16, 24, 48, 0.45)",
+    // Daybreak: iris → orchid → cyan wash, mint for a live state, coral sparingly.
+    auroraA: "#795CFF",
+    auroraB: "#C16CFF",
+    auroraC: "#38CFE8",
+    selection: "#EDEAFF",
+    selectionInk: "#3A2A9E",
+    glow: "rgba(121, 92, 255, 0.28)",
   },
   afterglow: {
     canvas: "#12142A",
@@ -97,6 +126,13 @@ export const THEMES: Record<ThemeName, ThemeTokens> = {
     borderInteractive: "#6A70AD",
     focus: "#B9A4FF",
     overlay: "rgba(6, 8, 20, 0.65)",
+    // Afterglow: midnight indigo with orchid, violet and a luminous mint edge.
+    auroraA: "#C16CFF",
+    auroraB: "#795CFF",
+    auroraC: "#55E3B3",
+    selection: "#2C2A55",
+    selectionInk: "#E4DEFF",
+    glow: "rgba(193, 108, 255, 0.32)",
   },
 };
 
@@ -128,6 +164,12 @@ const CSS_NAMES: Record<keyof ThemeTokens, string> = {
   borderInteractive: "--border-interactive",
   focus: "--focus",
   overlay: "--overlay",
+  auroraA: "--aurora-a",
+  auroraB: "--aurora-b",
+  auroraC: "--aurora-c",
+  selection: "--selection",
+  selectionInk: "--selection-ink",
+  glow: "--glow",
 };
 
 export function themeVariables(theme: ThemeName): Record<string, string> {
@@ -149,6 +191,18 @@ export function applyTheme(theme: ThemeName, root: HTMLElement = document.docume
 
 export function applyDensity(density: Density, root: HTMLElement = document.documentElement): void {
   root.dataset.density = density;
+}
+
+/**
+ * Vivid is the expressive treatment; Quiet keeps the same layout and the same
+ * measured colours with calmer chrome. The attribute is on the document root so
+ * one CSS rule set governs every screen, including the immersive Studio.
+ */
+export function applyIntensity(
+  intensity: Intensity,
+  root: HTMLElement = document.documentElement,
+): void {
+  root.dataset.intensity = intensity;
 }
 
 export function applyReducedMotion(
@@ -238,6 +292,15 @@ export const CONTRAST_PAIRS: readonly ContrastPair[] = [
   { name: "danger ink on soft", foreground: "dangerInk", background: "dangerSoft", minimum: TEXT },
   { name: "danger button label", foreground: "onDanger", background: "danger", minimum: TEXT },
   { name: "accent ink on soft", foreground: "accentInk", background: "accentSoft", minimum: TEXT },
+  // R06: the selected rail/project chip is text on a decorative fill, so it is
+  // measured like any other text pair rather than trusted because it is "just"
+  // decoration.
+  {
+    name: "selection chip label",
+    foreground: "selectionInk",
+    background: "selection",
+    minimum: TEXT,
+  },
   { name: "success icon on canvas", foreground: "success", background: "canvas", minimum: UI },
   { name: "danger icon on canvas", foreground: "danger", background: "canvas", minimum: UI },
   { name: "attention icon on canvas", foreground: "attention", background: "canvas", minimum: UI },

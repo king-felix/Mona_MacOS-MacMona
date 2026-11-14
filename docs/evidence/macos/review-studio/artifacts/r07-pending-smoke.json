@@ -1,0 +1,143 @@
+{
+  "task": "R07",
+  "captured_at": "2026-11-14T09:36:05.374Z",
+  "platform": "darwin-arm64",
+  "engine": {
+    "version": "0.10.2",
+    "commit": "ff466b2ed0bfb4ae5267d4d8d0ecb562cf46956e"
+  },
+  "isolated": "temporary HOME, CODEWHALE_HOME, workspace, product state",
+  "model_requests": 0,
+  "note": "No turn was submitted. A real approval prompt needs a turn and therefore inference; this run qualifies the reply contract instead.",
+  "steps": [
+    {
+      "name": "engine_ready",
+      "service": "codewhale-runtime-api",
+      "version": "0.10.2",
+      "commit": "ff466b2ed0bfb4ae5267d4d8d0ecb562cf46956e"
+    },
+    {
+      "name": "studio_started",
+      "connection": "connected",
+      "engine": {
+        "version": "0.10.2",
+        "commit": "ff466b2ed0bfb4ae5267d4d8d0ecb562cf46956e"
+      },
+      "thread": null,
+      "engine_thread": null
+    },
+    {
+      "name": "thread_bound",
+      "status": "completed",
+      "route": "native",
+      "generation": 0,
+      "local_thread": "thr_adda8adf5ad60898",
+      "engine_thread": "thr_3e7b3938348a405482074e14fd55ad4b"
+    },
+    {
+      "name": "thread_detail",
+      "status": 200,
+      "keys": [
+        "thread",
+        "turns",
+        "items",
+        "latest_seq",
+        "pending_approvals",
+        "pending_user_inputs",
+        "pending_dynamic_tool_calls",
+        "approval_grants"
+      ],
+      "pending_approvals": 0,
+      "pending_user_inputs": 0
+    },
+    {
+      "name": "adapter_read_pending",
+      "available": true,
+      "approvals": 0,
+      "inputs": 0
+    },
+    {
+      "name": "approval_reply_unknown_capability",
+      "status": 404,
+      "acknowledged": false,
+      "note": "the approval is no longer pending; nothing was sent"
+    },
+    {
+      "name": "user_input_reply_unknown_request",
+      "status": 404,
+      "acknowledged": false,
+      "note": "the question is no longer pending; nothing was sent"
+    },
+    {
+      "name": "raw_approval_route",
+      "status": 404,
+      "body": {
+        "error": {
+          "message": "no pending approval with id 'approval_00000000000000000000000000000000'",
+          "status": 404
+        }
+      }
+    },
+    {
+      "name": "row_recorded",
+      "id": "prq_94c6cdd534cb77a1",
+      "status": "pending",
+      "kind": "approval"
+    },
+    {
+      "name": "snapshot_before_reconcile",
+      "pending": [
+        {
+          "id": "prq_94c6cdd534cb77a1",
+          "kind": "approval",
+          "status": "pending",
+          "can_answer": true
+        }
+      ]
+    },
+    {
+      "name": "row_after_reconcile",
+      "status": "expired",
+      "note": "the engine no longer lists this request; it expired or was settled elsewhere"
+    },
+    {
+      "name": "row_after_restart",
+      "status": "expired",
+      "note": "the engine no longer lists this request; it expired or was settled elsewhere",
+      "same_row": true,
+      "rendered_by_fresh_studio": true
+    },
+    {
+      "name": "answer_refused_after_expiry",
+      "code": "NOT_CONNECTED",
+      "message": "The engine no longer lists this request; it expired or was settled elsewhere."
+    }
+  ],
+  "assertions": {
+    "engine_reports_pending_lists": true,
+    "adapter_reads_engine_lists": true,
+    "approval_route_exists": true,
+    "unknown_approval_is_not_an_acknowledgement": true,
+    "unknown_approval_maps_to_expired_note": true,
+    "unknown_input_is_not_an_acknowledgement": true,
+    "row_recorded_pending": true,
+    "capability_kept_in_main": true,
+    "row_expired_by_engine_list": true,
+    "row_survives_a_fresh_studio": true,
+    "expiry_has_a_reason": true,
+    "expired_row_cannot_be_answered": true,
+    "no_model_request": true
+  },
+  "cleanup": {
+    "base": "~r07-smoke",
+    "home": "~r07-smoke/home",
+    "workspace": "~r07-smoke/ws",
+    "product": "~r07-smoke/product"
+  },
+  "engine_usage": {
+    "status": 200,
+    "turns": 0,
+    "cost_complete": true
+  },
+  "ok": true
+}

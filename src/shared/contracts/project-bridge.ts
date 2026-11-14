@@ -84,6 +84,26 @@ export interface HistoryWindow {
   pageSize: number;
 }
 
+/**
+ * R10. One search hit, anchored to the stored frame it came from so the console
+ * can find the card instead of showing a paragraph with nowhere to go.
+ */
+export interface HistorySearchHit {
+  threadId: string;
+  seq: number;
+  itemId: string | null;
+  kind: string;
+  timestamp: string;
+  snippet: string;
+}
+
+export interface HistorySearchResult {
+  query: string;
+  hits: HistorySearchHit[];
+  /** When the read ran. Search is a state read; it is never live-updating. */
+  scannedAt: string;
+}
+
 /** One page of stored history, oldest-first within the page. */
 export interface HistoryPage extends HistoryWindow {
   events: StoredEventSummary[];

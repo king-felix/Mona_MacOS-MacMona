@@ -34,6 +34,8 @@
     "smoke:history": "npm run build && node scripts/history-smoke.mjs",
     "smoke:commands": "npm run build && node scripts/command-smoke.mjs",
     "smoke:immersive": "npm run build && node scripts/immersive-smoke.mjs",
+    "smoke:aurora": "npm run build && node scripts/aurora-smoke.mjs",
+    "smoke:pending": "npm run build:main && node scripts/pending-smoke.mjs",
     "icon:render": "node packaging/macos/icon.mjs --mark src/renderer/assets/mona-mark.png",
     "smoke:commands:live": "npm run build:main && node scripts/command-execute-smoke.mjs",
     "smoke:studio": "npm run build && node scripts/studio-smoke.mjs",

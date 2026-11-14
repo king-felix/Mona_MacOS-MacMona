@@ -231,7 +231,7 @@ function studio(overrides: Partial<StudioSnapshot> = {}): StudioSnapshot {
     cost: { observed: true, costUsd: 0.0042, costComplete: true, turns: 1, label: "$0.0042" },
     submission: null,
     diagnostics: [],
-    pendingInput: null,
+    pendingRequests: [],
     canSubmit: true,
     cannotSubmitReason: null,
     controls: { canInterrupt: false, canPause: true, canCancelQueued: false, canStop: true },

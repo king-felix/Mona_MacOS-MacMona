@@ -62,7 +62,18 @@ function renderInline(text: string, keyPrefix: string): ReactNode[] {
   return nodes;
 }
 
-export function Markdown({ text }: { text: string }): JSX.Element {
+/**
+ * R10. `onCopyCode` is optional so every existing embedder keeps rendering the
+ * same markup. When it is supplied, a fenced block gets a real copy control that
+ * hands back the exact source text — not the rendered HTML.
+ */
+export function Markdown({
+  text,
+  onCopyCode,
+}: {
+  text: string;
+  onCopyCode?: (source: string, language: string) => void;
+}): JSX.Element {
   const lines = text.replace(/\r\n/g, "\n").split("\n");
   const blocks: JSX.Element[] = [];
   let i = 0;
@@ -86,10 +97,23 @@ export function Markdown({ text }: { text: string }): JSX.Element {
         i += 1;
       }
       i += 1;
+      const source = body.join("\n");
       blocks.push(
-        <pre className="md-pre" key={nextKey()}>
-          <code data-language={language || undefined}>{body.join("\n")}</code>
-        </pre>,
+        <div className="md-code" key={nextKey()}>
+          <pre className="md-pre">
+            <code data-language={language || undefined}>{source}</code>
+          </pre>
+          {onCopyCode ? (
+            <button
+              type="button"
+              className="md-code__copy"
+              onClick={() => onCopyCode(source, language || "code")}
+              data-testid="copy-code"
+            >
+              Copy code
+            </button>
+          ) : null}
+        </div>,
       );
       continue;
     }

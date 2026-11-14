@@ -748,6 +748,49 @@ CREATE TABLE command_operations (
 CREATE INDEX command_operations_project ON command_operations (project_id, created_at);
 `;
 
+// v12 records the engine's own pending questions and approval asks.
+//
+// Before this migration a pending ask existed only as a sentence in the live
+// session, so a restart forgot an approval the engine was still waiting on, and
+// the renderer had no identifier it could answer. A row here is Mona's receipt
+// of an engine request: the Runtime-minted capability (`request_key`), the local
+// thread and turn, what was asked, and what Mona has done about it. It is not a
+// second source of truth — `approval.decided` and `user_input.answered` settle
+// it, and the engine's thread snapshot is authoritative about what is still
+// pending.
+//
+// The uniqueness rule is the engine's, not Mona's: an approval capability is
+// unique per prompt and single-use, so one engine thread can hold at most one
+// row per kind and key. Re-delivery of the same `approval.required` updates the
+// captured detail instead of creating a second prompt.
+const V12 = `
+CREATE TABLE pending_requests (
+  id                TEXT PRIMARY KEY,
+  project_id        TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  thread_id         TEXT NOT NULL,
+  engine_thread_id  TEXT NOT NULL,
+  turn_id           TEXT,
+  kind              TEXT NOT NULL CHECK (kind IN ('approval', 'user_input')),
+  request_key       TEXT NOT NULL,
+  tool_name         TEXT,
+  title             TEXT NOT NULL,
+  summary           TEXT,
+  detail_json       TEXT NOT NULL,
+  status            TEXT NOT NULL
+                    CHECK (status IN ('pending', 'sending', 'answered', 'expired', 'cancelled', 'unknown')),
+  decision          TEXT CHECK (decision IS NULL OR decision IN ('allow', 'deny')),
+  decided_by        TEXT,
+  acknowledgement   TEXT,
+  note              TEXT,
+  created_at        TEXT NOT NULL,
+  updated_at        TEXT NOT NULL,
+  settled_at        TEXT
+);
+CREATE UNIQUE INDEX pending_requests_identity
+  ON pending_requests (engine_thread_id, kind, request_key);
+CREATE INDEX pending_requests_project ON pending_requests (project_id, status, created_at);
+`;
+
 export const MIGRATIONS: readonly Migration[] = [
   { version: 1, name: "core-project-state", sql: V1 },
   { version: 2, name: "project-identity-fields", sql: V2 },
@@ -760,6 +803,7 @@ export const MIGRATIONS: readonly Migration[] = [
   { version: 9, name: "engine-event-gaps", sql: V9 },
   { version: 10, name: "event-item-identity", sql: V10 },
   { version: 11, name: "thread-generations-and-command-operations", sql: V11 },
+  { version: 12, name: "pending-engine-requests", sql: V12 },
 ];
 
 export const CURRENT_SCHEMA_VERSION = MIGRATIONS[MIGRATIONS.length - 1]?.version ?? 0;
@@ -783,6 +827,7 @@ export const REQUIRED_TABLES: readonly string[] = [
   "meta",
   "orchestration_events",
   "orchestration_runs",
+  "pending_requests",
   "problem_events",
   "problems",
   "project_paths",
@@ -824,10 +869,12 @@ const V7_TABLES: readonly string[] = [
 const V8_TABLES: readonly string[] = ["update_intents"];
 const V9_TABLES: readonly string[] = ["event_gaps"];
 const V11_TABLES: readonly string[] = ["command_operations"];
+const V12_TABLES: readonly string[] = ["pending_requests"];
 
 /** Tables a database at `version` must have. Older targets predate v3–v7. */
 export function requiredTablesFor(version: number): readonly string[] {
   let tables: readonly string[] = REQUIRED_TABLES;
+  if (version < 12) tables = tables.filter((t) => !V12_TABLES.includes(t));
   if (version < 11) tables = tables.filter((t) => !V11_TABLES.includes(t));
   if (version < 9) tables = tables.filter((t) => !V9_TABLES.includes(t));
   if (version < 8) tables = tables.filter((t) => !V8_TABLES.includes(t));

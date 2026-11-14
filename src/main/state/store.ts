@@ -23,6 +23,7 @@ import {
   type TokenSemantics,
   type UpdateIntentRecord,
 } from "../../shared/contracts";
+import type { PendingRequestKind, PendingRequestStatus } from "../../shared/contracts/pending";
 import {
   ArtifactFileStore,
   type ArtifactFileStoreOptions,
@@ -150,6 +151,33 @@ export interface StoredThread {
 }
 
 export type CommandOperationStatus = "pending" | "completed" | "failed";
+
+/**
+ * Mona's receipt of one engine request that is waiting on a person. The
+ * capability in `requestKey` is the Runtime's own; it never leaves the main
+ * process, because it is the value that answers the ask.
+ */
+export interface PendingRequestRecord {
+  id: string;
+  projectId: ProjectId;
+  threadId: string;
+  engineThreadId: string;
+  turnId: string | null;
+  kind: PendingRequestKind;
+  requestKey: string;
+  toolName: string | null;
+  title: string;
+  summary: string | null;
+  detail: unknown;
+  status: PendingRequestStatus;
+  decision: "allow" | "deny" | null;
+  decidedBy: string | null;
+  acknowledgement: string | null;
+  note: string | null;
+  createdAt: string;
+  updatedAt: string;
+  settledAt: string | null;
+}
 
 export interface StoredCommandOperation {
   operationKey: string;
@@ -659,6 +687,40 @@ function threadFromRow(row: DbRow): StoredThread {
     generation: asNumber(row.generation ?? 0),
     createdAt: asString(row.created_at),
     updatedAt: asString(row.updated_at),
+  };
+}
+
+function pendingRequestFromRow(row: DbRow): PendingRequestRecord {
+  const raw = asString(row.detail_json);
+  let detail: unknown = null;
+  try {
+    detail = JSON.parse(raw) as unknown;
+  } catch {
+    // A damaged capture is reported as absent rather than as an invented one;
+    // the row still states what was asked and how it settled.
+    detail = null;
+  }
+  const decision = asNullableString(row.decision);
+  return {
+    id: asString(row.id),
+    projectId: asString(row.project_id) as ProjectId,
+    threadId: asString(row.thread_id),
+    engineThreadId: asString(row.engine_thread_id),
+    turnId: asNullableString(row.turn_id),
+    kind: asString(row.kind) as PendingRequestKind,
+    requestKey: asString(row.request_key),
+    toolName: asNullableString(row.tool_name),
+    title: asString(row.title),
+    summary: asNullableString(row.summary),
+    detail,
+    status: asString(row.status) as PendingRequestStatus,
+    decision: decision === "allow" || decision === "deny" ? decision : null,
+    decidedBy: asNullableString(row.decided_by),
+    acknowledgement: asNullableString(row.acknowledgement),
+    note: asNullableString(row.note),
+    createdAt: asString(row.created_at),
+    updatedAt: asString(row.updated_at),
+    settledAt: asNullableString(row.settled_at),
   };
 }
 
@@ -1607,6 +1669,243 @@ export class StateStore {
         )
         .all(projectId, mode) as DbRow[];
       return rows.map(threadFromRow);
+    });
+  }
+
+  // ------------------------------------------------------ pending requests
+
+  /**
+   * Record an engine request exactly once per engine thread, kind and
+   * capability. A duplicate delivery refreshes the captured detail of a still
+   * pending row; it never reopens a settled one, because the engine's capability
+   * is single-use and a settled row is a receipt of what happened.
+   */
+  async recordPendingRequest(input: {
+    projectId: ProjectId;
+    threadId: string;
+    engineThreadId: string;
+    turnId?: string | null;
+    kind: PendingRequestKind;
+    requestKey: string;
+    toolName?: string | null;
+    title: string;
+    summary?: string | null;
+    detail: unknown;
+    status?: PendingRequestStatus;
+    /**
+     * Whether a row left in `sending` by a previous process may be reopened.
+     * True when the writer knows no answer is in flight (a fresh process, or a
+     * session with no live claim); false while this process holds one, so a
+     * reconcile cannot turn a genuinely in-flight answer back into a prompt.
+     */
+    reopenSending?: boolean;
+  }): Promise<PendingRequestRecord> {
+    const status = input.status ?? "pending";
+    return this.write((db, now) => {
+      this.requireProjectRow(db, input.projectId);
+      const id = this.id("prq");
+      db.prepare(
+        "INSERT INTO pending_requests (id, project_id, thread_id, engine_thread_id, turn_id, kind, " +
+          "request_key, tool_name, title, summary, detail_json, status, decision, decided_by, " +
+          "acknowledgement, note, created_at, updated_at, settled_at) " +
+          "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL, NULL, NULL, ?, ?, NULL) " +
+          // A row is reopened only because the engine still lists it: that is
+          // first-hand evidence the reply did not land. A settled row is never
+          // reopened, because a capability is single-use. A `sending` row is the
+          // one that needs care: it means a previous process died mid-answer (or
+          // this one is answering right now), so it is reopened only when the
+          // caller knows no claim is live — otherwise a crash leaves a request
+          // the engine is still waiting for permanently unanswerable.
+          "ON CONFLICT(engine_thread_id, kind, request_key) DO UPDATE SET " +
+          "status = 'pending', title = excluded.title, summary = excluded.summary, " +
+          "tool_name = COALESCE(excluded.tool_name, pending_requests.tool_name), " +
+          "detail_json = excluded.detail_json, " +
+          "turn_id = COALESCE(excluded.turn_id, pending_requests.turn_id), " +
+          "note = CASE " +
+          "WHEN pending_requests.status = 'unknown' " +
+          "THEN 'the engine still lists this request, so the earlier reply did not land' " +
+          "WHEN pending_requests.status = 'sending' " +
+          "THEN 'a previous answer was interrupted before it was acknowledged; the engine still lists the request' " +
+          "ELSE pending_requests.note END, " +
+          "updated_at = excluded.updated_at " +
+          "WHERE pending_requests.status IN ('pending', 'unknown') " +
+          "OR (pending_requests.status = 'sending' AND ? = 1)",
+      ).run(
+        id,
+        input.projectId,
+        input.threadId,
+        input.engineThreadId,
+        input.turnId ?? null,
+        input.kind,
+        input.requestKey,
+        input.toolName ?? null,
+        input.title,
+        input.summary ?? null,
+        JSON.stringify(input.detail ?? null),
+        status,
+        now,
+        now,
+        input.reopenSending === true ? 1 : 0,
+      );
+      const row = db
+        .prepare(
+          "SELECT * FROM pending_requests WHERE engine_thread_id = ? AND kind = ? AND request_key = ?",
+        )
+        .get(input.engineThreadId, input.kind, input.requestKey) as DbRow;
+      return pendingRequestFromRow(row);
+    });
+  }
+
+  async getPendingRequest(id: string): Promise<PendingRequestRecord | null> {
+    return this.read((db) => {
+      const row = db.prepare("SELECT * FROM pending_requests WHERE id = ?").get(id) as
+        DbRow | undefined;
+      return row ? pendingRequestFromRow(row) : null;
+    });
+  }
+
+  /**
+   * Every request of one project, open first and then the most recent settled
+   * ones. Bounded: this feeds a snapshot, not a history browser.
+   */
+  async listPendingRequests(
+    projectId: ProjectId,
+    options: { includeSettled?: boolean; limit?: number } = {},
+  ): Promise<PendingRequestRecord[]> {
+    const limit = Math.min(Math.max(1, Math.trunc(options.limit ?? 20)), 100);
+    return this.read((db) => {
+      const filter = options.includeSettled === false ? "AND status IN ('pending', 'sending')" : "";
+      const rows = db
+        .prepare(
+          "SELECT * FROM pending_requests WHERE project_id = ? " +
+            `${filter} ORDER BY CASE status WHEN 'pending' THEN 0 WHEN 'sending' THEN 1 ` +
+            "WHEN 'unknown' THEN 2 ELSE 3 END, created_at DESC LIMIT ?",
+        )
+        .all(projectId, limit) as DbRow[];
+      return rows.map(pendingRequestFromRow);
+    });
+  }
+
+  /**
+   * Claim the right to send an answer. Compare-and-set on status, so a second
+   * click (or a second IPC delivery) cannot send a second decision for one
+   * single-use capability.
+   */
+  async claimPendingRequest(id: string): Promise<boolean> {
+    return this.write((db, now) => {
+      const result = db
+        .prepare(
+          "UPDATE pending_requests SET status = 'sending', updated_at = ? " +
+            "WHERE id = ? AND status IN ('pending', 'unknown')",
+        )
+        .run(now, id);
+      return Number(result.changes) > 0;
+    });
+  }
+
+  /** Settle or release one row by its Mona id after an answer attempt. */
+  async finishPendingRequest(input: {
+    id: string;
+    status: PendingRequestStatus;
+    decision?: "allow" | "deny" | null;
+    decidedBy?: string | null;
+    acknowledgement?: string | null;
+    note?: string | null;
+    settled?: boolean;
+  }): Promise<PendingRequestRecord | null> {
+    return this.write((db, now) => {
+      db.prepare(
+        "UPDATE pending_requests SET status = ?, decision = ?, decided_by = ?, " +
+          "acknowledgement = ?, note = ?, settled_at = ?, updated_at = ? WHERE id = ?",
+      ).run(
+        input.status,
+        input.decision ?? null,
+        input.decidedBy ?? null,
+        input.acknowledgement ?? null,
+        input.note ?? null,
+        input.settled ? now : null,
+        now,
+        input.id,
+      );
+      const row = db.prepare("SELECT * FROM pending_requests WHERE id = ?").get(input.id) as
+        DbRow | undefined;
+      return row ? pendingRequestFromRow(row) : null;
+    });
+  }
+
+  /**
+   * Apply an engine settlement by capability identity. Returns null when this
+   * project holds no row for that capability, which is a normal outcome: an
+   * `approval.decided` can arrive for a prompt another client answered.
+   */
+  async settlePendingRequest(input: {
+    engineThreadId: string;
+    kind: PendingRequestKind;
+    requestKey: string;
+    status: "answered" | "expired" | "cancelled";
+    decision?: "allow" | "deny" | null;
+    decidedBy?: string | null;
+    note?: string | null;
+  }): Promise<PendingRequestRecord | null> {
+    return this.write((db, now) => {
+      db.prepare(
+        "UPDATE pending_requests SET status = ?, decision = COALESCE(?, decision), " +
+          "decided_by = COALESCE(?, decided_by), note = COALESCE(?, note), " +
+          "settled_at = COALESCE(settled_at, ?), updated_at = ? " +
+          "WHERE engine_thread_id = ? AND kind = ? AND request_key = ?",
+      ).run(
+        input.status,
+        input.decision ?? null,
+        input.decidedBy ?? null,
+        input.note ?? null,
+        now,
+        now,
+        input.engineThreadId,
+        input.kind,
+        input.requestKey,
+      );
+      const row = db
+        .prepare(
+          "SELECT * FROM pending_requests WHERE engine_thread_id = ? AND kind = ? AND request_key = ?",
+        )
+        .get(input.engineThreadId, input.kind, input.requestKey) as DbRow | undefined;
+      return row ? pendingRequestFromRow(row) : null;
+    });
+  }
+
+  /**
+   * Reconcile against the engine's own thread snapshot. Only called when the
+   * engine actually reported its pending list: a row it no longer lists cannot
+   * be answered, so it is marked expired with the reason rather than left to
+   * look answerable. Rows in `keep` are untouched.
+   */
+  async expireUnlistedPendingRequests(input: {
+    engineThreadId: string;
+    /** Only this kind is reconciled; the other kind's list was not reported. */
+    kind: PendingRequestKind;
+    keep: ReadonlyArray<{ kind: PendingRequestKind; requestKey: string }>;
+    note: string;
+  }): Promise<number> {
+    const kept = new Set(input.keep.map((entry) => `${entry.kind}\u0000${entry.requestKey}`));
+    return this.write((db, now) => {
+      const rows = db
+        .prepare(
+          "SELECT id, kind, request_key FROM pending_requests " +
+            "WHERE engine_thread_id = ? AND kind = ? " +
+            "AND status IN ('pending', 'sending', 'unknown')",
+        )
+        .all(input.engineThreadId, input.kind) as DbRow[];
+      let expired = 0;
+      for (const row of rows) {
+        const identity = `${asString(row.kind)}\u0000${asString(row.request_key)}`;
+        if (kept.has(identity)) continue;
+        db.prepare(
+          "UPDATE pending_requests SET status = 'expired', note = COALESCE(note, ?), " +
+            "settled_at = ?, updated_at = ? WHERE id = ?",
+        ).run(input.note, now, now, asString(row.id));
+        expired += 1;
+      }
+      return expired;
     });
   }
 
@@ -3944,6 +4243,69 @@ export class StateStore {
         hasMore,
         storedTotal: Number(countRow?.n ?? 0),
       };
+    });
+  }
+
+  /**
+   * R10. Search one project's stored conversation text, bounded every way.
+   *
+   * The match runs over `payload_json` with LIKE and an escaped pattern, inside
+   * one project, capped at `limit` rows and a scan window. It reads Mona's own
+   * state: no runtime is started and no model is asked anything. A hit carries
+   * an anchor — thread, item and sequence — so the console can find the card
+   * rather than the reader being handed a paragraph with no place to go.
+   */
+  async searchProjectEvents(input: {
+    projectId: ProjectId;
+    query: string;
+    limit?: number;
+    threadId?: string | null;
+  }): Promise<
+    Array<{
+      threadId: string;
+      seq: number;
+      itemId: string | null;
+      kind: string;
+      timestamp: string;
+      snippet: string;
+    }>
+  > {
+    const query = input.query.trim();
+    if (query.length === 0) return [];
+    const limit = Math.min(Math.max(1, Math.trunc(input.limit ?? 50)), 100);
+    // Escape LIKE's own wildcards so a query of "%" cannot match everything.
+    const pattern = `%${escapeLike(query)}%`;
+    return this.read((db) => {
+      const threadClause = input.threadId ? "AND e.thread_id = ?" : "";
+      const params: Array<string | number> = [input.projectId];
+      if (input.threadId) params.push(input.threadId);
+      params.push(pattern);
+      params.push(limit);
+      const rows = db
+        .prepare(
+          "SELECT e.thread_id, e.seq, e.item_id, e.kind, e.timestamp, e.payload_json FROM events e " +
+            "JOIN threads t ON t.id = e.thread_id " +
+            `WHERE t.project_id = ? ${threadClause} ` +
+            "AND e.payload_json LIKE ? ESCAPE '\\' " +
+            "ORDER BY e.recorded_at DESC, e.rowid DESC LIMIT ?",
+        )
+        .all(...params) as DbRow[];
+      const needle = query.toLowerCase();
+      return rows.map((row) => {
+        const payload = asString(row.payload_json);
+        const at = payload.toLowerCase().indexOf(needle);
+        const from = Math.max(0, at - 60);
+        const to = Math.min(payload.length, at + needle.length + 90);
+        const slice = payload.slice(from, to).replace(/\s+/g, " ").trim();
+        return {
+          threadId: asString(row.thread_id),
+          seq: asNumber(row.seq),
+          itemId: asNullableString(row.item_id),
+          kind: asString(row.kind),
+          timestamp: asString(row.timestamp),
+          snippet: `${from > 0 ? "…" : ""}${slice}${to < payload.length ? "…" : ""}`,
+        };
+      });
     });
   }
 

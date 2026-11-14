@@ -2,10 +2,21 @@ import { createHash, randomUUID } from "node:crypto";
 import type { EventEnvelope, ProjectId, ThreadId, TurnId } from "../../shared/contracts";
 import { ThreadId as ThreadIdSchema } from "../../shared/contracts";
 import { eventItemId, isEnginePlumbingKind, isKnownEventKind } from "../../shared/contracts/events";
+import {
+  pendingSettlementFor,
+  pendingSignalFor,
+  type PendingQuestion,
+  type PendingSignal,
+} from "../../shared/contracts/pending";
 import type {
+  PendingAnswerInput,
+  PendingRequestView,
+  StudioFilePreview,
+  PendingResponseInput,
   StudioActionResult,
   StudioConnectionState,
   StudioMode,
+  StudioPendingResult,
   StudioPush,
   StudioReconcileResult,
   StudioSnapshot,
@@ -17,7 +28,7 @@ import { AdapterError } from "../engine/errors";
 import { HttpRuntimeTransport, type RuntimeTransport } from "../engine/transport";
 import type { EngineAdapter, InterruptReceipt } from "../engine/types";
 import { SqliteSubmissionStore } from "../state/submission-store";
-import type { StoredProject, StateStore } from "../state/store";
+import type { PendingRequestRecord, StoredProject, StateStore } from "../state/store";
 import type { SupervisorStopReceipt } from "../supervisor/native";
 import type { OwnedEndpoint, RuntimeStatus } from "../supervisor/runtime-supervisor";
 import { ChangeLedger, type ChangeEngineAccess } from "./changes";
@@ -145,7 +156,6 @@ interface StudioSession {
   owned: boolean;
   external: boolean;
   diagnostics: string[];
-  pendingInput: string | null;
   active: ActiveTurn | null;
   lastMode: StudioMode | null;
   bindings: Partial<Record<StudioMode, ModeBinding>>;
@@ -170,6 +180,12 @@ interface StudioSession {
   skippedGaps: Set<number>;
   /** The engine-reported hole this connection was opened to replay, if any. */
   pendingGap: { from: number; to: number } | null;
+  /**
+   * Mona row ids with an answer in flight. A capability is single-use, so a
+   * second concurrent answer for one row must be refused here rather than
+   * racing the first to the Runtime.
+   */
+  answering: Set<string>;
 }
 
 const MAX_DIAGNOSTICS = 12;
@@ -190,15 +206,131 @@ function isFatalStreamError(error: unknown): boolean {
   return false;
 }
 
-function pendingInputFor(kind: string): string | null {
-  if (kind === "approval.decided" || kind === "user_input.answered") return null;
-  if (/^approval\.(requested|required)$/.test(kind)) {
-    return "The engine is waiting for an approval decision Mona cannot answer yet. Switch to Work with your saved Full Access profile, or answer in Codewhale. It will wait here rather than spin.";
+/**
+ * The questions an engine request carries, in the order it named them. Only the
+ * structured answer path exists here: Mona never turns a question into ordinary
+ * prompt text and hopes the engine reads it as an answer.
+ */
+function questionsOf(signal: PendingSignal): PendingQuestion[] {
+  return signal.kind === "user_input" ? signal.questions : [];
+}
+
+/**
+ * True when this session holds a binding to that engine thread. A conversation
+ * stays answerable between turns, so this deliberately does not require an
+ * active turn — only that the studio is attached to the right conversation.
+ */
+function sessionKnowsThread(session: StudioSession, engineThreadId: string): boolean {
+  if (session.active?.binding.engineThreadId === engineThreadId) return true;
+  for (const binding of Object.values(session.bindings)) {
+    if (binding && binding.engineThreadId === engineThreadId) return true;
   }
-  if (/^user_input\.(requested|required)$/.test(kind) || kind === "clarification.requested") {
-    return "The engine asked a clarification question. Mona does not yet answer clarifications; respond in Codewhale. The wait is real, not a hang.";
+  return false;
+}
+
+/** Why a row cannot be answered right now, or null when it can. */
+function cannotAnswerReason(
+  row: PendingRequestRecord,
+  session: StudioSession | null,
+): string | null {
+  if (row.status === "answered") return "This request was already answered.";
+  if (row.status === "expired")
+    return "The engine no longer lists this request; it expired or was settled elsewhere.";
+  if (row.status === "cancelled") return "The engine cancelled this request when the turn ended.";
+  if (row.status === "sending") return "An answer is being delivered.";
+  if (row.status === "unknown") {
+    return "The last answer may not have reached the engine. Read the engine's own list before answering again.";
+  }
+  if (!session) return "The studio is not attached to this project; start it to answer.";
+  if (session.projectId !== row.projectId)
+    return "Another project has the runtime; switch back to answer here.";
+  if (session.connection !== "connected" && session.connection !== "running") {
+    return `The studio is ${session.connection}: ${session.reason}`;
+  }
+  // The row must belong to a conversation this studio is attached to. An ask
+  // can outlive its turn, so `active` being null is not a reason to refuse.
+  if (!sessionKnowsThread(session, row.engineThreadId)) {
+    return "This request belongs to another conversation.";
+  }
+  if (session.answering.has(row.id)) return "An answer is being delivered.";
+  return null;
+}
+
+/**
+ * The engine's own answer rules, checked before Mona spends its single-use
+ * capability: every question needs a known id, every value must be one of the
+ * offered options, a single-select question takes exactly one answer, and a
+ * question with no options is answered only by free text.
+ */
+function validateAnswers(
+  questions: PendingQuestion[],
+  answers: PendingAnswerInput[],
+): string | null {
+  if (questions.length === 0) return "this request carries no questions this build can answer";
+  const malformed = questions.find((question) => question.malformed);
+  if (malformed) {
+    return `the engine's question "${malformed.header ?? malformed.question}" has no answerable identity`;
+  }
+  const byQuestion = new Map(questions.map((question) => [question.id, question]));
+  const seen = new Map<string, number>();
+  for (const answer of answers) {
+    const question = byQuestion.get(answer.questionId);
+    if (!question) return `"${answer.questionId}" is not one of this request's questions`;
+    if (answer.label.trim().length === 0 || answer.value.trim().length === 0) {
+      return "an answer cannot be empty";
+    }
+    const offered = question.options.some((option) => option.label === answer.label);
+    const freeText = question.options.length === 0 && answer.label === "Other";
+    if (!offered && !freeText) {
+      return `"${answer.label}" is not one of the options the engine offered`;
+    }
+    const count = (seen.get(answer.questionId) ?? 0) + 1;
+    seen.set(answer.questionId, count);
+    if (!question.multiSelect && count > 1) {
+      return `"${question.header ?? question.question}" takes one answer`;
+    }
+  }
+  for (const question of questions) {
+    if ((seen.get(question.id) ?? 0) === 0) {
+      return `"${question.header ?? question.question}" still needs an answer`;
+    }
   }
   return null;
+}
+
+/** One stored row as the screen sees it. The capability itself never leaves main. */
+function pendingView(row: PendingRequestRecord, session: StudioSession | null): PendingRequestView {
+  const detail = row.detail as PendingSignal | null;
+  const questions = detail === null ? [] : questionsOf(detail);
+  const decisions: Array<"allow" | "deny"> =
+    detail !== null && detail.kind === "approval" ? detail.decisions : [];
+  return {
+    id: row.id,
+    kind: row.kind,
+    projectId: row.projectId,
+    threadId: row.threadId,
+    turnId: row.turnId,
+    toolName: row.toolName,
+    title: row.title,
+    summary: row.summary,
+    input: detail !== null && detail.kind === "approval" ? detail.input : null,
+    questions,
+    decisions,
+    status: row.status,
+    decision: row.decision,
+    decidedBy: row.decidedBy,
+    acknowledgement: row.acknowledgement,
+    note: row.note,
+    createdAt: row.createdAt,
+    settledAt: row.settledAt,
+    // A row from another project, or one whose conversation is not the live
+    // one, is shown for the record but is not answerable from here. The reason
+    // is computed once so a row cannot be "answerable" and carry a reason.
+    ...(() => {
+      const reason = cannotAnswerReason(row, session);
+      return { canAnswer: reason === null, cannotAnswerReason: reason };
+    })(),
+  };
 }
 
 function terminalStatus(kind: string): "completed" | "failed" | "interrupted" | null {
@@ -348,7 +480,14 @@ export class WorkStudio {
         const binding = existing.active?.binding ?? this.latestBinding(existing);
         const pumping =
           existing.pumpActive === true && existing.pumpKey === (binding?.engineThreadId ?? null);
-        if (pumping) return this.snapshot(projectId);
+        if (pumping) {
+          // Still live, but a pending ask whose event predates the cursor would
+          // never be re-delivered. One read of the engine's own list keeps the
+          // screen honest without restarting anything.
+          const live = existing.active?.binding ?? this.latestBinding(existing);
+          if (live) await this.hydratePending(existing, live);
+          return this.snapshot(projectId);
+        }
         if (!pumping) {
           this.diagnose(
             existing,
@@ -358,6 +497,10 @@ export class WorkStudio {
         if (binding) {
           this.setConnection(existing, "reconnecting", "re-attaching to the engine event stream");
           await this.startPump(existing, binding);
+          // A reattached stream resumes from the stored cursor, so a request
+          // whose event is at or below it is never re-delivered. The engine's
+          // own list is the only way to know what is still waiting.
+          await this.hydratePending(existing, binding);
           return this.snapshot(projectId);
         }
         // No binding at all: fall through and build a fresh session.
@@ -396,7 +539,6 @@ export class WorkStudio {
       owned: false,
       external: false,
       diagnostics: [],
-      pendingInput: null,
       active: null,
       lastMode: null,
       bindings: {},
@@ -415,6 +557,7 @@ export class WorkStudio {
       replaySince: null,
       skippedGaps: new Set(),
       pendingGap: null,
+      answering: new Set(),
     };
     this.active = session;
     this.push(session, "connection", "connecting");
@@ -494,6 +637,15 @@ export class WorkStudio {
     }
 
     this.setConnection(session, "connected", "authenticated loopback runtime is ready");
+    // A cold start has no in-memory bindings, so hydrate from the conversations
+    // the store already holds. Without this an approval recorded before a
+    // restart would stay invisible until the user happened to submit a task.
+    const first = this.latestBinding(session);
+    if (first) {
+      await this.hydratePending(session, first);
+    } else {
+      await this.hydrateStoredThreads(session);
+    }
     return this.snapshot(projectId);
   }
 
@@ -907,16 +1059,21 @@ export class WorkStudio {
       turnId: event.turn_id ?? null,
     });
 
-    const pending = pendingInputFor(event.kind);
-    if (pending !== null) {
-      session.pendingInput = pending;
-      this.diagnose(session, pending);
-      this.push(session, "control", "pending_input");
+    // R07: a request is a stored row with the engine's own capability, not a
+    // sentence in memory. The row survives a restart, so an approval the engine
+    // is still waiting on stays answerable instead of being forgotten.
+    const signal = pendingSignalFor({
+      kind: event.kind,
+      turnId: event.turn_id ?? null,
+      payload: event.payload,
+    });
+    if (signal !== null) {
+      await this.recordPending(session, binding, signal);
       return { terminal: false, rewind };
     }
-    if (event.kind === "approval.decided" || event.kind === "user_input.answered") {
-      session.pendingInput = null;
-      this.push(session, "control", "input_answered");
+    const settlement = pendingSettlementFor({ kind: event.kind, payload: event.payload });
+    if (settlement !== null) {
+      await this.settlePending(session, binding, settlement);
       return { terminal: false, rewind };
     }
     if (event.kind === "turn.artifacts" && event.turn_id && this.changes) {
@@ -955,17 +1112,330 @@ export class WorkStudio {
     // Drift is a kind this build has never seen. A plumbing frame it knows
     // (a heartbeat, a usage row) is not drift, and diagnosing every one of them
     // would push real diagnostics out of the bounded ring.
-    if (
-      !isKnownEventKind(event.kind) &&
-      !isEnginePlumbingKind(event.kind) &&
-      pendingInputFor(event.kind) === null
-    ) {
+    if (!isKnownEventKind(event.kind) && !isEnginePlumbingKind(event.kind)) {
       this.diagnose(
         session,
         `Event "${event.kind}" is stored and inspectable but this build does not project it.`,
       );
     }
     return { terminal: false, rewind };
+  }
+
+  /**
+   * R10. Read one workspace file through the engine's own contained route, so a
+   * file mention is a *verified* read rather than Mona reaching into the
+   * filesystem. Nothing is inserted here: the caller shows the size and an
+   * estimated cost, and the user decides.
+   */
+  async previewFile(projectId: ProjectId, path: string): Promise<StudioFilePreview> {
+    const session = this.requireSession(projectId);
+    if (session.connection !== "connected" && session.connection !== "running") {
+      throw new StudioError(
+        "NOT_CONNECTED",
+        `the studio is ${session.connection}: start the engine to read project files through its contained route`,
+      );
+    }
+    const trimmed = path.trim();
+    if (trimmed.length === 0) throw new StudioError("INVALID_INPUT", "a file path is required");
+    if (trimmed.startsWith("/") || trimmed.split("/").includes("..")) {
+      // The adapter also refuses these; refusing here means the message names
+      // Mona's own rule instead of the engine's 403.
+      throw new StudioError(
+        "INVALID_INPUT",
+        "a file mention must be a workspace-relative path without '..'",
+      );
+    }
+    const window = await session.adapter.readWorkspaceFile({
+      path: trimmed,
+      offset: 0,
+      limit: 32_000,
+    });
+    return {
+      path: trimmed,
+      availability: window.availability,
+      content: window.content,
+      sizeBytes: window.sizeBytes,
+      truncated: window.truncated,
+      // An estimate, labelled as one: bytes/4 is the usual rough ratio, not a
+      // measurement of this provider's tokenizer.
+      estimatedTokens: window.content === null ? null : Math.ceil(window.content.length / 4),
+      note:
+        window.note ??
+        (window.availability === "available"
+          ? "Read through the engine's workspace route."
+          : `The engine reported this file as ${window.availability}; nothing was read.`),
+    };
+  }
+
+  /** Store one engine request under its own capability. */
+  private async recordPending(
+    session: StudioSession,
+    binding: ModeBinding,
+    signal: PendingSignal,
+    reopenSending = false,
+  ): Promise<void> {
+    const engineThreadId = binding.engineThreadId;
+    if (!engineThreadId) return;
+    try {
+      const row = await this.store.recordPendingRequest({
+        projectId: session.projectId,
+        threadId: binding.localThreadId,
+        engineThreadId,
+        turnId: signal.turnId,
+        kind: signal.kind,
+        requestKey: signal.requestKey,
+        toolName: signal.kind === "approval" ? signal.toolName : null,
+        title: signal.title,
+        summary: signal.kind === "approval" ? signal.summary : null,
+        detail: signal,
+        // A `sending` row means an answer was in flight when the process died —
+        // unless this process is the one answering it, in which case the claim
+        // is live and reopening it would allow a second delivery.
+        reopenSending: reopenSending && session.answering.size === 0,
+      });
+      if (row.status !== "pending") return;
+      this.push(session, "control", "pending_input", {
+        turnId: signal.turnId,
+        eventKind: signal.kind === "approval" ? "approval.required" : "user_input.required",
+      });
+    } catch (error) {
+      // A row that could not be stored is a real failure the user has to know
+      // about: the engine is waiting, and Mona has nothing to answer with.
+      this.diagnose(
+        session,
+        `a pending engine request could not be stored: ${errorMessage(error)}`,
+      );
+    }
+  }
+
+  /** Apply the engine's own settlement to the stored row, if Mona has one. */
+  private async settlePending(
+    session: StudioSession,
+    binding: ModeBinding,
+    settlement: ReturnType<typeof pendingSettlementFor>,
+  ): Promise<void> {
+    if (settlement === null) return;
+    const engineThreadId = binding.engineThreadId;
+    if (!engineThreadId) return;
+    try {
+      const row = await this.store.settlePendingRequest({
+        engineThreadId,
+        kind: settlement.kind,
+        requestKey: settlement.requestKey,
+        status: settlement.status,
+        decision: settlement.decision,
+        decidedBy: settlement.decidedBy ?? (settlement.automatic ? "session_rule" : null),
+        note: settlement.note,
+      });
+      if (!row) return;
+      this.push(session, "control", "input_answered");
+    } catch (error) {
+      this.diagnose(
+        session,
+        `a settled engine request could not be updated: ${errorMessage(error)}`,
+      );
+    }
+  }
+
+  /**
+   * Reconcile Mona's rows against the engine's own pending list.
+   *
+   * This is the only authority for "is this still answerable": a request whose
+   * event predates the stream cursor is never replayed, so a reconnect that
+   * trusted its local rows alone would offer an approval the Runtime already
+   * dropped. When the engine reports no list at all, nothing is expired — an
+   * engine that does not answer this question is not an engine with nothing
+   * pending.
+   */
+  private async hydratePending(session: StudioSession, binding: ModeBinding): Promise<void> {
+    const engineThreadId = binding.engineThreadId;
+    if (!engineThreadId) return;
+    let snapshot;
+    try {
+      snapshot = await session.adapter.readPendingRequests({ threadId: engineThreadId });
+    } catch (error) {
+      this.diagnose(
+        session,
+        `the engine's pending-request list could not be read; Mona keeps what it recorded: ${errorMessage(error)}`,
+      );
+      return;
+    }
+    if (!snapshot.available) return;
+    const signals: PendingSignal[] = [...snapshot.approvals, ...snapshot.inputs];
+    for (const signal of signals) {
+      await this.recordPending(session, binding, signal, true);
+    }
+    // Reconcile each kind only against the list the engine actually reported:
+    // an engine that omitted (or does not yet know) one list has not said
+    // anything about that kind, and expiring from silence would invent an
+    // absence. The pinned 0.10.2 reports both; a narrower payload must not be
+    // read as "nothing pending there".
+    for (const kind of ["approval", "user_input"] as const) {
+      const reported = kind === "approval" ? snapshot.approvalsAvailable : snapshot.inputsAvailable;
+      if (!reported) continue;
+      try {
+        await this.store.expireUnlistedPendingRequests({
+          engineThreadId,
+          kind,
+          keep: signals
+            .filter((signal) => signal.kind === kind)
+            .map((signal) => ({ kind: signal.kind, requestKey: signal.requestKey })),
+          note: "the engine no longer lists this request; it expired or was settled elsewhere",
+        });
+      } catch (error) {
+        this.diagnose(
+          session,
+          `stale pending requests could not be marked: ${errorMessage(error)}`,
+        );
+      }
+    }
+  }
+
+  /**
+   * Hydrate every conversation this project already knows about, newest first,
+   * bounded. Used on a cold start, where the process holds no bindings yet.
+   */
+  private async hydrateStoredThreads(session: StudioSession): Promise<void> {
+    let threads;
+    try {
+      threads = await this.store.listThreads(session.projectId);
+    } catch (error) {
+      this.diagnose(session, `stored conversations could not be read: ${errorMessage(error)}`);
+      return;
+    }
+    for (const thread of threads.slice(0, 4)) {
+      if (!thread.engineThreadId) continue;
+      const parsed = ThreadIdSchema.safeParse(thread.engineThreadId);
+      if (!parsed.success) continue;
+      await this.hydratePending(session, {
+        localThreadId: thread.id,
+        engineThreadId: parsed.data,
+        mode: (thread.mode === "plan" ? "plan" : "work") as StudioMode,
+        generation: thread.generation,
+      });
+    }
+  }
+
+  /**
+   * Send one answer to one engine request.
+   *
+   * The database claims the row before the request leaves (compare-and-set on
+   * status), so a second click, a duplicate IPC delivery, or a restarted renderer
+   * cannot send a second decision for a single-use capability. "Answered" is
+   * reported only after the Runtime's own 2xx; a 404 is reported as expired and
+   * a transport failure as unknown, so nothing claims delivery it did not see.
+   */
+  async answerPending(
+    projectId: ProjectId,
+    requestId: string,
+    response: PendingResponseInput,
+  ): Promise<StudioPendingResult> {
+    const row = await this.store.getPendingRequest(requestId);
+    if (!row || row.projectId !== projectId) {
+      throw new StudioError("NOT_FOUND", "that pending request is not in this project", {
+        requestId,
+      });
+    }
+    const session = this.active?.projectId === projectId ? this.active : null;
+    const blocked = cannotAnswerReason(row, session);
+    if (blocked !== null) {
+      throw new StudioError("NOT_CONNECTED", blocked, { requestId, status: row.status });
+    }
+    const live = session as StudioSession;
+    const engineThreadId = row.engineThreadId;
+    if (row.kind === "approval" && response.kind !== "approval") {
+      throw new StudioError("INVALID_INPUT", "an approval needs an allow or deny decision");
+    }
+    if (row.kind === "user_input" && response.kind !== "user_input") {
+      throw new StudioError("INVALID_INPUT", "a question needs answer values");
+    }
+    if (row.kind === "user_input") {
+      // Refuse an answer this build cannot build into a valid submission before
+      // touching the row: the engine validates ids and option labels, and a
+      // half-valid answer would be a refusal after a claim.
+      const detail = row.detail as PendingSignal | null;
+      const questions = detail === null ? [] : questionsOf(detail);
+      const answers = response.kind === "user_input" ? response.answers : [];
+      const reason = validateAnswers(questions, answers);
+      if (reason !== null) throw new StudioError("INVALID_INPUT", reason);
+    }
+
+    const claimed = await this.store.claimPendingRequest(row.id);
+    if (!claimed) {
+      const current = await this.store.getPendingRequest(row.id);
+      throw new StudioError(
+        "INVALID_INPUT",
+        current === null
+          ? "that request no longer exists"
+          : (cannotAnswerReason(current, live) ?? "that request is no longer pending"),
+        { requestId: row.id, status: current?.status ?? null },
+      );
+    }
+    live.answering.add(row.id);
+    let receipt;
+    try {
+      receipt =
+        response.kind === "approval"
+          ? await live.adapter.answerApproval({
+              threadId: engineThreadId as ThreadId,
+              approvalId: row.requestKey,
+              decision: response.decision,
+              remember: response.remember,
+            })
+          : await live.adapter.answerUserInput({
+              threadId: engineThreadId as ThreadId,
+              requestId: row.requestKey,
+              answers: response.answers,
+            });
+    } catch (error) {
+      // The write may have landed. The row keeps that uncertainty rather than
+      // being reset to "pending", where a retry could double-answer.
+      const updated = await this.store
+        .finishPendingRequest({
+          id: row.id,
+          status: "unknown",
+          decision: response.kind === "approval" ? response.decision : null,
+          note: `the reply may not have reached the engine: ${errorMessage(error)}`,
+          settled: false,
+        })
+        .catch(() => null);
+      this.diagnose(live, `an answer to the engine could not be delivered: ${errorMessage(error)}`);
+      this.push(live, "control", "pending_answer_unknown");
+      return {
+        request: pendingView(updated ?? row, live),
+        acknowledged: false,
+        outcome: "unknown",
+        note: "Mona could not confirm delivery. Read the engine's list before answering again.",
+        snapshot: await this.snapshot(projectId),
+      };
+    } finally {
+      live.answering.delete(row.id);
+    }
+
+    const outcome = receipt.acknowledged
+      ? "answered"
+      : receipt.status === 404
+        ? "expired"
+        : "refused";
+    const updated = await this.store.finishPendingRequest({
+      id: row.id,
+      status: receipt.acknowledged ? "answered" : receipt.status === 404 ? "expired" : "pending",
+      // A decision is recorded only when the Runtime accepted it. A 404 means
+      // nothing was sent, so the row must not claim the user denied anything.
+      decision: receipt.acknowledged && response.kind === "approval" ? response.decision : null,
+      decidedBy: receipt.acknowledged ? "user" : null,
+      acknowledgement: `${receipt.status} ${receipt.note}`,
+      note: receipt.acknowledged ? null : receipt.note,
+      settled: receipt.acknowledged || receipt.status === 404,
+    });
+    this.push(live, "control", receipt.acknowledged ? "input_answered" : "pending_answer_refused");
+    return {
+      request: pendingView(updated ?? row, live),
+      acknowledged: receipt.acknowledged,
+      outcome,
+      note: receipt.note,
+      snapshot: await this.snapshot(projectId),
+    };
   }
 
   private async finishTurn(
@@ -1062,7 +1532,10 @@ export class WorkStudio {
     }
 
     session.active = null;
-    session.pendingInput = null;
+    // A turn that ends drops its pending asks on the engine side. Reconcile
+    // against the engine rather than assuming: a request answered on another
+    // client is settled, and one still listed stays answerable.
+    await this.hydratePending(session, binding);
     this.work.taskFinished();
     if (turnId && this.onTurnFinished) {
       try {
@@ -1554,7 +2027,9 @@ export class WorkStudio {
           }
         : null,
       diagnostics: session ? [...session.diagnostics] : [],
-      pendingInput: session?.pendingInput ?? null,
+      pendingRequests: (await this.store.listPendingRequests(projectId, { limit: 20 })).map((row) =>
+        pendingView(row, session),
+      ),
       canSubmit: block === null,
       cannotSubmitReason: block,
       controls: {

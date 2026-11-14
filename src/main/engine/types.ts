@@ -3,11 +3,13 @@ import type {
   EffectiveProfile,
   EventEnvelope,
   OperationKey,
+  PendingAnswerInput,
   SubmissionState,
   SubmissionStatus,
   ThreadId,
   TurnId,
 } from "../../shared/contracts";
+import type { PendingApprovalSignal, PendingUserInputSignal } from "../../shared/contracts/pending";
 
 export interface RuntimeStartInput {
   workspace: string;
@@ -125,6 +127,38 @@ export interface InterruptReceipt {
   interrupted: boolean;
   turn: TurnRecord | null;
   note: string;
+}
+
+/**
+ * What the Runtime answered when Mona replied to one of its pending asks.
+ *
+ * `acknowledged` is true only for a 2xx: the capability was still live and the
+ * decision was delivered. `404` is a real outcome (already answered, expired, or
+ * settled elsewhere) and is returned rather than thrown, because the screen has
+ * to tell that apart from a transport failure.
+ */
+export interface PendingReplyReceipt {
+  status: number;
+  acknowledged: boolean;
+  note: string;
+}
+
+/**
+ * The engine's own answer to "what is still pending here". `available` is false
+ * when the thread detail carried neither list at all; an engine that does not
+ * report them is not an engine with nothing pending.
+ */
+export interface PendingSnapshot {
+  /** True when at least one of the two lists was present in the payload. */
+  available: boolean;
+  /**
+   * Which lists the engine actually reported. An absent list is silence, not an
+   * empty one: only a reported list may be used to expire stored rows.
+   */
+  approvalsAvailable: boolean;
+  inputsAvailable: boolean;
+  approvals: PendingApprovalSignal[];
+  inputs: PendingUserInputSignal[];
 }
 
 export interface UsageQuery {
@@ -331,6 +365,20 @@ export interface EngineAdapter {
   subscribe(input: SubscribeInput): AsyncIterable<SubscriptionItem>;
   interrupt(input: { threadId: ThreadId; turnId: TurnId }): Promise<InterruptReceipt>;
   readHistory(input: { threadId: ThreadId }): Promise<HistoryPage>;
+  // R07. The Runtime mints the capability; Mona echoes it verbatim and never
+  // constructs one of its own.
+  answerApproval(input: {
+    threadId: ThreadId;
+    approvalId: string;
+    decision: "allow" | "deny";
+    remember: boolean;
+  }): Promise<PendingReplyReceipt>;
+  answerUserInput(input: {
+    threadId: ThreadId;
+    requestId: string;
+    answers: PendingAnswerInput[];
+  }): Promise<PendingReplyReceipt>;
+  readPendingRequests(input: { threadId: ThreadId }): Promise<PendingSnapshot>;
   readUsage(input: UsageQuery): Promise<UsageReport>;
   getEffectiveProfile(input: {
     threadId: ThreadId;

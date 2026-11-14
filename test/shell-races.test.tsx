@@ -170,7 +170,7 @@ function studioSnapshot(id: ProjectId): StudioSnapshot {
     cost: { observed: false, costUsd: 0, costComplete: false, turns: 0, label: "unpriced" },
     submission: null,
     diagnostics: [],
-    pendingInput: null,
+    pendingRequests: [],
     canSubmit: true,
     cannotSubmitReason: null,
     controls: { canInterrupt: false, canPause: true, canCancelQueued: false, canStop: true },
@@ -249,6 +249,8 @@ interface World {
   fullscreenListeners: Array<(view: WindowFullscreenView) => void>;
   toggleFocusListeners: Array<() => void>;
   savedViews: Array<Record<string, unknown>>;
+  /** R10: the project each conversation search was run against. */
+  searchCalls: Array<{ projectId: string; query: string }>;
 }
 
 function world(projects: ProjectSummary[]): World {
@@ -274,6 +276,7 @@ function world(projects: ProjectSummary[]): World {
     fullscreenListeners: [],
     toggleFocusListeners: [],
     savedViews: [],
+    searchCalls: [],
   };
 }
 
@@ -342,6 +345,25 @@ function install(state: World): void {
     polishDigest: async () => ({ ok: false, error: { code: "NONE", message: "no digest" } }),
     polishStatus: async () => ({ ok: false, error: { code: "NONE", message: "no status" } }),
     promptFavorites: async () => ok([]),
+    searchHistory: async (projectId: string, query: string) => {
+      state.searchCalls.push({ projectId, query });
+      return ok({
+        query,
+        scannedAt: "2026-11-11T00:00:00.000Z",
+        hits: query.trim()
+          ? [
+              {
+                threadId: `thr_${projectId.slice(4)}`,
+                seq: 4,
+                itemId: "item_search",
+                kind: "item.completed",
+                timestamp: "2026-11-11T00:00:04.000Z",
+                snippet: `${projectId} stored text mentions ${query}`,
+              },
+            ]
+          : [],
+      });
+    },
     saveDraft: async (projectId: string, threadId: string, text: string) => {
       state.saveCalls.push({ projectId, threadId, text });
       if (state.saveManual) {
@@ -1452,5 +1474,50 @@ describe("focus Studio and native full screen", () => {
     });
     await tick(2);
     expect(document.documentElement.dataset.focusMode).toBe("off");
+  });
+});
+
+describe("R10 search is scoped to the project it was run in", () => {
+  it("drops results and the jump anchor when another project opens", async () => {
+    const state = world([project(A, "A"), project(B, "B")]);
+    for (const id of [A, B]) {
+      const summary = project(id, id === A ? "A" : "B");
+      const value: ProjectDetail = detail(summary);
+      value.events = [
+        {
+          threadId: `thr_${id.slice(4)}`,
+          seq: 4,
+          kind: "item.completed",
+          payload: { item: { id: "item_search", kind: "agent_message", detail: "parser" } },
+          timestamp: "2026-11-11T00:00:04.000Z",
+          turnId: null,
+          itemId: "item_search",
+        },
+      ];
+      state.details.set(id, value);
+    }
+    await boot(state);
+    await openProject(A, "A");
+    const field = container!.querySelector<HTMLInputElement>(".history-search input");
+    if (!field) throw new Error("the search field is not rendered");
+    act(() => {
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set;
+      setter?.call(field, "parser");
+      field.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+    await tick(6);
+    expect(state.searchCalls.at(-1)).toEqual({ projectId: A, query: "parser" });
+    expect(container!.textContent).toContain("1 match");
+    expect(container!.textContent).toContain(`${A} stored text mentions parser`);
+
+    // Switching project must not leave the previous project's stored text on
+    // screen, nor page the new project's history looking for the old anchor.
+    await goHome();
+    await openProject(B, "B");
+    await tick(4);
+    const after = container!.querySelector<HTMLInputElement>(".history-search input");
+    expect(after?.value).toBe("");
+    expect(container!.textContent).not.toContain(`${A} stored text mentions parser`);
+    expect(container!.textContent).toContain("Matches this project's stored text.");
   });
 });

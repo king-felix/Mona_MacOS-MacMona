@@ -7,8 +7,15 @@ import type {
   ZoomView,
 } from "../../shared/contracts/bridge";
 import type { ProjectId, TaskId } from "../../shared/contracts/ids";
-import type { StudioActionResult, StudioMode, StudioSnapshot } from "../../shared/contracts/studio";
 import type {
+  PendingResponseInput,
+  StudioActionResult,
+  StudioFilePreview,
+  StudioMode,
+  StudioSnapshot,
+} from "../../shared/contracts/studio";
+import type {
+  HistorySearchHit,
   IpcResult,
   ProjectDetail,
   ProjectSummary,
@@ -57,8 +64,10 @@ import {
 import {
   applyDensity,
   applyReducedMotion,
+  applyIntensity,
   applyTheme,
   type Density,
+  type Intensity,
   type ThemeName,
 } from "../design/tokens";
 import monaMark from "../assets/mona-mark.png";
@@ -75,6 +84,7 @@ import { TerminalPanel } from "./TerminalPanel";
 import { rankPalette, type PaletteDetail, type PaletteEntry, type PaletteKind } from "./palette";
 import { DraftJournal, SelectionEpoch, SubmissionGate, type SubmissionIdentity } from "./session";
 import { HistoryPager, type HistoryView } from "./history";
+import { insertPromptText } from "./composer-text";
 import {
   classifyComposerText,
   couldBeCommandText,
@@ -170,6 +180,12 @@ export function Shell(): JSX.Element {
     const stored = localStorage.getItem("mona.density");
     return stored === "dense" ? "dense" : "comfortable";
   });
+  // R06 decoration intensity. Local, like theme and density: it changes no
+  // information and starts no work, so it needs no main-process round trip.
+  const [intensity, setIntensity] = useState<Intensity>(() => {
+    const stored = localStorage.getItem("mona.intensity");
+    return stored === "quiet" ? "quiet" : "vivid";
+  });
   // Interface scale is owned by main (it persists in the settings table); the
   // shell mirrors it so Settings can show the exact percentage.
   const [zoom, setZoom] = useState<ZoomView | null>(null);
@@ -211,6 +227,9 @@ export function Shell(): JSX.Element {
   const [studio, setStudio] = useState<StudioSnapshot | null>(null);
   const [studioMode, setStudioMode] = useState<StudioMode>("work");
   const [studioBusy, setStudioBusy] = useState(false);
+  // R07: the engine request whose answer is in flight, so one card cannot be
+  // clicked twice while the Runtime decides.
+  const [pendingAnswerId, setPendingAnswerId] = useState<string | null>(null);
   const [dropActive, setDropActive] = useState(false);
   const [digest, setDigest] = useState<PolishDigestView | null>(null);
   const [polishStatus, setPolishStatus] = useState<PolishStatusView | null>(null);
@@ -237,6 +256,22 @@ export function Shell(): JSX.Element {
     text: string;
   } | null>(null);
   const [quitOpen, setQuitOpen] = useState(false);
+  // R10: conversation search and the composer's file mention. Both are local
+  // reads; neither starts anything.
+  const [search, setSearch] = useState<{
+    query: string;
+    hits: HistorySearchHit[];
+    busy: boolean;
+    error: string | null;
+    anchor: { itemId: string | null; seq: number } | null;
+  }>({ query: "", hits: [], busy: false, error: null, anchor: null });
+  const searchToken = useRef(0);
+  const [mention, setMention] = useState<{
+    path: string;
+    busy: boolean;
+    preview: StudioFilePreview | null;
+    error: string | null;
+  } | null>(null);
 
   const queryRef = useRef(query);
   const archivedRef = useRef(showArchived);
@@ -314,12 +349,36 @@ export function Shell(): JSX.Element {
     localStorage.setItem("mona.density", density);
   }, [density]);
   useEffect(() => {
+    applyIntensity(intensity);
+    localStorage.setItem("mona.intensity", intensity);
+  }, [intensity]);
+  useEffect(() => {
     applyReducedMotion(false);
+  }, []);
+  // Decoration must not run in a window nobody is looking at. Electron keeps a
+  // hidden window's compositor alive, so the pulse is switched off at the source
+  // rather than left to the compositor's own throttling.
+  useEffect(() => {
+    const sync = (): void => {
+      const hidden = document.visibilityState === "hidden";
+      if (hidden) document.documentElement.dataset.documentHidden = "true";
+      else delete document.documentElement.dataset.documentHidden;
+    };
+    sync();
+    document.addEventListener("visibilitychange", sync);
+    return () => document.removeEventListener("visibilitychange", sync);
   }, []);
 
   useEffect(() => {
     document.documentElement.dataset.screen = screen;
   }, [screen]);
+  // R10: search results belong to one project's stored text. Carrying them (and
+  // the jump anchor) across a project switch would show one project's snippets
+  // and page another project's history.
+  useEffect(() => {
+    searchToken.current += 1;
+    setSearch({ query: "", hits: [], busy: false, error: null, anchor: null });
+  }, [selected?.project.id]);
   useEffect(() => {
     document.documentElement.dataset.focusMode = focusMode ? "on" : "off";
   }, [focusMode]);
@@ -558,11 +617,13 @@ export function Shell(): JSX.Element {
     (favorite: PromptFavorite): void => {
       // Insertion goes through the same journal path as typing, so it cannot
       // bypass serialization, and it never overwrites unsent text silently.
-      const current = drafts.current()?.text ?? "";
-      const text =
-        current.trim().length === 0 ? favorite.text : `${current.trimEnd()}\n\n${favorite.text}`;
-      writeDraft(text);
-      setNotice(`Inserted “${favorite.label}” into the composer. Nothing has been sent.`);
+      const text = insertPromptText(drafts.current()?.text ?? "", favorite.text);
+      writeDraft(text.text);
+      setNotice(
+        text.replacedUnsent
+          ? `Replaced whitespace-only text with “${favorite.label}”. Nothing has been sent.`
+          : `Inserted “${favorite.label}” into the composer${text.kept ? " after your unsent text" : ""}. Nothing has been sent.`,
+      );
     },
     [drafts, writeDraft],
   );
@@ -1379,6 +1440,161 @@ export function Shell(): JSX.Element {
     }
   }, [epoch, refreshSelected, reportError, reportNotice]);
 
+  /**
+   * R07. Answer one engine request. The row is claimed in main before the reply
+   * leaves, and "answered" is reported only for the Runtime's own 2xx — so the
+   * notice here says what the engine did, not that a button was pressed.
+   */
+  const answerPending = useCallback(
+    async (requestId: string, response: PendingResponseInput): Promise<void> => {
+      const current = selectedRef.current;
+      if (!current) return;
+      const token = epoch.current();
+      const name = current.project.name;
+      setPendingAnswerId(requestId);
+      try {
+        const result = await window.mona.answerPendingRequest(
+          current.project.id,
+          requestId,
+          response,
+        );
+        if (!result.ok) {
+          reportError(token, name, result.error);
+          return;
+        }
+        const answered = result.value;
+        if (epoch.isCurrent(token)) setStudio(answered.snapshot);
+        if (answered.acknowledged) {
+          reportNotice(token, name, `Engine acknowledged the answer. ${answered.note}`);
+        } else if (answered.outcome === "expired") {
+          setNoticeTone("attention");
+          reportNotice(token, name, `Nothing was sent: ${answered.note}`);
+        } else {
+          setNoticeTone("attention");
+          reportNotice(token, name, `The answer was not confirmed. ${answered.note}`);
+        }
+        await refreshSelected();
+      } finally {
+        setPendingAnswerId(null);
+      }
+    },
+    [epoch, refreshSelected, reportError, reportNotice],
+  );
+
+  /**
+   * R10. Search stored conversation text. The query is matched in SQLite in
+   * main over this project's events only; the newest search wins, so typing
+   * quickly cannot leave an older result list on screen.
+   */
+  const runSearch = useCallback(async (query: string): Promise<void> => {
+    const current = selectedRef.current;
+    setSearch((previous) => ({ ...previous, query, anchor: null }));
+    if (!current || query.trim().length === 0) {
+      setSearch({ query, hits: [], busy: false, error: null, anchor: null });
+      return;
+    }
+    const token = ++searchToken.current;
+    setSearch((previous) => ({ ...previous, query, busy: true, error: null }));
+    const result = await window.mona.searchHistory(current.project.id, query.trim(), { limit: 50 });
+    if (token !== searchToken.current) return;
+    if (!result.ok) {
+      setSearch({ query, hits: [], busy: false, error: result.error.message, anchor: null });
+      return;
+    }
+    setSearch({
+      query,
+      hits: result.value.hits,
+      busy: false,
+      error: null,
+      anchor: null,
+    });
+  }, []);
+
+  const jumpToHit = useCallback((hit: HistorySearchHit): void => {
+    setSearch((previous) => ({
+      ...previous,
+      anchor: { itemId: hit.itemId, seq: hit.seq },
+    }));
+  }, []);
+
+  /**
+   * R10. Copy through the main process so the notice describes what the
+   * clipboard actually holds. A refused or partial clipboard is reported as a
+   * failure; the document is never modified by a copy.
+   */
+  const copyText = useCallback(
+    async (text: string, label: "message" | "code" | "prompt"): Promise<void> => {
+      const token = epoch.current();
+      const name = selectedRef.current?.project.name ?? "Mona";
+      const result = await window.mona.copyToClipboard(text, label);
+      if (!result.ok) {
+        setNoticeTone("attention");
+        reportNotice(token, name, `Copy failed: ${result.error.message}`);
+        return;
+      }
+      setNoticeTone(result.value.written ? "success" : "attention");
+      reportNotice(token, name, result.value.note);
+    },
+    [epoch, reportNotice],
+  );
+
+  /**
+   * R10. Read a workspace file through the engine's contained route and show
+   * what inserting it would cost. Nothing is inserted until the user says so,
+   * and the block is plain text in the composer — not an upload.
+   */
+  const previewMention = useCallback(async (): Promise<void> => {
+    const current = selectedRef.current;
+    if (!current || !mention) return;
+    setMention({ ...mention, busy: true, error: null, preview: null });
+    const result = await window.mona.previewWorkspaceFile(current.project.id, mention.path);
+    if (!result.ok) {
+      setMention((previous) =>
+        previous ? { ...previous, busy: false, error: result.error.message, preview: null } : null,
+      );
+      return;
+    }
+    setMention((previous) =>
+      previous ? { ...previous, busy: false, preview: result.value } : null,
+    );
+  }, [mention]);
+
+  const insertMention = useCallback((): void => {
+    const preview = mention?.preview;
+    if (!preview || preview.content === null) return;
+    // A fence longer than any run of backticks in the file, so a file that
+    // itself contains ``` cannot close the block early.
+    const longest = (preview.content.match(/`+/g) ?? []).reduce(
+      (max, run) => Math.max(max, run.length),
+      0,
+    );
+    const fence = "`".repeat(Math.max(3, longest + 1));
+    const language = preview.path.includes(".")
+      ? preview.path.slice(preview.path.lastIndexOf(".") + 1)
+      : "text";
+    const block = [
+      `File context: ${preview.path}${
+        preview.sizeBytes === null ? "" : ` (${preview.sizeBytes} bytes`
+      }${preview.estimatedTokens === null ? ")" : `, ~${preview.estimatedTokens} tokens estimated)`}${
+        preview.truncated ? " — truncated by Mona's read limit" : ""
+      }`,
+      "",
+      `${fence}${language}`,
+      preview.content,
+      fence,
+    ].join("\n");
+    // The same tested insertion rule as a favorite: append, keep every byte of
+    // unsent text, and say when a whitespace-only draft was replaced.
+    const insertion = insertPromptText(drafts.current()?.text ?? "", block);
+    writeDraft(insertion.text);
+    setMention(null);
+    setNotice(
+      insertion.replacedUnsent
+        ? "Replaced whitespace-only text with the file's content. Nothing has been sent."
+        : `Inserted ${preview.path} into the composer. Nothing has been sent.`,
+    );
+  }, [drafts, mention, writeDraft]);
+
   const openCapabilityEntry = useCallback(
     (entry: {
       kind: PaletteEntry["entryKind"];
@@ -1653,6 +1869,18 @@ export function Shell(): JSX.Element {
       if (event.metaKey && event.key === "/") {
         event.preventDefault();
         setShortcutsOpen(true);
+        return;
+      }
+      if (event.metaKey && !event.shiftKey && event.key.toLowerCase() === "f") {
+        // Only inside the Studio, and only into the conversation search: the
+        // window's own find is not replaced, and nothing is matched until the
+        // reader types.
+        if (document.documentElement.dataset.screen !== "studio") return;
+        const field = document.querySelector<HTMLInputElement>(".history-search input");
+        if (!field) return;
+        event.preventDefault();
+        field.focus();
+        field.select();
         return;
       }
       // Escape leaves Focus Mode when no dialog owns the key. The composer and
@@ -1942,6 +2170,21 @@ export function Shell(): JSX.Element {
             onCancelQueued={() => void runStudioAction((id) => window.mona.cancelQueued(id))}
             onStop={() => void runStudioAction((id) => window.mona.stopStudio(id))}
             onReconcile={() => void reconcileStudio()}
+            onAnswerPending={(requestId, response) => void answerPending(requestId, response)}
+            pendingAnswerId={pendingAnswerId}
+            onCopy={(text, label) => void copyText(text, label)}
+            search={{
+              query: search.query,
+              hits: search.hits,
+              busy: search.busy,
+              error: search.error,
+              anchor: search.anchor,
+              onQuery: (value) => void runSearch(value),
+              onJump: jumpToHit,
+              onClear: () => void runSearch(""),
+            }}
+            onShowChanges={() => setScreen("changes")}
+            onMentionFile={() => setMention({ path: "", busy: false, preview: null, error: null })}
             focusMode={focusLayout}
             focusPreference={focusMode}
             windowFullscreen={windowFullscreen}
@@ -2012,9 +2255,11 @@ export function Shell(): JSX.Element {
             tools={tools}
             theme={theme}
             density={density}
+            intensity={intensity}
             zoom={zoom}
             onTheme={setTheme}
             onDensity={setDensity}
+            onIntensity={setIntensity}
             onZoom={(factor) => void applyZoom(factor)}
             polish={polishStatus}
             onPatchPreferences={async (patch) => {
@@ -2242,6 +2487,91 @@ export function Shell(): JSX.Element {
         ) : null}
       </Dialog>
       <Dialog
+        open={mention !== null}
+        title="Mention a project file"
+        description="Reads one workspace-relative file through the engine's contained route, then inserts its text into the composer. Nothing is uploaded, and nothing is sent until you press Send."
+        onClose={() => setMention(null)}
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setMention(null)}>
+              Cancel
+            </Button>
+            <Button
+              variant="secondary"
+              disabled={!mention || mention.busy || mention.path.trim().length === 0}
+              onClick={() => void previewMention()}
+            >
+              {mention?.busy ? "Reading…" : "Read file"}
+            </Button>
+            <Button
+              variant="primary"
+              disabled={!mention?.preview || mention.preview.content === null}
+              onClick={insertMention}
+            >
+              Insert as text
+            </Button>
+          </>
+        }
+      >
+        <TextField
+          label="Workspace-relative path"
+          value={mention?.path ?? ""}
+          placeholder="src/main/work/studio.ts"
+          mono
+          onChange={(event) =>
+            setMention((previous) =>
+              previous ? { ...previous, path: event.target.value } : previous,
+            )
+          }
+        />
+        <p className="hint-line">
+          Absolute paths and <code>..</code> are refused. Binary files stay unavailable: the pinned
+          adapter accepts text context, not attachments.
+        </p>
+        {mention?.error ? (
+          <Callout tone="danger" title="That file could not be read">
+            {mention.error}
+          </Callout>
+        ) : null}
+        {mention?.preview ? (
+          <div className="mention-preview" data-testid="mention-preview">
+            <dl className="detail-list">
+              <div className="detail-row">
+                <dt>Path</dt>
+                <dd className="mono wrap">{mention.preview.path}</dd>
+              </div>
+              <div className="detail-row">
+                <dt>Availability</dt>
+                <dd>{mention.preview.availability}</dd>
+              </div>
+              <div className="detail-row">
+                <dt>Size</dt>
+                <dd>
+                  {mention.preview.sizeBytes === null
+                    ? "not reported by the engine"
+                    : `${mention.preview.sizeBytes} bytes`}
+                  {mention.preview.truncated ? " · truncated by Mona's read limit" : ""}
+                </dd>
+              </div>
+              <div className="detail-row">
+                <dt>Cost</dt>
+                <dd>
+                  {mention.preview.estimatedTokens === null
+                    ? "no text to estimate"
+                    : `~${mention.preview.estimatedTokens} tokens (estimated at 4 characters per token; this submission is billed by the engine)`}
+                </dd>
+              </div>
+            </dl>
+            <p className="hint-line">{mention.preview.note}</p>
+            {mention.preview.content !== null ? (
+              <pre className="mention-preview__text mono">
+                {mention.preview.content.slice(0, 800)}
+              </pre>
+            ) : null}
+          </div>
+        ) : null}
+      </Dialog>
+      <Dialog
         open={shortcutsOpen}
         title="Keyboard shortcuts"
         description="Every screen is reachable without a mouse. Navigation makes no model call."
@@ -2255,9 +2585,11 @@ export function Shell(): JSX.Element {
         <dl className="shortcut-list" data-testid="shortcut-list">
           <div className="shortcut-row">
             <dt>
-              <KeyCap>⌘1</KeyCap>–<KeyCap>⌘8</KeyCap>
+              <KeyCap>⌘1</KeyCap>–<KeyCap>⌘9</KeyCap>
             </dt>
-            <dd>Home, Studio, Work board, Changes, Cost lens, Settings, Agents, Capabilities</dd>
+            <dd>
+              Home, Studio, Work board, Changes, Cost lens, Settings, Agents, Capabilities, Memory
+            </dd>
           </div>
           <div className="shortcut-row">
             <dt>
@@ -2276,6 +2608,21 @@ export function Shell(): JSX.Element {
               <KeyCap>⌘O</KeyCap>
             </dt>
             <dd>Open a project folder</dd>
+          </div>
+          <div className="shortcut-row">
+            <dt>
+              <KeyCap>⌘F</KeyCap>
+            </dt>
+            <dd>Search this conversation's stored text (Studio; local read, no model call)</dd>
+          </div>
+          <div className="shortcut-row">
+            <dt>
+              <KeyCap>⌘C</KeyCap>
+            </dt>
+            <dd>
+              Native copy for any selection. Each timeline card and fenced code block also carries
+              its own Copy control, confirmed only after the clipboard holds the text.
+            </dd>
           </div>
           <div className="shortcut-row">
             <dt>

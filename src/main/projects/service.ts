@@ -7,6 +7,7 @@ import type {
   EvidenceSummary,
   HistoryItemPage,
   HistoryPage,
+  HistorySearchResult,
   OpenProjectResult,
   ProjectDetail,
   ProjectSummary,
@@ -362,6 +363,36 @@ export class ProjectService {
       truncated: result.truncated,
       storedCount: result.storedCount,
     };
+  }
+
+  /**
+   * R10. Search this project's stored conversation text. A read of Mona's own
+   * state: no runtime, no model, and the query never leaves the process.
+   */
+  async searchEvents(
+    id: ProjectId,
+    query: string,
+    options: { limit?: number; threadId?: string | null } = {},
+  ): Promise<HistorySearchResult> {
+    const project = await this.store.getProject(id);
+    if (!project) {
+      throw new StateError("NOT_FOUND", "project is not in the catalog", { projectId: id });
+    }
+    if (options.threadId) {
+      const threads = await this.store.listThreads(id);
+      if (!threads.some((entry) => entry.id === options.threadId)) {
+        throw new StateError("CONFLICT", "thread does not belong to this project", {
+          threadId: options.threadId,
+        });
+      }
+    }
+    const hits = await this.store.searchProjectEvents({
+      projectId: id,
+      query,
+      limit: options.limit,
+      threadId: options.threadId ?? null,
+    });
+    return { query: query.trim(), hits, scannedAt: new Date().toISOString() };
   }
 
   async rename(id: ProjectId, name: string, expectedRevision: number): Promise<ProjectSummary> {

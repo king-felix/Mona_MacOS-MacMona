@@ -97,6 +97,7 @@ const IS_OPEN_SMOKE = process.argv.includes("--open-smoke");
 const IS_HISTORY_SMOKE = process.argv.includes("--history-smoke");
 const IS_COMMAND_SMOKE = process.argv.includes("--command-smoke");
 const IS_IMMERSIVE_SMOKE = process.argv.includes("--immersive-smoke");
+const IS_AURORA_SMOKE = process.argv.includes("--aurora-smoke");
 const IS_PACKAGE_SMOKE = process.argv.includes("--package-smoke");
 const PACKAGE_SMOKE_OUT = (() => {
   const inline = process.argv.find((argument) => argument.startsWith("--package-smoke-out="));
@@ -145,6 +146,7 @@ let studioSmokeRoot: string | null = null;
 let historySmokeProjectId: string | null = null;
 let commandSmokeProjectId: string | null = null;
 let immersiveSmokeProjectId: string | null = null;
+let auroraSmokeProjectId: string | null = null;
 let openCoordinator: OpenCoordinator | null = null;
 let resolveCoordinatorReady: (() => void) | null = null;
 interface EngineIdentity {
@@ -333,6 +335,16 @@ function openWindow(): BrowserWindow {
       void runImmersiveSmoke(window)
         .catch((error: unknown) => {
           process.stderr.write(`immersive smoke failed: ${String(error)}\n`);
+          process.exitCode = 1;
+        })
+        .finally(() => app.quit());
+    });
+  }
+  if (IS_AURORA_SMOKE) {
+    window.webContents.once("did-finish-load", () => {
+      void runAuroraSmoke(window)
+        .catch((error: unknown) => {
+          process.stderr.write(`aurora smoke failed: ${String(error)}\n`);
           process.exitCode = 1;
         })
         .finally(() => app.quit());
@@ -3364,6 +3376,550 @@ async function runImmersiveSmoke(window: BrowserWindow): Promise<void> {
   if (report.ok !== true) process.exitCode = 1;
 }
 
+/**
+ * R06 evidence runner: the production shell, both themes, both decoration
+ * intensities, normal and immersive layouts, and the states that used to be
+ * text-only (a pending approval, a pending question, a failed tool call, a long
+ * answer). Every value it reports is measured from the rendered document.
+ *
+ * No runtime is started and no model request is made. This comment is a claim
+ * about the code below: `studio.start` is never called here.
+ */
+async function runAuroraSmoke(window: BrowserWindow): Promise<void> {
+  const outDir =
+    process.env.MONA_AURORA_SMOKE_OUT_DIR ??
+    join(process.cwd(), "docs", "evidence", "macos", "review-studio", "artifacts");
+  mkdirSync(outDir, { recursive: true });
+  window.setSize(1280, 800);
+  const report: Record<string, unknown> = {
+    schema_version: 1,
+    label: "R06 AURORA STUDIO — production shell, no engine, no model request",
+    captured_at: new Date().toISOString(),
+    ok: false,
+    checks: {} as Record<string, boolean>,
+    facts: {} as Record<string, unknown>,
+    screenshots: [] as string[],
+  };
+  const checks = report.checks as Record<string, boolean>;
+  const facts = report.facts as Record<string, unknown>;
+  const screenshots = report.screenshots as string[];
+  const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
+  const evaluate = async (expression: string): Promise<unknown> =>
+    window.webContents.executeJavaScript(expression);
+  const waitFor = async (expression: string, timeoutMs = 20_000): Promise<boolean> => {
+    const deadline = Date.now() + timeoutMs;
+    while (Date.now() < deadline) {
+      if (await evaluate(expression)) return true;
+      await sleep(80);
+    }
+    return false;
+  };
+  // A capture must be of the frame the document is actually showing. Electron
+  // can hand back the previous composited frame after a style change, so the
+  // shot waits for two animation frames, asks for an invalidate, and only then
+  // captures. The report also asserts that no two captures are byte-identical:
+  // a stale frame is how a "before/after" pair silently becomes one image twice.
+  const shot = async (name: string): Promise<void> => {
+    await evaluate(
+      "new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve(true))))",
+    );
+    window.webContents.invalidate();
+    await sleep(220);
+    const image = await window.webContents.capturePage();
+    writeFileSync(join(outDir, name), image.toPNG());
+    screenshots.push(name);
+  };
+
+  /**
+   * Everything the visual claims rest on, read from the live document:
+   * the plaque's gradient, the rail's wash, a turn card's surface, the focus
+   * bar, whether any animation is running, and the measured text/background
+   * pairs the design system promises.
+   */
+  const probe = `(() => {
+    const css = (selector, pseudo) => {
+      const node = document.querySelector(selector);
+      if (!node) return null;
+      const style = getComputedStyle(node, pseudo || undefined);
+      return {
+        background_image: style.backgroundImage,
+        background_color: style.backgroundColor,
+        color: style.color,
+        border_color: style.borderColor,
+        box_shadow: style.boxShadow,
+        border_left_width: style.borderLeftWidth,
+      };
+    };
+    const rgb = (value) => {
+      // Token variables are declared as #rrggbb; painted values come back as
+      // rgb() or color(srgb ...). All three are read here so the ratio is
+      // measured from what the browser actually resolved.
+      const text = String(value || "").trim();
+      const hex = /^#([0-9a-f]{6})$/i.exec(text);
+      if (hex) {
+        const digits = hex[1];
+        return [
+          parseInt(digits.slice(0, 2), 16),
+          parseInt(digits.slice(2, 4), 16),
+          parseInt(digits.slice(4, 6), 16),
+        ];
+      }
+      // color(srgb …) must be tried first: an unanchored /rgba?\(/ also matches
+      // the "rgb(" inside "srgb(", which parsed the whole channel list as one
+      // comma-separated value and yielded NaN (reported as null).
+      const srgbMatch = /^color\\(srgb\\s+([^)]+)\\)$/.exec(text);
+      if (srgbMatch) {
+        return srgbMatch[1]
+          .trim()
+          .split(/\\s+/)
+          .slice(0, 3)
+          .map((part) => Math.round(Number(part) * 255));
+      }
+      const rgbMatch = /^rgba?\\(([^)]+)\\)$/.exec(text);
+      if (rgbMatch) {
+        return rgbMatch[1]
+          .split(",")
+          .slice(0, 3)
+          .map((part) => Number(part.trim()));
+      }
+      return null;
+    };
+    // WCAG contrast, computed here from what the browser actually paints.
+    const luminance = (channels) => {
+      const [r, g, b] = channels.map((value) => {
+        const v = value / 255;
+        return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+      });
+      return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    };
+    const ratio = (a, b) => {
+      const first = luminance(a);
+      const second = luminance(b);
+      return (Math.max(first, second) + 0.05) / (Math.min(first, second) + 0.05);
+    };
+    const rootStyle = getComputedStyle(document.documentElement);
+    const ink = rgb(rootStyle.getPropertyValue("--ink"));
+    const surface = rgb(rootStyle.getPropertyValue("--surface"));
+    const canvas = rgb(rootStyle.getPropertyValue("--canvas"));
+    const mutoved = rgb(rootStyle.getPropertyValue("--muted"));
+    // Painted pairs: the text colour and the real background of the surfaces
+    // Vivid actually changes. A token comparison cannot catch a regression in a
+    // tinted turn surface, so these are measured from the rendered elements.
+    // A transparent element has no background of its own; the text sits on the
+    // nearest opaque ancestor. Measuring "rgba(0,0,0,0)" as black reported a
+    // false 1.3:1 on every Quiet surface, so the composite is resolved here.
+    const parseColor = (text) => {
+      const value = String(text || "").trim();
+      const srgb = /^color\\(srgb\\s+([^)]+)\\)$/.exec(value);
+      if (srgb) {
+        const parts = srgb[1].trim().split(/\\s+/).map(Number);
+        return { rgb: parts.slice(0, 3).map((part) => Math.round(part * 255)), a: parts.length > 3 ? parts[3] : 1 };
+      }
+      const rgba = /^rgba?\\(([^)]+)\\)$/.exec(value);
+      if (rgba) {
+        const parts = rgba[1].split(",").map((part) => Number(part.trim()));
+        return { rgb: parts.slice(0, 3), a: parts.length > 3 ? parts[3] : 1 };
+      }
+      const hex = /^#([0-9a-f]{6})$/i.exec(value);
+      if (hex) {
+        return {
+          rgb: [
+            parseInt(hex[1].slice(0, 2), 16),
+            parseInt(hex[1].slice(2, 4), 16),
+            parseInt(hex[1].slice(4, 6), 16),
+          ],
+          a: 1,
+        };
+      }
+      return null;
+    };
+    const effectiveBackground = (node) => {
+      const layers = [];
+      for (let current = node; current; current = current.parentElement) {
+        const colour = parseColor(getComputedStyle(current).backgroundColor);
+        if (!colour || colour.a === 0) continue;
+        layers.push(colour);
+        if (colour.a >= 1) break;
+      }
+      // Composite bottom-up over white, which is what the window paints.
+      let base = [255, 255, 255];
+      for (let index = layers.length - 1; index >= 0; index -= 1) {
+        const layer = layers[index];
+        base = base.map((channel, position) =>
+          Math.round(layer.rgb[position] * layer.a + channel * (1 - layer.a)),
+        );
+      }
+      return base;
+    };
+    const pairOf = (selector) => {
+      const node = document.querySelector(selector);
+      if (!node) return null;
+      const style = getComputedStyle(node);
+      const fg = parseColor(style.color);
+      if (!fg) return null;
+      const bg = effectiveBackground(node);
+      return { ratio: ratio(fg.rgb, bg), fg: style.color, bg: "rgb(" + bg.join(", ") + ")" };
+    };
+    const painted = {
+      user_turn: pairOf(".timeline-event--user .timeline-event__body"),
+      agent_turn: pairOf(".timeline-event--assistant .timeline-event__body"),
+      tool_turn: pairOf(".timeline-event--tool .timeline-event__body"),
+      error_turn: pairOf(".timeline-event--error .timeline-event__body"),
+      rail_current: pairOf(".rail__item--current"),
+      plaque_title: pairOf(".context-bar__title"),
+    };
+    const running = document.getAnimations
+      ? document.getAnimations().filter((entry) => entry.playState === "running").length
+      : -1;
+    const liveDot = document.querySelector(".status-dot--live");
+    return {
+      theme: document.documentElement.dataset.theme,
+      intensity: document.documentElement.dataset.intensity,
+      density: document.documentElement.dataset.density,
+      screen: document.documentElement.dataset.screen,
+      focus: document.documentElement.dataset.focusMode,
+      hidden: document.documentElement.dataset.documentHidden ?? null,
+      plaque: css(".context-bar"),
+      plaque_identity: css(".context-bar__identity"),
+      rail: css(".rail"),
+      rail_current: css(".rail__item--current"),
+      user_turn: css(".timeline-event--user .timeline-event__body"),
+      agent_turn: css(".timeline-event--assistant .timeline-event__body"),
+      tool_turn: css(".timeline-event--tool .timeline-event__body"),
+      focus_bar: css(".focus-bar"),
+      card: css(".project-card"),
+      mono: css(".monogram"),
+      running_animations: running,
+      live_dot: liveDot !== null,
+      pending_cards: document.querySelectorAll(".pending-request").length,
+      pending_answerable: document.querySelectorAll(".pending-request .button").length,
+      contrast: {
+        ink_on_surface: ink && surface ? ratio(ink, surface) : null,
+        ink_on_canvas: ink && canvas ? ratio(ink, canvas) : null,
+        muted_on_surface: mutoved && surface ? ratio(mutoved, surface) : null,
+      },
+      painted,
+      overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+      shot_ready: document.body.dataset.ready === "true",
+    };
+  })()`;
+
+  /**
+   * Switch theme and intensity the way the product does — write the stored
+   * preference, then mount the shell again. Focus Studio is a *stored* layout
+   * preference, so a run that entered it must leave it again or the next
+   * combination would start focused and every capture would look the same.
+   */
+  const setAppearance = async (theme: string, intensity: string): Promise<void> => {
+    // The project view (which holds Focus Studio) saves on a short debounce;
+    // reloading sooner would read the previous layout back and label a focused
+    // frame as "normal".
+    await sleep(700);
+    await evaluate(`(() => {
+      localStorage.setItem("mona.theme", ${JSON.stringify(theme)});
+      localStorage.setItem("mona.intensity", ${JSON.stringify(intensity)});
+      return true;
+    })()`);
+    window.reload();
+    await waitFor("document.body.dataset.ready === 'true'");
+  };
+  const ensureNormalLayout = async (): Promise<boolean> => {
+    if ((await evaluate("document.querySelector('.shell--focus') !== null")) !== true) return true;
+    await evaluate(`(() => {
+      const button = document.querySelector('[data-testid="focus-exit"]');
+      if (button instanceof HTMLElement) button.click();
+      return true;
+    })()`);
+    return waitFor("document.querySelector('.shell--focus') === null");
+  };
+
+  try {
+    if (!auroraSmokeProjectId) throw new Error("the aurora smoke has no project");
+    report.project = auroraSmokeProjectId;
+    await waitFor("document.body.dataset.ready === 'true'");
+    await waitFor("document.querySelectorAll('[data-project-id]').length > 0");
+
+    const combos = [
+      { theme: "daybreak", intensity: "vivid" },
+      { theme: "daybreak", intensity: "quiet" },
+      { theme: "afterglow", intensity: "vivid" },
+      { theme: "afterglow", intensity: "quiet" },
+    ] as const;
+    const observed: Record<string, Record<string, unknown>> = {};
+    for (const combo of combos) {
+      await setAppearance(combo.theme, combo.intensity);
+      const home = await evaluate(`(() => {
+        // The production Home renders .project-row; .project-card belongs to the
+        // design harness. Both are counted so a demo-only treatment is visible
+        // instead of passing silently.
+        const row = document.querySelector(".project-row");
+        const selected = document.querySelector(".project-row--selected") ?? row;
+        const style = row ? getComputedStyle(row) : null;
+        const selectedStyle = selected ? getComputedStyle(selected) : null;
+        return {
+          theme: document.documentElement.dataset.theme,
+          intensity: document.documentElement.dataset.intensity,
+          home_ready: document.body.dataset.ready === "true",
+          rows: document.querySelectorAll(".project-row").length,
+          harness_cards: document.querySelectorAll(".project-card").length,
+          row_border: style ? style.borderColor : null,
+          row_shadow: style ? style.boxShadow : null,
+          selected_border: selectedStyle ? selectedStyle.borderColor : null,
+        };
+      })()`);
+      facts[`home_${combo.theme}_${combo.intensity}`] = home;
+      // Captured here, on the real catalog, before the project opens; the
+      // assertions below read the same probe, so the image and the check
+      // describe one frame.
+      await shot(`r06-${combo.theme}-${combo.intensity}-home.png`);
+
+      await evaluate("document.querySelector('[data-project-id]')?.click(); true");
+      await waitFor("document.documentElement.dataset.screen === 'studio'");
+      await waitFor("document.querySelector('.timeline-event') !== null");
+      // A stored focus preference is legitimate; for a *normal* capture it has
+      // to be off, so it is cleared through the product's own control here.
+      await ensureNormalLayout();
+      await sleep(300);
+      const normal = (await evaluate(probe)) as Record<string, unknown>;
+      checks[`normal_layout_${combo.theme}_${combo.intensity}`] = normal.focus === "off";
+      observed[`${combo.theme}_${combo.intensity}`] = normal;
+      facts[`normal_${combo.theme}_${combo.intensity}`] = normal;
+      await shot(`r06-${combo.theme}-${combo.intensity}-studio.png`);
+
+      // One immersive capture per theme: the focus layout carries the same
+      // identity, so its dashboard and composer are checked in both.
+      if (combo.intensity === "vivid") {
+        await evaluate(`(() => {
+          const button = Array.from(document.querySelectorAll("button")).find(
+            (node) => (node.textContent ?? "").trim() === "Focus Mode",
+          );
+          if (button instanceof HTMLElement) button.click();
+          return true;
+        })()`);
+        const entered = await waitFor("document.querySelector('.shell--focus') !== null");
+        await sleep(250);
+        const focus = (await evaluate(probe)) as Record<string, unknown>;
+        facts[`focus_${combo.theme}`] = focus;
+        checks[`focus_entered_${combo.theme}`] = entered;
+        await shot(`r06-${combo.theme}-vivid-focus.png`);
+        // The focused layout's own exit control, not a guessed label: the
+        // context bar is gone in this mode, so the ordinary toggle does not
+        // exist to click.
+        await evaluate(`(() => {
+          const button = document.querySelector('[data-testid="focus-exit"]');
+          if (button instanceof HTMLElement) button.click();
+          return true;
+        })()`);
+        checks[`focus_exited_${combo.theme}`] = await waitFor(
+          "document.querySelector('.shell--focus') === null",
+        );
+      }
+    }
+
+    // Every field below is read from the rendered document by `probe`; the
+    // shape is pinned here so a renamed probe field is a compile error rather
+    // than a silently passing `undefined === undefined` check.
+    interface Painted {
+      background_image: string;
+      background_color: string;
+      color: string;
+      border_color: string;
+      box_shadow: string;
+      border_left_width: string;
+    }
+    interface ProbeFacts {
+      theme: string;
+      intensity: string;
+      focus: string;
+      plaque: Painted | null;
+      rail: Painted | null;
+      rail_current: Painted | null;
+      user_turn: Painted | null;
+      agent_turn: Painted | null;
+      tool_turn: Painted | null;
+      running_animations: number;
+      live_dot: boolean;
+      pending_cards: number;
+      overflow: boolean;
+      contrast: {
+        ink_on_surface: number | null;
+        ink_on_canvas: number | null;
+        muted_on_surface: number | null;
+      };
+      painted: Record<
+        "user_turn" | "agent_turn" | "tool_turn" | "error_turn" | "rail_current" | "plaque_title",
+        { ratio: number; fg: string; bg: string } | null
+      >;
+    }
+    const painted = (value: Record<string, unknown> | undefined): ProbeFacts =>
+      value as unknown as ProbeFacts;
+    const daybreakVivid = painted(observed.daybreak_vivid);
+    const daybreakQuiet = painted(observed.daybreak_quiet);
+    const afterglowVivid = painted(observed.afterglow_vivid);
+    const afterglowQuiet = painted(observed.afterglow_quiet);
+
+    const hasGradient = (entry: Painted | null | undefined): boolean =>
+      typeof entry?.background_image === "string" && entry.background_image.includes("gradient");
+    const noGradient = (entry: Painted | null | undefined): boolean =>
+      entry !== null && entry !== undefined && !hasGradient(entry);
+
+    checks.both_themes_and_intensities_rendered =
+      daybreakVivid.theme === "daybreak" &&
+      daybreakVivid.intensity === "vivid" &&
+      daybreakQuiet.intensity === "quiet" &&
+      afterglowVivid.theme === "afterglow" &&
+      afterglowQuiet.intensity === "quiet";
+    checks.vivid_plaque_carries_a_wash =
+      hasGradient(daybreakVivid.plaque) && hasGradient(afterglowVivid.plaque);
+    checks.quiet_plaque_is_plain =
+      noGradient(daybreakQuiet.plaque) && noGradient(afterglowQuiet.plaque);
+    checks.vivid_rail_is_washed =
+      hasGradient(daybreakVivid.rail) && hasGradient(afterglowVivid.rail);
+    checks.quiet_rail_is_plain = noGradient(daybreakQuiet.rail) && noGradient(afterglowQuiet.rail);
+    checks.vivid_rail_selection_is_not_the_plain_surface =
+      daybreakVivid.rail_current?.background_color !== daybreakQuiet.rail_current?.background_color;
+    checks.vivid_turns_have_distinct_surfaces =
+      daybreakVivid.user_turn?.border_left_width === "3px" &&
+      daybreakVivid.agent_turn?.border_left_width === "3px" &&
+      daybreakQuiet.user_turn?.border_left_width !== "3px";
+    checks.vivid_tool_card_is_framed =
+      daybreakVivid.tool_turn?.border_left_width === "1px" &&
+      daybreakVivid.tool_turn?.background_color !== afterglowVivid.tool_turn?.background_color;
+    checks.pending_approval_rendered = daybreakVivid.pending_cards >= 2;
+    checks.measured_contrast_holds = [
+      daybreakVivid,
+      daybreakQuiet,
+      afterglowVivid,
+      afterglowQuiet,
+    ].every(
+      (entry) =>
+        (entry.contrast.ink_on_surface ?? 0) >= 7 &&
+        (entry.contrast.ink_on_canvas ?? 0) >= 7 &&
+        (entry.contrast.muted_on_surface ?? 0) >= 4.5,
+    );
+    // Every painted text/background pair the Vivid treatment touches must clear
+    // normal-text contrast. This is measured from the rendered elements, not
+    // from the token table, so a tinted surface cannot regress unnoticed.
+    const PAINTED_MINIMUM = 4.5;
+    const paintedFailures = [daybreakVivid, daybreakQuiet, afterglowVivid, afterglowQuiet].flatMap(
+      (entry) =>
+        Object.entries(entry.painted)
+          .filter(([, value]) => value !== null)
+          .filter(([, value]) => (value as { ratio: number }).ratio < PAINTED_MINIMUM)
+          .map(
+            ([name, value]) =>
+              `${entry.theme}/${entry.intensity}/${name}=${(value as { ratio: number }).ratio.toFixed(2)}`,
+          ),
+    );
+    facts.painted_failures = paintedFailures;
+    checks.painted_contrast_holds = paintedFailures.length === 0;
+
+    // The production Home row must carry the Vivid treatment and must not in
+    // Quiet. The probe reads .project-row, which is what Home actually renders.
+    const homeDaybreakVivid = facts.home_daybreak_vivid as
+      { rows: number; row_border: string | null; selected_border: string | null } | undefined;
+    const homeDaybreakQuiet = facts.home_daybreak_quiet as
+      { rows: number; row_border: string | null; selected_border: string | null } | undefined;
+    checks.home_row_rendered = (homeDaybreakVivid?.rows ?? 0) > 0;
+    checks.vivid_home_row_is_treated =
+      homeDaybreakVivid !== undefined &&
+      homeDaybreakQuiet !== undefined &&
+      homeDaybreakVivid.row_border !== homeDaybreakQuiet.row_border;
+    checks.vivid_home_selection_is_treated =
+      homeDaybreakVivid?.selected_border !== null &&
+      homeDaybreakVivid?.selected_border !== homeDaybreakQuiet?.selected_border;
+
+    checks.no_idle_animation =
+      [daybreakVivid, daybreakQuiet, afterglowVivid, afterglowQuiet].every(
+        (entry) => entry.running_animations === 0,
+      ) && daybreakVivid.live_dot === false;
+    checks.no_horizontal_overflow = [
+      daybreakVivid,
+      daybreakQuiet,
+      afterglowVivid,
+      afterglowQuiet,
+    ].every((entry) => entry.overflow === false);
+    facts.contrast = {
+      daybreak_vivid: daybreakVivid.contrast,
+      daybreak_quiet: daybreakQuiet.contrast,
+      afterglow_vivid: afterglowVivid.contrast,
+      afterglow_quiet: afterglowQuiet.contrast,
+    };
+
+    // Long answer and tool output: the console is scrolled to the turn so the
+    // captured frame shows real conversation surfaces rather than the top of
+    // the page. This is stored history, so no engine is involved.
+    await setAppearance("daybreak", "vivid");
+    checks.normal_layout_before_long_output = await ensureNormalLayout();
+    await evaluate("document.querySelector('[data-project-id]')?.click(); true");
+    await waitFor("document.documentElement.dataset.screen === 'studio'");
+    await waitFor("document.querySelector('.timeline-event--tool') !== null");
+    const scrolled = await evaluate(`(() => {
+      const node = document.querySelector('[data-testid="studio-timeline"]');
+      // The console sits below the pending cards in this layout, so the page is
+      // scrolled to it first; scrolling an off-screen box would capture the
+      // same pixels as the shot before it.
+      node?.scrollIntoView({ block: "center" });
+      if (node) node.scrollTop = node.scrollHeight;
+      const tool = document.querySelector(".timeline-event--tool .timeline-event__body");
+      const user = document.querySelector(".timeline-event--user .timeline-event__body");
+      const agent = document.querySelector(".timeline-event--assistant .timeline-event__body");
+      const style = (node2) => (node2 ? getComputedStyle(node2) : null);
+      return {
+        tool_text: tool ? tool.textContent.slice(0, 120) : null,
+        tool_font: style(tool)?.fontFamily ?? null,
+        user_bg: style(user)?.backgroundColor ?? null,
+        agent_bg: style(agent)?.backgroundColor ?? null,
+        tool_bg: style(tool)?.backgroundColor ?? null,
+        error_present: document.querySelector(".timeline-event--error") !== null,
+      };
+    })()`);
+    facts.timeline_states = scrolled;
+    checks.long_output_rendered = String(
+      (scrolled as { tool_text: string | null }).tool_text ?? "",
+    ).includes("rg -n");
+    checks.error_card_rendered = (scrolled as { error_present: boolean }).error_present === true;
+    await shot("r06-daybreak-vivid-timeline.png");
+
+    // Every capture must be a distinct frame.
+    const { createHash } = await import("node:crypto");
+    const digests = screenshots.map((name) =>
+      createHash("sha256")
+        .update(readFileSync(join(outDir, name)))
+        .digest("hex"),
+    );
+    checks.captures_are_distinct = new Set(digests).size === digests.length;
+    facts.capture_digests = Object.fromEntries(
+      screenshots.map((name, index) => [name, digests[index]]),
+    );
+
+    // 200 % page zoom over the Studio: every fact and control must stay usable.
+    await setAppearance("daybreak", "vivid");
+    checks.normal_layout_before_zoom = await ensureNormalLayout();
+    await evaluate("document.querySelector('[data-project-id]')?.click(); true");
+    await waitFor("document.documentElement.dataset.screen === 'studio'");
+    window.webContents.setZoomFactor(2);
+    await sleep(400);
+    const zoomed = (await evaluate(probe)) as Record<string, unknown>;
+    facts.zoom_200 = zoomed;
+    const zoomedFacts = painted(zoomed);
+    checks.zoom_200_no_overflow = zoomedFacts.overflow === false;
+    checks.zoom_200_keeps_identity = hasGradient(zoomedFacts.plaque);
+    await shot("r06-daybreak-vivid-200.png");
+    window.webContents.setZoomFactor(1);
+    await sleep(200);
+
+    report.ok = Object.values(checks).every(Boolean);
+  } catch (error) {
+    const candidate = error as { message?: string; stack?: string };
+    report.ok = false;
+    report.error = { message: candidate.message ?? String(error), stack: candidate.stack ?? null };
+  }
+  const out = process.env.MONA_AURORA_SMOKE_OUT;
+  if (out) writeFileSync(out, JSON.stringify(report, null, 2) + "\n");
+  if (report.ok !== true) process.exitCode = 1;
+}
+
 async function runStudioSmoke(window: BrowserWindow): Promise<void> {
   const outDir =
     process.env.MONA_STUDIO_SMOKE_DIR ??
@@ -4172,6 +4728,7 @@ if (!gotLock) {
         IS_OPEN_SMOKE ||
         IS_HISTORY_SMOKE ||
         IS_COMMAND_SMOKE ||
+        IS_AURORA_SMOKE ||
         IS_IMMERSIVE_SMOKE;
       const stateRoot = smokeState
         ? mkdtempSync(join(tmpdir(), "mona-product-state-"))
@@ -4932,6 +5489,191 @@ if (!gotLock) {
       writeFileSync(join(root, "README.md"), "# Command smoke\n", "utf8");
       const opened = await projectService.open(root);
       commandSmokeProjectId = opened?.project.id ?? null;
+    }
+
+    if (IS_AURORA_SMOKE && projectService && productState) {
+      // R06 evidence. A real project with real stored history and two real
+      // pending engine requests, opened in the real shell. No runtime is
+      // started and no model is asked anything: the timeline is a stored
+      // transcript, and the pending cards are stored rows.
+      const base = mkdtempSync(join(tmpdir(), "mona-aurora-smoke-project-"));
+      const root = join(base, "Aurora Studio");
+      mkdirSync(root, { recursive: true });
+      writeFileSync(join(root, "README.md"), "# Aurora smoke\n", "utf8");
+      const opened = await projectService.open(root);
+      auroraSmokeProjectId = opened?.project.id ?? null;
+      if (opened) {
+        const detail = await projectService.detail(opened.project.id);
+        const thread = detail.threads[0];
+        if (thread) {
+          const start = Date.parse("2026-11-13T09:00:00.000Z");
+          let seq = 1;
+          const at = (): string => new Date(start + seq * 1_000).toISOString();
+          const turnId = "turn_aurora_smoke_0001";
+          await productState.recordEvent({
+            threadId: thread.id,
+            seq: seq++,
+            kind: "thread.started",
+            payload: {},
+            timestamp: at(),
+          });
+          await productState.recordEvent({
+            threadId: thread.id,
+            seq: seq++,
+            kind: "turn.started",
+            turnId,
+            payload: {},
+            timestamp: at(),
+          });
+          const items: Array<{ kind: string; body: string }> = [
+            {
+              kind: "user_message",
+              body: "Replace the fixed raw-event tail with a cursor API, and show me the plan before you touch the store.",
+            },
+            {
+              kind: "agent_message",
+              body:
+                "I will page stored events by receipt order rather than by engine sequence.\n\n" +
+                "1. Add a keyset cursor over `(recorded_at, rowid)`, because `seq` is one global counter and a hole in it proves nothing about this thread.\n" +
+                "2. Keep the page bounded, and report `storedTotal` so the console can say what it is *not* showing.\n" +
+                "3. Anchor the viewport on a completed page read, so prepending older events does not drag the reader down while they are reading.",
+            },
+            {
+              kind: "tool_call",
+              body: 'rg -n "readProjectEvents" src/main src/renderer | head -40',
+            },
+            {
+              kind: "agent_message",
+              body: "The read is used in three places: the Studio summary, the context inspector, and a diagnostics path. Only the first two need the cursor; the third can keep the bounded tail.",
+            },
+          ];
+          for (const [index, item] of items.entries()) {
+            const itemId = `item_aurora_${index}`;
+            await productState.recordEvent({
+              threadId: thread.id,
+              seq: seq++,
+              kind: "item.started",
+              turnId,
+              itemId,
+              payload: { item: { id: itemId, kind: item.kind } },
+              timestamp: at(),
+            });
+            // Messages stream; a tool call is one frame. Both use the engine's
+            // real item shape, so the projection is exercised as it is for real.
+            if (item.kind === "agent_message" || item.kind === "user_message") {
+              await productState.recordEvent({
+                threadId: thread.id,
+                seq: seq++,
+                kind: "item.delta",
+                turnId,
+                itemId,
+                payload: { kind: item.kind, delta: item.body },
+                timestamp: at(),
+              });
+            }
+            await productState.recordEvent({
+              threadId: thread.id,
+              seq: seq++,
+              kind: "item.completed",
+              turnId,
+              itemId,
+              payload: {
+                item: {
+                  schema_version: 2,
+                  id: itemId,
+                  turn_id: turnId,
+                  kind: item.kind,
+                  status: "completed",
+                  summary: item.body.slice(0, 200),
+                  detail: item.body,
+                  artifact_refs: [],
+                },
+              },
+              timestamp: at(),
+            });
+          }
+          // One failed item, so the error surface is real rather than styled-only.
+          await productState.recordEvent({
+            threadId: thread.id,
+            seq: seq++,
+            kind: "item.failed",
+            turnId,
+            itemId: "item_aurora_failed",
+            payload: {
+              item: {
+                schema_version: 2,
+                id: "item_aurora_failed",
+                turn_id: turnId,
+                kind: "command_execution",
+                status: "failed",
+                summary: "node verify.mjs exited 1",
+                detail: "node verify.mjs\nAssertionError: expected 2, received 1\nexit 1",
+              },
+            },
+            timestamp: at(),
+          });
+          await productState.recordEvent({
+            threadId: thread.id,
+            seq: seq++,
+            kind: "turn.completed",
+            turnId,
+            payload: {},
+            timestamp: at(),
+          });
+          const engineThreadId = "thr_aurora_smoke_0000000000000001";
+          await productState.recordPendingRequest({
+            projectId: opened.project.id,
+            threadId: thread.id,
+            engineThreadId,
+            turnId,
+            kind: "approval",
+            requestKey: `approval_${"c".repeat(32)}`,
+            toolName: "bash",
+            title: "Run `npm test` in the project root",
+            summary: "Run `npm test` in the project root",
+            detail: {
+              kind: "approval",
+              requestKey: `approval_${"c".repeat(32)}`,
+              turnId,
+              toolName: "bash",
+              title: "Run `npm test` in the project root",
+              summary: "Run `npm test` in the project root",
+              input: { command: "npm test", timeout_ms: 600000 },
+              toolCallId: "call_aurora_0001",
+              decisions: ["allow", "deny"],
+            },
+          });
+          await productState.recordPendingRequest({
+            projectId: opened.project.id,
+            threadId: thread.id,
+            engineThreadId,
+            turnId,
+            kind: "user_input",
+            requestKey: "request_aurora_00000001",
+            title: "Which package manager?",
+            detail: {
+              kind: "user_input",
+              requestKey: "request_aurora_00000001",
+              turnId,
+              title: "Which package manager?",
+              questions: [
+                {
+                  id: "q1",
+                  header: "Package manager",
+                  question: "The lockfile is missing; which manager should I use?",
+                  options: [
+                    { label: "npm", description: "creates package-lock.json" },
+                    { label: "pnpm", description: "creates pnpm-lock.yaml" },
+                  ],
+                  multiSelect: false,
+                  malformed: false,
+                },
+              ],
+              callId: null,
+            },
+          });
+        }
+      }
     }
 
     if (IS_IMMERSIVE_SMOKE && projectService && productState) {

@@ -215,7 +215,7 @@ function studioSnapshot(route: {
     cost: { observed: false, costUsd: 0, costComplete: false, turns: 0, label: "unknown" },
     submission: null,
     diagnostics: [],
-    pendingInput: null,
+    pendingRequests: [],
     canSubmit: true,
     cannotSubmitReason: null,
     controls: {

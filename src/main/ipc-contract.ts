@@ -54,6 +54,14 @@ import {
  */
 export const IpcRequests = {
   "app:info": z.strictObject({}),
+  // R10. One clipboard write, acknowledged. The renderer never claims a copy
+  // succeeded because it called this: main reports whether the OS clipboard
+  // actually took the text.
+  "clipboard:write": z.strictObject({
+    text: z.string().min(1).max(200_000),
+    /** What was copied, for an honest notice. Never the text itself. */
+    label: z.enum(["message", "code", "prompt"]),
+  }),
   "app:paths": z.strictObject({}),
   // Interface scale. The value is snapped onto this build's ladder in main, so
   // an arbitrary factor from a caller is normalized rather than trusted.
@@ -101,6 +109,14 @@ export const IpcRequests = {
       .nullable()
       .optional(),
     limit: z.number().int().min(1).max(500).optional(),
+    threadId: z.string().min(1).max(200).nullable().optional(),
+  }),
+  // R10 conversation search. A bounded read of Mona's own stored events; the
+  // query is matched in SQLite, never sent anywhere.
+  "projects:search": z.strictObject({
+    projectId: ProjectId,
+    query: z.string().trim().min(1).max(200),
+    limit: z.number().int().min(1).max(100).optional(),
     threadId: z.string().min(1).max(200).nullable().optional(),
   }),
   "projects:history-item": z.strictObject({
@@ -158,6 +174,37 @@ export const IpcRequests = {
   "studio:cancel-queued": z.strictObject({ projectId: ProjectId }),
   "studio:reconcile": z.strictObject({ projectId: ProjectId }),
   "studio:stop": z.strictObject({ projectId: ProjectId }),
+  // R07. One answer to one engine request. The capability stays in main: the
+  // renderer names Mona's own row, and main echoes the engine's own id.
+  // R10. A workspace-relative file read through the engine's contained route.
+  // Absolute paths and `..` are refused by main before the engine is asked.
+  "studio:file-preview": z.strictObject({
+    projectId: ProjectId,
+    path: z.string().trim().min(1).max(1024),
+  }),
+  "studio:answer-pending": z.strictObject({
+    projectId: ProjectId,
+    requestId: z.string().regex(/^prq_[A-Za-z0-9]{1,64}$/),
+    response: z.union([
+      z.strictObject({
+        kind: z.literal("approval"),
+        decision: z.enum(["allow", "deny"]),
+        remember: z.boolean(),
+      }),
+      z.strictObject({
+        kind: z.literal("user_input"),
+        answers: z
+          .array(
+            z.strictObject({
+              questionId: z.string().min(1).max(200),
+              label: z.string().min(1).max(400),
+              value: z.string().min(1).max(4_000),
+            }),
+          )
+          .max(20),
+      }),
+    ]),
+  }),
 
   // Work board and durable continuation. These calls mutate Mona-owned task
   // state only; board:dispatch-next is the one call that can hand a prompt to

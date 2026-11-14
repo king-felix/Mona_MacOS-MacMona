@@ -10,9 +10,11 @@ import {
   ThreadId,
   TurnId,
   type EngineCapabilities,
+  type PendingAnswerInput,
   type SubmissionStatus,
 } from "../../shared/contracts";
 import { evaluateCompatibility } from "./compat";
+import { pendingSignalFor } from "../../shared/contracts/pending";
 import { AdapterError, UnsupportedCapabilityError } from "./errors";
 import { EventProjector } from "./projector";
 import { SseParser } from "./sse";
@@ -56,6 +58,8 @@ import type {
   FileRevertReceipt,
   HistoryPage,
   InterruptReceipt,
+  PendingReplyReceipt,
+  PendingSnapshot,
   ReconcileResult,
   RestoreCapability,
   RouteRequest,
@@ -1296,6 +1300,161 @@ export class CodewhaleAdapter implements EngineAdapter {
       threadId: input.threadId,
       workspace: thread.workspace ?? null,
       turns: turns.map((turn) => this.mapTurn(turn)),
+    };
+  }
+
+  /**
+   * R07. Send one approval decision to the Runtime.
+   *
+   * The capability is the Runtime's own opaque `approval_<hex>`; it is echoed
+   * verbatim (encoded into the path) and never constructed here. A `404` means
+   * the capability is not pending — already answered, expired, or settled by
+   * another client — and is returned as an outcome rather than thrown: no
+   * decision was delivered either way, and the screen has to say which.
+   */
+  async answerApproval(input: {
+    threadId: ThreadId;
+    approvalId: string;
+    decision: "allow" | "deny";
+    remember: boolean;
+  }): Promise<PendingReplyReceipt> {
+    const response = await this.request(
+      "POST",
+      `/v1/approvals/${encodeURIComponent(input.approvalId)}`,
+      { decision: input.decision, remember: input.remember },
+    );
+    this.throwForUnauthorized(response, "approval decision");
+    if (response.status === 404) {
+      return {
+        status: 404,
+        acknowledged: false,
+        note: "the approval is no longer pending; nothing was sent",
+      };
+    }
+    if (response.status < 200 || response.status >= 300) {
+      return {
+        status: response.status,
+        acknowledged: false,
+        note: `the runtime refused the decision (${response.status})`,
+      };
+    }
+    return {
+      status: response.status,
+      acknowledged: true,
+      note: `runtime accepted the ${input.decision} decision`,
+    };
+  }
+
+  /**
+   * R07. Deliver answers to one clarification request. The Runtime deliberately
+   * excludes submitted values from durable items, so nothing here logs them.
+   */
+  async answerUserInput(input: {
+    threadId: ThreadId;
+    requestId: string;
+    answers: PendingAnswerInput[];
+  }): Promise<PendingReplyReceipt> {
+    const response = await this.request(
+      "POST",
+      `/v1/user-input/${encodeURIComponent(input.threadId)}/${encodeURIComponent(input.requestId)}`,
+      // The Runtime's own field name for a question id is `id`; Mona's internal
+      // spelling is translated here, once, at the wire boundary.
+      {
+        answers: input.answers.map((answer) => ({
+          id: answer.questionId,
+          label: answer.label,
+          value: answer.value,
+        })),
+      },
+    );
+    this.throwForUnauthorized(response, "user input answer");
+    if (response.status === 404) {
+      return {
+        status: 404,
+        acknowledged: false,
+        note: "the question is no longer pending; nothing was sent",
+      };
+    }
+    if (response.status < 200 || response.status >= 300) {
+      return {
+        status: response.status,
+        acknowledged: false,
+        note: `the runtime refused the answer (${response.status})`,
+      };
+    }
+    return {
+      status: response.status,
+      acknowledged: true,
+      note: "runtime accepted the answer",
+    };
+  }
+
+  /**
+   * The engine's own list of asks still waiting on a person, read from thread
+   * detail. A reconnecting client must hydrate this before subscribing: a
+   * request whose event sits at or below the stream cursor is never replayed.
+   */
+  async readPendingRequests(input: { threadId: ThreadId }): Promise<PendingSnapshot> {
+    const response = await this.request("GET", `/v1/threads/${encodeURIComponent(input.threadId)}`);
+    this.throwForAuth(response, "pending requests");
+    if (response.status === 404) {
+      throw new AdapterError("WRONG_THREAD", "thread not found");
+    }
+    if (response.status !== 200) {
+      throw new AdapterError(
+        "MALFORMED_RESPONSE",
+        `thread detail returned ${response.status} while reading pending requests`,
+      );
+    }
+    const body = response.json as { thread?: unknown } | null;
+    const threadValue =
+      body && typeof body === "object" && "thread" in body ? body.thread : response.json;
+    const thread = parseWith(WireThread, threadValue, "thread detail for pending requests");
+    if (thread.id !== input.threadId) {
+      throw new AdapterError("WRONG_THREAD", "pending-request read belonged to another thread");
+    }
+    this.assertOwnWorkspace(thread.workspace ?? null, "pending requests", thread.id);
+    // Measured against 0.10.2: thread detail nests the thread under `thread`
+    // and carries `pending_approvals` / `pending_user_inputs` beside `turns` at
+    // the envelope's top level. Both spellings are accepted so an engine that
+    // moves them inside `thread` still reads correctly.
+    const envelope = (body && typeof body === "object" ? body : {}) as Record<string, unknown>;
+    const loose = thread as unknown as Record<string, unknown>;
+    const approvalsRaw = envelope.pending_approvals ?? loose.pending_approvals;
+    const inputsRaw = envelope.pending_user_inputs ?? loose.pending_user_inputs;
+    const approvals: PendingSnapshot["approvals"] = [];
+    if (Array.isArray(approvalsRaw)) {
+      for (const entry of approvalsRaw.slice(0, 50)) {
+        if (entry === null || typeof entry !== "object") continue;
+        const row = entry as Record<string, unknown>;
+        // Thread detail names the capability `id`; the event names it
+        // `approval_id` (with `id` repeated as a legacy alias).
+        const signal = pendingSignalFor({
+          kind: "approval.required",
+          turnId: typeof row.turn_id === "string" ? row.turn_id : null,
+          payload: { ...row, approval_id: row.approval_id ?? row.id },
+        });
+        if (signal?.kind === "approval") approvals.push(signal);
+      }
+    }
+    const inputs: PendingSnapshot["inputs"] = [];
+    if (Array.isArray(inputsRaw)) {
+      for (const entry of inputsRaw.slice(0, 50)) {
+        if (entry === null || typeof entry !== "object") continue;
+        const signal = pendingSignalFor({
+          kind: "user_input.required",
+          turnId: null,
+          payload: entry,
+        });
+        if (signal?.kind === "user_input") inputs.push(signal);
+      }
+    }
+    return {
+      available: Array.isArray(approvalsRaw) || Array.isArray(inputsRaw),
+      approvalsAvailable: Array.isArray(approvalsRaw),
+      inputsAvailable: Array.isArray(inputsRaw),
+      approvals,
+      inputs,
     };
   }
 
