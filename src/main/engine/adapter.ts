@@ -668,11 +668,16 @@ export class CodewhaleAdapter implements EngineAdapter {
   private assertOwnWorkspace(observed: string | null, context: string, threadId: string): void {
     if (!this.scope || !observed) return;
     if (workspaceKey(observed) === workspaceKey(this.scope)) return;
-    throw new AdapterError("WRONG_THREAD", `${context} returned a thread for another workspace`, false, {
-      thread_id: threadId,
-      expected_workspace: this.scope,
-      observed_workspace: observed,
-    });
+    throw new AdapterError(
+      "WRONG_THREAD",
+      `${context} returned a thread for another workspace`,
+      false,
+      {
+        thread_id: threadId,
+        expected_workspace: this.scope,
+        observed_workspace: observed,
+      },
+    );
   }
 
   // ---------------------------------------------------------------- discovery

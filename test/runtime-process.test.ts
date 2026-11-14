@@ -10,7 +10,11 @@ import {
   startOwnedRuntime,
   verifyListenerOwnership,
 } from "../src/main/engine/runtime-process";
-import { listeningPids, readExecutablePath, readProcessEntry } from "../src/main/supervisor/identity";
+import {
+  listeningPids,
+  readExecutablePath,
+  readProcessEntry,
+} from "../src/main/supervisor/identity";
 import { newRecordId, OwnershipStore } from "../src/main/supervisor/records";
 import { RuntimeLifecycleError } from "../src/main/supervisor/errors";
 import { existsSync } from "node:fs";

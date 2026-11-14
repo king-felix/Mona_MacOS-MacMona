@@ -175,9 +175,7 @@ export function registerIpc(rendererRoot: string, dependencies: IpcDependencies)
   }));
 
   handle("app:zoom", () => dependencies.zoom.view());
-  handle("app:zoom:set", (input) =>
-    dependencies.zoom.set((input as { factor: number }).factor),
-  );
+  handle("app:zoom:set", (input) => dependencies.zoom.set((input as { factor: number }).factor));
 
   handle("app:paths", () => {
     const paths = resolveAppPaths();

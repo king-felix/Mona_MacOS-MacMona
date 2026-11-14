@@ -210,10 +210,9 @@ export function SettingsScreen({
             </div>
             <p className="hint-line">
               Scale enlarges every element through the page zoom, so layout, icons, and text move
-              together. Command-plus, Command-minus, and Command-0 work on every screen; the
-              setting is saved and applied at the next launch. Both themes meet the measured
-              contrast pairs in `docs/design-system.md`; reduced motion follows the macOS
-              accessibility setting.
+              together. Command-plus, Command-minus, and Command-0 work on every screen; the setting
+              is saved and applied at the next launch. Both themes meet the measured contrast pairs
+              in `docs/design-system.md`; reduced motion follows the macOS accessibility setting.
             </p>
           </Card>
           <Card title="Keyboard" eyebrow="Every screen reachable without a mouse">
