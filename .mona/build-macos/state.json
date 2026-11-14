@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 981,
+  "revision": 986,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -288,8 +288,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "357d32a8310201257f58fc1c0879a1ebec2ec2e08d7f5a8782c2deff697d19bf",
-          "note": "P15 shell-smoke driver: Agents screen capture and honest capability-gated launch assertion | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
+          "sha256": "01d5288f34cb27b1f234d6235469e2274464f11f97b36656f22cbd1fd76405ed",
+          "note": "P15 shell-smoke driver: Agents screen capture and honest capability-gated launch assertion | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them. | Re-recorded after the R03 command smoke was made deterministic (it waits for the composer state it captures); the smoke is 26/26 and the suite is 891 tests on these bytes."
         },
         {
           "path": "src/main/ipc-contract.ts",
@@ -699,8 +699,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "357d32a8310201257f58fc1c0879a1ebec2ec2e08d7f5a8782c2deff697d19bf",
-          "note": "P15 shell-smoke driver updated; supervisor paths unchanged | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
+          "sha256": "01d5288f34cb27b1f234d6235469e2274464f11f97b36656f22cbd1fd76405ed",
+          "note": "P15 shell-smoke driver updated; supervisor paths unchanged | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them. | Re-recorded after the R03 command smoke was made deterministic (it waits for the composer state it captures); the smoke is 26/26 and the suite is 891 tests on these bytes."
         },
         {
           "path": "src/main/engine/runtime-process.ts",
@@ -1192,8 +1192,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "357d32a8310201257f58fc1c0879a1ebec2ec2e08d7f5a8782c2deff697d19bf",
-          "note": "P15 shell-smoke driver updated; Finder handoff unchanged | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
+          "sha256": "01d5288f34cb27b1f234d6235469e2274464f11f97b36656f22cbd1fd76405ed",
+          "note": "P15 shell-smoke driver updated; Finder handoff unchanged | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them. | Re-recorded after the R03 command smoke was made deterministic (it waits for the composer state it captures); the smoke is 26/26 and the suite is 891 tests on these bytes."
         },
         {
           "path": "src/main/desktop-lifecycle.ts",
@@ -1380,8 +1380,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "357d32a8310201257f58fc1c0879a1ebec2ec2e08d7f5a8782c2deff697d19bf",
-          "note": "P15 shell-smoke driver updated; board paths unchanged | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
+          "sha256": "01d5288f34cb27b1f234d6235469e2274464f11f97b36656f22cbd1fd76405ed",
+          "note": "P15 shell-smoke driver updated; board paths unchanged | Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them. | Re-recorded after the R03 command smoke was made deterministic (it waits for the composer state it captures); the smoke is 26/26 and the suite is 891 tests on these bytes."
         },
         {
           "path": "src/preload/index.ts",
@@ -2036,8 +2036,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "357d32a8310201257f58fc1c0879a1ebec2ec2e08d7f5a8782c2deff697d19bf",
-          "note": "Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them."
+          "sha256": "01d5288f34cb27b1f234d6235469e2274464f11f97b36656f22cbd1fd76405ed",
+          "note": "Re-recorded after R02 (schema v10 item identity and keyset-paged history) changed these bytes; the R02 focused suite (107 tests) and the full suite (849 tests in 83 files) passed on them. | Re-recorded after R03 (pinned command catalog, commands:catalog IPC, composer autocomplete) changed these bytes; the R03 full suite (885 tests in 85 files), shell smoke (127/127) and command smoke (25/25) passed on them. | Re-recorded after the R03 command smoke was made deterministic (it waits for the composer state it captures); the smoke is 26/26 and the suite is 891 tests on these bytes."
         },
         {
           "path": "src/renderer/shell/Shell.tsx",
@@ -2585,7 +2585,7 @@
     "P22",
     "P25"
   ],
-  "last_checkpoint_utc": "2026-11-14T05:48:33.582Z",
+  "last_checkpoint_utc": "2026-11-14T05:51:35.937Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

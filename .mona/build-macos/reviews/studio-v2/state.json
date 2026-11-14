@@ -37,7 +37,7 @@
     "attempts": ".mona/build-macos/attempts.jsonl",
     "requirement_registry": "docs/requirements-macos.json"
   },
-  "revision": 34,
+  "revision": 38,
   "current_task": "R03",
   "current_task_status": "completed",
   "tasks": {
@@ -690,7 +690,7 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "357d32a8310201257f58fc1c0879a1ebec2ec2e08d7f5a8782c2deff697d19bf",
+          "sha256": "01d5288f34cb27b1f234d6235469e2274464f11f97b36656f22cbd1fd76405ed",
           "state": "current",
           "note": "--command-smoke runner and catalog service wiring."
         },
@@ -846,9 +846,9 @@
         {
           "command": "node scripts/command-smoke.mjs (npm run smoke:commands)",
           "result": "passed",
-          "detail": "25/25 real-Electron checks: listbox, filter, Tab acceptance, Escape priority, Enter newline, ambiguous/TUI-only notices, no runtime start, 200% zoom geometry",
+          "detail": "26/26 real-Electron checks: listbox, filter, Tab acceptance, Escape priority, Enter newline, ambiguous/TUI-only notices, no runtime start, unfiltered list restored before capture, 200% zoom geometry",
           "evidence": "docs/evidence/macos/review-studio/artifacts/r03-command-smoke.json",
-          "captured_utc": "2026-11-14T05:48:46.802Z"
+          "captured_utc": "2026-11-14T05:51:40.972Z"
         },
         {
           "command": "node scripts/shell-smoke.mjs (npm run smoke:shell)",
@@ -861,7 +861,7 @@
       "evidence": [
         {
           "path": "docs/evidence/macos/review-studio/R03-command-catalog.md",
-          "sha256": "cfa6bc488a755a657b367ef616dc293ad8a53f2b4c6abb60bd365f6ded5c297f",
+          "sha256": "53e3ef144a550325b86129bf829af38fa9d7110b0067512481e0925c76d33179",
           "note": "R03: pinned 0.10.2 /v1/commands capture, offline coverage check, focused and full tests, gates, real-Electron command smoke (25/25), and the 100%/200% captures."
         },
         {
@@ -876,12 +876,12 @@
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r03-focused-tests.txt",
-          "sha256": "0d4f9216c1fdd96e7d47e9878ade47753165208e2874386b7aa00624e287dda2",
+          "sha256": "2f40e3fb0b1d01805544a97dc35ebaebc45c4ae0dcb8685b1525f4345a156c41",
           "note": "R03: pinned 0.10.2 /v1/commands capture, offline coverage check, focused and full tests, gates, real-Electron command smoke (25/25), and the 100%/200% captures."
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r03-full-tests.txt",
-          "sha256": "a2cba7f7a5936c02a464936036b709175c55b421f13c509af898bbc0f38220a0",
+          "sha256": "ec81dbd7bac0048116f436def0f0c4ab5742607c39b88ed7ab9a12cdfd659556",
           "note": "R03: pinned 0.10.2 /v1/commands capture, offline coverage check, focused and full tests, gates, real-Electron command smoke (25/25), and the 100%/200% captures."
         },
         {
@@ -891,12 +891,12 @@
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r03-command-smoke.json",
-          "sha256": "c1e3b3cfa2bf04b3c392aa9435af9741ad9090c7e7a1613bfdbc1bc860405c0f",
+          "sha256": "e64d20fd0db2aa29d069e90ceb427db227b8fb6100b91057ae597aae2a153700",
           "note": "R03: pinned 0.10.2 /v1/commands capture, offline coverage check, focused and full tests, gates, real-Electron command smoke (25/25), and the 100%/200% captures."
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r03-command-menu.png",
-          "sha256": "6cde692dac65991bbe7471c78b9f5fc503ce2413e98606b536bad2cd7e32c8ca",
+          "sha256": "790013b8ed2bcf3ad49b1c5a92fd973f0b7410451dcfc8258b10154345abccd1",
           "note": "R03: pinned 0.10.2 /v1/commands capture, offline coverage check, focused and full tests, gates, real-Electron command smoke (25/25), and the 100%/200% captures."
         },
         {
@@ -1514,7 +1514,7 @@
       "notes": []
     }
   },
-  "last_checkpoint_utc": "2026-11-14T05:48:46.855Z",
+  "last_checkpoint_utc": "2026-11-14T05:51:41.024Z",
   "notes": [
     "Subordinate ledger. The P00–P27 registry remains authoritative for product requirements; this registry tracks review tasks and findings only.",
     "Attempts continue in the shared attempts.jsonl; a review task ID never resets a count."

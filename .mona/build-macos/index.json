@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-14T05:48:59.588Z",
+  "generated_utc": "2026-11-14T05:51:41.176Z",
   "git": {
     "available": true,
-    "commit": "9f7bc214ac52401f05c8636c0a0958548dc106c7",
+    "commit": "493836da71bb014f6f73d365e4d79a1648ebb935",
     "dirty": true
   },
-  "digest": "2a722f7394932510f1caaec43f2e2db80f35d2228b0113c62a465d4a0019ae24",
+  "digest": "a7838ed7920c58cdc825858d43b4dba9a5bab717f579ef28a7cac5edeab61859",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,8 +15,8 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "36854fff9616c06ae28ab2c64b9463b9c324c672dec59b77b061a8878ae89d9e",
-      "bytes": 172049
+      "sha256": "6dd781e5e3fe962a708d0f2f4596d597aca109de58e53fee3220c5b11caa0a5a",
+      "bytes": 172919
     },
     {
       "path": "AGENTS.md",
@@ -1065,13 +1065,13 @@
     },
     {
       "path": "docs/evidence/macos/review-studio/artifacts/r03-command-menu.png",
-      "sha256": "6cde692dac65991bbe7471c78b9f5fc503ce2413e98606b536bad2cd7e32c8ca",
-      "bytes": 334210
+      "sha256": "790013b8ed2bcf3ad49b1c5a92fd973f0b7410451dcfc8258b10154345abccd1",
+      "bytes": 249225
     },
     {
       "path": "docs/evidence/macos/review-studio/artifacts/r03-command-smoke.json",
-      "sha256": "c1e3b3cfa2bf04b3c392aa9435af9741ad9090c7e7a1613bfdbc1bc860405c0f",
-      "bytes": 3064
+      "sha256": "e64d20fd0db2aa29d069e90ceb427db227b8fb6100b91057ae597aae2a153700",
+      "bytes": 3102
     },
     {
       "path": "docs/evidence/macos/review-studio/artifacts/r03-commands-capture.json",
@@ -1080,13 +1080,13 @@
     },
     {
       "path": "docs/evidence/macos/review-studio/artifacts/r03-focused-tests.txt",
-      "sha256": "0d4f9216c1fdd96e7d47e9878ade47753165208e2874386b7aa00624e287dda2",
+      "sha256": "2f40e3fb0b1d01805544a97dc35ebaebc45c4ae0dcb8685b1525f4345a156c41",
       "bytes": 1475
     },
     {
       "path": "docs/evidence/macos/review-studio/artifacts/r03-full-tests.txt",
-      "sha256": "a2cba7f7a5936c02a464936036b709175c55b421f13c509af898bbc0f38220a0",
-      "bytes": 18915
+      "sha256": "ec81dbd7bac0048116f436def0f0c4ab5742607c39b88ed7ab9a12cdfd659556",
+      "bytes": 18662
     },
     {
       "path": "docs/evidence/macos/review-studio/artifacts/r03-gates.txt",
@@ -1115,8 +1115,8 @@
     },
     {
       "path": "docs/evidence/macos/review-studio/R03-command-catalog.md",
-      "sha256": "cfa6bc488a755a657b367ef616dc293ad8a53f2b4c6abb60bd365f6ded5c297f",
-      "bytes": 30933
+      "sha256": "53e3ef144a550325b86129bf829af38fa9d7110b0067512481e0925c76d33179",
+      "bytes": 30984
     },
     {
       "path": "docs/evidence/macos/runtime-store-coexistence.md",

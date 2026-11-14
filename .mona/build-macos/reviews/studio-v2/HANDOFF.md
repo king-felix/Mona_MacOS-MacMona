@@ -37,11 +37,11 @@ counts (`attempts.jsonl` is empty; no problem consumed an attempt).
 - Evidence: `docs/evidence/macos/review-studio/R03-command-catalog.md` with
   `artifacts/r03-commands-capture.json`, `r03-catalog-check.txt`,
   `r03-focused-tests.txt` (96 tests in 5 files), `r03-full-tests.txt` (885 in
-  85), `r03-gates.txt`, `r03-command-smoke.json` (25/25), and the captures
+  85), `r03-gates.txt`, `r03-command-smoke.json` (26/26), and the captures
   `r03-command-menu.png` / `r03-command-menu-200.png`.
 - Gates on the final bytes: typecheck clean, lint 0 errors (3 pre-existing
   `any` warnings), format clean, full suite **891 tests in 85 files**, shell
-  smoke **127/127**, command smoke **25/25**. `catalog:check` also runs in
+  smoke **127/127**, command smoke **26/26**. `catalog:check` also runs in
   `npm run ci`. The 24 shell captures the smoke rewrote were re-recorded; some
   screenshot bytes are run-dependent and are committed as this run's record.
 - **Independent review (FAIL → fixed).** The verdict failed on evidence, not
