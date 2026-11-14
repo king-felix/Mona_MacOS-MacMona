@@ -22,6 +22,7 @@
     "ambiguous_keeps_draft": true,
     "tui_only_explained": true,
     "engine_still_not_started": true,
+    "unfiltered_list_restored": true,
     "menu_inside_viewport_at_default": true,
     "zoom_200_menu_inside_viewport": true,
     "zoom_200_no_page_overflow": true,
@@ -74,7 +75,7 @@
       "options": 79
     }
   },
-  "project": "prj_a1e6e55c54a66bb6",
+  "project": "prj_336f75a184ffe280",
   "screenshots": [
     "r03-command-menu.png",
     "r03-command-menu-200.png"

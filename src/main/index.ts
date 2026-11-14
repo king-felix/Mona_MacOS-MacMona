@@ -2614,6 +2614,13 @@ async function runCommandSmoke(window: BrowserWindow): Promise<void> {
     ).includes("Not started");
 
     await typeText("/");
+    // Wait for the composer's committed state, not just the DOM value: a
+    // controlled input can show the previous draft until React commits the
+    // edit, and the capture must show the list the app really renders.
+    checks.unfiltered_list_restored = await waitFor(
+      "document.querySelector('.command-menu__head')?.textContent?.includes('79 matches') === true",
+      5_000,
+    );
     facts.normal = await evaluate<Record<string, unknown>>(`(() => {
       const menu = document.querySelector(".command-menu");
       const compose = document.querySelector(".composer");

@@ -112,10 +112,11 @@ This is why the catalog was captured rather than inferred.
 - `scripts/command-catalog.mjs --check`: ok, 109 commands, 69 TUI-only, 5
   unavailable. The gate also runs in `npm run ci` (`catalog:check`) right after
   typecheck; it starts no process and touches no network.
-- Real Electron command smoke: **25/25** checks
+- Real Electron command smoke: **26/26** checks
   (`docs/evidence/macos/review-studio/artifacts/r03-command-smoke.json`),
   including real key events, a real Tab acceptance, the ambiguous and TUI-only
-  notices, no runtime start, and the 200% zoom geometry. Captures:
+  notices, no runtime start, the unfiltered list restored before the capture, and
+  the 200% zoom geometry. Captures:
   `r03-command-menu.png`, `r03-command-menu-200.png`.
 - Existing shell smoke: **127/127** with Electron exit 0 on the new composer.
 
@@ -183,7 +184,7 @@ bytes. It also found five real defects, all fixed with tests:
    on a very short viewport. It is now capped to that room.
 
 The reviewer's evidence finding was closed by re-running the shell smoke
-(127/127) and the command smoke (25/25) on the final bytes and re-recording
+(127/127) and the command smoke (26/26) on the final bytes and re-recording
 every affected hash before the checkpoint.
 
 ## Command coverage table
