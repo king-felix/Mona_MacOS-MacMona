@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "label": "P19 — project memory, portable handoff, and diagnostics",
-  "captured_at": "2026-11-14T08:37:34.106Z",
+  "captured_at": "2026-11-14T17:01:37.742Z",
   "ok": true,
   "isolated_home": true,
   "checks": {
@@ -280,7 +280,7 @@
           "version": "0.10.2",
           "commit": "ff466b2ed0bf",
           "checked": true,
-          "observedAt": "2026-11-12T09:00:40.000Z"
+          "observedAt": "2026-11-12T09:00:42.000Z"
         },
         "source": "capability_snapshot"
       }
@@ -504,7 +504,7 @@
       "detail": {
         "head": [
           "Project: Recall",
-          "Generated: 2026-11-12T09:01:50.000Z",
+          "Generated: 2026-11-12T09:01:56.000Z",
           "State revision: 15",
           "Current task: Board polish [pending]",
           "Next action: none recorded"
@@ -587,7 +587,7 @@
       ]
     },
     "index": {
-      "digest": "4ab34f516d2a960a5643573df4751c59fa33fadab46cf4f7089a9084e0f90b19",
+      "digest": "b47eac006c774ee23f47851f50021843b940e9dc45873e7a63bb804c1893951e",
       "counts": [
         {
           "source": "task",
@@ -663,7 +663,7 @@
         "prompts.json"
       ],
       "bytes": 7724,
-      "digest": "55d547d8808943c9c667ca4b31ae378b7c64407b00698b842a2747a714bdb359",
+      "digest": "111e065ee9eeaa684ec91fdd0b06c69db85cf17584bbbe3d9dd83f38ea76f17a",
       "redactions": 3,
       "counts": {
         "tasks": 2,
@@ -698,11 +698,11 @@
           "version": "0.10.2",
           "commit": "ff466b2ed0bf",
           "checked": true,
-          "observedAt": "2026-11-12T09:00:40.000Z"
+          "observedAt": "2026-11-12T09:00:42.000Z"
         },
         "source": "capability_snapshot",
         "machineBinding": "requalified",
-        "note": "A local engine version (0.10.2) is recorded as of 2026-11-12T09:00:40.000Z from the capability inventory. No probe ran for this bundle; engine work still needs live qualification on this machine."
+        "note": "A local engine version (0.10.2) is recorded as of 2026-11-12T09:00:42.000Z from the capability inventory. No probe ran for this bundle; engine work still needs live qualification on this machine."
       }
     },
     "restored_preferences": {
@@ -752,14 +752,14 @@
         "reset": [],
         "skipped": [],
         "barrier": "exclusive",
-        "journal": "~smoke/tertiary/backups/settings-restore-journal-2026-11-12T09-01-39-000Z.json",
-        "snapshot": "~smoke/tertiary/backups/settings-restore-snapshot-2026-11-12T09-01-39-000Z.sqlite",
+        "journal": "~smoke/tertiary/backups/settings-restore-journal-2026-11-12T09-01-45-000Z.json",
+        "snapshot": "~smoke/tertiary/backups/settings-restore-snapshot-2026-11-12T09-01-45-000Z.sqlite",
         "verification": "3 scope(s) read back identical; 0 reset",
         "stateRevision": 3
       }
     },
     "diagnostics": {
-      "digest": "0be5cfc6849dbcafc8a7ff67f14e8be035ba4b03c5fdab2f0e18eed4ea8ede43",
+      "digest": "c5a568e83e343ce7c0f609bdbc195dbba526f2c4da0187820edc9587d0a72d2b",
       "bytes": 1285,
       "redactions": 1,
       "excluded": [

@@ -1,0 +1,36 @@
+R12 — the act-warning class, captured on the pre-fix test harness (HEAD's
+test/settings-screen.test.tsx) on this host. 20 warnings, 4 tests passed: the
+test suite was green while React was reporting that its own updates landed
+outside the act scope. The fixed harness awaits the bridge promises inside an
+async act and the same file reports 0 warnings (r12-ci.txt).
+
+stderr | test/settings-screen.test.tsx > interface scale control > shows the current percentage from the main process
+  An update to FinderIntegration inside a test was not wrapped in act(...).
+  An update to FinderIntegration inside a test was not wrapped in act(...).
+stderr | test/settings-screen.test.tsx > interface scale control > shows the current percentage from the main process
+  An update to UpdateSettings inside a test was not wrapped in act(...).
+  An update to UpdateSettings inside a test was not wrapped in act(...).
+  An update to UpdateSettings inside a test was not wrapped in act(...).
+stderr | test/settings-screen.test.tsx > interface scale control > steps up and down one rung and can return to actual size
+  An update to FinderIntegration inside a test was not wrapped in act(...).
+  An update to FinderIntegration inside a test was not wrapped in act(...).
+stderr | test/settings-screen.test.tsx > interface scale control > steps up and down one rung and can return to actual size
+  An update to UpdateSettings inside a test was not wrapped in act(...).
+  An update to UpdateSettings inside a test was not wrapped in act(...).
+  An update to UpdateSettings inside a test was not wrapped in act(...).
+stderr | test/settings-screen.test.tsx > interface scale control > disables the end stops instead of pretending they do something
+  An update to FinderIntegration inside a test was not wrapped in act(...).
+  An update to FinderIntegration inside a test was not wrapped in act(...).
+stderr | test/settings-screen.test.tsx > interface scale control > disables the end stops instead of pretending they do something
+  An update to UpdateSettings inside a test was not wrapped in act(...).
+  An update to UpdateSettings inside a test was not wrapped in act(...).
+  An update to UpdateSettings inside a test was not wrapped in act(...).
+stderr | test/settings-screen.test.tsx > R06 decoration intensity > offers Vivid and Quiet and reports the chosen one
+  An update to FinderIntegration inside a test was not wrapped in act(...).
+  An update to FinderIntegration inside a test was not wrapped in act(...).
+stderr | test/settings-screen.test.tsx > R06 decoration intensity > offers Vivid and Quiet and reports the chosen one
+  An update to UpdateSettings inside a test was not wrapped in act(...).
+  An update to UpdateSettings inside a test was not wrapped in act(...).
+  An update to UpdateSettings inside a test was not wrapped in act(...).
+
+warning sentences captured: 20 (of 20 reported occurrences; the suite ran twice per test)

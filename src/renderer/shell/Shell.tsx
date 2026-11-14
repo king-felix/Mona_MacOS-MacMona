@@ -618,7 +618,9 @@ export function Shell(): JSX.Element {
     if (result.ok) setFavorites(result.value);
   }, []);
 
-  const useFavorite = useCallback(
+  // Named as a verb, not `useX`: it is a plain callback, and a `use` prefix
+  // makes the hooks lint rule (and Fast Refresh) treat it as a hook.
+  const insertFavorite = useCallback(
     (favorite: PromptFavorite): void => {
       // Insertion goes through the same journal path as typing, so it cannot
       // bypass serialization, and it never overwrites unsent text silently.
@@ -1818,7 +1820,7 @@ export function Shell(): JSX.Element {
         hint: "Prompt favorite · inert text",
         keywords: [favorite.text.slice(0, 200)],
         icon: <SparkIcon size={16} />,
-        run: () => useFavorite(favorite),
+        run: () => insertFavorite(favorite),
       });
     }
     for (const task of paletteTasks) {
@@ -1903,7 +1905,7 @@ export function Shell(): JSX.Element {
     favorites,
     paletteTasks,
     paletteCapabilities,
-    useFavorite,
+    insertFavorite,
     openCapabilityEntry,
   ]);
 
@@ -2273,7 +2275,7 @@ export function Shell(): JSX.Element {
             onToggleFullscreen={toggleWindowFullscreen}
             favorites={favorites}
             onToggleFocus={toggleFocusMode}
-            onUseFavorite={useFavorite}
+            onUseFavorite={insertFavorite}
             onRequestSaveFavorite={() =>
               setFavoriteDialog({ label: "", text: drafts.current()?.text ?? "" })
             }

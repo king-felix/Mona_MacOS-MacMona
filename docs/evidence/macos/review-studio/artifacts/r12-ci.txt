@@ -1,0 +1,35 @@
+R12 — `npm run ci` (local CI-equivalent) captured from the repository root
+host: macOS 26.5.1 · arm64 · node 26.13.0 · Electron 45.3.0 · source e299dc8 + R12 working tree
+command: npm run ci · exit 0 · 22 of 22 steps ok
+
+format:check       ok   exit 0  3546 ms
+lint               ok   exit 0  3146 ms
+typecheck          ok   exit 0  3876 ms
+catalog:check      ok   exit 0  152 ms
+build:supervisor   ok   exit 0  2340 ms
+build:pty          ok   exit 0  1077 ms
+build:service      ok   exit 0  2001 ms
+test               ok   exit 0  12778 ms
+build              ok   exit 0  2680 ms
+smoke:board        ok   exit 0  2442 ms
+smoke:cost         ok   exit 0  2323 ms
+smoke:changes      ok   exit 0  3066 ms
+smoke:polish       ok   exit 0  2515 ms
+smoke:agents       ok   exit 0  4662 ms
+smoke:settings     ok   exit 0  3322 ms
+smoke:extensions   ok   exit 0  3187 ms
+smoke:terminal     ok   exit 0  11383 ms
+smoke:capability   ok   exit 0  6066 ms
+smoke:memory       ok   exit 0  2402 ms
+smoke:failure      ok   exit 0  2953 ms
+smoke:p23          ok   exit 0  2658 ms
+smoke:lifecycle    ok   exit 0  33235 ms
+
+Test Files  101 passed (101)
+Tests  1121 passed (1121)
+Duration  9.57s (tests 79%, import 10%, environment 9%, transform 2%, worker 1%)
+act warnings in the test output: 0
+renderer secret scan: ok=True files=4 bytes=896164 findings=0
+
+step details are the steps' own output; captured stdout was stripped of ANSI codes and
+the build machine's home path was replaced with <user> (evidence-redaction rule, item 32).

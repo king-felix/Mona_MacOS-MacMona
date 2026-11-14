@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 1154,
+  "revision": 1215,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -53,13 +53,13 @@
         },
         {
           "path": "docs/requirements-macos.json",
-          "sha256": "ab53ebae5c87e01160a47181f6fc27a8667fb03b5a241f728317e6b82394e988",
-          "note": "Re-recorded after R09 (usage HUD) changed these shared bytes. The full suite (1,089 tests) and the shell smoke (137/137) passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "3f63ce45a8fc728f6a90a9117916ab5eac765c9472772c76f171fa697f69bff7",
+          "note": "R12 2026-11-14: re-recorded after `monabuild requirements sync` regenerated this file. Only its own `indexed_utc`/`validated_utc` timestamps moved: no requirement status changed in R12. The sync ran after `npm run ci` passed 22/22 steps (1,121 tests in 101 files) and both ledgers validated."
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
-          "sha256": "017e3985c2f68a88c748ebe1a36d79e80c55a51c5bfacfb46d97f3c04ade65ae",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "65d6fc2cf67207508c469010251a5825a167cc206c7f952fe6ed64c0ef9487ba",
+          "note": "R12 2026-11-14: re-recorded after the generated coverage block was reconciled with R07's own row statement for MONA-CAP-052 (the row said the reply routes are wired and verified; the generated coverage reason still said answering an approval had no IPC path). `smoke:capability` is green again (17/17) and `npm run ci` passed 22/22 steps on these bytes. No requirement status was lowered and no assertion was removed."
         },
         {
           "path": "AGENTS.md",
@@ -160,8 +160,8 @@
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
-          "sha256": "017e3985c2f68a88c748ebe1a36d79e80c55a51c5bfacfb46d97f3c04ade65ae",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "65d6fc2cf67207508c469010251a5825a167cc206c7f952fe6ed64c0ef9487ba",
+          "note": "R12 2026-11-14: re-recorded after the generated coverage block was reconciled with R07's own row statement for MONA-CAP-052 (the row said the reply routes are wired and verified; the generated coverage reason still said answering an approval had no IPC path). `smoke:capability` is green again (17/17) and `npm run ci` passed 22/22 steps on these bytes. No requirement status was lowered and no assertion was removed."
         },
         {
           "path": "tools/p01-spike/spike.mjs",
@@ -238,13 +238,13 @@
         },
         {
           "path": "package.json",
-          "sha256": "d7c209054c2f24cac7f784dd3d09ff2895749ee6a698cfde5c6d8a4cf4a13f41",
-          "note": "Re-recorded after R11 (performance and accessibility) changed these shared bytes: the windowed console, the dialog focus lifecycle, the window-accelerator policy, the title bar's opaque background, and the heading/scroll-region accessibility fixes. The full suite (1,115 tests in 100 files), the shell smoke (137/137) and the R11 measurement harness passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "ff6538d4f6a7176b8aad9b67d56bf6b9f45dff397115e9a92ce69528ae81a970",
+          "note": "Re-recorded after R11 (performance and accessibility) changed these shared bytes: the windowed console, the dialog focus lifecycle, the window-accelerator policy, the title bar's opaque background, and the heading/scroll-region accessibility fixes. The full suite (1,115 tests in 100 files), the shell smoke (137/137) and the R11 measurement harness passed on the new bytes; no assertion was removed and no requirement status was lowered. | R12 2026-11-14: re-recorded after R12 pinned `eslint-plugin-react-hooks` 7.1.1 as a devDependency (exact, `npm audit` 0 vulnerabilities) and configured `react-hooks/rules-of-hooks` as an error for renderer sources, which closes the gate gap RD-023 describes. `npm run ci` passed 22/22 steps (1,121 tests in 101 files), lint 0 errors, format clean on these bytes."
         },
         {
           "path": "package-lock.json",
-          "sha256": "ed9fe1f9d4e0cf8f375c451c9163e07acda6de637c466e3287bdda451d2fa1d9",
-          "note": "Re-recorded after closing GHSA-g3hv-75wg-m249 / GHSA-3g3m-2fjr-6pw4: eslint 10.14.0->10.15.0, @electron/asar 4.3.1->4.3.2 (glob 14.0.6, minimatch 11.0.8 via a scoped typescript-estree override). The previous hash described the bytes at this prompt's verification. No requirement status was lowered and no assertion removed; npm run ci is green (18/18, 983 tests) and mac:package:local passes every gate up to the admin-gated installed_copy. See docs/evidence/macos/security/dependency-advisory-2026-11.md."
+          "sha256": "cb8f874145e0fe8456f4b25f63029d7a2ba1a4c0b01217686d116b9b385c0346",
+          "note": "Re-recorded after closing GHSA-g3hv-75wg-m249 / GHSA-3g3m-2fjr-6pw4: eslint 10.14.0->10.15.0, @electron/asar 4.3.1->4.3.2 (glob 14.0.6, minimatch 11.0.8 via a scoped typescript-estree override). The previous hash described the bytes at this prompt's verification. No requirement status was lowered and no assertion removed; npm run ci is green (18/18, 983 tests) and mac:package:local passes every gate up to the admin-gated installed_copy. See docs/evidence/macos/security/dependency-advisory-2026-11.md. | R12 2026-11-14: re-recorded after R12 pinned `eslint-plugin-react-hooks` 7.1.1 as a devDependency (exact, `npm audit` 0 vulnerabilities) and configured `react-hooks/rules-of-hooks` as an error for renderer sources, which closes the gate gap RD-023 describes. `npm run ci` passed 22/22 steps (1,121 tests in 101 files), lint 0 errors, format clean on these bytes."
         },
         {
           "path": "tsconfig.main.json",
@@ -264,7 +264,8 @@
         },
         {
           "path": "eslint.config.mjs",
-          "sha256": "d7837e222cf3e56619fa03ef79517e324f33be8373bd5c7a171287eb5d55133c"
+          "sha256": "bc01d04e607f625d36e4ed3995252cfbc2d9d6758deb646bb750034529fca979",
+          "note": "R12 2026-11-14: re-recorded after R12 pinned `eslint-plugin-react-hooks` 7.1.1 as a devDependency (exact, `npm audit` 0 vulnerabilities) and configured `react-hooks/rules-of-hooks` as an error for renderer sources, which closes the gate gap RD-023 describes. `npm run ci` passed 22/22 steps (1,121 tests in 101 files), lint 0 errors, format clean on these bytes."
         },
         {
           "path": "scripts/ci.mjs",
@@ -570,13 +571,13 @@
         },
         {
           "path": "package.json",
-          "sha256": "d7c209054c2f24cac7f784dd3d09ff2895749ee6a698cfde5c6d8a4cf4a13f41",
-          "note": "Re-recorded after R11 (performance and accessibility) changed these shared bytes: the windowed console, the dialog focus lifecycle, the window-accelerator policy, the title bar's opaque background, and the heading/scroll-region accessibility fixes. The full suite (1,115 tests in 100 files), the shell smoke (137/137) and the R11 measurement harness passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "ff6538d4f6a7176b8aad9b67d56bf6b9f45dff397115e9a92ce69528ae81a970",
+          "note": "Re-recorded after R11 (performance and accessibility) changed these shared bytes: the windowed console, the dialog focus lifecycle, the window-accelerator policy, the title bar's opaque background, and the heading/scroll-region accessibility fixes. The full suite (1,115 tests in 100 files), the shell smoke (137/137) and the R11 measurement harness passed on the new bytes; no assertion was removed and no requirement status was lowered. | R12 2026-11-14: re-recorded after R12 pinned `eslint-plugin-react-hooks` 7.1.1 as a devDependency (exact, `npm audit` 0 vulnerabilities) and configured `react-hooks/rules-of-hooks` as an error for renderer sources, which closes the gate gap RD-023 describes. `npm run ci` passed 22/22 steps (1,121 tests in 101 files), lint 0 errors, format clean on these bytes."
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
-          "sha256": "017e3985c2f68a88c748ebe1a36d79e80c55a51c5bfacfb46d97f3c04ade65ae",
-          "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "65d6fc2cf67207508c469010251a5825a167cc206c7f952fe6ed64c0ef9487ba",
+          "note": "R12 2026-11-14: re-recorded after the generated coverage block was reconciled with R07's own row statement for MONA-CAP-052 (the row said the reply routes are wired and verified; the generated coverage reason still said answering an approval had no IPC path). `smoke:capability` is green again (17/17) and `npm run ci` passed 22/22 steps on these bytes. No requirement status was lowered and no assertion was removed."
         },
         {
           "path": "tools/p01-spike/build-inventory.mjs",
@@ -753,8 +754,8 @@
         },
         {
           "path": "package.json",
-          "sha256": "d7c209054c2f24cac7f784dd3d09ff2895749ee6a698cfde5c6d8a4cf4a13f41",
-          "note": "Re-recorded after R11 (performance and accessibility) changed these shared bytes: the windowed console, the dialog focus lifecycle, the window-accelerator policy, the title bar's opaque background, and the heading/scroll-region accessibility fixes. The full suite (1,115 tests in 100 files), the shell smoke (137/137) and the R11 measurement harness passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "ff6538d4f6a7176b8aad9b67d56bf6b9f45dff397115e9a92ce69528ae81a970",
+          "note": "Re-recorded after R11 (performance and accessibility) changed these shared bytes: the windowed console, the dialog focus lifecycle, the window-accelerator policy, the title bar's opaque background, and the heading/scroll-region accessibility fixes. The full suite (1,115 tests in 100 files), the shell smoke (137/137) and the R11 measurement harness passed on the new bytes; no assertion was removed and no requirement status was lowered. | R12 2026-11-14: re-recorded after R12 pinned `eslint-plugin-react-hooks` 7.1.1 as a devDependency (exact, `npm audit` 0 vulnerabilities) and configured `react-hooks/rules-of-hooks` as an error for renderer sources, which closes the gate gap RD-023 describes. `npm run ci` passed 22/22 steps (1,121 tests in 101 files), lint 0 errors, format clean on these bytes."
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
@@ -972,23 +973,23 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p07-shell-home.png",
-          "sha256": "c30e9f9f581fa865e16304adf8b068b0cc44ffbeef3d55693e63db22a0c15353",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the R03 shell smoke rewrote this capture on the changed composer; the 127/127 run passed and this is its committed bytes. A later run may rewrite it again (screenshots are run records). | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
+          "sha256": "3a13f996d283775d3cf2c7ee0e89cb5336ff2420fb0062c3ceda8e0d47c7ed3a",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the R03 shell smoke rewrote this capture on the changed composer; the 127/127 run passed and this is its committed bytes. A later run may rewrite it again (screenshots are run records). | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again. | R12 2026-11-14: regenerated by the R12 `npm run smoke:shell` run (137/137, Electron exit 0) on the post-review shell, so it now shows the R02–R11 work (archived thread selection, command autocomplete, the activity strip, the scoped usage HUD, Aurora intensity). It is current, not stale; the previously recorded hash described the pre-R12 shell (precedent: items 33/51/63/83/95/112). No assertion was removed."
         },
         {
           "path": "docs/evidence/macos/artifacts/p07-shell-studio.png",
-          "sha256": "0b3730cf1c3f05f0ac976d3627cadbb57a27821c694fc2af03aad536ae1c367d",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the R03 shell smoke rewrote this capture on the changed composer; the 127/127 run passed and this is its committed bytes. A later run may rewrite it again (screenshots are run records). | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
+          "sha256": "9bba72f5b516af6c6873758f928af17c961ceeb5c40aea04d908a69c3a34d96b",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the R03 shell smoke rewrote this capture on the changed composer; the 127/127 run passed and this is its committed bytes. A later run may rewrite it again (screenshots are run records). | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again. | R12 2026-11-14: regenerated by the R12 `npm run smoke:shell` run (137/137, Electron exit 0) on the post-review shell, so it now shows the R02–R11 work (archived thread selection, command autocomplete, the activity strip, the scoped usage HUD, Aurora intensity). It is current, not stale; the previously recorded hash described the pre-R12 shell (precedent: items 33/51/63/83/95/112). No assertion was removed."
         },
         {
           "path": "docs/evidence/macos/artifacts/p07-shell-board.png",
-          "sha256": "60694c927fafab4068239081fdd93aa9c1552dabd8e7a4aba3e19e95dd864241",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the R03 shell smoke rewrote this capture on the changed composer; the 127/127 run passed and this is its committed bytes. A later run may rewrite it again (screenshots are run records). | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
+          "sha256": "9389bb2a992b1fb8e1fd8259216b2061c8538117656951b3a636acf4b672ede0",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the R03 shell smoke rewrote this capture on the changed composer; the 127/127 run passed and this is its committed bytes. A later run may rewrite it again (screenshots are run records). | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again. | R12 2026-11-14: regenerated by the R12 `npm run smoke:shell` run (137/137, Electron exit 0) on the post-review shell, so it now shows the R02–R11 work (archived thread selection, command autocomplete, the activity strip, the scoped usage HUD, Aurora intensity). It is current, not stale; the previously recorded hash described the pre-R12 shell (precedent: items 33/51/63/83/95/112). No assertion was removed."
         },
         {
           "path": "docs/evidence/macos/artifacts/p07-shell-settings.png",
-          "sha256": "de62c5d469b632bf5f17e438aed8ca06cd44dd091e2c1452d7467be997bab8b8",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the R03 shell smoke rewrote this capture on the changed composer; the 127/127 run passed and this is its committed bytes. A later run may rewrite it again (screenshots are run records). | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
+          "sha256": "570963c665f0720d4f3a76ef0c7a8e02619a057cbfd72fc09515c5214d432114",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the R03 shell smoke rewrote this capture on the changed composer; the 127/127 run passed and this is its committed bytes. A later run may rewrite it again (screenshots are run records). | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again. | R12 2026-11-14: regenerated by the R12 `npm run smoke:shell` run (137/137, Electron exit 0) on the post-review shell, so it now shows the R02–R11 work (archived thread selection, command autocomplete, the activity strip, the scoped usage HUD, Aurora intensity). It is current, not stale; the previously recorded hash described the pre-R12 shell (precedent: items 33/51/63/83/95/112). No assertion was removed."
         },
         {
           "path": "docs/evidence/macos/artifacts/p07-interface-scale.json",
@@ -1177,8 +1178,8 @@
         },
         {
           "path": "package.json",
-          "sha256": "d7c209054c2f24cac7f784dd3d09ff2895749ee6a698cfde5c6d8a4cf4a13f41",
-          "note": "Re-recorded after R11 (performance and accessibility) changed these shared bytes: the windowed console, the dialog focus lifecycle, the window-accelerator policy, the title bar's opaque background, and the heading/scroll-region accessibility fixes. The full suite (1,115 tests in 100 files), the shell smoke (137/137) and the R11 measurement harness passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "ff6538d4f6a7176b8aad9b67d56bf6b9f45dff397115e9a92ce69528ae81a970",
+          "note": "Re-recorded after R11 (performance and accessibility) changed these shared bytes: the windowed console, the dialog focus lifecycle, the window-accelerator policy, the title bar's opaque background, and the heading/scroll-region accessibility fixes. The full suite (1,115 tests in 100 files), the shell smoke (137/137) and the R11 measurement harness passed on the new bytes; no assertion was removed and no requirement status was lowered. | R12 2026-11-14: re-recorded after R12 pinned `eslint-plugin-react-hooks` 7.1.1 as a devDependency (exact, `npm audit` 0 vulnerabilities) and configured `react-hooks/rules-of-hooks` as an error for renderer sources, which closes the gate gap RD-023 describes. `npm run ci` passed 22/22 steps (1,121 tests in 101 files), lint 0 errors, format clean on these bytes."
         },
         {
           "path": "src/main/open/folder-request.ts",
@@ -1232,8 +1233,8 @@
         },
         {
           "path": "src/renderer/shell/Shell.tsx",
-          "sha256": "7e1088fded11b33a32be75297f0c558433a269d453d310d575dcfa8b393c18ab",
-          "note": "Re-recorded after R11 (performance and accessibility) changed these shared bytes: the windowed console, the dialog focus lifecycle, the window-accelerator policy, the title bar's opaque background, and the heading/scroll-region accessibility fixes. The full suite (1,115 tests in 100 files), the shell smoke (137/137) and the R11 measurement harness passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "25f85c1dabb3bac7ec2ec51f1784234168d9502d1c760dfda1ae7edda2a2c307",
+          "note": "Re-recorded after R11 (performance and accessibility) changed these shared bytes: the windowed console, the dialog focus lifecycle, the window-accelerator policy, the title bar's opaque background, and the heading/scroll-region accessibility fixes. The full suite (1,115 tests in 100 files), the shell smoke (137/137) and the R11 measurement harness passed on the new bytes; no assertion was removed and no requirement status was lowered. | R12 2026-11-14: re-recorded after one renderer callback was renamed `useFavorite` → `insertFavorite`. It is a plain `useCallback` callback, but a `use` prefix makes the new rules-of-hooks gate (and Fast Refresh) treat it as a hook; the behaviour is unchanged. Full suite 1,121 tests in 101 files, shell smoke 137/137 on these bytes."
         },
         {
           "path": "src/renderer/shell/drop.ts",
@@ -1472,13 +1473,13 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p11-shell-board.png",
-          "sha256": "60694c927fafab4068239081fdd93aa9c1552dabd8e7a4aba3e19e95dd864241",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the R03 shell smoke rewrote this capture on the changed composer; the 127/127 run passed and this is its committed bytes. A later run may rewrite it again (screenshots are run records). | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
+          "sha256": "9389bb2a992b1fb8e1fd8259216b2061c8538117656951b3a636acf4b672ede0",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the R03 shell smoke rewrote this capture on the changed composer; the 127/127 run passed and this is its committed bytes. A later run may rewrite it again (screenshots are run records). | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again. | R12 2026-11-14: regenerated by the R12 `npm run smoke:shell` run (137/137, Electron exit 0) on the post-review shell, so it now shows the R02–R11 work (archived thread selection, command autocomplete, the activity strip, the scoped usage HUD, Aurora intensity). It is current, not stale; the previously recorded hash described the pre-R12 shell (precedent: items 33/51/63/83/95/112). No assertion was removed."
         },
         {
           "path": "docs/evidence/macos/artifacts/p11-shell-attempts.png",
-          "sha256": "8b5a7783b9ecb9ab92d2deb922c932e6f0e3868ea63f27b320bb893afcea8e6c",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the R03 shell smoke rewrote this capture on the changed composer; the 127/127 run passed and this is its committed bytes. A later run may rewrite it again (screenshots are run records). | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
+          "sha256": "f831cc7172da1206ad1cbc4adbb57f08bdadefefe4821d0b1d156aa7b39fdfe0",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the R03 shell smoke rewrote this capture on the changed composer; the 127/127 run passed and this is its committed bytes. A later run may rewrite it again (screenshots are run records). | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again. | R12 2026-11-14: regenerated by the R12 `npm run smoke:shell` run (137/137, Electron exit 0) on the post-review shell, so it now shows the R02–R11 work (archived thread selection, command autocomplete, the activity strip, the scoped usage HUD, Aurora intensity). It is current, not stale; the previously recorded hash described the pre-R12 shell (precedent: items 33/51/63/83/95/112). No assertion was removed."
         },
         {
           "path": "docs/evidence/macos/artifacts/p11-ci.txt",
@@ -1543,13 +1544,13 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p12-shell-cost.png",
-          "sha256": "a90b4d652035c09ede96139a41cc531a5ead3db34f14fe495ce3b5c2dd9b5e21",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
+          "sha256": "239c04374dd9e998c36d99fecd964c17b58e9c15bd0554840b8574e26a091a9d",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again. | R12 2026-11-14: regenerated by the R12 `npm run smoke:shell` run (137/137, Electron exit 0) on the post-review shell, so it now shows the R02–R11 work (archived thread selection, command autocomplete, the activity strip, the scoped usage HUD, Aurora intensity). It is current, not stale; the previously recorded hash described the pre-R12 shell (precedent: items 33/51/63/83/95/112). No assertion was removed."
         },
         {
           "path": "docs/evidence/macos/artifacts/p12-shell-cost-detail.png",
-          "sha256": "aa07f19d32139b0cc69210c8690e82857f80514d8ff035c7826a0895c66da10d",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the R03 shell smoke rewrote this capture on the changed composer; the 127/127 run passed and this is its committed bytes. A later run may rewrite it again (screenshots are run records). | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
+          "sha256": "1992039d1c2bcde68ac02f80b9b4b7494c22b625faaee55824346706bfab0da8",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the R03 shell smoke rewrote this capture on the changed composer; the 127/127 run passed and this is its committed bytes. A later run may rewrite it again (screenshots are run records). | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again. | R12 2026-11-14: regenerated by the R12 `npm run smoke:shell` run (137/137, Electron exit 0) on the post-review shell, so it now shows the R02–R11 work (archived thread selection, command autocomplete, the activity strip, the scoped usage HUD, Aurora intensity). It is current, not stale; the previously recorded hash described the pre-R12 shell (precedent: items 33/51/63/83/95/112). No assertion was removed."
         },
         {
           "path": "docs/evidence/macos/artifacts/p12-schema.txt",
@@ -1602,8 +1603,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p13-shell-changes.png",
-          "sha256": "887ee4a583b5035a25a3db89d72a27c00ac4300b3ebf1adca36217808a86279b",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
+          "sha256": "1a025f6361bff2b11798a91e8f5597f1d1ea077dd0a53c2479f8342307c0f2e7",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again. | R12 2026-11-14: regenerated by the R12 `npm run smoke:shell` run (137/137, Electron exit 0) on the post-review shell, so it now shows the R02–R11 work (archived thread selection, command autocomplete, the activity strip, the scoped usage HUD, Aurora intensity). It is current, not stale; the previously recorded hash described the pre-R12 shell (precedent: items 33/51/63/83/95/112). No assertion was removed."
         },
         {
           "path": "docs/evidence/macos/artifacts/p13-schema.txt",
@@ -1619,8 +1620,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p13-shell-changes-file.png",
-          "sha256": "d2d2c36f5b9e919c8eb497a9b3cdf7bcca2e57253deed4d144137f82773d3f71",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
+          "sha256": "0c2bd64d2057a4faf6a01a1ad8374301740cc8110ec615511c420a70cb1d9324",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again. | R12 2026-11-14: regenerated by the R12 `npm run smoke:shell` run (137/137, Electron exit 0) on the post-review shell, so it now shows the R02–R11 work (archived thread selection, command autocomplete, the activity strip, the scoped usage HUD, Aurora intensity). It is current, not stale; the previously recorded hash described the pre-R12 shell (precedent: items 33/51/63/83/95/112). No assertion was removed."
         }
       ],
       "blocker_ids": []
@@ -1669,28 +1670,28 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p14-home-daybreak.png",
-          "sha256": "c30e9f9f581fa865e16304adf8b068b0cc44ffbeef3d55693e63db22a0c15353",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the R03 shell smoke rewrote this capture on the changed composer; the 127/127 run passed and this is its committed bytes. A later run may rewrite it again (screenshots are run records). | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
+          "sha256": "3a13f996d283775d3cf2c7ee0e89cb5336ff2420fb0062c3ceda8e0d47c7ed3a",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the R03 shell smoke rewrote this capture on the changed composer; the 127/127 run passed and this is its committed bytes. A later run may rewrite it again (screenshots are run records). | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again. | R12 2026-11-14: regenerated by the R12 `npm run smoke:shell` run (137/137, Electron exit 0) on the post-review shell, so it now shows the R02–R11 work (archived thread selection, command autocomplete, the activity strip, the scoped usage HUD, Aurora intensity). It is current, not stale; the previously recorded hash described the pre-R12 shell (precedent: items 33/51/63/83/95/112). No assertion was removed."
         },
         {
           "path": "docs/evidence/macos/artifacts/p14-settings-attention.png",
-          "sha256": "7c166480211f7d54cfb642456d67d23370d5c2f44a2d4b17419fbaacd72691af",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
+          "sha256": "e1246d6e5be3bc6d3e2866e820ef9ccc6136f291cc931553a10e3ed835017c95",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again. | R12 2026-11-14: regenerated by the R12 `npm run smoke:shell` run (137/137, Electron exit 0) on the post-review shell, so it now shows the R02–R11 work (archived thread selection, command autocomplete, the activity strip, the scoped usage HUD, Aurora intensity). It is current, not stale; the previously recorded hash described the pre-R12 shell (precedent: items 33/51/63/83/95/112). No assertion was removed."
         },
         {
           "path": "docs/evidence/macos/artifacts/p14-settings-attention-native.png",
-          "sha256": "ce5d38d79b3f79223957b45f7bd1909d9336ff9d0e4dc8e2837730dddfb25306",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
+          "sha256": "e17dae2e33789ed8bf66dc29fcf78fac1ad8b9b5faabe133a66a8a624588528b",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again. | R12 2026-11-14: regenerated by the R12 `npm run smoke:shell` run (137/137, Electron exit 0) on the post-review shell, so it now shows the R02–R11 work (archived thread selection, command autocomplete, the activity strip, the scoped usage HUD, Aurora intensity). It is current, not stale; the previously recorded hash described the pre-R12 shell (precedent: items 33/51/63/83/95/112). No assertion was removed."
         },
         {
           "path": "docs/evidence/macos/artifacts/p14-settings-receipts.png",
-          "sha256": "1301c7ae43fb617cc8245d6429fa297a281edbdd1c19d5c362615ab798b6d4a8",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the R03 shell smoke rewrote this capture on the changed composer; the 127/127 run passed and this is its committed bytes. A later run may rewrite it again (screenshots are run records). | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
+          "sha256": "b60eca0fa843b8f320fc5616c5b5840a06f30e0306d219d475fcf59ce801f711",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the R03 shell smoke rewrote this capture on the changed composer; the 127/127 run passed and this is its committed bytes. A later run may rewrite it again (screenshots are run records). | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again. | R12 2026-11-14: regenerated by the R12 `npm run smoke:shell` run (137/137, Electron exit 0) on the post-review shell, so it now shows the R02–R11 work (archived thread selection, command autocomplete, the activity strip, the scoped usage HUD, Aurora intensity). It is current, not stale; the previously recorded hash described the pre-R12 shell (precedent: items 33/51/63/83/95/112). No assertion was removed."
         },
         {
           "path": "docs/evidence/macos/artifacts/p14-studio-focus-afterglow.png",
-          "sha256": "53e5d46c868689db85d73cdc17870c48c684a683d373f0e7124e9c56d62cbbbb",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the R03 shell smoke rewrote this capture on the changed composer; the 127/127 run passed and this is its committed bytes. A later run may rewrite it again (screenshots are run records). | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
+          "sha256": "e2d9d6d755710046ca2c25b42976cb3c940e74c71ee651df918763d46d513ef8",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the R03 shell smoke rewrote this capture on the changed composer; the 127/127 run passed and this is its committed bytes. A later run may rewrite it again (screenshots are run records). | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again. | R12 2026-11-14: regenerated by the R12 `npm run smoke:shell` run (137/137, Electron exit 0) on the post-review shell, so it now shows the R02–R11 work (archived thread selection, command autocomplete, the activity strip, the scoped usage HUD, Aurora intensity). It is current, not stale; the previously recorded hash described the pre-R12 shell (precedent: items 33/51/63/83/95/112). No assertion was removed."
         },
         {
           "path": "docs/evidence/macos/artifacts/p14-ci.txt",
@@ -1771,18 +1772,18 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p15-agents-daybreak.png",
-          "sha256": "2aed09862403c1f3753d1db22e510679be70499568dae1f8d911599f483212aa",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
+          "sha256": "31c61a5ed6fc5b468cd4d5bb640be349d7ce3fa791564e8e75bebacdd40a8e68",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again. | R12 2026-11-14: regenerated by the R12 `npm run smoke:shell` run (137/137, Electron exit 0) on the post-review shell, so it now shows the R02–R11 work (archived thread selection, command autocomplete, the activity strip, the scoped usage HUD, Aurora intensity). It is current, not stale; the previously recorded hash described the pre-R12 shell (precedent: items 33/51/63/83/95/112). No assertion was removed."
         },
         {
           "path": "docs/evidence/macos/artifacts/p15-agents-afterglow.png",
-          "sha256": "de24f8ace883e1eb7d0876f49109684328de5877bf70f5594239273e713ca4a0",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
+          "sha256": "5f8c62c22e4181a4b7b620122fcf0482459034c626a70c3c85a7d0585a8eb225",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again. | R12 2026-11-14: regenerated by the R12 `npm run smoke:shell` run (137/137, Electron exit 0) on the post-review shell, so it now shows the R02–R11 work (archived thread selection, command autocomplete, the activity strip, the scoped usage HUD, Aurora intensity). It is current, not stale; the previously recorded hash described the pre-R12 shell (precedent: items 33/51/63/83/95/112). No assertion was removed."
         },
         {
           "path": "docs/evidence/macos/artifacts/p15-agents-inspector.png",
-          "sha256": "d739b8de8d47ecb0a51d229fda2213d23eadb66dfb3209c5ec13c73b21c0a6e0",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the R03 shell smoke rewrote this capture on the changed composer; the 127/127 run passed and this is its committed bytes. A later run may rewrite it again (screenshots are run records). | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
+          "sha256": "40b65df298f3db222e8d5ab6708683a9885e2150fe464e55dfae368e5980c508",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the R03 shell smoke rewrote this capture on the changed composer; the 127/127 run passed and this is its committed bytes. A later run may rewrite it again (screenshots are run records). | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again. | R12 2026-11-14: regenerated by the R12 `npm run smoke:shell` run (137/137, Electron exit 0) on the post-review shell, so it now shows the R02–R11 work (archived thread selection, command autocomplete, the activity strip, the scoped usage HUD, Aurora intensity). It is current, not stale; the previously recorded hash described the pre-R12 shell (precedent: items 33/51/63/83/95/112). No assertion was removed."
         }
       ],
       "blocker_ids": []
@@ -1818,13 +1819,13 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p16-settings-smoke.json",
-          "sha256": "0b7a70aa72d163ea19f64860ccb5ce36e7b9291fd1626a772fef4b0c15a59e7e",
-          "note": "A smoke report is a run record: re-running it rewrites captured_at and host facts, so this hash describes the run made during the app-icon verification (npm run ci, 2026-11-14, 994 tests in 91 files). Same class as ledger items 97/98."
+          "sha256": "953cab292dc81734b25129a04bd5121d2e25cbd1293e65417e1927ea09a0de7b",
+          "note": "R12 2026-11-14: this file is the record of the final R12 validation run — `npm run ci` passed 22/22 steps (format, lint, typecheck, catalog, the native builds, 1,121 tests in 101 files, every smoke) on the reconciled bytes — which re-ran this smoke. A run record is rewritten by its own smoke (items 97/98); its checks are green, and the previously recorded hash described the earlier run."
         },
         {
           "path": "docs/evidence/macos/artifacts/p16-settings-route.png",
-          "sha256": "eb75d2db46aeb2b461a8e659c5da3bcb78299c109c2ab1ee5920f89e1cb895ff",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
+          "sha256": "58847b730ddb0ed639816ad5f5fbf6676b38f63581477a2a52e21f4fef4f7736",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again. | R12 2026-11-14: regenerated by the R12 `npm run smoke:shell` run (137/137, Electron exit 0) on the post-review shell, so it now shows the R02–R11 work (archived thread selection, command autocomplete, the activity strip, the scoped usage HUD, Aurora intensity). It is current, not stale; the previously recorded hash described the pre-R12 shell (precedent: items 33/51/63/83/95/112). No assertion was removed."
         },
         {
           "path": "docs/evidence/macos/artifacts/p16-p17-ci.txt",
@@ -1861,13 +1862,13 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p17-extensions-smoke.json",
-          "sha256": "a651328ed7f947ff9bd312bb06538c318289ceda16f46c8c615342964cf5756d",
-          "note": "A smoke report is a run record: re-running it rewrites captured_at and host facts, so this hash describes the run made during the app-icon verification (npm run ci, 2026-11-14, 994 tests in 91 files). Same class as ledger items 97/98."
+          "sha256": "83c38b5974f934d2e4008df7420072604f5c2131fc068cecd003aea3a6f13ed3",
+          "note": "R12 2026-11-14: this file is the record of the final R12 validation run — `npm run ci` passed 22/22 steps (format, lint, typecheck, catalog, the native builds, 1,121 tests in 101 files, every smoke) on the reconciled bytes — which re-ran this smoke. A run record is rewritten by its own smoke (items 97/98); its checks are green, and the previously recorded hash described the earlier run."
         },
         {
           "path": "docs/evidence/macos/artifacts/p17-settings-extensions.png",
-          "sha256": "29a7ca7b1e585bba77b26b90530adacd5cd31d30ea65a542925ea6e5bdf12fda",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
+          "sha256": "160fdbd20bd4ff6407fad2cc071b55e9f4fc1e5ba1c41cb6ab42cf079e0893ff",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again. | R12 2026-11-14: regenerated by the R12 `npm run smoke:shell` run (137/137, Electron exit 0) on the post-review shell, so it now shows the R02–R11 work (archived thread selection, command autocomplete, the activity strip, the scoped usage HUD, Aurora intensity). It is current, not stale; the previously recorded hash described the pre-R12 shell (precedent: items 33/51/63/83/95/112). No assertion was removed."
         },
         {
           "path": "docs/evidence/macos/artifacts/p16-p17-ci.txt",
@@ -1909,23 +1910,23 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-terminal-smoke.json",
-          "sha256": "ff3654e7eb1b818b41476485a155a1928d388d78744da9b033ad9726da6d528d",
-          "note": "A smoke report is a run record: re-running it rewrites captured_at and host facts, so this hash describes the run made during the app-icon verification (npm run ci, 2026-11-14, 994 tests in 91 files). Same class as ledger items 97/98."
+          "sha256": "b9554259fcc917a94681f957e7afcd37b0a9f985a1a6dc5ece4a639761694984",
+          "note": "R12 2026-11-14: this file is the record of the final R12 validation run — `npm run ci` passed 22/22 steps (format, lint, typecheck, catalog, the native builds, 1,121 tests in 101 files, every smoke) on the reconciled bytes — which re-ran this smoke. A run record is rewritten by its own smoke (items 97/98); its checks are green, and the previously recorded hash described the earlier run."
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capability-smoke.json",
-          "sha256": "5c23e427d45b2972cfcb933269d25e59ad0d90aa6fba15358790c06bd0e7e9d1",
-          "note": "A smoke report is a run record: re-running it rewrites captured_at and host facts, so this hash describes the run made during the app-icon verification (npm run ci, 2026-11-14, 994 tests in 91 files). Same class as ledger items 97/98."
+          "sha256": "4228f37de2f9affae375204dbe1b4000b5f58457f35e4dfc205a0bc54a589784",
+          "note": "R12 2026-11-14: this file is the record of the final R12 validation run — `npm run ci` passed 22/22 steps (format, lint, typecheck, catalog, the native builds, 1,121 tests in 101 files, every smoke) on the reconciled bytes — which re-ran this smoke. A run record is rewritten by its own smoke (items 97/98); its checks are green, and the previously recorded hash described the earlier run."
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capability-coverage.md",
-          "sha256": "f128d2cbc4ca7e1cb58d5796f788936435f236b72d729133c925b00efda999c9",
-          "note": "A smoke report is a run record: re-running it rewrites captured_at and host facts, so this hash describes the run made during the app-icon verification (npm run ci, 2026-11-14, 994 tests in 91 files). Same class as ledger items 97/98."
+          "sha256": "a34e3241176e77c711d3d10f2f5a953301ab557f737176a46e22f88c818f42ca",
+          "note": "R12 2026-11-14: regenerated by the final R12 validation run (`smoke:capability`, 17/17) and it now carries the reconciled MONA-CAP-052 reason, so the coverage report and R07's own row statement agree. A generated report is rewritten by its own tool; its checks are green."
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capability-coverage.json",
-          "sha256": "d30c1fcacd55ccdc39093f2184f05c98a490d7b61f8e4345f4bd68e5010efdbe",
-          "note": "A smoke report is a run record: re-running it rewrites captured_at and host facts, so this hash describes the run made during the app-icon verification (npm run ci, 2026-11-14, 994 tests in 91 files). Same class as ledger items 97/98."
+          "sha256": "2f8758631426d599bb7127fa794326639a298ea5f7db7592c15caa67e215921c",
+          "note": "R12 2026-11-14: regenerated by the final R12 validation run (`smoke:capability`, 17/17) and it now carries the reconciled MONA-CAP-052 reason, so the coverage report and R07's own row statement agree. A generated report is rewritten by its own tool; its checks are green."
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-shell-smoke.json",
@@ -1941,13 +1942,13 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-terminal.png",
-          "sha256": "d88dca5d77e00dab375efb7c14cb4b35b243afc3bb35ce14c1ae5a8db069049a",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the R03 shell smoke rewrote this capture on the changed composer; the 127/127 run passed and this is its committed bytes. A later run may rewrite it again (screenshots are run records). | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
+          "sha256": "139ccf2cd22337cdaa1c7b618e67394aa1814cce7900163a101107af6136bcff",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the R03 shell smoke rewrote this capture on the changed composer; the 127/127 run passed and this is its committed bytes. A later run may rewrite it again (screenshots are run records). | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again. | R12 2026-11-14: regenerated by the R12 `npm run smoke:shell` run (137/137, Electron exit 0) on the post-review shell, so it now shows the R02–R11 work (archived thread selection, command autocomplete, the activity strip, the scoped usage HUD, Aurora intensity). It is current, not stale; the previously recorded hash described the pre-R12 shell (precedent: items 33/51/63/83/95/112). No assertion was removed."
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capabilities.png",
-          "sha256": "29c9410f3ba419eb08797eee163c2be44bf7a55381b2805e5492fe7a5dbe98ef",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
+          "sha256": "737f8b86b7eb113c7f838f4287fe3b282fac388e4b4e6333914599be71776262",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again. | R12 2026-11-14: regenerated by the R12 `npm run smoke:shell` run (137/137, Electron exit 0) on the post-review shell, so it now shows the R02–R11 work (archived thread selection, command autocomplete, the activity strip, the scoped usage HUD, Aurora intensity). It is current, not stale; the previously recorded hash described the pre-R12 shell (precedent: items 33/51/63/83/95/112). No assertion was removed."
         },
         {
           "path": "native/macos-pty/main.swift",
@@ -1975,7 +1976,8 @@
         },
         {
           "path": "tools/p18-coverage/reconcile.mjs",
-          "sha256": "f51cd55efd7b96ec76602e27f1829f6faffb2ee1c4dea759bef7fc9910a4765a"
+          "sha256": "4313c5cd3b5d0a9f9fe30f47f8525a696c42c74d30b607870d6fa98923191d29",
+          "note": "R12 2026-11-14: the P18 overlay's MONA-CAP-052 entry now carries R07's verified statement, so `--check` and the capability smoke agree again. Re-recorded after `smoke:capability` (17/17) passed."
         },
         {
           "path": "src/main/terminal/buffer.ts",
@@ -2050,8 +2052,8 @@
         },
         {
           "path": "src/renderer/shell/Shell.tsx",
-          "sha256": "7e1088fded11b33a32be75297f0c558433a269d453d310d575dcfa8b393c18ab",
-          "note": "Re-recorded after R11 (performance and accessibility) changed these shared bytes: the windowed console, the dialog focus lifecycle, the window-accelerator policy, the title bar's opaque background, and the heading/scroll-region accessibility fixes. The full suite (1,115 tests in 100 files), the shell smoke (137/137) and the R11 measurement harness passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "25f85c1dabb3bac7ec2ec51f1784234168d9502d1c760dfda1ae7edda2a2c307",
+          "note": "Re-recorded after R11 (performance and accessibility) changed these shared bytes: the windowed console, the dialog focus lifecycle, the window-accelerator policy, the title bar's opaque background, and the heading/scroll-region accessibility fixes. The full suite (1,115 tests in 100 files), the shell smoke (137/137) and the R11 measurement harness passed on the new bytes; no assertion was removed and no requirement status was lowered. | R12 2026-11-14: re-recorded after one renderer callback was renamed `useFavorite` → `insertFavorite`. It is a plain `useCallback` callback, but a `use` prefix makes the new rules-of-hooks gate (and Fast Refresh) treat it as a hook; the behaviour is unchanged. Full suite 1,121 tests in 101 files, shell smoke 137/137 on these bytes."
         },
         {
           "path": "src/renderer/shell/Settings.tsx",
@@ -2107,13 +2109,13 @@
         },
         {
           "path": "package.json",
-          "sha256": "d7c209054c2f24cac7f784dd3d09ff2895749ee6a698cfde5c6d8a4cf4a13f41",
-          "note": "Re-recorded after R11 (performance and accessibility) changed these shared bytes: the windowed console, the dialog focus lifecycle, the window-accelerator policy, the title bar's opaque background, and the heading/scroll-region accessibility fixes. The full suite (1,115 tests in 100 files), the shell smoke (137/137) and the R11 measurement harness passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "ff6538d4f6a7176b8aad9b67d56bf6b9f45dff397115e9a92ce69528ae81a970",
+          "note": "Re-recorded after R11 (performance and accessibility) changed these shared bytes: the windowed console, the dialog focus lifecycle, the window-accelerator policy, the title bar's opaque background, and the heading/scroll-region accessibility fixes. The full suite (1,115 tests in 100 files), the shell smoke (137/137) and the R11 measurement harness passed on the new bytes; no assertion was removed and no requirement status was lowered. | R12 2026-11-14: re-recorded after R12 pinned `eslint-plugin-react-hooks` 7.1.1 as a devDependency (exact, `npm audit` 0 vulnerabilities) and configured `react-hooks/rules-of-hooks` as an error for renderer sources, which closes the gate gap RD-023 describes. `npm run ci` passed 22/22 steps (1,121 tests in 101 files), lint 0 errors, format clean on these bytes."
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
-          "sha256": "017e3985c2f68a88c748ebe1a36d79e80c55a51c5bfacfb46d97f3c04ade65ae",
-          "note": "Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
+          "sha256": "65d6fc2cf67207508c469010251a5825a167cc206c7f952fe6ed64c0ef9487ba",
+          "note": "R12 2026-11-14: re-recorded after the generated coverage block was reconciled with R07's own row statement for MONA-CAP-052 (the row said the reply routes are wired and verified; the generated coverage reason still said answering an approval had no IPC path). `smoke:capability` is green again (17/17) and `npm run ci` passed 22/22 steps on these bytes. No requirement status was lowered and no assertion was removed."
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
@@ -2152,8 +2154,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p19-memory-smoke.json",
-          "sha256": "6247b593d16c4feb3b36dd6502d8b93dfde58778350c526cbc5052bc3e5926bf",
-          "note": "A smoke report is a run record: re-running it rewrites captured_at and host facts, so this hash describes the run made during the app-icon verification (npm run ci, 2026-11-14, 994 tests in 91 files). Same class as ledger items 97/98."
+          "sha256": "1b79ed238871462952aafa8c9735f67e3c356b1d8b43d1265f6d7ea11171a2b6",
+          "note": "R12 2026-11-14: this file is the record of the final R12 validation run — `npm run ci` passed 22/22 steps (format, lint, typecheck, catalog, the native builds, 1,121 tests in 101 files, every smoke) on the reconciled bytes — which re-ran this smoke. A run record is rewritten by its own smoke (items 97/98); its checks are green, and the previously recorded hash described the earlier run."
         },
         {
           "path": "docs/evidence/macos/artifacts/p19-ci.txt",
@@ -2161,13 +2163,13 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p19-memory-search.png",
-          "sha256": "20c957475c5e5a692f18a75069d2bcbfb55469f693e570e9ee57a75bae138d72",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the R03 shell smoke rewrote this capture on the changed composer; the 127/127 run passed and this is its committed bytes. A later run may rewrite it again (screenshots are run records). | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
+          "sha256": "773b6a706be852924ff9f62296e218d74a9419aa6b509a1eeeba71a0707454a7",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the R03 shell smoke rewrote this capture on the changed composer; the 127/127 run passed and this is its committed bytes. A later run may rewrite it again (screenshots are run records). | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again. | R12 2026-11-14: regenerated by the R12 `npm run smoke:shell` run (137/137, Electron exit 0) on the post-review shell, so it now shows the R02–R11 work (archived thread selection, command autocomplete, the activity strip, the scoped usage HUD, Aurora intensity). It is current, not stale; the previously recorded hash described the pre-R12 shell (precedent: items 33/51/63/83/95/112). No assertion was removed."
         },
         {
           "path": "docs/evidence/macos/artifacts/p19-memory-handoff.png",
-          "sha256": "09550d8a33a573a7803cf68c9ac8da7a91f8900cff69b67197a744227fac99eb",
-          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again."
+          "sha256": "2fa8fb16568e50e9e14a623704a43c63259d674b529b86d04b43e1d25b51fa94",
+          "note": "Regenerated by the R02 shell-smoke run on the post-R02 bytes (docs/evidence/macos/review-studio/R02-identity-aware-history.md). Current bytes are the capture; the previously recorded hash described the pre-R02 shell. | Re-recorded after the final R03 shell smoke rewrote this capture; the 127/127 run passed on the final composer bytes. Screenshots are run records, so a later run may rewrite them again. | R12 2026-11-14: regenerated by the R12 `npm run smoke:shell` run (137/137, Electron exit 0) on the post-review shell, so it now shows the R02–R11 work (archived thread selection, command autocomplete, the activity strip, the scoped usage HUD, Aurora intensity). It is current, not stale; the previously recorded hash described the pre-R12 shell (precedent: items 33/51/63/83/95/112). No assertion was removed."
         },
         {
           "path": "docs/decisions/ADR-013-memory-and-handoff.md",
@@ -2237,8 +2239,8 @@
         },
         {
           "path": "docs/requirements-macos.json",
-          "sha256": "ab53ebae5c87e01160a47181f6fc27a8667fb03b5a241f728317e6b82394e988",
-          "note": "Re-recorded after R09 (usage HUD) changed these shared bytes. The full suite (1,089 tests) and the shell smoke (137/137) passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "3f63ce45a8fc728f6a90a9117916ab5eac765c9472772c76f171fa697f69bff7",
+          "note": "R12 2026-11-14: re-recorded after `monabuild requirements sync` regenerated this file. Only its own `indexed_utc`/`validated_utc` timestamps moved: no requirement status changed in R12. The sync ran after `npm run ci` passed 22/22 steps (1,121 tests in 101 files) and both ledgers validated."
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
@@ -2287,8 +2289,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p20-failure-smoke.json",
-          "sha256": "7adb689aa00dc5668fb6ee978c16894fe1b4aae4e9a4a3e6692292cde8f01ccf",
-          "note": "A smoke report is a run record: re-running it rewrites captured_at and host facts, so this hash describes the run made during the app-icon verification (npm run ci, 2026-11-14, 994 tests in 91 files). Same class as ledger items 97/98."
+          "sha256": "e1bc46221d2d177f81ddd738f642dbbc9e164e53a5a1178ec5bf0facba4c3c7f",
+          "note": "R12 2026-11-14: this file is the record of the final R12 validation run — `npm run ci` passed 22/22 steps (format, lint, typecheck, catalog, the native builds, 1,121 tests in 101 files, every smoke) on the reconciled bytes — which re-ran this smoke. A run record is rewritten by its own smoke (items 97/98); its checks are green, and the previously recorded hash described the earlier run."
         },
         {
           "path": "docs/evidence/macos/artifacts/p20-lifecycle-crash.json",
@@ -2467,8 +2469,8 @@
         },
         {
           "path": "docs/requirements-macos.json",
-          "sha256": "ab53ebae5c87e01160a47181f6fc27a8667fb03b5a241f728317e6b82394e988",
-          "note": "Re-recorded after R09 (usage HUD) changed these shared bytes. The full suite (1,089 tests) and the shell smoke (137/137) passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "3f63ce45a8fc728f6a90a9117916ab5eac765c9472772c76f171fa697f69bff7",
+          "note": "R12 2026-11-14: re-recorded after `monabuild requirements sync` regenerated this file. Only its own `indexed_utc`/`validated_utc` timestamps moved: no requirement status changed in R12. The sync ran after `npm run ci` passed 22/22 steps (1,121 tests in 101 files) and both ledgers validated."
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
@@ -2574,13 +2576,13 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p23-lifecycle-smoke.json",
-          "sha256": "130c42bde807b3ba32e54ba5960db5cb0c8223236f97101342022c9604a3334c",
-          "note": "A smoke report is a run record: re-running it rewrites captured_at and host facts, so this hash describes the run made during the app-icon verification (npm run ci, 2026-11-14, 994 tests in 91 files). Same class as ledger items 97/98."
+          "sha256": "5923114560b1df3016104b911c796ee9cc9a5e9d1aa16bcf9cd15a0fc201ef78",
+          "note": "R12 2026-11-14: this file is the record of the final R12 validation run — `npm run ci` passed 22/22 steps (format, lint, typecheck, catalog, the native builds, 1,121 tests in 101 files, every smoke) on the reconciled bytes — which re-ran this smoke. A run record is rewritten by its own smoke (items 97/98); its checks are green, and the previously recorded hash described the earlier run."
         },
         {
           "path": "docs/evidence/macos/artifacts/p23-uninstall-rehearsal.json",
-          "sha256": "a32600128f40b311451dc3b42eb9218224a6292543f7af315a13067f50d6aa8d",
-          "note": "A smoke report is a run record: re-running it rewrites captured_at and host facts, so this hash describes the run made during the app-icon verification (npm run ci, 2026-11-14, 994 tests in 91 files). Same class as ledger items 97/98."
+          "sha256": "527e4a040e164a20e36f03fd9913d2315002434f04e89454dceb17e0ef5cb7b6",
+          "note": "A smoke report is a run record: re-running it rewrites captured_at and host facts, so this hash describes the run made during the app-icon verification (npm run ci, 2026-11-14, 994 tests in 91 files). Same class as ledger items 97/98. | R12 2026-11-14: re-run by R12's `npm run ci`; this file is that run's own record (items 97/98), and its checks are green. The previously recorded hash described the run at the earlier validation."
         },
         {
           "path": "docs/evidence/macos/artifacts/p23-ci.txt",
@@ -2682,7 +2684,7 @@
     "P22",
     "P25"
   ],
-  "last_checkpoint_utc": "2026-11-14T16:50:23.697Z",
+  "last_checkpoint_utc": "2026-11-14T17:04:41.251Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",
@@ -2760,6 +2762,14 @@
     "P00 accepted: clean-room verification captured in docs/evidence/macos/artifacts/p00-cleanroom-verification.txt",
     "P20 hardening: six defects found and fixed with reproducible cases (repository-hook secret leak, silent event-stream gaps, symlinked extraction parent, unnamed missing artifact, prefix home redaction, and a supervisor receipt write that orphaned the runtime tree on main-process death).",
     "R00 (Studio review): subordinate ledger created at .mona/build-macos/reviews/studio-v2/; reviewed hotfix applied unmodified to store.ts, Studio.tsx and timeline.ts with its five regression tests; P10/P19 store.ts evidence re-recorded after 796 tests passed; 19 shell captures refreshed and re-hashed. See D-103.",
-    "R01 (Studio review): composer drafts moved into a journal with per-key serialized writes and revision-checked acks; async navigation is epoch-scoped. 819 tests in 81 files, shell smoke 127/127. See reviews/studio-v2/ and docs/evidence/macos/review-studio/R01-drafts-and-navigation.md."
+    "R01 (Studio review): composer drafts moved into a journal with per-key serialized writes and revision-checked acks; async navigation is epoch-scoped. 819 tests in 81 files, shell smoke 127/127. See reviews/studio-v2/ and docs/evidence/macos/review-studio/R01-drafts-and-navigation.md.",
+    "R02 (Studio review): history is a keyset-paged read of stored events; the timeline binds deltas and completions by item identity; partial cards reload one item or say they cannot. 849 tests in 83 files.",
+    "R03 (Studio review): the composer autocompletes the pinned engine's own 109-row command catalog; a recognised command is intercepted before submission. 885 tests in 85 files.",
+    "R04/R05 (Studio review): commands execute through a validated native operation plan; Focus Studio became immersive and native fullscreen is observed, not assumed. 983 tests in 90 files.",
+    "R06/R07/R10 (Studio review): Aurora identity on the production surfaces; pending approvals persisted and answered through the engine's own routes; copy, search, unread/jump, resizable composer and file mention. 1,040 tests in 93 files.",
+    "R08 (Studio review): follow-ups stored with immutable target identity and one end-of-turn dispatch boundary; steering is absent and says so; the activity strip derives from stored frames. 1,057 tests in 95 files.",
+    "R09 (Studio review): the usage HUD carries three labelled scopes and five honest states; unknown cost is never $0.00. 1,089 tests in 98 files.",
+    "R11 (Studio review): bounded console rendering, accessible shell (9 screens, 0 axe violations), measured startup/CPU/memory with the one memory exception derived from the runtime's own floor. 1,118 tests in 100 files.",
+    "R12 (Studio review): the gate was red and is green — `smoke:capability` failed on a stale generated coverage reason for MONA-CAP-052 that contradicted R07's own row, the 20 React act warnings were fixed at the act boundary (and exposed a fixture handing a component an IpcResult where a ServiceStatus is promised), and `eslint-plugin-react-hooks` 7.1.1 now enforces rules-of-hooks after RD-023 showed the lint gate could not see the R11 blocker. `npm run ci` 22/22, 1,121 tests in 101 files, shell smoke 137/137, 57 product-ledger and 5 review-ledger evidence entries re-recorded with notes, secrets 705 files / 0 findings. See reviews/studio-v2/ and docs/evidence/macos/review-studio/R12-regression-and-evidence.md."
   ]
 }

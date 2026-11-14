@@ -2326,7 +2326,7 @@
         "mona_id": "MONA-CAP-052",
         "upstream_name": "Approvals bridge",
         "status": "unqualified",
-        "reason": "Mona shows the wait and never auto-approves inside a thread. Answering an approval has no IPC path yet."
+        "reason": "Verified: pending rows persist with the Runtime capability, both reply routes are wired (POST /v1/approvals/{id}, POST /v1/user-input/{thread}/{request}), and the engine's own thread-detail lists settle or expire them. Not verified: a live approval decision end to end, remembered grants (passed through, not listed), and clarifications on the tool-free compatibility transport."
       },
       {
         "mona_id": "MONA-CAP-055",
@@ -2366,6 +2366,6 @@
       }
     ],
     "summary": "75 discovered rows: 43 verified, 28 open (entry point named and tested where marked), 2 blocked gaps, 2 unavailable. Every row carries an entry point or an explicit no-route state; 3 rows have no in-app route. Full parity is not claimed while any row is open or blocked.",
-    "assessed_utc": "2026-11-12T15:39:32.142Z"
+    "assessed_utc": "2026-11-14T16:55:01.403Z"
   }
 }

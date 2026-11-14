@@ -1,6 +1,6 @@
 # Mona capability coverage
 
-Generated 2026-11-14T08:37:31.915Z from ~/DS_Projects/Mona/docs/codewhale-capabilities-macos.json.
+Generated 2026-11-14T17:01:35.462Z from ~/DS_Projects/Mona/docs/codewhale-capabilities-macos.json.
 
 ## Coverage
 
@@ -14,7 +14,7 @@ Generated 2026-11-14T08:37:31.915Z from ~/DS_Projects/Mona/docs/codewhale-capabi
 
 ## Drift
 
-- Checked: 2026-11-14T08:37:31.915Z
+- Checked: 2026-11-14T17:01:35.462Z
 - Installed: 0.10.2 (ff466b2ed0bf)
 - Recorded: 0.10.2 (ff466b2ed0bfb4ae5267d4d8d0ecb562cf46956e)
 - Additions: 0
@@ -127,7 +127,7 @@ Generated 2026-11-14T08:37:31.915Z from ~/DS_Projects/Mona/docs/codewhale-capabi
 - **MONA-CAP-036 thread** (unqualified): Resume and fork flows are terminal-only beyond the studio's recorded resume.
 - **MONA-CAP-037 sandbox** (unqualified): The effective permission posture is shown from the turn receipt (P08), not recomputed here; `sandbox` is terminal-only.
 - **MONA-CAP-041 update** (unqualified): Mona never silently upgrades the engine. An engine change is an explicit, separately tested compatibility decision and stays terminal-only here.
-- **MONA-CAP-052 Approvals bridge** (unqualified): Mona shows the wait and never auto-approves inside a thread. Answering an approval has no IPC path yet.
+- **MONA-CAP-052 Approvals bridge** (unqualified): Verified: pending rows persist with the Runtime capability, both reply routes are wired (POST /v1/approvals/{id}, POST /v1/user-input/{thread}/{request}), and the engine's own thread-detail lists settle or expire them. Not verified: a live approval decision end to end, remembered grants (passed through, not listed), and clarifications on the tool-free compatibility transport.
 - **MONA-CAP-055 Tool: apply_patch** (unqualified): apply_patch is displayed as a tool-attributed change when the agent uses it. Mona offers no direct patch control.
 - **MONA-CAP-056 Web search** (unqualified): Web search is provider-native and may add provider charges. Mona makes no claim that a route has it enabled.
 - **MONA-CAP-061 Terminal stream/input** (unqualified): Engine terminal sessions can only be attached, never created (404 otherwise), so a client cannot open its own shell through them. Mona owns its PTY instead; an attach view for engine-owned shells is not built.

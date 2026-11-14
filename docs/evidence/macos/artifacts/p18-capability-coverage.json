@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-14T08:37:31.915Z",
+  "generated_at": "2026-11-14T17:01:35.462Z",
   "inventory": "~/DS_Projects/Mona/docs/codewhale-capabilities-macos.json",
   "coverage": {
     "rowsTotal": 75,
@@ -175,7 +175,7 @@
         "id": "MONA-CAP-052",
         "name": "Approvals bridge",
         "status": "unqualified",
-        "reason": "Mona shows the wait and never auto-approves inside a thread. Answering an approval has no IPC path yet."
+        "reason": "Verified: pending rows persist with the Runtime capability, both reply routes are wired (POST /v1/approvals/{id}, POST /v1/user-input/{thread}/{request}), and the engine's own thread-detail lists settle or expire them. Not verified: a live approval decision end to end, remembered grants (passed through, not listed), and clarifications on the tool-free compatibility transport."
       },
       {
         "id": "MONA-CAP-055",
@@ -218,7 +218,7 @@
   },
   "drift": {
     "checked": true,
-    "checkedAt": "2026-11-14T08:37:31.915Z",
+    "checkedAt": "2026-11-14T17:01:35.462Z",
     "error": null,
     "engineVersion": "0.10.2",
     "engineCommit": "ff466b2ed0bf",
@@ -1771,13 +1771,13 @@
       "entryPoint": {
         "kind": "screen",
         "target": "studio",
-        "label": "Studio · approval wait",
+        "label": "Studio · approval and question cards",
         "tested": true
       },
-      "uiLocation": "Studio · approval wait",
-      "tests": "P08: an approval request is surfaced as a real wait. No test resolves one.",
+      "uiLocation": "Studio · approval and question cards",
+      "tests": "P08 surfaced a wait as text. R07 adds a typed reply path: scripts/pending-smoke.mjs proves both routes exist and reject an unknown capability (404) against the pinned 0.10.2 engine with 0 model requests; test/studio-pending.test.ts covers the durable row, the acknowledged 2xx, the expired 404, duplicate answers and restart. No live approval prompt has been round-tripped (that needs inference).",
       "status": "unqualified",
-      "gap": "Mona shows the wait and never auto-approves inside a thread. Answering an approval has no IPC path yet.",
+      "gap": "Verified: pending rows persist with the Runtime capability, both reply routes are wired (POST /v1/approvals/{id}, POST /v1/user-input/{thread}/{request}), and the engine's own thread-detail lists settle or expire them. Not verified: a live approval decision end to end, remembered grants (passed through, not listed), and clarifications on the tool-free compatibility transport.",
       "evidence": []
     },
     {

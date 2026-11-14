@@ -1,0 +1,48 @@
+
+ RUN  v5.1.0 /Users/basestar/DS_Projects/Mona
+
+ ❯ test/lint-hooks-gate.test.ts (3 tests | 2 failed) 279ms
+   ❯ react-hooks lint gate (3)
+     × rejects a hook after an early return (the R11 production defect) 266ms
+     × rejects a callback named like a hook, called from a plain function 8ms
+     ✓ accepts hooks at the top of a component and inside a custom hook 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/lint-hooks-gate.test.ts > react-hooks lint gate > rejects a hook after an early return (the R11 production defect)
+AssertionError: expected [] to have a length of 1 but got +0
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ test/lint-hooks-gate.test.ts:38:22
+     36|       "src/renderer/shell/__lint_fixture_conditional.tsx",
+     37|     );
+     38|     expect(messages).toHaveLength(1);
+       |                      ^
+     39|     expect(messages[0]).toMatch(/conditionally|after an early return/i…
+     40|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  test/lint-hooks-gate.test.ts > react-hooks lint gate > rejects a callback named like a hook, called from a plain function
+AssertionError: expected 0 to be greater than or equal to 1
+ ❯ test/lint-hooks-gate.test.ts:55:29
+     53|       "src/renderer/shell/__lint_fixture_naming.tsx",
+     54|     );
+     55|     expect(messages.length).toBeGreaterThanOrEqual(1);
+       |                             ^
+     56|     expect(messages.join(" ")).toMatch(/React Hook "useThing"/);
+     57|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 1 passed (3)
+   Start at  09:55:45
+   Duration  393ms (tests 89%, import 10%, transform 1%)
+

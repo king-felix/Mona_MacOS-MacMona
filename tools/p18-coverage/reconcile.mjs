@@ -557,10 +557,11 @@ const P18 = {
     scope: "runtime_api",
     invocation: "POST /v1/approvals/{id}",
     help_source: "docs/evidence/macos/artifacts/upstream-RUNTIME_API.md",
-    entry: screen("studio", "Studio · approval wait"),
+    entry: screen("studio", "Studio · approval and question cards"),
     status: "unqualified",
-    tests: "P08: an approval request is surfaced as a real wait. No test resolves one.",
-    gap: "Mona shows the wait and never auto-approves inside a thread. Answering an approval has no IPC path yet.",
+    tests:
+      "P08 surfaced a wait as text. R07 adds a typed reply path: scripts/pending-smoke.mjs proves both routes exist and reject an unknown capability (404) against the pinned 0.10.2 engine with 0 model requests; test/studio-pending.test.ts covers the durable row, the acknowledged 2xx, the expired 404, duplicate answers and restart. No live approval prompt has been round-tripped (that needs inference).",
+    gap: "Verified: pending rows persist with the Runtime capability, both reply routes are wired (POST /v1/approvals/{id}, POST /v1/user-input/{thread}/{request}), and the engine's own thread-detail lists settle or expire them. Not verified: a live approval decision end to end, remembered grants (passed through, not listed), and clarifications on the tool-free compatibility transport.",
   },
   "MONA-CAP-053": {
     scope: "runtime_api",

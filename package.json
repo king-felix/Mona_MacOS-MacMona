@@ -3,7 +3,7 @@
   "productName": "Mona",
   "version": "0.1.0-p02",
   "private": true,
-  "description": "Mona \u2014 a native Apple Silicon workbench for the Codewhale engine",
+  "description": "Mona — a native Apple Silicon workbench for the Codewhale engine",
   "license": "UNLICENSED",
   "main": "dist/main/main/index.js",
   "engines": {
@@ -78,6 +78,7 @@
     "axe-core": "^4.14.0",
     "electron": "45.3.0",
     "eslint": "10.15.0",
+    "eslint-plugin-react-hooks": "7.1.1",
     "jsdom": "^31.0.0",
     "prettier": "3.10.0",
     "typescript": "5.9.3",

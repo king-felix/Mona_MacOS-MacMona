@@ -599,3 +599,44 @@ D-001…D-103) and never replace them.
   decorative arithmetic.
 - **Consequence:** the two defects have checks that fail without the fix; the layout
   fact has a check that states what is actually guaranteed.
+
+## RD-025 — The hooks gate is configured, and the one it cannot host is named
+
+- **Date:** 2026-11-14 (R12)
+- **Context:** RD-023 recorded that R11's runtime blocker (a `useMemo` after an
+  early return) survived a green lint because `eslint.config.mjs` had no
+  `react-hooks` plugin. R12's handoff left the plugin as "consider"; the review
+  prompt requires the gate to be trustworthy.
+- **Decision — `eslint-plugin-react-hooks` 7.1.1 is pinned and
+  `react-hooks/rules-of-hooks` is an error for `src/renderer/**`.**
+  `test/lint-hooks-gate.test.ts` lints fixture source through the repository's own
+  config and proves the rule rejects a conditional hook and a `use`-named
+  callback, and accepts top-of-component and custom hooks. With the rule set to
+  `off` the same test fails 2 of 3 — the gate is proven, not asserted.
+- **Decision — `exhaustive-deps` stays off.** It is a correctness hint that
+  reports on almost every effect here; enabling it would change the lint result
+  for files this queue did not touch, which is exactly the silent-refresh pattern
+  the ledger rules forbid. Turning it on is its own task with its own evidence.
+- **Consequence:** the rule immediately found one real defect — `useFavorite` in
+  `Shell.tsx` was a plain `useCallback` callback named like a hook, so React's
+  own naming convention (and Fast Refresh) read it as one. Renamed
+  `insertFavorite`; behaviour unchanged.
+
+## RD-026 — A test fixture may not invent a contract the product never promised
+
+- **Date:** 2026-11-14 (R12)
+- **Context:** fixing the 20 `not wrapped in act` warnings meant awaiting the
+  bridge promises inside `act`. With that fixed, `test/settings-screen.test.tsx`
+  crashed: `FinderIntegration` reads `status.recovery.length`, and the test's
+  generic proxy had been answering *every* bridge method — including
+  `serviceStatus()`, whose contract is `Promise<ServiceStatus>` — with an
+  `IpcResult` refusal. The warning had been hiding a fixture that lied.
+- **Decision — the harness answers each API with its documented "nothing here"
+  shape:** a real not-installed `ServiceStatus` for `serviceStatus` and
+  `refreshService`, the refusal envelope for the rest. Product code unchanged.
+- **Decision — act warnings are fixed at the boundary.** The suite was green with
+  20 warnings, which is the state where a warning is easiest to silence and most
+  misleading. The harness now renders and settles inside an async act; warnings
+  are 20 → 0 and the same four tests still pass.
+- **Consequence:** a fixture that returns the wrong shape now fails visibly
+  rather than hiding behind a warning that everyone had learned to ignore.

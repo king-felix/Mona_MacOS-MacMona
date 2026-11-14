@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "label": "P18 capability coverage — pinned 0.10.2",
-  "captured_at": "2026-11-14T08:37:31.917Z",
+  "captured_at": "2026-11-14T17:01:35.464Z",
   "ok": true,
   "checks": {
     "reconcile_in_sync": true,
@@ -196,7 +196,7 @@
           "id": "MONA-CAP-052",
           "name": "Approvals bridge",
           "status": "unqualified",
-          "reason": "Mona shows the wait and never auto-approves inside a thread. Answering an approval has no IPC path yet."
+          "reason": "Verified: pending rows persist with the Runtime capability, both reply routes are wired (POST /v1/approvals/{id}, POST /v1/user-input/{thread}/{request}), and the engine's own thread-detail lists settle or expire them. Not verified: a live approval decision end to end, remembered grants (passed through, not listed), and clarifications on the tool-free compatibility transport."
         },
         {
           "id": "MONA-CAP-055",
@@ -240,7 +240,7 @@
     "dead_targets": [],
     "drift": {
       "checked": true,
-      "checkedAt": "2026-11-14T08:37:28.471Z",
+      "checkedAt": "2026-11-14T17:01:31.977Z",
       "error": null,
       "engineVersion": "0.10.2",
       "engineCommit": "ff466b2ed0bf",
