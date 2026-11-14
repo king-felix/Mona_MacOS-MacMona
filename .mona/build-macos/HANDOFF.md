@@ -17,7 +17,9 @@ install-side gates against the installed copy. A disk image is on request only
 (`npm run mac:package:dmg`), not on every build (D-107).
 
 **Next exact action:** P26 (whole-product QA) is eligible. The blocked items are
-closed — see below for the historic record.
+closed — see below for the historic record. The most recent work is a reasoning
+amendment to P16 for the DeepSeek route; see the first checkpoint below and
+`docs/evidence/macos/reasoning-controls.md`.
 
 ```sh
 sudo installer -pkg packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg -target /
@@ -70,6 +72,59 @@ exists (`npm run mac:recipient` re-runs the matrix).
   is the honest result) and names 11 rows as untested with reasons. It reports
   `qualified` only when nothing is failed or untested (D-102). Platform matrix:
   26.x executed; 14.x and 15.x declared only; arm64 only enforced from the bytes.
+
+### 2026-11-14 — reasoning controls for the DeepSeek route (owner request)
+
+- **What was wrong:** Settings offered one option, "Model default (omit)", for
+  `deepseek`/`deepseek-flash`. The pinned engine's live catalogue answers
+  `reasoning_effort: unknown` with no levels for that model, and Mona treated
+  that as "no controls". The engine's own Models.dev cache publishes
+  `toggle` + `low|high|max` for the same exact model, and the same binary
+  publishes the ladder when no live roster shadows it.
+- **What changed:** `src/main/work/reasoning.ts` reads the engine's non-secret
+  metadata for the exact model, with four honest support states
+  (`published` / `metadata` / `unsupported` / `unknown`), bounded and
+  fail-closed. `validateRoute` accepts a tier only when published and `off` only
+  when a thinking toggle is published — checked *before* the ladder state,
+  because 993 models publish a toggle and no ladder. The fallback is
+  route-scoped: never for a named exact route or a configured `base_url`, and a
+  built-in canonical id is normalized so the screen's own payload saves. New
+  threads carry the saved level; every turn repeats it; an active session keeps
+  its own. A separate display-only preference
+  (`ui:reasoning-display`) hides reasoning cards without touching the request,
+  and an open Studio is told to re-read when it changes.
+- **Evidence:** `docs/evidence/macos/reasoning-controls.md`, decision D-108,
+  `docs/evidence/macos/artifacts/reasoning-smoke.json` (10/10, no turn started),
+  `docs/evidence/macos/artifacts/reasoning-engine-gap.json` (the measured engine
+  gap), and one tool-free live turn with an explicit level
+  (`reasoning-live-turn.json`). Provider, endpoint, model and engine version are
+  unchanged: `deepseek` / `deepseek-flash` / 0.10.2 `ff466b2ed0bf`.
+- **Gate:** `npm run ci` **25 of 25 steps**, **1,159 tests**, including
+  `smoke:reasoning` and `smoke:lifecycle` (which passes now that Mona is quit).
+  The ledger is valid (`monabuild validate` ok, index clean) and the reasoning
+  evidence is attached to P16.
+- **The declared setting (D-110):** the owner asked what applies when nothing is
+  displayed. Measured: the stored profile carried no `reasoningEffort`, so the
+  engine's own `reasoning_effort = "auto"` governed. Mona now declares `auto`:
+  it is the default, parsed back for any profile lacking a value, and sent
+  explicitly on every new thread and turn. The Reasoning card shows `Auto` with a
+  read-only badge and **no control to change it**; published tiers are shown as
+  information. A read still never writes (P16), so the card says whether the
+  stored row carries it yet. Gate: `npm run ci` 25/25.
+- **The durable fix (D-109):** the effective value can only come from the
+  engine, so the upstream changes are specified in
+  `docs/evidence/macos/engine-change-request-reasoning.md` and **Mona now
+  consumes them**: `effective_reasoning_effort` is read from a turn record when a
+  build reports it (source `engine_turn_receipt`, attributed to its turn), and the
+  engine's reasoning-token count is shown as evidence with its limits stated.
+  Both are tested against a simulated engine; on 0.10.2 the live smoke still
+  asserts `effective: null`, so nothing is claimed early. Gate: `npm run ci`
+  25/25, **1,164 tests**.
+- **Needs the Human:** `ENGINE-REASONING-FACTS` in `BLOCKERS.md` — send the
+  change request upstream or accept the workaround permanently. An upgrade was
+  weighed and rejected as neither direct nor reliable (pin is version *and*
+  commit; re-pinning invalidates 28 prompts of evidence; no proof a later build
+  fixes it).
 
 ### Earlier checkpoints
 

@@ -147,6 +147,7 @@ function studio(overrides: Partial<StudioSnapshot> = {}): StudioSnapshot {
       },
       effectiveTurnId: "turn_0123456789abcdef",
     },
+    display: { showReasoning: true },
     cost: {
       observed: true,
       costUsd: 0.0012,
@@ -654,6 +655,77 @@ describe("R02 paged conversation history", () => {
     expect(
       container!.querySelector('[data-testid="studio-truncated-item"]')?.textContent,
     ).toContain("Showing 400 of 5000 stored frames");
+  });
+});
+
+describe("reasoning display", () => {
+  function reasoningEvents(): StoredEventSummary[] {
+    return [
+      {
+        threadId: "thr_a",
+        seq: 1,
+        kind: "item.completed",
+        payload: {
+          item: {
+            id: "item_reason",
+            kind: "agent_reasoning",
+            status: "completed",
+            detail: "weighing options",
+          },
+        },
+        timestamp: "2026-11-11T00:00:01.000Z",
+        turnId: "turn_one",
+        itemId: "item_reason",
+      },
+      {
+        threadId: "thr_a",
+        seq: 2,
+        kind: "item.completed",
+        payload: {
+          item: { id: "item_answer", kind: "agent_message", status: "completed", detail: "done" },
+        },
+        timestamp: "2026-11-11T00:00:02.000Z",
+        turnId: "turn_one",
+        itemId: "item_answer",
+      },
+    ];
+  }
+
+  function historyOf(
+    events: StoredEventSummary[],
+  ): NonNullable<Parameters<typeof StudioScreen>[0]["history"]> {
+    return {
+      events,
+      storedTotal: events.length,
+      hasMore: false,
+      loading: false,
+      error: null,
+      threadId: null,
+      truncatedItems: {},
+      completeItems: {},
+      olderLoads: 0,
+      onLoadOlder: () => undefined,
+    };
+  }
+
+  it("shows engine reasoning when the preference is on", () => {
+    const events = reasoningEvents();
+    render({ detail: detail(events), history: historyOf(events) });
+    expect(container?.textContent).toContain("Engine-reported reasoning");
+    expect(container?.textContent).toContain("weighing options");
+  });
+
+  it("hides only the reasoning card when the preference is off", () => {
+    const events = reasoningEvents();
+    render({
+      detail: detail(events),
+      history: historyOf(events),
+      studio: studio({ display: { showReasoning: false } }),
+    });
+    expect(container?.textContent).not.toContain("Engine-reported reasoning");
+    expect(container?.textContent).not.toContain("weighing options");
+    // The answer is still there: only reasoning is hidden.
+    expect(container?.textContent).toContain("done");
   });
 });
 

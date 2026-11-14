@@ -5985,6 +5985,18 @@ if (!gotLock) {
           engine: settingsEngine,
           studio: async (projectId) => workStudio?.snapshot(projectId) ?? null,
           backupDir: join(appPaths.backups, "engine-config"),
+          // A transcript preference changed in Settings must reach an open
+          // Studio without waiting for an unrelated push. This is a control
+          // notification, not an engine call: nothing is sent to the provider.
+          onDisplayChanged: (projectId) => {
+            if (mainWindow && !mainWindow.isDestroyed()) {
+              mainWindow.webContents.send("studio:changed", {
+                projectId,
+                kind: "control",
+                state: "display",
+              });
+            }
+          },
         });
         extensionWorkbench = new ExtensionWorkbench({
           store: productState,

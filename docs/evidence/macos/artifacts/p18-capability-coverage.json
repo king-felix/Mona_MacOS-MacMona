@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-14T20:01:35.335Z",
+  "generated_at": "2026-11-14T21:57:50.480Z",
   "inventory": "~/DS_Projects/Mona/docs/codewhale-capabilities-macos.json",
   "coverage": {
     "rowsTotal": 75,
@@ -218,7 +218,7 @@
   },
   "drift": {
     "checked": true,
-    "checkedAt": "2026-11-14T20:01:35.335Z",
+    "checkedAt": "2026-11-14T21:57:50.480Z",
     "error": null,
     "engineVersion": "0.10.2",
     "engineCommit": "ff466b2ed0bf",
@@ -1291,7 +1291,7 @@
         "tested": true
       },
       "uiLocation": "Settings › Providers & route",
-      "tests": "P16: requested vs effective route and model-published reasoning levels.",
+      "tests": "P16: requested vs effective route and model-published reasoning levels; reasoning amendment: the setting is declared `auto` and read-only, published tiers are informational, effective shown as unknown (D-110, docs/evidence/macos/reasoning-controls.md).",
       "status": "verified",
       "gap": null,
       "evidence": [
@@ -2110,7 +2110,7 @@
         "tested": true
       },
       "uiLocation": "Settings › Providers & route",
-      "tests": "P16: live catalogs, requested vs effective, reasoning levels.",
+      "tests": "P16: live catalogs, requested vs effective, reasoning levels; reasoning amendment: the setting is declared `auto` and sent explicitly, model metadata is labelled with its source, and effective is unknown (D-110, docs/evidence/macos/reasoning-controls.md).",
       "status": "verified",
       "gap": null,
       "evidence": [

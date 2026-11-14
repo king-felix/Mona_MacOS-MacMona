@@ -50,6 +50,12 @@ export interface ThreadRequest {
   workspace: string;
   title?: string;
   operationKey?: OperationKey;
+  /**
+   * Execution default carried by the new conversation. A saved default that
+   * names a level is sent here so a new thread starts with it even before its
+   * first turn; turns repeat it as an explicit override.
+   */
+  reasoningEffort?: string;
   /** Applied at thread creation so a later turn cannot silently widen policy. */
   execute?: {
     autoApprove: boolean;
@@ -108,6 +114,13 @@ export interface TurnRecord {
   effectiveProvider: string | null;
   effectiveModel: string | null;
   permissionPosture: string | null;
+  /**
+   * The reasoning setting the engine reports it used, when an engine build
+   * reports one. `null` means "this build did not report it" — not "off".
+   */
+  effectiveReasoningEffort: string | null;
+  /** Where the engine said that value came from, when it says so. */
+  effectiveReasoningSource: string | null;
   usage: {
     inputTokens: number | null;
     outputTokens: number | null;

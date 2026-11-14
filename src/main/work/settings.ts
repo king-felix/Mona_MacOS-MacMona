@@ -10,7 +10,10 @@ import type {
   CredentialReceipt,
   EngineRouteView,
   ModelCatalogView,
+  ModelView,
   ProviderCatalogView,
+  ReasoningControlView,
+  ReasoningSupportView,
   RouteChangeReceipt,
   RouteView,
   SavedRouteView,
@@ -27,11 +30,21 @@ import type {
 import { resolveEngineBinary } from "../engine/runtime-process";
 import type { StateStore } from "../state/store";
 import {
+  DECLARED_REASONING_EFFORT,
   DEFAULT_EXECUTION_PROFILE,
   PROFILE_SCOPE,
+  REASONING_DISPLAY_SCOPE,
+  loadReasoningDisplay,
   parseExecutionProfile,
   type ExecutionProfile,
 } from "./profile";
+import {
+  customEndpointConfigured,
+  deriveReasoningSupport,
+  describeInheritance,
+  readEngineCatalogModelFactsBatch,
+  type EngineCatalogModelFacts,
+} from "./reasoning";
 
 const PROVIDER_CACHE = "engine:provider-cache";
 const MODEL_CACHE = "engine:model-cache:";
@@ -88,6 +101,12 @@ export interface RouteWorkbenchOptions {
     command: string[],
     options: { timeoutMs: number },
   ) => Promise<{ stdout: string; stderr: string; code: number }>;
+  /**
+   * Called after the transcript preference is written, so an already-open studio
+   * re-reads its snapshot instead of showing a stale transcript until the next
+   * unrelated push. Display only: it never sends anything to the engine.
+   */
+  onDisplayChanged?: (projectId: ProjectId) => void;
 }
 
 /**
@@ -118,6 +137,18 @@ interface ConfigWriteContext {
   settingsPath: string;
   revision: string | null;
   bytes: Buffer | null;
+}
+
+/**
+ * A built-in provider repeats its canonical id in `model_provider_id`, so the
+ * screen hands back `exactId: "deepseek"` for the plain `deepseek` route. That is
+ * the generic route, not a named one: only a genuinely different identity names a
+ * custom endpoint. One helper so the catalog read, the cache key, the validation,
+ * and the stored profile cannot disagree about which route is being described.
+ */
+export function routeExactId(provider: string, exactId: string | null | undefined): string | null {
+  if (typeof exactId !== "string" || exactId.length === 0) return null;
+  return exactId === provider ? null : exactId;
 }
 
 function hashBytes(bytes: Buffer): string {
@@ -240,6 +271,7 @@ export class RouteWorkbench {
   private readonly homeDir: string;
   private readonly configRoot: string;
   private readonly runDoctor: NonNullable<RouteWorkbenchOptions["runDoctor"]>;
+  private readonly onDisplayChanged: NonNullable<RouteWorkbenchOptions["onDisplayChanged"]>;
 
   constructor(options: RouteWorkbenchOptions) {
     this.store = options.store;
@@ -254,6 +286,7 @@ export class RouteWorkbench {
       options.configRoot ??
       (fromEnv && fromEnv.startsWith("/") ? fromEnv : join(this.homeDir, ".codewhale"));
     this.runDoctor = options.runDoctor ?? defaultDoctorRunner;
+    this.onDisplayChanged = options.onDisplayChanged ?? (() => undefined);
   }
 
   // ------------------------------------------------------------------ reading
@@ -264,6 +297,7 @@ export class RouteWorkbench {
     const paths = this.paths();
     const studioSnapshot = await this.studio(projectId).catch(() => null);
     const observed = this.observedRoute(studioSnapshot, saved.profile);
+    const showReasoning = await this.readReasoningDisplay();
     const policy = {
       autoRoute: false as const,
       fallback: "refuse" as const,
@@ -272,16 +306,26 @@ export class RouteWorkbench {
 
     if (!access) {
       const config = await readBytes(paths.configPath);
+      const engineDefault = await this.cachedEngineRoute();
+      const models = await this.cachedModels(saved.profile.provider, saved.profile.exactId);
       return {
         projectId,
         runtime: "unavailable",
         runtimeNote:
           "The live engine is not connected. Saved defaults and the last cached catalog are shown; no value is invented and no setting is written without a live validation read.",
         savedDefault: saved.view,
-        engineDefault: await this.cachedEngineRoute(),
+        engineDefault,
         observed,
         providers: await this.cachedProviders(),
-        models: await this.cachedModels(saved.profile.provider, saved.profile.exactId),
+        models,
+        reasoning: this.reasoningControl(
+          saved.profile,
+          models,
+          engineDefault,
+          showReasoning,
+          observed,
+          saved.declaredStored,
+        ),
         policy,
         engineSelection: this.engineSelection(),
         engineConfigRevision: config ? hashBytes(config) : null,
@@ -308,6 +352,14 @@ export class RouteWorkbench {
       observed,
       providers,
       models,
+      reasoning: this.reasoningControl(
+        saved.profile,
+        models,
+        engineDefault,
+        showReasoning,
+        observed,
+        saved.declaredStored,
+      ),
       policy,
       engineSelection: this.engineSelection(identity?.identity ?? null),
       engineConfigRevision: config ? hashBytes(config) : null,
@@ -326,8 +378,43 @@ export class RouteWorkbench {
       throw new SettingsError("INVALID_ROUTE", "provider id is not a bounded identifier");
     }
     const access = this.engine(projectId);
-    if (!access) return this.cachedModels(provider, exactId);
-    return this.readModels(access, provider, exactId);
+    const normalized = routeExactId(provider, exactId);
+    if (!access) return this.cachedModels(provider, normalized);
+    return this.readModels(access, provider, normalized);
+  }
+
+  /**
+   * The transcript preference is Mona's own display choice. It is stored
+   * locally, never sent to the engine, and saving it never touches a route or a
+   * turn. The snapshot returned after the write is the proof it persisted.
+   */
+  async setReasoningDisplay(input: { projectId: ProjectId; showReasoning: boolean }): Promise<{
+    receipt: { persisted: boolean; showReasoning: boolean; note: string };
+    snapshot: SettingsSnapshot;
+  }> {
+    await this.store.putSettings(REASONING_DISPLAY_SCOPE, {
+      showReasoning: input.showReasoning,
+      updatedAt: this.now().toISOString(),
+      note: "Mona transcript preference; never sent to the engine.",
+    });
+    // The snapshot is taken after the write; only then is a listener told, so a
+    // listener that re-reads observes the stored value.
+    const snapshot = await this.snapshot(input.projectId);
+    try {
+      this.onDisplayChanged(input.projectId);
+    } catch {
+      // A listener that went away must not fail the write.
+    }
+    return {
+      receipt: {
+        persisted: true,
+        showReasoning: input.showReasoning,
+        note: input.showReasoning
+          ? "Mona now shows engine-reported reasoning in the transcript. The request is unchanged."
+          : "Mona now hides engine-reported reasoning in the transcript. The request is unchanged and the engine keeps sending it.",
+      },
+      snapshot,
+    };
   }
 
   // ------------------------------------------------------------------ writing
@@ -358,11 +445,14 @@ export class RouteWorkbench {
       );
     }
     const providers = await this.readProviders(access);
-    const models = await this.readModels(access, input.provider, input.exactId);
+    // The built-in canonical id is the generic route; normalize before the read
+    // so validation sees the same identity the profile will store.
+    const exactId = routeExactId(input.provider, input.exactId);
+    const models = await this.readModels(access, input.provider, exactId);
     const validation = validateRoute(
       {
         provider: input.provider,
-        exactId: input.exactId,
+        exactId,
         model: input.model,
         reasoningEffort: input.reasoningEffort,
       },
@@ -378,15 +468,13 @@ export class RouteWorkbench {
     }
     const before = await this.readSaved();
     const fullAccess = input.permissionPosture === "full_access";
-    // A built-in provider repeats its canonical id in `model_provider_id`.
-    // Omitting it preserves the engine's generic route; only a genuinely named
-    // custom route needs the exact identity sent on every turn.
-    const exactId = input.exactId && input.exactId !== input.provider ? input.exactId : null;
     const profile: ExecutionProfile = {
       provider: input.provider,
       exactId,
       model: input.model,
-      ...(input.reasoningEffort ? { reasoningEffort: input.reasoningEffort } : {}),
+      // The setting is always declared: an omitted request means the declared
+      // default, never "whatever happens to be configured".
+      reasoningEffort: input.reasoningEffort ?? DECLARED_REASONING_EFFORT,
       permissionPosture: input.permissionPosture,
       autoApprove: fullAccess && input.autoApprove,
       trustMode: fullAccess && input.trustMode,
@@ -526,11 +614,12 @@ export class RouteWorkbench {
       );
     }
     const providers = await this.readProviders(access);
-    const models = await this.readModels(access, input.provider, input.exactId);
+    const requestedExactId = routeExactId(input.provider, input.exactId);
+    const models = await this.readModels(access, input.provider, requestedExactId);
     const validation = validateRoute(
       {
         provider: input.provider,
-        exactId: input.exactId,
+        exactId: requestedExactId,
         model: input.model,
         reasoningEffort: null,
       },
@@ -770,6 +859,8 @@ export class RouteWorkbench {
 
   private async readSaved(): Promise<{
     profile: ExecutionProfile;
+    /** Whether a stored profile row already carries the reasoning setting. */
+    declaredStored: boolean;
     version: number;
     updatedAt: string | null;
     view: SavedRouteView;
@@ -777,12 +868,20 @@ export class RouteWorkbench {
     const stored = await this.store.getSettings(PROFILE_SCOPE);
     const parsed = stored ? parseExecutionProfile(stored.value) : null;
     const profile = parsed ?? { ...DEFAULT_EXECUTION_PROFILE };
+    // A read never writes (P16): the declaration is reported as what it is —
+    // the value Mona sends — and says whether a stored row carries it yet.
+    const storedEffort =
+      stored && typeof stored.value === "object" && stored.value !== null
+        ? (stored.value as { reasoningEffort?: unknown }).reasoningEffort
+        : undefined;
+    const declaredStored = typeof storedEffort === "string";
     const updatedAt =
       stored && typeof stored.value === "object" && stored.value !== null
         ? (stored.value as { updatedAt?: unknown }).updatedAt
         : null;
     return {
       profile,
+      declaredStored,
       version: stored?.version ?? 0,
       updatedAt: typeof updatedAt === "string" ? updatedAt : null,
       view: {
@@ -821,6 +920,89 @@ export class RouteWorkbench {
     };
   }
 
+  private async readReasoningDisplay(): Promise<boolean> {
+    return loadReasoningDisplay(this.store);
+  }
+
+  /**
+   * One requested/effective view for the saved route. The support facts come
+   * from the exact model's row, so an unknown model can never borrow another
+   * model's ladder.
+   */
+  private reasoningControl(
+    saved: ExecutionProfile,
+    models: ModelCatalogView,
+    engineDefault: EngineRouteView,
+    showReasoning: boolean,
+    observed: SettingsSnapshot["observed"] = null,
+    declaredStored = false,
+  ): ReasoningControlView {
+    const model = models.models.find((entry) => entry.id === saved.model) ?? null;
+    const support =
+      model?.reasoningSupport ??
+      deriveReasoningSupport({
+        engineState: "unknown",
+        engineLevels: [],
+        engineSource: null,
+        facts: null,
+      });
+    const requested = saved.reasoningEffort ?? null;
+    const configuredDefault =
+      engineDefault.source === "unavailable" ? null : engineDefault.reasoningEffort;
+    // A cached read is not a current fact: the engine may be down, and its config
+    // may have changed since. The three states stay distinct all the way to the
+    // screen, so a stale value is never presented as the live one.
+    const configuredSource =
+      engineDefault.source === "live"
+        ? ("engine_config" as const)
+        : engineDefault.source === "stored"
+          ? ("engine_config_cached" as const)
+          : ("unavailable" as const);
+    const configuredReadAt = engineDefault.source === "stored" ? engineDefault.readAt : null;
+    const inheritance = describeInheritance({
+      requested,
+      configuredDefault,
+      configuredSource,
+      configuredReadAt,
+      // Only an engine-reported value counts as effective (D-108).
+      reportedEffective: observed?.effectiveReasoningEffort ?? null,
+      reportedTurnId: observed?.turnId ?? null,
+    });
+    return {
+      support,
+      requested: {
+        effort: requested,
+        thinking:
+          requested === null
+            ? "unspecified"
+            : requested === "off"
+              ? "off"
+              : requested === DECLARED_REASONING_EFFORT
+                ? "auto"
+                : "on",
+      },
+      inheritance: {
+        configuredDefault,
+        configuredSource,
+        configuredReadAt,
+        effective: inheritance.effective,
+        effectiveSource: inheritance.effectiveSource,
+        effectiveTurnId: inheritance.effectiveTurnId,
+        note: inheritance.note,
+      },
+      declared: {
+        value: DECLARED_REASONING_EFFORT,
+        editable: false,
+        stored: declaredStored,
+        note: "Auto is the engine's own default: its reasoning selector resolves a concrete tier for each turn. Mona sends it explicitly and does not offer a different setting here, so the value is declared rather than implied.",
+      },
+      display: {
+        showReasoning,
+        note: "Mona renders the reasoning items the engine streams. This preference changes Mona's transcript only; it is never sent to the engine and it does not change thinking or effort.",
+      },
+    };
+  }
+
   private observedRoute(
     snapshot: StudioSnapshot | null,
     saved: ExecutionProfile,
@@ -837,6 +1019,10 @@ export class RouteWorkbench {
       effectiveProvider: effective.provider,
       effectiveModel: effective.model,
       permissionPosture: effective.permissionPosture,
+      effectiveReasoningEffort: effective.reasoningEffort ?? null,
+      effectiveReasoningSource: effective.reasoningSource ?? null,
+      reasoningTokens: effective.reasoningTokens ?? null,
+      reasoningEvidence: reasoningEvidence(effective.reasoningTokens ?? null),
       usedFallback: effective.usedFallback,
       observedAt: this.now().toISOString(),
       matchesSavedDefault,
@@ -887,7 +1073,7 @@ export class RouteWorkbench {
     const readAt = this.now().toISOString();
     try {
       const catalog = await access.adapter.listModels(provider, exactId);
-      const view = mapModels(catalog, readAt);
+      const view = mapModels(catalog, readAt, await this.supportMap(catalog, exactId));
       await this.store
         .putSettings(`${MODEL_CACHE}${provider}:${exactId ?? "-"}`, { readAt, exactId, catalog })
         .catch(() => undefined);
@@ -905,7 +1091,8 @@ export class RouteWorkbench {
     const cached = await this.store
       .getSettings(`${MODEL_CACHE}${provider}:${exactId ?? "-"}`)
       .catch(() => null);
-    const value = cached?.value as { readAt?: unknown; catalog?: unknown } | undefined;
+    const value = cached?.value as
+      { readAt?: unknown; exactId?: unknown; catalog?: unknown } | undefined;
     const catalog = value?.catalog as EngineModelCatalog | undefined;
     if (!catalog || !Array.isArray(catalog.models) || typeof value?.readAt !== "string") {
       return {
@@ -917,7 +1104,77 @@ export class RouteWorkbench {
         error: "no live model catalog has been read for this provider yet",
       };
     }
-    return { ...mapModels(catalog, value.readAt), source: "stored", error: null };
+    const storedExactId = typeof value?.exactId === "string" ? value.exactId : null;
+    return {
+      ...mapModels(catalog, value.readAt, await this.supportMap(catalog, storedExactId)),
+      source: "stored",
+      error: null,
+    };
+  }
+
+  /**
+   * Read the engine's own metadata for each model once. The engine's live
+   * provider-roster projection reports `unknown` even when its Models.dev cache
+   * publishes a ladder (D-108), so both sources are consulted and the explicit
+   * engine answer keeps precedence.
+   *
+   * The metadata describes the provider's first-party route. A named exact route
+   * or a user-configured `base_url` is a different endpoint — the runtime itself
+   * refuses to infer levels there — so those get no cached facts at all rather
+   * than a first-party claim they cannot support.
+   */
+  private async supportMap(
+    catalog: EngineModelCatalog,
+    requestedExactId: string | null,
+  ): Promise<Map<string, ReasoningSupportView>> {
+    // Both sides must agree the route is generic: the caller's request and the
+    // engine's echo. A named route whose echo was dropped still must not borrow
+    // first-party metadata.
+    const facts: ReadonlyMap<string, EngineCatalogModelFacts | null> =
+      routeExactId(catalog.provider, requestedExactId) === null &&
+      routeExactId(catalog.provider, catalog.exactId) === null &&
+      !(await this.customEndpoint(catalog.provider))
+        ? // One read for the whole roster: a provider can publish hundreds of
+          // models, and a read per model would open the same file repeatedly.
+          await readEngineCatalogModelFactsBatch(
+            this.configRoot,
+            catalog.provider,
+            catalog.models.map((model) => model.id),
+          ).catch(() => new Map<string, EngineCatalogModelFacts | null>())
+        : new Map<string, EngineCatalogModelFacts | null>();
+    const supports = new Map<string, ReasoningSupportView>();
+    for (const model of catalog.models) {
+      const engineState =
+        model.reasoningEffort === "supported" || model.reasoningEffort === "unsupported"
+          ? model.reasoningEffort
+          : "unknown";
+      supports.set(
+        model.id,
+        deriveReasoningSupport({
+          engineState,
+          engineLevels: model.reasoningEffortLevels,
+          engineSource: model.reasoningEffortSource,
+          facts: facts.get(model.id) ?? null,
+        }),
+      );
+    }
+    return supports;
+  }
+
+  /**
+   * Config bytes decide whether this provider's endpoint is the user's own. A
+   * missing document is not a custom endpoint — the engine has configured none,
+   * and it is the engine that writes this file when it resolves a route. A
+   * document that exists but cannot be read is unknown, so it fails closed.
+   */
+  private async customEndpoint(provider: string): Promise<boolean> {
+    try {
+      const bytes = await readFile(this.paths().configPath);
+      return customEndpointConfigured(bytes.toString("utf8"), provider);
+    } catch (error) {
+      const code = (error as { code?: unknown }).code;
+      return code === "ENOENT" ? false : true;
+    }
   }
 
   private async readRuntimeConfig(access: SettingsEngineAccess): Promise<EngineRuntimeConfig> {
@@ -1128,6 +1385,22 @@ export class RouteWorkbench {
   }
 }
 
+/**
+ * What the engine's own reasoning-token count does and does not prove. Non-zero
+ * is positive evidence that thinking ran; zero is inconclusive, because a short
+ * prompt can produce none even with thinking on. Neither is a substitute for an
+ * effective setting the engine did not report.
+ */
+export function reasoningEvidence(tokens: number | null): string {
+  if (tokens === null) {
+    return "The engine reported no reasoning-token count for that turn, so there is no evidence either way.";
+  }
+  if (tokens > 0) {
+    return `The engine reported ${tokens} reasoning token${tokens === 1 ? "" : "s"} for that turn: thinking demonstrably ran.`;
+  }
+  return "The engine reported 0 reasoning tokens for that turn. That is inconclusive — a short prompt can produce none with thinking on — so it is not proof that thinking was off.";
+}
+
 function routeOf(profile: ExecutionProfile): RouteView {
   return {
     provider: profile.provider,
@@ -1197,7 +1470,24 @@ function mapProviders(catalog: EngineProviderCatalog, readAt: string): ProviderC
   };
 }
 
-function mapModels(catalog: EngineModelCatalog, readAt: string): ModelCatalogView {
+function supportWithoutMetadata(model: EngineModelCatalog["models"][number]): ReasoningSupportView {
+  const engineState =
+    model.reasoningEffort === "supported" || model.reasoningEffort === "unsupported"
+      ? model.reasoningEffort
+      : "unknown";
+  return deriveReasoningSupport({
+    engineState,
+    engineLevels: model.reasoningEffortLevels,
+    engineSource: model.reasoningEffortSource,
+    facts: null,
+  });
+}
+
+function mapModels(
+  catalog: EngineModelCatalog,
+  readAt: string,
+  supports: ReadonlyMap<string, ReasoningSupportView> = new Map(),
+): ModelCatalogView {
   return {
     provider: catalog.provider,
     exactId: catalog.exactId,
@@ -1216,11 +1506,26 @@ function mapModels(catalog: EngineModelCatalog, readAt: string): ModelCatalogVie
       contextTokens: model.contextTokens,
       outputTokens: model.outputTokens,
       factsSource: model.factsSource,
+      reasoningSupport: supports.get(model.id) ?? supportWithoutMetadata(model),
     })),
     readAt,
     source: "live",
     error: null,
   };
+}
+
+/** The legacy view for a hand-built catalog that carries no support facts. */
+function supportFromModel(model: ModelView): ReasoningSupportView {
+  if (model.reasoningSupport) return model.reasoningSupport;
+  return deriveReasoningSupport({
+    engineState:
+      model.reasoningEffort === "supported" || model.reasoningEffort === "unsupported"
+        ? model.reasoningEffort
+        : "unknown",
+    engineLevels: model.reasoningEffortLevels,
+    engineSource: model.reasoningEffortSource,
+    facts: null,
+  });
 }
 
 /**
@@ -1274,16 +1579,40 @@ export function validateRoute(
   }
   const effort = route.reasoningEffort ?? null;
   if (effort !== null) {
-    if (model.reasoningEffort !== "supported") {
+    // `auto` is the runtime's own canonical default, not a claim about this
+    // model's ladder: its selector resolves a concrete tier per turn. It is
+    // therefore always acceptable, and requires no metadata to prove.
+    if (effort === DECLARED_REASONING_EFFORT) return { ok: true, reason: null };
+    const support = supportFromModel(model);
+    // `off` is the thinking-disable value, not an effort tier. It is gated on the
+    // thinking control alone: a model can publish a toggle and no ladder (993
+    // models in the engine's own catalog do), and refusing `off` there would
+    // reject a control the metadata demonstrably publishes.
+    if (effort === "off") {
+      if (support.thinking !== "toggle") {
+        return {
+          ok: false,
+          reason: `'${model.id}' publishes no thinking on/off control, so Mona will not send 'off'`,
+        };
+      }
+      return { ok: true, reason: null };
+    }
+    if (support.effort === "unsupported") {
       return {
         ok: false,
-        reason: `'${model.id}' does not publish a reasoning-effort ladder; Mona will not send an unsupported level`,
+        reason: `'${model.id}' publishes no selectable reasoning-effort ladder; Mona will not send a level it cannot prove`,
       };
     }
-    if (!model.reasoningEffortLevels.includes(effort)) {
+    if (support.effort === "unknown") {
       return {
         ok: false,
-        reason: `'${effort}' is not one of this model's published levels (${model.reasoningEffortLevels.join(", ") || "none"})`,
+        reason: `no metadata is available for '${model.id}', so Mona cannot prove that '${effort}' is accepted; it sends no unproven level`,
+      };
+    }
+    if (!support.levels.includes(effort)) {
+      return {
+        ok: false,
+        reason: `'${effort}' is not one of this model's published levels (${support.levels.join(", ") || "none"})`,
       };
     }
   }

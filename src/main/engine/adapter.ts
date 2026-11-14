@@ -754,6 +754,7 @@ export class CodewhaleAdapter implements EngineAdapter {
       body.allow_shell = input.execute.allowShell;
     }
     if (input.allowedTools !== undefined) body.allowed_tools = input.allowedTools;
+    if (input.reasoningEffort) body.reasoning_effort = input.reasoningEffort;
     if (input.operationKey !== undefined) {
       if (caps.capabilities["thread_create_idempotency"] !== true) {
         throw new UnsupportedCapabilityError(
@@ -1524,6 +1525,11 @@ export class CodewhaleAdapter implements EngineAdapter {
         provider: turn.effectiveProvider,
         model: turn.effectiveModel,
         permissionPosture: effectivePosture,
+        // Present only when the engine reports it. An older engine's silence is
+        // left out of the identity rather than filled with the requested value.
+        ...(turn.effectiveReasoningEffort
+          ? { reasoningEffort: turn.effectiveReasoningEffort }
+          : {}),
       },
       usedFallback,
       source: "configured",
@@ -3001,6 +3007,8 @@ export class CodewhaleAdapter implements EngineAdapter {
       effectiveProvider: turn.effective_provider ?? null,
       effectiveModel: turn.effective_model ?? null,
       permissionPosture: turn.permission_posture ?? null,
+      effectiveReasoningEffort: turn.effective_reasoning_effort ?? null,
+      effectiveReasoningSource: turn.effective_reasoning_source ?? null,
       usage: turn.usage
         ? {
             inputTokens: turn.usage.input_tokens ?? null,

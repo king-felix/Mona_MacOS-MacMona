@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -18,7 +18,7 @@ import {
   redactDiagnostics,
   validateRoute,
 } from "../src/main/work/settings";
-import { PROFILE_SCOPE } from "../src/main/work/profile";
+import { PROFILE_SCOPE, REASONING_DISPLAY_SCOPE } from "../src/main/work/profile";
 import { resolveEngineBinary } from "../src/main/engine/runtime-process";
 import { openTestStore } from "./helpers/state";
 
@@ -177,6 +177,9 @@ function studioSnapshot(route: {
   effectiveProvider: string;
   effectiveModel: string;
   usedFallback?: boolean;
+  /** Only supplied by a test that is standing in for an engine which reports it. */
+  effectiveReasoningEffort?: string;
+  reasoningTokens?: number | null;
 }): StudioSnapshot {
   return {
     projectId: "prj_0000000000000001",
@@ -210,6 +213,10 @@ function studioSnapshot(route: {
         model: route.effectiveModel,
         permissionPosture: "full_access",
         usedFallback: route.usedFallback ?? false,
+        ...(route.effectiveReasoningEffort
+          ? { reasoningEffort: route.effectiveReasoningEffort, reasoningSource: "turn_record" }
+          : {}),
+        reasoningTokens: route.reasoningTokens ?? null,
       },
       effectiveTurnId: "turn_0001",
     },
@@ -265,7 +272,7 @@ async function workbench(options: {
     engine: () => ({ adapter, workspace: "/tmp/ws" }),
     studio: async () => options.studio ?? null,
     backupDir,
-    configRoot: options.configRoot,
+    configRoot: options.configRoot ?? (await tempDir()),
     engineBinary: options.engineBinary ?? (() => "/bin/echo"),
     runDoctor: options.runDoctor,
   });
@@ -323,7 +330,7 @@ describe("route validation", () => {
         providers,
         models,
       ).reason,
-    ).toContain("does not publish a reasoning-effort ladder");
+    ).toContain("publishes no selectable reasoning-effort ladder");
     expect(
       validateRoute(
         { provider: "openai", exactId: null, model: "gpt-5.6", reasoningEffort: null },
@@ -331,6 +338,521 @@ describe("route validation", () => {
         models,
       ).reason,
     ).toContain("no model catalog");
+  });
+});
+
+/** The live projection the pinned engine produces when a live roster shadows metadata. */
+function silentFlashCatalog(): EngineModelCatalog {
+  const catalog = modelCatalog();
+  return {
+    ...catalog,
+    models: catalog.models.map((entry) =>
+      entry.id === "deepseek-flash"
+        ? {
+            ...entry,
+            reasoningEffort: "unknown",
+            reasoningEffortLevels: [],
+            reasoningEffortSource: null,
+            factsSource: "live",
+          }
+        : entry,
+    ),
+  };
+}
+
+/** Write the engine's own Models.dev catalog cache for the fixture models. */
+async function engineCatalogHome(): Promise<string> {
+  const dir = await tempDir();
+  await mkdirForTest(join(dir, "catalog"));
+  const header = { schema_version: 2, fetched_at: 1_800_000_000 };
+  const body = {
+    providers: {
+      deepseek: {
+        id: "deepseek",
+        models: {
+          "deepseek-flash": {
+            id: "deepseek-flash",
+            reasoning: true,
+            reasoning_options: [
+              { type: "toggle" },
+              { type: "effort", values: ["low", "high", "max"] },
+            ],
+          },
+        },
+      },
+    },
+  };
+  await writeFile(
+    join(dir, "catalog", "models-dev-catalog.json"),
+    `${JSON.stringify(header)}\n${JSON.stringify(body)}\n`,
+  );
+  await writeFile(join(dir, "config.toml"), 'provider = "deepseek"\nmodel = "deepseek-flash"\n');
+  return dir;
+}
+
+async function mkdirForTest(path: string): Promise<void> {
+  await mkdir(path, { recursive: true });
+}
+
+describe("reasoning controls", () => {
+  it("recovers the ladder the live projection dropped, from the engine's own metadata", async () => {
+    const adapter = fakeAdapter({
+      listModels: async (provider: string) =>
+        provider === "deepseek" ? silentFlashCatalog() : { provider, exactId: null, models: [] },
+    }).adapter;
+    const { bench } = await workbench({ adapter, configRoot: await engineCatalogHome() });
+    const snapshot = await bench.snapshot(projectId);
+    const flash = snapshot.models.models.find((entry) => entry.id === "deepseek-flash");
+    expect(flash?.reasoningSupport.effort).toBe("metadata");
+    expect(flash?.reasoningSupport.levels).toEqual(["low", "high", "max"]);
+    expect(flash?.reasoningSupport.thinking).toBe("toggle");
+    expect(flash?.reasoningSupport.degraded).toBe(true);
+    expect(flash?.reasoningSupport.sourceDetail).toContain("Models.dev");
+    expect(snapshot.reasoning.support.effort).toBe("metadata");
+    expect(snapshot.reasoning.declared).toMatchObject({
+      value: "auto",
+      editable: false,
+      // A read never writes: the value is Mona's declared default until a save.
+      stored: false,
+    });
+    expect(snapshot.reasoning.requested.effort).toBe("auto");
+    expect(snapshot.reasoning.inheritance.configuredDefault).toBe("auto");
+    expect(snapshot.reasoning.inheritance.effective).toBeNull();
+    expect(snapshot.reasoning.inheritance.note).toContain("reasoning selector resolves");
+    expect(snapshot.reasoning.inheritance.note).toContain("does not govern this route");
+    expect(snapshot.reasoning.display.showReasoning).toBe(true);
+  });
+
+  it("persists a recovered level and the engine's off toggle, and refuses an unpublished tier", async () => {
+    const adapter = fakeAdapter({
+      listModels: async (provider: string) =>
+        provider === "deepseek" ? silentFlashCatalog() : { provider, exactId: null, models: [] },
+    }).adapter;
+    const { store, bench } = await workbench({ adapter, configRoot: await engineCatalogHome() });
+    const first = await bench.snapshot(projectId);
+    const saved = await bench.saveDefault({
+      projectId,
+      expectedRevision: first.savedDefault.revision,
+      provider: "deepseek",
+      exactId: null,
+      model: "deepseek-flash",
+      reasoningEffort: "high",
+      permissionPosture: "full_access",
+      autoApprove: true,
+      trustMode: true,
+      allowShell: true,
+    });
+    expect((await store.getSettings(PROFILE_SCOPE))?.value).toMatchObject({
+      reasoningEffort: "high",
+    });
+    expect(saved.receipt.after.reasoningEffort).toBe("high");
+
+    const off = await bench.saveDefault({
+      projectId,
+      expectedRevision: saved.snapshot.savedDefault.revision,
+      provider: "deepseek",
+      exactId: null,
+      model: "deepseek-flash",
+      reasoningEffort: "off",
+      permissionPosture: "full_access",
+      autoApprove: true,
+      trustMode: true,
+      allowShell: true,
+    });
+    expect((await store.getSettings(PROFILE_SCOPE))?.value).toMatchObject({
+      reasoningEffort: "off",
+    });
+    expect(off.snapshot.reasoning.requested.thinking).toBe("off");
+
+    const refused = await bench
+      .saveDefault({
+        projectId,
+        expectedRevision: off.snapshot.savedDefault.revision,
+        provider: "deepseek",
+        exactId: null,
+        model: "deepseek-flash",
+        reasoningEffort: "medium",
+        permissionPosture: "full_access",
+        autoApprove: true,
+        trustMode: true,
+        allowShell: true,
+      })
+      .then(() => null)
+      .catch((error) => error);
+    expect(refused?.code).toBe("INVALID_ROUTE");
+    expect(refused?.message).toContain("not one of this model's published levels");
+    expect((await store.getSettings(PROFILE_SCOPE))?.value).toMatchObject({
+      reasoningEffort: "off",
+    });
+  });
+
+  it("fails closed when no metadata exists and never offers off without a toggle", async () => {
+    const adapter = fakeAdapter({
+      listModels: async (provider: string) =>
+        provider === "deepseek" ? silentFlashCatalog() : { provider, exactId: null, models: [] },
+    }).adapter;
+    const { store, bench } = await workbench({ adapter });
+    const snapshot = await bench.snapshot(projectId);
+    const flash = snapshot.models.models.find((entry) => entry.id === "deepseek-flash");
+    expect(flash?.reasoningSupport.effort).toBe("unknown");
+    expect(snapshot.reasoning.support.levels).toEqual([]);
+    const refused = await bench
+      .saveDefault({
+        projectId,
+        expectedRevision: 0,
+        provider: "deepseek",
+        exactId: null,
+        model: "deepseek-flash",
+        reasoningEffort: "high",
+        permissionPosture: "full_access",
+        autoApprove: true,
+        trustMode: true,
+        allowShell: true,
+      })
+      .then(() => null)
+      .catch((error) => error);
+    expect(refused?.code).toBe("INVALID_ROUTE");
+    expect(refused?.message).toContain("cannot prove");
+    expect(await store.getSettings(PROFILE_SCOPE)).toBeNull();
+
+    // deepseek-chat's metadata says no ladder; `off` is not invented for it.
+    const off = await bench
+      .saveDefault({
+        projectId,
+        expectedRevision: 0,
+        provider: "deepseek",
+        exactId: null,
+        model: "deepseek-chat",
+        reasoningEffort: "off",
+        permissionPosture: "full_access",
+        autoApprove: true,
+        trustMode: true,
+        allowShell: true,
+      })
+      .then(() => null)
+      .catch((error) => error);
+    expect(off?.code).toBe("INVALID_ROUTE");
+  });
+
+  it("accepts off for a toggle-only model and still refused a tier it does not publish", async () => {
+    // 993 models in the engine's own catalog publish a thinking toggle and no
+    // effort option. `off` is gated on the toggle, not on the ladder.
+    const toggleOnly = modelCatalog();
+    const silent: EngineModelCatalog = {
+      ...toggleOnly,
+      models: toggleOnly.models.map((entry) =>
+        entry.id === "deepseek-chat"
+          ? {
+              ...entry,
+              reasoningEffort: "unknown",
+              reasoningEffortLevels: [],
+              reasoningEffortSource: null,
+            }
+          : entry,
+      ),
+    };
+    const adapter = fakeAdapter({
+      listModels: async (provider: string) =>
+        provider === "deepseek" ? silent : { provider, exactId: null, models: [] },
+    }).adapter;
+    const root = await tempDir();
+    await mkdir(join(root, "catalog"), { recursive: true });
+    await writeFile(
+      join(root, "catalog", "models-dev-catalog.json"),
+      `${JSON.stringify({ schema_version: 2, fetched_at: 1_800_000_000 })}\n${JSON.stringify({
+        providers: {
+          deepseek: {
+            id: "deepseek",
+            models: {
+              "deepseek-chat": {
+                id: "deepseek-chat",
+                reasoning: true,
+                reasoning_options: [{ type: "toggle" }],
+              },
+            },
+          },
+        },
+      })}\n`,
+    );
+    const { store, bench } = await workbench({ adapter, configRoot: root });
+    const snapshot = await bench.snapshot(projectId);
+    const chat = snapshot.models.models.find((entry) => entry.id === "deepseek-chat");
+    expect(chat?.reasoningSupport.effort).toBe("metadata");
+    expect(chat?.reasoningSupport.levels).toEqual([]);
+    expect(chat?.reasoningSupport.thinking).toBe("toggle");
+
+    const saved = await bench.saveDefault({
+      projectId,
+      expectedRevision: 0,
+      provider: "deepseek",
+      exactId: null,
+      model: "deepseek-chat",
+      reasoningEffort: "off",
+      permissionPosture: "full_access",
+      autoApprove: true,
+      trustMode: true,
+      allowShell: true,
+    });
+    expect(saved.receipt.after.reasoningEffort).toBe("off");
+    expect((await store.getSettings(PROFILE_SCOPE))?.value).toMatchObject({
+      reasoningEffort: "off",
+    });
+
+    const refused = await bench
+      .saveDefault({
+        projectId,
+        expectedRevision: saved.snapshot.savedDefault.revision,
+        provider: "deepseek",
+        exactId: null,
+        model: "deepseek-chat",
+        reasoningEffort: "low",
+        permissionPosture: "full_access",
+        autoApprove: true,
+        trustMode: true,
+        allowShell: true,
+      })
+      .then(() => null)
+      .catch((error) => error);
+    expect(refused?.code).toBe("INVALID_ROUTE");
+    expect(refused?.message).toContain("published levels");
+    expect((await store.getSettings(PROFILE_SCOPE))?.value).toMatchObject({
+      reasoningEffort: "off",
+    });
+  });
+
+  it("shows an effective value only when the engine reported one", async () => {
+    // This is the whole point of the forward-compatible path: an engine that
+    // reports the setting gets a true effective value; one that stays silent
+    // keeps "unknown" and never inherits the request.
+    const reported = await workbench({
+      studio: studioSnapshot({
+        provider: "deepseek",
+        model: "deepseek-flash",
+        effectiveProvider: "deepseek",
+        effectiveModel: "deepseek-flash",
+        effectiveReasoningEffort: "high",
+        reasoningTokens: 96,
+      }),
+    });
+    const withReport = await reported.bench.snapshot(projectId);
+    expect(withReport.reasoning.inheritance.effective).toBe("high");
+    expect(withReport.reasoning.inheritance.effectiveSource).toBe("engine_turn_receipt");
+    expect(withReport.reasoning.inheritance.effectiveTurnId).toBe("turn_0001");
+    expect(withReport.reasoning.inheritance.note).toContain("does not promise the next one");
+    expect(withReport.observed?.reasoningEvidence).toContain("thinking demonstrably ran");
+
+    const silent = await workbench({
+      studio: studioSnapshot({
+        provider: "deepseek",
+        model: "deepseek-flash",
+        effectiveProvider: "deepseek",
+        effectiveModel: "deepseek-flash",
+        reasoningTokens: 0,
+      }),
+    });
+    const withoutReport = await silent.bench.snapshot(projectId);
+    expect(withoutReport.reasoning.inheritance.effective).toBeNull();
+    expect(withoutReport.reasoning.inheritance.effectiveSource).toBeNull();
+    expect(withoutReport.reasoning.inheritance.effectiveTurnId).toBeNull();
+    // Zero tokens is reported as inconclusive, never as "thinking was off".
+    expect(withoutReport.observed?.reasoningEvidence).toContain("inconclusive");
+    expect(withoutReport.observed?.reasoningEvidence).toContain("not proof that thinking was off");
+  });
+
+  it("does not treat a missing token count as evidence either way", async () => {
+    const { bench } = await workbench({
+      studio: studioSnapshot({
+        provider: "deepseek",
+        model: "deepseek-flash",
+        effectiveProvider: "deepseek",
+        effectiveModel: "deepseek-flash",
+      }),
+    });
+    const snapshot = await bench.snapshot(projectId);
+    expect(snapshot.observed?.reasoningTokens).toBeNull();
+    expect(snapshot.observed?.reasoningEvidence).toContain("no evidence either way");
+  });
+
+  it("saves from the screen's own payload, where a built-in row returns its canonical id", async () => {
+    // This is the real UI shape: the provider row's `exactId` is the engine's
+    // `model_provider_id`, which for a built-in repeats the provider id. It must
+    // be treated as the generic route, not as a named custom one.
+    const adapter = fakeAdapter({
+      listModels: async (provider: string, exactId?: string | null) =>
+        provider === "deepseek"
+          ? { ...silentFlashCatalog(), exactId: exactId ?? null }
+          : { provider, exactId: null, models: [] },
+    }).adapter;
+    const { store, bench } = await workbench({ adapter, configRoot: await engineCatalogHome() });
+    const snapshot = await bench.snapshot(projectId);
+    const flash = snapshot.models.models.find((entry) => entry.id === "deepseek-flash");
+    expect(flash?.reasoningSupport.levels).toEqual(["low", "high", "max"]);
+
+    const saved = await bench.saveDefault({
+      projectId,
+      expectedRevision: snapshot.savedDefault.revision,
+      provider: "deepseek",
+      exactId: "deepseek",
+      model: "deepseek-flash",
+      reasoningEffort: "high",
+      permissionPosture: "full_access",
+      autoApprove: true,
+      trustMode: true,
+      allowShell: true,
+    });
+    expect(saved.receipt.after.reasoningEffort).toBe("high");
+    // The stored profile stays on the generic route.
+    expect((await store.getSettings(PROFILE_SCOPE))?.value).toMatchObject({
+      reasoningEffort: "high",
+      exactId: null,
+    });
+
+    const off = await bench.saveDefault({
+      projectId,
+      expectedRevision: saved.snapshot.savedDefault.revision,
+      provider: "deepseek",
+      exactId: "deepseek",
+      model: "deepseek-flash",
+      reasoningEffort: "off",
+      permissionPosture: "full_access",
+      autoApprove: true,
+      trustMode: true,
+      allowShell: true,
+    });
+    expect(off.receipt.after.reasoningEffort).toBe("off");
+    expect((await store.getSettings(PROFILE_SCOPE))?.value).toMatchObject({ exactId: null });
+  });
+
+  it("treats a named custom identity as its own route, not the built-in one", async () => {
+    const adapter = fakeAdapter({
+      listModels: async (provider: string, exactId?: string | null) =>
+        provider === "deepseek" || provider === "custom"
+          ? { ...silentFlashCatalog(), provider, exactId: exactId ?? null }
+          : { provider, exactId: null, models: [] },
+    }).adapter;
+    const { bench } = await workbench({ adapter, configRoot: await engineCatalogHome() });
+    const named = await bench.models(projectId, "custom", "vision-work");
+    const flash = named.models.find((entry) => entry.id === "deepseek-flash");
+    expect(flash?.reasoningSupport.effort).toBe("unknown");
+  });
+
+  it("does not borrow first-party metadata for a named exact route", async () => {
+    // A named route is a different identity even when the endpoint looks the same.
+    const calls: Array<{ provider: string; exactId: string | null }> = [];
+    const adapter = fakeAdapter({
+      listModels: async (provider: string, exactId?: string | null) => {
+        calls.push({ provider, exactId: exactId ?? null });
+        return provider === "deepseek"
+          ? { ...silentFlashCatalog(), exactId: exactId ?? null }
+          : { provider, exactId: null, models: [] };
+      },
+    }).adapter;
+    const { bench } = await workbench({ adapter, configRoot: await engineCatalogHome() });
+    const named = await bench.models(projectId, "deepseek", "vision-work");
+    const flash = named.models.find((entry) => entry.id === "deepseek-flash");
+    expect(calls.at(-1)).toEqual({ provider: "deepseek", exactId: "vision-work" });
+    expect(flash?.reasoningSupport.effort).toBe("unknown");
+    expect(flash?.reasoningSupport.levels).toEqual([]);
+  });
+
+  it("does not borrow first-party metadata for a configured endpoint", async () => {
+    // A user-set base_url is a different endpoint. The runtime refuses to infer
+    // levels there, so Mona must not offer the first-party ladder either.
+    const adapter = fakeAdapter({
+      listModels: async (provider: string) =>
+        provider === "deepseek" ? silentFlashCatalog() : { provider, exactId: null, models: [] },
+    }).adapter;
+    const root = await engineCatalogHome();
+    await writeFile(
+      join(root, "config.toml"),
+      [
+        'provider = "deepseek"',
+        'model = "deepseek-flash"',
+        "",
+        "[providers.deepseek]",
+        'base_url = "https://gateway.example.com/v1"',
+      ].join("\n"),
+    );
+    const { bench } = await workbench({ adapter, configRoot: root });
+    const snapshot = await bench.snapshot(projectId);
+    const flash = snapshot.models.models.find((entry) => entry.id === "deepseek-flash");
+    expect(flash?.reasoningSupport.effort).toBe("unknown");
+    expect(flash?.reasoningSupport.levels).toEqual([]);
+    expect(snapshot.reasoning.support.effort).toBe("unknown");
+    const refused = await bench
+      .saveDefault({
+        projectId,
+        expectedRevision: 0,
+        provider: "deepseek",
+        exactId: null,
+        model: "deepseek-flash",
+        reasoningEffort: "high",
+        permissionPosture: "full_access",
+        autoApprove: true,
+        trustMode: true,
+        allowShell: true,
+      })
+      .then(() => null)
+      .catch((error) => error);
+    expect(refused?.code).toBe("INVALID_ROUTE");
+  });
+
+  it("labels a cached engine default as stale rather than current", async () => {
+    const saved = fakeAdapter();
+    const dir = await tempDir();
+    await writeFile(join(dir, "config.toml"), 'provider = "deepseek"\n');
+    const first = await workbench({ adapter: saved.adapter, configRoot: dir });
+    await first.bench.snapshot(projectId);
+    // Engine goes away; the cached route is all that remains.
+    const offline = new RouteWorkbench({
+      store: first.store,
+      engine: () => null,
+      studio: async () => null,
+      backupDir: await tempDir(),
+      configRoot: dir,
+      engineBinary: () => "/bin/echo",
+    });
+    const snapshot = await offline.snapshot(projectId);
+    expect(snapshot.engineDefault.source).toBe("stored");
+    expect(snapshot.reasoning.inheritance.configuredSource).toBe("engine_config_cached");
+    expect(snapshot.reasoning.inheritance.configuredReadAt).not.toBeNull();
+    // Mona sends `auto` itself, so the cached engine default is context, not the
+    // governing value; the snapshot says both things rather than one.
+    expect(snapshot.reasoning.inheritance.note).toContain("does not govern this route");
+    expect(snapshot.reasoning.inheritance.effective).toBeNull();
+  });
+
+  it("announces a display change only after the write, so an open studio re-reads", async () => {
+    const order: string[] = [];
+    const { store } = await openTestStore();
+    const bench = new RouteWorkbench({
+      store,
+      engine: () => null,
+      studio: async () => null,
+      backupDir: await tempDir(),
+      onDisplayChanged: (id) => order.push(`changed:${String(id)}`),
+    });
+    const result = await bench.setReasoningDisplay({ projectId, showReasoning: false });
+    // Exactly one announcement, after the store write that produced the
+    // returned snapshot; the listener is not a push that races the store.
+    expect(order).toEqual([`changed:${projectId}`]);
+    expect(result.snapshot.reasoning.display.showReasoning).toBe(false);
+    expect((await store.getSettings(REASONING_DISPLAY_SCOPE))?.value).toMatchObject({
+      showReasoning: false,
+    });
+  });
+
+  it("persists the transcript preference in Mona's settings, not the engine's", async () => {
+    const { store, bench } = await workbench({});
+    const result = await bench.setReasoningDisplay({ projectId, showReasoning: false });
+    expect(result.receipt.persisted).toBe(true);
+    expect(result.snapshot.reasoning.display.showReasoning).toBe(false);
+    expect((await store.getSettings(REASONING_DISPLAY_SCOPE))?.value).toMatchObject({
+      showReasoning: false,
+    });
+    expect(result.receipt.note).toContain("request is unchanged");
+    const restored = await bench.setReasoningDisplay({ projectId, showReasoning: true });
+    expect(restored.snapshot.reasoning.display.showReasoning).toBe(true);
   });
 });
 
@@ -442,7 +964,7 @@ describe("saved route scope", () => {
     });
     const reset = await bench.resetDefault({ projectId, expectedRevision: 1 });
     expect(reset.snapshot.savedDefault.route.model).toBe("deepseek-flash");
-    expect(reset.snapshot.savedDefault.route.reasoningEffort).toBeNull();
+    expect(reset.snapshot.savedDefault.route.reasoningEffort).toBe("auto");
     expect(reset.snapshot.savedDefault.permissionPosture).toBe("full_access");
   });
 });

@@ -88,6 +88,12 @@ export interface TimelineOptions {
    * paged, so they are not partial.
    */
   completeItems?: ReadonlySet<string>;
+  /**
+   * Mona's transcript preference. False hides `agent_reasoning` cards only;
+   * the frames are still stored, still counted as activity, and the request is
+   * untouched. Default true preserves the behaviour from before the preference.
+   */
+  showReasoning?: boolean;
 }
 
 interface OpenItem {
@@ -133,6 +139,7 @@ export function projectTimeline(
 ): TimelineProjection {
   const historyComplete = options.historyComplete === true;
   const completeItems = options.completeItems ?? new Set<string>();
+  const showReasoning = options.showReasoning !== false;
   // A project includes multiple native/local threads. Stream accumulation and
   // completion matching must never cross those identities, even if their item
   // kinds or sequence numbers happen to match.
@@ -157,11 +164,12 @@ export function projectTimeline(
     internalActivity += projection.internalActivity;
     for (const kind of projection.unprojected) unprojected.add(kind);
   }
-  entries.sort((left, right) => {
+  const visible = showReasoning ? entries : entries.filter((entry) => entry.kind !== "reasoning");
+  visible.sort((left, right) => {
     if (left.timestamp === right.timestamp) return left.seq - right.seq;
     return Date.parse(left.timestamp) - Date.parse(right.timestamp);
   });
-  return { entries, internalActivity, unprojected: [...unprojected].sort() };
+  return { entries: visible, internalActivity, unprojected: [...unprojected].sort() };
 }
 
 function deltaKind(kind: string): TimelineKind {

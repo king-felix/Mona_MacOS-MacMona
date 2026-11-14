@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "label": "Reasoning controls — live route check",
+  "captured_at": "2026-11-14T21:57:29.220Z",
+  "ok": true,
+  "isolated_home": true,
+  "checks": {
+    "the live roster shadow makes the engine report an unknown ladder": {
+      "ok": true
+    },
+    "Mona recovers the published ladder from the engine's own metadata": {
+      "ok": true
+    },
+    "the recovered ladder is labelled, not presented as a live catalog answer": {
+      "ok": true
+    },
+    "the reasoning setting is declared as auto, stored and sent, and not editable": {
+      "ok": true
+    },
+    "a read does not write, and says whether the row carries the setting yet": {
+      "ok": true
+    },
+    "an explicit save persists the setting, and the snapshot then reports it stored": {
+      "ok": true
+    },
+    "an unpublished tier is refused and the stored route is unchanged": {
+      "ok": true
+    },
+    "the published thinking toggle persists the engine's off value": {
+      "ok": true
+    },
+    "a configured endpoint does not borrow first-party metadata": {
+      "ok": true
+    },
+    "the transcript preference is persisted locally": {
+      "ok": true
+    },
+    "no model turn was started": {
+      "ok": true
+    }
+  },
+  "observations": {
+    "engine_catalog": {
+      "models": 2,
+      "flash_state": "unknown",
+      "flash_levels": [],
+      "flash_facts_source": "live"
+    },
+    "metadata_source": "the host engine cache",
+    "mona": {
+      "support": {
+        "effort": "metadata",
+        "levels": [
+          "low",
+          "high",
+          "max"
+        ],
+        "thinking": "toggle",
+        "source": "engine_catalog_cache",
+        "sourceDetail": "the engine's Models.dev catalog cache, fetched 2026-11-14T18:01:32.000Z",
+        "degraded": true,
+        "note": "The engine's live catalog projection omitted this model's metadata, but the engine's own Models.dev catalog publishes low, high, max for it. Mona offers only those published values."
+      },
+      "requested": {
+        "effort": "auto",
+        "thinking": "auto"
+      },
+      "declared": {
+        "value": "auto",
+        "editable": false,
+        "stored": false,
+        "note": "Auto is the engine's own default: its reasoning selector resolves a concrete tier for each turn. Mona sends it explicitly and does not offer a different setting here, so the value is declared rather than implied."
+      },
+      "inheritance": {
+        "configuredDefault": "auto",
+        "configuredSource": "engine_config",
+        "configuredReadAt": null,
+        "effective": null,
+        "effectiveSource": null,
+        "effectiveTurnId": null,
+        "note": "Mona declares `auto` and sends it on every new thread and turn, so the engine's reasoning selector resolves a concrete tier for each turn. That tier is not reported back, so the effective value stays unknown; the request is not proof of what the provider did. Because Mona sends `auto` explicitly, the engine's own configured default does not govern this route."
+      },
+      "display": {
+        "showReasoning": true,
+        "note": "Mona renders the reasoning items the engine streams. This preference changes Mona's transcript only; it is never sent to the engine and it does not change thinking or effort."
+      },
+      "engine_default": "auto"
+    },
+    "saved": {
+      "provider": "deepseek",
+      "exactId": null,
+      "model": "deepseek-flash",
+      "reasoningEffort": "high",
+      "permissionPosture": "full_access",
+      "autoApprove": true,
+      "trustMode": true,
+      "allowShell": true,
+      "updatedAt": "2026-11-14T21:57:29.619Z",
+      "note": "Saved new-thread default; validated against the live provider and model catalog."
+    },
+    "refused": "'medium' is not one of this model's published levels (low, high, max)",
+    "custom_endpoint": {
+      "effort": "unknown",
+      "levels": []
+    }
+  },
+  "error": null,
+  "captured_sha256": "7f5a6e4f05b74e8d4bbcf67573ae93f6a1b71e7e53f6f334265c0f4c485166ca"
+}

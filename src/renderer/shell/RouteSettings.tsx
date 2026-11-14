@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState, type JSX } from "react";
+import { useEffect, useState, type JSX } from "react";
 import type { ProjectId } from "../../shared/contracts/ids";
 import type {
   ModelCatalogView,
   ModelView,
   ProviderView,
+  ReasoningSupportView,
   RouteChangeReceipt,
   SettingsDiagnosticsView,
   SettingsSnapshot,
@@ -70,7 +71,7 @@ export function RouteSettings({
   const [models, setModels] = useState<ModelCatalogView | null>(null);
   const [provider, setProvider] = useState("deepseek");
   const [model, setModel] = useState("deepseek-flash");
-  const [effort, setEffort] = useState("");
+  const [showReasoning, setShowReasoning] = useState(true);
   const [posture, setPosture] = useState<"full_access" | "ask">("full_access");
   const [autoApprove, setAutoApprove] = useState(true);
   const [trustMode, setTrustMode] = useState(true);
@@ -100,17 +101,29 @@ export function RouteSettings({
     setSnapshot(next);
     setProvider(next.savedDefault.route.provider);
     setModel(next.savedDefault.route.model);
-    setEffort(next.savedDefault.route.reasoningEffort ?? "");
+    setShowReasoning(next.reasoning.display.showReasoning);
     setPosture(next.savedDefault.permissionPosture);
     setAutoApprove(next.savedDefault.autoApprove);
     setTrustMode(next.savedDefault.trustMode);
     setAllowShell(next.savedDefault.allowShell);
+    // The snapshot already carries the saved route's catalogue. Re-reading it
+    // would double the work and, if that second read failed, blank a list the
+    // snapshot had already provided. It is fetched again only for a provider the
+    // snapshot does not describe.
+    if (
+      next.models.source !== "unavailable" &&
+      next.models.provider === next.savedDefault.route.provider &&
+      next.models.models.length > 0
+    ) {
+      setModels(next.models);
+      return;
+    }
     const current = await window.mona.settingsModels(
       projectId,
       next.savedDefault.route.provider,
       next.savedDefault.route.exactId,
     );
-    setModels(current.ok ? current.value : null);
+    setModels(current.ok ? current.value : next.models.models.length > 0 ? next.models : null);
   };
 
   useEffect(() => {
@@ -120,19 +133,37 @@ export function RouteSettings({
   const saved = snapshot?.savedDefault ?? null;
   const providerRow = snapshot?.providers.providers.find((entry) => entry.id === provider) ?? null;
   const selectedModel = models?.models.find((entry) => entry.id === model) ?? null;
-  const reasoningOptions = useMemo(() => {
-    const base = [{ value: "", label: "Model default (omit)" }];
-    if (!selectedModel || selectedModel.reasoningEffort !== "supported") return base;
-    return [
-      ...base,
-      ...selectedModel.reasoningEffortLevels.map((level) => ({ value: level, label: level })),
-    ];
-  }, [selectedModel]);
+  const support: ReasoningSupportView = selectedModel?.reasoningSupport ?? {
+    effort: "unknown",
+    levels: [],
+    thinking: "unknown",
+    source: null,
+    sourceDetail: null,
+    degraded: false,
+    note: "No model is selected, so Mona cannot prove any reasoning control.",
+  };
+  const supportTone: Tone =
+    support.effort === "published"
+      ? "success"
+      : support.effort === "metadata"
+        ? "attention"
+        : support.effort === "unsupported"
+          ? "neutral"
+          : "neutral";
+  const supportLabel =
+    support.effort === "published"
+      ? "published by the live catalog"
+      : support.effort === "metadata"
+        ? support.thinking === "toggle" && support.levels.length === 0
+          ? "thinking toggle only"
+          : "engine catalog metadata"
+        : support.effort === "unsupported"
+          ? "no published ladder"
+          : "unknown";
   const draftDirty =
     saved !== null &&
     (saved.route.provider !== provider ||
       saved.route.model !== model ||
-      (saved.route.reasoningEffort ?? "") !== effort ||
       saved.permissionPosture !== posture ||
       saved.autoApprove !== autoApprove ||
       saved.trustMode !== trustMode ||
@@ -143,7 +174,7 @@ export function RouteSettings({
     setSnapshot(next);
     setProvider(next.savedDefault.route.provider);
     setModel(next.savedDefault.route.model);
-    setEffort(next.savedDefault.route.reasoningEffort ?? "");
+    setShowReasoning(next.reasoning.display.showReasoning);
     setPosture(next.savedDefault.permissionPosture);
     setAutoApprove(next.savedDefault.autoApprove);
     setTrustMode(next.savedDefault.trustMode);
@@ -153,7 +184,6 @@ export function RouteSettings({
   const changeProvider = async (next: string): Promise<void> => {
     setProvider(next);
     setModel("");
-    setEffort("");
     const row = snapshot?.providers.providers.find((entry) => entry.id === next);
     const result = await window.mona.settingsModels(projectId, next, row?.exactId ?? null);
     if (!result.ok) {
@@ -180,7 +210,8 @@ export function RouteSettings({
       provider,
       exactId: providerRow?.exactId ?? null,
       model,
-      reasoningEffort: effort === "" ? null : effort,
+      // The declared setting is what is sent; this build offers no control to change it.
+      reasoningEffort: snapshot.reasoning.declared.value,
       permissionPosture: posture,
       autoApprove,
       trustMode,
@@ -194,6 +225,19 @@ export function RouteSettings({
     setReceipt(result.value.receipt);
     refreshAfter(result.value.snapshot);
     setNotice({ tone: "success", text: result.value.receipt.note });
+  };
+
+  const setDisplay = async (next: boolean): Promise<void> => {
+    setBusy("display");
+    const result = await window.mona.setReasoningDisplay({ projectId, showReasoning: next });
+    setBusy(null);
+    if (!result.ok) {
+      setNotice({ tone: "danger", text: `${result.error.code}: ${result.error.message}` });
+      return;
+    }
+    setShowReasoning(result.value.receipt.showReasoning);
+    setSnapshot(result.value.snapshot);
+    setNotice({ tone: "neutral", text: result.value.receipt.note });
   };
 
   const resetDefault = async (): Promise<void> => {
@@ -351,20 +395,7 @@ export function RouteSettings({
             disabled={!models || models.models.length === 0}
             onChange={(event) => {
               setModel(event.target.value);
-              setEffort("");
             }}
-          />
-          <SelectField
-            label="Reasoning effort"
-            value={effort}
-            options={reasoningOptions}
-            disabled={reasoningOptions.length === 1}
-            hint={
-              selectedModel?.reasoningEffort === "supported"
-                ? `Published levels: ${selectedModel.reasoningEffortLevels.join(", ")}`
-                : "This route publishes no effort ladder; Mona sends no reasoning level."
-            }
-            onChange={(event) => setEffort(event.target.value)}
           />
         </div>
         <SegmentedControl
@@ -412,6 +443,92 @@ export function RouteSettings({
             Restore Flash default
           </Button>
         </div>
+      </Card>
+
+      <Card
+        title="Reasoning"
+        eyebrow="Declared setting"
+        actions={<Badge tone={supportTone}>{supportLabel}</Badge>}
+      >
+        <p className="muted">
+          Mona declares one reasoning setting for this route. It is stored, sent on every new thread
+          and turn, and shown here as a fact; this build offers no control to change it.
+        </p>
+        <div className="inline-facts">
+          <span>Reasoning setting</span>
+          <Badge tone="accent">
+            <span data-testid="reasoning-declared">{snapshot.reasoning.declared.value}</span>
+          </Badge>
+          <span className="muted" data-testid="reasoning-declared-state">
+            {snapshot.reasoning.declared.stored
+              ? "stored · read-only"
+              : "declared default · not yet stored · read-only"}
+          </span>
+        </div>
+        <p className="muted">{snapshot.reasoning.declared.note}</p>
+        <p className="muted">
+          This model publishes{" "}
+          {support.levels.length > 0
+            ? `the effort tiers ${support.levels.join(", ")}`
+            : support.thinking === "toggle"
+              ? "a thinking on/off control"
+              : "no selectable reasoning control"}{" "}
+          — informational only, because Auto is what Mona sends.
+        </p>
+        {support.sourceDetail ? (
+          <p className="muted">
+            Source: <span className="mono">{support.sourceDetail}</span>
+          </p>
+        ) : null}
+        {support.degraded ? (
+          <Callout tone="attention" title="The live catalog omitted this model's metadata">
+            The engine answered <span className="mono">reasoning_effort: unknown</span> with no
+            levels, while its own catalog metadata publishes{" "}
+            {support.levels.length > 0 ? "an effort ladder" : "a thinking toggle"} for this model.
+            Mona reports that as metadata, not as a live catalog answer, and it is used only for the
+            provider's own endpoint.
+          </Callout>
+        ) : null}
+        <div className="inline-facts">
+          <span>
+            stored{" "}
+            <span className="mono">{snapshot.reasoning.requested.effort ?? "not stored"}</span>
+          </span>
+          <span>
+            effective{" "}
+            <span className="mono">{snapshot.reasoning.inheritance.effective ?? "unknown"}</span>
+          </span>
+          <span>
+            engine default{" "}
+            <span className="mono">
+              {snapshot.reasoning.inheritance.configuredDefault ?? "unknown"}
+            </span>{" "}
+            ({snapshot.reasoning.inheritance.configuredSource})
+          </span>
+        </div>
+        <p className="muted">{snapshot.reasoning.inheritance.note}</p>
+        {snapshot.reasoning.inheritance.effectiveSource === "engine_turn_receipt" ? (
+          <p className="muted">
+            Effective is a fact the engine reported, not an inference from the request
+            {snapshot.reasoning.inheritance.effectiveTurnId
+              ? ` (turn ${snapshot.reasoning.inheritance.effectiveTurnId})`
+              : ""}
+            .
+          </p>
+        ) : null}
+        {snapshot.observed ? (
+          <p className="muted" data-testid="reasoning-evidence">
+            {snapshot.observed.reasoningEvidence}
+          </p>
+        ) : null}
+        <div className="switch-row">
+          <Switch
+            checked={showReasoning}
+            onChange={(next) => void setDisplay(next)}
+            label="Show reasoning in Mona's transcript"
+          />
+        </div>
+        <p className="muted">{snapshot.reasoning.display.note}</p>
       </Card>
 
       <Card title="Engine route" eyebrow="Configured by Codewhale config">

@@ -389,7 +389,8 @@ const P18 = {
     integration: "native_view",
     entry: tab("route", "Providers & route"),
     status: "verified",
-    tests: "P16: requested vs effective route and model-published reasoning levels.",
+    tests:
+      "P16: requested vs effective route and model-published reasoning levels; reasoning amendment: the setting is declared `auto` and read-only, published tiers are informational, effective shown as unknown (D-110, docs/evidence/macos/reasoning-controls.md).",
     gap: null,
   },
   "MONA-CAP-036": {
@@ -669,7 +670,8 @@ const P18 = {
     help_source: "docs/evidence/macos/artifacts/upstream-RUNTIME_API.md",
     entry: tab("route", "Providers & route"),
     status: "verified",
-    tests: "P16: live catalogs, requested vs effective, reasoning levels.",
+    tests:
+      "P16: live catalogs, requested vs effective, reasoning levels; reasoning amendment: the setting is declared `auto` and sent explicitly, model metadata is labelled with its source, and effective is unknown (D-110, docs/evidence/macos/reasoning-controls.md).",
     gap: null,
   },
   "MONA-CAP-065": {

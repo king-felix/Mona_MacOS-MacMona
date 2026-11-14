@@ -47,6 +47,18 @@ export interface StudioProfileView {
     model: string;
     permissionPosture: string;
     usedFallback: boolean;
+    /**
+     * The reasoning setting the engine said it used, when the build reports one.
+     * Absent means "not reported" — never "off", and never the requested value.
+     */
+    reasoningEffort?: string;
+    /** Where the engine said that value came from, when it says so. */
+    reasoningSource?: string;
+    /**
+     * The engine's own reasoning-token count for that turn. Non-zero is positive
+     * evidence that thinking ran; zero is inconclusive and proves nothing.
+     */
+    reasoningTokens?: number | null;
   } | null;
   effectiveTurnId: string | null;
 }
@@ -157,6 +169,12 @@ export interface StudioSnapshot {
   pauseAfterTask: boolean;
   queued: number;
   profile: StudioProfileView;
+  /**
+   * Mona's transcript preference. `showReasoning` never reaches the engine: it
+   * hides or shows reasoning items the engine already streamed, and the runtime
+   * keeps sending them either way.
+   */
+  display: { showReasoning: boolean };
   cost: StudioCostView;
   submission: StudioSubmissionView | null;
   /** Bounded, user-facing diagnostics (unsupported input, schema drift). */

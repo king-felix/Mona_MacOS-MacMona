@@ -43,6 +43,7 @@ import { CostLedger } from "./costs";
 import { projectUsageScope } from "./usage-hud";
 import {
   loadExecutionProfile,
+  loadReasoningDisplay,
   postureFor,
   profileView,
   type ExecutionProfile,
@@ -1548,6 +1549,15 @@ export class WorkStudio {
               model: observed.effective.model,
               permissionPosture: observed.effective.permissionPosture,
               usedFallback: observed.usedFallback,
+              ...(observed.effective.reasoningEffort
+                ? {
+                    reasoningEffort: observed.effective.reasoningEffort,
+                    ...(turnRecord.effectiveReasoningSource
+                      ? { reasoningSource: turnRecord.effectiveReasoningSource }
+                      : {}),
+                  }
+                : {}),
+              reasoningTokens: turnRecord.usage?.reasoningTokens ?? null,
             };
             session.effective = effective;
             session.effectiveTurnId = turnRecord.id;
@@ -2244,6 +2254,9 @@ export class WorkStudio {
       const loaded = await loadExecutionProfile(this.store);
       profile = profileView(loaded.profile, loaded.source);
     }
+    // Transcript preference: display only. It is read here so the renderer never
+    // has to guess whether reasoning was requested or merely hidden.
+    const showReasoning = await loadReasoningDisplay(this.store);
     const usage = await this.store.summarizeUsage(projectId);
     // R09: three scopes over the same receipts. A missing scope is "empty" or
     // "waiting", never zero.
@@ -2362,6 +2375,7 @@ export class WorkStudio {
       pauseAfterTask: work.pauseAfterTask,
       queued: work.queued.length,
       profile,
+      display: { showReasoning },
       cost: {
         observed: usage.observed,
         costUsd: usage.costUsd,
@@ -2486,6 +2500,9 @@ export class WorkStudio {
         trustMode: posture.trustMode,
         allowShell: posture.allowShell,
       },
+      ...(session.profile.reasoningEffort
+        ? { reasoningEffort: session.profile.reasoningEffort }
+        : {}),
     });
     await this.store.upsertThread({
       id: localThreadId,
@@ -2526,6 +2543,9 @@ export class WorkStudio {
         trustMode: posture.trustMode,
         allowShell: posture.allowShell,
       },
+      ...(session.profile.reasoningEffort
+        ? { reasoningEffort: session.profile.reasoningEffort }
+        : {}),
     });
     await this.store.upsertThread({
       id: binding.localThreadId,
@@ -2783,6 +2803,9 @@ export class WorkStudio {
               trustMode: posture.trustMode,
               allowShell: posture.allowShell,
             },
+            ...(session.profile.reasoningEffort
+              ? { reasoningEffort: session.profile.reasoningEffort }
+              : {}),
           });
           engineThreadId = thread.threadId;
           await this.store.upsertThread({

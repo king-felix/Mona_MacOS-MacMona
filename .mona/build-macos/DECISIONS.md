@@ -2019,3 +2019,155 @@ and the smoke measures it rather than asserting it is pretty.
   `npm run mac:package:dmg` when asked. The difference between the two is stated
   in the owner guide: the image installs the app only, the package also updates
   the Finder Service.
+
+## D-108 — A silent catalog is not a disabled model; recover the engine's own metadata
+
+- **Date:** 2026-11-14 (owner request: reasoning controls for the DeepSeek route)
+- **Context:** Settings offered one reasoning option, "Model default (omit)", for
+  `deepseek` / `deepseek-flash`. The pinned engine's live catalog row says
+  `reasoning_effort: unknown` with no levels — but the engine's own Models.dev
+  catalog cache publishes `toggle` + `low|high|max` for that exact model, and the
+  same binary in an isolated home (no live roster) publishes that ladder through
+  the API. The live provider-roster projection skips the metadata join. Mona had
+  treated the one `unknown` as "nothing is supported", and its IPC schema even
+  refused the engine's canonical `off` value.
+- **Decision — four support states, never two.** `published`, `metadata`,
+  `unsupported`, and `unknown` are distinct. `unknown` is not `unsupported`, and
+  neither is evidence that thinking is disabled. An explicit engine answer always
+  outranks cached metadata.
+- **Decision — read the engine's own metadata for the exact model.** When the
+  live projection is silent, Mona reads
+  `<CODEWHALE_HOME>/catalog/models-dev-catalog.json` — public, non-secret model
+  metadata the engine itself uses — and offers only the effort values and toggle
+  it finds under the exact provider and model key. The read is bounded (64 MiB),
+  refuses a newer `schema_version`, and fails closed on a missing or malformed
+  file. No level is inferred from a family, alias, provider default, or model
+  name. The UI labels this source "engine catalog metadata" and marks it
+  degraded; it is never presented as a live catalog answer.
+- **Decision — validation stays fail-closed.** A tier is accepted only when the
+  exact model proves it; `off` only when a thinking toggle is published. That is
+  what lets `off` be added to the transport schema without weakening the gate.
+  `off` is checked against the toggle **before** the ladder state: 993 models in
+  the engine's own catalogue publish a toggle and no ladder, and treating
+  "no ladder" as "no `off`" refused a control the metadata demonstrably publishes.
+- **Decision — the fallback is route-scoped, not just model-scoped.** The cache
+  is keyed by provider and model, but the metadata describes the provider's
+  first-party endpoint. It is used only when the catalogue reports no exact id
+  and the config sets no `base_url` for that provider (top level,
+  `[providers.<name>]`, a dotted key, an inline `providers` table, an accepted
+  spelling, or a profile). Unreadable config fails closed; an absent config does
+  not count as custom, because the engine writes that file itself. A named route
+  or a configured endpoint therefore shows only what its own live catalogue
+  publishes — usually `unknown`.
+- **Decision — a built-in canonical id is the generic route.** The engine repeats
+  a built-in provider's id in `model_provider_id`, so the screen sends
+  `exactId: "deepseek"` for the plain route. `routeExactId` normalizes that to
+  null once, and the catalogue read, cache key, validation, stored profile, and
+  scoping check all use it. Without this, the screen's own save refused exactly
+  the levels it displayed.
+- **Decision — requested and effective are different facts.** The engine reports
+  no effective reasoning setting on any documented route, so Mona shows
+  `effective: unknown` with that source. A configured default read while the
+  engine was connected and then cached is labelled `engine_config_cached` with
+  its read time, never as the current value. Omission inherits the engine's
+  configured `reasoning_effort = auto`, explained in the screen; it is not the
+  provider default and not "thinking off".
+- **Decision — three settings, not one.** Thinking on/off, the effort tier, and
+  showing reasoning in Mona's transcript are separate controls with separate
+  storage. The display preference is Mona's own scope (`ui:reasoning-display`),
+  is read by the studio snapshot, and never reaches the engine.
+- **Decision — the engine gap is measured, not assumed, and stays open as an
+  engine ask.** On 2026-11-14 every documented surface was inspected for an
+  effective reasoning value: the thread record and its turns, `turn.completed`,
+  `turn.provider_request`, the turn receipt through both the API and
+  `codewhale receipts --format json`, thread usage, thread context,
+  `/v1/sessions`, `codewhale metrics` (text and `--json`), the settings schema,
+  and the model catalog. None reports one, and a successful
+  `models/refresh` does not restore the ladder. The identifier
+  `effective_reasoning_effort` exists in the binary and in a static descriptor
+  only. The probe matrix is
+  `docs/evidence/macos/artifacts/reasoning-engine-gap.json`; the two smallest
+  engine changes (join the canonical id on live roster rows, and add
+  `effective_reasoning_effort` to `TurnRecord`) are in `BLOCKERS.md` under
+  "Needs the Human". Mona does not parse the engine's private session documents
+  or infer an effective value to fill the gap.
+- **Consequence / limitation:** on a machine where the engine has neither a live
+  ladder nor its Models.dev cache, Mona offers no reasoning controls and says
+  the metadata is unavailable. It does not hard-code a ladder. Either residual
+  gap can be closed by a later pinned engine without changing this decision's
+  contract; upgrading was not authorized and was not done.
+
+## D-109 — Reasoning facts come from the engine or not at all
+
+- **Date:** 2026-11-14 (owner: "the most direct, reliable long-term fix")
+- **Context:** D-108 shipped an honest workaround: the ladder is recovered from
+  the engine's own metadata and the effective value is shown as unknown. The
+  owner asked which fix is direct and durable. Three candidates were weighed
+  against measurement.
+- **Rejected — engine upgrade.** Not direct and not reliable. `compat.ts` pins
+  version *and* commit; the installed engine is npm-managed with in-place
+  self-update disabled; re-pinning invalidates 28 prompts of evidence; and no
+  measurement shows a later build fixes either gap. Upgrading to find out would
+  trade a known, honest limitation for an unknown one.
+- **Rejected — a client-side derivation of the effective value.** It cannot be
+  done without inventing. The request is not the effective value (the engine's
+  `auto` selector picks a concrete tier), and `reasoning_tokens = 0` occurs with
+  thinking on for a trivial prompt, so the token count is positive evidence only.
+- **Decision — the fix belongs at the engine boundary, and Mona retires into it.**
+  Two minimal upstream changes are specified in
+  `docs/evidence/macos/engine-change-request-reasoning.md`: join the canonical
+  model id on live roster rows, and project the already-computed
+  `effective_reasoning_effort` / `effective_reasoning_source` onto `TurnRecord`.
+- **Decision — consume it before it exists.** `WireTurn`, `TurnRecord`,
+  `EffectiveProfile.effective` and the studio/settings views accept both fields
+  today. An effective value is displayed **only** when the engine reports one
+  (`effectiveSource: "engine_turn_receipt"`), attributed to its turn. On 0.10.2
+  the field is absent, so the screen keeps `unknown` — the live smoke asserts
+  exactly that, so the path cannot be mistaken for working.
+- **Decision — evidence is not effective.** The engine's reasoning-token count
+  is surfaced as evidence with its limits stated: non-zero proves thinking ran;
+  zero is inconclusive; unreported is neither. It never fills the effective slot.
+- **Consequence:** when either upstream change lands, Mona needs no edit on the
+  consumer side. The metadata fallback also retires itself: a live `supported`
+  answer already outranks it. If the engine instead chooses to stay silent,
+  `BLOCKERS.md` records the gap and Mona keeps saying unknown.
+
+## D-110 — The reasoning setting is declared `auto`, not offered as a choice
+
+- **Date:** 2026-11-14 (owner: "Auto would be acceptable, and the interface should
+  declare that is the setting without the option for change")
+- **Context:** D-108/D-109 left the route's reasoning setting undefined when
+  nothing was stored. Turns sent no `reasoning_effort`, so the engine's own
+  configured default governed — which measured as `auto` on this host, but would
+  silently follow whatever that file happened to say. The screen offered a
+  changeable thinking/effort control whose choices the engine could not prove
+  were honoured, and its "effective" slot was always `unknown`.
+- **Measured before deciding:** the real stored profile
+  (`~/Library/Application Support/Mona/state/mona.sqlite`, `engine:profile`)
+  carried **no** `reasoningEffort` field at all, so the applied value came from
+  `~/.codewhale/config.toml` (`reasoning_effort = "auto"`). A live probe confirmed
+  the runtime accepts `"auto"` on `POST /v1/threads` (echoed on the thread
+  record) and on `POST /v1/threads/{id}/turns` (turn completed).
+- **Decision — `auto` is the declared setting.** `DECLARED_REASONING_EFFORT =
+  "auto"` is in `DEFAULT_EXECUTION_PROFILE`, is parsed back for any profile that
+  lacks a value, and is sent explicitly on every new thread and turn. The setting
+  is therefore stated, not implied, and does not inherit an ambient config value
+  Mona never showed.
+- **Decision — the screen declares it and offers no control.** The reasoning
+  card shows `Auto` with a read-only badge and no segmented control, tier select,
+  or off switch. It states that the engine's selector resolves a concrete tier
+  per turn, that the resolved tier is not reported back, and that Mona's explicit
+  `auto` means the engine's own configured default does not govern the route.
+  Published tiers are shown as information only.
+- **Decision — `auto` is validated without metadata.** It is the runtime's own
+  canonical default, not a claim about a model's ladder, so `validateRoute`
+  accepts it unconditionally. Unpublished tiers, `unknown`/`unsupported` models,
+  and `off` without a published thinking toggle are still refused, so the gate
+  was not weakened.
+- **Decision — reads still never write (P16).** The screen reports whether the
+  stored row carries the setting (`declared.stored`). A profile saved before this
+  decision shows "declared default · not yet stored"; the next explicit save
+  persists it. The studio's existing first-read declaration is unchanged.
+- **Consequence:** the request is now deterministic and visible. The effective
+  value stays `unknown`, because 0.10.2 still reports none (D-109), and the
+  interface says exactly that rather than implying the request was honoured.

@@ -1,0 +1,191 @@
+{
+  "schema_version": 1,
+  "label": "Reasoning metadata and effective-reasoning surfaces \u2014 pinned engine 0.10.2",
+  "captured_at": "2026-11-14T21:35:00Z",
+  "engine": {
+    "version": "0.10.2",
+    "commit": "ff466b2ed0bfb4ae5267d4d8d0ecb562cf46956e",
+    "binary_sha256_prefix": "da0229610647f1cc",
+    "upgraded": false
+  },
+  "route": {
+    "provider": "deepseek",
+    "model": "deepseek-flash",
+    "endpoint_authority": "https://api.deepseek.com",
+    "engine_config_reasoning_effort": "auto"
+  },
+  "question_one": {
+    "ask": "Does the live catalog projection return this model's reasoning ladder?",
+    "answer": "No. The presence of any live roster entry for the provider switches the whole catalog to live facts without joining the Models.dev metadata.",
+    "measurements": {
+      "host_home_live_roster": {
+        "probe": "GET /v1/providers/deepseek/models on the user's own home, read-only",
+        "models_returned": 23,
+        "deepseek_flash": {
+          "reasoning_effort": "unknown",
+          "reasoning_effort_levels": [],
+          "reasoning_effort_source": null,
+          "facts_source_kind": "live",
+          "facts_canonical_model_id": null,
+          "facts_reasoning": null,
+          "facts_reasoning_options": []
+        }
+      },
+      "host_home_after_refresh": {
+        "probe": "POST /v1/providers/deepseek/models/refresh, then GET again",
+        "refresh": {
+          "source": "provider_models",
+          "outcome": "updated",
+          "status": "fresh",
+          "model_count": 2
+        },
+        "deepseek_flash": {
+          "reasoning_effort": "unknown",
+          "reasoning_effort_levels": [],
+          "facts_effective_limits": {},
+          "facts_effective_context_source": "fallback"
+        },
+        "note": "A successful refresh narrows the roster to the two configured offerings and still reports no ladder."
+      },
+      "isolated_home_no_roster_cache": {
+        "probe": "Same binary, isolated HOME and CODEWHALE_HOME with the Models.dev cache copied but no provider roster cache",
+        "deepseek_flash": {
+          "reasoning_effort": "supported",
+          "reasoning_effort_levels": [
+            "low",
+            "high",
+            "max"
+          ],
+          "reasoning_effort_source": "catalog",
+          "facts_canonical_model_id": "deepseek/deepseek-v4.1-flash-1017",
+          "facts_reasoning_options_source_kind": "models_dev_live"
+        }
+      },
+      "isolated_home_with_roster_cache": {
+        "probe": "Same isolated home with the host's provider roster cache copied in, its timestamps refreshed",
+        "deepseek_flash": {
+          "reasoning_effort": "unknown",
+          "reasoning_effort_levels": [],
+          "facts_source_kind": "live"
+        },
+        "note": "Reproduces the host behaviour from the roster cache alone, which isolates the cause to the engine's live projection."
+      }
+    },
+    "cause": "The live roster row carries no canonical model id, so the Models.dev metadata cannot be joined. The engine still holds the metadata and publishes it when the live roster is absent.",
+    "mona_mitigation_shipped": "src/main/work/reasoning.ts reads the engine's own Models.dev cache for the exact provider/model, labels the result as metadata, uses it only for a first-party route, and offers only the values it publishes."
+  },
+  "question_two": {
+    "ask": "Does any documented surface report the effective reasoning setting after a turn?",
+    "answer": "No. One tool-free turn with an explicit level was executed and every documented read surface was inspected.",
+    "live_turn": {
+      "thread_record_reasoning_effort": "low",
+      "turn_status": "completed",
+      "turn_record_keys": [
+        "created_at",
+        "duration_ms",
+        "effective_billing_mode",
+        "effective_billing_surface",
+        "effective_dispatched_at",
+        "effective_endpoint_fingerprint",
+        "effective_model",
+        "effective_provider",
+        "effective_provider_id",
+        "effective_route_usage",
+        "ended_at",
+        "id",
+        "input_summary",
+        "item_ids",
+        "mode",
+        "modelRequestDiagnostics",
+        "permission_posture",
+        "routing_settlement",
+        "schema_version",
+        "started_at",
+        "status",
+        "steer_count",
+        "thread_id",
+        "usage",
+        "workspace",
+        "workspace_snapshots"
+      ],
+      "model_request_diagnostics": {
+        "modelRequestsStarted": 1,
+        "transportRetries": 0,
+        "transparentStreamRetries": 0,
+        "streamResumes": 0,
+        "reasoningOnlyReprompts": 0,
+        "emptyStopRetries": 0
+      },
+      "reasoning_tokens_reported": 0
+    },
+    "surfaces_probed": [
+      {
+        "surface": "GET /v1/threads/{id} (thread + turns)",
+        "effective_reasoning": null
+      },
+      {
+        "surface": "turn.completed event payload",
+        "effective_reasoning": null
+      },
+      {
+        "surface": "turn.provider_request event payload",
+        "effective_reasoning": null
+      },
+      {
+        "surface": "GET /v1/threads/{id}/turns/{turn_id}/receipt",
+        "effective_reasoning": null
+      },
+      {
+        "surface": "codewhale receipts --last --format json",
+        "effective_reasoning": null
+      },
+      {
+        "surface": "GET /v1/threads/{id}/usage",
+        "effective_reasoning": null
+      },
+      {
+        "surface": "GET /v1/threads/{id}/context",
+        "effective_reasoning": null
+      },
+      {
+        "surface": "GET /v1/sessions",
+        "effective_reasoning": null
+      },
+      {
+        "surface": "codewhale metrics and metrics --json",
+        "effective_reasoning": null
+      },
+      {
+        "surface": "GET /v1/settings/schema",
+        "effective_reasoning": null,
+        "note": "Publishes only the route-independent enum: auto, off, minimal, low, medium, high, xhigh, ultra, max."
+      },
+      {
+        "surface": "GET /v1/providers/{id}/models",
+        "effective_reasoning": null
+      },
+      {
+        "surface": "codewhale scorecard",
+        "effective_reasoning": null,
+        "note": "Requires a recorded-metrics file as input; it scores supplied data rather than reading a live turn."
+      },
+      {
+        "surface": "codewhale session-diagnostics <jsonl>",
+        "effective_reasoning": null,
+        "note": "Summarizes failure signals from a saved session log; it does not report route or reasoning settings."
+      }
+    ],
+    "field_name_only": {
+      "observed": "The identifier `effective_reasoning_effort` exists in the binary and in a static field-name descriptor embedded in session documents.",
+      "not_observed": "No live value for it was produced by, or readable from, any API route, CLI output, or event on this build."
+    },
+    "consequence": "Mona reports the requested value and shows effective as unknown with that source. It does not infer the effective value from the request or from reasoning_tokens."
+  },
+  "cleanup": {
+    "probe_threads_archived": true,
+    "temporary_workspace_removed": true,
+    "provider_or_model_changed": false,
+    "engine_upgraded": false,
+    "credentials_read_or_written": false
+  }
+}

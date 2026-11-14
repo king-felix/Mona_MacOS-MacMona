@@ -566,6 +566,15 @@ const bridge: MonaBridge = {
     expectedRevision: number,
   ): Promise<IpcResult<{ receipt: RouteChangeReceipt; snapshot: SettingsSnapshot }>> =>
     ipcRenderer.invoke("settings:reset-default", { projectId, expectedRevision }),
+  setReasoningDisplay: (input: {
+    projectId: ProjectId;
+    showReasoning: boolean;
+  }): Promise<
+    IpcResult<{
+      receipt: { persisted: boolean; showReasoning: boolean; note: string };
+      snapshot: SettingsSnapshot;
+    }>
+  > => ipcRenderer.invoke("settings:set-reasoning-display", input),
   switchEngineRoute: (input: {
     projectId: ProjectId;
     provider: string;

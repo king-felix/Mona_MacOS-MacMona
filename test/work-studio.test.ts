@@ -10,6 +10,7 @@ import type { SupervisorStopReceipt } from "../src/main/supervisor/native";
 import type { OwnedEndpoint, RuntimeStatus } from "../src/main/supervisor/runtime-supervisor";
 import { WorkController } from "../src/main/work/control";
 import { WorkStudio, StudioError, type StudioSupervisor } from "../src/main/work/studio";
+import { PROFILE_SCOPE, REASONING_DISPLAY_SCOPE } from "../src/main/work/profile";
 import { CostLedger } from "../src/main/work/costs";
 import type { ProjectId, StudioPush } from "../src/shared/contracts";
 import {
@@ -256,6 +257,158 @@ describe("live studio: start and submission", () => {
     expect(binding?.state).toBe("running");
     expect(harness.transport.count("POST", "/v1/threads")).toBe(0);
     expect(harness.transport.count("POST", "/turns")).toBe(0);
+  });
+
+  it("carries the saved reasoning default into a new thread and every turn", async () => {
+    const harness = await setup();
+    await harness.store.putSettings(PROFILE_SCOPE, {
+      provider: "deepseek",
+      exactId: null,
+      model: "deepseek-flash",
+      reasoningEffort: "max",
+      permissionPosture: "full_access",
+      autoApprove: true,
+      trustMode: true,
+      allowShell: true,
+    });
+    await harness.studio.start(harness.project.id as ProjectId);
+    const snapshot = await harness.studio.snapshot(harness.project.id as ProjectId);
+    expect(snapshot.profile.reasoningEffort).toBe("max");
+
+    await harness.studio.submit(harness.project.id as ProjectId, {
+      prompt: "Reply with exactly: pong",
+      mode: "work",
+    });
+    const threadBody = harness.transport.calls.find(
+      (call) => call.method === "POST" && call.path === "/v1/threads",
+    )?.body as Record<string, unknown>;
+    expect(threadBody.reasoning_effort).toBe("max");
+    const turnBody = harness.transport.calls.find(
+      (call) => call.method === "POST" && call.path.endsWith("/turns"),
+    )?.body as Record<string, unknown>;
+    expect(turnBody.reasoning_effort).toBe("max");
+  });
+
+  it("surfaces an engine-reported effective reasoning value on the completed turn", async () => {
+    const info = await fixture<Record<string, unknown>>("runtime-info.json");
+    const accepted = await fixture<Record<string, unknown>>("turn-accepted.json");
+    // The handler runs only after setup() returns, so the project path is known
+    // by then; the thread read must report the project's workspace or the
+    // studio's workspace fence correctly refuses it.
+    let projectPath = "";
+    const harness = await setup({
+      handler: (method, path) => {
+        if (method === "GET" && path === "/v1/runtime/info") return jsonResponse(200, info);
+        if (method === "POST" && path === "/v1/threads") {
+          return jsonResponse(201, {
+            id: THREAD,
+            workspace: projectPath,
+            model: "deepseek-flash",
+          });
+        }
+        if (method === "POST" && path.endsWith("/turns")) return jsonResponse(201, accepted);
+        if (method === "GET" && path.startsWith("/v1/threads/")) {
+          return jsonResponse(200, {
+            thread: { id: THREAD, workspace: projectPath, model: "deepseek-flash" },
+            turns: [
+              {
+                ...accepted,
+                thread_id: THREAD,
+                status: "completed",
+                // Stands in for an engine that reports the value this build does not emit.
+                effective_reasoning_effort: "high",
+                effective_reasoning_source: "requested",
+                usage: { input_tokens: 10, output_tokens: 2, reasoning_tokens: 128 },
+              },
+            ],
+          });
+        }
+        if (method === "GET" && path.startsWith("/v1/usage")) {
+          return jsonResponse(200, { totals: { input_tokens: 10, output_tokens: 2, turns: 1 } });
+        }
+        return jsonResponse(404, {});
+      },
+    });
+    projectPath = harness.project.canonicalPath;
+    await harness.studio.start(harness.project.id as ProjectId);
+    await harness.studio.submit(harness.project.id as ProjectId, { prompt: "x", mode: "work" });
+    await waitFor(
+      async () =>
+        (await harness.studio.snapshot(harness.project.id as ProjectId)).profile.effective !== null,
+    );
+    const snapshot = await harness.studio.snapshot(harness.project.id as ProjectId);
+    expect(snapshot.profile.effective?.reasoningEffort).toBe("high");
+    expect(snapshot.profile.effective?.reasoningSource).toBe("requested");
+    expect(snapshot.profile.effective?.reasoningTokens).toBe(128);
+  });
+
+  it("sends the declared auto setting when nothing else is stored", async () => {
+    // The shipped default declares `auto` (D-110): the thread and the turn carry
+    // it explicitly, so the setting is stated rather than left to the engine's
+    // ambient config.
+    const harness = await setup();
+    await harness.studio.start(harness.project.id as ProjectId);
+    const snapshot = await harness.studio.snapshot(harness.project.id as ProjectId);
+    expect(snapshot.profile.reasoningEffort).toBe("auto");
+    await harness.studio.submit(harness.project.id as ProjectId, { prompt: "x", mode: "work" });
+    const threadBody = harness.transport.calls.find(
+      (call) => call.method === "POST" && call.path === "/v1/threads",
+    )?.body as Record<string, unknown>;
+    expect(threadBody.reasoning_effort).toBe("auto");
+    const turnBody = harness.transport.calls.find(
+      (call) => call.method === "POST" && call.path.endsWith("/turns"),
+    )?.body as Record<string, unknown>;
+    expect(turnBody.reasoning_effort).toBe("auto");
+  });
+
+  it("keeps the running session's reasoning when the saved default changes", async () => {
+    const harness = await setup();
+    await harness.store.putSettings(PROFILE_SCOPE, {
+      provider: "deepseek",
+      exactId: null,
+      model: "deepseek-flash",
+      reasoningEffort: "high",
+      permissionPosture: "full_access",
+      autoApprove: true,
+      trustMode: true,
+      allowShell: true,
+    });
+    await harness.studio.start(harness.project.id as ProjectId);
+    await harness.studio.submit(harness.project.id as ProjectId, { prompt: "one", mode: "work" });
+    await waitFor(
+      async () =>
+        (await harness.studio.snapshot(harness.project.id as ProjectId)).activeTurnId === null,
+    );
+
+    // A new saved default applies to new sessions; the running session keeps
+    // the reasoning it started with, exactly as it keeps its route.
+    await harness.store.putSettings(PROFILE_SCOPE, {
+      provider: "deepseek",
+      exactId: null,
+      model: "deepseek-flash",
+      reasoningEffort: "max",
+      permissionPosture: "full_access",
+      autoApprove: true,
+      trustMode: true,
+      allowShell: true,
+    });
+    await harness.studio.submit(harness.project.id as ProjectId, { prompt: "two", mode: "work" });
+    const turnBodies = harness.transport.calls
+      .filter((call) => call.method === "POST" && call.path.endsWith("/turns"))
+      .map((call) => call.body as Record<string, unknown>);
+    expect(turnBodies).toHaveLength(2);
+    expect(turnBodies[1]?.reasoning_effort).toBe("high");
+  });
+
+  it("reads Mona's transcript preference and never sends it to the engine", async () => {
+    const harness = await setup();
+    await harness.store.putSettings(REASONING_DISPLAY_SCOPE, { showReasoning: false });
+    await harness.studio.start(harness.project.id as ProjectId);
+    const snapshot = await harness.studio.snapshot(harness.project.id as ProjectId);
+    expect(snapshot.display.showReasoning).toBe(false);
+    await harness.studio.submit(harness.project.id as ProjectId, { prompt: "x", mode: "work" });
+    const sent = JSON.stringify(harness.transport.calls.map((call) => call.body ?? null));
+    expect(sent).not.toContain("showReasoning");
   });
 
   it("persists intent, streams events, records usage, and reaches a real terminal state", async () => {

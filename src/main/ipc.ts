@@ -502,6 +502,10 @@ export function registerIpc(rendererRoot: string, dependencies: IpcDependencies)
     const value = input as Parameters<RouteWorkbench["resetDefault"]>[0];
     return envelope(() => requireSettings().resetDefault(value));
   });
+  handle("settings:set-reasoning-display", (input) => {
+    const value = input as Parameters<RouteWorkbench["setReasoningDisplay"]>[0];
+    return envelope(() => requireSettings().setReasoningDisplay(value));
+  });
   handle("settings:switch-engine", (input) => {
     const value = input as Parameters<RouteWorkbench["switchEngineRoute"]>[0];
     return envelope(() => requireSettings().switchEngineRoute(value));

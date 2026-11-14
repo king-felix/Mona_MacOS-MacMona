@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "label": "Reasoning live check — pinned engine 0.10.2",
+  "captured_at": "2026-11-14T20:24:50Z",
+  "engine": {
+    "version": "0.10.2",
+    "commit": "ff466b2ed0bfb4ae5267d4d8d0ecb562cf46956e",
+    "binary": "/opt/homebrew/lib/node_modules/codewhale/bin/downloads/codewhale"
+  },
+  "route": {
+    "provider": "deepseek",
+    "model": "deepseek-flash",
+    "endpoint": "https://api.deepseek.com/beta",
+    "engine_config_reasoning_effort": "auto",
+    "unchanged": true
+  },
+  "observations": {
+    "live_catalog": {
+      "request_count_returned": 23,
+      "deepseek_flash": {
+        "reasoning_effort": "unknown",
+        "reasoning_effort_levels": [],
+        "reasoning_effort_source": null,
+        "facts_source": "live",
+        "facts_reasoning": null,
+        "facts_reasoning_options": [],
+        "canonical_model_id": null
+      },
+      "note": "GET /v1/providers/deepseek/models on the user's own home, read-only."
+    },
+    "thread_create_validation": {
+      "reasoning_effort_bogus": {
+        "status": 400,
+        "error": "Unrecognized reasoning effort \"bogus\". Expected one of: auto, off, minimal, low, medium, high, xhigh, ultra, or max."
+      },
+      "reasoning_effort_off": {
+        "status": 201,
+        "thread_record_reasoning_effort": "off"
+      },
+      "reasoning_effort_low": {
+        "status": 201,
+        "thread_record_reasoning_effort": "low"
+      },
+      "note": "The runtime validates the canonical vocabulary and echoes an accepted value on the thread record. Acceptance is not proof of the wire mapping."
+    },
+    "turn_with_explicit_low": {
+      "thread_id": "thr_abd30950425c4a569eb6ead5cd7fd9ed",
+      "turn_id": "turn_0f14847db23f4b0891b5cdafa1b31fff",
+      "thread_record_reasoning_effort": "low",
+      "status": "completed",
+      "effective_provider": "deepseek",
+      "effective_model": "deepseek-flash",
+      "effective_billing_surface": "first-party-payg",
+      "wire_dialect": "openai-responses",
+      "wire_model": "deepseek-flash",
+      "usage": {
+        "input_tokens": 4247,
+        "output_tokens": 2,
+        "reasoning_tokens": 0,
+        "prompt_cache_hit_tokens": 0
+      },
+      "provider_request_receipt_fields": [
+        "request_index",
+        "prefix_check",
+        "reused_preparation",
+        "wire_observations[provider_id, route_id, endpoint_fingerprint, wire_model, wire_dialect, tools]",
+        "usage",
+        "outcome",
+        "transport_retries",
+        "elapsed_ms"
+      ],
+      "effective_reasoning_reported": null,
+      "note": "One tool-free turn with prompt 'Reply with exactly: ok' in a temporary workspace. The runtime accepted and stored the requested level but its documented provider_request receipt carries no effective reasoning field, so the effective setting is unknown."
+    }
+  },
+  "artifacts_left_behind": {
+    "threads_archived": [
+      "thr_33a7966a900147bc8555312e6b42a6cc",
+      "thr_abd30950425c4a569eb6ead5cd7fd9ed"
+    ],
+    "workspace_removed": "/tmp/mona-rcheck",
+    "provider_or_model_changed": false,
+    "engine_upgraded": false
+  }
+}

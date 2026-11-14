@@ -39,6 +39,11 @@ for (const script of [
   "smoke:polish",
   "smoke:agents",
   "smoke:settings",
+  // Reasoning controls (D-108). The pinned engine's live roster shadow answers
+  // `reasoning_effort: unknown` while its own Models.dev metadata publishes the
+  // ladder; this check reproduces both sources in an isolated home and proves
+  // Mona offers only what is published. No turn, no provider charge.
+  "smoke:reasoning",
   "smoke:extensions",
   "smoke:terminal",
   "smoke:capability",

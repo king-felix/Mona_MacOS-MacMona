@@ -309,6 +309,13 @@ export interface MonaBridge {
     projectId: ProjectId,
     expectedRevision: number,
   ): Promise<IpcResult<{ receipt: RouteChangeReceipt; snapshot: SettingsSnapshot }>>;
+  /** Mona's transcript preference. Display only; never sent to the engine. */
+  setReasoningDisplay(input: { projectId: ProjectId; showReasoning: boolean }): Promise<
+    IpcResult<{
+      receipt: { persisted: boolean; showReasoning: boolean; note: string };
+      snapshot: SettingsSnapshot;
+    }>
+  >;
   switchEngineRoute(input: {
     projectId: ProjectId;
     provider: string;

@@ -1408,8 +1408,9 @@ export function StudioScreen(props: StudioProps): JSX.Element {
       projectTimeline(events, {
         historyComplete,
         completeItems: new Set(completeItemKey === "" ? [] : completeItemKey.split("|")),
+        showReasoning: studio?.display?.showReasoning ?? true,
       }),
-    [events, historyComplete, completeItemKey],
+    [events, historyComplete, completeItemKey, studio?.display?.showReasoning],
   );
 
   // R08: the strip is a read over the same stored frames the console shows.

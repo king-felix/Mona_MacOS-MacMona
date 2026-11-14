@@ -13,7 +13,11 @@ export interface ExecutionProfile {
   /** Exact configured route identity for a named custom provider, else null. */
   exactId: string | null;
   model: string;
-  reasoningEffort?: string;
+  /**
+   * Always present. `auto` is the declared default (D-110): the engine's own
+   * default value, sent explicitly so the setting is stated rather than implied.
+   */
+  reasoningEffort: string;
   permissionPosture: "full_access" | "ask";
   autoApprove: boolean;
   trustMode: boolean;
@@ -22,10 +26,27 @@ export interface ExecutionProfile {
 
 export const PROFILE_SCOPE = "engine:profile";
 
+/**
+ * Mona's transcript preference for engine-reported reasoning. It is a display
+ * choice only: it is never sent to the engine and never changes thinking or
+ * effort. It is stored beside the execution profile because both belong to the
+ * user's local, durable workbench settings.
+ */
+export const REASONING_DISPLAY_SCOPE = "ui:reasoning-display";
+
+/**
+ * The declared reasoning setting. `auto` is the engine's own default: its auto
+ * selector chooses a concrete tier for each turn. Mona states it rather than
+ * leaving the field out, so the setting is never "whatever the engine happened
+ * to have configured", and the screen can declare one unambiguous value.
+ */
+export const DECLARED_REASONING_EFFORT = "auto";
+
 export const DEFAULT_EXECUTION_PROFILE: ExecutionProfile = {
   provider: "deepseek",
   exactId: null,
   model: "deepseek-flash",
+  reasoningEffort: DECLARED_REASONING_EFFORT,
   permissionPosture: "full_access",
   autoApprove: true,
   trustMode: true,
@@ -35,6 +56,21 @@ export const DEFAULT_EXECUTION_PROFILE: ExecutionProfile = {
 export interface LoadedProfile {
   profile: ExecutionProfile;
   source: "configured" | "default";
+}
+
+/**
+ * Read the transcript preference. The default is "show", which is what Mona did
+ * before the preference existed, so an upgrade never hides reasoning a reader
+ * has been seeing.
+ */
+export async function loadReasoningDisplay(store: StateStore): Promise<boolean> {
+  const stored = await store.getSettings(REASONING_DISPLAY_SCOPE).catch(() => null);
+  const value = stored?.value;
+  if (value && typeof value === "object" && !Array.isArray(value)) {
+    const show = (value as { showReasoning?: unknown }).showReasoning;
+    if (typeof show === "boolean") return show;
+  }
+  return true;
 }
 
 const PROVIDER = /^[a-z0-9][a-z0-9-]{0,63}$/;
@@ -59,9 +95,12 @@ export function parseExecutionProfile(value: unknown): ExecutionProfile | null {
     provider,
     exactId,
     model,
-    ...(typeof reasoningEffort === "string" && reasoningEffort.length > 0
-      ? { reasoningEffort }
-      : {}),
+    // A stored level is honoured; an absent one becomes the declared default
+    // rather than staying undefined, so what is displayed is always what is sent.
+    reasoningEffort:
+      typeof reasoningEffort === "string" && reasoningEffort.length > 0
+        ? reasoningEffort
+        : DECLARED_REASONING_EFFORT,
     permissionPosture: posture,
     autoApprove: fullAccess && value.autoApprove !== false,
     trustMode: fullAccess && value.trustMode !== false,
@@ -76,7 +115,22 @@ export function parseExecutionProfile(value: unknown): ExecutionProfile | null {
 export async function loadExecutionProfile(store: StateStore): Promise<LoadedProfile> {
   const stored = await store.getSettings(PROFILE_SCOPE);
   const parsed = stored ? parseExecutionProfile(stored.value) : null;
-  if (parsed) return { profile: parsed, source: "configured" };
+  if (parsed) {
+    // Declare the reasoning setting on disk once, for a profile saved before it
+    // was part of the profile. The displayed value is then the stored value, the
+    // same rule the measured default already follows.
+    const storedValue = stored?.value as { reasoningEffort?: unknown } | null | undefined;
+    if (typeof storedValue?.reasoningEffort !== "string") {
+      await store.putSettings(PROFILE_SCOPE, {
+        ...(stored?.value as object),
+        ...parsed,
+        declaredAt: new Date().toISOString(),
+        declaredNote:
+          "Reasoning setting declared as auto (the engine's own default); no stored value existed.",
+      });
+    }
+    return { profile: parsed, source: "configured" };
+  }
   await store.putSettings(PROFILE_SCOPE, {
     ...DEFAULT_EXECUTION_PROFILE,
     configuredAt: new Date().toISOString(),
@@ -125,7 +179,7 @@ export function profileView(
     provider: profile.provider,
     exactId: profile.exactId,
     model: profile.model,
-    reasoningEffort: profile.reasoningEffort ?? null,
+    reasoningEffort: profile.reasoningEffort,
     permissionPosture: profile.permissionPosture,
     autoApprove: profile.autoApprove,
     trustMode: profile.trustMode,

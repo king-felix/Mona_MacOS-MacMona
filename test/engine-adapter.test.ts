@@ -101,6 +101,99 @@ describe("threads and submissions", () => {
     expect(body.model).toBeUndefined();
   });
 
+  it("carries a saved reasoning default on the thread, and omits it when unset", async () => {
+    const withDefault = await makeAdapter();
+    await withDefault.adapter.createOrOpenThread({
+      workspace: "/Users/example/projects/demo",
+      title: "Reasoning fixture",
+      reasoningEffort: "max",
+    });
+    const first = withDefault.transport.calls.find((call) => call.path === "/v1/threads")
+      ?.body as Json;
+    expect(first.reasoning_effort).toBe("max");
+
+    const without = await makeAdapter();
+    await without.adapter.createOrOpenThread({
+      workspace: "/Users/example/projects/demo",
+      title: "Reasoning fixture",
+    });
+    const second = without.transport.calls.find((call) => call.path === "/v1/threads")
+      ?.body as Json;
+    expect(second.reasoning_effort).toBeUndefined();
+  });
+
+  it("reads an effective reasoning value when an engine reports one, and leaves it absent otherwise", async () => {
+    const info = await fixture<Json>("runtime-info.json");
+    const accepted = await fixture<Json>("turn-accepted.json");
+    // `turn-accepted.json` is the turn record itself.
+    const reported = { ...accepted, effective_reasoning_effort: "high" };
+    const silent = { ...accepted };
+    for (const [label, turnFixture, expected] of [
+      ["reported", reported, "high"],
+      ["silent", silent, undefined],
+    ] as const) {
+      const turn = turnFixture as Json;
+      const transport = new FixtureTransport((method: string, path: string) => {
+        if (method === "GET" && path === "/v1/runtime/info") return jsonResponse(200, info);
+        if (method === "GET" && path.startsWith("/v1/threads/"))
+          return jsonResponse(200, {
+            thread: {
+              id: THREAD,
+              workspace: "/Users/example/projects/demo",
+              model: "deepseek-flash",
+            },
+            turns: [{ ...turn, thread_id: THREAD }],
+          });
+        return jsonResponse(404, {});
+      });
+      const adapter = new CodewhaleAdapter({ transport, store: new MemorySubmissionStore() });
+      const profile = await adapter.getEffectiveProfile({
+        threadId: THREAD,
+        requested: { provider: "deepseek", exactId: null, model: "deepseek-flash" },
+      });
+      expect(profile.effective.model).toBe("deepseek-flash");
+      expect(profile.effective.reasoningEffort).toBe(expected);
+      if (label === "silent") {
+        // Silence is not "off": the identity simply omits the field.
+        expect(profile.effective).not.toHaveProperty("reasoningEffort");
+      }
+    }
+  });
+
+  it("sends the reasoning level on the turn only when one is requested", async () => {
+    const info = await fixture<Json>("runtime-info.json");
+    const accepted = await fixture<Json>("turn-accepted.json");
+    const bodies: Json[] = [];
+    const transport = new FixtureTransport((method, path, body) => {
+      if (method === "GET" && path === "/v1/runtime/info") return jsonResponse(200, info);
+      if (method === "POST" && path.endsWith("/turns")) {
+        bodies.push(body as Json);
+        return jsonResponse(201, accepted);
+      }
+      return jsonResponse(404, {});
+    });
+    const adapter = new CodewhaleAdapter({ transport, store: new MemorySubmissionStore() });
+    await adapter.submitTurn({
+      threadId: THREAD,
+      prompt: "with a level",
+      operationKey: KEY,
+      requested: {
+        provider: "deepseek",
+        exactId: null,
+        model: "deepseek-flash",
+        reasoningEffort: "max",
+      },
+    });
+    await adapter.submitTurn({
+      threadId: THREAD,
+      prompt: "inherit",
+      operationKey: "cwc-op-inherit-0001" as OperationKey,
+      requested: { provider: "deepseek", exactId: null, model: "deepseek-flash" },
+    });
+    expect(bodies[0]?.reasoning_effort).toBe("max");
+    expect(bodies[1]).not.toHaveProperty("reasoning_effort");
+  });
+
   it("persists submission intent before transmission and sends the prompt unchanged", async () => {
     let persistedAtPost = false;
     let sentPrompt: string | null = null;

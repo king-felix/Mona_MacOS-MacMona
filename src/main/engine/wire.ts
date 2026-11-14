@@ -35,6 +35,13 @@ export const WireTurn = z.looseObject({
   effective_provider: z.string().nullable().optional(),
   effective_model: z.string().nullable().optional(),
   permission_posture: z.string().nullable().optional(),
+  /**
+   * Optional because the pinned 0.10.2 build does not emit it. A later engine
+   * that reports the reasoning setting it actually used is read here verbatim;
+   * its absence stays "not reported", never "off".
+   */
+  effective_reasoning_effort: z.string().nullable().optional(),
+  effective_reasoning_source: z.string().nullable().optional(),
   usage: WireUsage.optional(),
 });
 export type WireTurn = z.infer<typeof WireTurn>;

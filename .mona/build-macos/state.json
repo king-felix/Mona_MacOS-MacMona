@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 1388,
+  "revision": 1453,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -58,7 +58,7 @@
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
-          "sha256": "65d6fc2cf67207508c469010251a5825a167cc206c7f952fe6ed64c0ef9487ba",
+          "sha256": "8c5eb2000da0f4bb4f359e0a49fd1c71576a4200b31fcc45f27b71d88eb36b80",
           "note": "R12 2026-11-14: re-recorded after the generated coverage block was reconciled with R07's own row statement for MONA-CAP-052 (the row said the reply routes are wired and verified; the generated coverage reason still said answering an approval had no IPC path). `smoke:capability` is green again (17/17) and `npm run ci` passed 22/22 steps on these bytes. No requirement status was lowered and no assertion was removed."
         },
         {
@@ -84,7 +84,7 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "65f497ff36047550a1bd132fde25d865462c4d7070a1436363578534a0565f04",
+          "sha256": "3a25e5808e8629c294c4bb419cb0a8dda6b58c6a7bc409c078c3f838d69eab86",
           "note": "2026-11-14 (D-107): re-recorded after the install path became one command (npm run mac:install / build.mjs --install) and the DMG was demoted to on-request. Shared files changed: package.json, packaging/macos/build.mjs, packaging/macos/README.md, AGENTS.md, the owner guide and the ledger. npm run ci passed on these bytes; no assertion was removed and no requirement was raised."
         },
         {
@@ -161,7 +161,7 @@
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
-          "sha256": "65d6fc2cf67207508c469010251a5825a167cc206c7f952fe6ed64c0ef9487ba",
+          "sha256": "8c5eb2000da0f4bb4f359e0a49fd1c71576a4200b31fcc45f27b71d88eb36b80",
           "note": "R12 2026-11-14: re-recorded after the generated coverage block was reconciled with R07's own row statement for MONA-CAP-052 (the row said the reply routes are wired and verified; the generated coverage reason still said answering an approval had no IPC path). `smoke:capability` is green again (17/17) and `npm run ci` passed 22/22 steps on these bytes. No requirement status was lowered and no assertion was removed."
         },
         {
@@ -239,7 +239,7 @@
         },
         {
           "path": "package.json",
-          "sha256": "7c0949e239b0798dcbd37c2104883832ded22ed384b91d0e76072aef38ed2af1",
+          "sha256": "4105c373d561b493333db5c597fffef625d2bab16b50ecb924bb3dd4bd9575c5",
           "note": "2026-11-14 (D-107): re-recorded after the install path became one command (npm run mac:install / build.mjs --install) and the DMG was demoted to on-request. Shared files changed: package.json, packaging/macos/build.mjs, packaging/macos/README.md, AGENTS.md, the owner guide and the ledger. npm run ci passed on these bytes; no assertion was removed and no requirement was raised."
         },
         {
@@ -270,7 +270,7 @@
         },
         {
           "path": "scripts/ci.mjs",
-          "sha256": "d32becce884d7a6b9ac0901652ab499c0bc07c451e867dc2177fa3a5e917e3d8",
+          "sha256": "05bcef39a5d29aa50f3c9062091594f2b4b009dbe534927997c2fc6672fc0e23",
           "note": "R13/R14 2026-11-14: re-recorded after the review queue changed these shared files (Studio card-identity history anchor, the history smoke in ci.mjs, and R13's build-manifest source commit). npm run ci passed 24/24 steps (1,121 tests in 101 files) on these bytes; no assertion was removed and no requirement status was lowered."
         },
         {
@@ -292,17 +292,17 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "7e2f1e8e03c4f58fd3f1c523771756004cf863919ded64e51765dd7ce3ef3e93",
+          "sha256": "e05d11410022fcc0efa307dd81330ed5d8f7b5ddefa90f36ef254deeaa39879a",
           "note": "2026-11-14 local-distribution pass (D-103/104/105): re-recorded after the owner decided the distribution tier (local .pkg + .dmg, no Developer ID), the OS claim (14.0 declared, 26.5.1 tested) and the Git dependency (documented, not bundled). Shared files changed: package.json (mac:package:dmg), packaging/macos/{build.mjs,dmg.mjs,README.md}, src/main/index.ts (settled smoke waits), scripts/r13-candidate-verify.mjs (source_dirty), tools/monabuild (skipped prerequisites), the ledgers and the guides. No assertion was removed and no requirement was raised."
         },
         {
           "path": "src/main/ipc-contract.ts",
-          "sha256": "94dae8b540ab02d4ab75652933ef5e9cf825f0215cd05d46b5f0b155eede5698",
+          "sha256": "19c14843110b971ea35b267c345977558ebd965acabc0b586c0ca806e91c5f42",
           "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/ipc.ts",
-          "sha256": "94fb20bb8c3000f7ef03be4c6f87397e33cbd28ae3e55876f872023130e6215d",
+          "sha256": "b4906a9f8c8962370dd177b8db7c47a39498673d91a347e2d137622e483f5846",
           "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
@@ -332,7 +332,7 @@
         },
         {
           "path": "src/preload/index.ts",
-          "sha256": "e210a862a9933516d3b4421a3c524a87788293514ea473bd18bd5890247b2b84",
+          "sha256": "52116592be556c7d04126dff82ca546ab82adc606423f7f3d8fc6b5b279c2b68",
           "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
@@ -359,7 +359,7 @@
         },
         {
           "path": "src/shared/contracts/bridge.ts",
-          "sha256": "1da9e8b9adbd286426631cbb120c9a15f3c500c7dd9d822fd96e0e5593923bfa",
+          "sha256": "ba45455a085abac8d7a0d4e9f8038213e06d47d82b84a276e57a5da696163a63",
           "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
@@ -484,7 +484,7 @@
         },
         {
           "path": "src/main/engine/adapter.ts",
-          "sha256": "c79f4f7a143de90ef991d596ae49b199c60d2c485db4d9114aefa2d92b710ac3",
+          "sha256": "a399da8cb84c64e715b860143100d1cb00a8ba576faf1ab003a291ff7e9134d3",
           "note": "R04 changed this shared file (typed command execution IPC, thread generations, command operations) after the earlier verification. Re-recorded after the full 935-test suite and the isolated live command smoke passed. No assertion was removed and no requirement status was lowered. | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
         },
         {
@@ -522,12 +522,12 @@
         },
         {
           "path": "src/main/engine/types.ts",
-          "sha256": "ae934a309a1371dc953180c66c46ad8b5921d976521d3380b4c412b06ee2f52c",
+          "sha256": "04c66f167f6eb21071fb850b689077917260dc89d60098e994dbdd1e746644cf",
           "note": "R04 changed this shared file (typed command execution IPC, thread generations, command operations) after the earlier verification. Re-recorded after the full 935-test suite and the isolated live command smoke passed. No assertion was removed and no requirement status was lowered. | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/engine/wire.ts",
-          "sha256": "525faa642d75b77736bca073053cd225ae91d26d74dedea8ec92a952edcfa018",
+          "sha256": "0ac8b0aa9b405233f15da40fd2775cb47fd5d826b9f8e7dbb0982ed6c361a980",
           "note": "P15 re-recorded this shared artifact after legitimate changes (new Agents screen, 7-item rail, orchestration IPC, migration v7); its assertions still pass in the P15 CI run"
         },
         {
@@ -561,7 +561,7 @@
         },
         {
           "path": "test/engine-adapter.test.ts",
-          "sha256": "6d7e08e417fab41b3513e94fff90567149c2872956fa564dfb08f6a7a5323d48"
+          "sha256": "903b4fa40b51ac850eeb9d999d89de26e33aac7244ed3d3db72c053a7383cbb8"
         },
         {
           "path": "test/helpers/fixture-transport.ts",
@@ -573,12 +573,12 @@
         },
         {
           "path": "package.json",
-          "sha256": "7c0949e239b0798dcbd37c2104883832ded22ed384b91d0e76072aef38ed2af1",
+          "sha256": "4105c373d561b493333db5c597fffef625d2bab16b50ecb924bb3dd4bd9575c5",
           "note": "2026-11-14 (D-107): re-recorded after the install path became one command (npm run mac:install / build.mjs --install) and the DMG was demoted to on-request. Shared files changed: package.json, packaging/macos/build.mjs, packaging/macos/README.md, AGENTS.md, the owner guide and the ledger. npm run ci passed on these bytes; no assertion was removed and no requirement was raised."
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
-          "sha256": "65d6fc2cf67207508c469010251a5825a167cc206c7f952fe6ed64c0ef9487ba",
+          "sha256": "8c5eb2000da0f4bb4f359e0a49fd1c71576a4200b31fcc45f27b71d88eb36b80",
           "note": "R12 2026-11-14: re-recorded after the generated coverage block was reconciled with R07's own row statement for MONA-CAP-052 (the row said the reply routes are wired and verified; the generated coverage reason still said answering an approval had no IPC path). `smoke:capability` is green again (17/17) and `npm run ci` passed 22/22 steps on these bytes. No requirement status was lowered and no assertion was removed."
         },
         {
@@ -666,7 +666,7 @@
         },
         {
           "path": "scripts/ci.mjs",
-          "sha256": "d32becce884d7a6b9ac0901652ab499c0bc07c451e867dc2177fa3a5e917e3d8",
+          "sha256": "05bcef39a5d29aa50f3c9062091594f2b4b009dbe534927997c2fc6672fc0e23",
           "note": "R13/R14 2026-11-14: re-recorded after the review queue changed these shared files (Studio card-identity history anchor, the history smoke in ci.mjs, and R13's build-manifest source commit). npm run ci passed 24/24 steps (1,121 tests in 101 files) on these bytes; no assertion was removed and no requirement status was lowered."
         },
         {
@@ -704,7 +704,7 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "7e2f1e8e03c4f58fd3f1c523771756004cf863919ded64e51765dd7ce3ef3e93",
+          "sha256": "e05d11410022fcc0efa307dd81330ed5d8f7b5ddefa90f36ef254deeaa39879a",
           "note": "2026-11-14 local-distribution pass (D-103/104/105): re-recorded after the owner decided the distribution tier (local .pkg + .dmg, no Developer ID), the OS claim (14.0 declared, 26.5.1 tested) and the Git dependency (documented, not bundled). Shared files changed: package.json (mac:package:dmg), packaging/macos/{build.mjs,dmg.mjs,README.md}, src/main/index.ts (settled smoke waits), scripts/r13-candidate-verify.mjs (source_dirty), tools/monabuild (skipped prerequisites), the ledgers and the guides. No assertion was removed and no requirement was raised."
         },
         {
@@ -713,12 +713,12 @@
         },
         {
           "path": "src/main/engine/types.ts",
-          "sha256": "ae934a309a1371dc953180c66c46ad8b5921d976521d3380b4c412b06ee2f52c",
+          "sha256": "04c66f167f6eb21071fb850b689077917260dc89d60098e994dbdd1e746644cf",
           "note": "R04 changed this shared file (typed command execution IPC, thread generations, command operations) after the earlier verification. Re-recorded after the full 935-test suite and the isolated live command smoke passed. No assertion was removed and no requirement status was lowered. | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/engine/adapter.ts",
-          "sha256": "c79f4f7a143de90ef991d596ae49b199c60d2c485db4d9114aefa2d92b710ac3",
+          "sha256": "a399da8cb84c64e715b860143100d1cb00a8ba576faf1ab003a291ff7e9134d3",
           "note": "R04 changed this shared file (typed command execution IPC, thread generations, command operations) after the earlier verification. Re-recorded after the full 935-test suite and the isolated live command smoke passed. No assertion was removed and no requirement status was lowered. | Historical at the state this prompt verified. R06/R07/R10 of the Studio review queue (Aurora tokens/styles, pending-request rows and IPC, conversation search, copy, file mention) changed these bytes afterwards; the original report describes the pre-review bytes. No assertion was removed and no requirement status was lowered."
         },
         {
@@ -756,12 +756,12 @@
         },
         {
           "path": "package.json",
-          "sha256": "7c0949e239b0798dcbd37c2104883832ded22ed384b91d0e76072aef38ed2af1",
+          "sha256": "4105c373d561b493333db5c597fffef625d2bab16b50ecb924bb3dd4bd9575c5",
           "note": "2026-11-14 (D-107): re-recorded after the install path became one command (npm run mac:install / build.mjs --install) and the DMG was demoted to on-request. Shared files changed: package.json, packaging/macos/build.mjs, packaging/macos/README.md, AGENTS.md, the owner guide and the ledger. npm run ci passed on these bytes; no assertion was removed and no requirement was raised."
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "65f497ff36047550a1bd132fde25d865462c4d7070a1436363578534a0565f04",
+          "sha256": "3a25e5808e8629c294c4bb419cb0a8dda6b58c6a7bc409c078c3f838d69eab86",
           "note": "2026-11-14 (D-107): re-recorded after the install path became one command (npm run mac:install / build.mjs --install) and the DMG was demoted to on-request. Shared files changed: package.json, packaging/macos/build.mjs, packaging/macos/README.md, AGENTS.md, the owner guide and the ledger. npm run ci passed on these bytes; no assertion was removed and no requirement was raised."
         }
       ],
@@ -1175,12 +1175,12 @@
         },
         {
           "path": "scripts/ci.mjs",
-          "sha256": "d32becce884d7a6b9ac0901652ab499c0bc07c451e867dc2177fa3a5e917e3d8",
+          "sha256": "05bcef39a5d29aa50f3c9062091594f2b4b009dbe534927997c2fc6672fc0e23",
           "note": "R13/R14 2026-11-14: re-recorded after the review queue changed these shared files (Studio card-identity history anchor, the history smoke in ci.mjs, and R13's build-manifest source commit). npm run ci passed 24/24 steps (1,121 tests in 101 files) on these bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "package.json",
-          "sha256": "7c0949e239b0798dcbd37c2104883832ded22ed384b91d0e76072aef38ed2af1",
+          "sha256": "4105c373d561b493333db5c597fffef625d2bab16b50ecb924bb3dd4bd9575c5",
           "note": "2026-11-14 (D-107): re-recorded after the install path became one command (npm run mac:install / build.mjs --install) and the DMG was demoted to on-request. Shared files changed: package.json, packaging/macos/build.mjs, packaging/macos/README.md, AGENTS.md, the owner guide and the ledger. npm run ci passed on these bytes; no assertion was removed and no requirement was raised."
         },
         {
@@ -1197,7 +1197,7 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "7e2f1e8e03c4f58fd3f1c523771756004cf863919ded64e51765dd7ce3ef3e93",
+          "sha256": "e05d11410022fcc0efa307dd81330ed5d8f7b5ddefa90f36ef254deeaa39879a",
           "note": "2026-11-14 local-distribution pass (D-103/104/105): re-recorded after the owner decided the distribution tier (local .pkg + .dmg, no Developer ID), the OS claim (14.0 declared, 26.5.1 tested) and the Git dependency (documented, not bundled). Shared files changed: package.json (mac:package:dmg), packaging/macos/{build.mjs,dmg.mjs,README.md}, src/main/index.ts (settled smoke waits), scripts/r13-candidate-verify.mjs (source_dirty), tools/monabuild (skipped prerequisites), the ledgers and the guides. No assertion was removed and no requirement was raised."
         },
         {
@@ -1206,12 +1206,12 @@
         },
         {
           "path": "src/main/ipc.ts",
-          "sha256": "94fb20bb8c3000f7ef03be4c6f87397e33cbd28ae3e55876f872023130e6215d",
+          "sha256": "b4906a9f8c8962370dd177b8db7c47a39498673d91a347e2d137622e483f5846",
           "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/ipc-contract.ts",
-          "sha256": "94dae8b540ab02d4ab75652933ef5e9cf825f0215cd05d46b5f0b155eede5698",
+          "sha256": "19c14843110b971ea35b267c345977558ebd965acabc0b586c0ca806e91c5f42",
           "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
@@ -1221,7 +1221,7 @@
         },
         {
           "path": "src/preload/index.ts",
-          "sha256": "e210a862a9933516d3b4421a3c524a87788293514ea473bd18bd5890247b2b84",
+          "sha256": "52116592be556c7d04126dff82ca546ab82adc606423f7f3d8fc6b5b279c2b68",
           "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
@@ -1230,7 +1230,7 @@
         },
         {
           "path": "src/shared/contracts/bridge.ts",
-          "sha256": "1da9e8b9adbd286426631cbb120c9a15f3c500c7dd9d822fd96e0e5593923bfa",
+          "sha256": "ba45455a085abac8d7a0d4e9f8038213e06d47d82b84a276e57a5da696163a63",
           "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
@@ -1279,7 +1279,7 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "65f497ff36047550a1bd132fde25d865462c4d7070a1436363578534a0565f04",
+          "sha256": "3a25e5808e8629c294c4bb419cb0a8dda6b58c6a7bc409c078c3f838d69eab86",
           "note": "2026-11-14 (D-107): re-recorded after the install path became one command (npm run mac:install / build.mjs --install) and the DMG was demoted to on-request. Shared files changed: package.json, packaging/macos/build.mjs, packaging/macos/README.md, AGENTS.md, the owner guide and the ledger. npm run ci passed on these bytes; no assertion was removed and no requirement was raised."
         },
         {
@@ -1370,27 +1370,27 @@
         },
         {
           "path": "src/shared/contracts/bridge.ts",
-          "sha256": "1da9e8b9adbd286426631cbb120c9a15f3c500c7dd9d822fd96e0e5593923bfa",
+          "sha256": "ba45455a085abac8d7a0d4e9f8038213e06d47d82b84a276e57a5da696163a63",
           "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/ipc-contract.ts",
-          "sha256": "94dae8b540ab02d4ab75652933ef5e9cf825f0215cd05d46b5f0b155eede5698",
+          "sha256": "19c14843110b971ea35b267c345977558ebd965acabc0b586c0ca806e91c5f42",
           "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/ipc.ts",
-          "sha256": "94fb20bb8c3000f7ef03be4c6f87397e33cbd28ae3e55876f872023130e6215d",
+          "sha256": "b4906a9f8c8962370dd177b8db7c47a39498673d91a347e2d137622e483f5846",
           "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "7e2f1e8e03c4f58fd3f1c523771756004cf863919ded64e51765dd7ce3ef3e93",
+          "sha256": "e05d11410022fcc0efa307dd81330ed5d8f7b5ddefa90f36ef254deeaa39879a",
           "note": "2026-11-14 local-distribution pass (D-103/104/105): re-recorded after the owner decided the distribution tier (local .pkg + .dmg, no Developer ID), the OS claim (14.0 declared, 26.5.1 tested) and the Git dependency (documented, not bundled). Shared files changed: package.json (mac:package:dmg), packaging/macos/{build.mjs,dmg.mjs,README.md}, src/main/index.ts (settled smoke waits), scripts/r13-candidate-verify.mjs (source_dirty), tools/monabuild (skipped prerequisites), the ledgers and the guides. No assertion was removed and no requirement was raised."
         },
         {
           "path": "src/preload/index.ts",
-          "sha256": "e210a862a9933516d3b4421a3c524a87788293514ea473bd18bd5890247b2b84",
+          "sha256": "52116592be556c7d04126dff82ca546ab82adc606423f7f3d8fc6b5b279c2b68",
           "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
@@ -1821,7 +1821,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p16-settings-smoke.json",
-          "sha256": "c9a71de24f5fc39333b869be8e3c145670ffddf1a48081c4bfd01bb52540025a",
+          "sha256": "d5864ab0f2463ae2bfee82d4cc5037f43073dcd6d35568b4182ccbee00e7e65c",
           "note": "2026-11-14 (D-107): re-recorded after the install became one command; npm run ci passed 24/24 steps (1,121 tests) on these bytes."
         },
         {
@@ -1832,6 +1832,26 @@
         {
           "path": "docs/evidence/macos/artifacts/p16-p17-ci.txt",
           "sha256": "0b73b521cdd8a14b72b4dd8c3b5f1250361c12f5c3e37bae3188a8a857e4c470"
+        },
+        {
+          "path": "docs/evidence/macos/reasoning-controls.md",
+          "sha256": "f5d85269bc5fe2cdcf3ce727ad73d46e409287d5cfb7fc2d8feeccabb5772e12"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/reasoning-smoke.json",
+          "sha256": "7cf06578e1f1b002f09de9218bb77615c5d5befd0fa5c9b2420f4151610e9d5d"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/reasoning-engine-gap.json",
+          "sha256": "4a62726d1c1d7918d29b11e1cc6dda31efdbbca38cc5ecb5447d9802057a75f4"
+        },
+        {
+          "path": "docs/evidence/macos/artifacts/reasoning-live-turn.json",
+          "sha256": "61f68348b473cb4878c7400c07caad1e2b34c5aac006fc75e43492e1cd017058"
+        },
+        {
+          "path": "docs/evidence/macos/engine-change-request-reasoning.md",
+          "sha256": "ba90cee326516a12bef02938c622d376b637947f0db2587749407ec6f48ba326"
         }
       ],
       "blocker_ids": []
@@ -1864,7 +1884,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p17-extensions-smoke.json",
-          "sha256": "4554cd64fcf593fc30a7a48700f4fad023211af7727ff404ea48808ef657fb4e",
+          "sha256": "7e67563e68f752d05a95a4feedb1964fdf759e70be0c3c17262050780ce5dbcc",
           "note": "2026-11-14 (D-107): re-recorded after the install became one command; npm run ci passed 24/24 steps (1,121 tests) on these bytes."
         },
         {
@@ -1912,22 +1932,22 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-terminal-smoke.json",
-          "sha256": "99ca2db912ae0f42f4d2a48e41acc6c73fb7db0dc79a019770a4d2acf77cf84e",
+          "sha256": "6e5b6fb1836223f286111ed30aff49ce85ca3c9db7d064015fb7116179350ba3",
           "note": "2026-11-14 (D-107): re-recorded after the install became one command; npm run ci passed 24/24 steps (1,121 tests) on these bytes."
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capability-smoke.json",
-          "sha256": "a2be944380e8b310533e24d247a8b4dd4e0fe900ba7053ff0ba3daf566781588",
+          "sha256": "d1d8775b5cc138dbcfd18156cb9bcde9e2b2c7a605327a5eee2824607af46cd8",
           "note": "2026-11-14 (D-107): re-recorded after the install became one command; npm run ci passed 24/24 steps (1,121 tests) on these bytes."
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capability-coverage.md",
-          "sha256": "e26181947cbf512792d559b424804ece4bdd5721561a4f2018c634919468a118",
+          "sha256": "5414f3ea0a161cd348b333bd458a9df43fc861deb4160d0fcc233a208127bcdf",
           "note": "2026-11-14 (D-107): re-recorded after the install became one command; npm run ci passed 24/24 steps (1,121 tests) on these bytes."
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capability-coverage.json",
-          "sha256": "9ed1ec291bbb35cde811124c1f6996d464130175de35350b26ef25d717bf5cdc",
+          "sha256": "ef09de1382cb1b428dce9e31e70c37116160e1bfbce36fa071bc0bf81e64257f",
           "note": "2026-11-14 (D-107): re-recorded after the install became one command; npm run ci passed 24/24 steps (1,121 tests) on these bytes."
         },
         {
@@ -1978,7 +1998,7 @@
         },
         {
           "path": "tools/p18-coverage/reconcile.mjs",
-          "sha256": "4313c5cd3b5d0a9f9fe30f47f8525a696c42c74d30b607870d6fa98923191d29",
+          "sha256": "0ae8880082f378ae55f1f198e5a1dca1cd9f9b6c30f8967220afbb14503a9148",
           "note": "R12 2026-11-14: the P18 overlay's MONA-CAP-052 entry now carries R07's verified statement, so `--check` and the capability smoke agree again. Re-recorded after `smoke:capability` (17/17) passed."
         },
         {
@@ -2024,22 +2044,22 @@
         },
         {
           "path": "src/main/ipc.ts",
-          "sha256": "94fb20bb8c3000f7ef03be4c6f87397e33cbd28ae3e55876f872023130e6215d",
+          "sha256": "b4906a9f8c8962370dd177b8db7c47a39498673d91a347e2d137622e483f5846",
           "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/main/ipc-contract.ts",
-          "sha256": "94dae8b540ab02d4ab75652933ef5e9cf825f0215cd05d46b5f0b155eede5698",
+          "sha256": "19c14843110b971ea35b267c345977558ebd965acabc0b586c0ca806e91c5f42",
           "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/preload/index.ts",
-          "sha256": "e210a862a9933516d3b4421a3c524a87788293514ea473bd18bd5890247b2b84",
+          "sha256": "52116592be556c7d04126dff82ca546ab82adc606423f7f3d8fc6b5b279c2b68",
           "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "src/shared/contracts/bridge.ts",
-          "sha256": "1da9e8b9adbd286426631cbb120c9a15f3c500c7dd9d822fd96e0e5593923bfa",
+          "sha256": "ba45455a085abac8d7a0d4e9f8038213e06d47d82b84a276e57a5da696163a63",
           "note": "Re-recorded at the R08/P22/P25 checkpoint: the follow-up queue, release pipeline and shared-core audit changed these shared bytes after this prompt verified them. The full suite (1,076 tests) passed on the new bytes; no assertion was removed and no requirement status was lowered."
         },
         {
@@ -2049,7 +2069,7 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "7e2f1e8e03c4f58fd3f1c523771756004cf863919ded64e51765dd7ce3ef3e93",
+          "sha256": "e05d11410022fcc0efa307dd81330ed5d8f7b5ddefa90f36ef254deeaa39879a",
           "note": "2026-11-14 local-distribution pass (D-103/104/105): re-recorded after the owner decided the distribution tier (local .pkg + .dmg, no Developer ID), the OS claim (14.0 declared, 26.5.1 tested) and the Git dependency (documented, not bundled). Shared files changed: package.json (mac:package:dmg), packaging/macos/{build.mjs,dmg.mjs,README.md}, src/main/index.ts (settled smoke waits), scripts/r13-candidate-verify.mjs (source_dirty), tools/monabuild (skipped prerequisites), the ledgers and the guides. No assertion was removed and no requirement was raised."
         },
         {
@@ -2106,22 +2126,22 @@
         },
         {
           "path": "scripts/ci.mjs",
-          "sha256": "d32becce884d7a6b9ac0901652ab499c0bc07c451e867dc2177fa3a5e917e3d8",
+          "sha256": "05bcef39a5d29aa50f3c9062091594f2b4b009dbe534927997c2fc6672fc0e23",
           "note": "R13/R14 2026-11-14: re-recorded after the review queue changed these shared files (Studio card-identity history anchor, the history smoke in ci.mjs, and R13's build-manifest source commit). npm run ci passed 24/24 steps (1,121 tests in 101 files) on these bytes; no assertion was removed and no requirement status was lowered."
         },
         {
           "path": "package.json",
-          "sha256": "7c0949e239b0798dcbd37c2104883832ded22ed384b91d0e76072aef38ed2af1",
+          "sha256": "4105c373d561b493333db5c597fffef625d2bab16b50ecb924bb3dd4bd9575c5",
           "note": "2026-11-14 (D-107): re-recorded after the install path became one command (npm run mac:install / build.mjs --install) and the DMG was demoted to on-request. Shared files changed: package.json, packaging/macos/build.mjs, packaging/macos/README.md, AGENTS.md, the owner guide and the ledger. npm run ci passed on these bytes; no assertion was removed and no requirement was raised."
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
-          "sha256": "65d6fc2cf67207508c469010251a5825a167cc206c7f952fe6ed64c0ef9487ba",
+          "sha256": "8c5eb2000da0f4bb4f359e0a49fd1c71576a4200b31fcc45f27b71d88eb36b80",
           "note": "R12 2026-11-14: re-recorded after the generated coverage block was reconciled with R07's own row statement for MONA-CAP-052 (the row said the reply routes are wired and verified; the generated coverage reason still said answering an approval had no IPC path). `smoke:capability` is green again (17/17) and `npm run ci` passed 22/22 steps on these bytes. No requirement status was lowered and no assertion was removed."
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "65f497ff36047550a1bd132fde25d865462c4d7070a1436363578534a0565f04",
+          "sha256": "3a25e5808e8629c294c4bb419cb0a8dda6b58c6a7bc409c078c3f838d69eab86",
           "note": "2026-11-14 (D-107): re-recorded after the install path became one command (npm run mac:install / build.mjs --install) and the DMG was demoted to on-request. Shared files changed: package.json, packaging/macos/build.mjs, packaging/macos/README.md, AGENTS.md, the owner guide and the ledger. npm run ci passed on these bytes; no assertion was removed and no requirement was raised."
         }
       ],
@@ -2156,7 +2176,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p19-memory-smoke.json",
-          "sha256": "c67710282b9496f0cc19aedfe71df3f5188b5d1a5a7d558dcd6fa8bb106f91f7",
+          "sha256": "3a7b15881e0ce2854a00816267c59549aa5fc78ea525616e5a14ca2619e498fe",
           "note": "2026-11-14 (D-107): re-recorded after the install became one command; npm run ci passed 24/24 steps (1,121 tests) on these bytes."
         },
         {
@@ -2246,12 +2266,12 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "65f497ff36047550a1bd132fde25d865462c4d7070a1436363578534a0565f04",
+          "sha256": "3a25e5808e8629c294c4bb419cb0a8dda6b58c6a7bc409c078c3f838d69eab86",
           "note": "2026-11-14 (D-107): re-recorded after the install path became one command (npm run mac:install / build.mjs --install) and the DMG was demoted to on-request. Shared files changed: package.json, packaging/macos/build.mjs, packaging/macos/README.md, AGENTS.md, the owner guide and the ledger. npm run ci passed on these bytes; no assertion was removed and no requirement was raised."
         },
         {
           "path": ".mona/build-macos/HANDOFF.md",
-          "sha256": "8a60ec5a7bac2f87b168445f2493e001a8775fddc8f62fd6917f73e36c464a60",
+          "sha256": "40aa532a744ac1a97a4129b9c4b454fea6f3c8a3df4e573803ad374c772bb75f",
           "note": "2026-11-14 (D-107): re-recorded after the install became one command; npm run ci passed 24/24 steps (1,121 tests) on these bytes."
         }
       ],
@@ -2291,7 +2311,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p20-failure-smoke.json",
-          "sha256": "8084fe7c21a85fc7c270ba01b0ee72653ca68a3f23f13d001e7cda8bc7e24bda",
+          "sha256": "8b12bf52308a2a722d06a514d9af6a701f8e1e6ce67cc40fe8cdc7ecca361016",
           "note": "2026-11-14 (D-107): re-recorded after the install became one command; npm run ci passed 24/24 steps (1,121 tests) on these bytes."
         },
         {
@@ -2316,7 +2336,7 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "65f497ff36047550a1bd132fde25d865462c4d7070a1436363578534a0565f04",
+          "sha256": "3a25e5808e8629c294c4bb419cb0a8dda6b58c6a7bc409c078c3f838d69eab86",
           "note": "2026-11-14 (D-107): re-recorded after the install path became one command (npm run mac:install / build.mjs --install) and the DMG was demoted to on-request. Shared files changed: package.json, packaging/macos/build.mjs, packaging/macos/README.md, AGENTS.md, the owner guide and the ledger. npm run ci passed on these bytes; no assertion was removed and no requirement was raised."
         }
       ],
@@ -2477,12 +2497,12 @@
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
-          "sha256": "65f497ff36047550a1bd132fde25d865462c4d7070a1436363578534a0565f04",
+          "sha256": "3a25e5808e8629c294c4bb419cb0a8dda6b58c6a7bc409c078c3f838d69eab86",
           "note": "2026-11-14 (D-107): re-recorded after the install path became one command (npm run mac:install / build.mjs --install) and the DMG was demoted to on-request. Shared files changed: package.json, packaging/macos/build.mjs, packaging/macos/README.md, AGENTS.md, the owner guide and the ledger. npm run ci passed on these bytes; no assertion was removed and no requirement was raised."
         },
         {
           "path": ".mona/build-macos/HANDOFF.md",
-          "sha256": "8a60ec5a7bac2f87b168445f2493e001a8775fddc8f62fd6917f73e36c464a60",
+          "sha256": "40aa532a744ac1a97a4129b9c4b454fea6f3c8a3df4e573803ad374c772bb75f",
           "note": "2026-11-14 (D-107): re-recorded after the install became one command; npm run ci passed 24/24 steps (1,121 tests) on these bytes."
         },
         {
@@ -2572,12 +2592,12 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p23-lifecycle-smoke.json",
-          "sha256": "fe90a0b86e197739e5c3008c48eecf36eec9935b0067aa11aa9b43bc8145f36f",
+          "sha256": "5059e6af1b1585c3ee9850d2061fde6432770d40eb44f6debe0e12f6ea73b1a0",
           "note": "2026-11-14 (D-107): re-recorded after the install became one command; npm run ci passed 24/24 steps (1,121 tests) on these bytes."
         },
         {
           "path": "docs/evidence/macos/artifacts/p23-uninstall-rehearsal.json",
-          "sha256": "7ed94e795ee47f6f796e84c6b5dfe93545939cdea790fc67a0a75d36785b532d",
+          "sha256": "076bff4bfde94f8a826436080f407fb9e7c12b6e11561bba3e73b9f14cc77ec8",
           "note": "2026-11-14 (D-107): re-recorded after the install became one command; npm run ci passed 24/24 steps (1,121 tests) on these bytes."
         },
         {
@@ -2710,7 +2730,7 @@
     "P22",
     "P25"
   ],
-  "last_checkpoint_utc": "2026-11-14T20:02:36.560Z",
+  "last_checkpoint_utc": "2026-11-14T21:58:48.476Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

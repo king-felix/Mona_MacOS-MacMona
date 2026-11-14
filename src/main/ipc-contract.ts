@@ -509,8 +509,14 @@ export const IpcRequests = {
       .regex(/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/)
       .nullable(),
     model: z.string().regex(/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/),
+    // `off` is the engine's canonical thinking-disable value; it is not an
+    // effort tier and the catalog never lists it, so the transport admits it
+    // here and route validation decides whether this exact route publishes a
+    // thinking toggle.
+    // `auto` is the runtime's canonical default and Mona's declared setting;
+    // `off` is the thinking-disable value. Neither is an effort tier.
     reasoningEffort: z
-      .enum(["low", "medium", "high", "xhigh", "max", "minimal", "ultra"])
+      .enum(["auto", "off", "low", "medium", "high", "xhigh", "max", "minimal", "ultra"])
       .nullable(),
     permissionPosture: z.enum(["full_access", "ask"]),
     autoApprove: z.boolean(),
@@ -520,6 +526,10 @@ export const IpcRequests = {
   "settings:reset-default": z.strictObject({
     projectId: ProjectId,
     expectedRevision: z.number().int().min(0),
+  }),
+  "settings:set-reasoning-display": z.strictObject({
+    projectId: ProjectId,
+    showReasoning: z.boolean(),
   }),
   "settings:switch-engine": z.strictObject({
     projectId: ProjectId,

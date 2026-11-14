@@ -1021,7 +1021,7 @@
         "tested": true
       },
       "ui_location": "Settings › Providers & route",
-      "tests": "P16: requested vs effective route and model-published reasoning levels.",
+      "tests": "P16: requested vs effective route and model-published reasoning levels; reasoning amendment: the setting is declared `auto` and read-only, published tiers are informational, effective shown as unknown (D-110, docs/evidence/macos/reasoning-controls.md).",
       "status": "verified",
       "gap": null,
       "description": "Resolve or list available models across providers",
@@ -1827,7 +1827,7 @@
         "tested": true
       },
       "ui_location": "Settings › Providers & route",
-      "tests": "P16: live catalogs, requested vs effective, reasoning levels.",
+      "tests": "P16: live catalogs, requested vs effective, reasoning levels; reasoning amendment: the setting is declared `auto` and sent explicitly, model metadata is labelled with its source, and effective is unknown (D-110, docs/evidence/macos/reasoning-controls.md).",
       "status": "verified",
       "gap": null,
       "description": "Provider/model catalog and route visibility",
@@ -2366,6 +2366,6 @@
       }
     ],
     "summary": "75 discovered rows: 43 verified, 28 open (entry point named and tested where marked), 2 blocked gaps, 2 unavailable. Every row carries an entry point or an explicit no-route state; 3 rows have no in-app route. Full parity is not claimed while any row is open or blocked.",
-    "assessed_utc": "2026-11-14T16:55:01.403Z"
+    "assessed_utc": "2026-11-14T21:56:26.402Z"
   }
 }
