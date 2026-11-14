@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 1023,
+  "revision": 1037,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -53,8 +53,8 @@
         },
         {
           "path": "docs/requirements-macos.json",
-          "sha256": "09abfe1def4924ee219e7a1b6adc237e813415dda19228b2b3e2ddd0821ae85d",
-          "note": "Re-recorded at the R05 checkpoint after the final requirements sync; the previous hash described the bytes before that sync. No requirement status was lowered and no assertion removed."
+          "sha256": "d25a3a6538d2cdd01da599f1cba8192902317cde5a850ae3eaf7dec845f30aaa",
+          "note": "Re-recorded after the requirements sync that followed the dependency-advisory fix; the previous hash described the bytes before that sync. Generated structure unchanged (28 prompts, 38 requirements); no status lowered."
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
@@ -238,12 +238,13 @@
         },
         {
           "path": "package.json",
-          "sha256": "7fab74e2268009b37dcdc58fd8030e7879ef814a51ae825f4bbd2c6c7c656e91",
-          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent)."
+          "sha256": "f07e1b60b8c65771fce9f789fce8a58c46be3a8b3bb181c10f14a01c2de71fa8",
+          "note": "Re-recorded after closing GHSA-g3hv-75wg-m249 / GHSA-3g3m-2fjr-6pw4: eslint 10.14.0->10.15.0, @electron/asar 4.3.1->4.3.2 (glob 14.0.6, minimatch 11.0.8 via a scoped typescript-estree override). The previous hash described the bytes at this prompt's verification. No requirement status was lowered and no assertion removed; npm run ci is green (18/18, 983 tests) and mac:package:local passes every gate up to the admin-gated installed_copy. See docs/evidence/macos/security/dependency-advisory-2026-11.md."
         },
         {
           "path": "package-lock.json",
-          "sha256": "30d9d56df1996e51f4a71b3b563c729cf6e97566db53c9cd807d173053622025"
+          "sha256": "ed9fe1f9d4e0cf8f375c451c9163e07acda6de637c466e3287bdda451d2fa1d9",
+          "note": "Re-recorded after closing GHSA-g3hv-75wg-m249 / GHSA-3g3m-2fjr-6pw4: eslint 10.14.0->10.15.0, @electron/asar 4.3.1->4.3.2 (glob 14.0.6, minimatch 11.0.8 via a scoped typescript-estree override). The previous hash described the bytes at this prompt's verification. No requirement status was lowered and no assertion removed; npm run ci is green (18/18, 983 tests) and mac:package:local passes every gate up to the admin-gated installed_copy. See docs/evidence/macos/security/dependency-advisory-2026-11.md."
         },
         {
           "path": "tsconfig.main.json",
@@ -568,8 +569,8 @@
         },
         {
           "path": "package.json",
-          "sha256": "7fab74e2268009b37dcdc58fd8030e7879ef814a51ae825f4bbd2c6c7c656e91",
-          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent)."
+          "sha256": "f07e1b60b8c65771fce9f789fce8a58c46be3a8b3bb181c10f14a01c2de71fa8",
+          "note": "Re-recorded after closing GHSA-g3hv-75wg-m249 / GHSA-3g3m-2fjr-6pw4: eslint 10.14.0->10.15.0, @electron/asar 4.3.1->4.3.2 (glob 14.0.6, minimatch 11.0.8 via a scoped typescript-estree override). The previous hash described the bytes at this prompt's verification. No requirement status was lowered and no assertion removed; npm run ci is green (18/18, 983 tests) and mac:package:local passes every gate up to the admin-gated installed_copy. See docs/evidence/macos/security/dependency-advisory-2026-11.md."
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
@@ -751,8 +752,8 @@
         },
         {
           "path": "package.json",
-          "sha256": "7fab74e2268009b37dcdc58fd8030e7879ef814a51ae825f4bbd2c6c7c656e91",
-          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent)."
+          "sha256": "f07e1b60b8c65771fce9f789fce8a58c46be3a8b3bb181c10f14a01c2de71fa8",
+          "note": "Re-recorded after closing GHSA-g3hv-75wg-m249 / GHSA-3g3m-2fjr-6pw4: eslint 10.14.0->10.15.0, @electron/asar 4.3.1->4.3.2 (glob 14.0.6, minimatch 11.0.8 via a scoped typescript-estree override). The previous hash described the bytes at this prompt's verification. No requirement status was lowered and no assertion removed; npm run ci is green (18/18, 983 tests) and mac:package:local passes every gate up to the admin-gated installed_copy. See docs/evidence/macos/security/dependency-advisory-2026-11.md."
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
@@ -1175,8 +1176,8 @@
         },
         {
           "path": "package.json",
-          "sha256": "7fab74e2268009b37dcdc58fd8030e7879ef814a51ae825f4bbd2c6c7c656e91",
-          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent)."
+          "sha256": "f07e1b60b8c65771fce9f789fce8a58c46be3a8b3bb181c10f14a01c2de71fa8",
+          "note": "Re-recorded after closing GHSA-g3hv-75wg-m249 / GHSA-3g3m-2fjr-6pw4: eslint 10.14.0->10.15.0, @electron/asar 4.3.1->4.3.2 (glob 14.0.6, minimatch 11.0.8 via a scoped typescript-estree override). The previous hash described the bytes at this prompt's verification. No requirement status was lowered and no assertion removed; npm run ci is green (18/18, 983 tests) and mac:package:local passes every gate up to the admin-gated installed_copy. See docs/evidence/macos/security/dependency-advisory-2026-11.md."
         },
         {
           "path": "src/main/open/folder-request.ts",
@@ -1816,7 +1817,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p16-settings-smoke.json",
-          "sha256": "5eda54a38b745f76d6c955c16c51fd68c6562276644a1a006f725c842181786f"
+          "sha256": "499b4f6a86188a830dc4c123941a9d64ed0edd9988c22d94a9244289a6452adb",
+          "note": "A smoke report is a run record: re-running it rewrites its captured_at and host facts, so this hash describes the run made during the dependency-advisory verification (npm run ci, 2026-11-14, after GHSA-g3hv-75wg-m249 was closed). Same class as ledger items 97/98; no assertion was removed and no status lowered."
         },
         {
           "path": "docs/evidence/macos/artifacts/p16-settings-route.png",
@@ -1858,7 +1860,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p17-extensions-smoke.json",
-          "sha256": "dfd7746e4d9df00c204c9dbde673be1609d334890adf0cd8c630cf7eac77e01b"
+          "sha256": "04fc0fc73f8ff520c805e903e980ea48bea535fd1eb638391a5774471231b249",
+          "note": "A smoke report is a run record: re-running it rewrites its captured_at and host facts, so this hash describes the run made during the dependency-advisory verification (npm run ci, 2026-11-14, after GHSA-g3hv-75wg-m249 was closed). Same class as ledger items 97/98; no assertion was removed and no status lowered."
         },
         {
           "path": "docs/evidence/macos/artifacts/p17-settings-extensions.png",
@@ -1905,19 +1908,23 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-terminal-smoke.json",
-          "sha256": "709019b16bf4adea53a146a11617b922cc29634bb33adb1174674be78e19b33b"
+          "sha256": "0e91a0f7caa737fddd9bb4bbcad07a3f59cb382ba95e51504c904a2e98bc1b18",
+          "note": "A smoke report is a run record: re-running it rewrites its captured_at and host facts, so this hash describes the run made during the dependency-advisory verification (npm run ci, 2026-11-14, after GHSA-g3hv-75wg-m249 was closed). Same class as ledger items 97/98; no assertion was removed and no status lowered."
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capability-smoke.json",
-          "sha256": "8728af8fe018ec4e0db69d55aa6bcd952338afdf8f95f1331475370b490b361c"
+          "sha256": "95ce1a546dea259f347cee0d27eb78bc55e085316509b7076ed18968c6baebe6",
+          "note": "A smoke report is a run record: re-running it rewrites its captured_at and host facts, so this hash describes the run made during the dependency-advisory verification (npm run ci, 2026-11-14, after GHSA-g3hv-75wg-m249 was closed). Same class as ledger items 97/98; no assertion was removed and no status lowered."
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capability-coverage.md",
-          "sha256": "e7388365cb8c45497dc6f6dcaeaf6a116cea97a8302b5dd19db537401129cf16"
+          "sha256": "ddfe8cde0d91f539e7f9bd207de77beea1fec0b4d58ea06328a4edddf44cfb84",
+          "note": "A smoke report is a run record: re-running it rewrites its captured_at and host facts, so this hash describes the run made during the dependency-advisory verification (npm run ci, 2026-11-14, after GHSA-g3hv-75wg-m249 was closed). Same class as ledger items 97/98; no assertion was removed and no status lowered."
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capability-coverage.json",
-          "sha256": "d5eb0337df15b0c9b5858b997a488d37dc289074fcde1ef96e42d3d064b4d1fa"
+          "sha256": "bc0badb123d231fec3a9c4481d1dc2e705203b91c916e1e8fc066f40f75e86a3",
+          "note": "A smoke report is a run record: re-running it rewrites its captured_at and host facts, so this hash describes the run made during the dependency-advisory verification (npm run ci, 2026-11-14, after GHSA-g3hv-75wg-m249 was closed). Same class as ledger items 97/98; no assertion was removed and no status lowered."
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-shell-smoke.json",
@@ -2097,8 +2104,8 @@
         },
         {
           "path": "package.json",
-          "sha256": "7fab74e2268009b37dcdc58fd8030e7879ef814a51ae825f4bbd2c6c7c656e91",
-          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent)."
+          "sha256": "f07e1b60b8c65771fce9f789fce8a58c46be3a8b3bb181c10f14a01c2de71fa8",
+          "note": "Re-recorded after closing GHSA-g3hv-75wg-m249 / GHSA-3g3m-2fjr-6pw4: eslint 10.14.0->10.15.0, @electron/asar 4.3.1->4.3.2 (glob 14.0.6, minimatch 11.0.8 via a scoped typescript-estree override). The previous hash described the bytes at this prompt's verification. No requirement status was lowered and no assertion removed; npm run ci is green (18/18, 983 tests) and mac:package:local passes every gate up to the admin-gated installed_copy. See docs/evidence/macos/security/dependency-advisory-2026-11.md."
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
@@ -2141,7 +2148,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p19-memory-smoke.json",
-          "sha256": "32567b0451991ad8efd48291d7626cb0787a2f952b4f314f6fad3192af4654e2"
+          "sha256": "127421e811a49704e6ac147904d83727ad97b13b94507f9436cb9bebfe4bab4a",
+          "note": "A smoke report is a run record: re-running it rewrites its captured_at and host facts, so this hash describes the run made during the dependency-advisory verification (npm run ci, 2026-11-14, after GHSA-g3hv-75wg-m249 was closed). Same class as ledger items 97/98; no assertion was removed and no status lowered."
         },
         {
           "path": "docs/evidence/macos/artifacts/p19-ci.txt",
@@ -2224,8 +2232,8 @@
         },
         {
           "path": "docs/requirements-macos.json",
-          "sha256": "09abfe1def4924ee219e7a1b6adc237e813415dda19228b2b3e2ddd0821ae85d",
-          "note": "Re-recorded at the R05 checkpoint after the final requirements sync; the previous hash described the bytes before that sync. No requirement status was lowered and no assertion removed."
+          "sha256": "d25a3a6538d2cdd01da599f1cba8192902317cde5a850ae3eaf7dec845f30aaa",
+          "note": "Re-recorded after the requirements sync that followed the dependency-advisory fix; the previous hash described the bytes before that sync. Generated structure unchanged (28 prompts, 38 requirements); no status lowered."
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
@@ -2274,7 +2282,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p20-failure-smoke.json",
-          "sha256": "6a7b137a7730e3662a0579bc841b82bd1102d5538f403206d39a04d7c6575cd6"
+          "sha256": "7f76b2702f60d6526a63ab81bc29c09be6e534f5f5d51a1706235cdd8a66c8e0",
+          "note": "A smoke report is a run record: re-running it rewrites its captured_at and host facts, so this hash describes the run made during the dependency-advisory verification (npm run ci, 2026-11-14, after GHSA-g3hv-75wg-m249 was closed). Same class as ledger items 97/98; no assertion was removed and no status lowered."
         },
         {
           "path": "docs/evidence/macos/artifacts/p20-lifecycle-crash.json",
@@ -2450,8 +2459,8 @@
         },
         {
           "path": "docs/requirements-macos.json",
-          "sha256": "09abfe1def4924ee219e7a1b6adc237e813415dda19228b2b3e2ddd0821ae85d",
-          "note": "Re-recorded at the R05 checkpoint after the final requirements sync; the previous hash described the bytes before that sync. No requirement status was lowered and no assertion removed."
+          "sha256": "d25a3a6538d2cdd01da599f1cba8192902317cde5a850ae3eaf7dec845f30aaa",
+          "note": "Re-recorded after the requirements sync that followed the dependency-advisory fix; the previous hash described the bytes before that sync. Generated structure unchanged (28 prompts, 38 requirements); no status lowered."
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
@@ -2510,7 +2519,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p23-lifecycle-smoke.json",
-          "sha256": "ccab64735ffd832868490fe5a8b5467d5d668c8b0f291b1420a1167251e5b66b"
+          "sha256": "afa7eaa71f1f4407986649f019de29d06b96da44e3f800d6fe4a4d4ed333bffb",
+          "note": "A smoke report is a run record: re-running it rewrites its captured_at and host facts, so this hash describes the run made during the dependency-advisory verification (npm run ci, 2026-11-14, after GHSA-g3hv-75wg-m249 was closed). Same class as ledger items 97/98; no assertion was removed and no status lowered."
         },
         {
           "path": "docs/evidence/macos/artifacts/p23-uninstall-rehearsal.json",
@@ -2587,7 +2597,7 @@
     "P22",
     "P25"
   ],
-  "last_checkpoint_utc": "2026-11-14T07:41:31.520Z",
+  "last_checkpoint_utc": "2026-11-14T08:24:06.026Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

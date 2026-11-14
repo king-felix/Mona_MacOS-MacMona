@@ -269,3 +269,39 @@ D-001…D-103) and never replace them.
 - **Consequence:** every future immersive or HUD surface inherits three rules —
   observe, do not assume; never bound a layout with `overflow` when something is
   positioned outside it; and any fact you hide needs a route that still shows it.
+
+## RD-012 — A dependency advisory is closed by moving the parents, not by pinning blindly
+
+- **Context:** after R05 was pushed, GitHub reported two moderate npm advisories
+  on the default branch: `minimatch` 10.2.6 (GHSA-g3hv-75wg-m249, globparts
+  amplification) and `glob` 13.0.7 (GHSA-3g3m-2fjr-6pw4, abort-timeout walk
+  continuation). Both were transitive **development** dependencies reached via
+  `eslint`, `typescript-eslint` and `@electron/packager` → `@electron/asar`.
+- **Decision — fix at the parents first.** `npm audit fix` moved the
+  `@electron/asar` 4.3.2 / `glob` 14.0.6 / `minimatch` 11.0.8 subtree without a
+  range override, `eslint` moved to 10.15.0 by hand (its own range is now
+  `^11.0.5`), and only `@typescript-eslint/typescript-estree` — at its latest
+  release, still declaring `^10.2.2` — needed an override, scoped to that one
+  package. A blanket `minimatch` override would have forced a major bump on
+  packages that had not adopted it yet.
+- **Decision — majors are proven, not assumed.** `minimatch` 11 is dual
+  (ESM + CJS) and keeps its function and `Minimatch` API; its only call site in
+  `typescript-estree` runs under `projectService`, which this repository does not
+  enable. `glob` 14 is reached only through `@electron/asar`, and packaging here
+  builds with `asar: false`; the filter path was still compared old against new
+  with one fixture and one script and produced identical archives and ignores.
+- **Decision — exposure is stated, not dramatised.** The production tree is
+  `react`, `react-dom`, `scheduler`, `zod` and audits clean. The patterns
+  `minimatch` sees are developer-authored config and packager ignore lists. The
+  fix was taken because it is cheap and upstream-sanctioned, not because a live
+  path existed.
+- **Verification:** `npm audit` 0, `npm ls` single versions, `eslint` 297 files
+  linted (so matching really ran), `npm run ci` green 18/18 with 983 tests, and
+  `mac:package:local` passing every gate up to the admin-gated `installed_copy`
+  that EXT-INSTALL already records.
+- **Not claimed:** `mac:package:local` is still blocked on administrator
+  authorization; signed distribution is still P22/R14; `eslint` 10.15.0's own
+  release notes were not audited line by line — the CI run is the evidence.
+- **Consequence:** R12 inherits a clean dependency tree and must re-check it at
+  the final sweep; the product-ledger manifest hashes and the smoke run records
+  this CI run rewrote were re-recorded with notes rather than silently refreshed.

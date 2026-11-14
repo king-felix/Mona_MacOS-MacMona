@@ -37,7 +37,7 @@
     "attempts": ".mona/build-macos/attempts.jsonl",
     "requirement_registry": "docs/requirements-macos.json"
   },
-  "revision": 57,
+  "revision": 59,
   "current_task": "R05",
   "current_task_status": "completed",
   "tasks": {
@@ -1250,8 +1250,8 @@
         {
           "path": "package.json",
           "sha256": "7fab74e2268009b37dcdc58fd8030e7879ef814a51ae825f4bbd2c6c7c656e91",
-          "state": "current",
-          "note": "smoke:immersive script."
+          "state": "historical",
+          "note": "The dependency-advisory fix (RD-012) moved eslint to 10.15.0 after R05's verification, so this hash is R05's state. R05 changed this file (smoke:immersive)."
         },
         {
           "path": "test/window-fullscreen.test.ts",
@@ -1636,7 +1636,10 @@
       "attempt_problem_ids": [],
       "platform": "darwin-arm64",
       "next_action": "Run the full gate and reconcile evidence only for files the review actually changed.",
-      "notes": []
+      "notes": [
+        "Dependency hygiene was closed ahead of R12 (RD-012): GHSA-g3hv-75wg-m249 (minimatch) and GHSA-3g3m-2fjr-6pw4 (glob) are gone via eslint 10.15.0, @electron/asar 4.3.2, glob 14.0.6 and minimatch 11.0.8 (one scoped typescript-estree override). npm audit is 0, npm run ci is green 18/18 with 983 tests, and mac:package:local passes every gate up to the admin-gated installed_copy. R12 must re-check the tree at its own sweep and confirm no new advisory appeared. Evidence: docs/evidence/macos/security/dependency-advisory-2026-11.md.",
+        "Two classes of hash were re-recorded after that change, with notes rather than silent refresh: the product-ledger manifest entries (P02 package.json+package-lock.json, P03/P04/P09/P18 package.json) and the smoke run records this validation's CI rewrote (p16/p17/p18/p19/p20/p23 artifacts). R12 owns confirming those reports still describe their own runs."
+      ]
     },
     "R13": {
       "status": "pending",
@@ -1940,7 +1943,7 @@
       "notes": []
     }
   },
-  "last_checkpoint_utc": "2026-11-14T07:41:13.340Z",
+  "last_checkpoint_utc": "2026-11-14T08:24:29.134Z",
   "notes": [
     "Subordinate ledger. The P00–P27 registry remains authoritative for product requirements; this registry tracks review tasks and findings only.",
     "Attempts continue in the shared attempts.jsonl; a review task ID never resets a count."
