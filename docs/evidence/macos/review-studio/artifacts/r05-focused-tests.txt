@@ -1,5 +1,5 @@
 
-[1m[30m[46m RUN [49m[39m[22m [36mv5.1.0 [39m[90m/Users/basestar/DS_Projects/Mona[39m
+[1m[30m[46m RUN [49m[39m[22m [36mv5.1.0 [39m[90m~/DS_Projects/Mona[39m
 
  [32m✓[39m test/menu-template.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 5[2mms[22m[39m
  [32m✓[39m test/ipc-contract.test.ts [2m([22m[2m42 tests[22m[2m)[22m[32m 19[2mms[22m[39m

@@ -37,7 +37,7 @@
     "attempts": ".mona/build-macos/attempts.jsonl",
     "requirement_registry": "docs/requirements-macos.json"
   },
-  "revision": 59,
+  "revision": 60,
   "current_task": "R05",
   "current_task_status": "completed",
   "tasks": {
@@ -1338,18 +1338,18 @@
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r05-focused-tests.txt",
-          "sha256": "b9f45a2d17b4743e7b9a9d8f7ac8044b31c308b8ec2ce793c99a262a366e773b",
-          "note": "R05: focus Studio and native full screen — the focused dashboard, the bounded resizable composer, the observed full-screen transitions entered through the rendered control, the drawer's fallback values, the review fixes, and the 200% layout."
+          "sha256": "d9dd054f15dabc12bedb3eb42501c7849289a8fe604f72d63db11dff5a96e307",
+          "note": "R05 run captures, redacted: the build machine's home path is replaced with ~ (ledger item 32/97) so the repository secret scan is clean. The assertions, counts and exit status are unchanged."
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r05-full-tests.txt",
-          "sha256": "4f924e1c67147ca803e818acd13faf9222ae11eb2d80a777ee54f74e304990af",
-          "note": "R05: focus Studio and native full screen — the focused dashboard, the bounded resizable composer, the observed full-screen transitions entered through the rendered control, the drawer's fallback values, the review fixes, and the 200% layout."
+          "sha256": "6851972e448df912748d80b8a3179921fc0ceba105f26afa89ce6842d6f451b5",
+          "note": "R05 run captures, redacted: the build machine's home path is replaced with ~ (ledger item 32/97) so the repository secret scan is clean. The assertions, counts and exit status are unchanged."
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r05-gates.txt",
-          "sha256": "d08d47e80d50d5b523f3918cf6db8d7a50e380fd31140ef7c5eea0437a5c1266",
-          "note": "R05: focus Studio and native full screen — the focused dashboard, the bounded resizable composer, the observed full-screen transitions entered through the rendered control, the drawer's fallback values, the review fixes, and the 200% layout."
+          "sha256": "0f3092120842caed2c07d64f7d4a6738984719c986b9dfa85183fc9e88c18f5b",
+          "note": "R05 run captures, redacted: the build machine's home path is replaced with ~ (ledger item 32/97) so the repository secret scan is clean. The assertions, counts and exit status are unchanged."
         },
         {
           "path": "docs/evidence/macos/review-studio/artifacts/r05-studio-normal.png",
@@ -1943,7 +1943,7 @@
       "notes": []
     }
   },
-  "last_checkpoint_utc": "2026-11-14T08:24:29.134Z",
+  "last_checkpoint_utc": "2026-11-14T08:25:15.734Z",
   "notes": [
     "Subordinate ledger. The P00–P27 registry remains authoritative for product requirements; this registry tracks review tasks and findings only.",
     "Attempts continue in the shared attempts.jsonl; a review task ID never resets a count."

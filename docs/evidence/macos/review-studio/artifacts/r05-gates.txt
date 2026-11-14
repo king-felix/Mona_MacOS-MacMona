@@ -7,13 +7,13 @@
 > eslint .
 
 
-/Users/basestar/DS_Projects/Mona/test/engine-adapter.test.ts
+~/DS_Projects/Mona/test/engine-adapter.test.ts
   19:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-/Users/basestar/DS_Projects/Mona/test/engine-orchestration.test.ts
+~/DS_Projects/Mona/test/engine-orchestration.test.ts
   8:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-/Users/basestar/DS_Projects/Mona/test/work-agents.test.ts
+~/DS_Projects/Mona/test/work-agents.test.ts
   236:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
 ✖ 3 problems (0 errors, 3 warnings)
