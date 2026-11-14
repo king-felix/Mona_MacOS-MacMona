@@ -340,3 +340,160 @@ D-001…D-103) and never replace them.
   captures were deliberately not regenerated (R12 owns them, and they were
   already stale from R04/R05).
 - **Consequence:** R06 restyles around this identity instead of regenerating it.
+
+## RD-014 — A pending ask is a durable row with the engine's own capability
+
+- **Context:** RV-10. At R05 a pending approval or clarification was one sentence
+  in `StudioSession.pendingInput`, produced by a `kind`-only classifier. It had no
+  id, no thread, no turn, no options, no status and no persistence, and its text
+  advised switching to Full Access or answering in Codewhale. A restart forgot it,
+  because the event stream resumes from the stored cursor and a prompt at or
+  below it is never replayed.
+- **Decision — schema v12 `pending_requests` is Mona's receipt, not a second
+  truth.** A row records the Runtime's capability (`request_key`), the local
+  thread and engine thread, the turn, what was asked, and how it settled. The
+  engine stays authoritative about *what is pending*: `hydratePending` reads
+  `pending_approvals[]` / `pending_user_inputs[]` from thread detail on start,
+  on reattach, on the still-live path and after a terminal turn. Rows the engine
+  no longer lists are marked `expired` with that reason; rows it still lists are
+  refreshed. When thread detail carries no list at all, nothing is expired.
+- **Decision — the capability never reaches the renderer.** IPC names Mona's row
+  id (`prq_…`); main echoes the engine's id. The zod schema refuses anything that
+  is not Mona's own id shape, and a test plus the smoke assert the capability is
+  absent from the snapshot the screen receives.
+- **Decision — a decision is recorded only after the Runtime's 2xx.** A `404`
+  becomes `expired` with no decision, an interruption becomes `cancelled` with no
+  decision (the payload's deny is the engine's, not the user's), and a transport
+  failure becomes `unknown` while keeping the attempted decision and refusing a
+  retry until the engine's list is read. "Answered" is never inferred from a
+  click.
+- **Decision — single-use is enforced in code, not by care.** `claimPendingRequest`
+  is a compare-and-set (`pending|unknown → sending`) inside one SQLite
+  transaction, and `validateAnswers` checks the engine's own answer rules before
+  the claim. A concurrent double answer in the tests sends exactly one request.
+- **Rejected:** polling `GET /v1/approvals` on a timer (a second loop for state the
+  stream and thread detail already carry); auto-approving or widening the posture
+  to clear a wait (forbidden by the review prompt and by Mona's honesty rules);
+  answering a clarification by submitting ordinary prompt text (the engine has a
+  typed answer route; guessing would be a fabricated capability).
+- **Measured against 0.10.2:** the pending lists live at the **envelope's top
+  level** of thread detail, beside `thread` and `turns` — the first
+  implementation looked inside `thread` and silently read nothing. The live smoke
+  is what caught it, and both spellings are now accepted.
+- **Not claimed:** a live approval prompt has not been round-tripped (that needs
+  a turn, a tool call and inference). The contract, the capability's single-use
+  behaviour, the 404 path, the lifecycle and the 2xx mapping are verified; the
+  limitation is recorded in the evidence rather than glossed.
+- **Consequence:** R08 can build "reply to this pending question" on a real row
+  id and a real receipt instead of a text banner.
+
+## RD-015 — Decoration intensity is a preference, never a second design
+
+- **Context:** R06 asks for a splashier interface *and* for both themes to remain
+  fully usable. Two designs or a contrast trade-off would violate MONA-006.
+- **Decision — one ornament layer, one semantic palette.** `Intensity`
+  (`vivid` | `quiet`) sets `data-intensity` on the document root and changes only
+  decorative roles (`--aurora-a/b/c`, `--selection`, `--selection-ink`, `--glow`).
+  Text roles are untouched, which the unit test asserts directly and the live
+  smoke measures from the painted document: ink-on-surface, ink-on-canvas and
+  muted-on-surface are byte-identical between intensities in both themes.
+- **Decision — gradients never sit under text.** The plaque wash has an opaque
+  content layer; turn surfaces use a border and a tinted background, not a
+  gradient behind prose. That is why one contrast table can govern both
+  intensities.
+- **Decision — animation needs a state, and a hidden window is not watching.** The
+  only pulse is on `.status-dot--live`, set by one function and only while the
+  connection state is `running`; it stops under `prefers-reduced-motion` and when
+  `data-document-hidden` is set on `visibilitychange`, because Electron keeps a
+  hidden window's compositor alive. The smoke asserts zero running animations in
+  all four combinations.
+- **Rejected:** a "turn settled" transition on every card (decoration implying an
+  event it did not observe — the keyframes exist but nothing applies them); a
+  particle/glass background (the prompt rules it out and it costs CPU while
+  idle); animating progress (no fabricated percentages).
+- **Decision — captures are checked, not just taken.** The R06 runner waits two
+  animation frames, invalidates the frame, captures, and asserts that no two
+  captures are byte-identical. That check caught a persisted Focus Studio
+  preference labelling a focused frame as "normal", and the runner now clears the
+  preference through the product's own exit control and asserts the layout state.
+- **Consequence:** Quiet needs no second palette to maintain, and a future theme
+  inherits both intensities by filling in six ornament roles.
+
+## RD-016 — Search, copy and file context are reads with an honest boundary
+
+- **Context:** R10 asks for conveniences without hidden inference, data loss or a
+  fabricated attachment.
+- **Decision — search runs in SQLite over this project's stored events.**
+  `LIKE … ESCAPE '\'` with `%`, `_` and `\` escaped, `LIMIT` ≤ 100, optional
+  thread scope, and an anchor (`threadId`, `seq`, `itemId`, snippet) per hit. It
+  is a state read: no runtime, no socket, no model. The UI says "Local read only;
+  nothing is sent to the engine", and a hit that is not in the loaded window
+  makes the console load one more page rather than pretending the card is there.
+- **Decision — copy is acknowledged by the clipboard itself.** Main writes with
+  Electron's clipboard and reads the text back; the renderer reports success only
+  when the read-back matches. A card copies its exact body and a fenced block
+  copies its source, both through the same channel.
+- **Decision — file context is a verified read, not an attachment.** The mention
+  path goes through the engine's own `workspace/files/read` route; main refuses
+  absolute paths and `..` before asking, the engine refuses symlinks and escapes,
+  the dialog shows byte size and a token estimate explicitly labelled as an
+  estimate, and the content is inserted as text the user submits. Binary stays
+  unavailable with the reason on the disabled control.
+- **Rejected:** reading files from the renderer or main directly (bypasses the
+  engine's containment); a directory-listing route Mona does not have; inserting
+  a mention without showing size/cost; replacing the draft on insertion.
+- **Caught while building it:** the R05 "grip only in the immersive layout" test
+  failed once the grip became universal. It was rewritten to assert the new
+  behaviour rather than deleted, because widening the control was the point.
+- **Consequence:** R11/R12 inherit a search surface that is bounded and a copy
+  path that cannot lie about a clipboard; a ranked index remains an honest gap.
+
+## RD-017 — A claim that dies with the process is reopened; a live claim is not
+
+- **Context:** the first R07 implementation marked a request `sending` before the
+  reply left and left it there on a transport failure (`unknown`). The reviewer
+  found the hole that remained: a process that dies *during* the POST leaves a row
+  in `sending` forever. The engine still lists the capability, so it cannot be
+  answered again, and the card says "An answer is being delivered" indefinitely —
+  exactly the "a real wait looks like a hang" failure R07 exists to remove.
+- **Decision — the engine's list is the evidence, the process is the claim.** A
+  `sending` row is reopened when the engine still lists the capability *and* the
+  current process holds no claim on it. A cold start hydrates the conversations
+  the store already holds, so this happens without the user submitting anything.
+  While `answerPending` is in flight the row id is in `session.answering`, and a
+  reconcile that runs then leaves it alone.
+- **Rejected:** a timeout-only rule (a crash just after the claim would wait out an
+  arbitrary interval with the UI still saying "sending"); a durable claim token
+  (a second identity to keep consistent for a window measured in milliseconds).
+- **Consequence:** the reopen path needs a test that goes through `answerPending`
+  with a held transport, not a store write, or it would assert bookkeeping that
+  no real caller performs. Both forms are now tested.
+
+## RD-018 — Reconciling only the list the engine actually reported
+
+- **Context:** `available` was `Array.isArray(approvals) || Array.isArray(inputs)`.
+  An engine that reported one list and omitted the other would have expired every
+  stored row of the omitted kind — inventing an absence from silence.
+- **Decision:** `PendingSnapshot` reports `approvalsAvailable` and
+  `inputsAvailable` separately, and `expireUnlistedPendingRequests` takes a `kind`
+  and reconciles only that kind. The pinned 0.10.2 reports both; a narrower
+  payload is treated as silence, not as an empty list.
+- **Consequence:** a future engine that drops a list cannot silently expire
+  requests Mona still shows.
+
+## RD-019 — Evidence must be able to fail
+
+- **Context:** the R06 contrast check read root tokens and reported identical
+  numbers for Vivid and Quiet, and the Home probe counted a selector production
+  never renders. Both passed while proving nothing. The reviewer called this out
+  as evidence outrunning code.
+- **Decision — every visual check reads the rendered element it claims to
+  describe.** Text/background pairs are measured by compositing each element's
+  ancestors; the Home check reads `.project-row`; the capture set asserts that no
+  two captures are byte-identical, so a stale composited frame cannot stand in for
+  a second state. A smoke check that cannot fail is treated as a defect.
+- **Caught while fixing it:** `/rgba?\(/` also matches the `rgb(` inside
+  `color(srgb …)`, so painted colours parsed to `NaN` and JSON reported `null`.
+  The regexes are anchored and srgb is parsed explicitly.
+- **Consequence:** the R06 artifact now carries real ratios, and the two
+  measurement bugs are recorded rather than quietly corrected.

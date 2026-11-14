@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-14T08:38:41.232Z",
+  "generated_utc": "2026-11-14T09:39:19.529Z",
   "git": {
     "available": true,
-    "commit": "e7b4c9e5aa71ddb7435a792389d475ffc6925b40",
+    "commit": "efd64c5f1d965e52939ac5ec8e47c370c9707f55",
     "dirty": true
   },
-  "digest": "2315285c931dcb04c8f4b43d9a58909e335d5b484dd9876dc31088ec3ffe537a",
+  "digest": "5748ad4e4573fb02e4a5c10d7d20f7f822ff98d52c1787def6681ffd06c0334b",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,8 +15,8 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "b5a7459ffbb6057bb46ade6bed720547bbd1c4005ec3976935c3288476d4cda0",
-      "bytes": 168051
+      "sha256": "c04cb7c1f833673faf8e4eef279b999ecb1bfc56d694b43c8595b2016142db10",
+      "bytes": 184620
     },
     {
       "path": "AGENTS.md",
@@ -25,8 +25,8 @@
     },
     {
       "path": "docs/codewhale-capabilities-macos.json",
-      "sha256": "10d45d85228dbae54bd9ea3470eebea04c51d46f7921347b867c1ec7b6658a2b",
-      "bytes": 98447
+      "sha256": "017e3985c2f68a88c748ebe1a36d79e80c55a51c5bfacfb46d97f3c04ade65ae",
+      "bytes": 99072
     },
     {
       "path": "docs/evidence/macos/artifacts/codewhale-app-server-help.txt",
@@ -1174,6 +1174,81 @@
       "bytes": 262241
     },
     {
+      "path": "docs/evidence/macos/review-studio/artifacts/r06-afterglow-quiet-home.png",
+      "sha256": "b7f3288162df8ae2e52ade20036c923e53b575bc13de40543173653366713755",
+      "bytes": 331579
+    },
+    {
+      "path": "docs/evidence/macos/review-studio/artifacts/r06-afterglow-quiet-studio.png",
+      "sha256": "378486b4fb2571842127613ecf85ef61297119879dde4051875692b6db209c98",
+      "bytes": 314288
+    },
+    {
+      "path": "docs/evidence/macos/review-studio/artifacts/r06-afterglow-vivid-focus.png",
+      "sha256": "c9a842e9c660892f1cf3a21978204059d2e7b357830e3bbbd0708e98150cfacb",
+      "bytes": 258530
+    },
+    {
+      "path": "docs/evidence/macos/review-studio/artifacts/r06-afterglow-vivid-home.png",
+      "sha256": "4b1c2c6d8881d02945d4cb4153ada26ab2637ba249bdae406a5d9b144b77826a",
+      "bytes": 367188
+    },
+    {
+      "path": "docs/evidence/macos/review-studio/artifacts/r06-afterglow-vivid-studio.png",
+      "sha256": "96dd581fee7a1c2656d66610ec7527287732ebeb49c2822a7f850b4eb4368f27",
+      "bytes": 486161
+    },
+    {
+      "path": "docs/evidence/macos/review-studio/artifacts/r06-aurora-smoke.json",
+      "sha256": "4f623be89415c710e1b672aa54ca71a83fd5860387d33f5119428f0f95d1f00f",
+      "bytes": 35101
+    },
+    {
+      "path": "docs/evidence/macos/review-studio/artifacts/r06-daybreak-quiet-home.png",
+      "sha256": "21db6dec6423ae206dded96e23e4f33ecbf8b5880d66ab03e929951ecb1dd20a",
+      "bytes": 332033
+    },
+    {
+      "path": "docs/evidence/macos/review-studio/artifacts/r06-daybreak-quiet-studio.png",
+      "sha256": "1130fc70604af161704cc9e5129b9da21c25245e7e50a2e25813f98f3db1de8f",
+      "bytes": 319978
+    },
+    {
+      "path": "docs/evidence/macos/review-studio/artifacts/r06-daybreak-vivid-200.png",
+      "sha256": "7148143f14008aa16365a7716ed98af151a0bcea81cacfa5e131015e4b719ff3",
+      "bytes": 550208
+    },
+    {
+      "path": "docs/evidence/macos/review-studio/artifacts/r06-daybreak-vivid-focus.png",
+      "sha256": "1930283e4814fdb35fd72dba0aba8e1bf705cf6d918720e130ba89ae0f30074d",
+      "bytes": 260518
+    },
+    {
+      "path": "docs/evidence/macos/review-studio/artifacts/r06-daybreak-vivid-home.png",
+      "sha256": "5667cb524fa65709096bace2f1d3973494e9aef865a11bad3014c88aec92d1cc",
+      "bytes": 349801
+    },
+    {
+      "path": "docs/evidence/macos/review-studio/artifacts/r06-daybreak-vivid-studio.png",
+      "sha256": "5b6f6916139df8299eddc336d7eb4b20ab8279a1aab30be46f7a2d863b55879c",
+      "bytes": 462193
+    },
+    {
+      "path": "docs/evidence/macos/review-studio/artifacts/r06-daybreak-vivid-timeline.png",
+      "sha256": "c4bc73476cb85d2fba5a1a197809c97887cef67ba2840c471f519db3c61173cb",
+      "bytes": 301642
+    },
+    {
+      "path": "docs/evidence/macos/review-studio/artifacts/r06-r10-shell-smoke-run.txt",
+      "sha256": "2074d3c6b3bbebc74145b9b5d64631fcec712df7e9500503d160f7d022ea8d8c",
+      "bytes": 14926
+    },
+    {
+      "path": "docs/evidence/macos/review-studio/artifacts/r07-pending-smoke.json",
+      "sha256": "8bdcc9e37f4b0940256303ddc6b6bcdc5cbd1f349dd12ba736972826e6af8a1d",
+      "bytes": 3926
+    },
+    {
       "path": "docs/evidence/macos/review-studio/R00-baseline.md",
       "sha256": "c24beb7cad48b16cdae7d1affda47e71a8b8eccabdbcab03f495e8923d39a32c",
       "bytes": 9604
@@ -1202,6 +1277,21 @@
       "path": "docs/evidence/macos/review-studio/R05-focus-studio.md",
       "sha256": "855f4da5003283b3c6514a4cd6d2dad23653f95311f6da57ddb50a5574511b32",
       "bytes": 15476
+    },
+    {
+      "path": "docs/evidence/macos/review-studio/R06-aurora-studio.md",
+      "sha256": "bec85603f6b2356e658f2572a49f6591fbaea179dc316ec91d15f346a90ae2f4",
+      "bytes": 8444
+    },
+    {
+      "path": "docs/evidence/macos/review-studio/R07-pending-input-and-approvals.md",
+      "sha256": "8b6174cb05314a9417f985b96de013573eb88a920e8b36e7a0b81b78b692eb2b",
+      "bytes": 10810
+    },
+    {
+      "path": "docs/evidence/macos/review-studio/R10-composition-and-review.md",
+      "sha256": "ab9ded2f2a22297f29607bc6c7ebc45edd71bd82d39d23910de024d060a70af9",
+      "bytes": 8189
     },
     {
       "path": "docs/evidence/macos/runtime-store-coexistence.md",
@@ -1250,12 +1340,12 @@
     },
     {
       "path": "docs/requirements-macos.json",
-      "sha256": "f8027f36346276d7cceeaf30be970ece91fe75c5256daf2a48d7f5126773a8d5",
+      "sha256": "364efcf88ce3240f9ee17deed9e1462ec581ad733b7407a6d5dea982d20cbc87",
       "bytes": 83533
     },
     {
       "path": "docs/requirements-macos.json",
-      "sha256": "f8027f36346276d7cceeaf30be970ece91fe75c5256daf2a48d7f5126773a8d5",
+      "sha256": "364efcf88ce3240f9ee17deed9e1462ec581ad733b7407a6d5dea982d20cbc87",
       "bytes": 83533
     },
     {

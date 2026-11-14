@@ -37,8 +37,8 @@
     "attempts": ".mona/build-macos/attempts.jsonl",
     "requirement_registry": "docs/requirements-macos.json"
   },
-  "revision": 62,
-  "current_task": "R05",
+  "revision": 67,
+  "current_task": "R10",
   "current_task_status": "completed",
   "tasks": {
     "R00": {
@@ -376,8 +376,8 @@
         {
           "path": "src/main/projects/service.ts",
           "sha256": "08f0b03d6a7485169eb486fe0213419565980128571b9926b14b52dc44ad176d",
-          "state": "current",
-          "note": "detail returns the newest page + history window; history/historyItem; currentThreadId."
+          "state": "historical",
+          "note": "detail returns the newest page + history window; history/historyItem; currentThreadId. | Historical at the state this task verified: R06/R07/R10 changed these bytes afterwards (Aurora tokens and styles, the pending-request row, IPC, search, and the widened composer grip). The recorded hash is what this task verified, not the current bytes."
         },
         {
           "path": "src/main/work/studio.ts",
@@ -400,8 +400,8 @@
         {
           "path": "src/shared/contracts/project-bridge.ts",
           "sha256": "fb26ce62bd8d733babe5f8b6d4efa7b0ab65ec450280ffa4a037bf443125a584",
-          "state": "current",
-          "note": "HistoryCursor/HistoryWindow/HistoryPage/HistoryItemPage; identity on StoredEventSummary; currentThreadId."
+          "state": "historical",
+          "note": "HistoryCursor/HistoryWindow/HistoryPage/HistoryItemPage; identity on StoredEventSummary; currentThreadId. | Historical at the state this task verified: R06/R07/R10 changed these bytes afterwards (Aurora tokens and styles, the pending-request row, IPC, search, and the widened composer grip). The recorded hash is what this task verified, not the current bytes."
         },
         {
           "path": "src/shared/contracts/bridge.ts",
@@ -532,8 +532,8 @@
         {
           "path": "test/polish-screen.test.tsx",
           "sha256": "2f7d8dc9de1504c537798d89628d75fb5e47cd8a1221d4bdc3cad5db32be7ea9",
-          "state": "current",
-          "note": "fixture gains currentThreadId."
+          "state": "historical",
+          "note": "fixture gains currentThreadId. | Historical at the state this task verified: R06/R07/R10 changed these bytes afterwards (Aurora tokens and styles, the pending-request row, IPC, search, and the widened composer grip). The recorded hash is what this task verified, not the current bytes."
         }
       ],
       "acceptance_completed": [
@@ -781,8 +781,8 @@
         {
           "path": "test/studio-screen.test.tsx",
           "sha256": "89637e2bccede40006c82a464b72730a7d9703564f183775144a8d7120dfa81c",
-          "state": "current",
-          "note": "R03 listbox, keyboard, pointer, IME, selection, empty-filter ARIA, caret clamp, axe audit."
+          "state": "historical",
+          "note": "R03 listbox, keyboard, pointer, IME, selection, empty-filter ARIA, caret clamp, axe audit. | Historical at the state this task verified: R06/R07/R10 changed these bytes afterwards (Aurora tokens and styles, the pending-request row, IPC, search, and the widened composer grip). The recorded hash is what this task verified, not the current bytes."
         },
         {
           "path": "test/shell-races.test.tsx",
@@ -945,7 +945,8 @@
         {
           "path": "src/shared/contracts/index.ts",
           "sha256": "33d10b61c93d36e5e6247999209a21882ca11201da5382f54e4833b74e5b4f2a",
-          "state": "current"
+          "state": "historical",
+          "note": "Historical at the state this task verified: R06/R07/R10 changed these bytes afterwards (Aurora tokens and styles, the pending-request row, IPC, search, and the widened composer grip). The recorded hash is what this task verified, not the current bytes."
         },
         {
           "path": "src/shared/contracts/bridge.ts",
@@ -973,32 +974,32 @@
         {
           "path": "src/main/work/studio.ts",
           "sha256": "bf221d6c206aa100373738efc9f4ed6f70975b1133f8e6d88524b9a6c674cb93",
-          "state": "current",
-          "note": "generation-aware bindings, /new with durable keys, rename/compact/fork/retry receipts."
+          "state": "historical",
+          "note": "generation-aware bindings, /new with durable keys, rename/compact/fork/retry receipts. | Historical at the state this task verified: R06/R07/R10 changed these bytes afterwards (Aurora tokens and styles, the pending-request row, IPC, search, and the widened composer grip). The recorded hash is what this task verified, not the current bytes."
         },
         {
           "path": "src/main/engine/adapter.ts",
           "sha256": "e2afe6cff1540db38799eb11ebd87708982df90f6e7cdcf3246f71e6331877ec",
-          "state": "current",
-          "note": "renameThread, compactThread, forkThread, retryThread with wire validation."
+          "state": "historical",
+          "note": "renameThread, compactThread, forkThread, retryThread with wire validation. | Historical at the state this task verified: R06/R07/R10 changed these bytes afterwards (Aurora tokens and styles, the pending-request row, IPC, search, and the widened composer grip). The recorded hash is what this task verified, not the current bytes."
         },
         {
           "path": "src/main/engine/types.ts",
           "sha256": "0ca9a2866aea2c78c99194a03088e98e6ec6e19adf5ccad090a1ffe8b6b5748e",
-          "state": "current",
-          "note": "four native operation contracts."
+          "state": "historical",
+          "note": "four native operation contracts. | Historical at the state this task verified: R06/R07/R10 changed these bytes afterwards (Aurora tokens and styles, the pending-request row, IPC, search, and the widened composer grip). The recorded hash is what this task verified, not the current bytes."
         },
         {
           "path": "src/main/state/schema.ts",
           "sha256": "dc464be71a5b5b76e9457b47008eac7b4168c3f9b9881895af2412ce77e3dffb",
-          "state": "current",
-          "note": "migration v11: threads.mode, threads.generation, command_operations."
+          "state": "historical",
+          "note": "migration v11: threads.mode, threads.generation, command_operations. | Historical at the state this task verified: R06/R07/R10 changed these bytes afterwards (Aurora tokens and styles, the pending-request row, IPC, search, and the widened composer grip). The recorded hash is what this task verified, not the current bytes."
         },
         {
           "path": "src/main/state/store.ts",
           "sha256": "18c097636e5216c88e56576a369176b96c51a190d607c79b76bf21da06b5162f",
-          "state": "current",
-          "note": "mode/generation thread reads, upsert, and command-operation records."
+          "state": "historical",
+          "note": "mode/generation thread reads, upsert, and command-operation records. | Historical at the state this task verified: R06/R07/R10 changed these bytes afterwards (Aurora tokens and styles, the pending-request row, IPC, search, and the widened composer grip). The recorded hash is what this task verified, not the current bytes."
         },
         {
           "path": "src/main/ipc.ts",
@@ -1051,8 +1052,8 @@
         {
           "path": "test/command-dispatch.test.ts",
           "sha256": "abb13bb524d3839ea6bddc936aa1a96875b7bb66ce7952e947b8b3e3169d7adf",
-          "state": "current",
-          "note": "all-row route matrix, aliases, injection, confirmation, key reuse, busy."
+          "state": "historical",
+          "note": "all-row route matrix, aliases, injection, confirmation, key reuse, busy. | Historical at the state this task verified: R06/R07/R10 changed these bytes afterwards (Aurora tokens and styles, the pending-request row, IPC, search, and the widened composer grip). The recorded hash is what this task verified, not the current bytes."
         },
         {
           "path": "test/studio-new-thread.test.ts",
@@ -1190,14 +1191,14 @@
         {
           "path": "src/main/ipc.ts",
           "sha256": "011bb7af24a5d4f16466443cb7b5102fb31c1b92e5a9dcbbeb77bc60301eb9c7",
-          "state": "current",
-          "note": "window-scoped handlers resolve the invoking sender; a sender without a window is refused."
+          "state": "historical",
+          "note": "window-scoped handlers resolve the invoking sender; a sender without a window is refused. | Historical at the state this task verified: R06/R07/R10 changed these bytes afterwards (Aurora tokens and styles, the pending-request row, IPC, search, and the widened composer grip). The recorded hash is what this task verified, not the current bytes."
         },
         {
           "path": "src/main/ipc-contract.ts",
           "sha256": "e21f98766e57ad865671cd79161d561d1c1b7f7e73d86b1420a39c369fe2dcf7",
-          "state": "current",
-          "note": "window:fullscreen and window:fullscreen:set, strict objects with no window identifier."
+          "state": "historical",
+          "note": "window:fullscreen and window:fullscreen:set, strict objects with no window identifier. | Historical at the state this task verified: R06/R07/R10 changed these bytes afterwards (Aurora tokens and styles, the pending-request row, IPC, search, and the widened composer grip). The recorded hash is what this task verified, not the current bytes."
         },
         {
           "path": "src/main/menu-template.ts",
@@ -1208,14 +1209,14 @@
         {
           "path": "src/preload/index.ts",
           "sha256": "2569a8e8facf658397b04dbc2cf22af72f3ced6c8a34cf6f82f4f59c04be1b3b",
-          "state": "current",
-          "note": "fullscreen read/write passthrough and the validated change subscription."
+          "state": "historical",
+          "note": "fullscreen read/write passthrough and the validated change subscription. | Historical at the state this task verified: R06/R07/R10 changed these bytes afterwards (Aurora tokens and styles, the pending-request row, IPC, search, and the widened composer grip). The recorded hash is what this task verified, not the current bytes."
         },
         {
           "path": "src/shared/contracts/bridge.ts",
           "sha256": "8354caf071fee2a9e9252f57eefb382f973f7b7dde1834b4543831d88526f967",
-          "state": "current",
-          "note": "WindowFullscreenView plus the three bridge methods."
+          "state": "historical",
+          "note": "WindowFullscreenView plus the three bridge methods. | Historical at the state this task verified: R06/R07/R10 changed these bytes afterwards (Aurora tokens and styles, the pending-request row, IPC, search, and the widened composer grip). The recorded hash is what this task verified, not the current bytes."
         },
         {
           "path": "src/renderer/shell/Shell.tsx",
@@ -1226,8 +1227,8 @@
         {
           "path": "src/renderer/shell/Studio.tsx",
           "sha256": "a764e754987d289130a6bd47cb26365653e7ad3637d567ae7aa980ca52dd7449",
-          "state": "current",
-          "note": "FocusBar dashboard, immersive layout hooks, bounded resizable composer, observed full-screen control."
+          "state": "historical",
+          "note": "FocusBar dashboard, immersive layout hooks, bounded resizable composer, observed full-screen control. | Historical at the state this task verified: R06/R07/R10 changed these bytes afterwards (Aurora tokens and styles, the pending-request row, IPC, search, and the widened composer grip). The recorded hash is what this task verified, not the current bytes."
         },
         {
           "path": "src/renderer/design/icons.tsx",
@@ -1262,14 +1263,14 @@
         {
           "path": "test/studio-focus.test.tsx",
           "sha256": "619132e0a738294adb8cfb74a73bc64b4f3dd715d058d645c567ac90213d610d",
-          "state": "current",
-          "note": "new: dashboard, controls, resize bounds, no remount."
+          "state": "historical",
+          "note": "new: dashboard, controls, resize bounds, no remount. | Historical at the state this task verified: R06/R07/R10 changed these bytes afterwards (Aurora tokens and styles, the pending-request row, IPC, search, and the widened composer grip). The recorded hash is what this task verified, not the current bytes."
         },
         {
           "path": "test/shell-races.test.tsx",
           "sha256": "00398792d9a356c8f8711a94b559e45ed77e98c67bd20d93fbaaf17409609ed6",
-          "state": "current",
-          "note": "five R05 shell tests: observed transition, one toggle per press, no remount, no stored fullscreen."
+          "state": "historical",
+          "note": "five R05 shell tests: observed transition, one toggle per press, no remount, no stored fullscreen. | Historical at the state this task verified: R06/R07/R10 changed these bytes afterwards (Aurora tokens and styles, the pending-request row, IPC, search, and the widened composer grip). The recorded hash is what this task verified, not the current bytes."
         },
         {
           "path": "test/ipc-contract.test.ts",
@@ -1398,7 +1399,7 @@
       ]
     },
     "R06": {
-      "status": "pending",
+      "status": "completed",
       "title": "Aurora Studio visual identity",
       "prerequisites": [
         "R05"
@@ -1410,9 +1411,63 @@
       "feature_ids": [
         "UX-AURORA"
       ],
-      "source_hashes": [],
-      "acceptance_completed": [],
-      "acceptance_remaining": [
+      "source_hashes": [
+        {
+          "path": "src/renderer/design/tokens.ts",
+          "sha256": "eedc72208c3bfeb5f903b370a19b625e1a64829cae8e9f9ad8252b38fd05aea2",
+          "state": "current",
+          "note": "R06 verified bytes."
+        },
+        {
+          "path": "src/renderer/styles.css",
+          "sha256": "d374f0d6a60a87aa23fb89fcab5bdb74d9a13eca3efe8459d4bbfc2a77bdaab3",
+          "state": "current",
+          "note": "R06 verified bytes."
+        },
+        {
+          "path": "src/renderer/shell/Shell.tsx",
+          "sha256": "77c5e6fcfe1d82f8072695ed6288eb5504ee4a96bfe720853907e49fe570f79a",
+          "state": "current",
+          "note": "R06 verified bytes."
+        },
+        {
+          "path": "src/renderer/shell/Settings.tsx",
+          "sha256": "b0c051a112bd732e34ea8f3e1dbc1809c8ebe32c362558effacd22ff23b391b1",
+          "state": "current",
+          "note": "R06 verified bytes."
+        },
+        {
+          "path": "src/renderer/shell/Studio.tsx",
+          "sha256": "8c71d3a6fb84c2ba6e49e729985eac2025ec2984bd355c3f1ea284f6bccba3de",
+          "state": "current",
+          "note": "R06 verified bytes."
+        },
+        {
+          "path": "src/main/index.ts",
+          "sha256": "66f29c5920a55c16197b7d747642e9e83288764e23ab4392a48b7588d66a370e",
+          "state": "current",
+          "note": "R06 verified bytes."
+        },
+        {
+          "path": "scripts/aurora-smoke.mjs",
+          "sha256": "774a9fd001afdb68e747d228882774d72a7c8574773f4dfc86c942c10c6d4254",
+          "state": "current",
+          "note": "R06 verified bytes."
+        },
+        {
+          "path": "test/design-tokens.test.ts",
+          "sha256": "41e23b33f5a485961eef51f21ef7ef3b6ccde710a70af400cd609cb8bc8d2f9a",
+          "state": "current",
+          "note": "R06 verified bytes."
+        },
+        {
+          "path": "test/settings-screen.test.tsx",
+          "sha256": "948a4a9e99fc306fadbdb4d5ccf2752a16d8d4d770664b039c0fff0abb8c04b3",
+          "state": "current",
+          "note": "R06 verified bytes."
+        }
+      ],
+      "acceptance_completed": [
         "Daybreak and Afterglow palettes applied in the production shell, not only design/demo screens",
         "Project plaque, vivid active selection, gradient separators, turn hierarchy and clean tool cards in both themes",
         "Decorative tokens centralized; measured contrast for text pairs preserved until replacements pass",
@@ -1421,18 +1476,95 @@
         "Captures for both themes and intensities, normal and immersive, long output, empty/error/pending states and 200% layouts",
         "No idle animation CPU regression and no informational loss"
       ],
-      "tests": [],
-      "evidence": [],
+      "acceptance_remaining": [],
+      "tests": [
+        {
+          "command": "npm run smoke:aurora",
+          "result": "passed",
+          "detail": "31 checks on the real Electron shell: both themes x both intensities, Vivid gradients vs plain Quiet, distinct turn surfaces, six painted text/background pairs measured from rendered elements (>= 4.5:1 in all four combinations), the production Home row treated, two pending cards, long output and a failed-tool card, 200% zoom without overflow, zero running animations, and no two captures byte-identical. No engine and no model request.",
+          "captured_utc": "2026-11-14T09:37:07Z"
+        },
+        {
+          "command": "npx vitest run test/design-tokens.test.ts test/settings-screen.test.tsx",
+          "result": "passed",
+          "detail": "Ornament roles exposed as CSS variables in both themes; no ornament role may be a text foreground; selection chip measured at 4.5:1; the Appearance tab offers Vivid/Quiet and reports the choice.",
+          "captured_utc": "2026-11-14T09:37:07Z"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/review-studio/R06-aurora-studio.md",
+          "sha256": "bec85603f6b2356e658f2572a49f6591fbaea179dc316ec91d15f346a90ae2f4",
+          "note": "R06 Aurora Studio: both themes and both decoration intensities in the production shell, painted contrast measured from the rendered elements, production Home row treated, immersive layout and 200% zoom; 31 checks, no engine, no model request."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r06-aurora-smoke.json",
+          "sha256": "4f623be89415c710e1b672aa54ca71a83fd5860387d33f5119428f0f95d1f00f",
+          "note": "R06 Aurora Studio: both themes and both decoration intensities in the production shell, painted contrast measured from the rendered elements, production Home row treated, immersive layout and 200% zoom; 31 checks, no engine, no model request."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r06-daybreak-vivid-studio.png",
+          "sha256": "5b6f6916139df8299eddc336d7eb4b20ab8279a1aab30be46f7a2d863b55879c",
+          "note": "R06 Aurora Studio: both themes and both decoration intensities in the production shell, painted contrast measured from the rendered elements, production Home row treated, immersive layout and 200% zoom; 31 checks, no engine, no model request."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r06-daybreak-quiet-studio.png",
+          "sha256": "1130fc70604af161704cc9e5129b9da21c25245e7e50a2e25813f98f3db1de8f",
+          "note": "R06 Aurora Studio: both themes and both decoration intensities in the production shell, painted contrast measured from the rendered elements, production Home row treated, immersive layout and 200% zoom; 31 checks, no engine, no model request."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r06-afterglow-vivid-studio.png",
+          "sha256": "96dd581fee7a1c2656d66610ec7527287732ebeb49c2822a7f850b4eb4368f27",
+          "note": "R06 Aurora Studio: both themes and both decoration intensities in the production shell, painted contrast measured from the rendered elements, production Home row treated, immersive layout and 200% zoom; 31 checks, no engine, no model request."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r06-afterglow-quiet-studio.png",
+          "sha256": "378486b4fb2571842127613ecf85ef61297119879dde4051875692b6db209c98",
+          "note": "R06 Aurora Studio: both themes and both decoration intensities in the production shell, painted contrast measured from the rendered elements, production Home row treated, immersive layout and 200% zoom; 31 checks, no engine, no model request."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r06-daybreak-vivid-focus.png",
+          "sha256": "1930283e4814fdb35fd72dba0aba8e1bf705cf6d918720e130ba89ae0f30074d",
+          "note": "R06 Aurora Studio: both themes and both decoration intensities in the production shell, painted contrast measured from the rendered elements, production Home row treated, immersive layout and 200% zoom; 31 checks, no engine, no model request."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r06-afterglow-vivid-focus.png",
+          "sha256": "c9a842e9c660892f1cf3a21978204059d2e7b357830e3bbbd0708e98150cfacb",
+          "note": "R06 Aurora Studio: both themes and both decoration intensities in the production shell, painted contrast measured from the rendered elements, production Home row treated, immersive layout and 200% zoom; 31 checks, no engine, no model request."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r06-daybreak-vivid-home.png",
+          "sha256": "5667cb524fa65709096bace2f1d3973494e9aef865a11bad3014c88aec92d1cc",
+          "note": "R06 Aurora Studio: both themes and both decoration intensities in the production shell, painted contrast measured from the rendered elements, production Home row treated, immersive layout and 200% zoom; 31 checks, no engine, no model request."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r06-afterglow-vivid-home.png",
+          "sha256": "4b1c2c6d8881d02945d4cb4153ada26ab2637ba249bdae406a5d9b144b77826a",
+          "note": "R06 Aurora Studio: both themes and both decoration intensities in the production shell, painted contrast measured from the rendered elements, production Home row treated, immersive layout and 200% zoom; 31 checks, no engine, no model request."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r06-daybreak-vivid-timeline.png",
+          "sha256": "c4bc73476cb85d2fba5a1a197809c97887cef67ba2840c471f519db3c61173cb",
+          "note": "R06 Aurora Studio: both themes and both decoration intensities in the production shell, painted contrast measured from the rendered elements, production Home row treated, immersive layout and 200% zoom; 31 checks, no engine, no model request."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r06-daybreak-vivid-200.png",
+          "sha256": "7148143f14008aa16365a7716ed98af151a0bcea81cacfa5e131015e4b719ff3",
+          "note": "R06 Aurora Studio: both themes and both decoration intensities in the production shell, painted contrast measured from the rendered elements, production Home row treated, immersive layout and 200% zoom; 31 checks, no engine, no model request."
+        }
+      ],
       "attempt_problem_ids": [],
       "platform": "darwin-arm64",
-      "next_action": "Read design tokens, the production Studio/Shell/styles, and the contrast tests before touching paint.",
+      "next_action": "R12 reconciles the hash-pinned product captures this restyle invalidated; R11 owns narrow layouts, VoiceOver and display scaling.",
       "notes": [
-        "The app icon is now the owner's artwork (MidnightMona.png), packaged as Mona.icns, a shipped Mona.ico, installer art derived from it, and a 24px in-app mark. R06 must restyle around that identity rather than regenerate or replace the logo; if a visual change needs a different asset, the master at packaging/macos/resources/MidnightMona.png stays the single source.",
-        "Every icon surface is a resample of the master (npm run icon:render for the rail mark); no surface draws its own glyph."
+        "The review found the first version styled .project-card, which only the design harness renders; the production Home row (.project-row) is now styled and measured.",
+        "The contrast probe resolves each element's real background by compositing translucent ancestors; the first version compared root tokens and could not see a tinted surface.",
+        "No 'turn settled' transition is applied to any element: decoration must not imply an event it did not observe.",
+        "smoke:shell was run once for behaviour on these bytes and passed; its 24 product captures were restored to their committed bytes, and R12 owns their reconciliation."
       ]
     },
     "R07": {
-      "status": "pending",
+      "status": "completed",
       "title": "In-app pending input and approvals",
       "prerequisites": [
         "R01",
@@ -1446,9 +1578,105 @@
         "RV-10",
         "UX-AGENT-COMMS"
       ],
-      "source_hashes": [],
-      "acceptance_completed": [],
-      "acceptance_remaining": [
+      "source_hashes": [
+        {
+          "path": "src/shared/contracts/pending.ts",
+          "sha256": "dbf6813e861ef8b2eb69c64464f27939c8645ace02bc50065226627e5182a7be",
+          "state": "current",
+          "note": "R07 verified bytes."
+        },
+        {
+          "path": "src/shared/contracts/studio.ts",
+          "sha256": "9707a57935fc7188db8aa6bb701a5c61a55bacd178fc6934cc6c294939c50e42",
+          "state": "current",
+          "note": "R07 verified bytes."
+        },
+        {
+          "path": "src/main/state/schema.ts",
+          "sha256": "cb78757039556e861a70c63c88c60af96e9df6e140f09d26a85804bb96c0c647",
+          "state": "current",
+          "note": "R07 verified bytes."
+        },
+        {
+          "path": "src/main/state/store.ts",
+          "sha256": "0808a384ef4db1ba2e5282f541eaa7e66a56fb0228182c24213a44a4c4bd0ad8",
+          "state": "current",
+          "note": "R07 verified bytes."
+        },
+        {
+          "path": "src/main/work/studio.ts",
+          "sha256": "bbc04d9c5444a33405849a6c0286e5466445cde92d69e7aee712df92f44dbb36",
+          "state": "current",
+          "note": "R07 verified bytes."
+        },
+        {
+          "path": "src/main/engine/adapter.ts",
+          "sha256": "c79f4f7a143de90ef991d596ae49b199c60d2c485db4d9114aefa2d92b710ac3",
+          "state": "current",
+          "note": "R07 verified bytes."
+        },
+        {
+          "path": "src/main/engine/types.ts",
+          "sha256": "ae934a309a1371dc953180c66c46ad8b5921d976521d3380b4c412b06ee2f52c",
+          "state": "current",
+          "note": "R07 verified bytes."
+        },
+        {
+          "path": "src/main/ipc.ts",
+          "sha256": "2fa5883aa0248f90c2fdd7166e45db04c62b80c362d71a24548a6bfe0f56318e",
+          "state": "current",
+          "note": "R07 verified bytes."
+        },
+        {
+          "path": "src/main/ipc-contract.ts",
+          "sha256": "6479a25ffa07faf2c1fb6442e509a4c61a1271b12e2ae20f5723f5bb0f7358c1",
+          "state": "current",
+          "note": "R07 verified bytes."
+        },
+        {
+          "path": "src/preload/index.ts",
+          "sha256": "5aebacdc833c6a2888b0c732d2dc3694dbfe77649c277efcc815570e2749946e",
+          "state": "current",
+          "note": "R07 verified bytes."
+        },
+        {
+          "path": "src/renderer/shell/Studio.tsx",
+          "sha256": "8c71d3a6fb84c2ba6e49e729985eac2025ec2984bd355c3f1ea284f6bccba3de",
+          "state": "current",
+          "note": "R07 verified bytes."
+        },
+        {
+          "path": "src/renderer/shell/Shell.tsx",
+          "sha256": "77c5e6fcfe1d82f8072695ed6288eb5504ee4a96bfe720853907e49fe570f79a",
+          "state": "current",
+          "note": "R07 verified bytes."
+        },
+        {
+          "path": "src/renderer/styles.css",
+          "sha256": "d374f0d6a60a87aa23fb89fcab5bdb74d9a13eca3efe8459d4bbfc2a77bdaab3",
+          "state": "current",
+          "note": "R07 verified bytes."
+        },
+        {
+          "path": "scripts/pending-smoke.mjs",
+          "sha256": "bb186ad49e2745c308372581010d0c464cced46936c668a9ea523a5589a9e0b2",
+          "state": "current",
+          "note": "R07 verified bytes."
+        },
+        {
+          "path": "test/studio-pending.test.ts",
+          "sha256": "ce558a7a70b28eb1645c7ba45c0d961d8a4fa22992a5842e079a87347b8d0edb",
+          "state": "current",
+          "note": "R07 verified bytes."
+        },
+        {
+          "path": "test/studio-screen.test.tsx",
+          "sha256": "dda580e5d46e103ca74e22dd7b031b04620c6e0ea003580502fae8f8e6f138ef",
+          "state": "current",
+          "note": "R07 verified bytes."
+        }
+      ],
+      "acceptance_completed": [
         "Pending questions/approvals persist as structured requests with IDs, project/thread/turn, options, status and acknowledgement",
         "The actual question/tool/action and permissions involved are shown",
         "Native answers use typed, authenticated IPC where the pinned engine supports it",
@@ -1457,12 +1685,41 @@
         "An absent reply API is reported as exact unsupported scope after bounded investigation; no replacement engine and no fake ordinary-message answer",
         "Reply-sent requires acknowledgement; cancelling never silently approves; state survives restart beside an unsent draft"
       ],
-      "tests": [],
-      "evidence": [],
+      "acceptance_remaining": [],
+      "tests": [
+        {
+          "command": "npm run smoke:pending",
+          "result": "passed",
+          "detail": "13/13 assertions against the pinned 0.10.2 engine in an isolated HOME with 0 model requests: thread detail really carries the pending lists, both reply routes exist and reject an unknown capability with 404, a stored row expires only because the engine no longer lists it, the row survives a fresh WorkStudio over the same store, and the capability never reaches the renderer view.",
+          "captured_utc": "2026-11-14T09:37:07Z"
+        },
+        {
+          "command": "npx vitest run test/studio-pending.test.ts test/studio-screen.test.tsx",
+          "result": "passed",
+          "detail": "24 pending tests: capability vs tool-call id, path-shaped capability refused, structured questions, timeout/cancel never attributed to the user, durable row and snapshot view, acknowledged 2xx with the exact request body, 404 -> expired with no decision, concurrent double answer sends one request, wrong option refused before the claim, single-select answered twice refused, duplicate capability stored once, per-kind expiry, restart into a fresh studio, a dead process's sending row reopened while a live claim is not, unknown -> reopened only because the engine still lists it, and the card UI.",
+          "captured_utc": "2026-11-14T09:37:07Z"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/review-studio/R07-pending-input-and-approvals.md",
+          "sha256": "8b6174cb05314a9417f985b96de013573eb88a920e8b36e7a0b81b78b692eb2b",
+          "note": "R07 pending input and approvals: durable rows holding the Runtime capability, both reply routes qualified against the pinned engine (404 for an unknown capability), per-kind reconcile, restart into a fresh studio, and 24 focused tests; 0 model requests."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r07-pending-smoke.json",
+          "sha256": "8bdcc9e37f4b0940256303ddc6b6bcdc5cbd1f349dd12ba736972826e6af8a1d",
+          "note": "R07 pending input and approvals: durable rows holding the Runtime capability, both reply routes qualified against the pinned engine (404 for an unknown capability), per-kind reconcile, restart into a fresh studio, and 24 focused tests; 0 model requests."
+        }
+      ],
       "attempt_problem_ids": [],
       "platform": "darwin-arm64",
-      "next_action": "Read work/studio.ts pendingInputFor/ingest/snapshot and probe the pinned engine's request/reply endpoints.",
-      "notes": []
+      "next_action": "R08 builds follow-ups on the same row identity; a live Ask-mode turn is the first thing to run when an approval prompt can be produced without inventing one.",
+      "notes": [
+        "The Runtime capability stays in main: IPC names Mona's own row id, and a test plus the smoke assert it never appears in the snapshot the renderer receives.",
+        "Pending lists live at the envelope's top level of thread detail on 0.10.2; the first implementation looked inside `thread` and read nothing, which the live smoke caught.",
+        "The user_input.required payload shape has never been observed from a live engine (a fresh thread has nothing pending); the parser accepts both documented spellings and renders only what it is given, and the gap is stated in the evidence."
+      ]
     },
     "R08": {
       "status": "pending",
@@ -1530,7 +1787,7 @@
       "notes": []
     },
     "R10": {
-      "status": "pending",
+      "status": "completed",
       "title": "Everyday composition and review conveniences",
       "prerequisites": [
         "R03",
@@ -1545,9 +1802,117 @@
       "feature_ids": [
         "RV-13"
       ],
-      "source_hashes": [],
-      "acceptance_completed": [],
-      "acceptance_remaining": [
+      "source_hashes": [
+        {
+          "path": "src/renderer/shell/Studio.tsx",
+          "sha256": "8c71d3a6fb84c2ba6e49e729985eac2025ec2984bd355c3f1ea284f6bccba3de",
+          "state": "current",
+          "note": "R10 verified bytes."
+        },
+        {
+          "path": "src/renderer/shell/Shell.tsx",
+          "sha256": "77c5e6fcfe1d82f8072695ed6288eb5504ee4a96bfe720853907e49fe570f79a",
+          "state": "current",
+          "note": "R10 verified bytes."
+        },
+        {
+          "path": "src/renderer/shell/markdown.tsx",
+          "sha256": "0c8c71ecd68ee8ebf495184b07d271db8ecbefdd49de0a0d984dead246e9c565",
+          "state": "current",
+          "note": "R10 verified bytes."
+        },
+        {
+          "path": "src/renderer/shell/composer-text.ts",
+          "sha256": "ab37fa7459f118f2e1d55dbbae95502a09adfee32637a2ecca3a00d4fb91fed0",
+          "state": "current",
+          "note": "R10 verified bytes."
+        },
+        {
+          "path": "src/renderer/styles.css",
+          "sha256": "d374f0d6a60a87aa23fb89fcab5bdb74d9a13eca3efe8459d4bbfc2a77bdaab3",
+          "state": "current",
+          "note": "R10 verified bytes."
+        },
+        {
+          "path": "src/main/ipc.ts",
+          "sha256": "2fa5883aa0248f90c2fdd7166e45db04c62b80c362d71a24548a6bfe0f56318e",
+          "state": "current",
+          "note": "R10 verified bytes."
+        },
+        {
+          "path": "src/main/ipc-contract.ts",
+          "sha256": "6479a25ffa07faf2c1fb6442e509a4c61a1271b12e2ae20f5723f5bb0f7358c1",
+          "state": "current",
+          "note": "R10 verified bytes."
+        },
+        {
+          "path": "src/main/projects/service.ts",
+          "sha256": "bfb71fce6bb9c7c1c16ddb5131bc16c0041f7a0fcc0a55ed3d4fb982563a7afc",
+          "state": "current",
+          "note": "R10 verified bytes."
+        },
+        {
+          "path": "src/main/state/store.ts",
+          "sha256": "0808a384ef4db1ba2e5282f541eaa7e66a56fb0228182c24213a44a4c4bd0ad8",
+          "state": "current",
+          "note": "R10 verified bytes."
+        },
+        {
+          "path": "src/main/work/studio.ts",
+          "sha256": "bbc04d9c5444a33405849a6c0286e5466445cde92d69e7aee712df92f44dbb36",
+          "state": "current",
+          "note": "R10 verified bytes."
+        },
+        {
+          "path": "src/shared/contracts/project-bridge.ts",
+          "sha256": "a2ab5d0deee54cb31225dd8708889d4fedec1bd93b30c37d3c57e4af4c04dda7",
+          "state": "current",
+          "note": "R10 verified bytes."
+        },
+        {
+          "path": "src/shared/contracts/studio.ts",
+          "sha256": "9707a57935fc7188db8aa6bb701a5c61a55bacd178fc6934cc6c294939c50e42",
+          "state": "current",
+          "note": "R10 verified bytes."
+        },
+        {
+          "path": "src/shared/contracts/bridge.ts",
+          "sha256": "42d6ad3feb0820af2def603efa3c9ce6873af13b0b09b27656f9db4ea20b3a69",
+          "state": "current",
+          "note": "R10 verified bytes."
+        },
+        {
+          "path": "src/preload/index.ts",
+          "sha256": "5aebacdc833c6a2888b0c732d2dc3694dbfe77649c277efcc815570e2749946e",
+          "state": "current",
+          "note": "R10 verified bytes."
+        },
+        {
+          "path": "test/r10-conveniences.test.ts",
+          "sha256": "69a34f191cad65d5b66b7cc7a829b2d8b01907593fe668da48f79a4476c15fa1",
+          "state": "current",
+          "note": "R10 verified bytes."
+        },
+        {
+          "path": "test/studio-screen.test.tsx",
+          "sha256": "dda580e5d46e103ca74e22dd7b031b04620c6e0ea003580502fae8f8e6f138ef",
+          "state": "current",
+          "note": "R10 verified bytes."
+        },
+        {
+          "path": "test/shell-races.test.tsx",
+          "sha256": "ad811935e4999f2c9c3fdbc613efc30ba14b190e2bf6f617f6bd81b51adfe21e",
+          "state": "current",
+          "note": "R10 verified bytes."
+        },
+        {
+          "path": "test/studio-focus.test.tsx",
+          "sha256": "7291f950ef2516cb62f39941ba787ae010edc5ea35f9a7efb9b294f0ed7b8ede",
+          "state": "current",
+          "note": "R10 verified bytes."
+        }
+      ],
+      "acceptance_completed": [
         "Copy message/code succeeds only after a clipboard acknowledgement; exact text and selection/focus are preserved",
         "Local conversation search with anchored results and a clear Jump-to-latest/unread affordance",
         "Resizable composer, keyboard shortcut help, and prompt favorites/history insertion that never discards unsent text",
@@ -1556,12 +1921,47 @@
         "Tool/change cards open the existing scoped Changes view; model output paths are treated as untrusted input",
         "Escaped/Unicode paths, large snippets, clipboard failure, search after pagination, switches and keyboard-only use are tested"
       ],
-      "tests": [],
-      "evidence": [],
+      "acceptance_remaining": [],
+      "tests": [
+        {
+          "command": "npx vitest run test/r10-conveniences.test.ts",
+          "result": "passed",
+          "detail": "Byte-preserving insertion (trailing whitespace kept, whitespace-only draft reported), search with anchors and snippets, % and _ inert as text, bounded and thread-scoped results, absolute/.. refused before the engine is asked, text and binary file mentions.",
+          "captured_utc": "2026-11-14T09:37:07Z"
+        },
+        {
+          "command": "npx vitest run test/studio-screen.test.tsx test/shell-races.test.tsx test/studio-focus.test.tsx",
+          "result": "passed",
+          "detail": "Exact card copy and block-source code copy, search results and scope, an absent anchor loading one more page, mention offered while binary attachment stays disabled, Open Changes without following model paths, unread while scrolled back, search state cleared when another project opens in the real shell, and the composer grip present in every layout.",
+          "captured_utc": "2026-11-14T09:37:07Z"
+        },
+        {
+          "command": "npm run smoke:shell",
+          "result": "passed",
+          "detail": "The existing 36-capture product smoke ran green on these bytes (ok: true); its rewritten captures were then restored to their committed bytes because R12 owns their reconciliation.",
+          "captured_utc": "2026-11-14T09:37:07Z"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/macos/review-studio/R10-composition-and-review.md",
+          "sha256": "ab9ded2f2a22297f29607bc6c7ebc45edd71bd82d39d23910de024d060a70af9",
+          "note": "R10 composition and review: acknowledged copy, project-scoped anchored search, unread/jump, composer resize in every layout, shortcut help, byte-preserving insertion, and a verified workspace file mention; shell smoke green on these bytes."
+        },
+        {
+          "path": "docs/evidence/macos/review-studio/artifacts/r06-r10-shell-smoke-run.txt",
+          "sha256": "2074d3c6b3bbebc74145b9b5d64631fcec712df7e9500503d160f7d022ea8d8c",
+          "note": "R10 composition and review: acknowledged copy, project-scoped anchored search, unread/jump, composer resize in every layout, shortcut help, byte-preserving insertion, and a verified workspace file mention; shell smoke green on these bytes."
+        }
+      ],
       "attempt_problem_ids": [],
       "platform": "darwin-arm64",
-      "next_action": "Read the prompt shelf, changes panel, Markdown/clipboard boundary and preferences.",
-      "notes": []
+      "next_action": "R11 owns narrow layouts, VoiceOver announcements and the composer at 200%; a ranked search index remains an explicit gap.",
+      "notes": [
+        "Search runs in SQLite with LIKE ... ESCAPE over this project's stored payloads, bounded to 100 rows; it is a state read and says so on screen.",
+        "The file mention is the engine's own workspace-files route, not a filesystem read: absolute paths and .. are refused in main before the engine is asked, and binary stays unavailable.",
+        "The composer grip is now rendered in the ordinary Studio as well; the R05 test that asserted 'immersion only' was rewritten to assert the new behaviour rather than deleted."
+      ]
     },
     "R11": {
       "status": "pending",
@@ -1894,10 +2294,15 @@
     "RV-10": {
       "title": "In-app approval/clarification replies are missing",
       "priority": "high",
-      "status": "open",
+      "status": "verified",
       "task": "R07",
-      "evidence": [],
-      "notes": []
+      "evidence": [
+        "docs/evidence/macos/review-studio/R07-pending-input-and-approvals.md"
+      ],
+      "notes": [
+        "Pending asks are durable rows holding the Runtime's own capability; both reply routes are wired with typed IPC, a single-use claim, and an acknowledgement-only success path.",
+        "Not verified end to end: a live approval prompt (needs a turn and inference). The contract, 404 path, lifecycle and 2xx mapping are verified."
+      ]
     },
     "RV-11": {
       "title": "Source formatting blocks the full CI entrypoint",
@@ -1924,10 +2329,14 @@
     "RV-13": {
       "title": "Attachments disabled",
       "priority": "low",
-      "status": "open",
+      "status": "verified",
       "task": "R10",
-      "evidence": [],
-      "notes": []
+      "evidence": [
+        "docs/evidence/macos/review-studio/R10-composition-and-review.md"
+      ],
+      "notes": [
+        "Binary attachments remain unavailable and the control says so; a verified text mention through the engine's workspace route replaces the disabled button, with size and a labelled token estimate before insertion."
+      ]
     },
     "UX-FULLSCREEN": {
       "title": "Immersive Studio: focus and native fullscreen",
@@ -1973,21 +2382,29 @@
     "UX-AURORA": {
       "title": "Aurora Studio visual direction (splashier, cooler, more fun)",
       "priority": "user-request",
-      "status": "open",
+      "status": "verified",
       "task": "R06",
-      "evidence": [],
-      "notes": []
+      "evidence": [
+        "docs/evidence/macos/review-studio/R06-aurora-studio.md"
+      ],
+      "notes": [
+        "Vivid/Quiet intensity over one semantic palette; production shell measured in both themes, both intensities, the immersive layout and 200% zoom."
+      ]
     },
     "UX-AGENT-COMMS": {
       "title": "Watch and talk to agents: pending replies, follow-ups, steering, activity",
       "priority": "user-request",
       "status": "open",
       "task": "R08",
-      "evidence": [],
-      "notes": []
+      "evidence": [
+        "docs/evidence/macos/review-studio/R07-pending-input-and-approvals.md"
+      ],
+      "notes": [
+        "R07 delivered the pending-reply half. Follow-ups, qualified steering and the activity strip remain R08."
+      ]
     }
   },
-  "last_checkpoint_utc": "2026-11-14T08:38:55.148Z",
+  "last_checkpoint_utc": "2026-11-14T09:37:07.679Z",
   "notes": [
     "Subordinate ledger. The P00–P27 registry remains authoritative for product requirements; this registry tracks review tasks and findings only.",
     "Attempts continue in the shared attempts.jsonl; a review task ID never resets a count."

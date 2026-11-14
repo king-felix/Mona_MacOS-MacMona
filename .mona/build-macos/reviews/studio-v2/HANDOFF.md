@@ -1,14 +1,102 @@
 # Handoff — Studio review (studio-v2)
 
-**Registry:** `.mona/build-macos/reviews/studio-v2/state.json` (revision 57, after the R05 evidence record)
-**Current task:** R05 — completed (review pass applied) · **Next eligible:** R06, R07, R10
+**Registry:** `.mona/build-macos/reviews/studio-v2/state.json` (revision 67, after R06/R07/R10)
+**Current task:** R10 — completed · **Next eligible:** R08 (needs R04+R07, both done)
 **Review document:** `MacMona_Studio_Review_PROMPTS.md` (sha256
 `7e1e16d1…`) · **Hotfix:** `MacMona_Review_Hotfix.patch` (sha256
 `a253a05e…`, applied unmodified)
 **Product ledger:** unchanged authority —
-`.mona/build-macos/state.json` is at P23 completed; P22/P25 remain its
-eligible prompts. Nothing in this review queue resets P00–P27 or the attempt
-counts (`attempts.jsonl` is empty; no problem consumed an attempt).
+`.mona/build-macos/state.json` is at P23 completed; P22/P25 remain its eligible
+prompts. Nothing in this review queue resets P00–P27 or the attempt counts
+(`attempts.jsonl` is still empty; no problem consumed an attempt).
+
+## Where R06, R07 and R10 landed (2026-11-14)
+
+All three were completed in one authorized queue, each with its own evidence
+document, focused tests, a live artifact where one is possible, and a review
+pass that failed the first versions and was fixed before checkpointing.
+
+### R06 — Aurora Studio
+
+- **Two intensities over one palette.** `applyIntensity("vivid" | "quiet")` adds
+  six ornament roles per theme (`--aurora-a/b/c`, `--selection`,
+  `--selection-ink`, `--glow`); no semantic text role moves, which a unit test
+  enforces structurally (no ornament role may be a text foreground) and the smoke
+  measures from the painted document.
+- **Identity on the production surfaces:** rail wash and gradient rule, a plaque
+  wash behind an opaque identity layer, a selection chip with a coloured inset
+  edge, distinct user/agent/tool/error turn surfaces, and the **production Home
+  row** (`.project-row`) — not the harness-only `.project-card`.
+- **Motion only for real state.** One pulse, on `.status-dot--live`, set by one
+  function and only while the connection is `running`; it stops when the document
+  is hidden and under reduced motion. Measured: 0 running animations in all four
+  theme/intensity combinations.
+- Evidence: `docs/evidence/macos/review-studio/R06-aurora-studio.md`,
+  `artifacts/r06-aurora-smoke.json` (real Electron window, **31 checks, no
+  engine, no model request**), 12 captures (both themes × both intensities ×
+  normal/immersive, Home, long console, 200 %).
+- **Review found three real defects, all fixed:** the Home treatment targeted a
+  class production never renders (and the smoke recorded `cards: 0` while
+  passing); the contrast check compared root tokens instead of painted pairs (and
+  its srgb parse silently produced `NaN`, which JSON reports as `null`); and a
+  stack of pending cards pushed the composer out of the immersive window.
+
+### R07 — Pending input and approvals
+
+- **A durable row with the Runtime's own capability** (schema v12
+  `pending_requests`, unique per engine thread + kind + capability), replacing the
+  in-memory sentence that forgot everything on restart.
+- **The engine stays authoritative about what is pending:** `hydratePending`
+  reads thread detail's `pending_approvals` / `pending_user_inputs` on cold
+  start (including the conversations the store already holds), on reattach, on
+  the live path and after a terminal turn; it reconciles **per kind** and expires
+  with the reason. Silence is not an empty list.
+- **Answering is a claim, then an echo.** Compare-and-set `pending → sending`, the
+  engine's own answer rules validated first, the capability path-encoded and never
+  sent to the renderer, and a status that distinguishes `answered` (2xx) from
+  `expired` (404), `refused` (other non-2xx) and `unknown` (transport failure).
+  A dead process's `sending` row is reopened because the engine still lists it;
+  a live claim never is.
+- Evidence: `docs/evidence/macos/review-studio/R07-pending-input-and-approvals.md`,
+  `artifacts/r07-pending-smoke.json` (real 0.10.2 engine, isolated HOME,
+  **13/13 assertions, 0 model requests**, including a restart into a fresh
+  `WorkStudio`), and 24 focused tests.
+- **Not verified:** a live approval prompt end to end (it needs a turn and
+  inference) and the `user_input.required` payload from a real ask. Both are
+  stated in the evidence rather than glossed.
+
+### R10 — Composition and review conveniences
+
+- **Copy is acknowledged by the clipboard itself** (written, read back, compared);
+  cards and fenced code copy their exact source.
+- **Search is local, bounded and project-scoped**, with an anchor per hit; a hit
+  outside the loaded window loads one more page, and the anchor applies once.
+- **Unread while scrolled back**, Jump to latest with a count, a resizable
+  composer in **every** layout, shortcut help that lists ⌘1–⌘9 and ⌘F, and
+  insertion that preserves every byte of unsent text.
+- **File mention is a verified read, not an upload:** the engine's own workspace
+  route, absolute/`..` refused before the engine is asked, size and a labelled
+  token estimate before insertion, a fence longer than any backtick run in the
+  file, and binary honestly unavailable.
+- Evidence: `docs/evidence/macos/review-studio/R10-composition-and-review.md`,
+  10 focused tests plus real-shell tests, and the green `smoke:shell` run record
+  (`artifacts/r06-r10-shell-smoke-run.txt`); the 24 product captures that smoke
+  rewrote were restored to their committed bytes because R12 owns them.
+- **Review found three defects, all fixed:** search state and the anchor survived
+  a project switch, the anchor re-scrolled on every later change, and the mention
+  insert bypassed the tested helper and could break its own fence.
+
+### Ledger hygiene
+
+- R02–R05 `source_hashes` invalidated by this queue are marked **historical**
+  with a note naming what changed; no hash was silently refreshed and no
+  assertion removed. `monabuild review validate` is green at revision 67.
+- `docs/codewhale-capabilities-macos.json` row MONA-CAP-052 was updated in place
+  (label, tests, gap) and stays `unqualified`: the routes and lifecycle are
+  verified, a live decision is not.
+- The product ledger was not touched. `smoke:shell`'s 24 rewritten captures were
+  restored; `monabuild validate` must be re-checked before the next product
+  checkpoint (R12 owns the reconciliation).
 
 ## Where R05 landed
 

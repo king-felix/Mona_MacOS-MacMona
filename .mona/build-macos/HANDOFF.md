@@ -9,6 +9,32 @@ original `f755d8a` is now `6a492d0`; the full mapping is in D-101.
 coordination) as eligible. P24 and P26–P27 wait on P22. P22 needs the Developer
 ID prerequisite (EXT-SIGNING) from `BLOCKERS.md`; P25 is fully independent.
 
+### Studio review queue — R06, R07 and R10 completed (2026-11-14)
+
+The review ledger is at revision 67 with **9 of 16 tasks complete**; R08 is the
+only eligible task now (it needs R04 and R07, both done).
+
+- **R06 Aurora Studio.** Vivid/Quiet intensity over one semantic palette, the
+  production Home row included, and one pulse bound to a genuinely running turn.
+  31 live checks and 12 captures; the review failed the first version on a
+  demo-only Home selector, a token-level contrast check and a composer squeezed
+  out by the pending stack, all fixed.
+- **R07 Pending input and approvals.** Schema v12 stores each engine ask with the
+  Runtime's own capability; both reply routes are wired with a single-use claim
+  and an acknowledgement-only success path. 13 live assertions against the
+  pinned engine (0 model requests), 24 focused tests. A live approval prompt has
+  not been round-tripped and that is recorded.
+- **R10 Composition and review.** Acknowledged copy, project-scoped anchored
+  search, unread/jump, a composer resizable in every layout, shortcut help,
+  byte-preserving insertion, and a verified file mention through the engine's
+  workspace route.
+- R02–R05 source hashes invalidated by these changes are marked historical with
+  a note; nothing was silently refreshed. `smoke:shell`'s 24 rewritten product
+  captures were restored to their committed bytes — R12 still owns that
+  reconciliation, and `monabuild validate` will report them as stale until then.
+- Full suite **1040 tests in 93 files**, typecheck clean, lint 0 errors, format
+  clean, secrets scan 0 findings.
+
 ### Studio review pass — 2026-11-14 (D-103)
 
 Victor supplied `MacMona_Studio_Review_PROMPTS.md` and
