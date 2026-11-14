@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "label": "P17 — tools and extensions",
-  "captured_at": "2026-11-14T08:20:27.502Z",
+  "captured_at": "2026-11-14T08:37:13.861Z",
   "ok": true,
   "checks": {
     "live inventory": {
@@ -206,20 +206,20 @@
         }
       ],
       "hooks": {
-        "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p17-smoke-xg6lBR/ws",
+        "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p17-smoke-gvwExU/ws",
         "enabled": false,
         "hooks": [],
         "problems": [],
         "note": "Hooks are engine semantics: tool_call_before can deny, shell_env applies, and observers fire. Mona reads the set from the engine and never executes hook commands itself.",
         "source": "live",
         "error": null,
-        "readAt": "2026-11-14T08:20:27.819Z"
+        "readAt": "2026-11-14T08:37:14.171Z"
       },
       "instructions": [
         {
           "kind": "project",
           "status": "loaded",
-          "path": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p17-smoke-xg6lBR/ws/AGENTS.md",
+          "path": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p17-smoke-gvwExU/ws/AGENTS.md",
           "relativePath": "AGENTS.md",
           "exists": true,
           "bytes": 46,
@@ -252,7 +252,7 @@
       "action": "mcp.add",
       "target": "mona-fixture",
       "ok": true,
-      "revision": "mcp-v1-93431ddd985e07fdcc10c39401199203eea7129d1b29c8e516840165eb0b5848",
+      "revision": "mcp-v1-d7b8ab5414b36e7c06543d612efd52466fda8af47504dec6615c175a6ce12a98",
       "message": "MCP server added to the global configuration.",
       "detail": "Review and connect it before relying on its tools; adding does not start the server."
     },
@@ -309,14 +309,14 @@
     },
     "plugin_install": {
       "action": "plugin.install",
-      "target": "user/e19967451a6f/mona-fixture-plugin",
+      "target": "user/242916f74b77/mona-fixture-plugin",
       "ok": true,
       "revision": null,
-      "message": "Plugin installed: user/e19967451a6f/mona-fixture-plugin.",
+      "message": "Plugin installed: user/242916f74b77/mona-fixture-plugin.",
       "detail": "Installed disabled and untrusted. Open this plugin's detail to review its capabilities, then trust and enable it. It is installed disabled and untrusted until you review it."
     },
     "installed_plugin": {
-      "id": "user/e19967451a6f/mona-fixture-plugin",
+      "id": "user/242916f74b77/mona-fixture-plugin",
       "name": "mona-fixture-plugin",
       "displayName": null,
       "version": "0.0.1",
@@ -407,20 +407,20 @@
       ]
     },
     "hooks": {
-      "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p17-smoke-xg6lBR/ws",
+      "workspace": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p17-smoke-gvwExU/ws",
       "enabled": false,
       "hooks": [],
       "problems": [],
       "note": "Hooks are engine semantics: tool_call_before can deny, shell_env applies, and observers fire. Mona reads the set from the engine and never executes hook commands itself.",
       "source": "live",
       "error": null,
-      "readAt": "2026-11-14T08:20:28.317Z"
+      "readAt": "2026-11-14T08:37:14.668Z"
     },
     "instructions": [
       {
         "kind": "project",
         "status": "loaded",
-        "path": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p17-smoke-xg6lBR/ws/AGENTS.md",
+        "path": "/private/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p17-smoke-gvwExU/ws/AGENTS.md",
         "relativePath": "AGENTS.md",
         "exists": true,
         "bytes": 46,

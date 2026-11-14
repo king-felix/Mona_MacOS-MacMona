@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 1037,
+  "revision": 1054,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -53,8 +53,8 @@
         },
         {
           "path": "docs/requirements-macos.json",
-          "sha256": "d25a3a6538d2cdd01da599f1cba8192902317cde5a850ae3eaf7dec845f30aaa",
-          "note": "Re-recorded after the requirements sync that followed the dependency-advisory fix; the previous hash described the bytes before that sync. Generated structure unchanged (28 prompts, 38 requirements); no status lowered."
+          "sha256": "f8027f36346276d7cceeaf30be970ece91fe75c5256daf2a48d7f5126773a8d5",
+          "note": "Re-recorded after the requirements sync that followed the app-icon change; the previous hash described the bytes before that sync. Generated structure unchanged (28 prompts, 38 requirements); no status lowered."
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
@@ -238,8 +238,8 @@
         },
         {
           "path": "package.json",
-          "sha256": "f07e1b60b8c65771fce9f789fce8a58c46be3a8b3bb181c10f14a01c2de71fa8",
-          "note": "Re-recorded after closing GHSA-g3hv-75wg-m249 / GHSA-3g3m-2fjr-6pw4: eslint 10.14.0->10.15.0, @electron/asar 4.3.1->4.3.2 (glob 14.0.6, minimatch 11.0.8 via a scoped typescript-estree override). The previous hash described the bytes at this prompt's verification. No requirement status was lowered and no assertion removed; npm run ci is green (18/18, 983 tests) and mac:package:local passes every gate up to the admin-gated installed_copy. See docs/evidence/macos/security/dependency-advisory-2026-11.md."
+          "sha256": "7e79b5769299edd7657395f7dd05aaa035681de621c31daf120c04ffa5aecf52",
+          "note": "MidnightMona.png is now the app icon: the packaging sources (icon.mjs, build.mjs) and the renderer brand mark changed, and this is the state after that change. The previous hash described the bytes at this prompt's verification; no requirement status was lowered and no assertion removed."
         },
         {
           "path": "package-lock.json",
@@ -289,8 +289,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "e1b21fd11725b07a411c97c70ad205386fabcd6b9b76318cd0e8d0b7bfcbb3eb",
-          "note": "Re-recorded at the R05 checkpoint: the review queue changed these bytes after this prompt's verification (the R05 smoke runner in index.ts, and the requirements sync timestamps). The previous hash described the pre-review bytes; no requirement status was lowered and no assertion removed."
+          "sha256": "eb9792fa8c3c43d0f5533a537ac998198989f63b7e23090182122107799ada7c",
+          "note": "MidnightMona.png is now the app icon: the packaging sources (icon.mjs, build.mjs) and the renderer brand mark changed, and this is the state after that change. The previous hash described the bytes at this prompt's verification; no requirement status was lowered and no assertion removed."
         },
         {
           "path": "src/main/ipc-contract.ts",
@@ -342,7 +342,8 @@
         },
         {
           "path": "src/renderer/index.html",
-          "sha256": "258495f4db55cdcc5460260354e5ae3116615d258f629a4d03db5a39ac36bbe1"
+          "sha256": "c57a5b944e3b0488ce4cb6b60367f26f9bf0e1aa66a6d02e7a69b9a20dc8f52d",
+          "note": "MidnightMona.png is now the app icon: the packaging sources (icon.mjs, build.mjs) and the renderer brand mark changed, and this is the state after that change. The previous hash described the bytes at this prompt's verification; no requirement status was lowered and no assertion removed."
         },
         {
           "path": "src/renderer/main.tsx",
@@ -350,8 +351,8 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "5a74842727a782efb295937651bc5cf8fbf715b6bcb21476c7a14f71b4d2e67a",
-          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent)."
+          "sha256": "10d230d178fb8aa945e4463c41194ba0ff05cc9ebb2eedc5e89e92d13528defd",
+          "note": "MidnightMona.png is now the app icon: the packaging sources (icon.mjs, build.mjs) and the renderer brand mark changed, and this is the state after that change. The previous hash described the bytes at this prompt's verification; no requirement status was lowered and no assertion removed."
         },
         {
           "path": "src/shared/contracts/bridge.ts",
@@ -569,8 +570,8 @@
         },
         {
           "path": "package.json",
-          "sha256": "f07e1b60b8c65771fce9f789fce8a58c46be3a8b3bb181c10f14a01c2de71fa8",
-          "note": "Re-recorded after closing GHSA-g3hv-75wg-m249 / GHSA-3g3m-2fjr-6pw4: eslint 10.14.0->10.15.0, @electron/asar 4.3.1->4.3.2 (glob 14.0.6, minimatch 11.0.8 via a scoped typescript-estree override). The previous hash described the bytes at this prompt's verification. No requirement status was lowered and no assertion removed; npm run ci is green (18/18, 983 tests) and mac:package:local passes every gate up to the admin-gated installed_copy. See docs/evidence/macos/security/dependency-advisory-2026-11.md."
+          "sha256": "7e79b5769299edd7657395f7dd05aaa035681de621c31daf120c04ffa5aecf52",
+          "note": "MidnightMona.png is now the app icon: the packaging sources (icon.mjs, build.mjs) and the renderer brand mark changed, and this is the state after that change. The previous hash described the bytes at this prompt's verification; no requirement status was lowered and no assertion removed."
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
@@ -700,8 +701,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "e1b21fd11725b07a411c97c70ad205386fabcd6b9b76318cd0e8d0b7bfcbb3eb",
-          "note": "Re-recorded at the R05 checkpoint: the review queue changed these bytes after this prompt's verification (the R05 smoke runner in index.ts, and the requirements sync timestamps). The previous hash described the pre-review bytes; no requirement status was lowered and no assertion removed."
+          "sha256": "eb9792fa8c3c43d0f5533a537ac998198989f63b7e23090182122107799ada7c",
+          "note": "MidnightMona.png is now the app icon: the packaging sources (icon.mjs, build.mjs) and the renderer brand mark changed, and this is the state after that change. The previous hash described the bytes at this prompt's verification; no requirement status was lowered and no assertion removed."
         },
         {
           "path": "src/main/engine/runtime-process.ts",
@@ -752,8 +753,8 @@
         },
         {
           "path": "package.json",
-          "sha256": "f07e1b60b8c65771fce9f789fce8a58c46be3a8b3bb181c10f14a01c2de71fa8",
-          "note": "Re-recorded after closing GHSA-g3hv-75wg-m249 / GHSA-3g3m-2fjr-6pw4: eslint 10.14.0->10.15.0, @electron/asar 4.3.1->4.3.2 (glob 14.0.6, minimatch 11.0.8 via a scoped typescript-estree override). The previous hash described the bytes at this prompt's verification. No requirement status was lowered and no assertion removed; npm run ci is green (18/18, 983 tests) and mac:package:local passes every gate up to the admin-gated installed_copy. See docs/evidence/macos/security/dependency-advisory-2026-11.md."
+          "sha256": "7e79b5769299edd7657395f7dd05aaa035681de621c31daf120c04ffa5aecf52",
+          "note": "MidnightMona.png is now the app icon: the packaging sources (icon.mjs, build.mjs) and the renderer brand mark changed, and this is the state after that change. The previous hash described the bytes at this prompt's verification; no requirement status was lowered and no assertion removed."
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
@@ -1176,8 +1177,8 @@
         },
         {
           "path": "package.json",
-          "sha256": "f07e1b60b8c65771fce9f789fce8a58c46be3a8b3bb181c10f14a01c2de71fa8",
-          "note": "Re-recorded after closing GHSA-g3hv-75wg-m249 / GHSA-3g3m-2fjr-6pw4: eslint 10.14.0->10.15.0, @electron/asar 4.3.1->4.3.2 (glob 14.0.6, minimatch 11.0.8 via a scoped typescript-estree override). The previous hash described the bytes at this prompt's verification. No requirement status was lowered and no assertion removed; npm run ci is green (18/18, 983 tests) and mac:package:local passes every gate up to the admin-gated installed_copy. See docs/evidence/macos/security/dependency-advisory-2026-11.md."
+          "sha256": "7e79b5769299edd7657395f7dd05aaa035681de621c31daf120c04ffa5aecf52",
+          "note": "MidnightMona.png is now the app icon: the packaging sources (icon.mjs, build.mjs) and the renderer brand mark changed, and this is the state after that change. The previous hash described the bytes at this prompt's verification; no requirement status was lowered and no assertion removed."
         },
         {
           "path": "src/main/open/folder-request.ts",
@@ -1193,8 +1194,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "e1b21fd11725b07a411c97c70ad205386fabcd6b9b76318cd0e8d0b7bfcbb3eb",
-          "note": "Re-recorded at the R05 checkpoint: the review queue changed these bytes after this prompt's verification (the R05 smoke runner in index.ts, and the requirements sync timestamps). The previous hash described the pre-review bytes; no requirement status was lowered and no assertion removed."
+          "sha256": "eb9792fa8c3c43d0f5533a537ac998198989f63b7e23090182122107799ada7c",
+          "note": "MidnightMona.png is now the app icon: the packaging sources (icon.mjs, build.mjs) and the renderer brand mark changed, and this is the state after that change. The previous hash described the bytes at this prompt's verification; no requirement status was lowered and no assertion removed."
         },
         {
           "path": "src/main/desktop-lifecycle.ts",
@@ -1231,8 +1232,8 @@
         },
         {
           "path": "src/renderer/shell/Shell.tsx",
-          "sha256": "efe534125068fd3bf4c32dadad4e2476bea763ec05c8baacfd783a5b7c8c27fb",
-          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent)."
+          "sha256": "4d680e1fc5a936e52ced24e21e528910b8d078c5f85bdf220f59234f86849c49",
+          "note": "MidnightMona.png is now the app icon: the packaging sources (icon.mjs, build.mjs) and the renderer brand mark changed, and this is the state after that change. The previous hash described the bytes at this prompt's verification; no requirement status was lowered and no assertion removed."
         },
         {
           "path": "src/renderer/shell/drop.ts",
@@ -1249,8 +1250,8 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "5a74842727a782efb295937651bc5cf8fbf715b6bcb21476c7a14f71b4d2e67a",
-          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent)."
+          "sha256": "10d230d178fb8aa945e4463c41194ba0ff05cc9ebb2eedc5e89e92d13528defd",
+          "note": "MidnightMona.png is now the app icon: the packaging sources (icon.mjs, build.mjs) and the renderer brand mark changed, and this is the state after that change. The previous hash described the bytes at this prompt's verification; no requirement status was lowered and no assertion removed."
         },
         {
           "path": "test/folder-request.test.ts",
@@ -1381,8 +1382,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "e1b21fd11725b07a411c97c70ad205386fabcd6b9b76318cd0e8d0b7bfcbb3eb",
-          "note": "Re-recorded at the R05 checkpoint: the review queue changed these bytes after this prompt's verification (the R05 smoke runner in index.ts, and the requirements sync timestamps). The previous hash described the pre-review bytes; no requirement status was lowered and no assertion removed."
+          "sha256": "eb9792fa8c3c43d0f5533a537ac998198989f63b7e23090182122107799ada7c",
+          "note": "MidnightMona.png is now the app icon: the packaging sources (icon.mjs, build.mjs) and the renderer brand mark changed, and this is the state after that change. The previous hash described the bytes at this prompt's verification; no requirement status was lowered and no assertion removed."
         },
         {
           "path": "src/preload/index.ts",
@@ -1401,8 +1402,8 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "5a74842727a782efb295937651bc5cf8fbf715b6bcb21476c7a14f71b4d2e67a",
-          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent)."
+          "sha256": "10d230d178fb8aa945e4463c41194ba0ff05cc9ebb2eedc5e89e92d13528defd",
+          "note": "MidnightMona.png is now the app icon: the packaging sources (icon.mjs, build.mjs) and the renderer brand mark changed, and this is the state after that change. The previous hash described the bytes at this prompt's verification; no requirement status was lowered and no assertion removed."
         },
         {
           "path": "test/work-board.test.ts",
@@ -1817,8 +1818,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p16-settings-smoke.json",
-          "sha256": "499b4f6a86188a830dc4c123941a9d64ed0edd9988c22d94a9244289a6452adb",
-          "note": "A smoke report is a run record: re-running it rewrites its captured_at and host facts, so this hash describes the run made during the dependency-advisory verification (npm run ci, 2026-11-14, after GHSA-g3hv-75wg-m249 was closed). Same class as ledger items 97/98; no assertion was removed and no status lowered."
+          "sha256": "0b7a70aa72d163ea19f64860ccb5ce36e7b9291fd1626a772fef4b0c15a59e7e",
+          "note": "A smoke report is a run record: re-running it rewrites captured_at and host facts, so this hash describes the run made during the app-icon verification (npm run ci, 2026-11-14, 994 tests in 91 files). Same class as ledger items 97/98."
         },
         {
           "path": "docs/evidence/macos/artifacts/p16-settings-route.png",
@@ -1860,8 +1861,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p17-extensions-smoke.json",
-          "sha256": "04fc0fc73f8ff520c805e903e980ea48bea535fd1eb638391a5774471231b249",
-          "note": "A smoke report is a run record: re-running it rewrites its captured_at and host facts, so this hash describes the run made during the dependency-advisory verification (npm run ci, 2026-11-14, after GHSA-g3hv-75wg-m249 was closed). Same class as ledger items 97/98; no assertion was removed and no status lowered."
+          "sha256": "a651328ed7f947ff9bd312bb06538c318289ceda16f46c8c615342964cf5756d",
+          "note": "A smoke report is a run record: re-running it rewrites captured_at and host facts, so this hash describes the run made during the app-icon verification (npm run ci, 2026-11-14, 994 tests in 91 files). Same class as ledger items 97/98."
         },
         {
           "path": "docs/evidence/macos/artifacts/p17-settings-extensions.png",
@@ -1908,23 +1909,23 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-terminal-smoke.json",
-          "sha256": "0e91a0f7caa737fddd9bb4bbcad07a3f59cb382ba95e51504c904a2e98bc1b18",
-          "note": "A smoke report is a run record: re-running it rewrites its captured_at and host facts, so this hash describes the run made during the dependency-advisory verification (npm run ci, 2026-11-14, after GHSA-g3hv-75wg-m249 was closed). Same class as ledger items 97/98; no assertion was removed and no status lowered."
+          "sha256": "ff3654e7eb1b818b41476485a155a1928d388d78744da9b033ad9726da6d528d",
+          "note": "A smoke report is a run record: re-running it rewrites captured_at and host facts, so this hash describes the run made during the app-icon verification (npm run ci, 2026-11-14, 994 tests in 91 files). Same class as ledger items 97/98."
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capability-smoke.json",
-          "sha256": "95ce1a546dea259f347cee0d27eb78bc55e085316509b7076ed18968c6baebe6",
-          "note": "A smoke report is a run record: re-running it rewrites its captured_at and host facts, so this hash describes the run made during the dependency-advisory verification (npm run ci, 2026-11-14, after GHSA-g3hv-75wg-m249 was closed). Same class as ledger items 97/98; no assertion was removed and no status lowered."
+          "sha256": "5c23e427d45b2972cfcb933269d25e59ad0d90aa6fba15358790c06bd0e7e9d1",
+          "note": "A smoke report is a run record: re-running it rewrites captured_at and host facts, so this hash describes the run made during the app-icon verification (npm run ci, 2026-11-14, 994 tests in 91 files). Same class as ledger items 97/98."
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capability-coverage.md",
-          "sha256": "ddfe8cde0d91f539e7f9bd207de77beea1fec0b4d58ea06328a4edddf44cfb84",
-          "note": "A smoke report is a run record: re-running it rewrites its captured_at and host facts, so this hash describes the run made during the dependency-advisory verification (npm run ci, 2026-11-14, after GHSA-g3hv-75wg-m249 was closed). Same class as ledger items 97/98; no assertion was removed and no status lowered."
+          "sha256": "f128d2cbc4ca7e1cb58d5796f788936435f236b72d729133c925b00efda999c9",
+          "note": "A smoke report is a run record: re-running it rewrites captured_at and host facts, so this hash describes the run made during the app-icon verification (npm run ci, 2026-11-14, 994 tests in 91 files). Same class as ledger items 97/98."
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capability-coverage.json",
-          "sha256": "bc0badb123d231fec3a9c4481d1dc2e705203b91c916e1e8fc066f40f75e86a3",
-          "note": "A smoke report is a run record: re-running it rewrites its captured_at and host facts, so this hash describes the run made during the dependency-advisory verification (npm run ci, 2026-11-14, after GHSA-g3hv-75wg-m249 was closed). Same class as ledger items 97/98; no assertion was removed and no status lowered."
+          "sha256": "d30c1fcacd55ccdc39093f2184f05c98a490d7b61f8e4345f4bd68e5010efdbe",
+          "note": "A smoke report is a run record: re-running it rewrites captured_at and host facts, so this hash describes the run made during the app-icon verification (npm run ci, 2026-11-14, 994 tests in 91 files). Same class as ledger items 97/98."
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-shell-smoke.json",
@@ -2043,13 +2044,13 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "e1b21fd11725b07a411c97c70ad205386fabcd6b9b76318cd0e8d0b7bfcbb3eb",
-          "note": "Re-recorded at the R05 checkpoint: the review queue changed these bytes after this prompt's verification (the R05 smoke runner in index.ts, and the requirements sync timestamps). The previous hash described the pre-review bytes; no requirement status was lowered and no assertion removed."
+          "sha256": "eb9792fa8c3c43d0f5533a537ac998198989f63b7e23090182122107799ada7c",
+          "note": "MidnightMona.png is now the app icon: the packaging sources (icon.mjs, build.mjs) and the renderer brand mark changed, and this is the state after that change. The previous hash described the bytes at this prompt's verification; no requirement status was lowered and no assertion removed."
         },
         {
           "path": "src/renderer/shell/Shell.tsx",
-          "sha256": "efe534125068fd3bf4c32dadad4e2476bea763ec05c8baacfd783a5b7c8c27fb",
-          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent)."
+          "sha256": "4d680e1fc5a936e52ced24e21e528910b8d078c5f85bdf220f59234f86849c49",
+          "note": "MidnightMona.png is now the app icon: the packaging sources (icon.mjs, build.mjs) and the renderer brand mark changed, and this is the state after that change. The previous hash described the bytes at this prompt's verification; no requirement status was lowered and no assertion removed."
         },
         {
           "path": "src/renderer/shell/Settings.tsx",
@@ -2061,8 +2062,8 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "5a74842727a782efb295937651bc5cf8fbf715b6bcb21476c7a14f71b4d2e67a",
-          "note": "Re-recorded at the R05 checkpoint: the review queue (R03–R05) changed these shared bytes after this prompt's verification, and the recorded hash is the state at that verification. No requirement status was lowered and no assertion removed (the P14/P15/P18 precedent)."
+          "sha256": "10d230d178fb8aa945e4463c41194ba0ff05cc9ebb2eedc5e89e92d13528defd",
+          "note": "MidnightMona.png is now the app icon: the packaging sources (icon.mjs, build.mjs) and the renderer brand mark changed, and this is the state after that change. The previous hash described the bytes at this prompt's verification; no requirement status was lowered and no assertion removed."
         },
         {
           "path": "test/terminal-buffer.test.ts",
@@ -2104,8 +2105,8 @@
         },
         {
           "path": "package.json",
-          "sha256": "f07e1b60b8c65771fce9f789fce8a58c46be3a8b3bb181c10f14a01c2de71fa8",
-          "note": "Re-recorded after closing GHSA-g3hv-75wg-m249 / GHSA-3g3m-2fjr-6pw4: eslint 10.14.0->10.15.0, @electron/asar 4.3.1->4.3.2 (glob 14.0.6, minimatch 11.0.8 via a scoped typescript-estree override). The previous hash described the bytes at this prompt's verification. No requirement status was lowered and no assertion removed; npm run ci is green (18/18, 983 tests) and mac:package:local passes every gate up to the admin-gated installed_copy. See docs/evidence/macos/security/dependency-advisory-2026-11.md."
+          "sha256": "7e79b5769299edd7657395f7dd05aaa035681de621c31daf120c04ffa5aecf52",
+          "note": "MidnightMona.png is now the app icon: the packaging sources (icon.mjs, build.mjs) and the renderer brand mark changed, and this is the state after that change. The previous hash described the bytes at this prompt's verification; no requirement status was lowered and no assertion removed."
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
@@ -2148,8 +2149,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p19-memory-smoke.json",
-          "sha256": "127421e811a49704e6ac147904d83727ad97b13b94507f9436cb9bebfe4bab4a",
-          "note": "A smoke report is a run record: re-running it rewrites its captured_at and host facts, so this hash describes the run made during the dependency-advisory verification (npm run ci, 2026-11-14, after GHSA-g3hv-75wg-m249 was closed). Same class as ledger items 97/98; no assertion was removed and no status lowered."
+          "sha256": "6247b593d16c4feb3b36dd6502d8b93dfde58778350c526cbc5052bc3e5926bf",
+          "note": "A smoke report is a run record: re-running it rewrites captured_at and host facts, so this hash describes the run made during the app-icon verification (npm run ci, 2026-11-14, 994 tests in 91 files). Same class as ledger items 97/98."
         },
         {
           "path": "docs/evidence/macos/artifacts/p19-ci.txt",
@@ -2232,8 +2233,8 @@
         },
         {
           "path": "docs/requirements-macos.json",
-          "sha256": "d25a3a6538d2cdd01da599f1cba8192902317cde5a850ae3eaf7dec845f30aaa",
-          "note": "Re-recorded after the requirements sync that followed the dependency-advisory fix; the previous hash described the bytes before that sync. Generated structure unchanged (28 prompts, 38 requirements); no status lowered."
+          "sha256": "f8027f36346276d7cceeaf30be970ece91fe75c5256daf2a48d7f5126773a8d5",
+          "note": "Re-recorded after the requirements sync that followed the app-icon change; the previous hash described the bytes before that sync. Generated structure unchanged (28 prompts, 38 requirements); no status lowered."
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
@@ -2282,8 +2283,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p20-failure-smoke.json",
-          "sha256": "7f76b2702f60d6526a63ab81bc29c09be6e534f5f5d51a1706235cdd8a66c8e0",
-          "note": "A smoke report is a run record: re-running it rewrites its captured_at and host facts, so this hash describes the run made during the dependency-advisory verification (npm run ci, 2026-11-14, after GHSA-g3hv-75wg-m249 was closed). Same class as ledger items 97/98; no assertion was removed and no status lowered."
+          "sha256": "7adb689aa00dc5668fb6ee978c16894fe1b4aae4e9a4a3e6692292cde8f01ccf",
+          "note": "A smoke report is a run record: re-running it rewrites captured_at and host facts, so this hash describes the run made during the app-icon verification (npm run ci, 2026-11-14, 994 tests in 91 files). Same class as ledger items 97/98."
         },
         {
           "path": "docs/evidence/macos/artifacts/p20-lifecycle-crash.json",
@@ -2391,7 +2392,8 @@
         },
         {
           "path": "packaging/macos/build.mjs",
-          "sha256": "600cb1b8ddbee7b2f3e583857c62016f85b88927fad0519c05814d6b487dc60b"
+          "sha256": "7aa67e5f5079de50af412625fbc1102c6dd16a4551a285aacba82ac86399f07d",
+          "note": "MidnightMona.png is now the app icon: the packaging sources (icon.mjs, build.mjs) and the renderer brand mark changed, and this is the state after that change. The previous hash described the bytes at this prompt's verification; no requirement status was lowered and no assertion removed."
         },
         {
           "path": "packaging/macos/doctor.mjs",
@@ -2399,7 +2401,8 @@
         },
         {
           "path": "packaging/macos/icon.mjs",
-          "sha256": "6e691d4f7e73133f50dea44b29e98b0e148ad34efff593c93d3561b176ecf57a"
+          "sha256": "2f0b94df01371e779c26d45cc77e8c437e698c91ab3977c07876308d0e298be4",
+          "note": "MidnightMona.png is now the app icon: the packaging sources (icon.mjs, build.mjs) and the renderer brand mark changed, and this is the state after that change. The previous hash described the bytes at this prompt's verification; no requirement status was lowered and no assertion removed."
         },
         {
           "path": "packaging/macos/lib/macho.mjs",
@@ -2459,8 +2462,8 @@
         },
         {
           "path": "docs/requirements-macos.json",
-          "sha256": "d25a3a6538d2cdd01da599f1cba8192902317cde5a850ae3eaf7dec845f30aaa",
-          "note": "Re-recorded after the requirements sync that followed the dependency-advisory fix; the previous hash described the bytes before that sync. Generated structure unchanged (28 prompts, 38 requirements); no status lowered."
+          "sha256": "f8027f36346276d7cceeaf30be970ece91fe75c5256daf2a48d7f5126773a8d5",
+          "note": "Re-recorded after the requirements sync that followed the app-icon change; the previous hash described the bytes before that sync. Generated structure unchanged (28 prompts, 38 requirements); no status lowered."
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
@@ -2475,6 +2478,21 @@
         {
           "path": "test/work-git.test.ts",
           "sha256": "5f09e835676ffff59240cbc93a8e14ec09a2a2d8624651613f4bf49ca3f0fde3"
+        },
+        {
+          "path": "docs/evidence/macos/brand/MidnightMona-app-icon.md",
+          "sha256": "e9dd09e08739054baf2b3f3bd6c6ef065858c751fe809da15562ab185f24c90d",
+          "note": "The app icon: MidnightMona.png packaged as the bundle icns, a shipped Windows ico, the installer art derived from it, and the derived in-app mark."
+        },
+        {
+          "path": "packaging/macos/resources/MidnightMona.png",
+          "sha256": "cebc871741323a49e556d633fbf0e656a6134bb4c6c4b839ce13a67963df41be",
+          "note": "The app icon: MidnightMona.png packaged as the bundle icns, a shipped Windows ico, the installer art derived from it, and the derived in-app mark."
+        },
+        {
+          "path": "src/renderer/assets/mona-mark.png",
+          "sha256": "4f9becb69c84859802c2718eaf5b8e2361c176e96ec481a37797c75ef3b18a0d",
+          "note": "The app icon: MidnightMona.png packaged as the bundle icns, a shipped Windows ico, the installer art derived from it, and the derived in-app mark."
         }
       ],
       "blocker_ids": []
@@ -2519,12 +2537,13 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p23-lifecycle-smoke.json",
-          "sha256": "afa7eaa71f1f4407986649f019de29d06b96da44e3f800d6fe4a4d4ed333bffb",
-          "note": "A smoke report is a run record: re-running it rewrites its captured_at and host facts, so this hash describes the run made during the dependency-advisory verification (npm run ci, 2026-11-14, after GHSA-g3hv-75wg-m249 was closed). Same class as ledger items 97/98; no assertion was removed and no status lowered."
+          "sha256": "130c42bde807b3ba32e54ba5960db5cb0c8223236f97101342022c9604a3334c",
+          "note": "A smoke report is a run record: re-running it rewrites captured_at and host facts, so this hash describes the run made during the app-icon verification (npm run ci, 2026-11-14, 994 tests in 91 files). Same class as ledger items 97/98."
         },
         {
           "path": "docs/evidence/macos/artifacts/p23-uninstall-rehearsal.json",
-          "sha256": "5790f9f5a90fd44e806414cf92473640c08449e828fee95a74e36155799cc86e"
+          "sha256": "a32600128f40b311451dc3b42eb9218224a6292543f7af315a13067f50d6aa8d",
+          "note": "A smoke report is a run record: re-running it rewrites captured_at and host facts, so this hash describes the run made during the app-icon verification (npm run ci, 2026-11-14, 994 tests in 91 files). Same class as ledger items 97/98."
         },
         {
           "path": "docs/evidence/macos/artifacts/p23-ci.txt",
@@ -2597,7 +2616,7 @@
     "P22",
     "P25"
   ],
-  "last_checkpoint_utc": "2026-11-14T08:24:06.026Z",
+  "last_checkpoint_utc": "2026-11-14T08:38:41.135Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

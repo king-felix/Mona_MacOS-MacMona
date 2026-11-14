@@ -305,3 +305,38 @@ D-001…D-103) and never replace them.
 - **Consequence:** R12 inherits a clean dependency tree and must re-check it at
   the final sweep; the product-ledger manifest hashes and the smoke run records
   this CI run rewrote were re-recorded with notes rather than silently refreshed.
+
+## RD-013 — One committed logo asset, resampled everywhere, never redrawn
+
+- **Context:** the owner supplied `MidnightMona.png` (1254×1254 RGBA) and asked
+  for it as the app icon and ico "and anywhere else where the logo may be
+  called for". The build previously synthesised its icon mathematically in
+  `packaging/macos/icon.mjs` — a rounded square and a gold M — and drew the same
+  glyph into the installer background.
+- **Decision — the artwork replaces the synthetic mark outright.** The master
+  moved to `packaging/macos/resources/MidnightMona.png` and every surface is a
+  resample of it: `Mona.icns` (ten iconset sizes), `Mona.ico` (seven PNG
+  entries), the installer background, the 24 px in-app rail mark, and the
+  window favicon. Nothing draws its own glyph any more.
+- **Decision — a wrong asset fails the build.** `readLogo()` refuses a master
+  that is not square, not 8-bit RGBA, interlaced, or under 1024 px. A packaging
+  run must stop rather than ship a subtly wrong icon.
+- **Decision — `.ico` ships even though macOS ignores it.** The format was asked
+  for explicitly; it is sealed in `Contents/Resources` and recorded in the
+  component manifest as an `image` component, so it is a real payload byte rather
+  than a build leftover.
+- **Decision — derived, not duplicated, in the renderer.** The rail mark is a
+  128 px resample written by `npm run icon:render` from the same master, so the
+  in-app logo cannot drift from the bundle icon.
+- **Caught while building it:** the artwork's corner is fully transparent, so
+  sampling (8,8) for the installer gradient produced black. The gradient now
+  scans for the darkest pixel with `alpha ≥ 250`. The pre-existing
+  `focus_mode_composer_usable` check also failed once the icon made the smoke
+  run reach Focus Mode: it asserted against the sticky control strip R05
+  removed, so it was generalized to its intent (Send reachable, on screen, and
+  not covered where a strip exists) rather than deleted.
+- **Not claimed:** the Installer's own background rendering and the Dock tile are
+  unverified until the package is installed; `smoke:shell`'s 36 pinned product
+  captures were deliberately not regenerated (R12 owns them, and they were
+  already stale from R04/R05).
+- **Consequence:** R06 restyles around this identity instead of regenerating it.

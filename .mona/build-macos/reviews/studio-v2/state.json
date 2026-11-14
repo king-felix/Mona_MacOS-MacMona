@@ -37,7 +37,7 @@
     "attempts": ".mona/build-macos/attempts.jsonl",
     "requirement_registry": "docs/requirements-macos.json"
   },
-  "revision": 61,
+  "revision": 62,
   "current_task": "R05",
   "current_task_status": "completed",
   "tasks": {
@@ -1184,8 +1184,8 @@
         {
           "path": "src/main/index.ts",
           "sha256": "e1b21fd11725b07a411c97c70ad205386fabcd6b9b76318cd0e8d0b7bfcbb3eb",
-          "state": "current",
-          "note": "flag + R05 smoke runner + per-window controller registry (keyed by web contents id)."
+          "state": "historical",
+          "note": "The app-icon change (RD-013) and the generalised focus-composer check landed after R05's verification; the recorded hash is R05's state."
         },
         {
           "path": "src/main/ipc.ts",
@@ -1220,8 +1220,8 @@
         {
           "path": "src/renderer/shell/Shell.tsx",
           "sha256": "efe534125068fd3bf4c32dadad4e2476bea763ec05c8baacfd783a5b7c8c27fb",
-          "state": "current",
-          "note": "observed-state subscription, focusLayout, window-scoped toggle, no remount."
+          "state": "historical",
+          "note": "The app-icon change (RD-013) and the generalised focus-composer check landed after R05's verification; the recorded hash is R05's state."
         },
         {
           "path": "src/renderer/shell/Studio.tsx",
@@ -1238,8 +1238,8 @@
         {
           "path": "src/renderer/styles.css",
           "sha256": "5a74842727a782efb295937651bc5cf8fbf715b6bcb21476c7a14f71b4d2e67a",
-          "state": "current",
-          "note": "focus layout, dashboard, drawer, grip; the clamped 48vh console is gone in this mode."
+          "state": "historical",
+          "note": "The app-icon change (RD-013) and the generalised focus-composer check landed after R05's verification; the recorded hash is R05's state."
         },
         {
           "path": "scripts/immersive-smoke.mjs",
@@ -1426,7 +1426,10 @@
       "attempt_problem_ids": [],
       "platform": "darwin-arm64",
       "next_action": "Read design tokens, the production Studio/Shell/styles, and the contrast tests before touching paint.",
-      "notes": []
+      "notes": [
+        "The app icon is now the owner's artwork (MidnightMona.png), packaged as Mona.icns, a shipped Mona.ico, installer art derived from it, and a 24px in-app mark. R06 must restyle around that identity rather than regenerate or replace the logo; if a visual change needs a different asset, the master at packaging/macos/resources/MidnightMona.png stays the single source.",
+        "Every icon surface is a resample of the master (npm run icon:render for the rail mark); no surface draws its own glyph."
+      ]
     },
     "R07": {
       "status": "pending",
@@ -1984,7 +1987,7 @@
       "notes": []
     }
   },
-  "last_checkpoint_utc": "2026-11-14T08:26:16.293Z",
+  "last_checkpoint_utc": "2026-11-14T08:38:55.148Z",
   "notes": [
     "Subordinate ledger. The P00–P27 registry remains authoritative for product requirements; this registry tracks review tasks and findings only.",
     "Attempts continue in the shared attempts.jsonl; a review task ID never resets a count."

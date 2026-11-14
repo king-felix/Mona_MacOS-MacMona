@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "label": "P23 — update, migration, rollback, and uninstall",
-  "captured_at": "2026-11-14T08:20:53.782Z",
+  "captured_at": "2026-11-14T08:37:39.293Z",
   "host": {
     "platform": "darwin",
     "arch": "arm64",
@@ -45,7 +45,7 @@
         "packageSha256": "2f57f818910c0e3778182b530c2b9256c1c0f56a4a7ac285f23a0419b921350b",
         "backup": {
           "path": "~smoke/upgrade/backups/pre-update-0.2.0-2026-11-12T09-00-23-000Z.sqlite",
-          "sha256": "99a404ee6a113a3ff48aef8d746dca450c7a37918495728f4423ceb426dca00b",
+          "sha256": "1fd26259baf8a3fae675a1a2b023eab00cf37a6eb309797219ae6a6c69cc064f",
           "sizeBytes": 548864,
           "schemaVersion": 11,
           "integrity": "ok"
@@ -63,7 +63,7 @@
       "ok": true,
       "detail": {
         "path": "~smoke/upgrade/backups/pre-update-0.2.0-2026-11-12T09-00-23-000Z.sqlite",
-        "sha256": "99a404ee6a113a3ff48aef8d746dca450c7a37918495728f4423ceb426dca00b",
+        "sha256": "1fd26259baf8a3fae675a1a2b023eab00cf37a6eb309797219ae6a6c69cc064f",
         "sizeBytes": 548864,
         "schemaVersion": 11,
         "integrity": "ok"
@@ -81,7 +81,7 @@
         "packageSha256": "2f57f818910c0e3778182b530c2b9256c1c0f56a4a7ac285f23a0419b921350b",
         "source": "manual",
         "backupPath": "~smoke/upgrade/backups/pre-update-0.2.0-2026-11-12T09-00-23-000Z.sqlite",
-        "backupSha256": "99a404ee6a113a3ff48aef8d746dca450c7a37918495728f4423ceb426dca00b",
+        "backupSha256": "1fd26259baf8a3fae675a1a2b023eab00cf37a6eb309797219ae6a6c69cc064f",
         "createdAt": "2026-11-12T09:00:21.000Z",
         "updatedAt": "2026-11-12T09:00:26.000Z"
       }
@@ -165,7 +165,7 @@
     "manifest_signature_verified": {
       "ok": true,
       "detail": {
-        "key_fingerprint": "57900bc570df1f9dd2395b767569fdebaf8467c6e2bdea23212860626e457cf1"
+        "key_fingerprint": "f28c3c887f58ad057bd232c69d613bfe9353d3c2d268bff0e8da4924c8bdcbc4"
       }
     },
     "tampered_manifest_refused": {
@@ -190,7 +190,7 @@
       "ok": true,
       "detail": {
         "path": "~smoke/migration/backups/pre-update-0.2.0-2026-11-12T09-01-24-000Z.sqlite",
-        "sha256": "2b22d683baf6a26a009a990be877c57bbd84cdb8ac2df62fc32976ff18c55e66",
+        "sha256": "8642e8189cc488eebb0f7f818a206e6ca6a4a4c71b9bc8719cfe3f91e28a455d",
         "sizeBytes": 548864,
         "schemaVersion": 11
       }
@@ -225,7 +225,7 @@
     "restore_kept_the_replaced_database": {
       "ok": true,
       "detail": {
-        "replaced": "~smoke/migration/state/mona.sqlite.replaced-2026-11-14T08-20-54-011Z"
+        "replaced": "~smoke/migration/state/mona.sqlite.replaced-2026-11-14T08-37-39-515Z"
       }
     },
     "restored_state_opens_with_the_original_rows": {
@@ -244,7 +244,7 @@
         "schemaVersion": 16,
         "createdAt": "2026-11-12T00:00:00.000Z",
         "sizeBytes": 548864,
-        "sha256": "b8d6ba8d6ac898d9c62760ce51b7f2d6a09dc8e5e816310608033041415567b3",
+        "sha256": "85d3582221c50b007bb8a865469cbeb70dfb9492f529f55dab527921855a42cf",
         "integrity": "ok",
         "appliesToThisBuild": false
       }
@@ -271,7 +271,7 @@
         "engineVersion": "unknown",
         "teamId": null,
         "notarized": false,
-        "releasedAt": "2026-11-14T08:20:54.074Z",
+        "releasedAt": "2026-11-14T08:37:39.577Z",
         "installKind": "reinstall"
       }
     },
@@ -394,7 +394,7 @@
   },
   "observations": {
     "package_uninstall_rehearsal": {
-      "captured_at": "2026-11-13T15:34:32.303Z",
+      "captured_at": "2026-11-14T08:35:34.723Z",
       "check": {
         "dry_run_exit": 0,
         "dry_run_changed_nothing": true,

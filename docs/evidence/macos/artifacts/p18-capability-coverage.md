@@ -1,6 +1,6 @@
 # Mona capability coverage
 
-Generated 2026-11-14T08:20:46.044Z from ~/DS_Projects/Mona/docs/codewhale-capabilities-macos.json.
+Generated 2026-11-14T08:37:31.915Z from ~/DS_Projects/Mona/docs/codewhale-capabilities-macos.json.
 
 ## Coverage
 
@@ -14,7 +14,7 @@ Generated 2026-11-14T08:20:46.044Z from ~/DS_Projects/Mona/docs/codewhale-capabi
 
 ## Drift
 
-- Checked: 2026-11-14T08:20:46.044Z
+- Checked: 2026-11-14T08:37:31.915Z
 - Installed: 0.10.2 (ff466b2ed0bf)
 - Recorded: 0.10.2 (ff466b2ed0bfb4ae5267d4d8d0ecb562cf46956e)
 - Additions: 0
