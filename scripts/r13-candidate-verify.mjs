@@ -526,7 +526,25 @@ function finish() {
       "every Mach-O header decoded, and the shipped bundles searched for the review's own channel names. " +
       "No engine is started and no model request is made.",
   };
-  const text = JSON.stringify(report, null, 2);
+  // Evidence must not carry this machine's layout: the checkout becomes
+  // <repo>, the home directory ~, and temp roots <tmp>. The report keeps every
+  // fact; only the spelling changes.
+  const redact = (value) => {
+    if (typeof value === "string") {
+      return value
+        .split(ROOT)
+        .join("<repo>")
+        .split(HOME)
+        .join("~")
+        .replaceAll(/\/(?:private\/)?var\/folders\/[^\s"]+/g, "<tmp>");
+    }
+    if (Array.isArray(value)) return value.map(redact);
+    if (value && typeof value === "object") {
+      return Object.fromEntries(Object.entries(value).map(([key, inner]) => [key, redact(inner)]));
+    }
+    return value;
+  };
+  const text = JSON.stringify(redact(report), null, 2);
   if (outPath) {
     mkdirSync(dirname(outPath), { recursive: true });
     writeFileSync(outPath, `${text}\n`);
