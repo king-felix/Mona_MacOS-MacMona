@@ -1,77 +1,55 @@
 # Handoff — Mona macOS build
 
-**Last checkpoint:** 2026-11-14 (review R13–R15 and P24; product ledger revision
-1282) · `monabuild validate` clean · `npm run ci` 24/24 steps, 1,121 tests
+**Last checkpoint:** 2026-11-14 (P26 whole-product QA and P27 release; product
+ledger revision **1454**) · `monabuild validate` clean · `npm run ci` **25/25
+steps**, **1,164 tests in 104 files** · source `e13ebb6` · artifact build **166**
 **History rewritten 2026-11-13 (D-101)** — old SHAs are gone; the mapping is in
 D-101.
-**Current state:** 26 of 28 prompts settled — **P22 and P24 are `skipped` by
-owner decision** (D-103: no Apple Developer account, distribution is local and
-build-it-yourself; the P24 harness and matrix were finished and are retained).
-**P26 and P27 are the only pending prompts, and P26 is eligible.**
-**Studio review queue:** 14 complete, R13 blocked on one admin-authorized
-install, R14 skipped by the same decision. The review handoff is
-`docs/evidence/macos/review-studio/R15-final-handoff.md`.
-**Installing the latest build is one command:** `npm run mac:install` — it
-builds, packages, installs with `sudo` on your terminal, then runs the
-install-side gates against the installed copy. A disk image is on request only
-(`npm run mac:package:dmg`), not on every build (D-107).
+**Current state: all 28 prompts are settled — 26 completed, and P22 + P24
+`skipped` by owner decision** (D-103: no Apple Developer account; distribution is
+local and build-it-yourself; both harnesses were finished and are retained).
+**Nothing is pending and nothing is blocked.** The two items this build carried
+were closed by decision: the engine reasoning gap is accepted as permanent
+(D-111) and the lifecycle lock was a precondition that cleared.
+**Release tier:** local development usable and packaged candidate **yes**;
+shareable release **no**, and that is D-103, not a defect.
+**Installing the latest build is one command:** `npm run mac:install`.
 
-**Next exact action:** P26 (whole-product QA) is eligible. The blocked items are
-closed — see below for the historic record. The most recent work is a reasoning
-amendment to P16 for the DeepSeek route; see the first checkpoint below and
-`docs/evidence/macos/reasoning-controls.md`.
+**Next exact action:** none in the prompt sequence. The one outstanding action is
+an install with administrator authorization — build 166 is packaged and every
+gate that does not need root has passed, but `/Applications/Mona.app` still holds
+build 165:
+
+```sh
+npm run mac:install
+```
+
+That is the documented path (D-107): it builds, packages, installs with `sudo`
+**in your own terminal**, then runs the install-side gates against the installed
+copy. To install the package already built and verified without rebuilding:
 
 ```sh
 sudo installer -pkg packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg -target /
 ```
-closes R13 (then `node scripts/r13-candidate-verify.mjs --smoke --launch`,
-`node scripts/r13-installed-pass.mjs`, `npm run mac:package:local`);
 
-```sh
-security find-identity -v -p codesigning   # must list Developer ID Application + Installer
-xcrun notarytool store-credentials mona-release
-```
-closes R14 (then `npm run mac:release:preflight`, `npm run mac:release --
---keychain-profile mona-release`, `npm run mac:verify-release`);
+Then close the record with `npm run mac:package:local` (rebuilds the same source
+and re-checks `installed_copy`), or verify by hand as the developer guide
+describes.
 
-and a second Apple silicon Mac or clean VM closes P24 once a signed installer
-exists (`npm run mac:recipient` re-runs the matrix).
+**Why an agent cannot do that step:** two `osascript ... with administrator
+privileges` attempts from this session produced a `SecurityAgent` process with no
+window, so the authorization sheet never rendered and both were cancelled rather
+than left hanging. The terminal path needs no agent.
 
-### The 2026-11-14 review pass — R13, R14, R15, P24
+**Remaining human work (none of it blocking a prompt):**
 
-- **R13 — the install happened and the installed build was qualified.** Build 151
-  (source `26c38c5`) verified from its own bytes: 16/16 (build vs `HEAD`, 13
-  component digests, arm64 only, minimum OS, review channels, LaunchServices
-  launch, measured shutdown). Installed modes: shell **137/137** (also via
-  `open -na`), command **26/26**, immersive **60/60**, and one live pinned-engine
-  turn plus an interrupt **22/22** with cost observed and no provider switch.
-- **The history smoke found a real defect and it is fixed.** It was never in CI,
-  so it had been failing since R11 windowed the console: R02's anchor compared the
-  list's height growth with the viewport's movement, and with unmounted cards the
-  height is an estimate — every older page dropped the reader **115.5 px** on a
-  10,054-event project. The anchor now names the card at the top of the viewport
-  and holds its pane offset across the frames the new slice needs to measure
-  itself (RD-028). The smoke asserts that offset (≤ 2 px), proves the second page
-  by the projected list, proves the third page by painting it, **and is now in
-  `npm run ci`**. 19/19 on three consecutive runs, delta 0. Candidate build 152
-  passes all four modes from its own bytes (137 + 26 + 60 + 19).
-- **R14 — every refusal, measured.** Preflight exit 3 naming the two missing
-  Developer ID identities and the notary credential; release exit 3 with no
-  artifact; verify exit 2 rather than accepting the ad-hoc build; 17/17
-  release-trust tests. Two scope claims are stated instead of asserted (RD-029):
-  14.0 is a declared floor only 26.5.1 has executed, and Git features still need
-  CLT or another Git.
-- **R15 — handoff, owner guide, artifact manifest.** The review matrix (17 of 18
-  findings verified, RV-12 open under R14, all five UX feature IDs verified),
-  before/after captures, release notes, and the exact bytes with installed build
-  151 and candidate 152 named separately. `docs/owner-guide-macos.md` is the
-  command-free owner document.
-- **P24 — the recipient harness.** `scripts/p24-recipient.mjs` (`npm run
-  mac:recipient`) settles 9 rows from the package's own bytes (**7 pass, 2 fail**
-  — the unsigned package is rejected by a quarantined Gatekeeper assessment, which
-  is the honest result) and names 11 rows as untested with reasons. It reports
-  `qualified` only when nothing is failed or untested (D-102). Platform matrix:
-  26.x executed; 14.x and 15.x declared only; arm64 only enforced from the bytes.
+- The three-item QA checklist in `docs/evidence/macos/P26-product-QA.md`:
+  spoken VoiceOver walkthrough, aesthetic review of the installed-build captures,
+  and one real two-folder workflow.
+- The license decision, if the public repository is to invite use
+  (`LICENSE.md` records the position and does not decide it).
+- Nothing else. Scenario 12 (clean recipient) needs a signed artifact, which
+  needs an Apple Developer account the owner decided not to obtain.
 
 ### 2026-11-14 — reasoning controls for the DeepSeek route (owner request)
 

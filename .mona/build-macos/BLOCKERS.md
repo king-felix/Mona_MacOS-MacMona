@@ -82,74 +82,28 @@ requirement: each entry says what is not proven and where that is stated.
 
 ## Needs the Human
 
-One item needs an engine decision. Mona's own side is complete: the route shows
-and saves every control the pinned engine can prove, and the residual gap is an
-engine API gap recorded below (D-108,
-`docs/evidence/macos/artifacts/reasoning-engine-gap.json`).
+**Nothing blocks a prompt.** The two items this build carried are settled; what
+remains needs a person at the machine and is listed here so it is not lost.
 
-### ENGINE-REASONING-FACTS — the live catalog drops the ladder it holds, and no surface reports the effective value
+### Nothing open that stops work
 
-**Status: measured on every documented surface; Mona's mitigation shipped.** Two
-separate engine gaps were reproduced with the pinned 0.10.2 build. Both were
-probed exhaustively; neither can be closed inside Mona without inventing facts.
-
-1. **The live catalog projection drops the reasoning metadata.**
-   `GET /v1/providers/{id}/models` answers `reasoning_effort: "unknown"`,
-   `reasoning_effort_levels: []`, `reasoning_effort_source: null`,
-   `facts.reasoning: null`, `facts.reasoning_options: []`, and
-   `facts.canonical_model_id: null` for `deepseek/deepseek-flash` whenever a live
-   roster entry exists — even though the engine's own Models.dev cache publishes
-   `{"type":"toggle"}` and `low|high|max` for that exact model, and the same
-   binary publishes the ladder through the same route when the roster cache is
-   absent. A successful `POST /v1/providers/deepseek/models/refresh` narrows the
-   roster and still reports no ladder.
-   **Exact cause:** the live roster row carries no canonical model id, so the
-   Models.dev join cannot run. The metadata is present; the projection skips it.
-   **Smallest engine change that closes it:** join the canonical id (or the
-   Models.dev entry) when live roster rows are used, so
-   `reasoning_effort`/`_levels`/`_source` describe the model rather than the
-   transport.
-2. **No surface reports the effective reasoning setting.**
-   One tool-free turn with an explicit `low` completed; the thread record stored
-   `reasoning_effort: "low"`, and every documented read surface was inspected:
-   thread record and turns, `turn.completed`, `turn.provider_request`, the turn
-   receipt (API and `codewhale receipts --format json`), thread usage, thread
-   context, `/v1/sessions`, `codewhale metrics` (text and `--json`), the settings
-   schema, and the model catalog. None reports an effective reasoning value.
-   `TurnRecord` reports effective provider, model, and billing surface only; its
-   `modelRequestDiagnostics` carries retry counts. The identifier
-   `effective_reasoning_effort` exists in the binary and in a static field-name
-   descriptor, but no live value is produced or exposed.
-   **Smallest engine change that closes it:** add `effective_reasoning_effort`
-   (and, where known, the wire control it mapped to) to `TurnRecord`, which the
-   thread, turn, and receipt routes already project.
-
-**What Mona does instead:** recovers the ladder from the engine's own non-secret
-metadata for the exact model, labels it as metadata (never as a live catalog
-answer), uses it only for a first-party route, offers only the values it
-publishes, keeps validation fail-closed, and shows the effective value as
-unknown. Recorded as D-108 with the full probe matrix in
-`docs/evidence/macos/artifacts/reasoning-engine-gap.json`.
-
-**The change request is written and ready to send:**
-`docs/evidence/macos/engine-change-request-reasoning.md` — both defects, the
-reproduction, the smallest change for each, and the acceptance tests.
-
-**Mona's side is already done (D-109, D-110).** The reasoning setting is now
-declared `auto`, stored and sent explicitly, and shown read-only, so the request
-is unambiguous without any engine change. The worked-around path retires itself:
-the moment an engine reports `effective_reasoning_effort`, Mona displays it as an
-effective value with its source and turn, and a live `supported` catalog answer
-already outranks the metadata fallback. Both are implemented and tested against a
-simulated engine; on 0.10.2 the live smoke asserts the value stays `unknown`, so
-nothing is claimed early.
-
-**What is needed from Victor:** send the change request upstream, or accept the
-workaround as the permanent shape. An engine upgrade was weighed and **not**
-taken: the pin is version *and* commit, re-pinning invalidates 28 prompts of
-evidence, the installed engine cannot self-update in place, and nothing proves a
-later build fixes either gap. Provider, endpoint, model, and engine build are
-unchanged.
+- **One owner action, not a blocker:** authorize the install of build 166 with
+  `npm run mac:install` in your own terminal (or `sudo installer -pkg
+  packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg -target /`). Two
+  `osascript` authorization attempts from an agent session produced a
+  `SecurityAgent` process with no window, so the sheet never rendered; the
+  terminal path is the documented one (D-107) and needs no agent.
+- **Three human QA items** (`docs/evidence/macos/P26-product-QA.md`): the spoken
+  VoiceOver walkthrough, an aesthetic review of the installed-build captures, and
+  one real two-folder workflow. Automated checks covering the same surfaces pass;
+  these are the halves only a person can perform, and human signoff is not
+  invented.
+- **One open product decision, not a blocker:** the license. `LICENSE.md` records
+  that the source is public at the owner's instruction while granting no rights;
+  choosing terms stays the owner's call.
+- **One hardware prerequisite, closed by decision:** a clean-recipient test
+  (scenario 12, MAC-007) needs a signed artifact, which needs an Apple Developer
+  account the owner decided not to obtain (D-103).
 
 ## Closed problems
 
@@ -164,3 +118,26 @@ unchanged.
 - **What stays true:** the smoke still requires the app to be quit; its own
   failure message says so, and CI runs it last. No assertion was modified,
   reordered, or skipped to reach the green run.
+
+### ~~ENGINE-REASONING-FACTS~~ — CLOSED: the workaround is accepted as permanent (D-111)
+
+- **Measured:** the live catalog drops the reasoning metadata it holds, and no
+  documented surface reports the effective reasoning value. Both were probed
+  exhaustively on 0.10.2; the matrix is
+  `docs/evidence/macos/artifacts/reasoning-engine-gap.json`.
+- **How it closed:** the owner accepted the workaround as the permanent shape.
+  Mona declares `auto` and sends it explicitly (D-110), so the request is visible
+  and unambiguous; the effective value stays `unknown` because no surface reports
+  it, and Mona never presents the request as proof that it was honoured.
+- **What is still true:** the upstream change request
+  (`docs/evidence/macos/engine-change-request-reasoning.md`) is retained as design
+  documentation, not pending work. Mona already consumes the field it asks for, so
+  a later engine needs no client change. Nothing was relabelled as an enhancement.
+
+### ~~CI-LIFECYCLE-LOCK~~ — CLOSED: quit the app; the step passed unchanged
+
+- **Measured twice:** with `/Applications/Mona.app` running, `smoke:lifecycle`
+  failed because the app holds Electron's single-instance lock, so the smoke's
+  instance called `app.exit(0)` before writing `ready`/`crash.json`.
+- **Fixed by the owner, not the code:** Mona was quit, and the step then passed
+  **27/27** with no change to it. `npm run ci` is **25 of 25** green.
