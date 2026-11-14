@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 1469,
+  "revision": 1470,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -2730,7 +2730,7 @@
       "evidence": [
         {
           "path": "docs/evidence/macos/P27-release.md",
-          "sha256": "63e62b841a1103bbbcc85b7c882dd51abba166aa1df2d4235609446c9256d866"
+          "sha256": "ee8e2a26a4f8e5b17ce5069c0de35078caa42ded3ad1d33f5da513e40c0bb7f6"
         },
         {
           "path": "docs/developer-guide-macos.md",
@@ -2760,7 +2760,7 @@
     "P22",
     "P25"
   ],
-  "last_checkpoint_utc": "2026-11-14T23:14:16.042Z",
+  "last_checkpoint_utc": "2026-11-14T23:14:34.367Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

@@ -26,10 +26,16 @@ not depend on those credentials is done.
 | Payload | 674 files, 14 links |
 | Package report | `packaging/macos/out/package-report.json` |
 
-**Built from the recorded commit.** The package was produced after commit
-`e13ebb6`, from that tree, so the artifact matches the source it claims. Its
-component manifest records a digest for every payload file and for each of the
-three native helpers.
+**Built from the recorded commit, and still matching it.** The package was
+produced after commit `e13ebb6`, from that tree. Its component manifest records a
+digest for every payload file and for each of the three native helpers.
+
+Checked rather than assumed: `git diff --name-only e13ebb6..HEAD` lists only
+`.mona/build-macos/` and `docs/evidence/macos/` — the ledger and its evidence.
+**No file under `src/`, `scripts/`, `native/`, `packaging/`, `test/`, `tools/` or
+`package.json` changed after the build**, so the artifact's payload is exactly the
+payload of the recorded commit even though the documentation and ledger moved on
+afterwards. Those two paths are build outputs, not inputs (R13's rule).
 
 ### Package-level gates (all pass, no administrator authorization needed)
 

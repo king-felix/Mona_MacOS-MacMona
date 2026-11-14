@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-14T23:14:16.341Z",
+  "generated_utc": "2026-11-14T23:15:06.788Z",
   "git": {
     "available": true,
-    "commit": "e13ebb62bf752165650019e5c8e16eb02930953f",
+    "commit": "913391dcb502aef819f5e28d547fe2dee9567131",
     "dirty": true
   },
-  "digest": "1f4b115a0b5db6ee6acdb5746a76e2c2b23375404111228b194638160c7c43a1",
+  "digest": "91c8904aad09598582ed7518369adfa534627d8d3b60b59405503ed02c9924f0",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "bytes": 0
+      "sha256": "1fbb9b70fcf3bde97f8c9bfc676d760cf7ff145fad3bd9dae606f775b3210ec4",
+      "bytes": 2051
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "0adb0125d4bc2bbddb3b48365b6440be6de6ee4ec809ad68c605b94a52c817ca",
+      "sha256": "8079f23358c6d682a3f76549e049a08d2d70f4fec1e040ce41cfb4b7eb162dd1",
       "bytes": 182555
     },
     {
@@ -1090,8 +1090,8 @@
     },
     {
       "path": "docs/evidence/macos/P27-release.md",
-      "sha256": "63e62b841a1103bbbcc85b7c882dd51abba166aa1df2d4235609446c9256d866",
-      "bytes": 7662
+      "sha256": "ee8e2a26a4f8e5b17ce5069c0de35078caa42ded3ad1d33f5da513e40c0bb7f6",
+      "bytes": 8116
     },
     {
       "path": "docs/evidence/macos/reasoning-controls.md",
@@ -1165,8 +1165,8 @@
     },
     {
       "path": "docs/evidence/macos/review-studio/artifacts/r02-history-long-session.png",
-      "sha256": "549f7f9e3bb3c3fc3a938b75a774e6ddbeef99a1a7595abed6e58d27ebb52882",
-      "bytes": 443892
+      "sha256": "235ff590acc1ba19d169b201588669aa57ef69f675c0ed8b0e868ece5b44520e",
+      "bytes": 444562
     },
     {
       "path": "docs/evidence/macos/review-studio/artifacts/r02-history-long-smoke.json",
@@ -1185,13 +1185,13 @@
     },
     {
       "path": "docs/evidence/macos/review-studio/artifacts/r03-command-menu-200.png",
-      "sha256": "3f1703426233a6f9136791931d5dd18ff1e6ba2d043e7b268cf352dd03d130fc",
-      "bytes": 241431
+      "sha256": "ba3c5fc242be0007ab637e8d7230fc7a9ecb2723a8bde5c64dda7e6ffdb79f8e",
+      "bytes": 244659
     },
     {
       "path": "docs/evidence/macos/review-studio/artifacts/r03-command-menu.png",
-      "sha256": "7929397d9d93483406e1c2ef517df3832097a17bca72d452dee2c841672440ba",
-      "bytes": 381468
+      "sha256": "a8eb0d150753e68803bc6e84822f5863573a1f76015cfb686daa4ea5d1448428",
+      "bytes": 383695
     },
     {
       "path": "docs/evidence/macos/review-studio/artifacts/r03-command-smoke.json",

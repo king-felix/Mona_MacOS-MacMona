@@ -85,9 +85,40 @@ requirement: each entry says what is not proven and where that is stated.
 **Nothing blocks a prompt.** The two items this build carried are settled; what
 remains needs a person at the machine and is listed here so it is not lost.
 
-### Nothing open that stops work
+### INSTALL-AUTH — the install needs you, and the agent path is exhausted
 
-- **One owner action, not a blocker:** authorize the install of build 166 with
+- **What is needed:** one command in your own terminal:
+
+  ```sh
+  npm run mac:install
+  ```
+
+  or, to install the package already built and verified:
+
+  ```sh
+  sudo installer -pkg packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg -target /
+  ```
+
+  Then confirm with `npm run mac:package:local` (rebuilds the same source and
+  re-checks `installed_copy`) or by reading `MonaBuildVersion` in
+  `/Applications/Mona.app/Contents/Info.plist`, which should read **166**.
+- **Why an agent cannot finish it — three attempts, recorded in
+  `attempts.jsonl`:** an agent shell has no TTY, so `sudo` cannot prompt. Three
+  `osascript ... with administrator privileges` attempts were made (the third
+  polling System Events after 6 s). Each time `SecurityAgent` ran with **0
+  windows**: the authorization sheet never rendered in this session, so the
+  prompt was unanswerable and `osascript` blocked until cancelled. The same
+  command succeeded earlier in the day, which is why it was retried rather than
+  abandoned immediately.
+- **What this does not affect:** the package itself passed every gate that does
+  not need root (declared metadata, architecture, dependencies, secrets, payload
+  expand, install rehearsal, the 11-check uninstall rehearsal). Build 166 is
+  packaged and content-verified; only `/Applications/Mona.app` still holds build
+  165.
+
+### The rest of what needs a person, none of it blocking a prompt
+
+- **Authorize the install** as above.
   `npm run mac:install` in your own terminal (or `sudo installer -pkg
   packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg -target /`). Two
   `osascript` authorization attempts from an agent session produced a
