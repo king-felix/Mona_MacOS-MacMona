@@ -3719,6 +3719,7 @@ async function runDeckSmoke(window: BrowserWindow): Promise<void> {
           deck: box('.studio-deck'),
           signal: box('[data-testid="agent-signal"]'),
           toolbar: box('.timeline__toolbar'),
+          toolbar_scope: box('[data-testid="studio-history-scope"]'),
           composer: box('.composer'),
           rail: box('.rail'),
           rail_nav: box('.rail__nav'),
@@ -3749,6 +3750,23 @@ async function runDeckSmoke(window: BrowserWindow): Promise<void> {
             main: main ? Math.round(main.getBoundingClientRect().height) : null,
             screen: screen ? Math.round(screen.getBoundingClientRect().height) : null,
             stage: stage ? Math.round(stage.getBoundingClientRect().height) : null,
+          };
+        })(),
+        // A one-row toolbar must not silently clip its own controls: the actions
+        // row cannot shrink, so if anything overflows it is the scope text or the
+        // page, and either would be a control the owner cannot press.
+        toolbar_fits: (() => {
+          const bar = document.querySelector('.timeline__toolbar');
+          if (!bar) return null;
+          const barRect = bar.getBoundingClientRect();
+          const actions = document.querySelector('.timeline__toolbar-actions');
+          const actionRect = actions ? actions.getBoundingClientRect() : null;
+          return {
+            overflows: bar.scrollWidth > bar.clientWidth + 1,
+            actions_inside: actionRect
+              ? actionRect.right <= barRect.right + 1 && actionRect.left >= barRect.left - 1
+              : null,
+            bar_width: Math.round(barRect.width),
           };
         })(),
         console_scroll: consoleNode
@@ -3813,6 +3831,10 @@ async function runDeckSmoke(window: BrowserWindow): Promise<void> {
     checks[key("interrupt_visible")] =
       boxes.interrupt != null && boxes.interrupt.bottom <= viewport.height + 1;
     checks[key("inspector_removed")] = g.inspector === false;
+    const toolbarFit = g.toolbar_fits as
+      { overflows: boolean; actions_inside: boolean | null } | null | undefined;
+    checks[key("toolbar_keeps_its_controls")] =
+      toolbarFit != null && toolbarFit.overflows === false && toolbarFit.actions_inside !== false;
     // The console's floor follows the room that exists. Above 360 CSS px of
     // viewport height it must stay a real reading surface (60 px is about two
     // cards); below that — a 900×620 window at 200 % zoom — the prompt and the

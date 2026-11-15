@@ -91,7 +91,7 @@
     "ci": "npm run ci 25/25 steps, exit 0",
     "unit_tests": "1,189 passed in 108 files",
     "deck_smoke": {
-      "checks": 200,
+      "checks": 215,
       "ok": true,
       "report": "docs/evidence/macos/studio-flight-deck/f02-report.json"
     },

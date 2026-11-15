@@ -6,7 +6,7 @@ shell, grows its stored transcript by 1,200 frames and one 8,000-line open
 stream, and measures the deck at six window/zoom arrangements. **No runtime is
 started and no model request is made.**
 
-Machine-readable report: `f02-report.json` (200 checks, `ok: true`).
+Machine-readable report: `f02-report.json` (215 checks, `ok: true`).
 Runner: `scripts/deck-smoke.mjs` → `runDeckSmoke` in `src/main/index.ts`.
 Screenshots in this directory: `f02-*.png`.
 
@@ -21,7 +21,9 @@ Per arrangement (1440×900 at 100 %, 1280×800 at 100/125/150/200 %, 1100×700 a
   output arrives (measured pixel-identical);
 - the command bar sits above the prompt and Submit/Interrupt are hit-testable
   (the topmost element at their centre is the control itself);
-- the obsolete inspector is absent;
+- the obsolete inspector is absent, and the one-row conversation toolbar neither
+  overflows itself nor pushes its actions outside its box (checked at every size,
+  including the 430 px-wide zoomed window);
 - at the live edge the tail is present (or its truncation is stated beside it);
   scrolling up stays inside the console, offers "Jump to latest", and the jump
   returns to the edge without scrolling the page;
@@ -64,7 +66,9 @@ test artifact, and the layout was fixed rather than the assertion relaxed.
 6. **Escape left Focus with a panel still open** when the keyboard focus was not
    inside the panel's subtree. A capture-phase listener now owns Escape while any
    panel is open, and deliberately does not move focus into the composer, so the
-   next Escape can leave Focus.
+   next Escape can leave Focus. Nesting is list → panel → Focus: while the command
+   list is open the list closes first, because that is the surface the keyboard is
+   in.
 7. **The grip reported `72` while the field rendered 104 px.** It now reports the
    observed height, and the initial size is inside the clamp it advertises.
 8. **The command list squeezed itself to one clipped row** at 200 % on the taller

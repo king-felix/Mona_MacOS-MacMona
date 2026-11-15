@@ -4856,8 +4856,8 @@
   ],
   "project": "prj_a682656150206b17",
   "target": {
-    "bundle": "/Users/basestar/DS_Projects/Mona/packaging/macos/out/stage/payload/Applications/Mona.app",
-    "binary": "/Users/basestar/DS_Projects/Mona/packaging/macos/out/stage/payload/Applications/Mona.app/Contents/MacOS/Mona",
+    "bundle": "~/DS_Projects/Mona/packaging/macos/out/stage/payload/Applications/Mona.app",
+    "binary": "~/DS_Projects/Mona/packaging/macos/out/stage/payload/Applications/Mona.app/Contents/MacOS/Mona",
     "packaged": true
   },
   "electron": {

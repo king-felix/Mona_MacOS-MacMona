@@ -1655,7 +1655,9 @@ export function StudioScreen(props: StudioProps): JSX.Element {
   // capture listener owns the key while a panel is open.
   const anyPanelOpen = favoritesOpen || queueOpen || searchOpen || actionsOpen;
   useEffect(() => {
-    if (!anyPanelOpen) return;
+    // Nesting is list → panel → Focus: while the command list is open, its own
+    // handler closes it first, because that is the surface the keyboard is in.
+    if (!anyPanelOpen || commandMenuOpen) return;
     const onKeyDown = (event: KeyboardEvent): void => {
       if (event.key !== "Escape") return;
       event.preventDefault();
@@ -1670,7 +1672,7 @@ export function StudioScreen(props: StudioProps): JSX.Element {
     };
     window.addEventListener("keydown", onKeyDown, true);
     return () => window.removeEventListener("keydown", onKeyDown, true);
-  }, [anyPanelOpen]);
+  }, [anyPanelOpen, commandMenuOpen]);
 
   // Escape dismisses this token only. Moving the caret away or editing the
   // token clears the dismissal; accepting a no-argument command also closes the

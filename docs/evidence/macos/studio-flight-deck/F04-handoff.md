@@ -41,7 +41,7 @@ exposed it.
 - `npm run ci` — **25/25 steps**, exit 0 (`mac-ci.txt`).
 - `npm run test` — **1,189 passed in 108 files**, no exclusions (`mac-ci.txt`).
 - `typecheck`, `lint` (0 errors, 3 pre-existing warnings), `format:check`, `build`.
-- `npm run smoke:deck` — **200/200 checks**, six window/zoom arrangements
+- `npm run smoke:deck` — **215/215 checks**, six window/zoom arrangements
   (`f02-report.json`).
 - `node scripts/deck-smoke.mjs --app …/Mona.app` — **200/200 checks against the
   packaged binary** (`f03-packaged-deck-report.json`).

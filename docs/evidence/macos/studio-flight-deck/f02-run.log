@@ -26,18 +26,18 @@ computing gzip size...
 dist/renderer/index.html                       0.76 kB │ gzip:   0.41 kB
 dist/renderer/assets/mona-mark-ChAj1Hvn.png   27.56 kB
 dist/renderer/assets/index-CgjmFBbk.css       97.08 kB │ gzip:  16.45 kB
-dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
+dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
 
+✓ built in 117ms
 [plugin builtin:vite-reporter] 
 (!) Some chunks are larger than 500 kB after minification. Consider:
 - Using dynamic import() to code-split the application
 - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
-✓ built in 98ms
 {
   "schema_version": 1,
   "label": "F02 — Studio flight deck on real pixels, no engine, no model request",
-  "captured_at": "2026-11-15T21:04:20.716Z",
+  "captured_at": "2026-11-15T21:32:04.248Z",
   "host": {
     "platform": "darwin",
     "arch": "arm64",
@@ -63,6 +63,7 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
     "1440x900-100:submit_reachable": true,
     "1440x900-100:interrupt_visible": true,
     "1440x900-100:inspector_removed": true,
+    "1440x900-100:toolbar_keeps_its_controls": true,
     "1440x900-100:console_keeps_usable_height": true,
     "1440x900-100-after-1200-and-8000:document_does_not_grow": true,
     "1440x900-100-after-1200-and-8000:console_scrolls_internally": true,
@@ -71,6 +72,7 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
     "1440x900-100-after-1200-and-8000:submit_reachable": true,
     "1440x900-100-after-1200-and-8000:interrupt_visible": true,
     "1440x900-100-after-1200-and-8000:inspector_removed": true,
+    "1440x900-100-after-1200-and-8000:toolbar_keeps_its_controls": true,
     "1440x900-100-after-1200-and-8000:console_keeps_usable_height": true,
     "1440x900-100:prompt_bottom_did_not_move": true,
     "1440x900-100:tail_reachable_inside_console": true,
@@ -86,6 +88,7 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
     "1280x800-100:submit_reachable": true,
     "1280x800-100:interrupt_visible": true,
     "1280x800-100:inspector_removed": true,
+    "1280x800-100:toolbar_keeps_its_controls": true,
     "1280x800-100:console_keeps_usable_height": true,
     "1280x800-100-after-1200-and-8000:document_does_not_grow": true,
     "1280x800-100-after-1200-and-8000:console_scrolls_internally": true,
@@ -94,6 +97,7 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
     "1280x800-100-after-1200-and-8000:submit_reachable": true,
     "1280x800-100-after-1200-and-8000:interrupt_visible": true,
     "1280x800-100-after-1200-and-8000:inspector_removed": true,
+    "1280x800-100-after-1200-and-8000:toolbar_keeps_its_controls": true,
     "1280x800-100-after-1200-and-8000:console_keeps_usable_height": true,
     "1280x800-100:prompt_bottom_did_not_move": true,
     "1280x800-100:tail_reachable_inside_console": true,
@@ -109,6 +113,7 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
     "1280x800-125:submit_reachable": true,
     "1280x800-125:interrupt_visible": true,
     "1280x800-125:inspector_removed": true,
+    "1280x800-125:toolbar_keeps_its_controls": true,
     "1280x800-125:console_keeps_usable_height": true,
     "1280x800-125-after-1200-and-8000:document_does_not_grow": true,
     "1280x800-125-after-1200-and-8000:console_scrolls_internally": true,
@@ -117,6 +122,7 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
     "1280x800-125-after-1200-and-8000:submit_reachable": true,
     "1280x800-125-after-1200-and-8000:interrupt_visible": true,
     "1280x800-125-after-1200-and-8000:inspector_removed": true,
+    "1280x800-125-after-1200-and-8000:toolbar_keeps_its_controls": true,
     "1280x800-125-after-1200-and-8000:console_keeps_usable_height": true,
     "1280x800-125:prompt_bottom_did_not_move": true,
     "1280x800-125:tail_reachable_inside_console": true,
@@ -132,6 +138,7 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
     "1280x800-150:submit_reachable": true,
     "1280x800-150:interrupt_visible": true,
     "1280x800-150:inspector_removed": true,
+    "1280x800-150:toolbar_keeps_its_controls": true,
     "1280x800-150:console_keeps_usable_height": true,
     "1280x800-150-after-1200-and-8000:document_does_not_grow": true,
     "1280x800-150-after-1200-and-8000:console_scrolls_internally": true,
@@ -140,6 +147,7 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
     "1280x800-150-after-1200-and-8000:submit_reachable": true,
     "1280x800-150-after-1200-and-8000:interrupt_visible": true,
     "1280x800-150-after-1200-and-8000:inspector_removed": true,
+    "1280x800-150-after-1200-and-8000:toolbar_keeps_its_controls": true,
     "1280x800-150-after-1200-and-8000:console_keeps_usable_height": true,
     "1280x800-150:prompt_bottom_did_not_move": true,
     "1280x800-150:tail_reachable_inside_console": true,
@@ -155,6 +163,7 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
     "1280x800-200:submit_reachable": true,
     "1280x800-200:interrupt_visible": true,
     "1280x800-200:inspector_removed": true,
+    "1280x800-200:toolbar_keeps_its_controls": true,
     "1280x800-200:console_keeps_usable_height": true,
     "1280x800-200-after-1200-and-8000:document_does_not_grow": true,
     "1280x800-200-after-1200-and-8000:console_scrolls_internally": true,
@@ -163,6 +172,7 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
     "1280x800-200-after-1200-and-8000:submit_reachable": true,
     "1280x800-200-after-1200-and-8000:interrupt_visible": true,
     "1280x800-200-after-1200-and-8000:inspector_removed": true,
+    "1280x800-200-after-1200-and-8000:toolbar_keeps_its_controls": true,
     "1280x800-200-after-1200-and-8000:console_keeps_usable_height": true,
     "1280x800-200:prompt_bottom_did_not_move": true,
     "1280x800-200:tail_reachable_inside_console": true,
@@ -178,6 +188,7 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
     "1100x700-100:submit_reachable": true,
     "1100x700-100:interrupt_visible": true,
     "1100x700-100:inspector_removed": true,
+    "1100x700-100:toolbar_keeps_its_controls": true,
     "1100x700-100:console_keeps_usable_height": true,
     "1100x700-100-after-1200-and-8000:document_does_not_grow": true,
     "1100x700-100-after-1200-and-8000:console_scrolls_internally": true,
@@ -186,6 +197,7 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
     "1100x700-100-after-1200-and-8000:submit_reachable": true,
     "1100x700-100-after-1200-and-8000:interrupt_visible": true,
     "1100x700-100-after-1200-and-8000:inspector_removed": true,
+    "1100x700-100-after-1200-and-8000:toolbar_keeps_its_controls": true,
     "1100x700-100-after-1200-and-8000:console_keeps_usable_height": true,
     "1100x700-100:prompt_bottom_did_not_move": true,
     "1100x700-100:tail_reachable_inside_console": true,
@@ -204,6 +216,7 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
     "shrunk-with-max-composer:submit_reachable": true,
     "shrunk-with-max-composer:interrupt_visible": true,
     "shrunk-with-max-composer:inspector_removed": true,
+    "shrunk-with-max-composer:toolbar_keeps_its_controls": true,
     "shrunk-with-max-composer:console_keeps_usable_height": true,
     "shrunk-and-zoomed-with-max-composer:document_does_not_grow": true,
     "shrunk-and-zoomed-with-max-composer:console_scrolls_internally": true,
@@ -212,6 +225,7 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
     "shrunk-and-zoomed-with-max-composer:submit_reachable": true,
     "shrunk-and-zoomed-with-max-composer:interrupt_visible": true,
     "shrunk-and-zoomed-with-max-composer:inspector_removed": true,
+    "shrunk-and-zoomed-with-max-composer:toolbar_keeps_its_controls": true,
     "shrunk-and-zoomed-with-max-composer:console_keeps_usable_height": true,
     "shrunk-and-zoomed-prompt-at-minimum:document_does_not_grow": true,
     "shrunk-and-zoomed-prompt-at-minimum:console_scrolls_internally": true,
@@ -220,6 +234,7 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
     "shrunk-and-zoomed-prompt-at-minimum:submit_reachable": true,
     "shrunk-and-zoomed-prompt-at-minimum:interrupt_visible": true,
     "shrunk-and-zoomed-prompt-at-minimum:inspector_removed": true,
+    "shrunk-and-zoomed-prompt-at-minimum:toolbar_keeps_its_controls": true,
     "shrunk-and-zoomed-prompt-at-minimum:console_keeps_usable_height": true,
     "plain_enter_reaches_the_composer": true,
     "plain_enter_is_not_intercepted": true,
@@ -532,6 +547,15 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
             "height": 30,
             "disabled": null
           },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
           "composer": {
             "top": 563.5,
             "bottom": 788,
@@ -627,6 +651,11 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
           "main": 800,
           "screen": 704,
           "stage": 585
+        },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 1008
         },
         "console_scroll": {
           "scroll_height": 25144,
@@ -765,6 +794,15 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
             "height": 30,
             "disabled": null
           },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
           "composer": {
             "top": 542.5,
             "bottom": 788,
@@ -860,6 +898,11 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
           "main": 800,
           "screen": 704,
           "stage": 585
+        },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 1008
         },
         "console_scroll": {
           "scroll_height": 25144,
@@ -998,6 +1041,15 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
             "height": 30,
             "disabled": null
           },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
           "composer": {
             "top": 595.5,
             "bottom": 788,
@@ -1093,6 +1145,11 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
           "main": 800,
           "screen": 704,
           "stage": 585
+        },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 1008
         },
         "console_scroll": {
           "scroll_height": 25144,
@@ -1238,6 +1295,15 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
             "height": 30,
             "disabled": null
           },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
           "composer": {
             "top": 448.5,
             "bottom": 612,
@@ -1333,6 +1399,11 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
           "main": 520,
           "screen": 474,
           "stage": 372
+        },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 864
         },
         "console_scroll": {
           "scroll_height": 25752,
@@ -1471,6 +1542,15 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
             "height": 30,
             "disabled": null
           },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
           "composer": {
             "top": 205.4,
             "bottom": 304,
@@ -1566,6 +1646,11 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
           "main": 310,
           "screen": 270,
           "stage": 186
+        },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 430
         },
         "console_scroll": {
           "scroll_height": 30063,
@@ -1704,6 +1789,15 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
             "height": 30,
             "disabled": null
           },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
           "composer": {
             "top": 205.4,
             "bottom": 304,
@@ -1800,6 +1894,11 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
           "screen": 270,
           "stage": 186
         },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 430
+        },
         "console_scroll": {
           "scroll_height": 30063,
           "client_height": 41,
@@ -1867,12 +1966,12 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
         "console_scroll_top": 24621,
         "position": "fixed"
       },
-      "dismissed_ms": 5214,
+      "dismissed_ms": 5210,
       "before": {
         "console_top": 239,
         "console_scroll_top": 24621
       },
-      "clipboard_restored": "Read AGENTS.md and\nMona_Studio_Future_Kit/Mona_Studio_Flight_Deck_PROMPTS.md.\n\nStart with F00. Integrate the supplied implementation while preserving\nexisting work, then complete each eligible prompt through native\nverification and installation.\n\nKeep the state and handoff current. After three attempts at one problem\nwithout material progress, mark it Needs the Human. Continue independent\nwork; report a genuine overall blocker immediately."
+      "clipboard_restored": "Oh man, there’s some good conspira-lore around the entire Nvidia/Jensen situation. All of the affairs had been going on for years, basically. The reason it broke now was a strategic move by Anyhropic’s co-founder to get Jensen out of the way to accomplish two things:\n\n1. True export controls against China.\n2. Banning open source models.\n\nJensen fought very publicly against both, and if you look at them together, I think what you see is both a pickaxe sales man wanting to drive up the utility and cost of his pickaxes… but also, the same argument I have been making — the most dangerous future is one where closed models win, and open models are banned. It guarantees these companies control of the future. Want to know how I know Jensen was aware of this? In an interview after he want vocally on record about not banning open models, he talks about how he went on the record against it, and make a joke about having saved humanity in the process. The joke is never explained."
     },
     "reduced_motion": {
       "attached": true,
@@ -1996,7 +2095,7 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
       "height": 900,
       "factor": 1,
       "appended": {
-        "thread_id": "thr_d5c608a03849a089",
+        "thread_id": "thr_7e9e6e7043bcd8ec",
         "frames": 1200,
         "stream_lines": 8000,
         "final_seq": 1212
@@ -2115,6 +2214,15 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
             "height": 30,
             "disabled": null
           },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
           "composer": {
             "top": 628.8,
             "bottom": 863,
@@ -2210,6 +2318,11 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
           "main": 875,
           "screen": 779,
           "stage": 660
+        },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 1168
         },
         "console_scroll": {
           "scroll_height": 714,
@@ -2348,6 +2461,15 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
             "height": 30,
             "disabled": null
           },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
           "composer": {
             "top": 628.8,
             "bottom": 863,
@@ -2444,6 +2566,11 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
           "screen": 779,
           "stage": 660
         },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 1168
+        },
         "console_scroll": {
           "scroll_height": 27010,
           "client_height": 372,
@@ -2477,7 +2604,7 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
       "height": 800,
       "factor": 1,
       "appended": {
-        "thread_id": "thr_d5c608a03849a089",
+        "thread_id": "thr_7e9e6e7043bcd8ec",
         "frames": 1200,
         "stream_lines": 8000,
         "final_seq": 2415
@@ -2596,6 +2723,15 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
             "height": 30,
             "disabled": null
           },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
           "composer": {
             "top": 563.5,
             "bottom": 788,
@@ -2691,6 +2827,11 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
           "main": 800,
           "screen": 704,
           "stage": 585
+        },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 1008
         },
         "console_scroll": {
           "scroll_height": 25786,
@@ -2829,6 +2970,15 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
             "height": 30,
             "disabled": null
           },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
           "composer": {
             "top": 563.5,
             "bottom": 788,
@@ -2925,6 +3075,11 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
           "screen": 704,
           "stage": 585
         },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 1008
+        },
         "console_scroll": {
           "scroll_height": 25786,
           "client_height": 307,
@@ -2958,7 +3113,7 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
       "height": 800,
       "factor": 1.25,
       "appended": {
-        "thread_id": "thr_d5c608a03849a089",
+        "thread_id": "thr_7e9e6e7043bcd8ec",
         "frames": 1200,
         "stream_lines": 8000,
         "final_seq": 3618
@@ -3077,6 +3232,15 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
             "height": 30,
             "disabled": null
           },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
           "composer": {
             "top": 469.3,
             "bottom": 632,
@@ -3172,6 +3336,11 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
           "main": 640,
           "screen": 594,
           "stage": 492
+        },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 808
         },
         "console_scroll": {
           "scroll_height": 25978,
@@ -3310,6 +3479,15 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
             "height": 30,
             "disabled": null
           },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
           "composer": {
             "top": 469.3,
             "bottom": 632,
@@ -3406,6 +3584,11 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
           "screen": 594,
           "stage": 492
         },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 808
+        },
         "console_scroll": {
           "scroll_height": 25978,
           "client_height": 276,
@@ -3439,7 +3622,7 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
       "height": 800,
       "factor": 1.5,
       "appended": {
-        "thread_id": "thr_d5c608a03849a089",
+        "thread_id": "thr_7e9e6e7043bcd8ec",
         "frames": 1200,
         "stream_lines": 8000,
         "final_seq": 4821
@@ -3558,6 +3741,15 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
             "height": 30,
             "disabled": null
           },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
           "composer": {
             "top": 382.8,
             "bottom": 527.3,
@@ -3653,6 +3845,11 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
           "main": 434,
           "screen": 394,
           "stage": 300
+        },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 817
         },
         "console_scroll": {
           "scroll_height": 25978,
@@ -3791,6 +3988,15 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
             "height": 30,
             "disabled": null
           },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
           "composer": {
             "top": 382.8,
             "bottom": 527.3,
@@ -3887,6 +4093,11 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
           "screen": 394,
           "stage": 300
         },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 817
+        },
         "console_scroll": {
           "scroll_height": 25978,
           "client_height": 109,
@@ -3920,7 +4131,7 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
       "height": 800,
       "factor": 2,
       "appended": {
-        "thread_id": "thr_d5c608a03849a089",
+        "thread_id": "thr_7e9e6e7043bcd8ec",
         "frames": 1200,
         "stream_lines": 8000,
         "final_seq": 6024
@@ -4039,6 +4250,15 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
             "height": 30,
             "disabled": null
           },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
           "composer": {
             "top": 303,
             "bottom": 394,
@@ -4134,6 +4354,11 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
           "main": 400,
           "screen": 360,
           "stage": 276
+        },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 620
         },
         "console_scroll": {
           "scroll_height": 27606,
@@ -4272,6 +4497,15 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
             "height": 30,
             "disabled": null
           },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
           "composer": {
             "top": 303,
             "bottom": 394,
@@ -4368,6 +4602,11 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
           "screen": 360,
           "stage": 276
         },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 620
+        },
         "console_scroll": {
           "scroll_height": 27606,
           "client_height": 139,
@@ -4401,7 +4640,7 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
       "height": 700,
       "factor": 1,
       "appended": {
-        "thread_id": "thr_d5c608a03849a089",
+        "thread_id": "thr_7e9e6e7043bcd8ec",
         "frames": 1200,
         "stream_lines": 8000,
         "final_seq": 7227
@@ -4520,6 +4759,15 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
             "height": 30,
             "disabled": null
           },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
           "composer": {
             "top": 528.5,
             "bottom": 692,
@@ -4615,6 +4863,11 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
           "main": 700,
           "screen": 654,
           "stage": 552
+        },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 884
         },
         "console_scroll": {
           "scroll_height": 25558,
@@ -4753,6 +5006,15 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
             "height": 30,
             "disabled": null
           },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
           "composer": {
             "top": 528.5,
             "bottom": 692,
@@ -4849,6 +5111,11 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
           "screen": 654,
           "stage": 552
         },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 884
+        },
         "console_scroll": {
           "scroll_height": 25558,
           "client_height": 335,
@@ -4890,7 +5157,10 @@ dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
     "f02-theme-afterglow-vivid.png",
     "f02-theme-afterglow-quiet.png"
   ],
-  "project": "prj_9912950a319e7fb0",
+  "project": "prj_5fb52b8e43805ff6",
+  "target": {
+    "tree": "~/DS_Projects/Mona"
+  },
   "electron": {
     "exit": 0,
     "stdout": "",

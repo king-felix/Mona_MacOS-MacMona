@@ -91,15 +91,15 @@ dist/renderer/assets/index-JyX3FhP0.js       782.87 kB │ gzip: 214.43 kB
   "size": 232496,
   "compiler": "Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)",
   "file": "native/macos-services/build/Mona.service/Contents/MacOS/MonaService: Mach-O 64-bit executable arm64",
-  "plist_lint": "/Users/basestar/DS_Projects/Mona/native/macos-services/build/Mona.service/Contents/Info.plist: OK",
+  "plist_lint": "~/DS_Projects/Mona/native/macos-services/build/Mona.service/Contents/Info.plist: OK",
   "signature": "ad-hoc",
   "signed": true,
   "verified": true,
   "descriptor": {
     "app_bundle_identifier": "com.mona.workbench",
     "bundle_identifier": "com.mona.workbench.service",
-    "bundle_path": "/Users/basestar/DS_Projects/Mona/native/macos-services/build/Mona.service",
-    "executable": "/Users/basestar/DS_Projects/Mona/native/macos-services/build/Mona.service/Contents/MacOS/MonaService",
+    "bundle_path": "~/DS_Projects/Mona/native/macos-services/build/Mona.service",
+    "executable": "~/DS_Projects/Mona/native/macos-services/build/Mona.service/Contents/MacOS/MonaService",
     "message": "startProject",
     "schema_version": 1,
     "send_file_types": [
@@ -114,7 +114,7 @@ dist/renderer/assets/index-JyX3FhP0.js       782.87 kB │ gzip: 214.43 kB
 }
 [p21] engine 0.10.2 (ff466b2ed0bf) sha256=da0229610647f1cc2dd14c4227b333a92ea276a49f5d4d79160fa19e515e590d
 Packaging app for platform darwin arm64 using electron v45.3.0
-WARNING: Could not find icon "/Users/basestar/DS_Projects/Mona/packaging/macos/out/stage/tools/Mona.icns" with extension ".icon", skipping this app icon format
+WARNING: Could not find icon "~/DS_Projects/Mona/packaging/macos/out/stage/tools/Mona.icns" with extension ".icon", skipping this app icon format
 [p21] app bundle assembled at Mona.app
 [p21] signing 25 nested components inside-out
 [p21] signed 17 Mach-O files and 8 nested bundles
