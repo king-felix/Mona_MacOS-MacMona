@@ -6,7 +6,7 @@ shell, grows its stored transcript by 1,200 frames and one 8,000-line open
 stream, and measures the deck at six window/zoom arrangements. **No runtime is
 started and no model request is made.**
 
-Machine-readable report: `f02-report.json` (215 checks, `ok: true`).
+Machine-readable report: `f02-report.json` (232 checks, `ok: true`).
 Runner: `scripts/deck-smoke.mjs` → `runDeckSmoke` in `src/main/index.ts`.
 Screenshots in this directory: `f02-*.png`.
 
@@ -27,9 +27,10 @@ Per arrangement (1440×900 at 100 %, 1280×800 at 100/125/150/200 %, 1100×700 a
 - at the live edge the tail is present (or its truncation is stated beside it);
   scrolling up stays inside the console, offers "Jump to latest", and the jump
   returns to the edge without scrolling the page;
-- the composer grip reports its own bounds, End grows the prompt, Home restores
-  the floor, and after shrinking the window to 900×620 and zooming to 200 % the
-  height is re-clamped so the prompt still fits.
+- the composer grip reports a value inside its own min/max at every arrangement
+  (114/72–157, 104/72–125, 72/72–116, 56/56–72, 42/42–72, 72/72–140), End grows
+  the prompt, Home restores the floor, and after shrinking the window to 900×620
+  and zooming to 200 % the height is re-clamped so the prompt still fits.
 
 Then, once: the secondary-action panel, Focus + Escape ordering, the command list
 at 100 %/200 %/narrow, the copy receipt's five-second life, reduced motion through
@@ -69,8 +70,12 @@ test artifact, and the layout was fixed rather than the assertion relaxed.
    next Escape can leave Focus. Nesting is list → panel → Focus: while the command
    list is open the list closes first, because that is the surface the keyboard is
    in.
-7. **The grip reported `72` while the field rendered 104 px.** It now reports the
-   observed height, and the initial size is inside the clamp it advertises.
+7. **The grip reported `72` while the field rendered 104 px** — and, after the
+   first fix, reported 56 px and 42 px at 150 %/200 % zoom against a hardcoded
+   `aria-valuemin` of 72, i.e. a value *below its own range*. It now reports the
+   observed height **and** takes its minimum from the field's rendered
+   `min-height`, so the range is true at every zoom. Every arrangement asserts
+   `min ≤ now ≤ max`.
 8. **The command list squeezed itself to one clipped row** at 200 % on the taller
    deck composer: the detail pane is `0 0 auto` with a 156 px cap and the list was
    `flex: 1 1 auto`. The list now has a 96 px floor, and the Studio drops the
@@ -98,6 +103,16 @@ control hit-testable.
 - **Reduced motion**: with `prefers-reduced-motion: reduce` emulated, the media
   query matches and zero animations are running. Idle with no turn: zero
   animations, `data-animated="false"`.
+- **Narrow window**: the window's own `minWidth` is 860 px, so the earlier
+  `setSize(760, 700)` measured 860 and the rail-hidden layout was never actually
+  exercised. The harness now lowers the minimum for that one measurement and
+  asserts the viewport really was ≤ 800 px; at 760×700 the rail is hidden, the
+  command button is visible and hit-testable, and there is no horizontal overflow.
+- **The clipboard is never recorded.** The receipt test saves the pasteboard
+  before it runs and restores it after, but the report now keeps only "it was
+  restored", the pre-existing length, and whether the restored bytes were
+  identical — never the text. An earlier revision wrote the actual clipboard into
+  the report; that was removed from the harness and from every stored artifact.
 - **Themes**: Daybreak/Vivid, Afterglow/Vivid and Afterglow/Quiet all render
   bounded with no page overflow; ink-on-surface contrast measured 15.91, 13.86 and
   13.86:1.

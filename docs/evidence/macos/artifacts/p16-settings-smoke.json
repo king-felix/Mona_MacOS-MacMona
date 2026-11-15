@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "label": "P16 — provider, model, and configuration workbench",
-  "captured_at": "2026-11-15T21:25:39.096Z",
+  "captured_at": "2026-11-15T21:43:12.911Z",
   "ok": true,
   "isolated_home": true,
   "checks": {
@@ -93,7 +93,7 @@
         "updatedAt": null,
         "validation": {
           "ok": true,
-          "checkedAt": "2026-11-15T21:25:39.611Z",
+          "checkedAt": "2026-11-15T21:43:13.496Z",
           "reason": null,
           "catalog": "live"
         }
@@ -108,7 +108,7 @@
         "approvalMode": "suggest",
         "sandboxMode": "workspace-write",
         "allowShell": false,
-        "readAt": "2026-11-15T21:25:39.609Z",
+        "readAt": "2026-11-15T21:43:13.494Z",
         "source": "live",
         "error": null
       },
@@ -168,7 +168,7 @@
       },
       "persisted": true,
       "requiresReload": false,
-      "backupPath": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p16-smoke-a0LFn5/product/engine-config/engine-config-2026-11-15T21-25-39-723Z-1aa6faca56c6-config.toml",
+      "backupPath": "/var/folders/q6/tm7_88jx7hb49rq7dwgww1s80000gn/T/mona-p16-smoke-PVy4xp/product/engine-config/engine-config-2026-11-15T21-43-13-613Z-1aa6faca56c6-config.toml",
       "backupSha256": "1aa6faca56c6883518f81131e1cc089ddc00280410f42a522002121b87d784b4",
       "revisionBefore": "1aa6faca56c6883518f81131e1cc089ddc00280410f42a522002121b87d784b4",
       "revisionAfter": "ac4abaf346adc49b38223718dd7ef4ba1a7ef1bbb02cd43bce0ef65f233a1f74",
@@ -201,7 +201,7 @@
   },
   "backups": [
     {
-      "file": "engine-config-2026-11-15T21-25-39-723Z-1aa6faca56c6-config.toml",
+      "file": "engine-config-2026-11-15T21-43-13-613Z-1aa6faca56c6-config.toml",
       "sha256": "1aa6faca56c6883518f81131e1cc089ddc00280410f42a522002121b87d784b4",
       "revision": "1aa6faca56c6883518f81131e1cc089ddc00280410f42a522002121b87d784b4"
     }

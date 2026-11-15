@@ -1,6 +1,6 @@
 # Current continuation — Studio flight deck (2026-11-15)
 
-The deck is integrated, qualified on this Mac, and packaged as build **172**. It is
+The deck is integrated, qualified on this Mac, and packaged as build **174**. It is
 **not installed**: `/Applications` still holds build 168, and installing needs the
 owner's own Terminal. Nothing has been pushed.
 
@@ -10,9 +10,9 @@ owner's own Terminal. Nothing has been pushed.
   handoff commits after it.
 - **Source checks:** `npm run ci` green, all 25 steps; 1,189 tests in 108 files;
   typecheck/lint/format/build clean.
-- **Native layout:** `npm run smoke:deck` — 200 checks, six window/zoom
+- **Native layout:** `npm run smoke:deck` — 232 checks, six window/zoom
   arrangements, 1,200 appended frames and an 8,000-line stream per arrangement.
-- **Packaged copy:** same 200 checks pass against
+- **Packaged copy:** same 232 checks pass against
   `packaging/macos/out/stage/payload/Applications/Mona.app` via
   `node scripts/deck-smoke.mjs --app …`.
 - **Evidence:** `docs/evidence/macos/studio-flight-deck/` — `F00-integration.md`,

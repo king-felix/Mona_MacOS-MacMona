@@ -1065,6 +1065,16 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
   );
   const studioReady = await waitFor("document.documentElement.dataset.screen === 'studio'");
   await new Promise((resolve) => setTimeout(resolve, 250));
+  // FD-09 moved the secondary actions into one on-demand panel, so a read of the
+  // bar has to open it the way a person does. The panel is closed again
+  // immediately, so the measurements below describe the default surface.
+  const openedMore = await window.webContents.executeJavaScript(`(() => {
+    const toggle = document.querySelector('[data-testid="composer-more"]');
+    if (!(toggle instanceof HTMLElement)) return false;
+    toggle.click();
+    return true;
+  })()`);
+  await new Promise((resolve) => setTimeout(resolve, 150));
   const studio = await window.webContents.executeJavaScript(`(() => ({
     screen: document.documentElement.dataset.screen,
     title: document.querySelector('.context-bar__title')?.textContent ?? null,
@@ -1114,6 +1124,7 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
         console_share: Math.round(consoleShare * 100) / 100,
         console_height: Math.round(consoleRect.height),
         console_above_composer: consoleRect.bottom <= composerRect.top + 1,
+        stage_height: Math.round(studioRect.height),
         inspector_removed: inspectorEl === null,
         bounded_document: document.documentElement.scrollHeight <= window.innerHeight + 1,
         console_scrolls: getComputedStyle(consoleEl).overflowY === "auto",
@@ -1134,6 +1145,13 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
       controlsRect.bottom <= fieldRect.top + 1 && fieldRect.bottom <= window.innerHeight + 1,
       controls_bottom: controlsRect.bottom, field_top: fieldRect.top, field_bottom: fieldRect.bottom };
   })()`);
+  await window.webContents.executeJavaScript(`(() => {
+    const toggle = document.querySelector('[data-testid="composer-more"]');
+    if (toggle instanceof HTMLElement && toggle.getAttribute('aria-expanded') === 'true') toggle.click();
+    return true;
+  })()`);
+  await new Promise((resolve) => setTimeout(resolve, 120));
+  studio.more_panel_opened = openedMore;
   const studioShot = await window.webContents.capturePage();
   writeFileSync(join(outDir, "p07-shell-studio.png"), studioShot.toPNG());
   // R08: the activity strip and the follow-up queue in the real shell, with the
@@ -2188,7 +2206,14 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
     palette_project_action: palette.has_project_action === true,
     palette_escape: paletteClosed,
     studio_console_spans_width: studio.layout.ok === true && studio.layout.console_share >= 0.9,
-    studio_console_is_tall: studio.layout.ok === true && studio.layout.console_height >= 340,
+    // "Tall" is a share of the room the deck gives the console, not a pixel count
+    // that only held for the pre-deck layout. At 1280x800 the console is 308 px of
+    // a 585 px stage (53 %); the old 340 px floor described a page that scrolled.
+    studio_console_is_tall:
+      studio.layout.ok === true &&
+      studio.layout.stage_height > 0 &&
+      studio.layout.console_height / studio.layout.stage_height >= 0.45,
+    studio_secondary_actions_present: studio.more_panel_opened === true,
     studio_console_above_composer:
       studio.layout.ok === true && studio.layout.console_above_composer === true,
     studio_inspector_removed: studio.layout.ok === true && studio.layout.inspector_removed === true,
@@ -3779,6 +3804,13 @@ async function runDeckSmoke(window: BrowserWindow): Promise<void> {
               ) <= 24,
             }
           : null,
+        grip_range: grip
+          ? {
+              now: Number(grip.getAttribute('aria-valuenow')),
+              min: Number(grip.getAttribute('aria-valuemin')),
+              max: Number(grip.getAttribute('aria-valuemax')),
+            }
+          : null,
         grip_value: grip ? grip.getAttribute('aria-valuenow') : null,
         rail_layout: (() => {
           const rail = document.querySelector('.rail');
@@ -3833,6 +3865,14 @@ async function runDeckSmoke(window: BrowserWindow): Promise<void> {
     checks[key("inspector_removed")] = g.inspector === false;
     const toolbarFit = g.toolbar_fits as
       { overflows: boolean; actions_inside: boolean | null } | null | undefined;
+    // A separator may not report a value outside its own range: that is an
+    // accessibility contract, not a style preference.
+    const gripRange = g.grip_range as { now: number; min: number; max: number } | null | undefined;
+    checks[key("grip_reports_a_value_inside_its_range")] =
+      gripRange != null &&
+      Number.isFinite(gripRange.now) &&
+      gripRange.now >= gripRange.min &&
+      gripRange.now <= gripRange.max;
     checks[key("toolbar_keeps_its_controls")] =
       toolbarFit != null && toolbarFit.overflows === false && toolbarFit.actions_inside !== false;
     // The console's floor follows the room that exists. Above 360 CSS px of
@@ -4244,6 +4284,11 @@ async function runDeckSmoke(window: BrowserWindow): Promise<void> {
     // owner's number, so it is measured end to end in the real window. Copying a
     // card is the local action that produces a real success receipt: it writes
     // the clipboard through the product's own IPC path and touches no engine.
+    // The clipboard is read only to restore it afterwards. Its TEXT is never
+    // recorded: a receipt test must not ship whatever the owner last copied
+    // (passwords, tokens, private messages) into a report or a log. Only two
+    // non-revealing facts are kept — that it was restored, and how much text was
+    // there before — so the harness cannot leak the pasteboard by accident.
     const clipboardBefore = await clipboard.readText();
     const beforeNotice = await evaluate<Record<string, unknown>>(`(() => {
       const node = document.querySelector('.studio__timeline');
@@ -4286,10 +4331,14 @@ async function runDeckSmoke(window: BrowserWindow): Promise<void> {
       toast,
       dismissed_ms: dismissedMs,
       before: beforeNotice,
-      clipboard_restored: clipboardBefore,
+      clipboard_restored: true,
+      clipboard_previous_length: clipboardBefore.length,
     };
     facts.notice = noticeFacts;
     await clipboard.writeText(clipboardBefore);
+    const clipboardAfter = await clipboard.readText();
+    noticeFacts.clipboard_byte_identical = clipboardAfter === clipboardBefore;
+    checks.receipt_leaves_the_clipboard_as_it_found_it = clipboardAfter === clipboardBefore;
     checks.routine_receipt_appeared = clickedCopy === true && noticePresent === true;
     checks.routine_receipt_is_a_success_tone = String(
       (toast as Record<string, unknown>).tone ?? "",
@@ -4348,8 +4397,13 @@ async function runDeckSmoke(window: BrowserWindow): Promise<void> {
     await waitFor("document.body.dataset.ready === 'true'", 30_000);
     await evaluate("document.querySelector('[data-project-id]')?.click(); true");
     await waitFor("document.documentElement.dataset.screen === 'studio'", 30_000);
+    // The window refuses to be narrower than 860 CSS px at 100 %, so asking for
+    // 760 measured 860 and the rail-hidden layout was never exercised. The floor
+    // is lowered for this one measurement and restored afterwards; the point is
+    // to observe the real narrow arrangement rather than assume it.
+    window.setMinimumSize(620, 460);
     window.setSize(760, 700);
-    await sleep(400);
+    await sleep(500);
     const narrow = await evaluate<Record<string, unknown>>(`(() => {
       const rail = document.querySelector('.rail');
       const command = document.querySelector('[data-testid="focus-palette"]') ??
@@ -4361,12 +4415,19 @@ async function runDeckSmoke(window: BrowserWindow): Promise<void> {
         command_visible: Boolean(rect && rect.width > 0 && rect.height > 0),
         horizontal_overflow:
           document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+        viewport: { width: window.innerWidth, height: window.innerHeight },
       };
     })()`);
     await shot("f02-narrow-760x700.png");
     facts.narrow = narrow;
     checks.narrow_has_no_page_overflow = narrow.horizontal_overflow === false;
     checks.narrow_keeps_the_command_button = narrow.command_visible === true;
+    // Honest about what was measured: the viewport must really be narrow, not the
+    // clamped 860 px window that made the previous version of this check vacuous.
+    checks.narrow_was_really_narrow =
+      (narrow.viewport as { width: number }).width <= 800 &&
+      (narrow.viewport as { width: number }).width >= 600;
+    window.setMinimumSize(860, 560);
     window.setSize(1280, 800);
     await sleep(300);
 

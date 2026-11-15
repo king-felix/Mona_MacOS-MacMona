@@ -25,19 +25,19 @@ rendering chunks...
 computing gzip size...
 dist/renderer/index.html                       0.76 kB │ gzip:   0.41 kB
 dist/renderer/assets/mona-mark-ChAj1Hvn.png   27.56 kB
-dist/renderer/assets/index-CgjmFBbk.css       97.08 kB │ gzip:  16.45 kB
-dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
+dist/renderer/assets/index-B3KxF1J_.css       97.11 kB │ gzip:  16.46 kB
+dist/renderer/assets/index-BIalt7na.js       783.19 kB │ gzip: 214.56 kB
 
-✓ built in 117ms
 [plugin builtin:vite-reporter] 
 (!) Some chunks are larger than 500 kB after minification. Consider:
 - Using dynamic import() to code-split the application
 - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 116ms
 {
   "schema_version": 1,
   "label": "F02 — Studio flight deck on real pixels, no engine, no model request",
-  "captured_at": "2026-11-15T21:32:04.248Z",
+  "captured_at": "2026-11-15T21:39:41.103Z",
   "host": {
     "platform": "darwin",
     "arch": "arm64",
@@ -63,6 +63,7 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
     "1440x900-100:submit_reachable": true,
     "1440x900-100:interrupt_visible": true,
     "1440x900-100:inspector_removed": true,
+    "1440x900-100:grip_reports_a_value_inside_its_range": true,
     "1440x900-100:toolbar_keeps_its_controls": true,
     "1440x900-100:console_keeps_usable_height": true,
     "1440x900-100-after-1200-and-8000:document_does_not_grow": true,
@@ -72,6 +73,7 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
     "1440x900-100-after-1200-and-8000:submit_reachable": true,
     "1440x900-100-after-1200-and-8000:interrupt_visible": true,
     "1440x900-100-after-1200-and-8000:inspector_removed": true,
+    "1440x900-100-after-1200-and-8000:grip_reports_a_value_inside_its_range": true,
     "1440x900-100-after-1200-and-8000:toolbar_keeps_its_controls": true,
     "1440x900-100-after-1200-and-8000:console_keeps_usable_height": true,
     "1440x900-100:prompt_bottom_did_not_move": true,
@@ -88,6 +90,7 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
     "1280x800-100:submit_reachable": true,
     "1280x800-100:interrupt_visible": true,
     "1280x800-100:inspector_removed": true,
+    "1280x800-100:grip_reports_a_value_inside_its_range": true,
     "1280x800-100:toolbar_keeps_its_controls": true,
     "1280x800-100:console_keeps_usable_height": true,
     "1280x800-100-after-1200-and-8000:document_does_not_grow": true,
@@ -97,6 +100,7 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
     "1280x800-100-after-1200-and-8000:submit_reachable": true,
     "1280x800-100-after-1200-and-8000:interrupt_visible": true,
     "1280x800-100-after-1200-and-8000:inspector_removed": true,
+    "1280x800-100-after-1200-and-8000:grip_reports_a_value_inside_its_range": true,
     "1280x800-100-after-1200-and-8000:toolbar_keeps_its_controls": true,
     "1280x800-100-after-1200-and-8000:console_keeps_usable_height": true,
     "1280x800-100:prompt_bottom_did_not_move": true,
@@ -113,6 +117,7 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
     "1280x800-125:submit_reachable": true,
     "1280x800-125:interrupt_visible": true,
     "1280x800-125:inspector_removed": true,
+    "1280x800-125:grip_reports_a_value_inside_its_range": true,
     "1280x800-125:toolbar_keeps_its_controls": true,
     "1280x800-125:console_keeps_usable_height": true,
     "1280x800-125-after-1200-and-8000:document_does_not_grow": true,
@@ -122,6 +127,7 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
     "1280x800-125-after-1200-and-8000:submit_reachable": true,
     "1280x800-125-after-1200-and-8000:interrupt_visible": true,
     "1280x800-125-after-1200-and-8000:inspector_removed": true,
+    "1280x800-125-after-1200-and-8000:grip_reports_a_value_inside_its_range": true,
     "1280x800-125-after-1200-and-8000:toolbar_keeps_its_controls": true,
     "1280x800-125-after-1200-and-8000:console_keeps_usable_height": true,
     "1280x800-125:prompt_bottom_did_not_move": true,
@@ -138,6 +144,7 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
     "1280x800-150:submit_reachable": true,
     "1280x800-150:interrupt_visible": true,
     "1280x800-150:inspector_removed": true,
+    "1280x800-150:grip_reports_a_value_inside_its_range": true,
     "1280x800-150:toolbar_keeps_its_controls": true,
     "1280x800-150:console_keeps_usable_height": true,
     "1280x800-150-after-1200-and-8000:document_does_not_grow": true,
@@ -147,6 +154,7 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
     "1280x800-150-after-1200-and-8000:submit_reachable": true,
     "1280x800-150-after-1200-and-8000:interrupt_visible": true,
     "1280x800-150-after-1200-and-8000:inspector_removed": true,
+    "1280x800-150-after-1200-and-8000:grip_reports_a_value_inside_its_range": true,
     "1280x800-150-after-1200-and-8000:toolbar_keeps_its_controls": true,
     "1280x800-150-after-1200-and-8000:console_keeps_usable_height": true,
     "1280x800-150:prompt_bottom_did_not_move": true,
@@ -163,6 +171,7 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
     "1280x800-200:submit_reachable": true,
     "1280x800-200:interrupt_visible": true,
     "1280x800-200:inspector_removed": true,
+    "1280x800-200:grip_reports_a_value_inside_its_range": true,
     "1280x800-200:toolbar_keeps_its_controls": true,
     "1280x800-200:console_keeps_usable_height": true,
     "1280x800-200-after-1200-and-8000:document_does_not_grow": true,
@@ -172,6 +181,7 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
     "1280x800-200-after-1200-and-8000:submit_reachable": true,
     "1280x800-200-after-1200-and-8000:interrupt_visible": true,
     "1280x800-200-after-1200-and-8000:inspector_removed": true,
+    "1280x800-200-after-1200-and-8000:grip_reports_a_value_inside_its_range": true,
     "1280x800-200-after-1200-and-8000:toolbar_keeps_its_controls": true,
     "1280x800-200-after-1200-and-8000:console_keeps_usable_height": true,
     "1280x800-200:prompt_bottom_did_not_move": true,
@@ -188,6 +198,7 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
     "1100x700-100:submit_reachable": true,
     "1100x700-100:interrupt_visible": true,
     "1100x700-100:inspector_removed": true,
+    "1100x700-100:grip_reports_a_value_inside_its_range": true,
     "1100x700-100:toolbar_keeps_its_controls": true,
     "1100x700-100:console_keeps_usable_height": true,
     "1100x700-100-after-1200-and-8000:document_does_not_grow": true,
@@ -197,6 +208,7 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
     "1100x700-100-after-1200-and-8000:submit_reachable": true,
     "1100x700-100-after-1200-and-8000:interrupt_visible": true,
     "1100x700-100-after-1200-and-8000:inspector_removed": true,
+    "1100x700-100-after-1200-and-8000:grip_reports_a_value_inside_its_range": true,
     "1100x700-100-after-1200-and-8000:toolbar_keeps_its_controls": true,
     "1100x700-100-after-1200-and-8000:console_keeps_usable_height": true,
     "1100x700-100:prompt_bottom_did_not_move": true,
@@ -216,6 +228,7 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
     "shrunk-with-max-composer:submit_reachable": true,
     "shrunk-with-max-composer:interrupt_visible": true,
     "shrunk-with-max-composer:inspector_removed": true,
+    "shrunk-with-max-composer:grip_reports_a_value_inside_its_range": true,
     "shrunk-with-max-composer:toolbar_keeps_its_controls": true,
     "shrunk-with-max-composer:console_keeps_usable_height": true,
     "shrunk-and-zoomed-with-max-composer:document_does_not_grow": true,
@@ -225,6 +238,7 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
     "shrunk-and-zoomed-with-max-composer:submit_reachable": true,
     "shrunk-and-zoomed-with-max-composer:interrupt_visible": true,
     "shrunk-and-zoomed-with-max-composer:inspector_removed": true,
+    "shrunk-and-zoomed-with-max-composer:grip_reports_a_value_inside_its_range": true,
     "shrunk-and-zoomed-with-max-composer:toolbar_keeps_its_controls": true,
     "shrunk-and-zoomed-with-max-composer:console_keeps_usable_height": true,
     "shrunk-and-zoomed-prompt-at-minimum:document_does_not_grow": true,
@@ -234,6 +248,7 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
     "shrunk-and-zoomed-prompt-at-minimum:submit_reachable": true,
     "shrunk-and-zoomed-prompt-at-minimum:interrupt_visible": true,
     "shrunk-and-zoomed-prompt-at-minimum:inspector_removed": true,
+    "shrunk-and-zoomed-prompt-at-minimum:grip_reports_a_value_inside_its_range": true,
     "shrunk-and-zoomed-prompt-at-minimum:toolbar_keeps_its_controls": true,
     "shrunk-and-zoomed-prompt-at-minimum:console_keeps_usable_height": true,
     "plain_enter_reaches_the_composer": true,
@@ -241,6 +256,7 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
     "plain_enter_sends_nothing": true,
     "command_enter_reaches_the_submit_path": true,
     "command_enter_starts_no_engine": true,
+    "receipt_leaves_the_clipboard_as_it_found_it": true,
     "routine_receipt_appeared": true,
     "routine_receipt_is_a_success_tone": true,
     "routine_receipt_dismisses_itself": true,
@@ -250,6 +266,7 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
     "reduced_motion_stops_decoration": true,
     "narrow_has_no_page_overflow": true,
     "narrow_keeps_the_command_button": true,
+    "narrow_was_really_narrow": true,
     "secondary_actions_are_on_demand": true,
     "secondary_panel_is_inside_the_viewport": true,
     "secondary_panel_holds_the_real_actions": true,
@@ -335,7 +352,7 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
         "truncation_stated": true,
         "at_tail": true,
         "cards": 7,
-        "console_scroll_height": 25978,
+        "console_scroll_height": 27000,
         "console_client_height": 276,
         "document_scroll_y": 0
       },
@@ -361,7 +378,7 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
         "truncation_stated": true,
         "at_tail": true,
         "cards": 7,
-        "console_scroll_height": 25978,
+        "console_scroll_height": 27000,
         "console_client_height": 109,
         "document_scroll_y": 0
       },
@@ -387,7 +404,7 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
         "truncation_stated": true,
         "at_tail": true,
         "cards": 7,
-        "console_scroll_height": 27606,
+        "console_scroll_height": 27192,
         "console_client_height": 139,
         "document_scroll_y": 0
       },
@@ -413,7 +430,7 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
         "truncation_stated": true,
         "at_tail": true,
         "cards": 7,
-        "console_scroll_height": 25558,
+        "console_scroll_height": 25345,
         "console_client_height": 335,
         "document_scroll_y": 0
       },
@@ -658,10 +675,15 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
           "bar_width": 1008
         },
         "console_scroll": {
-          "scroll_height": 25144,
+          "scroll_height": 24937,
           "client_height": 307,
           "overflow_y": "auto",
           "at_latest": true
+        },
+        "grip_range": {
+          "now": 104,
+          "min": 72,
+          "max": 125
         },
         "grip_value": "104",
         "rail_layout": {
@@ -905,10 +927,15 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
           "bar_width": 1008
         },
         "console_scroll": {
-          "scroll_height": 25144,
+          "scroll_height": 24937,
           "client_height": 286,
           "overflow_y": "auto",
           "at_latest": true
+        },
+        "grip_range": {
+          "now": 125,
+          "min": 72,
+          "max": 125
         },
         "grip_value": "125",
         "rail_layout": {
@@ -1152,10 +1179,15 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
           "bar_width": 1008
         },
         "console_scroll": {
-          "scroll_height": 25144,
+          "scroll_height": 24937,
           "client_height": 339,
           "overflow_y": "auto",
           "at_latest": true
+        },
+        "grip_range": {
+          "now": 72,
+          "min": 72,
+          "max": 125
         },
         "grip_value": "72",
         "rail_layout": {
@@ -1406,10 +1438,15 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
           "bar_width": 864
         },
         "console_scroll": {
-          "scroll_height": 25752,
+          "scroll_height": 25365,
           "client_height": 155,
           "overflow_y": "auto",
           "at_latest": true
+        },
+        "grip_range": {
+          "now": 72,
+          "min": 72,
+          "max": 72
         },
         "grip_value": "72",
         "rail_layout": {
@@ -1653,10 +1690,15 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
           "bar_width": 430
         },
         "console_scroll": {
-          "scroll_height": 30063,
+          "scroll_height": 29660,
           "client_height": 41,
           "overflow_y": "auto",
           "at_latest": false
+        },
+        "grip_range": {
+          "now": 72,
+          "min": 42,
+          "max": 72
         },
         "grip_value": "72",
         "rail_layout": {
@@ -1673,7 +1715,7 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
         "signal_animated": "false",
         "signal_phase": "agent-signal agent-signal--offline",
         "running_animations": 0,
-        "cards": 13
+        "cards": 14
       },
       "recovered": {
         "zoom": 4,
@@ -1900,10 +1942,15 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
           "bar_width": 430
         },
         "console_scroll": {
-          "scroll_height": 30063,
+          "scroll_height": 29660,
           "client_height": 41,
           "overflow_y": "auto",
           "at_latest": false
+        },
+        "grip_range": {
+          "now": 72,
+          "min": 42,
+          "max": 72
         },
         "grip_value": "72",
         "rail_layout": {
@@ -1920,7 +1967,7 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
         "signal_animated": "false",
         "signal_phase": "agent-signal agent-signal--offline",
         "running_animations": 0,
-        "cards": 13
+        "cards": 14
       }
     },
     "keyboard": {
@@ -1963,15 +2010,17 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
         "text": "Copied 65 characters to the clipboard.",
         "top": 48,
         "console_top": 239,
-        "console_scroll_top": 24621,
+        "console_scroll_top": 24521,
         "position": "fixed"
       },
-      "dismissed_ms": 5210,
+      "dismissed_ms": 5260,
       "before": {
         "console_top": 239,
-        "console_scroll_top": 24621
+        "console_scroll_top": 24521
       },
-      "clipboard_restored": "Oh man, there’s some good conspira-lore around the entire Nvidia/Jensen situation. All of the affairs had been going on for years, basically. The reason it broke now was a strategic move by Anyhropic’s co-founder to get Jensen out of the way to accomplish two things:\n\n1. True export controls against China.\n2. Banning open source models.\n\nJensen fought very publicly against both, and if you look at them together, I think what you see is both a pickaxe sales man wanting to drive up the utility and cost of his pickaxes… but also, the same argument I have been making — the most dangerous future is one where closed models win, and open models are banned. It guarantees these companies control of the future. Want to know how I know Jensen was aware of this? In an interview after he want vocally on record about not banning open models, he talks about how he went on the record against it, and make a joke about having saved humanity in the process. The joke is never explained."
+      "clipboard_restored": true,
+      "clipboard_previous_length": 981,
+      "clipboard_byte_identical": true
     },
     "reduced_motion": {
       "attached": true,
@@ -1980,10 +2029,14 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
       "orb_animation": ""
     },
     "narrow": {
-      "rail_display": "flex",
+      "rail_display": "none",
       "command_present": true,
       "command_visible": true,
-      "horizontal_overflow": false
+      "horizontal_overflow": false,
+      "viewport": {
+        "width": 760,
+        "height": 700
+      }
     },
     "more_panel": {
       "open": true,
@@ -2095,7 +2148,7 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
       "height": 900,
       "factor": 1,
       "appended": {
-        "thread_id": "thr_7e9e6e7043bcd8ec",
+        "thread_id": "thr_3f0f0d2949ea0e9b",
         "frames": 1200,
         "stream_lines": 8000,
         "final_seq": 1212
@@ -2329,6 +2382,11 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
           "client_height": 372,
           "overflow_y": "auto",
           "at_latest": true
+        },
+        "grip_range": {
+          "now": 114,
+          "min": 72,
+          "max": 157
         },
         "grip_value": "114",
         "rail_layout": {
@@ -2577,6 +2635,11 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
           "overflow_y": "auto",
           "at_latest": true
         },
+        "grip_range": {
+          "now": 114,
+          "min": 72,
+          "max": 157
+        },
         "grip_value": "114",
         "rail_layout": {
           "display": "flex",
@@ -2604,7 +2667,7 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
       "height": 800,
       "factor": 1,
       "appended": {
-        "thread_id": "thr_7e9e6e7043bcd8ec",
+        "thread_id": "thr_3f0f0d2949ea0e9b",
         "frames": 1200,
         "stream_lines": 8000,
         "final_seq": 2415
@@ -2839,6 +2902,11 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
           "overflow_y": "auto",
           "at_latest": true
         },
+        "grip_range": {
+          "now": 104,
+          "min": 72,
+          "max": 125
+        },
         "grip_value": "104",
         "rail_layout": {
           "display": "flex",
@@ -3086,6 +3154,11 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
           "overflow_y": "auto",
           "at_latest": true
         },
+        "grip_range": {
+          "now": 104,
+          "min": 72,
+          "max": 125
+        },
         "grip_value": "104",
         "rail_layout": {
           "display": "flex",
@@ -3113,7 +3186,7 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
       "height": 800,
       "factor": 1.25,
       "appended": {
-        "thread_id": "thr_7e9e6e7043bcd8ec",
+        "thread_id": "thr_3f0f0d2949ea0e9b",
         "frames": 1200,
         "stream_lines": 8000,
         "final_seq": 3618
@@ -3343,10 +3416,15 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
           "bar_width": 808
         },
         "console_scroll": {
-          "scroll_height": 25978,
+          "scroll_height": 27000,
           "client_height": 276,
           "overflow_y": "auto",
           "at_latest": false
+        },
+        "grip_range": {
+          "now": 72,
+          "min": 72,
+          "max": 116
         },
         "grip_value": "72",
         "rail_layout": {
@@ -3590,10 +3668,15 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
           "bar_width": 808
         },
         "console_scroll": {
-          "scroll_height": 25978,
+          "scroll_height": 27000,
           "client_height": 276,
           "overflow_y": "auto",
           "at_latest": false
+        },
+        "grip_range": {
+          "now": 72,
+          "min": 72,
+          "max": 116
         },
         "grip_value": "72",
         "rail_layout": {
@@ -3622,7 +3705,7 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
       "height": 800,
       "factor": 1.5,
       "appended": {
-        "thread_id": "thr_7e9e6e7043bcd8ec",
+        "thread_id": "thr_3f0f0d2949ea0e9b",
         "frames": 1200,
         "stream_lines": 8000,
         "final_seq": 4821
@@ -3852,10 +3935,15 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
           "bar_width": 817
         },
         "console_scroll": {
-          "scroll_height": 25978,
+          "scroll_height": 27000,
           "client_height": 109,
           "overflow_y": "auto",
           "at_latest": false
+        },
+        "grip_range": {
+          "now": 56,
+          "min": 56,
+          "max": 72
         },
         "grip_value": "56",
         "rail_layout": {
@@ -4099,10 +4187,15 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
           "bar_width": 817
         },
         "console_scroll": {
-          "scroll_height": 25978,
+          "scroll_height": 27000,
           "client_height": 109,
           "overflow_y": "auto",
           "at_latest": false
+        },
+        "grip_range": {
+          "now": 56,
+          "min": 56,
+          "max": 72
         },
         "grip_value": "56",
         "rail_layout": {
@@ -4131,7 +4224,7 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
       "height": 800,
       "factor": 2,
       "appended": {
-        "thread_id": "thr_7e9e6e7043bcd8ec",
+        "thread_id": "thr_3f0f0d2949ea0e9b",
         "frames": 1200,
         "stream_lines": 8000,
         "final_seq": 6024
@@ -4361,10 +4454,15 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
           "bar_width": 620
         },
         "console_scroll": {
-          "scroll_height": 27606,
+          "scroll_height": 27192,
           "client_height": 139,
           "overflow_y": "auto",
           "at_latest": false
+        },
+        "grip_range": {
+          "now": 42,
+          "min": 42,
+          "max": 72
         },
         "grip_value": "42",
         "rail_layout": {
@@ -4381,7 +4479,7 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
         "signal_animated": "false",
         "signal_phase": "agent-signal agent-signal--offline",
         "running_animations": 0,
-        "cards": 14
+        "cards": 7
       },
       "after": {
         "zoom": 4,
@@ -4608,10 +4706,15 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
           "bar_width": 620
         },
         "console_scroll": {
-          "scroll_height": 27606,
+          "scroll_height": 27192,
           "client_height": 139,
           "overflow_y": "auto",
           "at_latest": false
+        },
+        "grip_range": {
+          "now": 42,
+          "min": 42,
+          "max": 72
         },
         "grip_value": "42",
         "rail_layout": {
@@ -4628,9 +4731,9 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
         "signal_animated": "false",
         "signal_phase": "agent-signal agent-signal--offline",
         "running_animations": 0,
-        "cards": 14,
+        "cards": 7,
         "refreshed_from_push": true,
-        "scope_text": "199 shown · 6024 stored · older pages available · 14 painted",
+        "scope_text": "199 shown · 6024 stored · older pages available · 7 painted",
         "stored_total_readback": 6024
       }
     },
@@ -4640,7 +4743,7 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
       "height": 700,
       "factor": 1,
       "appended": {
-        "thread_id": "thr_7e9e6e7043bcd8ec",
+        "thread_id": "thr_3f0f0d2949ea0e9b",
         "frames": 1200,
         "stream_lines": 8000,
         "final_seq": 7227
@@ -4870,10 +4973,15 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
           "bar_width": 884
         },
         "console_scroll": {
-          "scroll_height": 25558,
+          "scroll_height": 25345,
           "client_height": 335,
           "overflow_y": "auto",
           "at_latest": true
+        },
+        "grip_range": {
+          "now": 72,
+          "min": 72,
+          "max": 140
         },
         "grip_value": "72",
         "rail_layout": {
@@ -5117,10 +5225,15 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
           "bar_width": 884
         },
         "console_scroll": {
-          "scroll_height": 25558,
+          "scroll_height": 25345,
           "client_height": 335,
           "overflow_y": "auto",
           "at_latest": true
+        },
+        "grip_range": {
+          "now": 72,
+          "min": 72,
+          "max": 140
         },
         "grip_value": "72",
         "rail_layout": {
@@ -5157,7 +5270,7 @@ dist/renderer/assets/index-CPt9AWVD.js       782.87 kB │ gzip: 214.44 kB
     "f02-theme-afterglow-vivid.png",
     "f02-theme-afterglow-quiet.png"
   ],
-  "project": "prj_5fb52b8e43805ff6",
+  "project": "prj_03219be765087268",
   "target": {
     "tree": "~/DS_Projects/Mona"
   },

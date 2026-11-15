@@ -994,7 +994,14 @@ function StudioDeck(props: StudioDeckProps): JSX.Element {
           <SparkIcon size={14} />
           <span className="fact__label">Model</span>
           <span className="fact__value">
-            {effective?.model ?? profile?.model ?? "not reported yet"}
+            {/* Provider and model together: "which model answers this" is not
+                answerable from the model id alone across routes, and the fact
+                used to show only the model even though the title said both. */}
+            {effective
+              ? `${effective.provider} / ${effective.model}`
+              : profile
+                ? `${profile.provider} / ${profile.model}`
+                : "not reported yet"}
           </span>
           {effective ? (
             <Badge tone={effective.usedFallback ? "attention" : "neutral"}>Observed</Badge>
@@ -1229,6 +1236,12 @@ export function StudioScreen(props: StudioProps): JSX.Element {
   // "72" while the CSS default rendered a 104 px field, so a keyboard user was
   // told a size the screen did not show.
   const [fieldHeight, setFieldHeight] = useState(0);
+  // The separator has to report a range the field can really occupy. The CSS
+  // lowers the floor at short viewports (56 px under 560 px of height, 42 px
+  // under 480), so a hardcoded 72 made `aria-valuenow` fall below its own
+  // `aria-valuemin` at 150 % and 200 % zoom. The minimum is read from the
+  // rendered field instead of being assumed.
+  const [fieldFloor, setFieldFloor] = useState(72);
   useLayoutEffect(() => {
     const stage = stageRef.current;
     const field = composerRef.current;
@@ -1253,6 +1266,10 @@ export function StudioScreen(props: StudioProps): JSX.Element {
       );
       const observed = field.offsetHeight;
       setFieldHeight((previous) => (previous === observed ? previous : observed));
+      const floor = Number.parseFloat(getComputedStyle(field).minHeight);
+      if (Number.isFinite(floor) && floor > 0) {
+        setFieldFloor((previous) => (previous === floor ? previous : floor));
+      }
     };
     measure();
     // A ResizeObserver sees window resize, zoom, and a layout change that a
@@ -1653,13 +1670,25 @@ export function StudioScreen(props: StudioProps): JSX.Element {
   // keys that bubble through its own subtree, so a panel whose trigger re-rendered
   // (focus on the body) let Escape leave Focus with the panel still open. The
   // capture listener owns the key while a panel is open.
-  const anyPanelOpen = favoritesOpen || queueOpen || searchOpen || actionsOpen;
+  // Only panels that can actually render count: a queue drawer with no follow-ups
+  // and a search drawer with no search props are not on screen, so Escape must not
+  // be spent closing something the reader cannot see.
+  const anyPanelOpen =
+    favoritesOpen ||
+    (queueOpen && (studio?.followUps?.length ?? 0) > 0) ||
+    (searchOpen && props.search != null) ||
+    actionsOpen;
   useEffect(() => {
     // Nesting is list → panel → Focus: while the command list is open, its own
     // handler closes it first, because that is the surface the keyboard is in.
     if (!anyPanelOpen || commandMenuOpen) return;
     const onKeyDown = (event: KeyboardEvent): void => {
       if (event.key !== "Escape") return;
+      // A modal owns Escape while it is open: the dialog primitive closes itself
+      // on the bubble phase, which a capture listener would swallow, and the
+      // palette and native sheets are the same case. Claiming the key here would
+      // close a panel behind the dialog and leave the dialog on screen.
+      if (document.querySelector('[role="dialog"]')) return;
       event.preventDefault();
       event.stopPropagation();
       event.stopImmediatePropagation();
@@ -2139,11 +2168,15 @@ export function StudioScreen(props: StudioProps): JSX.Element {
                 role="separator"
                 aria-orientation="horizontal"
                 aria-label="Resize the prompt composer"
-                aria-valuemin={composerLimits.min}
+                aria-valuemin={Math.min(composerLimits.min, fieldFloor)}
                 aria-valuemax={composerLimits.max}
-                aria-valuenow={
-                  composerHeight ?? (fieldHeight > 0 ? fieldHeight : composerLimits.min)
-                }
+                aria-valuenow={Math.min(
+                  composerLimits.max,
+                  Math.max(
+                    Math.min(composerLimits.min, fieldFloor),
+                    composerHeight ?? (fieldHeight > 0 ? fieldHeight : composerLimits.min),
+                  ),
+                )}
                 tabIndex={0}
                 data-testid="composer-grip"
                 onPointerDown={(event) => {

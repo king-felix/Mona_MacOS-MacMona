@@ -2708,11 +2708,16 @@ a {
 @media (max-width: 940px) {
   .harness {
     grid-template-columns: 1fr;
-    /* Rows are declared, not left to auto-placement: with two auto rows and a
-       `min-height: 100vh` container, the browser stretched the rail row to half
-       the free space and the strip rendered 293 px tall at 150 % page zoom —
-       which pushed the Studio console down to 22 px. The nav strip is
-       `min-content`; the screen keeps the rest. */
+  }
+  /* The row template belongs to the Studio alone. Its console is the one region
+     that must claim the leftover height, and the deck is the only reason a
+     viewport-tall rail row was wrong: with two auto rows and a
+     `min-height: 100vh` container, the browser stretched the rail row to half the
+     free space, so the strip rendered 293 px tall at 150 % page zoom and the
+     console was pushed down to 22 px. Every other screen keeps the previous
+     content-height behaviour, so this cannot quietly change Home, the board, or
+     Settings. */
+  .harness.shell--studio {
     grid-template-rows: min-content minmax(0, 1fr);
     align-content: start;
   }

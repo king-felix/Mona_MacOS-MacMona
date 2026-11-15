@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "label": "F02 — Studio flight deck on real pixels, no engine, no model request",
-  "captured_at": "2026-11-15T21:22:15.439Z",
+  "captured_at": "2026-11-15T21:41:27.856Z",
   "host": {
     "platform": "darwin",
     "arch": "arm64",
@@ -27,6 +27,8 @@
     "1440x900-100:submit_reachable": true,
     "1440x900-100:interrupt_visible": true,
     "1440x900-100:inspector_removed": true,
+    "1440x900-100:grip_reports_a_value_inside_its_range": true,
+    "1440x900-100:toolbar_keeps_its_controls": true,
     "1440x900-100:console_keeps_usable_height": true,
     "1440x900-100-after-1200-and-8000:document_does_not_grow": true,
     "1440x900-100-after-1200-and-8000:console_scrolls_internally": true,
@@ -35,6 +37,8 @@
     "1440x900-100-after-1200-and-8000:submit_reachable": true,
     "1440x900-100-after-1200-and-8000:interrupt_visible": true,
     "1440x900-100-after-1200-and-8000:inspector_removed": true,
+    "1440x900-100-after-1200-and-8000:grip_reports_a_value_inside_its_range": true,
+    "1440x900-100-after-1200-and-8000:toolbar_keeps_its_controls": true,
     "1440x900-100-after-1200-and-8000:console_keeps_usable_height": true,
     "1440x900-100:prompt_bottom_did_not_move": true,
     "1440x900-100:tail_reachable_inside_console": true,
@@ -50,6 +54,8 @@
     "1280x800-100:submit_reachable": true,
     "1280x800-100:interrupt_visible": true,
     "1280x800-100:inspector_removed": true,
+    "1280x800-100:grip_reports_a_value_inside_its_range": true,
+    "1280x800-100:toolbar_keeps_its_controls": true,
     "1280x800-100:console_keeps_usable_height": true,
     "1280x800-100-after-1200-and-8000:document_does_not_grow": true,
     "1280x800-100-after-1200-and-8000:console_scrolls_internally": true,
@@ -58,6 +64,8 @@
     "1280x800-100-after-1200-and-8000:submit_reachable": true,
     "1280x800-100-after-1200-and-8000:interrupt_visible": true,
     "1280x800-100-after-1200-and-8000:inspector_removed": true,
+    "1280x800-100-after-1200-and-8000:grip_reports_a_value_inside_its_range": true,
+    "1280x800-100-after-1200-and-8000:toolbar_keeps_its_controls": true,
     "1280x800-100-after-1200-and-8000:console_keeps_usable_height": true,
     "1280x800-100:prompt_bottom_did_not_move": true,
     "1280x800-100:tail_reachable_inside_console": true,
@@ -73,6 +81,8 @@
     "1280x800-125:submit_reachable": true,
     "1280x800-125:interrupt_visible": true,
     "1280x800-125:inspector_removed": true,
+    "1280x800-125:grip_reports_a_value_inside_its_range": true,
+    "1280x800-125:toolbar_keeps_its_controls": true,
     "1280x800-125:console_keeps_usable_height": true,
     "1280x800-125-after-1200-and-8000:document_does_not_grow": true,
     "1280x800-125-after-1200-and-8000:console_scrolls_internally": true,
@@ -81,6 +91,8 @@
     "1280x800-125-after-1200-and-8000:submit_reachable": true,
     "1280x800-125-after-1200-and-8000:interrupt_visible": true,
     "1280x800-125-after-1200-and-8000:inspector_removed": true,
+    "1280x800-125-after-1200-and-8000:grip_reports_a_value_inside_its_range": true,
+    "1280x800-125-after-1200-and-8000:toolbar_keeps_its_controls": true,
     "1280x800-125-after-1200-and-8000:console_keeps_usable_height": true,
     "1280x800-125:prompt_bottom_did_not_move": true,
     "1280x800-125:tail_reachable_inside_console": true,
@@ -96,6 +108,8 @@
     "1280x800-150:submit_reachable": true,
     "1280x800-150:interrupt_visible": true,
     "1280x800-150:inspector_removed": true,
+    "1280x800-150:grip_reports_a_value_inside_its_range": true,
+    "1280x800-150:toolbar_keeps_its_controls": true,
     "1280x800-150:console_keeps_usable_height": true,
     "1280x800-150-after-1200-and-8000:document_does_not_grow": true,
     "1280x800-150-after-1200-and-8000:console_scrolls_internally": true,
@@ -104,6 +118,8 @@
     "1280x800-150-after-1200-and-8000:submit_reachable": true,
     "1280x800-150-after-1200-and-8000:interrupt_visible": true,
     "1280x800-150-after-1200-and-8000:inspector_removed": true,
+    "1280x800-150-after-1200-and-8000:grip_reports_a_value_inside_its_range": true,
+    "1280x800-150-after-1200-and-8000:toolbar_keeps_its_controls": true,
     "1280x800-150-after-1200-and-8000:console_keeps_usable_height": true,
     "1280x800-150:prompt_bottom_did_not_move": true,
     "1280x800-150:tail_reachable_inside_console": true,
@@ -119,6 +135,8 @@
     "1280x800-200:submit_reachable": true,
     "1280x800-200:interrupt_visible": true,
     "1280x800-200:inspector_removed": true,
+    "1280x800-200:grip_reports_a_value_inside_its_range": true,
+    "1280x800-200:toolbar_keeps_its_controls": true,
     "1280x800-200:console_keeps_usable_height": true,
     "1280x800-200-after-1200-and-8000:document_does_not_grow": true,
     "1280x800-200-after-1200-and-8000:console_scrolls_internally": true,
@@ -127,6 +145,8 @@
     "1280x800-200-after-1200-and-8000:submit_reachable": true,
     "1280x800-200-after-1200-and-8000:interrupt_visible": true,
     "1280x800-200-after-1200-and-8000:inspector_removed": true,
+    "1280x800-200-after-1200-and-8000:grip_reports_a_value_inside_its_range": true,
+    "1280x800-200-after-1200-and-8000:toolbar_keeps_its_controls": true,
     "1280x800-200-after-1200-and-8000:console_keeps_usable_height": true,
     "1280x800-200:prompt_bottom_did_not_move": true,
     "1280x800-200:tail_reachable_inside_console": true,
@@ -142,6 +162,8 @@
     "1100x700-100:submit_reachable": true,
     "1100x700-100:interrupt_visible": true,
     "1100x700-100:inspector_removed": true,
+    "1100x700-100:grip_reports_a_value_inside_its_range": true,
+    "1100x700-100:toolbar_keeps_its_controls": true,
     "1100x700-100:console_keeps_usable_height": true,
     "1100x700-100-after-1200-and-8000:document_does_not_grow": true,
     "1100x700-100-after-1200-and-8000:console_scrolls_internally": true,
@@ -150,6 +172,8 @@
     "1100x700-100-after-1200-and-8000:submit_reachable": true,
     "1100x700-100-after-1200-and-8000:interrupt_visible": true,
     "1100x700-100-after-1200-and-8000:inspector_removed": true,
+    "1100x700-100-after-1200-and-8000:grip_reports_a_value_inside_its_range": true,
+    "1100x700-100-after-1200-and-8000:toolbar_keeps_its_controls": true,
     "1100x700-100-after-1200-and-8000:console_keeps_usable_height": true,
     "1100x700-100:prompt_bottom_did_not_move": true,
     "1100x700-100:tail_reachable_inside_console": true,
@@ -168,6 +192,8 @@
     "shrunk-with-max-composer:submit_reachable": true,
     "shrunk-with-max-composer:interrupt_visible": true,
     "shrunk-with-max-composer:inspector_removed": true,
+    "shrunk-with-max-composer:grip_reports_a_value_inside_its_range": true,
+    "shrunk-with-max-composer:toolbar_keeps_its_controls": true,
     "shrunk-with-max-composer:console_keeps_usable_height": true,
     "shrunk-and-zoomed-with-max-composer:document_does_not_grow": true,
     "shrunk-and-zoomed-with-max-composer:console_scrolls_internally": true,
@@ -176,6 +202,8 @@
     "shrunk-and-zoomed-with-max-composer:submit_reachable": true,
     "shrunk-and-zoomed-with-max-composer:interrupt_visible": true,
     "shrunk-and-zoomed-with-max-composer:inspector_removed": true,
+    "shrunk-and-zoomed-with-max-composer:grip_reports_a_value_inside_its_range": true,
+    "shrunk-and-zoomed-with-max-composer:toolbar_keeps_its_controls": true,
     "shrunk-and-zoomed-with-max-composer:console_keeps_usable_height": true,
     "shrunk-and-zoomed-prompt-at-minimum:document_does_not_grow": true,
     "shrunk-and-zoomed-prompt-at-minimum:console_scrolls_internally": true,
@@ -184,12 +212,15 @@
     "shrunk-and-zoomed-prompt-at-minimum:submit_reachable": true,
     "shrunk-and-zoomed-prompt-at-minimum:interrupt_visible": true,
     "shrunk-and-zoomed-prompt-at-minimum:inspector_removed": true,
+    "shrunk-and-zoomed-prompt-at-minimum:grip_reports_a_value_inside_its_range": true,
+    "shrunk-and-zoomed-prompt-at-minimum:toolbar_keeps_its_controls": true,
     "shrunk-and-zoomed-prompt-at-minimum:console_keeps_usable_height": true,
     "plain_enter_reaches_the_composer": true,
     "plain_enter_is_not_intercepted": true,
     "plain_enter_sends_nothing": true,
     "command_enter_reaches_the_submit_path": true,
     "command_enter_starts_no_engine": true,
+    "receipt_leaves_the_clipboard_as_it_found_it": true,
     "routine_receipt_appeared": true,
     "routine_receipt_is_a_success_tone": true,
     "routine_receipt_dismisses_itself": true,
@@ -199,6 +230,7 @@
     "reduced_motion_stops_decoration": true,
     "narrow_has_no_page_overflow": true,
     "narrow_keeps_the_command_button": true,
+    "narrow_was_really_narrow": true,
     "secondary_actions_are_on_demand": true,
     "secondary_panel_is_inside_the_viewport": true,
     "secondary_panel_holds_the_real_actions": true,
@@ -496,6 +528,15 @@
             "height": 30,
             "disabled": null
           },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
           "composer": {
             "top": 563.5,
             "bottom": 788,
@@ -592,11 +633,21 @@
           "screen": 704,
           "stage": 585
         },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 1008
+        },
         "console_scroll": {
           "scroll_height": 24937,
           "client_height": 307,
           "overflow_y": "auto",
           "at_latest": true
+        },
+        "grip_range": {
+          "now": 104,
+          "min": 72,
+          "max": 125
         },
         "grip_value": "104",
         "rail_layout": {
@@ -729,6 +780,15 @@
             "height": 30,
             "disabled": null
           },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
           "composer": {
             "top": 542.5,
             "bottom": 788,
@@ -825,11 +885,21 @@
           "screen": 704,
           "stage": 585
         },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 1008
+        },
         "console_scroll": {
           "scroll_height": 24937,
           "client_height": 286,
           "overflow_y": "auto",
           "at_latest": true
+        },
+        "grip_range": {
+          "now": 125,
+          "min": 72,
+          "max": 125
         },
         "grip_value": "125",
         "rail_layout": {
@@ -962,6 +1032,15 @@
             "height": 30,
             "disabled": null
           },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
           "composer": {
             "top": 595.5,
             "bottom": 788,
@@ -1058,11 +1137,21 @@
           "screen": 704,
           "stage": 585
         },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 1008
+        },
         "console_scroll": {
           "scroll_height": 24937,
           "client_height": 339,
           "overflow_y": "auto",
           "at_latest": true
+        },
+        "grip_range": {
+          "now": 72,
+          "min": 72,
+          "max": 125
         },
         "grip_value": "72",
         "rail_layout": {
@@ -1202,6 +1291,15 @@
             "height": 30,
             "disabled": null
           },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
           "composer": {
             "top": 448.5,
             "bottom": 612,
@@ -1298,11 +1396,21 @@
           "screen": 474,
           "stage": 372
         },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 864
+        },
         "console_scroll": {
           "scroll_height": 25365,
           "client_height": 155,
           "overflow_y": "auto",
           "at_latest": true
+        },
+        "grip_range": {
+          "now": 72,
+          "min": 72,
+          "max": 72
         },
         "grip_value": "72",
         "rail_layout": {
@@ -1435,6 +1543,15 @@
             "height": 30,
             "disabled": null
           },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
           "composer": {
             "top": 205.4,
             "bottom": 304,
@@ -1531,11 +1648,21 @@
           "screen": 270,
           "stage": 186
         },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 430
+        },
         "console_scroll": {
           "scroll_height": 29660,
           "client_height": 41,
           "overflow_y": "auto",
           "at_latest": false
+        },
+        "grip_range": {
+          "now": 72,
+          "min": 42,
+          "max": 72
         },
         "grip_value": "72",
         "rail_layout": {
@@ -1668,6 +1795,15 @@
             "height": 30,
             "disabled": null
           },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
           "composer": {
             "top": 205.4,
             "bottom": 304,
@@ -1764,11 +1900,21 @@
           "screen": 270,
           "stage": 186
         },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 430
+        },
         "console_scroll": {
           "scroll_height": 29660,
           "client_height": 41,
           "overflow_y": "auto",
           "at_latest": false
+        },
+        "grip_range": {
+          "now": 72,
+          "min": 42,
+          "max": 72
         },
         "grip_value": "72",
         "rail_layout": {
@@ -1831,12 +1977,14 @@
         "console_scroll_top": 24521,
         "position": "fixed"
       },
-      "dismissed_ms": 5224,
+      "dismissed_ms": 5228,
       "before": {
         "console_top": 239,
         "console_scroll_top": 24521
       },
-      "clipboard_restored": "Read AGENTS.md and\nMona_Studio_Future_Kit/Mona_Studio_Flight_Deck_PROMPTS.md.\n\nStart with F00. Integrate the supplied implementation while preserving\nexisting work, then complete each eligible prompt through native\nverification and installation.\n\nKeep the state and handoff current. After three attempts at one problem\nwithout material progress, mark it Needs the Human. Continue independent\nwork; report a genuine overall blocker immediately."
+      "clipboard_restored": true,
+      "clipboard_previous_length": 981,
+      "clipboard_byte_identical": true
     },
     "reduced_motion": {
       "attached": true,
@@ -1845,10 +1993,14 @@
       "orb_animation": ""
     },
     "narrow": {
-      "rail_display": "flex",
+      "rail_display": "none",
       "command_present": true,
       "command_visible": true,
-      "horizontal_overflow": false
+      "horizontal_overflow": false,
+      "viewport": {
+        "width": 760,
+        "height": 700
+      }
     },
     "more_panel": {
       "open": true,
@@ -1960,7 +2112,7 @@
       "height": 900,
       "factor": 1,
       "appended": {
-        "thread_id": "thr_ba5e3a2a78db7919",
+        "thread_id": "thr_59001cfb77d7efae",
         "frames": 1200,
         "stream_lines": 8000,
         "final_seq": 1212
@@ -2079,6 +2231,15 @@
             "height": 30,
             "disabled": null
           },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
           "composer": {
             "top": 628.8,
             "bottom": 863,
@@ -2175,11 +2336,21 @@
           "screen": 779,
           "stage": 660
         },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 1168
+        },
         "console_scroll": {
           "scroll_height": 714,
           "client_height": 372,
           "overflow_y": "auto",
           "at_latest": true
+        },
+        "grip_range": {
+          "now": 114,
+          "min": 72,
+          "max": 157
         },
         "grip_value": "114",
         "rail_layout": {
@@ -2312,6 +2483,15 @@
             "height": 30,
             "disabled": null
           },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
           "composer": {
             "top": 628.8,
             "bottom": 863,
@@ -2408,11 +2588,21 @@
           "screen": 779,
           "stage": 660
         },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 1168
+        },
         "console_scroll": {
           "scroll_height": 27010,
           "client_height": 372,
           "overflow_y": "auto",
           "at_latest": true
+        },
+        "grip_range": {
+          "now": 114,
+          "min": 72,
+          "max": 157
         },
         "grip_value": "114",
         "rail_layout": {
@@ -2441,7 +2631,7 @@
       "height": 800,
       "factor": 1,
       "appended": {
-        "thread_id": "thr_ba5e3a2a78db7919",
+        "thread_id": "thr_59001cfb77d7efae",
         "frames": 1200,
         "stream_lines": 8000,
         "final_seq": 2415
@@ -2560,6 +2750,15 @@
             "height": 30,
             "disabled": null
           },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
           "composer": {
             "top": 563.5,
             "bottom": 788,
@@ -2656,11 +2855,21 @@
           "screen": 704,
           "stage": 585
         },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 1008
+        },
         "console_scroll": {
           "scroll_height": 25786,
           "client_height": 307,
           "overflow_y": "auto",
           "at_latest": true
+        },
+        "grip_range": {
+          "now": 104,
+          "min": 72,
+          "max": 125
         },
         "grip_value": "104",
         "rail_layout": {
@@ -2793,6 +3002,15 @@
             "height": 30,
             "disabled": null
           },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
           "composer": {
             "top": 563.5,
             "bottom": 788,
@@ -2889,11 +3107,21 @@
           "screen": 704,
           "stage": 585
         },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 1008
+        },
         "console_scroll": {
           "scroll_height": 25786,
           "client_height": 307,
           "overflow_y": "auto",
           "at_latest": true
+        },
+        "grip_range": {
+          "now": 104,
+          "min": 72,
+          "max": 125
         },
         "grip_value": "104",
         "rail_layout": {
@@ -2922,7 +3150,7 @@
       "height": 800,
       "factor": 1.25,
       "appended": {
-        "thread_id": "thr_ba5e3a2a78db7919",
+        "thread_id": "thr_59001cfb77d7efae",
         "frames": 1200,
         "stream_lines": 8000,
         "final_seq": 3618
@@ -3041,6 +3269,15 @@
             "height": 30,
             "disabled": null
           },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
           "composer": {
             "top": 469.3,
             "bottom": 632,
@@ -3137,11 +3374,21 @@
           "screen": 594,
           "stage": 492
         },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 808
+        },
         "console_scroll": {
           "scroll_height": 27000,
           "client_height": 276,
           "overflow_y": "auto",
           "at_latest": false
+        },
+        "grip_range": {
+          "now": 72,
+          "min": 72,
+          "max": 116
         },
         "grip_value": "72",
         "rail_layout": {
@@ -3274,6 +3521,15 @@
             "height": 30,
             "disabled": null
           },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
           "composer": {
             "top": 469.3,
             "bottom": 632,
@@ -3370,11 +3626,21 @@
           "screen": 594,
           "stage": 492
         },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 808
+        },
         "console_scroll": {
           "scroll_height": 27000,
           "client_height": 276,
           "overflow_y": "auto",
           "at_latest": false
+        },
+        "grip_range": {
+          "now": 72,
+          "min": 72,
+          "max": 116
         },
         "grip_value": "72",
         "rail_layout": {
@@ -3403,7 +3669,7 @@
       "height": 800,
       "factor": 1.5,
       "appended": {
-        "thread_id": "thr_ba5e3a2a78db7919",
+        "thread_id": "thr_59001cfb77d7efae",
         "frames": 1200,
         "stream_lines": 8000,
         "final_seq": 4821
@@ -3522,6 +3788,15 @@
             "height": 30,
             "disabled": null
           },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
           "composer": {
             "top": 382.8,
             "bottom": 527.3,
@@ -3618,11 +3893,21 @@
           "screen": 394,
           "stage": 300
         },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 817
+        },
         "console_scroll": {
           "scroll_height": 27000,
           "client_height": 109,
           "overflow_y": "auto",
           "at_latest": false
+        },
+        "grip_range": {
+          "now": 56,
+          "min": 56,
+          "max": 72
         },
         "grip_value": "56",
         "rail_layout": {
@@ -3755,6 +4040,15 @@
             "height": 30,
             "disabled": null
           },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
           "composer": {
             "top": 382.8,
             "bottom": 527.3,
@@ -3851,11 +4145,21 @@
           "screen": 394,
           "stage": 300
         },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 817
+        },
         "console_scroll": {
           "scroll_height": 27000,
           "client_height": 109,
           "overflow_y": "auto",
           "at_latest": false
+        },
+        "grip_range": {
+          "now": 56,
+          "min": 56,
+          "max": 72
         },
         "grip_value": "56",
         "rail_layout": {
@@ -3884,7 +4188,7 @@
       "height": 800,
       "factor": 2,
       "appended": {
-        "thread_id": "thr_ba5e3a2a78db7919",
+        "thread_id": "thr_59001cfb77d7efae",
         "frames": 1200,
         "stream_lines": 8000,
         "final_seq": 6024
@@ -4003,6 +4307,15 @@
             "height": 30,
             "disabled": null
           },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
           "composer": {
             "top": 303,
             "bottom": 394,
@@ -4099,11 +4412,21 @@
           "screen": 360,
           "stage": 276
         },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 620
+        },
         "console_scroll": {
           "scroll_height": 27192,
           "client_height": 139,
           "overflow_y": "auto",
           "at_latest": false
+        },
+        "grip_range": {
+          "now": 42,
+          "min": 42,
+          "max": 72
         },
         "grip_value": "42",
         "rail_layout": {
@@ -4236,6 +4559,15 @@
             "height": 30,
             "disabled": null
           },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
           "composer": {
             "top": 303,
             "bottom": 394,
@@ -4332,11 +4664,21 @@
           "screen": 360,
           "stage": 276
         },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 620
+        },
         "console_scroll": {
           "scroll_height": 27192,
           "client_height": 139,
           "overflow_y": "auto",
           "at_latest": false
+        },
+        "grip_range": {
+          "now": 42,
+          "min": 42,
+          "max": 72
         },
         "grip_value": "42",
         "rail_layout": {
@@ -4365,7 +4707,7 @@
       "height": 700,
       "factor": 1,
       "appended": {
-        "thread_id": "thr_ba5e3a2a78db7919",
+        "thread_id": "thr_59001cfb77d7efae",
         "frames": 1200,
         "stream_lines": 8000,
         "final_seq": 7227
@@ -4484,6 +4826,15 @@
             "height": 30,
             "disabled": null
           },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
           "composer": {
             "top": 528.5,
             "bottom": 692,
@@ -4580,11 +4931,21 @@
           "screen": 654,
           "stage": 552
         },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 884
+        },
         "console_scroll": {
           "scroll_height": 25345,
           "client_height": 335,
           "overflow_y": "auto",
           "at_latest": true
+        },
+        "grip_range": {
+          "now": 72,
+          "min": 72,
+          "max": 140
         },
         "grip_value": "72",
         "rail_layout": {
@@ -4717,6 +5078,15 @@
             "height": 30,
             "disabled": null
           },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
           "composer": {
             "top": 528.5,
             "bottom": 692,
@@ -4813,11 +5183,21 @@
           "screen": 654,
           "stage": 552
         },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 884
+        },
         "console_scroll": {
           "scroll_height": 25345,
           "client_height": 335,
           "overflow_y": "auto",
           "at_latest": true
+        },
+        "grip_range": {
+          "now": 72,
+          "min": 72,
+          "max": 140
         },
         "grip_value": "72",
         "rail_layout": {
@@ -4854,7 +5234,7 @@
     "f02-theme-afterglow-vivid.png",
     "f02-theme-afterglow-quiet.png"
   ],
-  "project": "prj_a682656150206b17",
+  "project": "prj_db5f3adb75e0186b",
   "target": {
     "bundle": "~/DS_Projects/Mona/packaging/macos/out/stage/payload/Applications/Mona.app",
     "binary": "~/DS_Projects/Mona/packaging/macos/out/stage/payload/Applications/Mona.app/Contents/MacOS/Mona",

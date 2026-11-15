@@ -11,10 +11,10 @@
       "source": "prior release (344d41c baseline)"
     },
     "candidate": {
-      "build": 172,
+      "build": 174,
       "channel": "local",
       "package": "packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg",
-      "package_sha256_prefix": "188622428ec59ff1"
+      "package_sha256": "f5fb8ab4bbd007310af86b6e4be5b516ef5a8513ac4e727047e14f468961324b"
     }
   },
   "next": "none — F03 install step is Needs the Human (see blockers)",
@@ -91,19 +91,20 @@
     "ci": "npm run ci 25/25 steps, exit 0",
     "unit_tests": "1,189 passed in 108 files",
     "deck_smoke": {
-      "checks": 215,
+      "checks": 232,
       "ok": true,
       "report": "docs/evidence/macos/studio-flight-deck/f02-report.json"
     },
     "deck_smoke_packaged": {
-      "checks": 200,
+      "checks": 232,
       "ok": true,
       "report": "docs/evidence/macos/studio-flight-deck/f03-packaged-deck-report.json",
-      "bundle": "build 172, package sha256 188622428ec59ff1"
+      "bundle": "build 174, package sha256 f5fb8ab4bbd00731"
     },
     "r11": "passed_with_exception (idle memory vs this host 362 MiB Electron floor); idle CPU 0.04%",
     "ledger": "monabuild validate clean at revision 1534; 32 hashes refreshed individually with notes",
-    "package": "build 172 local channel; all pre-install gates and uninstall rehearsal ok",
-    "installed": "NOT this build — /Applications/Mona.app is build 168; install needs the owner terminal"
+    "package": "build 174 local channel; all pre-install gates and uninstall rehearsal ok",
+    "installed": "NOT this build — /Applications/Mona.app is build 168; install needs the owner terminal",
+    "review": "independent adversarial review; 4 real defects fixed (clipboard text in artifacts, Escape stolen from dialogs, aria-valuenow below its minimum at 150%/200%, vacuous narrow-window check)"
   }
 }

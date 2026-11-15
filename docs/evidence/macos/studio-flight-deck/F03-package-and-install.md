@@ -7,13 +7,13 @@ owner's own terminal.**
 
 ## Built
 
-`npm run mac:package:local` → build **172**, channel `local`, version 0.1.0.
+`npm run mac:package:local` → build **174**, channel `local`, version 0.1.0.
 Transcript: `mac-package.txt`; report: `packaging/macos/out/package-report.json`.
 
 - Package: `packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg`,
-  sha256 starts `188622428ec59ff1…`, 163,834,498 bytes.
+  sha256 `f5fb8ab4bbd007310af86b6e4be5b516ef5a8513ac4e727047e14f468961324b`.
 - Bundle identity read from the payload itself: `com.mona.workbench`,
-  `CFBundleShortVersionString 0.1.0`, `MonaBuildVersion 172`, `CFBundleVersion 172`,
+  `CFBundleShortVersionString 0.1.0`, `MonaBuildVersion 174`, `CFBundleVersion 174`,
   `MonaBuildChannel local`, `LSMinimumSystemVersion 14.0`.
 - `codesign --verify --deep --strict` on the payload app → clean (ad-hoc).
 - Engine pin unchanged: 0.10.2 `ff466b2ed0bf`, sha256 `da0229610647f1cc2…` —
@@ -44,7 +44,7 @@ harness with `--app`:
 node scripts/deck-smoke.mjs --app packaging/macos/out/stage/payload/Applications/Mona.app
 ```
 
-Result: **200/200 checks pass, exit 0**, on macOS 26.5.1 / Electron 45.3.0
+Result: **232/232 checks pass, exit 0**, on macOS 26.5.1 / Electron 45.3.0
 (`f03-packaged-deck-report.json`, `f03-packaged-deck-smoke.log`). That covers the
 six window/zoom arrangements, 1,200 appended frames, the 8,000-line stream,
 composer re-clamp, keyboard, receipts, reduced motion, both themes and the narrow
@@ -88,7 +88,7 @@ node scripts/deck-smoke.mjs --app /Applications/Mona.app
 node scripts/r11-smoke.mjs --app /Applications/Mona.app
 ```
 
-After that, F03's remaining checks are: `/Applications/Mona.app` reports build 172
+After that, F03's remaining checks are: `/Applications/Mona.app` reports build 174
 and matches the package payload by digest, LaunchServices launch/quit, Focus
 preference persistence across a relaunch, and a draft surviving a layout change.
 
@@ -97,7 +97,7 @@ preference persistence across a relaunch, and a draft surviving a layout change.
 The previous build is the copy currently at `/Applications/Mona.app` (168). Its
 payload is also reproducible from `git` history (commit `344d41c` and earlier
 release records) with `npm run mac:package:local`, so nothing needs to be kept by
-hand. Installing build 172 replaces only the app bundle and the Finder Service;
+hand. Installing build 174 replaces only the app bundle and the Finder Service;
 project folders, `.mona/` state, `~/.codewhale`, and credentials are untouched —
 the package's own postinstall and the uninstall rehearsal state this, and the
 rehearsal proves unrelated content survives.

@@ -10,10 +10,10 @@ host's record and is historical).
   `3af9b4b` (F01/F02 qualification and the layout fixes it forced), and the F03/F04
   commits after it. Base `c334cbb` on `main`.
 - **Host:** macOS 26.5.1 (25F80), arm64, Electron 45.3.0, Node v26.13.0.
-- **Package:** build **172**, channel `local`, version 0.1.0,
+- **Package:** build **174**, channel `local`, version 0.1.0,
   `packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg`,
-  sha256 `188622428ec59ff1…`, 163,834,498 bytes.
-- **Payload bundle:** `com.mona.workbench` 0.1.0 / 172 / `local`, macOS 14.0+,
+  sha256 `f5fb8ab4bbd00731…`.
+- **Payload bundle:** `com.mona.workbench` 0.1.0 / 174 / `local`, macOS 14.0+,
   ad-hoc signed, `codesign --verify --deep --strict` clean.
 - **Installed:** `/Applications/Mona.app` is still **build 168**, the prior
   release. It was not replaced — see "Not done" below.
@@ -36,14 +36,41 @@ filled its column, a screen collapsed to 46 px at 200 %, and Escape leaving Focu
 with a panel open. `F02-native-layout.md` lists each one with the measurement that
 exposed it.
 
+## Independent review, and what it caught
+
+The change was reviewed adversarially before being declared done. Four defects it
+found were real and are fixed, each with a check that would have caught it:
+
+1. **The harness wrote the owner's clipboard into evidence artifacts.** The
+   receipt test read the pasteboard and stored the text as `clipboard_restored`;
+   that text was already committed in three artifacts. The harness now records
+   only that it restored the pasteboard, its previous length, and whether the
+   bytes came back identical — and the stored artifacts were purged.
+2. **Escape was taken from modal dialogs.** The capture listener that closes
+   panels ran before the dialog primitive's own handler, so with a panel open the
+   palette or a confirmation dialog could not be dismissed. It now yields to any
+   `[role="dialog"]`, and the "panel is open" flag counts only panels that render.
+3. **The resize handle reported a value below its own `aria-valuemin`** at 150 %
+   and 200 % zoom (56 and 42 against 72). The minimum is now read from the field,
+   and every arrangement asserts `min ≤ now ≤ max`.
+4. **The narrow-window check was vacuous**: the window's `minWidth` is 860 px, so
+   `setSize(760, 700)` measured 860 and the rail-hidden layout was never tested.
+   The harness now lowers the minimum for that measurement, asserts the viewport
+   really was ≤ 800 px, and the 760 px screenshot is genuinely 760 px.
+
+The review's other reports did not hold up: the toolbar's one-row layout was
+re-measured at every arrangement including 430 px wide and never overflows, and
+`agent-signal.ts`'s event-shape handling was checked against every shape this
+repository writes and is correct.
+
 ## Checks that passed (all on these bytes)
 
 - `npm run ci` — **25/25 steps**, exit 0 (`mac-ci.txt`).
 - `npm run test` — **1,189 passed in 108 files**, no exclusions (`mac-ci.txt`).
 - `typecheck`, `lint` (0 errors, 3 pre-existing warnings), `format:check`, `build`.
-- `npm run smoke:deck` — **215/215 checks**, six window/zoom arrangements
+- `npm run smoke:deck` — **232/232 checks**, six window/zoom arrangements
   (`f02-report.json`).
-- `node scripts/deck-smoke.mjs --app …/Mona.app` — **200/200 checks against the
+- `node scripts/deck-smoke.mjs --app …/Mona.app` — **232/232 checks against the
   packaged binary** (`f03-packaged-deck-report.json`).
 - `npm run smoke:r11` — `passed_with_exception`; the only failing check is the
   idle-memory target, reported alongside this host's blank-Electron floor of
@@ -57,7 +84,7 @@ exposed it.
 
 ## Not done — Needs the Human, with the exact step
 
-**Installing build 172 into `/Applications`.** This session has no terminal
+**Installing build 174 into `/Applications`.** This session has no terminal
 (`process.stdin.isTTY` is false, `tty` reports "not a tty") and no credential
 (`sudo -n` → "a password is required"), and the earlier INSTALL-AUTH record shows a
 prompted SecurityAgent sheet does not render here. Nothing was bypassed or faked;
@@ -80,7 +107,7 @@ node scripts/r11-smoke.mjs   --app /Applications/Mona.app
 ```
 
 Then these F03 items are checkable in one pass: `/Applications/Mona.app` reports
-build 172 and matches the package payload by digest, LaunchServices launch and
+build 174 and matches the package payload by digest, LaunchServices launch and
 quit, the Focus preference survives a relaunch, and a draft survives a layout
 change.
 
@@ -100,7 +127,7 @@ change.
 
 ## Rollback
 
-Installing 172 replaces only the app bundle and the Finder Service. Build 168 is
+Installing 174 replaces only the app bundle and the Finder Service. Build 168 is
 reproducible from git history with `npm run mac:package:local`, so nothing must be
 preserved by hand. Project folders, `.mona/` state, `~/.codewhale` and credentials
 are untouched, and the uninstall rehearsal proves unrelated content survives.

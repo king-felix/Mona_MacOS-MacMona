@@ -7,7 +7,7 @@ what each build changed and, where a decision shaped the product, its reference 
 are `git rev-list --count HEAD` at package time, so they are monotonic but not
 semantic.
 
-## Unreleased — Studio flight deck, build 172 (2026-11-15)
+## Unreleased — Studio flight deck, build 174 (2026-11-15)
 
 Qualified on the owner's Mac: `npm run ci` green (25 steps), 1,189 tests, and a
 new 200-check native layout run (`npm run smoke:deck`). The package is built and
@@ -37,12 +37,18 @@ verified from its own bytes; **it is not installed yet** — build 168 is still 
   and pause on hover, focus or a hidden window; replacements restart the timer;
   errors, uncertain outcomes and required input stay. A receipt does not move the
   console.
-- **Layout defects found by real pixels and fixed:** a 293 px rail row at 150 %
-  zoom that left a 22 px console; a stage that never filled its column; a screen
-  collapsed to 46 px at 200 % when the rail was hidden; a toolbar that wrapped to
-  three rows; secondary actions costing 34 px of every window; Escape leaving
-  Focus with a panel open; a resize handle reporting a height the field did not
-  have; a command list squeezed to one clipped row at 200 %.
+- **Layout and accessibility defects found by real pixels and fixed:** a 293 px
+  rail row at 150 % zoom that left a 22 px console; a stage that never filled its
+  column; a screen collapsed to 46 px at 200 % when the rail was hidden; a toolbar
+  that wrapped to three rows; secondary actions costing 34 px of every window;
+  Escape leaving Focus with a panel open (and then taking Escape from dialogs); a
+  resize handle reporting a height outside its own ARIA range; a command list
+  squeezed to one clipped row at 200 %.
+- **A qualification-harness defect, fixed and disclosed:** the receipt test read
+  the system clipboard and stored its text in the evidence report. The harness now
+  records only that the pasteboard was restored, its length, and whether it came
+  back identical, and the stored artifacts were purged. No product behaviour
+  changed; the report was simply never the place for a pasteboard's contents.
 - **Preserved unchanged:** drafts and caret identity, archive-send guards, queue
   semantics, uncertain-submission protection, slash completion, the engine pin,
   provider route, permissions, cost accounting and data stores.
