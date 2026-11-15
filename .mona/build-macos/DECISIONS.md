@@ -2193,3 +2193,31 @@ and the smoke measures it rather than asserting it is pretty.
 - **What would reopen it:** an engine build that reports
   `effective_reasoning_effort` on `TurnRecord`. The consumer path is already
   implemented and tested, so reopening requires no Mona change beyond the pin.
+
+## D-112 — The installed artifact is the one built from HEAD, and that is verified from bytes
+
+- **Date:** 2026-11-15 (during the authorized install)
+- **Context:** P27 recorded build 166 from `e13ebb6`. The owner then ran
+  `npm run mac:install`, which **rebuilds before installing**, and HEAD had
+  advanced by two ledger-only commits. The installed app is build **168** from
+  `538b339`.
+- **Decision — the record names the installed build, not the first one packaged.**
+  A release note that describes an artifact nobody is running is the same class of
+  error as a stale report. `P27-release.md` now states 168 / `538b339` and says
+  plainly that 166 was superseded by a rebuild of the same payload source.
+- **Decision — "same payload" is checked, not asserted.** The two commits between
+  them touch only `.mona/build-macos/` and `docs/evidence/macos/`, which are build
+  outputs, not inputs (R13's rule). The installed content digest matches the
+  packaged payload (`fe7fdb11…`), and `component-manifest.json` matches the
+  install receipt (`e3e9ce9c…`), so the receipt describes the bytes on disk.
+- **Decision — build numbers move on every ledger commit.** `git rev-list --count
+  HEAD` means a documentation commit changes the build number and therefore the
+  artifact's identity. That is accepted because it keeps the number monotonic and
+  derived; the cost is that a rebuild after a docs-only commit produces new bytes,
+  and the record says so rather than pretending the artifact is unchanged.
+- **Consequence:** the measured P26 numbers describe build 165 (the installed build
+  when they were taken) and the promoted artifact is 168; the single payload
+  difference between them is the axe harness path, which is inert unless
+  `MONA_R11_AXE_PATH` is set. Both are stated in `P26-product-QA.md` and
+  `P27-release.md`.
+

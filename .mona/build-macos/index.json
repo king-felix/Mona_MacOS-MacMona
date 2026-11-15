@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-14T23:15:06.788Z",
+  "generated_utc": "2026-11-15T02:52:50.427Z",
   "git": {
     "available": true,
-    "commit": "913391dcb502aef819f5e28d547fe2dee9567131",
+    "commit": "538b339e6ced25cb97b53ab247dec6b67d57f869",
     "dirty": true
   },
-  "digest": "91c8904aad09598582ed7518369adfa534627d8d3b60b59405503ed02c9924f0",
+  "digest": "c749bc2139c511aea69fd651d10180c977d345a0e1c8f5f785b27bc2bc8ed128",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,7 +15,7 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "8079f23358c6d682a3f76549e049a08d2d70f4fec1e040ce41cfb4b7eb162dd1",
+      "sha256": "04f0afc65cf9a23debd9781c27fcad0d0a3ef5ee5bb3c944bdd11cd6336f3d28",
       "bytes": 182555
     },
     {
@@ -665,12 +665,12 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p16-settings-smoke.json",
-      "sha256": "84b08ed6d6e36c74a49338883af463807ac647fa6da7bb81660ac81889b4f19a",
+      "sha256": "737701aff6bbffdb23566b14a5e846312d8c5f03a008ee9790083355b90c9754",
       "bytes": 6638
     },
     {
       "path": "docs/evidence/macos/artifacts/p17-extensions-smoke.json",
-      "sha256": "702a2d169de03eb825f1f87503228294975876eb8eccef65bc02442eecaca703",
+      "sha256": "afccbd4c3e558f7245079692f1907dd06b18b243a175f9f20fa58fe36b1e5502",
       "bytes": 13024
     },
     {
@@ -685,17 +685,17 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p18-capability-coverage.json",
-      "sha256": "8ed6fb1744c39bdf5a85665b8bf9ea025ccaea5846c2f9a276d5ea5783bae50c",
+      "sha256": "3a9b5b9d166edb73342e1e645be11e61b34785a5126975d484f1d5cd1b2a7b2a",
       "bytes": 95008
     },
     {
       "path": "docs/evidence/macos/artifacts/p18-capability-coverage.md",
-      "sha256": "e02f65662f4004ef1e99033fa1b4ea2fcb3cad27140e5c16079a3f0a6c2907a6",
+      "sha256": "659028a3e26f1fb06f8e79346c1adb3f18f51bc8035518d4c227d72d19a8e015",
       "bytes": 12321
     },
     {
       "path": "docs/evidence/macos/artifacts/p18-capability-smoke.json",
-      "sha256": "4025c68fcfb6e96ed255ad9b2f71a1ef5579e16687c1066ea43dc65bb79bd222",
+      "sha256": "4cac37dc744c004fba5e89d7c1a343a96464c9e7ae02650a2dc3ec33bd56b1f2",
       "bytes": 17707
     },
     {
@@ -710,7 +710,7 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p18-terminal-smoke.json",
-      "sha256": "90cc7a43d888de8106c76fb8c5f96572f7b1e4c5460f9a7b220c5e5ea107bf61",
+      "sha256": "981765978af310b468b5c82380848c7403b6c15b26255ccf3ff9a400c8e1b191",
       "bytes": 3905
     },
     {
@@ -740,7 +740,7 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p19-memory-smoke.json",
-      "sha256": "64290a0e14b1b0bb4f5d98612ce68c382652fb94d22666155aee6be2e71a8180",
+      "sha256": "a21bb9912493c52c6b65df23c43cd4897f06c1e1777a06e761348bccd2172f81",
       "bytes": 19477
     },
     {
@@ -750,7 +750,7 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p20-failure-smoke.json",
-      "sha256": "601fd3732f36d106714b8053c15754741eb89ee48995f8cfeaf1b2460df77e6a",
+      "sha256": "0e33bad75233909041e021a73e3007ff2109c0a107645a5c872d48a6e8a3a9a7",
       "bytes": 2515
     },
     {
@@ -830,17 +830,17 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/p23-lifecycle-smoke.json",
-      "sha256": "4b49d70cbb592a01e2f8d493bf74157c7115ac82b3e3a61f1757e505066912ee",
+      "sha256": "e9803533de30aaa27f8b6ef4c29bdcff07def4e74daa3ce1782ee208121d90d7",
       "bytes": 12367
     },
     {
       "path": "docs/evidence/macos/artifacts/p23-uninstall-rehearsal.json",
-      "sha256": "470d42668022bd72d2448ce20684d22676093dfd9081df88b25447c0ec17dec0",
+      "sha256": "52653210ebcac82df1ec1eed1c7e271b5442ac7e49a43ee4b0c1ced0fbbac350",
       "bytes": 3175
     },
     {
       "path": "docs/evidence/macos/artifacts/p24-recipient.json",
-      "sha256": "29e228319e71a06e55591c4604daed2e0b850fcc584e0334281c0937f7d8d65a",
+      "sha256": "cbfd39b57fa126d973e62650dd2ce18597c30669392f61950fb0359fadb375c0",
       "bytes": 9720
     },
     {
@@ -900,7 +900,7 @@
     },
     {
       "path": "docs/evidence/macos/artifacts/reasoning-smoke.json",
-      "sha256": "01d31150897ff6940022297fb379555014bdc22983dc1c91393e1f6d1119c80f",
+      "sha256": "54c567375b58392179a4b4b40962f66beffac7ed9ca895617da754658a78e1b5",
       "bytes": 4010
     },
     {
@@ -1085,13 +1085,13 @@
     },
     {
       "path": "docs/evidence/macos/P26-product-QA.md",
-      "sha256": "6b7f7801897e37a9481c7ab1c0e9f0b80658997ab78e1099990581f684dc7469",
-      "bytes": 13871
+      "sha256": "b0b8b09c926628221cf369529da7e53cce9ff3c9db4b2b82e0b6aaa951759c6e",
+      "bytes": 13961
     },
     {
       "path": "docs/evidence/macos/P27-release.md",
-      "sha256": "ee8e2a26a4f8e5b17ce5069c0de35078caa42ded3ad1d33f5da513e40c0bb7f6",
-      "bytes": 8116
+      "sha256": "a2bb39df88b8b3650d62f4a917c0f181abd3d071ddfd2e5422b5e0f70c807741",
+      "bytes": 9131
     },
     {
       "path": "docs/evidence/macos/reasoning-controls.md",
@@ -1165,8 +1165,8 @@
     },
     {
       "path": "docs/evidence/macos/review-studio/artifacts/r02-history-long-session.png",
-      "sha256": "235ff590acc1ba19d169b201588669aa57ef69f675c0ed8b0e868ece5b44520e",
-      "bytes": 444562
+      "sha256": "f82027286c20195866391b3c2f5dbcc796518ecbbe306e1bee84c3c43936d3e2",
+      "bytes": 444943
     },
     {
       "path": "docs/evidence/macos/review-studio/artifacts/r02-history-long-smoke.json",
@@ -1185,13 +1185,13 @@
     },
     {
       "path": "docs/evidence/macos/review-studio/artifacts/r03-command-menu-200.png",
-      "sha256": "ba3c5fc242be0007ab637e8d7230fc7a9ecb2723a8bde5c64dda7e6ffdb79f8e",
-      "bytes": 244659
+      "sha256": "c52ad67a6218abe747347ac3df507de3fb7f76e708c8ffa04c296e1dfc06d179",
+      "bytes": 244732
     },
     {
       "path": "docs/evidence/macos/review-studio/artifacts/r03-command-menu.png",
-      "sha256": "a8eb0d150753e68803bc6e84822f5863573a1f76015cfb686daa4ea5d1448428",
-      "bytes": 383695
+      "sha256": "004e1e7bd839a8023aefaf7483200ac9687a4deb5f0b0f0aed9cf82e4710bf1c",
+      "bytes": 383289
     },
     {
       "path": "docs/evidence/macos/review-studio/artifacts/r03-command-smoke.json",

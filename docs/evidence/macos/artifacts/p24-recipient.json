@@ -2,22 +2,22 @@
   "schema_version": 1,
   "prompt": "P24",
   "label": "clean-recipient qualification harness",
-  "captured_at": "2026-11-14T23:11:23.774Z",
+  "captured_at": "2026-11-15T02:49:40.709Z",
   "platform": {
     "macos": "26.5.1",
     "architecture": "arm64"
   },
   "package": {
     "path": "packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg",
-    "sha256": "e73464bee43b287b1e16d0da1d2645dbe059e1dbf37f773685f0f61f8dcdae30",
-    "bytes": 163824343
+    "sha256": "ec4f207be0c842bb2155d79de28235a938d6aa09cf23990cfaaa319e3a49a341",
+    "bytes": 163824392
   },
   "payload_manifest": {
     "version": "0.1.0",
-    "build": "166",
+    "build": "168",
     "channel": "local",
     "source": {
-      "commit": "e13ebb62bf752165650019e5c8e16eb02930953f",
+      "commit": "538b339e6ced25cb97b53ab247dec6b67d57f869",
       "dirty": false,
       "source_dirty": false,
       "dirty_paths": []
@@ -31,8 +31,8 @@
       "status": "passed",
       "detail": {
         "path": "packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg",
-        "sha256": "e73464bee43b287b1e16d0da1d2645dbe059e1dbf37f773685f0f61f8dcdae30",
-        "bytes": 163824343,
+        "sha256": "ec4f207be0c842bb2155d79de28235a938d6aa09cf23990cfaaa319e3a49a341",
+        "bytes": 163824392,
         "signature": "unsigned",
         "signed": false
       }

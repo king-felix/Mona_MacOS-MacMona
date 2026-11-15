@@ -1,8 +1,8 @@
 # P27 — Release candidate, artifact promotion and final handoff
 
-Status: **local release complete; shareable tier refused by owner decision** · Date:
-2026-11-14 · Source commit: `e13ebb6` · Build: **166**, channel `local`, arm64 ·
-Engine: Codewhale 0.10.2 `ff466b2ed0bfb4ae5267d4d8d0ecb562cf46956e`
+Status: **local release complete and installed; shareable tier refused by owner
+decision** · Date: 2026-11-14 · Source commit: `538b339` · Build: **168**, channel
+`local`, arm64 · Engine: Codewhale 0.10.2 `ff466b2ed0bfb4ae5267d4d8d0ecb562cf46956e`
 
 This prompt allows two outcomes: a real shareable installer, **or** an explicit
 identification of the remaining release blocker. It is the second, and the blocker
@@ -15,27 +15,28 @@ not depend on those credentials is done.
 | Fact | Value |
 |---|---|
 | Package | `packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg` |
-| SHA-256 | `e73464bee43b287b1e16d0da1d2645dbe059e1dbf37f773685f0f61f8dcdae30` |
-| Size | 163,824,343 bytes |
-| Version / build | 0.1.0 / **166** (`git rev-list --count HEAD`) |
+| SHA-256 | `ec4f207be0c842bb2155d79de28235a938d6aa09cf23990cfaaa319e3a49a341` |
+| Size | 163,824,392 bytes |
+| Version / build | 0.1.0 / **168** (`git rev-list --count HEAD`) |
 | Channel | `local` (`MonaBuildChannel` in the bundle; in the package name) |
-| Source commit | `e13ebb62bf752165650019e5c8e16eb02930953f` |
+| Source commit | `538b339` (build number = commit count = 168) |
 | Architecture | arm64 only, `arm64-apple-macos14.0` |
 | Signature | ad-hoc; `pkgutil --check-signature` reports **no signature** |
 | Engine inside | 0.10.2 `ff466b2ed0bf`, sha256 `41e6dfd8…` |
 | Payload | 674 files, 14 links |
 | Package report | `packaging/macos/out/package-report.json` |
 
-**Built from the recorded commit, and still matching it.** The package was
-produced after commit `e13ebb6`, from that tree. Its component manifest records a
-digest for every payload file and for each of the three native helpers.
+**Rebuilt from HEAD by the authorized install, and it is that build.** This record
+first described build 166 from commit `e13ebb6`. The owner then ran
+`npm run mac:install`, which rebuilds before installing, and HEAD had advanced by
+two **ledger-only** commits (`913391d`, `538b339`). The installed artifact is
+therefore build **168** from `538b339`, and the earlier 166 package was superseded
+by a rebuild of the same payload source.
 
-Checked rather than assumed: `git diff --name-only e13ebb6..HEAD` lists only
-`.mona/build-macos/` and `docs/evidence/macos/` — the ledger and its evidence.
-**No file under `src/`, `scripts/`, `native/`, `packaging/`, `test/`, `tools/` or
-`package.json` changed after the build**, so the artifact's payload is exactly the
-payload of the recorded commit even though the documentation and ledger moved on
-afterwards. Those two paths are build outputs, not inputs (R13's rule).
+That the payload is the same is checked, not assumed: the only files those two
+commits touched are `.mona/build-macos/` and `docs/evidence/macos/`, which are
+build outputs rather than inputs (R13's rule). The version, channel, engine digest
+and gate results below are read from the build that actually ran.
 
 ### Package-level gates (all pass, no administrator authorization needed)
 
@@ -54,44 +55,40 @@ Raw: `packaging/macos/out/package-report.json` (gitignored) and
 
 ### Install-side gates
 
-The package is content-identical to the build that P26 qualified, and build 165 was
-installed and exercised in the previous turn; build 166 differs only in
-documentation, evidence and harness files (no payload source changed between the
-two — the diff is `docs/`, `LICENSE.md`, `CONTRIBUTING.md`, `SECURITY.md`,
-`scripts/r11-smoke.mjs`, `scripts/r13-installed-pass.mjs`, `src/main/index.ts`'s
-axe path and `docs/requirements-macos.json`). `src/main/index.ts` **is** payload
-source, so the artefact is not byte-identical to build 165; the axe-path change is
-inert in normal use, but this is stated rather than glossed.
+The owner ran `npm run mac:install` in their own terminal and then launched the
+app. Verified from the installed bytes afterwards, not from the command's exit
+status:
 
-**The installer could not be launched with administrator authorization from this
-session.** Two `osascript ... with administrator privileges` attempts produced a
-`SecurityAgent` process with **no window** — the authorization sheet never
-rendered — so both were cancelled rather than left hanging. The exact help needed
-is one command in the owner's own terminal, which is the documented path (D-107):
+| Check | Result |
+|---|---|
+| Installed version / build | 0.1.0 / **168**, channel `local` (`Info.plist`: `CFBundleShortVersionString`, `MonaBuildVersion`, `MonaBuildChannel`) |
+| Architecture | `arm64` only (`lipo -archs` on the installed executable) |
+| Installed content digest | `fe7fdb11d089c6f70f9671d6c2f23715cfdc0a0f2de59e1ce5f230004a612731` — **identical** to the packaged payload's digest |
+| Manifest chain | installed `component-manifest.json` = `e3e9ce9c…` = `install-receipt.json.manifest_sha256` — the receipt describes the bytes on disk |
+| Package smoke against `/Applications` | pass (`package-smoke.json`, generated 7 s after the install): packaged from an app bundle, arm64 executable, bundled engine `codewhale 0.10.2 (ff466b2ed0bf)`, native supervisor and pty run, `runtime_started: false`, `inference_calls: 0` |
+| LaunchServices GUI launch | pass — `open -na /Applications/Mona.app` from `/Applications`, one window rendered, alive at 12 s, graceful quit, **0** main process, **0** helpers, no supervisor left behind |
+| Crash reports | none from this launch; the only `DiagnosticReports` entries are seven `mona-supervisor` files from 2026-11-12 |
+| State store | migrated to schema **13**; the stored profile now carries `reasoningEffort: "auto"` with `declaredAt`/`declaredNote`, which is D-110 applied to the owner's real profile rather than a fixture |
 
-```sh
-npm run mac:install
-```
+`package-report.json` still lists these two gates as `pending`: that file is
+written **before** the install by design (D-092's stale-report hazard fix), so a
+post-install pass cannot appear in it. The evidence above is the post-install
+record.
 
-or, to install the package already built and verified above:
-
-```sh
-sudo installer -pkg packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg -target /
-```
-
-Until that runs, `/Applications/Mona.app` holds **build 165** and
-`installed_copy` remains the one pending package gate. This is an authorization
-step, not a defect: the package itself passed every gate that does not need
-root.
+The installer itself did not need an agent: three `osascript` authorization
+attempts from an agent session produced a `SecurityAgent` process with no window,
+so the sheet never rendered. That limitation is recorded in `BLOCKERS.md` with the
+terminal command that resolved it, and the attempts are in `attempts.jsonl`.
 
 ## Recipient qualification
 
-`npm run mac:recipient` reads the package's own bytes and settles what one host
-can: **7 passed, 2 failed, 11 untested, 2 recorded** — `qualified` is not claimed
-(`artifacts/p24-recipient.json`). The two failures are the honest ones: the
-package is unsigned, so a recipient's Gatekeeper refuses it. The eleven untested
-rows need a second Apple silicon Mac, which D-103 removed from scope when it
-removed the shareable artifact.
+`npm run mac:recipient` reads **these** bytes (`ec4f207b…`, build 168) and settles
+what one host can: **7 passed, 2 failed, 11 untested, 2 recorded**;
+`qualification: "blocked"` (`artifacts/p24-recipient.json`). The two failures are
+the honest ones and they are the same fact twice: the package is ad-hoc signed, so
+a recipient's Gatekeeper refuses it (`spctl`: "rejected, source=no usable
+signature"). The eleven untested rows need a second Apple silicon Mac, which D-103
+removed from scope when it removed the shareable artifact.
 
 ## Documentation set
 
@@ -136,9 +133,12 @@ have a tested one. Full parity is not claimed.
 
 ## What still needs the owner
 
-1. **Authorize the install** (one command above); this closes `installed_copy`.
+1. ~~Authorize the install~~ — **done**: build 168 is installed and verified from
+   its own bytes.
 2. **The human QA checklist** in `P26-product-QA.md`: the VoiceOver walkthrough,
    the aesthetic review of the captures, and one real two-folder workflow.
 3. **Decide the license**, if the public repository is to invite use.
-4. **Nothing else.** Scenario 12 stays blocked until a signed artifact exists, and
+4. **Decide whether to push.** Three commits are local and unpublished
+   (`origin/main` behind `HEAD`); publishing is the owner's call, not the agent's.
+5. **Nothing else.** Scenario 12 stays blocked until a signed artifact exists, and
    that requires an Apple Developer account the owner has decided not to obtain.

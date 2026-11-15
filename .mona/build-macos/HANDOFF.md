@@ -1,8 +1,9 @@
 # Handoff — Mona macOS build
 
-**Last checkpoint:** 2026-11-14 (P26 whole-product QA and P27 release; product
-ledger revision **1454**) · `monabuild validate` clean · `npm run ci` **25/25
-steps**, **1,164 tests in 104 files** · source `e13ebb6` · artifact build **166**
+**Last checkpoint:** 2026-11-15 (P26 QA and P27 release installed; product ledger
+revision 1470+) · `monabuild validate` clean · `npm run ci` **25/25
+steps**, **1,164 tests in 104 files** · source `538b339` · artifact build **168**
+(installed and verified)
 **History rewritten 2026-11-13 (D-101)** — old SHAs are gone; the mapping is in
 D-101.
 **Current state: all 28 prompts are settled — 26 completed, and P22 + P24
@@ -13,33 +14,21 @@ were closed by decision: the engine reasoning gap is accepted as permanent
 (D-111) and the lifecycle lock was a precondition that cleared.
 **Release tier:** local development usable and packaged candidate **yes**;
 shareable release **no**, and that is D-103, not a defect.
-**Installing the latest build is one command:** `npm run mac:install`.
+**Installed:** build **168** from `538b339`, verified from its own bytes —
+content digest identical to the packaged payload, manifest/receipt chain intact,
+package smoke against `/Applications` pass, LaunchServices launch and quit clean.
+`npm run mac:install` is the ordinary loop.
 
-**Next exact action:** none in the prompt sequence. The one outstanding action is
-an install with administrator authorization — build 166 is packaged and every
-gate that does not need root has passed, but `/Applications/Mona.app` still holds
-build 165:
+**Next exact action:** none in the prompt sequence, and the install is done. What
+is left is the owner's to decide or to perform:
 
-```sh
-npm run mac:install
-```
+- **Push, or do not.** Three commits are local and `origin/main` is behind `HEAD`.
+  Publishing is the owner's call; the agent does not push without it.
+- **The three-item QA checklist** below.
 
-That is the documented path (D-107): it builds, packages, installs with `sudo`
-**in your own terminal**, then runs the install-side gates against the installed
-copy. To install the package already built and verified without rebuilding:
-
-```sh
-sudo installer -pkg packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg -target /
-```
-
-Then close the record with `npm run mac:package:local` (rebuilds the same source
-and re-checks `installed_copy`), or verify by hand as the developer guide
-describes.
-
-**Why an agent cannot do that step:** two `osascript ... with administrator
-privileges` attempts from this session produced a `SecurityAgent` process with no
-window, so the authorization sheet never rendered and both were cancelled rather
-than left hanging. The terminal path needs no agent.
+To close the record formally after any further source change, run
+`npm run mac:install` (build, package, install with `sudo` in your own terminal,
+then re-check the installed copy) and `npm run mac:package:local`.
 
 **Remaining human work (none of it blocking a prompt):**
 

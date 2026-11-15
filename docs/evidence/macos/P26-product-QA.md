@@ -19,7 +19,7 @@ measurement.
 | CPUs / memory | 8 cores / 16 GiB |
 | Display | scale factor 2, single 1280 × 800 window |
 | Framework | Electron 45.3.0, Chrome 156.0.8078.96, Node 24.22.2 |
-| App under test | `/Applications/Mona.app`, 0.1.0 build 165, channel `local`, ad-hoc signed |
+| App under test | `/Applications/Mona.app`, 0.1.0 build **165**, channel `local`, ad-hoc signed (the installed build at the time; the promoted artifact is 168, see `P27-release.md`) |
 
 **Why the installed bundle.** The repository's smokes normally spawn `electron .`,
 which proves the source tree. For P26 the harness was given `--app

@@ -85,40 +85,27 @@ requirement: each entry says what is not proven and where that is stated.
 **Nothing blocks a prompt.** The two items this build carried are settled; what
 remains needs a person at the machine and is listed here so it is not lost.
 
-### INSTALL-AUTH — the install needs you, and the agent path is exhausted
+### ~~INSTALL-AUTH~~ — CLOSED: the owner ran it in their own terminal
 
-- **What is needed:** one command in your own terminal:
-
-  ```sh
-  npm run mac:install
-  ```
-
-  or, to install the package already built and verified:
-
-  ```sh
-  sudo installer -pkg packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg -target /
-  ```
-
-  Then confirm with `npm run mac:package:local` (rebuilds the same source and
-  re-checks `installed_copy`) or by reading `MonaBuildVersion` in
-  `/Applications/Mona.app/Contents/Info.plist`, which should read **166**.
-- **Why an agent cannot finish it — three attempts, recorded in
-  `attempts.jsonl`:** an agent shell has no TTY, so `sudo` cannot prompt. Three
-  `osascript ... with administrator privileges` attempts were made (the third
-  polling System Events after 6 s). Each time `SecurityAgent` ran with **0
-  windows**: the authorization sheet never rendered in this session, so the
-  prompt was unanswerable and `osascript` blocked until cancelled. The same
-  command succeeded earlier in the day, which is why it was retried rather than
-  abandoned immediately.
-- **What this does not affect:** the package itself passed every gate that does
-  not need root (declared metadata, architecture, dependencies, secrets, payload
-  expand, install rehearsal, the 11-check uninstall rehearsal). Build 166 is
-  packaged and content-verified; only `/Applications/Mona.app` still holds build
-  165.
+- **What was needed:** one command with administrator authorization, which an
+  agent shell cannot supply.
+- **How it closed:** the owner ran `npm run mac:install` and launched the app.
+  Verified afterwards from the installed bytes: **build 168**, channel `local`,
+  arm64, installed content digest `fe7fdb11…` identical to the packaged payload,
+  `component-manifest.json` = receipt = `e3e9ce9c…`, package smoke against
+  `/Applications` pass, LaunchServices launch rendered a window and quit with zero
+  orphaned helpers, no crash reports, state migrated to schema 13.
+- **Why an agent could not finish it — three attempts, in `attempts.jsonl`:** an
+  agent shell has no TTY, so `sudo` cannot prompt; three `osascript ... with
+  administrator privileges` attempts each produced `SecurityAgent` with **0
+  windows**, so the sheet never rendered and the call blocked until cancelled. The
+  same command had succeeded earlier in the day, which is why it was retried.
+- **What this never affected:** the package passed every gate that does not need
+  root throughout; only the installed copy lagged.
 
 ### The rest of what needs a person, none of it blocking a prompt
 
-- **Authorize the install** as above.
+- The install is done; nothing remains of it.
   `npm run mac:install` in your own terminal (or `sudo installer -pkg
   packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg -target /`). Two
   `osascript` authorization attempts from an agent session produced a
