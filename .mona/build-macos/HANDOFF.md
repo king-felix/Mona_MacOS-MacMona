@@ -1,17 +1,41 @@
 # Current continuation — Studio flight deck (2026-11-15)
 
-New owner-requested Studio work is prepared against `344d41c` in the
-`codex/studio-flight-deck` branch. **Native visual and install gates are pending.**
-The prior installed build record below is historical; this implementation is not
-installed on the owner's Mac and has not been pushed.
+The deck is integrated, qualified on this Mac, and packaged as build **172**. It is
+**not installed**: `/Applications` still holds build 168, and installing needs the
+owner's own Terminal. Nothing has been pushed.
 
-Read `Mona_Studio_Flight_Deck_PROMPTS.md` and `flight-deck.json` in this directory.
-Next action on the owner's checkout: **F00** integration; in this prepared
-worktree the source is already present, so record integration and continue F01.
-Evidence: `docs/evidence/macos/studio-flight-deck/REVIEW.md`. The Linux portable
-suite passes; four files reproduce eight baseline failures and require Mac CI.
-Visual execution is blocked by the host browser boundary (EXT-FLIGHT-VISUAL).
-No original task is silently reopened or credited with new native evidence.
+- **Branch:** `studio-flight-deck` off `c334cbb` (the D-113 dispatch guard and the
+  route repair are intact). Commits: `9c60e3b` (F00 integration), `3af9b4b`
+  (F01/F02 qualification and the layout fixes it forced), plus the packaging and
+  handoff commits after it.
+- **Source checks:** `npm run ci` green, all 25 steps; 1,189 tests in 108 files;
+  typecheck/lint/format/build clean.
+- **Native layout:** `npm run smoke:deck` — 200 checks, six window/zoom
+  arrangements, 1,200 appended frames and an 8,000-line stream per arrangement.
+- **Packaged copy:** same 200 checks pass against
+  `packaging/macos/out/stage/payload/Applications/Mona.app` via
+  `node scripts/deck-smoke.mjs --app …`.
+- **Evidence:** `docs/evidence/macos/studio-flight-deck/` — `F00-integration.md`,
+  `F01-source-qualification.md`, `F02-native-layout.md`,
+  `F03-package-and-install.md`, `f02-report.json`, `f03-packaged-deck-report.json`,
+  the `f02-*.png` captures, and the command transcripts.
+
+**Next exact action:** in your own Terminal,
+`cd ~/DS_Projects/Mona && npm run mac:install`. It builds, packages,
+installs with `sudo` (your password is the only thing it asks for) and re-runs the
+install-side gates against `/Applications/Mona.app`. Then run
+`node scripts/deck-smoke.mjs --app /Applications/Mona.app` and
+`node scripts/r11-smoke.mjs --app /Applications/Mona.app` to close F03's
+installed-copy evidence. `F03-INSTALL-AUTH` in `BLOCKERS.md` has the exact
+commands, the reason this session could not do it, and the rollback path.
+
+**Remaining human checks (none of them blocking a prompt):** the VoiceOver
+walkthrough, the aesthetic judgement of the installed build, one real turn watched
+to confirm the animated activity phases, and one physical Enter keypress (the
+chromium synthetic event cannot show the browser's newline default).
+
+The prior build's handoff notes follow, and are historical until the install
+above replaces them.
 
 ---
 

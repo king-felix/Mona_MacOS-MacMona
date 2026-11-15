@@ -8684,7 +8684,11 @@ if (!gotLock) {
       !IS_STUDIO_SMOKE &&
       !IS_HISTORY_SMOKE &&
       !IS_COMMAND_SMOKE &&
-      !IS_IMMERSIVE_SMOKE
+      !IS_IMMERSIVE_SMOKE &&
+      // A deck smoke may legitimately run a staged bundle beside the installed
+      // copy: it uses its own state directory, starts nothing, and a modal
+      // dialog would block the measurement. Real launches keep the guard.
+      !IS_DECK_SMOKE
     ) {
       const choice = await dialog.showMessageBox({
         type: "warning",

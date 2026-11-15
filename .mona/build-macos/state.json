@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 1519,
+  "revision": 1538,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -53,8 +53,8 @@
         },
         {
           "path": "docs/requirements-macos.json",
-          "sha256": "e2492aa266715b710f05f1a3835f4e6443198adfc0f8d962bbeaba4a5cb0ca21",
-          "note": "2026-11-14 local-distribution pass (D-103/104/105): re-recorded after the owner decided the distribution tier (local .pkg + .dmg, no Developer ID), the OS claim (14.0 declared, 26.5.1 tested) and the Git dependency (documented, not bundled). Shared files changed: package.json (mac:package:dmg), packaging/macos/{build.mjs,dmg.mjs,README.md}, src/main/index.ts (settled smoke waits), scripts/r13-candidate-verify.mjs (source_dirty), tools/monabuild (skipped prerequisites), the ledgers and the guides. No assertion was removed and no requirement was raised."
+          "sha256": "ed9dc192c100d79bef87c872b1c7e1a0a87f1e5222455dbede36a0060c41a23e",
+          "note": "F04 2026-11-15: the requirement registry was regenerated with monabuild requirements sync; that command's own check passes."
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
@@ -239,8 +239,8 @@
         },
         {
           "path": "package.json",
-          "sha256": "4105c373d561b493333db5c597fffef625d2bab16b50ecb924bb3dd4bd9575c5",
-          "note": "2026-11-14 (D-107): re-recorded after the install path became one command (npm run mac:install / build.mjs --install) and the DMG was demoted to on-request. Shared files changed: package.json, packaging/macos/build.mjs, packaging/macos/README.md, AGENTS.md, the owner guide and the ledger. npm run ci passed on these bytes; no assertion was removed and no requirement was raised."
+          "sha256": "3b7ee3e8363736b976619883624e5d83b0c2e5c41602d1dc2675e66d26435089",
+          "note": "F04 2026-11-15: accepted after npm run ci (format, lint, typecheck, catalog, build:supervisor/pty/service, 1,189 tests, build, 21 smokes) ran green on these exact bytes. The Studio deck changed the foundation files; the foundation checks themselves re-ran."
         },
         {
           "path": "package-lock.json",
@@ -292,8 +292,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "7ed7a7aaa1062ca647663c8d0174b47a62809bd8d9a268d09176a08bf5240797",
-          "note": "2026-11-14 local-distribution pass (D-103/104/105): re-recorded after the owner decided the distribution tier (local .pkg + .dmg, no Developer ID), the OS claim (14.0 declared, 26.5.1 tested) and the Git dependency (documented, not bundled). Shared files changed: package.json (mac:package:dmg), packaging/macos/{build.mjs,dmg.mjs,README.md}, src/main/index.ts (settled smoke waits), scripts/r13-candidate-verify.mjs (source_dirty), tools/monabuild (skipped prerequisites), the ledgers and the guides. No assertion was removed and no requirement was raised."
+          "sha256": "a7751e84916666dbf52c0960258dc50392c107219f577c6fed5bd2ced0e3f585",
+          "note": "F04 2026-11-15: accepted after npm run ci (format, lint, typecheck, catalog, build:supervisor/pty/service, 1,189 tests, build, 21 smokes) ran green on these exact bytes. The Studio deck changed the foundation files; the foundation checks themselves re-ran."
         },
         {
           "path": "src/main/ipc-contract.ts",
@@ -354,8 +354,8 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "8dc2d4884a572a3e20acd5e52e9b5cb3f94df3865bd4c2dde536ca1afa1f7412",
-          "note": "Re-recorded after R11 (performance and accessibility) changed these shared bytes: the windowed console, the dialog focus lifecycle, the window-accelerator policy, the title bar's opaque background, and the heading/scroll-region accessibility fixes. The full suite (1,115 tests in 100 files), the shell smoke (137/137) and the R11 measurement harness passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "52171a7b01d9e2788100a5a5cf6b319caff795492dc0052d4ad68aa3755fa4ee",
+          "note": "F04 2026-11-15: accepted after npm run ci (format, lint, typecheck, catalog, build:supervisor/pty/service, 1,189 tests, build, 21 smokes) ran green on these exact bytes. The Studio deck changed the foundation files; the foundation checks themselves re-ran."
         },
         {
           "path": "src/shared/contracts/bridge.ts",
@@ -573,8 +573,8 @@
         },
         {
           "path": "package.json",
-          "sha256": "4105c373d561b493333db5c597fffef625d2bab16b50ecb924bb3dd4bd9575c5",
-          "note": "2026-11-14 (D-107): re-recorded after the install path became one command (npm run mac:install / build.mjs --install) and the DMG was demoted to on-request. Shared files changed: package.json, packaging/macos/build.mjs, packaging/macos/README.md, AGENTS.md, the owner guide and the ledger. npm run ci passed on these bytes; no assertion was removed and no requirement was raised."
+          "sha256": "3b7ee3e8363736b976619883624e5d83b0c2e5c41602d1dc2675e66d26435089",
+          "note": "F04 2026-11-15: accepted after the full CI run on these bytes (the dependency/catalog checks are in it)."
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
@@ -708,8 +708,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "7ed7a7aaa1062ca647663c8d0174b47a62809bd8d9a268d09176a08bf5240797",
-          "note": "2026-11-14 local-distribution pass (D-103/104/105): re-recorded after the owner decided the distribution tier (local .pkg + .dmg, no Developer ID), the OS claim (14.0 declared, 26.5.1 tested) and the Git dependency (documented, not bundled). Shared files changed: package.json (mac:package:dmg), packaging/macos/{build.mjs,dmg.mjs,README.md}, src/main/index.ts (settled smoke waits), scripts/r13-candidate-verify.mjs (source_dirty), tools/monabuild (skipped prerequisites), the ledgers and the guides. No assertion was removed and no requirement was raised."
+          "sha256": "a7751e84916666dbf52c0960258dc50392c107219f577c6fed5bd2ced0e3f585",
+          "note": "F04 2026-11-15: accepted after npm run ci ran green on these bytes, including every window smoke in main."
         },
         {
           "path": "src/main/engine/runtime-process.ts",
@@ -760,8 +760,8 @@
         },
         {
           "path": "package.json",
-          "sha256": "4105c373d561b493333db5c597fffef625d2bab16b50ecb924bb3dd4bd9575c5",
-          "note": "2026-11-14 (D-107): re-recorded after the install path became one command (npm run mac:install / build.mjs --install) and the DMG was demoted to on-request. Shared files changed: package.json, packaging/macos/build.mjs, packaging/macos/README.md, AGENTS.md, the owner guide and the ledger. npm run ci passed on these bytes; no assertion was removed and no requirement was raised."
+          "sha256": "3b7ee3e8363736b976619883624e5d83b0c2e5c41602d1dc2675e66d26435089",
+          "note": "F04 2026-11-15: accepted after npm run ci ran green on these bytes, including every window smoke in main."
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
@@ -851,7 +851,8 @@
       "evidence": [
         {
           "path": "docs/design-system.md",
-          "sha256": "a1d6a5747cadbd1a64ba9b60182aefdcf3de8a1112c32832859390078724406e"
+          "sha256": "1fa9fecd97183f76c6c34f92e7af657dee7ea90cf0f3536b8ee366eb795b5da6",
+          "note": "F04 2026-11-15: the design system document was updated deliberately to describe the flight deck; prettier --check passes."
         },
         {
           "path": "docs/evidence/macos/P06-design.md",
@@ -1192,8 +1193,8 @@
         },
         {
           "path": "package.json",
-          "sha256": "4105c373d561b493333db5c597fffef625d2bab16b50ecb924bb3dd4bd9575c5",
-          "note": "2026-11-14 (D-107): re-recorded after the install path became one command (npm run mac:install / build.mjs --install) and the DMG was demoted to on-request. Shared files changed: package.json, packaging/macos/build.mjs, packaging/macos/README.md, AGENTS.md, the owner guide and the ledger. npm run ci passed on these bytes; no assertion was removed and no requirement was raised."
+          "sha256": "3b7ee3e8363736b976619883624e5d83b0c2e5c41602d1dc2675e66d26435089",
+          "note": "F04 2026-11-15: accepted after npm run ci ran green on these bytes (shell smokes, focus/immersive/aurora smokes and 1,189 tests are in it)."
         },
         {
           "path": "src/main/open/folder-request.ts",
@@ -1209,8 +1210,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "7ed7a7aaa1062ca647663c8d0174b47a62809bd8d9a268d09176a08bf5240797",
-          "note": "2026-11-14 local-distribution pass (D-103/104/105): re-recorded after the owner decided the distribution tier (local .pkg + .dmg, no Developer ID), the OS claim (14.0 declared, 26.5.1 tested) and the Git dependency (documented, not bundled). Shared files changed: package.json (mac:package:dmg), packaging/macos/{build.mjs,dmg.mjs,README.md}, src/main/index.ts (settled smoke waits), scripts/r13-candidate-verify.mjs (source_dirty), tools/monabuild (skipped prerequisites), the ledgers and the guides. No assertion was removed and no requirement was raised."
+          "sha256": "a7751e84916666dbf52c0960258dc50392c107219f577c6fed5bd2ced0e3f585",
+          "note": "F04 2026-11-15: accepted after npm run ci ran green on these bytes (shell smokes, focus/immersive/aurora smokes and 1,189 tests are in it)."
         },
         {
           "path": "src/main/desktop-lifecycle.ts",
@@ -1247,8 +1248,8 @@
         },
         {
           "path": "src/renderer/shell/Shell.tsx",
-          "sha256": "25f85c1dabb3bac7ec2ec51f1784234168d9502d1c760dfda1ae7edda2a2c307",
-          "note": "Re-recorded after R11 (performance and accessibility) changed these shared bytes: the windowed console, the dialog focus lifecycle, the window-accelerator policy, the title bar's opaque background, and the heading/scroll-region accessibility fixes. The full suite (1,115 tests in 100 files), the shell smoke (137/137) and the R11 measurement harness passed on the new bytes; no assertion was removed and no requirement status was lowered. | R12 2026-11-14: re-recorded after one renderer callback was renamed `useFavorite` → `insertFavorite`. It is a plain `useCallback` callback, but a `use` prefix makes the new rules-of-hooks gate (and Fast Refresh) treat it as a hook; the behaviour is unchanged. Full suite 1,121 tests in 101 files, shell smoke 137/137 on these bytes."
+          "sha256": "bae8009cca4ed1b951dd6dddc9e249d9633c7d243a0590dc46c0355e1b55fadd",
+          "note": "F04 2026-11-15: accepted after npm run ci ran green on these bytes (shell smokes, focus/immersive/aurora smokes and 1,189 tests are in it)."
         },
         {
           "path": "src/renderer/shell/drop.ts",
@@ -1265,8 +1266,8 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "8dc2d4884a572a3e20acd5e52e9b5cb3f94df3865bd4c2dde536ca1afa1f7412",
-          "note": "Re-recorded after R11 (performance and accessibility) changed these shared bytes: the windowed console, the dialog focus lifecycle, the window-accelerator policy, the title bar's opaque background, and the heading/scroll-region accessibility fixes. The full suite (1,115 tests in 100 files), the shell smoke (137/137) and the R11 measurement harness passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "52171a7b01d9e2788100a5a5cf6b319caff795492dc0052d4ad68aa3755fa4ee",
+          "note": "F04 2026-11-15: accepted after npm run ci ran green on these bytes (shell smokes, focus/immersive/aurora smokes and 1,189 tests are in it)."
         },
         {
           "path": "test/folder-request.test.ts",
@@ -1397,8 +1398,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "7ed7a7aaa1062ca647663c8d0174b47a62809bd8d9a268d09176a08bf5240797",
-          "note": "2026-11-14 local-distribution pass (D-103/104/105): re-recorded after the owner decided the distribution tier (local .pkg + .dmg, no Developer ID), the OS claim (14.0 declared, 26.5.1 tested) and the Git dependency (documented, not bundled). Shared files changed: package.json (mac:package:dmg), packaging/macos/{build.mjs,dmg.mjs,README.md}, src/main/index.ts (settled smoke waits), scripts/r13-candidate-verify.mjs (source_dirty), tools/monabuild (skipped prerequisites), the ledgers and the guides. No assertion was removed and no requirement was raised."
+          "sha256": "a7751e84916666dbf52c0960258dc50392c107219f577c6fed5bd2ced0e3f585",
+          "note": "F04 2026-11-15: accepted after npm run ci ran green on these bytes."
         },
         {
           "path": "src/preload/index.ts",
@@ -1417,8 +1418,8 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "8dc2d4884a572a3e20acd5e52e9b5cb3f94df3865bd4c2dde536ca1afa1f7412",
-          "note": "Re-recorded after R11 (performance and accessibility) changed these shared bytes: the windowed console, the dialog focus lifecycle, the window-accelerator policy, the title bar's opaque background, and the heading/scroll-region accessibility fixes. The full suite (1,115 tests in 100 files), the shell smoke (137/137) and the R11 measurement harness passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "52171a7b01d9e2788100a5a5cf6b319caff795492dc0052d4ad68aa3755fa4ee",
+          "note": "F04 2026-11-15: accepted after npm run ci ran green on these bytes."
         },
         {
           "path": "test/work-board.test.ts",
@@ -1833,8 +1834,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p16-settings-smoke.json",
-          "sha256": "9801f1803b82400851db208610959921022b3d5794761a706f6342bb42174ec8",
-          "note": "2026-11-14 (D-107): re-recorded after the install became one command; npm run ci passed 24/24 steps (1,121 tests) on these bytes."
+          "sha256": "83883cfe7010482b291e5453176ff06cdbc1ac2753b7b6d0c660fda074bfcbdf",
+          "note": "F04 2026-11-15: the settings and reasoning smokes were re-run on these bytes by npm run ci (all 25 steps green); these files are their regenerated output."
         },
         {
           "path": "docs/evidence/macos/artifacts/p16-settings-route.png",
@@ -1851,7 +1852,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/reasoning-smoke.json",
-          "sha256": "c7b9d3897b7a3f893113c20a215fab4582d5710704fd371c281c9ca313a81b21"
+          "sha256": "2569a1df1f454a32bd52d313eaad114dd4cf7e180c69e6b374b34dcc869f6318",
+          "note": "F04 2026-11-15: the settings and reasoning smokes were re-run on these bytes by npm run ci (all 25 steps green); these files are their regenerated output."
         },
         {
           "path": "docs/evidence/macos/artifacts/reasoning-engine-gap.json",
@@ -1904,8 +1906,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p17-extensions-smoke.json",
-          "sha256": "7d17fc774385fd122145a38e0b929ca9fcf378761bac1c1ece730f8278b9110c",
-          "note": "2026-11-14 (D-107): re-recorded after the install became one command; npm run ci passed 24/24 steps (1,121 tests) on these bytes."
+          "sha256": "d879eb364d9a9692dd4472c87c5e885ab83220778e3f13d10466c636c96c420c",
+          "note": "F04 2026-11-15: smoke:extensions re-ran on these bytes in npm run ci; this file is its regenerated output."
         },
         {
           "path": "docs/evidence/macos/artifacts/p17-settings-extensions.png",
@@ -1952,23 +1954,23 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-terminal-smoke.json",
-          "sha256": "84a166145781a11a44d1557963c303ec891dfedcfa5f6affa7625326a26c6a4a",
-          "note": "2026-11-14 (D-107): re-recorded after the install became one command; npm run ci passed 24/24 steps (1,121 tests) on these bytes."
+          "sha256": "861a09d7e518a8824e59851a096c28b793e500f6d82c959fbb96b9f379223c85",
+          "note": "F04 2026-11-15: smoke:terminal and smoke:capability re-ran on these bytes in npm run ci; these files are their regenerated output. The three source hashes were accepted after that CI run, not before it."
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capability-smoke.json",
-          "sha256": "507a6df83771e6bd03083d7de70f88c4c3da03419a2aa106ef2a72f681f83bdf",
-          "note": "2026-11-14 (D-107): re-recorded after the install became one command; npm run ci passed 24/24 steps (1,121 tests) on these bytes."
+          "sha256": "2ef1077a7d3a94bd148ba7562e92bc6a988ff44ce19741fc42daf9d7d2b5fe63",
+          "note": "F04 2026-11-15: smoke:terminal and smoke:capability re-ran on these bytes in npm run ci; these files are their regenerated output. The three source hashes were accepted after that CI run, not before it."
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capability-coverage.md",
-          "sha256": "e764e4d288f919fd0e548dce12d362424b2968fe7d307a8501bf9eb0ece6de99",
-          "note": "2026-11-14 (D-107): re-recorded after the install became one command; npm run ci passed 24/24 steps (1,121 tests) on these bytes."
+          "sha256": "f7a0127deb81fa932d17cd17c47114d0c765a8f4517df9553c3e5cb03a41887a",
+          "note": "F04 2026-11-15: smoke:terminal and smoke:capability re-ran on these bytes in npm run ci; these files are their regenerated output. The three source hashes were accepted after that CI run, not before it."
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capability-coverage.json",
-          "sha256": "37067d42ac1e619329be58ac6c4a381a32091a31d05546af836fbd4f8a0202f5",
-          "note": "2026-11-14 (D-107): re-recorded after the install became one command; npm run ci passed 24/24 steps (1,121 tests) on these bytes."
+          "sha256": "fae505ac290b05c43a501a4dbbcb3c9c9761631bf844d319a408f8b16935a5b6",
+          "note": "F04 2026-11-15: smoke:terminal and smoke:capability re-ran on these bytes in npm run ci; these files are their regenerated output. The three source hashes were accepted after that CI run, not before it."
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-shell-smoke.json",
@@ -2089,13 +2091,13 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "7ed7a7aaa1062ca647663c8d0174b47a62809bd8d9a268d09176a08bf5240797",
-          "note": "2026-11-14 local-distribution pass (D-103/104/105): re-recorded after the owner decided the distribution tier (local .pkg + .dmg, no Developer ID), the OS claim (14.0 declared, 26.5.1 tested) and the Git dependency (documented, not bundled). Shared files changed: package.json (mac:package:dmg), packaging/macos/{build.mjs,dmg.mjs,README.md}, src/main/index.ts (settled smoke waits), scripts/r13-candidate-verify.mjs (source_dirty), tools/monabuild (skipped prerequisites), the ledgers and the guides. No assertion was removed and no requirement was raised."
+          "sha256": "a7751e84916666dbf52c0960258dc50392c107219f577c6fed5bd2ced0e3f585",
+          "note": "F04 2026-11-15: smoke:terminal and smoke:capability re-ran on these bytes in npm run ci; these files are their regenerated output. The three source hashes were accepted after that CI run, not before it."
         },
         {
           "path": "src/renderer/shell/Shell.tsx",
-          "sha256": "25f85c1dabb3bac7ec2ec51f1784234168d9502d1c760dfda1ae7edda2a2c307",
-          "note": "Re-recorded after R11 (performance and accessibility) changed these shared bytes: the windowed console, the dialog focus lifecycle, the window-accelerator policy, the title bar's opaque background, and the heading/scroll-region accessibility fixes. The full suite (1,115 tests in 100 files), the shell smoke (137/137) and the R11 measurement harness passed on the new bytes; no assertion was removed and no requirement status was lowered. | R12 2026-11-14: re-recorded after one renderer callback was renamed `useFavorite` → `insertFavorite`. It is a plain `useCallback` callback, but a `use` prefix makes the new rules-of-hooks gate (and Fast Refresh) treat it as a hook; the behaviour is unchanged. Full suite 1,121 tests in 101 files, shell smoke 137/137 on these bytes."
+          "sha256": "bae8009cca4ed1b951dd6dddc9e249d9633c7d243a0590dc46c0355e1b55fadd",
+          "note": "F04 2026-11-15: smoke:terminal and smoke:capability re-ran on these bytes in npm run ci; these files are their regenerated output. The three source hashes were accepted after that CI run, not before it."
         },
         {
           "path": "src/renderer/shell/Settings.tsx",
@@ -2108,8 +2110,8 @@
         },
         {
           "path": "src/renderer/styles.css",
-          "sha256": "8dc2d4884a572a3e20acd5e52e9b5cb3f94df3865bd4c2dde536ca1afa1f7412",
-          "note": "Re-recorded after R11 (performance and accessibility) changed these shared bytes: the windowed console, the dialog focus lifecycle, the window-accelerator policy, the title bar's opaque background, and the heading/scroll-region accessibility fixes. The full suite (1,115 tests in 100 files), the shell smoke (137/137) and the R11 measurement harness passed on the new bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "52171a7b01d9e2788100a5a5cf6b319caff795492dc0052d4ad68aa3755fa4ee",
+          "note": "F04 2026-11-15: smoke:terminal and smoke:capability re-ran on these bytes in npm run ci; these files are their regenerated output. The three source hashes were accepted after that CI run, not before it."
         },
         {
           "path": "test/terminal-buffer.test.ts",
@@ -2151,8 +2153,8 @@
         },
         {
           "path": "package.json",
-          "sha256": "4105c373d561b493333db5c597fffef625d2bab16b50ecb924bb3dd4bd9575c5",
-          "note": "2026-11-14 (D-107): re-recorded after the install path became one command (npm run mac:install / build.mjs --install) and the DMG was demoted to on-request. Shared files changed: package.json, packaging/macos/build.mjs, packaging/macos/README.md, AGENTS.md, the owner guide and the ledger. npm run ci passed on these bytes; no assertion was removed and no requirement was raised."
+          "sha256": "3b7ee3e8363736b976619883624e5d83b0c2e5c41602d1dc2675e66d26435089",
+          "note": "F04 2026-11-15: smoke:terminal and smoke:capability re-ran on these bytes in npm run ci; these files are their regenerated output. The three source hashes were accepted after that CI run, not before it."
         },
         {
           "path": "docs/codewhale-capabilities-macos.json",
@@ -2196,8 +2198,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p19-memory-smoke.json",
-          "sha256": "df754ae0c9344e41e09fa2a51294e592b5e49b69e464fcd0f9915587af2b545c",
-          "note": "2026-11-14 (D-107): re-recorded after the install became one command; npm run ci passed 24/24 steps (1,121 tests) on these bytes."
+          "sha256": "2d8b26464517dc607b1c083dbb425324f11b43ef56922176f02d498494cd190f",
+          "note": "F04 2026-11-15: smoke:memory re-ran in npm run ci; the handoff was rewritten deliberately for the flight-deck continuation."
         },
         {
           "path": "docs/evidence/macos/artifacts/p19-ci.txt",
@@ -2281,8 +2283,8 @@
         },
         {
           "path": "docs/requirements-macos.json",
-          "sha256": "e2492aa266715b710f05f1a3835f4e6443198adfc0f8d962bbeaba4a5cb0ca21",
-          "note": "2026-11-14 local-distribution pass (D-103/104/105): re-recorded after the owner decided the distribution tier (local .pkg + .dmg, no Developer ID), the OS claim (14.0 declared, 26.5.1 tested) and the Git dependency (documented, not bundled). Shared files changed: package.json (mac:package:dmg), packaging/macos/{build.mjs,dmg.mjs,README.md}, src/main/index.ts (settled smoke waits), scripts/r13-candidate-verify.mjs (source_dirty), tools/monabuild (skipped prerequisites), the ledgers and the guides. No assertion was removed and no requirement was raised."
+          "sha256": "ed9dc192c100d79bef87c872b1c7e1a0a87f1e5222455dbede36a0060c41a23e",
+          "note": "F04 2026-11-15: registry regenerated by monabuild requirements sync; handoff rewritten for the flight-deck continuation."
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
@@ -2291,8 +2293,8 @@
         },
         {
           "path": ".mona/build-macos/HANDOFF.md",
-          "sha256": "a73ece0136497e975158af55d4509cb14a79bd22c441ed010ca2edb74d82bf56",
-          "note": "2026-11-14 (D-107): re-recorded after the install became one command; npm run ci passed 24/24 steps (1,121 tests) on these bytes."
+          "sha256": "feb78a76a94d0c596f7af01dda0de7fdd8cd40a9fabde5d600d5863048d075e8",
+          "note": "F04 2026-11-15: registry regenerated by monabuild requirements sync; handoff rewritten for the flight-deck continuation."
         }
       ],
       "blocker_ids": []
@@ -2331,8 +2333,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p20-failure-smoke.json",
-          "sha256": "7f7753f73064b330d9ab7babe3dc7d04b595018e15211979d56d59be2761ae2d",
-          "note": "2026-11-14 (D-107): re-recorded after the install became one command; npm run ci passed 24/24 steps (1,121 tests) on these bytes."
+          "sha256": "68784160cd209c5c080c062b3b8f1b1af0fdda9a2f6ae2850d4ebc7ace7dbfeb",
+          "note": "F04 2026-11-15: smoke:failure re-ran on these bytes in npm run ci; this file is its regenerated output."
         },
         {
           "path": "docs/evidence/macos/artifacts/p20-lifecycle-crash.json",
@@ -2512,8 +2514,8 @@
         },
         {
           "path": "docs/requirements-macos.json",
-          "sha256": "e2492aa266715b710f05f1a3835f4e6443198adfc0f8d962bbeaba4a5cb0ca21",
-          "note": "2026-11-14 local-distribution pass (D-103/104/105): re-recorded after the owner decided the distribution tier (local .pkg + .dmg, no Developer ID), the OS claim (14.0 declared, 26.5.1 tested) and the Git dependency (documented, not bundled). Shared files changed: package.json (mac:package:dmg), packaging/macos/{build.mjs,dmg.mjs,README.md}, src/main/index.ts (settled smoke waits), scripts/r13-candidate-verify.mjs (source_dirty), tools/monabuild (skipped prerequisites), the ledgers and the guides. No assertion was removed and no requirement was raised."
+          "sha256": "ed9dc192c100d79bef87c872b1c7e1a0a87f1e5222455dbede36a0060c41a23e",
+          "note": "F04 2026-11-15: registry regenerated by monabuild requirements sync alongside the handoff rewrite."
         },
         {
           "path": ".mona/build-macos/DECISIONS.md",
@@ -2522,8 +2524,8 @@
         },
         {
           "path": ".mona/build-macos/HANDOFF.md",
-          "sha256": "a73ece0136497e975158af55d4509cb14a79bd22c441ed010ca2edb74d82bf56",
-          "note": "2026-11-14 (D-107): re-recorded after the install became one command; npm run ci passed 24/24 steps (1,121 tests) on these bytes."
+          "sha256": "feb78a76a94d0c596f7af01dda0de7fdd8cd40a9fabde5d600d5863048d075e8",
+          "note": "F04 2026-11-15: handoff rewritten deliberately for the flight-deck continuation."
         },
         {
           "path": "test/work-git.test.ts",
@@ -2612,13 +2614,13 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p23-lifecycle-smoke.json",
-          "sha256": "96b82982ec5db7ca21841a6de27a3c383d893e464541478ff5268fd7e031e8ae",
-          "note": "2026-11-14 (D-107): re-recorded after the install became one command; npm run ci passed 24/24 steps (1,121 tests) on these bytes."
+          "sha256": "4877300bf1708b115c77fee6a60e4dc7427759146095f347f100aae5475fb779",
+          "note": "F04 2026-11-15: smoke:p23 re-ran on these bytes in npm run ci; these files are its regenerated output."
         },
         {
           "path": "docs/evidence/macos/artifacts/p23-uninstall-rehearsal.json",
-          "sha256": "52653210ebcac82df1ec1eed1c7e271b5442ac7e49a43ee4b0c1ced0fbbac350",
-          "note": "2026-11-14 (D-107): re-recorded after the install became one command; npm run ci passed 24/24 steps (1,121 tests) on these bytes."
+          "sha256": "a369ffcfefecd81131fbce5b3d79508bebee603d5d4c6fbdf72bbf5a7b279bef",
+          "note": "F04 2026-11-15: smoke:p23 re-ran on these bytes in npm run ci; these files are its regenerated output."
         },
         {
           "path": "docs/evidence/macos/artifacts/p23-ci.txt",
@@ -2668,8 +2670,8 @@
         },
         {
           "path": "docs/owner-guide-macos.md",
-          "sha256": "acf13da04cc0e9b5ebf301399e0e0105cd41e116266887b3229ccfc960494ccb",
-          "note": "2026-11-14 (D-107): re-recorded after the install path became one command (npm run mac:install / build.mjs --install) and the DMG was demoted to on-request. Shared files changed: package.json, packaging/macos/build.mjs, packaging/macos/README.md, AGENTS.md, the owner guide and the ledger. npm run ci passed on these bytes; no assertion was removed and no requirement was raised."
+          "sha256": "064c4b5801f98fe77ed5fd5769d083a92ef16ac0744c272d4e8dc9fc15499cc5",
+          "note": "F04 2026-11-15: the owner guide was updated deliberately for the flight deck controls; prettier --check passes."
         }
       ],
       "blocker_ids": []
@@ -2770,7 +2772,8 @@
         },
         {
           "path": "docs/changelog-macos.md",
-          "sha256": "393450094bdff2a916bce884e8e805f336d7bcfebcfd3e9e0c7bbb2d2ec3b974"
+          "sha256": "765dfe45e21356b42d2d2cee4a537718f050ab4139b67414d351ade9af6c3b86",
+          "note": "F04 2026-11-15: the changelog gained the flight-deck entry. This does not claim build 172 is installed; the entry says so itself."
         }
       ],
       "blocker_ids": []
@@ -2780,7 +2783,7 @@
     "P22",
     "P25"
   ],
-  "last_checkpoint_utc": "2026-11-15T03:45:46.529Z",
+  "last_checkpoint_utc": "2026-11-15T21:28:23.930Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

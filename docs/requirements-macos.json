@@ -14,7 +14,7 @@
         "sha256": "be447f8253fe9c58443c14da3d846ff4d56c2810eb405651b12f8b56cc3805f8"
       }
     ],
-    "indexed_utc": "2026-11-14T22:46:39.095Z"
+    "indexed_utc": "2026-11-15T21:27:36.786Z"
   },
   "prompts": [
     {
@@ -755,7 +755,7 @@
     {
       "id": "MONA-008",
       "track": "Core",
-      "title": "Explicit Plan/Work and effective permission display; Victor\u2019s saved DS Full Access profile; no silent policy widening",
+      "title": "Explicit Plan/Work and effective permission display; Victor’s saved DS Full Access profile; no silent policy widening",
       "prompts": [
         "P03",
         "P08",
@@ -1259,7 +1259,7 @@
           "note": "local CI green: format, lint, typecheck, builds, 469 tests, five smokes"
         }
       ],
-      "notes": "P15: observatory over /v1/agent-runs and /v1/fleet/*. Expandable parent/child rows use real upstream identities (agent_8f9c0296, fleet-\u2026-local-1) with role, workspace, branch from a local Git read, lifecycle, last meaningful event, tool names from lifecycle events, test evidence (verified / self-reported / none), artifacts, and a spend confidence of priced, unpriced, unknown, or not_reported. A sub-agent whose ledger says usage is unknown shows unknown; a fleet receipt shows not_reported. Parent and child spend are separate rows and the view exposes no total, so a double count is not expressible. A fleet worker appears once, under its fleet, and inherits that sub-agent record's spend, tools, and tests. Disconnect falls back to a bounded local projection that says when it was observed, marks goals stale, and disables controls."
+      "notes": "P15: observatory over /v1/agent-runs and /v1/fleet/*. Expandable parent/child rows use real upstream identities (agent_8f9c0296, fleet-…-local-1) with role, workspace, branch from a local Git read, lifecycle, last meaningful event, tool names from lifecycle events, test evidence (verified / self-reported / none), artifacts, and a spend confidence of priced, unpriced, unknown, or not_reported. A sub-agent whose ledger says usage is unknown shows unknown; a fleet receipt shows not_reported. Parent and child spend are separate rows and the view exposes no total, so a double count is not expressible. A fleet worker appears once, under its fleet, and inherits that sub-agent record's spend, tools, and tests. Disconnect falls back to a bounded local projection that says when it was observed, marks goals stale, and disables controls."
     },
     {
       "id": "MONA-019",
@@ -1289,7 +1289,7 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p15-agents-live.json",
-          "note": "create \u2192 start (202) \u2192 terminal receipt \u2192 local task in verification, one owner"
+          "note": "create → start (202) → terminal receipt → local task in verification, one owner"
         }
       ],
       "notes": "P15 partial: goals (set, complete, block, clear), managed fleet runs (create, start, stop, worker stop/restart, receipts, receipt evidence, event replay), runs/history, and artifacts are surfaced natively. One scheduler per task is enforced by tasks.execution_owner plus a unique task_runs.upstream_id index; a terminal fleet run moves its task to verification, never to completed. Only one serial task launches per run: a live probe showed the engine accepting two parallel writer tasks on the same repository root, so parallel launch stays refused with four named qualification checks. Remaining gaps: `codewhale workflow` / `lane` (checked-in JS workflows through a Lane Runtime) have no /v1 route on 0.10.2, and goals have no HTTP pause route. P18 owns the first; pause is offered as block or clear."
@@ -1550,7 +1550,7 @@
           "note": "newer schema refused; matching snapshot restored and migrated forward"
         }
       ],
-      "notes": "P19 completes the P19 scope of MONA-025: settings backup/restore under the exclusive maintenance barrier with a snapshot, a journal, and read-back; a portable project handoff in a fail-closed store-only archive (sha256 manifest, refused traversal and tamper, in-memory import that starts no work); a redacted diagnostics bundle with an explicit preview and digest; and offline browsing of the same records. P20 owns failure injection and P23 the final matrix, so the wider requirement stays open there. Carried-forward item 27 (plan export status) is closed in P19. P20 adds the failure evidence for the same surfaces: an interrupted restore leaves prior state and a journal, a symlinked extraction parent cannot redirect a write, and an over-budget archive yields no entries. P23 closes the migration part of MONA-025: a failed migration is discoverable from its journal, a newer schema is refused rather than opened, and a restore is offered only for a snapshot this build can verify \u2014 after which the normal migration path runs with its own snapshot and journal."
+      "notes": "P19 completes the P19 scope of MONA-025: settings backup/restore under the exclusive maintenance barrier with a snapshot, a journal, and read-back; a portable project handoff in a fail-closed store-only archive (sha256 manifest, refused traversal and tamper, in-memory import that starts no work); a redacted diagnostics bundle with an explicit preview and digest; and offline browsing of the same records. P20 owns failure injection and P23 the final matrix, so the wider requirement stays open there. Carried-forward item 27 (plan export status) is closed in P19. P20 adds the failure evidence for the same surfaces: an interrupted restore leaves prior state and a journal, a symlinked extraction parent cannot redirect a write, and an over-budget archive yields no entries. P23 closes the migration part of MONA-025: a failed migration is discoverable from its journal, a newer schema is refused rather than opened, and a restore is offered only for a snapshot this build can verify — after which the normal migration path runs with its own snapshot and journal."
     },
     {
       "id": "MONA-026",
@@ -1883,7 +1883,7 @@
           "note": "P26: installed build keyboard navigation, focus restoration and menu semantics"
         }
       ],
-      "notes": "P06: native chrome, Command-key conventions, keyboard-reachable screens, visible focus, VoiceOver-readable labels. P07: native File \u2192 Open Project\u2026 dialog and real shell keyboard navigation. Finder selected-folder Service and file-URL dispatch remain P09; spoken walkthrough is P24/P26. P26 re-measured the installed build: axe over the live Studio reports 0 blocking violations, 200 % scaling fits, reduced motion stops every animation, and keyboard focus is reachable and restorable. A spoken VoiceOver walkthrough is the one remaining item and is on the P26 human checklist. P26 re-measured the installed build and the automated half passes: axe over the live Studio reports 0 blocking violations, every appearance fits at 200 % with no overflow, reduced motion stops every animation, and console and composer focus are reachable and restorable. The remaining item is a spoken VoiceOver walkthrough, which only a person can perform; it is on the P26 human checklist rather than claimed here."
+      "notes": "P06: native chrome, Command-key conventions, keyboard-reachable screens, visible focus, VoiceOver-readable labels. P07: native File → Open Project… dialog and real shell keyboard navigation. Finder selected-folder Service and file-URL dispatch remain P09; spoken walkthrough is P24/P26. P26 re-measured the installed build: axe over the live Studio reports 0 blocking violations, 200 % scaling fits, reduced motion stops every animation, and keyboard focus is reachable and restorable. A spoken VoiceOver walkthrough is the one remaining item and is on the P26 human checklist. P26 re-measured the installed build and the automated half passes: axe over the live Studio reports 0 blocking violations, every appearance fits at 200 % with no overflow, reduced motion stops every animation, and console and composer focus are reachable and restorable. The remaining item is a spoken VoiceOver walkthrough, which only a person can perform; it is on the P26 human checklist rather than claimed here."
     },
     {
       "id": "MAC-003",
@@ -2113,7 +2113,7 @@
     "ok": true,
     "errors": [],
     "warnings": [],
-    "validated_utc": "2026-11-14T22:46:39.095Z",
+    "validated_utc": "2026-11-15T21:27:36.786Z",
     "prompt_count": 28,
     "requirement_count": 38
   }

@@ -7,22 +7,45 @@ what each build changed and, where a decision shaped the product, its reference 
 are `git rev-list --count HEAD` at package time, so they are monotonic but not
 semantic.
 
-## Unreleased — Studio flight deck (2026-11-15)
+## Unreleased — Studio flight deck, build 172 (2026-11-15)
 
-Implementation prepared against `344d41c`; native visual and installed-build
-qualification pending. This entry does not replace build 168's release evidence.
+Qualified on the owner's Mac: `npm run ci` green (25 steps), 1,189 tests, and a
+new 200-check native layout run (`npm run smoke:deck`). The package is built and
+verified from its own bytes; **it is not installed yet** — build 168 is still what
+`/Applications` contains, and installing needs the owner's terminal. Evidence:
+`docs/evidence/macos/studio-flight-deck/`.
 
-- Bound Studio and Focus to the viewport; transcript and prompt scroll internally.
-- Remove the Studio inspector and duplicate execution/status bands.
-- Rename Submit and move colored execution controls above the prompt.
-- Add observed activity phases, local motion, last-event age, quiet/disconnected
-  states, and Needs the Human. No additional model calls.
-- Collapse telemetry, search, favorites, and follow-ups into deliberate controls.
-- Expire successful in-app notices after five seconds; pause on hover/focus.
-  Keep actionable warnings. Store tone and text together to prevent stale tone.
-- Adapt dashboard/rail/composer at narrow or short logical viewports; preserve
-  drafts, Command-Enter, slash commands, history virtualization, and permissions.
-- Add state/timer regression tests and a portable browser fixture/smoke runner.
+- **The window no longer scrolls.** Studio and Focus are bounded to the viewport
+  through a definite height chain; the console scrolls inside itself and appending
+  output does not move the prompt. Measured pixel-stable at 1440×900, 1280×800 at
+  100/125/150/200 %, and 1100×700.
+- **One compact deck.** The inspector is removed, and the project/status/activity
+  bands collapse into one dashboard plus one activity row. Exact totals and tool
+  diagnostics live under Telemetry.
+- **Submit replaces Send to engine**, with Pause after task / Resume queue and
+  Interrupt now beside it above the prompt, in distinct colours. Every secondary
+  action (file mention, queue, engine control, board, favorites, follow-ups) moved
+  into one **More** panel that floats above the bar rather than taking two rows of
+  every window.
+- **The activity signal tells the truth.** Phases are derived only from events
+  matching both the current thread and turn; completion, failure and interruption
+  clear live motion; an open turn with no reported activity is "waiting", and 45
+  seconds of silence stops the animation and says progress cannot be confirmed.
+  The check runs on a local clock, so it updates even if snapshots stop. Zero
+  added model calls, polls, or provider requests.
+- **Routine receipts expire after five seconds** (measured 5,192 ms end to end)
+  and pause on hover, focus or a hidden window; replacements restart the timer;
+  errors, uncertain outcomes and required input stay. A receipt does not move the
+  console.
+- **Layout defects found by real pixels and fixed:** a 293 px rail row at 150 %
+  zoom that left a 22 px console; a stage that never filled its column; a screen
+  collapsed to 46 px at 200 % when the rail was hidden; a toolbar that wrapped to
+  three rows; secondary actions costing 34 px of every window; Escape leaving
+  Focus with a panel open; a resize handle reporting a height the field did not
+  have; a command list squeezed to one clipped row at 200 %.
+- **Preserved unchanged:** drafts and caret identity, archive-send guards, queue
+  semantics, uncertain-submission protection, slash completion, the engine pin,
+  provider route, permissions, cost accounting and data stores.
 
 ## 0.1.0 — build 165 (2026-11-14)
 

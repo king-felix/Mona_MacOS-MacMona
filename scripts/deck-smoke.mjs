@@ -23,19 +23,37 @@ const artifactDir =
   process.env.MONA_DECK_SMOKE_OUT_DIR ??
   join(ROOT, "docs", "evidence", "macos", "studio-flight-deck");
 await mkdir(artifactDir, { recursive: true });
+/**
+ * `--app <path>` points the same checks at a packaged or installed bundle
+ * instead of the developer tree: F03 has to describe the product the owner
+ * launches, not only `electron .`.
+ */
+const appArgIndex = process.argv.indexOf("--app");
+const APP_PATH = appArgIndex >= 0 ? resolve(process.argv[appArgIndex + 1] ?? "") : null;
+const APP_BINARY = APP_PATH ? join(APP_PATH, "Contents", "MacOS", "Mona") : null;
 const runDir = await mkdtemp(join(tmpdir(), "mona-deck-smoke-"));
 const outFile = join(runDir, "report.json");
 const userDataDir = await mkdtemp(join(tmpdir(), "mona-deck-smoke-userdata-"));
 
-const child = spawn(electron, [".", "--deck-smoke", `--user-data-dir=${userDataDir}`], {
-  cwd: ROOT,
-  env: {
-    ...process.env,
-    MONA_DECK_SMOKE_OUT: outFile,
-    MONA_DECK_SMOKE_OUT_DIR: artifactDir,
-  },
-  stdio: ["ignore", "pipe", "pipe"],
-});
+const child = APP_BINARY
+  ? spawn(APP_BINARY, ["--deck-smoke", `--user-data-dir=${userDataDir}`], {
+      cwd: APP_PATH,
+      env: {
+        ...process.env,
+        MONA_DECK_SMOKE_OUT: outFile,
+        MONA_DECK_SMOKE_OUT_DIR: artifactDir,
+      },
+      stdio: ["ignore", "pipe", "pipe"],
+    })
+  : spawn(electron, [".", "--deck-smoke", `--user-data-dir=${userDataDir}`], {
+      cwd: ROOT,
+      env: {
+        ...process.env,
+        MONA_DECK_SMOKE_OUT: outFile,
+        MONA_DECK_SMOKE_OUT_DIR: artifactDir,
+      },
+      stdio: ["ignore", "pipe", "pipe"],
+    });
 
 let stdout = "";
 let stderr = "";
@@ -55,6 +73,7 @@ try {
 
 const output = {
   ...report,
+  target: APP_BINARY ? { bundle: APP_PATH, binary: APP_BINARY, packaged: true } : { tree: ROOT },
   electron: { exit: code, stdout: stdout.slice(0, 2000), stderr: stderr.slice(0, 4000) },
 };
 console.log(JSON.stringify(output, null, 2));

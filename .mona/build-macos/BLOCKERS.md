@@ -1,10 +1,38 @@
 # Studio flight deck qualification — 2026-11-15
 
-**EXT-FLIGHT-VISUAL — Needs the Human / native Mac execution.** Three unsuccessful
-visual execution approaches on the Linux build host are documented in
-`docs/evidence/macos/studio-flight-deck/REVIEW.md`. No more attempts on that
-blocked browser route. The implementation and portable tests can proceed;
-F02 native layout/accessibility qualification and F03 installation remain open.
+**EXT-FLIGHT-VISUAL — CLOSED 2026-11-15.** It blocked only the Linux build host,
+where three browser approaches failed. The owner's Mac is the intended surface and
+it now has the evidence: `npm run smoke:deck` drives the real renderer through six
+window/zoom arrangements with 200 checks, and the same run passes against the
+packaged bundle. The boundary was an execution environment, not the product.
+`F02-native-layout.md` records what it proved and what it did not.
+
+**F03-INSTALL-AUTH — Needs the Human (1 attempt).** Build 172 is packaged and
+verified from its own bytes, but installing it into `/Applications` needs an
+administrator credential that this session cannot supply: `process.stdin.isTTY` is
+false and `sudo -n` reports "a password is required", and the earlier INSTALL-AUTH
+record established that a prompted SecurityAgent sheet does not render here.
+Nothing was bypassed and no gate was recorded as passing.
+
+- **What is needed:** in your own Terminal,
+  `cd ~/DS_Projects/Mona && npm run mac:install` — it builds,
+  packages, installs with `sudo` (asking only for your password) and re-checks the
+  installed copy. Or `sudo installer -pkg
+  packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg -target /` followed by
+  `npm run mac:package:local`.
+- **What is not proven meanwhile:** that `/Applications/Mona.app` is this build.
+  It is build 168 today. Everything else F03 asks for is in
+  `F03-package-and-install.md`, including the exact re-verification commands and
+  the rollback path.
+
+**F02-LIVE-PHASES — Needs the Human (0 attempts, by design).** The animated
+activity phases (reasoning, tool, writing, waiting, quiet after 45 s,
+reconnecting) need a real provider turn to observe. The projection's truth is
+covered by `test/agent-signal.test.ts`; the *idle and offline* appearance is
+qualified natively (no animation, exact `data-connection`). Watching one real turn
+in the installed build, plus the VoiceOver walkthrough and the aesthetic call,
+are the owner's three remaining judgements.
+
 The following is the prior build's historical blocker record, not a statement
 that this new work has passed native QA.
 

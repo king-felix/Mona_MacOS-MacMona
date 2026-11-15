@@ -5,8 +5,19 @@
   "updated_utc": "2026-11-15",
   "implementation": "integrated on the owner macOS checkout, branch studio-flight-deck off c334cbb; local post-baseline commits preserved",
   "platform_qualified": "macOS 26.5.1 arm64, Electron 45.3.0, real renderer at 100-200% zoom",
-  "installed_build": null,
-  "next": "F03",
+  "installed_build": {
+    "current": {
+      "build": 168,
+      "source": "prior release (344d41c baseline)"
+    },
+    "candidate": {
+      "build": 172,
+      "channel": "local",
+      "package": "packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg",
+      "package_sha256_prefix": "188622428ec59ff1"
+    }
+  },
+  "next": "none — F03 install step is Needs the Human (see blockers)",
   "tasks": {
     "F00": {
       "status": "completed",
@@ -28,12 +39,19 @@
       ]
     },
     "F03": {
-      "status": "pending",
-      "evidence": []
+      "status": "partial",
+      "evidence": [
+        "docs/evidence/macos/studio-flight-deck/F03-package-and-install.md",
+        "docs/evidence/macos/studio-flight-deck/f03-packaged-deck-report.json",
+        "docs/evidence/macos/studio-flight-deck/mac-package.txt"
+      ],
+      "note": "Package built and verified (all pre-install gates plus 200-check deck smoke against the packaged binary). The administrator install into /Applications has not run: this session has no TTY and no credential, so it needs the owner."
     },
     "F04": {
-      "status": "pending",
-      "evidence": []
+      "status": "completed",
+      "evidence": [
+        "docs/evidence/macos/studio-flight-deck/F04-handoff.md"
+      ]
     }
   },
   "automated_source_evidence": "docs/evidence/macos/studio-flight-deck/REVIEW.md",
@@ -52,6 +70,13 @@
       "status": "Needs the Human",
       "no_progress_attempts": 0,
       "next_action": "Watch one real turn in the installed build and confirm the animated phases match what the engine reports; VoiceOver walkthrough of the same screen."
+    },
+    {
+      "id": "F03-INSTALL-AUTH",
+      "scope": "installing build 172 into /Applications",
+      "status": "Needs the Human",
+      "no_progress_attempts": 1,
+      "next_action": "In your own Terminal: cd ~/DS_Projects/Mona && npm run mac:install  (it asks for the administrator password). Then re-run the installed-copy checks listed in F03-package-and-install.md."
     }
   ],
   "human_checks": [
@@ -61,20 +86,24 @@
     "Enter inserts a newline when pressed on a physical keyboard (synthetic key events cannot show the browser default)"
   ],
   "verification": {
-    "platform": "macOS 26.5.1 arm64",
-    "typecheck": "passed",
-    "lint": "0 errors, 3 pre-existing warnings",
-    "format": "passed",
-    "build": "passed",
-    "unit_tests": "1189 passed in 108 files",
-    "native_ci": "npm run ci green except the two documented host issues that were then fixed; see F01",
+    "platform": "macOS 26.5.1 arm64, Electron 45.3.0",
+    "source": "branch studio-flight-deck, 9c60e3b + 3af9b4b + F03/F04 commits",
+    "ci": "npm run ci 25/25 steps, exit 0",
+    "unit_tests": "1,189 passed in 108 files",
     "deck_smoke": {
       "checks": 200,
       "ok": true,
       "report": "docs/evidence/macos/studio-flight-deck/f02-report.json"
     },
-    "native_visual": "passed on the development shell; installed copy still pending (F03)",
-    "native_install": "pending",
-    "ledger": "16 historical source-evidence hashes remain stale by design; see F01"
+    "deck_smoke_packaged": {
+      "checks": 200,
+      "ok": true,
+      "report": "docs/evidence/macos/studio-flight-deck/f03-packaged-deck-report.json",
+      "bundle": "build 172, package sha256 188622428ec59ff1"
+    },
+    "r11": "passed_with_exception (idle memory vs this host 362 MiB Electron floor); idle CPU 0.04%",
+    "ledger": "monabuild validate clean at revision 1534; 32 hashes refreshed individually with notes",
+    "package": "build 172 local channel; all pre-install gates and uninstall rehearsal ok",
+    "installed": "NOT this build — /Applications/Mona.app is build 168; install needs the owner terminal"
   }
 }

@@ -1,0 +1,127 @@
+
+> mona@0.1.0-p02 mac:package:local
+> node packaging/macos/build.mjs --mode local
+
+[p21] mode=local version=0.1.0 build=172 electron=45.3.0
+[p21] building main and renderer bundles
+
+> mona@0.1.0-p02 build
+> npm run clean && npm run build:main && npm run build:renderer
+
+
+> mona@0.1.0-p02 clean
+> rm -rf dist coverage
+
+
+> mona@0.1.0-p02 build:main
+> tsc -p tsconfig.main.json
+
+
+> mona@0.1.0-p02 build:renderer
+> vite build
+
+vite v8.3.8 building client environment for production...
+transforming...
+✓ 163 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/renderer/index.html                       0.76 kB │ gzip:   0.41 kB
+dist/renderer/assets/mona-mark-ChAj1Hvn.png   27.56 kB
+dist/renderer/assets/index-CgjmFBbk.css       97.08 kB │ gzip:  16.45 kB
+dist/renderer/assets/index-JyX3FhP0.js       782.87 kB │ gzip: 214.43 kB
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 118ms
+[p21] building native component with npm run build:supervisor
+
+> mona@0.1.0-p02 build:supervisor
+> node scripts/build-supervisor.mjs
+
+{
+  "schema_version": 1,
+  "ok": true,
+  "binary": "native/macos-supervisor/build/mona-supervisor",
+  "target": "arm64-apple-macos14.0",
+  "arch": "arm64",
+  "sha256": "15db348b18d6b31ab5cc236b94248db9c29d0605e06a4ecdf246d91cb3d422ce",
+  "size": 201920,
+  "compiler": "Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)",
+  "file": "native/macos-supervisor/build/mona-supervisor: Mach-O 64-bit executable arm64",
+  "signature": "ad-hoc",
+  "signed": true,
+  "verified": true,
+  "built_at": "2026-11-15T21:21:33.003Z"
+}
+[p21] building native component with npm run build:pty
+
+> mona@0.1.0-p02 build:pty
+> node scripts/build-pty.mjs
+
+{
+  "schema_version": 1,
+  "ok": true,
+  "binary": "native/macos-pty/build/mona-pty",
+  "target": "arm64-apple-macos14.0",
+  "arch": "arm64",
+  "sha256": "9c23d0387e4fe3de0b743385b224c37e06ba8cbb5c56af5e6b0f71faeadea68b",
+  "size": 105136,
+  "compiler": "Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)",
+  "file": "native/macos-pty/build/mona-pty: Mach-O 64-bit executable arm64",
+  "signature": "ad-hoc",
+  "signed": true,
+  "verified": true,
+  "built_at": "2026-11-15T21:21:34.225Z"
+}
+[p21] building native component with npm run build:service
+
+> mona@0.1.0-p02 build:service
+> node scripts/build-service.mjs
+
+{
+  "schema_version": 1,
+  "ok": true,
+  "bundle": "native/macos-services/build/Mona.service",
+  "target": "arm64-apple-macos14.0",
+  "arch": "arm64",
+  "sha256": "2d342e75ea82e82abc7856a52f8d89e612294acb8ffbefe2e30484cfc7f09b01",
+  "size": 232496,
+  "compiler": "Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)",
+  "file": "native/macos-services/build/Mona.service/Contents/MacOS/MonaService: Mach-O 64-bit executable arm64",
+  "plist_lint": "/Users/basestar/DS_Projects/Mona/native/macos-services/build/Mona.service/Contents/Info.plist: OK",
+  "signature": "ad-hoc",
+  "signed": true,
+  "verified": true,
+  "descriptor": {
+    "app_bundle_identifier": "com.mona.workbench",
+    "bundle_identifier": "com.mona.workbench.service",
+    "bundle_path": "/Users/basestar/DS_Projects/Mona/native/macos-services/build/Mona.service",
+    "executable": "/Users/basestar/DS_Projects/Mona/native/macos-services/build/Mona.service/Contents/MacOS/MonaService",
+    "message": "startProject",
+    "schema_version": 1,
+    "send_file_types": [
+      "public.folder"
+    ],
+    "send_types": [
+      "public.file-url"
+    ],
+    "service": "Start new DS project with Mona"
+  },
+  "built_at": "2026-11-15T21:21:36.303Z"
+}
+[p21] engine 0.10.2 (ff466b2ed0bf) sha256=da0229610647f1cc2dd14c4227b333a92ea276a49f5d4d79160fa19e515e590d
+Packaging app for platform darwin arm64 using electron v45.3.0
+WARNING: Could not find icon "/Users/basestar/DS_Projects/Mona/packaging/macos/out/stage/tools/Mona.icns" with extension ".icon", skipping this app icon format
+[p21] app bundle assembled at Mona.app
+[p21] signing 25 nested components inside-out
+[p21] signed 17 Mach-O files and 8 nested bundles
+[p21] app signed ad-hoc and sealed
+[p21] component package built
+[p21] installer built: Mona-0.1.0-macOS-arm64-local.pkg
+[p21] declared metadata verified: package id com.mona.workbench.pkg, version 0.1.0, build 172, bundles com.mona.workbench + com.mona.workbench.service, arm64 only, macOS 14.0+
+[p21] package report written: sha256=188622428ec59ff1…
+[p21] FAILED: the installed copy at /Applications/Mona.app is not this build; install Mona-0.1.0-macOS-arm64-local.pkg with administrator authorization, or re-run with --install (npm run mac:install) to do it in this run
+package-exit=1
