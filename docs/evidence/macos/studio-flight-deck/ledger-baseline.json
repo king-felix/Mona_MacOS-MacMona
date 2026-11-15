@@ -1,0 +1,38 @@
+{
+  "ok": true,
+  "errors": [],
+  "warnings": [],
+  "state": {
+    "revision": 1483,
+    "current_prompt": "P26",
+    "current_prompt_status": "completed",
+    "tasks": 28
+  },
+  "requirements": {
+    "prompts": 28,
+    "requirements": 38,
+    "dependency_order_head": [
+      "P00",
+      "P01",
+      "P02",
+      "P03",
+      "P04"
+    ]
+  },
+  "attempts": [
+    {
+      "problem_id": "INSTALL-AUTH",
+      "total_attempts": 3,
+      "consecutive_no_progress": 3,
+      "blocked": true,
+      "resolved": false,
+      "last_observed": "0 SecurityAgent windows again; the authorization sheet never renders in this session, so the prompt is unanswerable and osascript blocks",
+      "last_reopen": null,
+      "requirement": "MONA-027"
+    }
+  ],
+  "index": {
+    "digest": "c749bc2139c511aea69fd651d10180c977d345a0e1c8f5f785b27bc2bc8ed128",
+    "clean": true
+  }
+}

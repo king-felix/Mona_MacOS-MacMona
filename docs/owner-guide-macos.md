@@ -85,23 +85,42 @@ shortcut. Navigation never calls a model.
   `rejected`, `canceled`, `stale`. An `unknown` write is never resent.
 - **Pending replies and approvals** arrive as in-app cards. Answering them uses
   the engine's own reply routes; what is shown is what the engine reported.
-- **Activity strip.** Frames, last-event age, tool rows with measured durations
-  and "Needs you" are derived from stored events only — no inference, no invented
-  percentage.
+- **Live activity.** Studio shows Reasoning, Running a tool, Writing a response,
+  or Waiting on agent from the current turn's recorded events. An open reasoning
+  item is evidence of a phase, not proof of continued progress. After 45 seconds
+  without a recent event, the indicator stops animating and says progress cannot
+  be confirmed. Reconnecting, stopped, and Needs the Human are distinct states.
+  Detailed tool records and turn/thread/project usage are under **Telemetry**.
+- **Composer controls.** Submit, Pause after task, and Interrupt now sit above
+  the text box. The secondary row holds file mentions, Queue after turn, queue
+  cancellation, Stop engine, Needs the Human, and Favorites. Follow-ups opens
+  the queue when it has records. Enter inserts a newline; Command-Enter submits.
+  Search opens from the conversation toolbar. The Task/Requirements/Context
+  inspector has been removed; durable work remains on the Work board.
+- **Routine notices.** Successful action receipts float above the workspace and
+  disappear after five seconds, with a brief fade. Hovering or focusing them
+  pauses dismissal. Warnings, uncertain outcomes, and pending approvals remain
+  until acknowledged or resolved. These are in-app receipts; macOS notification
+  permissions are separate.
 
 ## Focus Mode vs fullscreen
 
 These are different things and the app says so:
 
-- **Focus Mode (`⌘⇧F`)** is Mona's own layout: it hides the inspector and keeps
-  the composer and controls. `Escape` leaves it.
+- **Focus Mode (`⌘⇧F`)** hides the navigation rail and keeps the slim dashboard,
+  activity signal, scrollable agent console, and composer inside the window.
+  Output scrolls within the console; it cannot increase the workspace height.
+  The prompt has its own scrollbar and a keyboard/pointer resize handle. At high
+  zoom, optional dashboard facts collapse into Telemetry. Command-K and the
+  dashboard's command button keep navigation available. `Escape` closes a local
+  drawer first, then leaves Focus when the composer/dialog does not own the key.
 - **Full screen (`⌃⌘F`, the green button, or the Studio's Full Screen button)** is
   the operating system's window state. Mona reads it back from the OS, so a
   request that is still animating shows as pending, not as done.
 
 ## Cost, honestly
 
-The usage HUD carries three labelled scopes — **turn**, **thread**, **project** —
+Telemetry contains a usage HUD with three labelled scopes — **turn**, **thread**, **project** —
 read from stored receipts. Five states, only one of them `$0.00`-shaped:
 `waiting`, `empty`, `unpriced`, `partial`, `complete`. Known unknowns:
 

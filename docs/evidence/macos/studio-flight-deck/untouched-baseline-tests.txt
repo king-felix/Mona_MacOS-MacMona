@@ -1,0 +1,173 @@
+
+ RUN  v5.1.0 /tmp/mona-flight-baseline
+
+ ❯ test/folder-request.test.ts (12 tests | 1 failed) 24ms
+   ❯ folder request validation (8)
+     ✓ accepts an absolute folder path 4ms
+     ✓ parses a percent-encoded file URL once and keeps awkward characters intact 1ms
+     × resolves Unicode-normalization differences to the filesystem path 9ms
+     ✓ resolves a symlink to the real folder and records the fact 1ms
+     ✓ refuses a file, a missing path, and the startup disk with concrete codes 1ms
+     ✓ refuses remote file URLs, other schemes, relative paths, empties, and nulls 1ms
+     ✓ accepts file://localhost but never another host 1ms
+     ✓ maps cloud-placeholder and permission failures to honest codes 1ms
+   ✓ launch argument parsing (4)
+     ✓ ignores the app path and finds the folder argument 1ms
+     ✓ honours an explicit --open-folder flag 1ms
+     ✓ returns null when no folder is supplied 0ms
+     ✓ reports a supplied but invalid folder instead of silently ignoring it 1ms
+ ❯ test/runtime-process.test.ts (10 tests | 3 failed | 1 skipped) 273ms
+   ❯ runtime startup states are actionable (9)
+     ✓ refuses a missing workspace before spawning anything 12ms
+     ✓ names a missing executable 3ms
+     ✓ names a non-executable file 1ms
+     × reports an occupied port without spawning a runtime 11ms
+     ✓ rejects a listener outside the supervised tree as a stranger 39ms
+     ✓ names the Runtime-store owner instead of blaming the port 29ms
+     × refuses to start beside a record it cannot prove it owns 5ms
+     × stops a verified orphan record before starting a new owner 169ms
+     ↓ reports a runtime that exits during startup and records the failure
+   ✓ bundled engine resolution (1)
+     ✓ finds the engine inside an app's resources only when it is executable 1ms
+ ❯ test/usage-hud.test.ts (13 tests | 3 failed) 778ms
+   ✓ R09 usage projection (9)
+     ✓ reports no usage as empty, never as $0.00 2ms
+     ✓ waits for an active turn that has not reported yet 0ms
+     ✓ subtracts cached input when the native count is inclusive 1ms
+     ✓ keeps exclusive input and cached input separate 1ms
+     ✓ never invents a subtraction when rows disagree 0ms
+     ✓ marks a partial total and states how many turns are unpriced 1ms
+     ✓ distinguishes unpriced usage from zero spend 0ms
+     ✓ keeps unknown token semantics unknown 0ms
+     ✓ does not count a missing usage row as a priced turn 0ms
+   ❯ R09 scoped usage read (1)
+     × narrows to one conversation and one turn, and keeps the residual project-only 742ms
+   ❯ R09 scope agreement and imported history (1)
+     × agrees with the Cost screen's project total and excludes unassigned rows from a thread 15ms
+   ❯ R09 replay and reconnect (2)
+     × does not double-count a replayed receipt for the same turn 12ms
+     ✓ keeps a turn scope after a reconnect, and reports no active turn as empty 0ms
+ ❯ test/app-icon.test.ts (11 tests | 1 failed) 1023ms
+   ✓ the committed icon master (2)
+     ✓ is the owner's artwork, square, 8-bit RGBA and large enough for 1024 122ms
+     ✓ refuses a master that is not square or too small to be the source 153ms
+   ✓ the PNG codec (3)
+     ✓ round-trips bytes through encode and decode 1ms
+     ✓ refuses a file that is not a PNG at all 0ms
+     ✓ refuses a PNG in a format this build does not decode 1ms
+   ✓ resampling (2)
+     ✓ weights colour by alpha, so a transparent margin cannot darken an edge 0ms
+     ✓ produces one buffer of the requested size for every icon size 143ms
+   ✓ the ICO container (2)
+     ✓ writes a Vista-era directory of PNG entries with the requested sizes 202ms
+     ✓ refuses an empty set and an out-of-range size 65ms
+   ❯ the icon set the bundle ships (1)
+     × writes an .icns and an .ico from the same master 238ms
+   ✓ the installer art (1)
+     ✓ uses the logo's own dark surface and carries the mark bottom-right 93ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/app-icon.test.ts > the icon set the bundle ships > writes an .icns and an .ico from the same master
+Error: sips failed for icon_16x16.png: undefined
+ ❯ buildIconSet packaging/macos/icon.mjs:389:36
+    387|       { encoding: "utf8" },
+    388|     );
+    389|     if (result.status !== 0) throw new Error(`sips failed for ${name}:…
+       |                                    ^
+    390|   }
+    391|   const icns = join(outputDir, "Mona.icns");
+ ❯ test/app-icon.test.ts:158:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+ FAIL  test/folder-request.test.ts > folder request validation > resolves Unicode-normalization differences to the filesystem path
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ test/folder-request.test.ts:65:23
+     63|     const composedInput = join(root, decomposed.normalize("NFC"));
+     64|     const result = resolveFolderRequest(composedInput, "drop");
+     65|     expect(result.ok).toBe(true);
+       |                       ^
+     66|     if (!result.ok) return;
+     67|     expect(result.request.path.normalize("NFC")).toBe(target.normalize…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+ FAIL  test/runtime-process.test.ts > runtime startup states are actionable > reports an occupied port without spawning a runtime
+AssertionError: expected 'SUPERVISOR_UNAVAILABLE' to be 'PORT_IN_USE' // Object.is equality
+
+Expected: "PORT_IN_USE"
+Received: "SUPERVISOR_UNAVAILABLE"
+
+ ❯ test/runtime-process.test.ts:90:53
+     88|       // Port preflight runs before the supervisor is spawned.
+     89|       expect(error).toBeInstanceOf(RuntimeLifecycleError);
+     90|       expect((error as RuntimeLifecycleError).code).toBe("PORT_IN_USE"…
+       |                                                     ^
+     91|       expect((error as RuntimeLifecycleError).action).toContain("port"…
+     92|     } finally {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+
+ FAIL  test/runtime-process.test.ts > runtime startup states are actionable > refuses to start beside a record it cannot prove it owns
+AssertionError: expected 'SUPERVISOR_UNAVAILABLE' to be 'STALE_OWNERSHIP' // Object.is equality
+
+Expected: "STALE_OWNERSHIP"
+Received: "SUPERVISOR_UNAVAILABLE"
+
+ ❯ test/runtime-process.test.ts:180:53
+    178|         port: await findFreePort(),
+    179|       }).catch((caught: unknown) => caught);
+    180|       expect((error as RuntimeLifecycleError).code).toBe("STALE_OWNERS…
+       |                                                     ^
+    181|       expect(unrelated.exitCode).toBeNull();
+    182|     } finally {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
+
+ FAIL  test/runtime-process.test.ts > runtime startup states are actionable > stops a verified orphan record before starting a new owner
+AssertionError: expected 'SUPERVISOR_UNAVAILABLE' to be 'STARTUP_FAILED' // Object.is equality
+
+Expected: "STARTUP_FAILED"
+Received: "SUPERVISOR_UNAVAILABLE"
+
+ ❯ test/runtime-process.test.ts:223:51
+    221|     }).catch((caught: unknown) => caught);
+    222|     // The orphan is gone, so the start proceeds; the fake engine then…
+    223|     expect((error as RuntimeLifecycleError).code).toBe("STARTUP_FAILED…
+       |                                                   ^
+    224|     const record = store.list().find((candidate) => candidate.childPid…
+    225|     expect(record?.state).toBe("stopped");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯
+
+ FAIL  test/usage-hud.test.ts > R09 scoped usage read > narrows to one conversation and one turn, and keeps the residual project-only
+ FAIL  test/usage-hud.test.ts > R09 scope agreement and imported history > agrees with the Cost screen's project total and excludes unassigned rows from a thread
+ FAIL  test/usage-hud.test.ts > R09 replay and reconnect > does not double-count a replayed receipt for the same turn
+StateError: writing the transaction: Provided value cannot be bound to SQLite parameter 12.
+ ❯ mapSqliteError src/main/state/database.ts:191:10
+    189|     });
+    190|   }
+    191|   return new StateError("CORRUPT_DATABASE", `${context}: ${message}`, {
+       |          ^
+    192|     sqlite_code: errcode || null,
+    193|     cause: message,
+ ❯ withTransaction src/main/state/database.ts:146:11
+ ❯ src/main/state/store.ts:1209:14
+ ❯ src/main/state/barrier.ts:33:22
+
+Caused by: Provided value cannot be bound to SQLite parameter 12.
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯
+
+
+ Test Files  4 failed (4)
+      Tests  8 failed | 37 passed | 1 skipped (46)
+   Start at  12:38:41
+   Duration  1.41s (tests 70%, transform 22%, import 8%, worker 1%)

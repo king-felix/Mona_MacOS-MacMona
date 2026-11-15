@@ -239,9 +239,9 @@ describe("Focus Studio dashboard", () => {
     expect(bar).not.toBeNull();
     const text = bar?.textContent ?? "";
     expect(text).toContain("Studio project");
-    expect(text).toContain("Conversation");
-    expect(container!.querySelector('[data-testid="focus-activity"]')?.textContent).toContain(
-      "Connected",
+    expect(text).toContain("STUDIO");
+    expect(container!.querySelector('[data-testid="agent-signal"]')?.textContent).toContain(
+      "Ready for your next idea",
     );
     // Elapsed comes from the snapshot's own `since`, never from a guess.
     expect(container!.querySelector('[data-testid="focus-elapsed"]')?.textContent).toMatch(
@@ -254,7 +254,7 @@ describe("Focus Studio dashboard", () => {
       "$0.0012",
     );
     expect(container!.querySelector('[data-testid="focus-tokens"]')?.textContent).toContain(
-      "1,234 in",
+      "1.2K in",
     );
     // The ordinary context bar is still in the tree but the layout class is
     // what hides it, so a capture can prove it takes no space.
@@ -276,8 +276,8 @@ describe("Focus Studio dashboard", () => {
     );
     const elapsed = container!.querySelector('[data-testid="focus-elapsed"]');
     expect(elapsed?.textContent).toContain("Turn");
-    expect(container!.querySelector('[data-testid="focus-activity"]')?.textContent).toContain(
-      "Turn running",
+    expect(container!.querySelector('[data-testid="agent-signal"]')?.textContent).toContain(
+      "Waiting · no recent activity",
     );
   });
 
@@ -286,10 +286,10 @@ describe("Focus Studio dashboard", () => {
     const onInterrupt = vi.fn();
     render({ focusMode: true, windowFullscreen: WINDOWED, onPause, onInterrupt });
     const pause = Array.from(container!.querySelectorAll("button")).find(
-      (node) => node.textContent?.trim() === "Pause",
+      (node) => node.textContent?.trim() === "Pause after task",
     );
     const interrupt = Array.from(container!.querySelectorAll("button")).find(
-      (node) => node.textContent?.trim() === "Interrupt",
+      (node) => node.textContent?.trim() === "Interrupt now",
     );
     expect(pause?.disabled).toBe(false);
     // No active turn: interrupt is visibly unavailable rather than silently dead.
@@ -305,18 +305,25 @@ describe("Focus Studio dashboard", () => {
       { studio: { connection: { ...studio().connection, state: "not_started" } } },
     );
     const start = Array.from(container!.querySelectorAll("button")).find(
-      (node) => node.textContent?.trim() === "Start",
+      (node) => node.textContent?.trim() === "Start engine",
     );
     expect(start).toBeDefined();
     expect(start?.disabled).toBe(false);
   });
 
-  it("leaves nothing essential behind in the More drawer", () => {
+  it("puts execution controls above the prompt and leaves exact totals in telemetry", () => {
     render({ focusMode: true, windowFullscreen: WINDOWED });
     const drawer = container!.querySelector(".focus-bar__drawer");
-    expect(drawer?.textContent).toContain("Stop engine");
-    expect(drawer?.textContent).toContain("Cancel queued");
-    expect(drawer?.textContent).toContain("Blockers");
+    const controls = container!.querySelector(".composer__command-bar");
+    expect(controls?.textContent).toContain("Stop engine");
+    expect(controls?.textContent).toContain("Cancel queued");
+    expect(controls?.textContent).toContain("Needs the Human");
+    const prompt = container!.querySelector("textarea")!;
+    expect(
+      controls!.compareDocumentPosition(prompt) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(container!.querySelector(".studio__inspector")).toBeNull();
+    expect(container!.querySelector(".control-strip")).toBeNull();
     expect(drawer?.textContent).toContain("project totals from stored turn receipts");
   });
 });
@@ -358,14 +365,13 @@ describe("native full screen control", () => {
   it("offers Enter Full Screen from the ordinary Studio too", () => {
     const onToggleFullscreen = vi.fn();
     render({ focusMode: false, windowFullscreen: WINDOWED, onToggleFullscreen });
-    const control = button("studio-fullscreen");
+    const control = button("focus-fullscreen");
     expect(control.getAttribute("aria-label")).toBe("Enter Full Screen");
     expect(control.disabled).toBe(false);
     act(() => control.click());
     expect(onToggleFullscreen).toHaveBeenCalledTimes(1);
-    // The dashboard is not rendered in this layout; the control is the
-    // context bar's, so the two entry points never double up.
-    expect(container!.querySelector('[data-testid="studio-focus-bar"]')).toBeNull();
+    // Both layouts share one dashboard and one native fullscreen control.
+    expect(container!.querySelectorAll('[data-testid="focus-fullscreen"]')).toHaveLength(1);
   });
 
   it("is unavailable rather than pretending off-macOS", () => {

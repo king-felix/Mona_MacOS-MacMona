@@ -1,3 +1,20 @@
+# Current continuation — Studio flight deck (2026-11-15)
+
+New owner-requested Studio work is prepared against `344d41c` in the
+`codex/studio-flight-deck` branch. **Native visual and install gates are pending.**
+The prior installed build record below is historical; this implementation is not
+installed on the owner's Mac and has not been pushed.
+
+Read `Mona_Studio_Flight_Deck_PROMPTS.md` and `flight-deck.json` in this directory.
+Next action on the owner's checkout: **F00** integration; in this prepared
+worktree the source is already present, so record integration and continue F01.
+Evidence: `docs/evidence/macos/studio-flight-deck/REVIEW.md`. The Linux portable
+suite passes; four files reproduce eight baseline failures and require Mac CI.
+Visual execution is blocked by the host browser boundary (EXT-FLIGHT-VISUAL).
+No original task is silently reopened or credited with new native evidence.
+
+---
+
 # Handoff — Mona macOS build
 
 **Last checkpoint:** 2026-11-15 (P26 QA and P27 release installed; product ledger

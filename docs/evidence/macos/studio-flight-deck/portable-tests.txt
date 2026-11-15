@@ -1,0 +1,146 @@
+
+ RUN  v5.1.0 /workspace/scratch/5636bab4b2ba/macmona-flight-deck
+
+ ✓ test/studio-pending.test.ts (24 tests) 1123ms
+ ✓ test/work-studio.test.ts (25 tests) 1369ms
+ ✓ test/memory-screen.test.tsx (10 tests) 873ms
+ ✓ test/history-paging.test.ts (5 tests) 2459ms
+   ✓ R02 paged stored history (5)
+     ✓ keeps a 10,000+ event project reachable page by page, once each 1938ms
+     ✓ reconstructs a 2,000+ frame item whose beginning predates the page 414ms
+ ✓ test/lint-hooks-gate.test.ts (3 tests) 889ms
+   ✓ react-hooks lint gate (3)
+     ✓ rejects a hook after an early return (the R11 production defect) 851ms
+ ✓ test/r11-a11y.test.tsx (15 tests) 1541ms
+   ✓ R11 bounded console rendering (3)
+     ✓ mounts a measured slice and spacer heights for a long conversation 368ms
+     ✓ says how many cards it is painting when it windows 393ms
+ ✓ test/work-changes.test.ts (20 tests) 939ms
+ ✓ test/state-database.test.ts (14 tests) 715ms
+   ✓ crash injection (1)
+     ✓ survives a crash before, during, and after a transaction 366ms
+Switched to a new branch 'left'
+ ✓ test/studio-screen.test.tsx (38 tests) 1834ms
+   ✓ R03 descriptive command autocomplete (11)
+     ✓ has no serious accessibility violations with the list open 408ms
+Switched to branch 'main'
+ ✓ test/design-components.test.tsx (17 tests) 2210ms
+   ✓ automated accessibility checks (13)
+     ✓ has no serious axe violations on studio 392ms
+     ✓ keeps empty and disconnected states accessible on studio 360ms
+Preparing worktree (new branch 'linked-branch')
+ ✓ test/work-git.test.ts (17 tests) 593ms
+ ✓ test/studio-follow-up.test.ts (9 tests) 706ms
+ ✓ test/settings-workbench.test.ts (28 tests) 666ms
+ ✓ test/memory-shelf.test.ts (14 tests) 338ms
+ ✓ test/update-coordinator.test.ts (23 tests) 437ms
+ ✓ test/work-attempts.test.ts (14 tests) 368ms
+ ✓ test/studio-new-thread.test.ts (18 tests) 562ms
+ ✓ test/runtime-store.test.ts (8 tests) 496ms
+ ✓ test/projects-service.test.ts (11 tests) 336ms
+ ✓ test/work-costs.test.ts (19 tests) 222ms
+ ✓ test/work-agents.test.ts (17 tests) 335ms
+ ✓ test/work-board.test.ts (12 tests) 242ms
+ ✓ test/memory-handoff.test.ts (9 tests) 242ms
+ ✓ test/work-digest.test.ts (7 tests) 213ms
+ ✓ test/memory-search.test.ts (12 tests) 155ms
+ ✓ test/shared-core.test.ts (2 tests) 296ms
+ ✓ test/studio-focus.test.tsx (15 tests) 555ms
+ ✓ test/state-catalog.test.ts (11 tests) 226ms
+ ✓ test/update-screen.test.tsx (7 tests) 348ms
+ ✓ test/changes-screen.test.tsx (4 tests) 335ms
+ ✓ test/runtime-supervisor.test.ts (16 tests) 214ms
+ ✓ test/state-portable.test.ts (7 tests) 366ms
+ ✓ test/terminal-screen.test.tsx (10 tests) 232ms
+ ✓ test/capability-screen.test.tsx (6 tests) 215ms
+ ✓ test/engine-adapter.test.ts (28 tests) 125ms
+ ✓ test/update-recovery.test.ts (11 tests) 182ms
+ ✓ test/agents-screen.test.tsx (5 tests) 257ms
+ ✓ test/terminal-manager.test.ts (16 tests | 2 skipped) 241ms
+ ✓ test/capability.test.ts (12 tests) 140ms
+ ✓ test/r10-conveniences.test.ts (10 tests) 124ms
+ ✓ test/extensions-workbench.test.ts (10 tests) 188ms
+ ✓ test/cost-screen.test.tsx (5 tests) 138ms
+ ✓ test/work-preferences.test.ts (6 tests) 149ms
+ ✓ test/work-notifications.test.ts (14 tests) 116ms
+ ✓ test/release-trust.test.ts (17 tests) 164ms
+ ✓ test/polish-screen.test.tsx (5 tests) 229ms
+ ✓ test/route-settings-reasoning.test.tsx (5 tests) 267ms
+ ✓ test/command-catalog.test.ts (7 tests) 184ms
+ ✓ test/work-polish-service.test.ts (4 tests) 140ms
+ ✓ test/settings-restore.test.ts (5 tests) 130ms
+ ✓ test/state-artifacts.test.ts (5 tests) 89ms
+ ✓ test/window-fullscreen.test.ts (11 tests) 96ms
+ ✓ test/engine-orchestration.test.ts (10 tests) 79ms
+ ✓ test/settings-screen.test.tsx (4 tests) 244ms
+ ✓ test/boundary.test.ts (10 tests) 192ms
+ ✓ test/ipc-contract.test.ts (42 tests) 50ms
+ ✓ test/open-coordinator.test.ts (5 tests) 68ms
+ ✓ test/board-plan-status.test.ts (2 tests) 48ms
+ ✓ test/studio-render.test.tsx (21 tests) 26ms
+ ✓ test/reasoning-support.test.ts (13 tests) 40ms
+ ✓ test/safe-archive.test.ts (12 tests) 18ms
+ ✓ test/update-trust.test.ts (25 tests) 19ms
+ ✓ test/p20-failure-matrix.test.ts (12 tests) 56ms
+ ✓ test/menu-template.test.ts (5 tests) 7ms
+stat: cannot read file system information for '%T': No such file or directory
+ ✓ test/state-paths.test.ts (4 tests) 14ms
+ ✓ test/transient-notice.test.tsx (4 tests) 86ms
+ ✓ test/work-profile.test.ts (5 tests) 37ms
+ ✓ test/contracts.test.ts (15 tests) 20ms
+ ✓ test/command-dispatch.test.ts (15 tests) 28ms
+ ✓ test/tool-discovery.test.ts (5 tests) 10ms
+ ✓ test/engine-sse.test.ts (6 tests) 8ms
+ ✓ test/supervisor-records.test.ts (6 tests) 10ms
+ ✓ test/engine-artifacts.test.ts (15 tests) 11ms
+ ✓ test/command-execution-plan.test.ts (7 tests) 12ms
+ ✓ test/composer-commands.test.ts (14 tests) 15ms
+ ✓ test/shell-session.test.ts (14 tests) 9ms
+ ✓ test/studio-activity.test.ts (8 tests) 9ms
+ ✓ test/update-uninstall.test.ts (6 tests) 10ms
+ ✓ test/update-version.test.ts (5 tests) 13ms
+ ✓ test/zoom.test.ts (8 tests) 9ms
+ ✓ test/timeline-window.test.ts (14 tests) 14ms
+ ✓ test/design-tokens.test.ts (8 tests) 29ms
+ ✓ test/work-control.test.ts (8 tests) 9ms
+ ✓ test/design-no-network.test.ts (4 tests) 10ms
+ ✓ test/package-macos.test.ts (13 tests) 14ms
+ ✓ test/ansi.test.ts (9 tests) 9ms
+ ✓ test/fixtures.test.ts (9 tests) 13ms
+ ✓ test/palette.test.ts (5 tests) 7ms
+ ✓ test/history-pager.test.ts (7 tests) 14ms
+ ✓ test/agent-signal.test.ts (9 tests) 7ms
+ ✓ test/terminal-buffer.test.ts (7 tests) 13ms
+ ✓ test/supervisor-native.test.ts (10 tests | 9 skipped) 5ms
+ ✓ test/work-attention.test.ts (6 tests) 9ms
+ ✓ test/supervisor-identity.test.ts (9 tests) 6ms
+ ✓ test/open-service-status.test.ts (13 tests) 12ms
+ ✓ test/engine-compat.test.ts (4 tests) 6ms
+ ✓ test/navigation.test.ts (6 tests) 5ms
+ ✓ test/open-drop.test.ts (5 tests) 6ms
+ ✓ test/supervisor-restart.test.ts (3 tests) 4ms
+ ✓ test/studio-reasoning-display.test.ts (2 tests) 4ms
+ ✓ test/install-location.test.ts (3 tests) 4ms
+ ✓ test/agent-signal-clock.test.tsx (3 tests) 36ms
+ ✓ test/shell-races.test.tsx (36 tests) 9519ms
+   ✓ shell selection epochs (2)
+     ✓ A→B→A applies the newest load, not the first one for the same project 315ms
+   ✓ shell submission identity (4)
+     ✓ keeps text typed during a send and sends exactly the claimed bytes 797ms
+   ✓ shell draft saving (3)
+     ✓ never reports newer text saved when an older acknowledgement arrives late 1369ms
+     ✓ keeps the text and says so when a save is rejected 778ms
+   ✓ R04 commands dispatch through the typed IPC route (13)
+     ✓ keys the draft to the new conversation after /new 715ms
+     ✓ refuses a conversation-rewriting command while an earlier conversation is selected 302ms
+   ✓ focus Studio and native full screen (6)
+     ✓ turns one deliberate press into one toggle 346ms
+     ✓ stores the layout preference and never the OS full-screen state 502ms
+
+ Test Files  103 passed (103)
+      Tests  1123 passed | 11 skipped (1134)
+   Start at  12:44:40
+   Duration  11.52s (tests 55%, environment 23%, import 16%, transform 5%, worker 1%)
+
+    Isolate  103 workers spawned · ~308ms startup each (spawn + environment, per file)
+             at least ~3.66s faster with isolate: false — reuses workers across files instead of one per file

@@ -1,3 +1,4 @@
+import { TransientNotice } from "./TransientNotice";
 import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent, type JSX } from "react";
 import type {
   AppInfo,
@@ -43,7 +44,6 @@ import {
   Callout,
   Dialog,
   KeyCap,
-  Notification,
   TextField,
   VisuallyHidden,
 } from "../design/primitives";
@@ -194,10 +194,20 @@ export function Shell(): JSX.Element {
   const [showArchived, setShowArchived] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
-  // A notice is only "success" when the reported outcome actually succeeded. A
-  // refused notification is an attention state, not a green confirmation.
-  const [noticeTone, setNoticeTone] = useState<"success" | "attention">("success");
+  const [notice, updateNotice] = useState<{
+    id: number;
+    text: string;
+    tone: "success" | "attention";
+  } | null>(null);
+  const noticeSequence = useRef(0);
+  // Tone and text travel together. An old attention receipt cannot make a
+  // subsequent successful copy sticky, and identical new notices reset time.
+  const setNotice = useCallback(
+    (text: string | null, tone: "success" | "attention" = "success"): void => {
+      updateNotice(text === null ? null : { id: ++noticeSequence.current, text, tone });
+    },
+    [],
+  );
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [paletteQuery, setPaletteQuery] = useState("");
   const [paletteTasks, setPaletteTasks] = useState<TaskView[]>([]);
@@ -333,8 +343,7 @@ export function Shell(): JSX.Element {
       if (result.ok) {
         setCommandCatalog(result.value);
       } else {
-        setNoticeTone("attention");
-        setNotice(`The command catalog could not be read: ${result.error.message}`);
+        setNotice(`The command catalog could not be read: ${result.error.message}`, "attention");
       }
     });
     return () => {
@@ -433,10 +442,9 @@ export function Shell(): JSX.Element {
       text: string,
       tone: "success" | "attention" = "success",
     ): void => {
-      setNoticeTone(tone);
       // A notice about a project the user has left is labelled, not presented
       // as if it described the project on screen.
-      setNotice(epoch.isCurrent(token) ? text : `${projectName} · ${text}`);
+      setNotice(epoch.isCurrent(token) ? text : `${projectName} · ${text}`, tone);
     },
     [epoch],
   );
@@ -900,11 +908,11 @@ export function Shell(): JSX.Element {
       if (intent !== null && !view.pending) {
         fullscreenIntent.current = null;
         if (view.fullscreen !== intent) {
-          setNoticeTone("attention");
           setNotice(
             `macOS did not report a full screen transition. The window is still ${
               view.fullscreen ? "in full screen" : "windowed"
             }.`,
+            "attention",
           );
         }
       }
@@ -1540,11 +1548,9 @@ export function Shell(): JSX.Element {
         if (answered.acknowledged) {
           reportNotice(token, name, `Engine acknowledged the answer. ${answered.note}`);
         } else if (answered.outcome === "expired") {
-          setNoticeTone("attention");
-          reportNotice(token, name, `Nothing was sent: ${answered.note}`);
+          reportNotice(token, name, `Nothing was sent: ${answered.note}`, "attention");
         } else {
-          setNoticeTone("attention");
-          reportNotice(token, name, `The answer was not confirmed. ${answered.note}`);
+          reportNotice(token, name, `The answer was not confirmed. ${answered.note}`, "attention");
         }
         await refreshSelected();
       } finally {
@@ -1601,12 +1607,10 @@ export function Shell(): JSX.Element {
       const name = selectedRef.current?.project.name ?? "Mona";
       const result = await window.mona.copyToClipboard(text, label);
       if (!result.ok) {
-        setNoticeTone("attention");
-        reportNotice(token, name, `Copy failed: ${result.error.message}`);
+        reportNotice(token, name, `Copy failed: ${result.error.message}`, "attention");
         return;
       }
-      setNoticeTone(result.value.written ? "success" : "attention");
-      reportNotice(token, name, result.value.note);
+      reportNotice(token, name, result.value.note, result.value.written ? "success" : "attention");
     },
     [epoch, reportNotice],
   );
@@ -2006,7 +2010,7 @@ export function Shell(): JSX.Element {
 
   return (
     <div
-      className={`harness shell ${focusLayout && screen === "studio" ? "shell--focus" : ""} ${dropActive ? "shell--drop-active" : ""}`}
+      className={`harness shell ${screen === "studio" ? "shell--studio" : ""} ${focusLayout && screen === "studio" ? "shell--focus" : ""} ${dropActive ? "shell--drop-active" : ""}`}
       onDragOver={(event) => {
         if (event.dataTransfer?.types?.includes("Files")) {
           event.preventDefault();
@@ -2173,7 +2177,12 @@ export function Shell(): JSX.Element {
           </Callout>
         ) : null}
         {notice ? (
-          <Notification tone={noticeTone} title={notice} onDismiss={() => setNotice(null)} />
+          <TransientNotice
+            key={notice.id}
+            tone={notice.tone}
+            title={notice.text}
+            onDismiss={() => setNotice(null)}
+          />
         ) : null}
 
         <VisuallyHidden>
@@ -2241,6 +2250,7 @@ export function Shell(): JSX.Element {
             onMode={setStudioMode}
             onOpenFolder={() => void openFolder()}
             onShowBoard={() => setScreen("board")}
+            onOpenPalette={() => setPaletteOpen(true)}
             onStart={() => void startStudio()}
             onSubmit={() => void submitTask()}
             onInterrupt={() => void runStudioAction((id) => window.mona.interruptNow(id))}
@@ -2364,11 +2374,11 @@ export function Shell(): JSX.Element {
               }
               const status = await window.mona.polishStatus();
               if (status.ok) setPolishStatus(status.value);
-              setNoticeTone(result.value.delivered ? "success" : "attention");
               setNotice(
                 result.value.delivered
                   ? "Test notification handed to macOS."
                   : `Notification was not delivered: ${result.value.suppressedReason ?? "unknown reason"}`,
+                result.value.delivered ? "success" : "attention",
               );
             }}
             onQuit={() => setQuitOpen(true)}

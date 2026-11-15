@@ -1041,13 +1041,13 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
   const studio = await window.webContents.executeJavaScript(`(() => ({
     screen: document.documentElement.dataset.screen,
     title: document.querySelector('.context-bar__title')?.textContent ?? null,
-    engine: document.querySelector('.context-bar')?.textContent?.includes('Disconnected') ?? false,
-    engine_not_started: document.querySelector('[data-testid="studio-connection"]')?.textContent?.includes('Not started') ?? false,
+    engine: document.querySelector('[data-testid="agent-signal"]')?.getAttribute('data-connection') === 'not_started',
+    engine_not_started: document.querySelector('[data-testid="agent-signal"]')?.getAttribute('data-connection') === 'not_started',
     draft_present: Boolean(document.querySelector('textarea')),
     draft_text: document.querySelector('textarea')?.value ?? null,
-    send_enabled: Array.from(document.querySelectorAll('button')).some((button) => button.textContent?.includes('Send to engine') && !button.disabled),
+    send_enabled: Array.from(document.querySelectorAll('button')).some((button) => button.textContent?.trim() === 'Submit' && !button.disabled),
     mode_controls: document.querySelectorAll('.segmented__option').length === 2,
-    profile_reported: document.querySelector('[data-testid="studio-profile"]')?.textContent?.includes('deepseek / deepseek-flash') ?? false,
+    profile_reported: document.querySelector('[data-testid="focus-model"]')?.textContent?.includes('deepseek / deepseek-flash') ?? false,
     event_present: document.body.textContent.includes('status.disconnected'),
     fake_percent: /\b\d+%\b/.test(document.body.textContent ?? ''),
     // R08: the current-activity strip and the follow-up queue render from stored
@@ -1067,57 +1067,45 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
     usage_detail: Boolean(document.querySelector('[data-testid="usage-detail"]')),
     usage_turn_state: document.querySelector('[data-testid="usage-turn"]')?.getAttribute('data-state') ?? null,
     horizontal_overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
-    // P23 polish: the agent console is the wide surface, and the task /
-    // requirements / context inspector sits beside the prompt box, not beside
-    // the console. Measure it, so a future CSS edit cannot quietly undo it.
+    // Studio deck: both surfaces span the width, the obsolete inspector is
+    // absent, and the document stays bounded as the transcript scrolls.
     layout: (() => {
       const studioEl = document.querySelector('.studio');
       const consoleEl = document.querySelector('.studio__timeline');
       const composerEl = document.querySelector('.composer');
       const inspectorEl = document.querySelector('.studio__inspector');
-      if (!studioEl || !consoleEl || !composerEl || !inspectorEl) {
+      if (!studioEl || !consoleEl || !composerEl) {
         return { ok: false, reason: 'missing studio regions' };
       }
       const box = (node) => node.getBoundingClientRect();
       const studioRect = box(studioEl);
       const consoleRect = box(consoleEl);
       const composerRect = box(composerEl);
-      const inspectorRect = box(inspectorEl);
       const consoleShare = studioRect.width > 0 ? consoleRect.width / studioRect.width : 0;
-      // Side by side: the inspector starts after the composer ends, and their
-      // vertical ranges overlap, so they really share a row.
-      const beside = inspectorRect.left >= composerRect.right - 1;
-      const sameRow =
-        inspectorRect.top < composerRect.bottom - 1 &&
-        composerRect.top < inspectorRect.bottom - 1;
       return {
         ok: true,
         console_share: Math.round(consoleShare * 100) / 100,
         console_height: Math.round(consoleRect.height),
         console_above_composer: consoleRect.bottom <= composerRect.top + 1,
-        inspector_beside_composer: beside && sameRow,
-        inspector_width: Math.round(inspectorRect.width),
+        inspector_removed: inspectorEl === null,
+        bounded_document: document.documentElement.scrollHeight <= window.innerHeight + 1,
+        console_scrolls: getComputedStyle(consoleEl).overflowY === "auto",
         composer_width: Math.round(composerRect.width),
       };
     })()
   }))()`);
   const composerFits = await window.webContents.executeJavaScript(`(() => {
-    window.scrollTo(0, document.documentElement.scrollHeight);
     const send = document.querySelector('[data-testid="studio-send"]');
-    const strip = document.querySelector('.control-strip');
-    if (!send || !strip) return { ok: false, reason: 'missing send button or strip' };
-    const sendRect = send.getBoundingClientRect();
-    const stripRect = strip.getBoundingClientRect();
-    const covered = Array.from(document.elementsFromPoint(
-      sendRect.left + sendRect.width / 2,
-      sendRect.top + sendRect.height / 2,
-    )).some((node) => strip.contains(node));
-    return {
-      ok: !covered && sendRect.bottom <= stripRect.top + 1 && sendRect.width > 0,
-      send_bottom: Math.round(sendRect.bottom),
-      strip_top: Math.round(stripRect.top),
-      covered,
-    };
+    const controls = document.querySelector('.composer__command-bar');
+    const field = document.querySelector('.composer textarea');
+    if (!send || !controls || !field) return { ok: false, reason: 'missing composer controls' };
+    const rect = send.getBoundingClientRect();
+    const controlsRect = controls.getBoundingClientRect();
+    const fieldRect = field.getBoundingClientRect();
+    const topmost = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
+    return { ok: Boolean(topmost && (topmost === send || send.contains(topmost))) &&
+      controlsRect.bottom <= fieldRect.top + 1 && fieldRect.bottom <= window.innerHeight + 1,
+      controls_bottom: controlsRect.bottom, field_top: fieldRect.top, field_bottom: fieldRect.bottom };
   })()`);
   const studioShot = await window.webContents.capturePage();
   writeFileSync(join(outDir, "p07-shell-studio.png"), studioShot.toPNG());
@@ -1783,7 +1771,7 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
   const focus = await window.webContents.executeJavaScript(`(() => ({
     focus_on: document.querySelector('[data-focus-mode="on"]') !== null,
     inspector_hidden: document.querySelector('[aria-label="Inspector"]') === null,
-    control_strip: document.querySelector('.control-strip') !== null,
+    control_strip: document.querySelector('.composer__command-bar') !== null,
     interrupt_visible: document.body.textContent.includes('Interrupt now'),
     favorites: document.querySelectorAll('.favorite-chip').length,
     no_overflow: document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1,
@@ -2115,7 +2103,7 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
     activity_names_scope:
       typeof studio.activity_scope === "string" && studio.activity_scope.length > 0,
     queue_control_present: studio.queue_control === true,
-    follow_up_queue_present: studio.follow_up_queue === true,
+    empty_follow_up_queue_hidden: studio.follow_up_queue === false && studio.queue_control === true,
     steer_not_offered: studio.steer_absent === true,
     usage_hud_present: studio.usage_hud === true,
     usage_scopes_labelled: studio.usage_scopes === 3,
@@ -2130,7 +2118,7 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
       zoomMenu.reset === "CmdOrCtrl+0",
     zoom_applies_through_menu: Math.abs(zoomAfterClick - 1.1) < 0.001,
     zoom_persisted: zoomStoredFactor === 1.1,
-    composer_above_strip: composerFits.ok === true,
+    composer_controls_above_input: composerFits.ok === true,
     board_ready: boardReady && board.screen === "board",
     task_visible: board.task_present === true,
     board_lanes: board.lanes === 6,
@@ -2176,8 +2164,11 @@ async function runShellSmoke(window: BrowserWindow): Promise<void> {
     studio_console_is_tall: studio.layout.ok === true && studio.layout.console_height >= 340,
     studio_console_above_composer:
       studio.layout.ok === true && studio.layout.console_above_composer === true,
-    studio_inspector_beside_composer:
-      studio.layout.ok === true && studio.layout.inspector_beside_composer === true,
+    studio_inspector_removed: studio.layout.ok === true && studio.layout.inspector_removed === true,
+    studio_bounded_document:
+      studio.layout.ok === true &&
+      studio.layout.bounded_document === true &&
+      studio.layout.console_scrolls === true,
     no_horizontal_overflow:
       home.horizontal_overflow === false &&
       studio.horizontal_overflow === false &&
@@ -2476,7 +2467,7 @@ async function runHistorySmoke(window: BrowserWindow): Promise<void> {
         older_absent: !text.includes('history frame 9850'),
         load_button: Boolean(document.querySelector('[data-testid="studio-load-earlier"]')),
         jump_button: Boolean(document.querySelector('[data-testid="studio-jump-latest"]')),
-        connection: document.querySelector('[data-testid="studio-connection"]')?.textContent ?? null,
+        connection: document.querySelector('[data-testid="agent-signal"]')?.textContent ?? null,
         thread_options: select ? Array.from(select.options).map((option) => option.textContent) : [],
         thread_disabled: select ? select.disabled : null,
       };
@@ -2960,7 +2951,7 @@ async function runR11Smoke(window: BrowserWindow): Promise<void> {
         pane_height: pane ? pane.clientHeight : 0,
         pane_scroll_height: pane ? pane.scrollHeight : 0,
         overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
-        connection: document.querySelector('[data-testid="studio-connection"]')?.textContent ?? null,
+        connection: document.querySelector('[data-testid="agent-signal"]')?.textContent ?? null,
       };
     })()`);
     const storedTotal = Number(String(consoleState.scope ?? "").match(/(\d+) stored/)?.[1] ?? 0);
@@ -3618,7 +3609,7 @@ async function runCommandSmoke(window: BrowserWindow): Promise<void> {
         first: options[0]?.textContent ?? "",
         detail: menu?.querySelector(".command-menu__detail")?.textContent ?? "",
         connection:
-          document.querySelector('[data-testid="studio-connection"]')?.textContent ?? "",
+          document.querySelector('[data-testid="agent-signal"]')?.textContent ?? "",
       };
     })()`);
     facts.initial = initial;
@@ -3920,15 +3911,15 @@ async function runImmersiveSmoke(window: BrowserWindow): Promise<void> {
       same_textarea: Boolean(window.__r05 && window.__r05.textarea === textarea),
       overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
       connection:
-        document.querySelector('[data-testid="focus-activity"]')?.textContent ??
-        document.querySelector('[data-testid="studio-connection"]')?.textContent ??
+        document.querySelector('[data-testid="agent-signal"]')?.getAttribute("data-connection") ??
+        document.querySelector('[data-testid="agent-signal"]')?.textContent ??
         null,
       reachable: {
         send: visible('[data-testid="studio-send"]'),
         fullscreen: visible('[data-testid="studio-fullscreen"]') || visible('[data-testid="focus-fullscreen"]'),
         grip: visible('[data-testid="composer-grip"]'),
         exit: visible('[data-testid="focus-exit"]'),
-        interrupt: visible('[data-testid="studio-focus-bar"] .button--danger'),
+        interrupt: visible('.composer__command-bar .button--danger'),
         timeline: visible('[data-testid="studio-timeline"]'),
       },
       // Why a layout failed, not just that it did: the flex chain and the
@@ -4059,7 +4050,7 @@ async function runImmersiveSmoke(window: BrowserWindow): Promise<void> {
     checks.focus_control_clicked =
       (await evaluate(`(() => {
       const button = Array.from(document.querySelectorAll("button")).find(
-        (node) => (node.textContent ?? "").trim() === "Focus Mode",
+        (node) => node.getAttribute("data-testid") === "focus-exit",
       );
       if (!(button instanceof HTMLElement)) return false;
       button.click();
@@ -4134,7 +4125,7 @@ async function runImmersiveSmoke(window: BrowserWindow): Promise<void> {
     checks.stored_view_recorded_focus_on = storedInFocus?.view?.focusMode === true;
     checks.stored_view_carries_no_fullscreen_key =
       storedInFocus?.view != null && !Object.keys(storedInFocus.view).includes("fullscreen");
-    checks.focus_reports_no_runtime = String(focus.connection ?? "").includes("Not started");
+    checks.focus_reports_no_runtime = String(focus.connection ?? "") === "not_started";
     const focusShot = await window.webContents.capturePage();
     writeFileSync(join(outDir, "r05-focus-windowed.png"), focusShot.toPNG());
     screenshots.push("r05-focus-windowed.png");
@@ -4729,8 +4720,8 @@ async function runAuroraSmoke(window: BrowserWindow): Promise<void> {
       screen: document.documentElement.dataset.screen,
       focus: document.documentElement.dataset.focusMode,
       hidden: document.documentElement.dataset.documentHidden ?? null,
-      plaque: css(".context-bar"),
-      plaque_identity: css(".context-bar__identity"),
+      plaque: css(".studio-deck"),
+      plaque_identity: css(".focus-bar__identity"),
       rail: css(".rail"),
       rail_current: css(".rail__item--current"),
       user_turn: css(".timeline-event--user .timeline-event__body"),
@@ -4841,7 +4832,7 @@ async function runAuroraSmoke(window: BrowserWindow): Promise<void> {
       if (combo.intensity === "vivid") {
         await evaluate(`(() => {
           const button = Array.from(document.querySelectorAll("button")).find(
-            (node) => (node.textContent ?? "").trim() === "Focus Mode",
+            (node) => node.getAttribute("data-testid") === "focus-exit",
           );
           if (button instanceof HTMLElement) button.click();
           return true;
@@ -5103,14 +5094,14 @@ async function runStudioSmoke(window: BrowserWindow): Promise<void> {
   const domFacts = () =>
     window.webContents.executeJavaScript(`(() => {
       const strip = document.querySelector('.control-strip')?.textContent ?? '';
-      const context = document.querySelector('.context-bar')?.textContent ?? '';
+      const context = document.querySelector('.studio-deck')?.textContent ?? '';
       return {
         screen: document.documentElement.dataset.screen,
         title: document.querySelector('.context-bar__title')?.textContent ?? null,
         timeline_entries: document.querySelectorAll('.timeline-event').length,
-        connection: document.querySelector('[data-testid="studio-connection"]')?.textContent ?? null,
-        profile: document.querySelector('[data-testid="studio-profile"]')?.textContent ?? null,
-        cost: document.querySelector('[data-testid="studio-cost"]')?.textContent ?? null,
+        connection: document.querySelector('[data-testid="agent-signal"]')?.textContent ?? null,
+        profile: document.querySelector('[data-testid="focus-model"]')?.textContent ?? null,
+        cost: document.querySelector('[data-testid="focus-cost"]')?.textContent ?? null,
         strip_percent: /\\b\\d+%\\b/.test(strip + context),
         timeline_anchors: document.querySelectorAll('.timeline a[href], .studio a[href]').length,
         injected_nodes: document.querySelectorAll('.timeline script, .timeline img').length,

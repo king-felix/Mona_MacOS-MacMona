@@ -1,0 +1,32 @@
+
+> mona@0.1.0-p02 build
+> npm run clean && npm run build:main && npm run build:renderer
+
+
+> mona@0.1.0-p02 clean
+> rm -rf dist coverage
+
+
+> mona@0.1.0-p02 build:main
+> tsc -p tsconfig.main.json
+
+
+> mona@0.1.0-p02 build:renderer
+> vite build
+
+vite v8.3.8 building client environment for production...
+transforming...
+✓ 163 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/renderer/index.html                       0.76 kB │ gzip:   0.41 kB
+dist/renderer/assets/mona-mark-ChAj1Hvn.png   27.56 kB
+dist/renderer/assets/index-DDTD9Ksf.css       95.68 kB │ gzip:  16.22 kB
+dist/renderer/assets/index-iGADzzFb.js       782.10 kB │ gzip: 214.27 kB
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 117ms

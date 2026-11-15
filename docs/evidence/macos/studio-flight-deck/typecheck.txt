@@ -1,0 +1,4 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> mona@0.1.0-p02 typecheck
+> tsc -p tsconfig.main.json --noEmit && tsc -p tsconfig.renderer.json --noEmit

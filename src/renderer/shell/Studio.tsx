@@ -7,6 +7,7 @@ import {
   useState,
   memo,
   type JSX,
+  type ReactNode,
 } from "react";
 import type {
   ProjectDetail,
@@ -26,24 +27,18 @@ import {
   Callout,
   Card,
   EmptyState,
-  Inspector,
   SegmentedControl,
-  StatusBadge,
-  TabPanel,
-  Tabs,
   TextArea,
-  type WorkStatus,
 } from "../design/primitives";
 import {
-  BranchIcon,
   CheckIcon,
+  CommandIcon,
   ChevronDownIcon,
   ClockIcon,
   CostIcon,
   FolderIcon,
   FullscreenIcon,
   InfoIcon,
-  LockIcon,
   PauseIcon,
   PlayIcon,
   RestoreIcon,
@@ -52,11 +47,12 @@ import {
   TerminalIcon,
   WarningIcon,
 } from "../design/icons";
-import { engineBadge, formatTokens, projectAccent, projectMonogram, relativeTime } from "./visual";
+import { formatTokens, projectAccent, projectMonogram, relativeTime } from "./visual";
 import { Markdown } from "./markdown";
 import { projectTimeline, type TimelineEntry } from "./timeline";
 import { useTimelineWindow } from "./timeline-window";
 import { projectActivity } from "./activity";
+import { AgentSignal } from "./AgentSignal";
 import { UsageHud } from "./UsageHud";
 import { CommandMenu } from "./CommandMenu";
 import {
@@ -109,6 +105,7 @@ export interface StudioProps {
   /** Native full screen as the window reported it; absent in plain embedders. */
   windowFullscreen?: WindowFullscreenView | null;
   onToggleFullscreen?: () => void;
+  onOpenPalette?: () => void;
   favorites: PromptFavorite[];
   onToggleFocus: () => void;
   onUseFavorite: (favorite: PromptFavorite) => void;
@@ -195,43 +192,6 @@ function statusDotClass(
         ? "status-dot--danger"
         : "status-dot--attention";
   return `status-dot ${variant}${live ? " status-dot--live" : ""}`;
-}
-
-function connectionLabel(studio: StudioSnapshot | null, detail: ProjectDetail): string {
-  if (!studio) return engineBadge(detail.engine).label;
-  switch (studio.connection.state) {
-    case "connected":
-      return "Connected";
-    case "running":
-      return "Turn running";
-    case "connecting":
-      return "Connecting";
-    case "reconnecting":
-      return "Reconnecting";
-    case "failed":
-      return "Failed";
-    case "stopped":
-      return "Stopped";
-    default:
-      return "Not started";
-  }
-}
-
-function connectionTone(
-  studio: StudioSnapshot | null,
-  detail: ProjectDetail,
-): "neutral" | "success" | "attention" | "danger" {
-  if (!studio) return engineBadge(detail.engine).tone === "danger" ? "danger" : "neutral";
-  if (studio.connection.state === "connected" || studio.connection.state === "running")
-    return "success";
-  if (studio.connection.state === "failed") return "danger";
-  if (
-    studio.connection.state === "connecting" ||
-    studio.connection.state === "reconnecting" ||
-    studio.connection.state === "stopped"
-  )
-    return "attention";
-  return "neutral";
 }
 
 /**
@@ -631,27 +591,6 @@ function TimelineCardImpl({
  */
 const TimelineCard = memo(TimelineCardImpl);
 
-/** How long the stream has been silent, or null when it is not stalled. */
-function stallSeconds(studio: StudioSnapshot): number | null {
-  const silent = studio.connection.silentForMs;
-  if (silent === null || silent === undefined) return null;
-  // Only a claimed-live connection can be "stalled": a stopped or failed
-  // runtime is already reported by its own state.
-  if (studio.connection.state !== "connected" && studio.connection.state !== "running") {
-    return null;
-  }
-  // A quiet stream during a long model call is normal; 45 s of complete silence
-  // while the engine promises keepalives is not.
-  if (silent < 45_000) return null;
-  return Math.round(silent / 1000);
-}
-
-function formatDuration(seconds: number): string {
-  if (seconds < 90) return `${seconds}s`;
-  const minutes = Math.round(seconds / 60);
-  return `${minutes}m`;
-}
-
 /** Wall-clock elapsed, from a timestamp the studio actually recorded. */
 function formatElapsed(seconds: number): string {
   if (seconds < 60) return `${seconds}s`;
@@ -688,28 +627,22 @@ function Elapsed({ since, live }: { since: string; live: boolean }): JSX.Element
   return <span>{formatElapsed(Math.max(0, Math.round((now - started) / 1000)))}</span>;
 }
 
-interface FocusBarProps {
+interface StudioDeckProps {
+  focusMode: boolean;
+  children?: ReactNode;
   detail: ProjectDetail;
   studio: StudioSnapshot | null;
-  health: { label: string; tone: "neutral" | "success" | "attention" | "danger" };
   focusPreference: boolean;
   fullscreen: WindowFullscreenView | null;
-  canStart: boolean;
-  onStart: () => void;
-  onPause: () => void;
-  onResumeQueue: () => void;
-  onInterrupt: () => void;
-  onCancelQueued: () => void;
-  onStop: () => void;
-  onShowBoard: () => void;
   onToggleFocus: () => void;
   onToggleFullscreen?: () => void;
+  onOpenPalette?: () => void;
 }
 
 /**
  * The immersive dashboard: one row between 44 and 56 logical pixels that keeps
  * the identity, the honest activity state, the elapsed clock, the model, the
- * scoped spend and tokens, and the emergency controls on screen. Everything
+ * scoped spend and tokens on screen. Execution lives above the composer. Everything
  * else moves into the popover, which is opened by a real button rather than a
  * hover, so keyboard and screen-reader users reach it too.
  */
@@ -744,14 +677,18 @@ function ActivityStrip({
       : "selected conversation";
   const label =
     activity.status === "running"
-      ? "Running"
+      ? "Turn open"
       : activity.status === "waiting"
         ? "Waiting for you"
         : activity.status === "idle"
           ? "Idle"
           : "Unknown";
   return (
-    <section className="activity-strip" aria-label="Current activity" data-testid="activity-strip">
+    <section
+      className="activity-strip"
+      aria-label="Recorded turn activity"
+      data-testid="activity-strip"
+    >
       <span
         className={statusDotClass(
           activity.status === "running"
@@ -759,7 +696,7 @@ function ActivityStrip({
             : activity.status === "waiting"
               ? "attention"
               : "neutral",
-          activity.status === "running",
+          false,
         )}
         aria-hidden="true"
       />
@@ -990,14 +927,13 @@ function FollowUpQueue({
   );
 }
 
-function FocusBar(props: FocusBarProps): JSX.Element {
+function StudioDeck(props: StudioDeckProps): JSX.Element {
   const drawerRef = useRef<HTMLDetailsElement | null>(null);
-  const { detail, studio, health, fullscreen } = props;
+  const { detail, studio, fullscreen } = props;
   const { project, usage } = detail;
   const profile = studio?.profile ?? null;
   const effective = profile?.effective ?? null;
   const state = studio?.connection.state ?? "not_started";
-  const blockedTasks = detail.tasks.filter((task) => task.status === "blocked").length;
   const thread = studio?.engineThreadId ?? studio?.threadId ?? null;
   // One derivation per fact, so the narrow layout can move a value into the
   // drawer without ever computing a second, differently-worded answer.
@@ -1014,7 +950,7 @@ function FocusBar(props: FocusBarProps): JSX.Element {
     : "no usage recorded";
   const live = state === "running" || state === "connected";
   return (
-    <header className="focus-bar" data-testid="studio-focus-bar">
+    <header className="focus-bar studio-deck" data-testid="studio-focus-bar">
       <div className="focus-bar__identity">
         <span
           className={`monogram monogram--${projectAccent(project)} monogram--tiny`}
@@ -1023,25 +959,16 @@ function FocusBar(props: FocusBarProps): JSX.Element {
           {projectMonogram(project)}
         </span>
         <div className="focus-bar__names">
-          <span className="focus-bar__project" title={project.rootPath}>
+          <h1 className="focus-bar__project context-bar__title" title={project.rootPath}>
             {project.name}
-          </span>
+          </h1>
           <span className="focus-bar__thread" title={thread ?? "No engine conversation yet"}>
-            {thread ? `Conversation ${thread.slice(-10)}` : "No engine conversation yet"}
-            {studio?.activeTurnId ? ` · turn ${studio.activeTurnId.slice(-8)}` : ""}
+            STUDIO <span aria-hidden="true"> / </span> {detail.branch ?? "Workspace"}
           </span>
         </div>
       </div>
 
       <div className="focus-bar__facts">
-        <span className="fact" data-testid="focus-activity">
-          <span
-            className={statusDotClass(health.tone, studio?.connection.state === "running")}
-            aria-hidden="true"
-          />
-          <span className="fact__label">Engine</span>
-          <span className="fact__value">{health.label}</span>
-        </span>
         <span
           className="fact"
           data-testid="focus-elapsed"
@@ -1088,60 +1015,26 @@ function FocusBar(props: FocusBarProps): JSX.Element {
           title="Project scope: input, output and cached tokens as the engine reported them at each completed turn."
         >
           <span className="fact__label">Tokens</span>
-          <span className="fact__value">{tokensText}</span>
+          <span className="fact__value">
+            {usage.observed
+              ? `${new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 }).format(usage.inputTokens)} in · ${new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 }).format(usage.outputTokens)} out`
+              : "Not recorded"}
+          </span>
         </span>
       </div>
 
       <div className="focus-bar__actions">
-        {props.canStart ? (
+        {props.onOpenPalette ? (
           <Button
             size="sm"
-            variant="secondary"
-            onClick={props.onStart}
-            title="Start the owned runtime for this workspace. Submitting a task also starts it."
+            variant="ghost"
+            aria-label="Open command palette"
+            title="Workspace navigation and actions (⌘K)"
+            onClick={props.onOpenPalette}
           >
-            Start
+            <CommandIcon size={14} />
           </Button>
         ) : null}
-        {studio?.pauseAfterTask ? (
-          <Button
-            size="sm"
-            variant="secondary"
-            icon={<PlayIcon size={14} />}
-            onClick={props.onResumeQueue}
-          >
-            Resume queue
-          </Button>
-        ) : (
-          <Button
-            size="sm"
-            variant="secondary"
-            icon={<PauseIcon size={14} />}
-            disabled={!studio?.controls.canPause}
-            title={
-              studio?.controls.canPause
-                ? "Finish the active task, then start nothing new"
-                : "Pause is a queue boundary; start the engine first"
-            }
-            onClick={props.onPause}
-          >
-            Pause
-          </Button>
-        )}
-        <Button
-          size="sm"
-          variant="danger"
-          icon={<StopIcon size={14} />}
-          disabled={!studio?.controls.canInterrupt}
-          title={
-            studio?.controls.canInterrupt
-              ? "Ask the engine to interrupt the active turn"
-              : "No active turn to interrupt"
-          }
-          onClick={props.onInterrupt}
-        >
-          Interrupt
-        </Button>
         <details
           className="focus-bar__more"
           ref={drawerRef}
@@ -1156,35 +1049,9 @@ function FocusBar(props: FocusBarProps): JSX.Element {
           }}
         >
           <summary className="focus-bar__more-toggle" data-testid="focus-more">
-            More <ChevronDownIcon size={13} />
+            Telemetry <ChevronDownIcon size={13} />
           </summary>
-          <div className="focus-bar__drawer" role="group" aria-label="More Studio controls">
-            <div className="focus-bar__drawer-actions">
-              <Button
-                size="sm"
-                variant="ghost"
-                disabled={!studio?.controls.canCancelQueued}
-                onClick={props.onCancelQueued}
-              >
-                Cancel queued
-              </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                disabled={!studio?.controls.canStop}
-                onClick={props.onStop}
-              >
-                Stop engine
-              </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                icon={<WarningIcon size={14} />}
-                onClick={props.onShowBoard}
-              >
-                {blockedTasks > 0 ? `Blockers (${blockedTasks})` : "Blockers"}
-              </Button>
-            </div>
+          <div className="focus-bar__drawer" role="group" aria-label="Studio telemetry">
             <dl className="detail-list detail-list--tight">
               {/* A narrow window hides some facts from the bar rather than
                   wrapping it. They are never lost: the same values are here,
@@ -1220,7 +1087,9 @@ function FocusBar(props: FocusBarProps): JSX.Element {
                 <dd>
                   {props.focusPreference
                     ? "Focus Studio preference on; stored with the project view and restored as a layout, never as full screen"
-                    : "Focused layout from native full screen; the stored preference is off"}
+                    : fullscreen?.fullscreen
+                      ? "Focused layout from native full screen; the stored preference is off"
+                      : "Studio layout; Focus preference is off"}
                 </dd>
               </div>
               <div className="detail-row">
@@ -1238,24 +1107,25 @@ function FocusBar(props: FocusBarProps): JSX.Element {
                 </div>
               ) : null}
             </dl>
+            {props.children}
           </div>
         </details>
         <Button
           size="sm"
           variant="ghost"
-          aria-label="Leave Focus Studio"
+          aria-label={props.focusMode ? "Exit Focus Studio" : "Focus Studio"}
           title={
             fullscreen?.fullscreen
               ? "Native full screen is providing this layout. Leave full screen first (Control-Command-F or the green button), then this turns the stored preference off."
               : props.focusPreference
                 ? "Leave Focus Studio (Escape also leaves it when the composer and dialogs are closed)"
-                : "Focus Studio is not on for this project"
+                : "Enter Focus Studio"
           }
-          disabled={!props.focusPreference || fullscreen?.fullscreen === true}
+          disabled={fullscreen?.fullscreen === true}
           onClick={props.onToggleFocus}
           data-testid="focus-exit"
         >
-          <RestoreIcon size={14} />
+          <RestoreIcon size={14} /> <span>{props.focusMode ? "Exit Focus" : "Focus"}</span>
         </Button>
         <Button
           size="sm"
@@ -1341,6 +1211,9 @@ export function StudioScreen(props: StudioProps): JSX.Element {
   // without a remount and without a new persisted preference.
   const stageRef = useRef<HTMLDivElement | null>(null);
   const gripRef = useRef<{ y: number; height: number } | null>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [queueOpen, setQueueOpen] = useState(false);
+  const [favoritesOpen, setFavoritesOpen] = useState(false);
   const [composerHeight, setComposerHeight] = useState<number | null>(null);
   // The stage and the composer's own chrome are observed, not assumed. A fixed
   // pixel height would survive a window shrink, a zoom change or a focus
@@ -1348,7 +1221,6 @@ export function StudioScreen(props: StudioProps): JSX.Element {
   // the bound exists to prevent.
   const [stageSize, setStageSize] = useState({ height: 0, chrome: 96, other: 0 });
   useLayoutEffect(() => {
-    if (!props.focusMode) return;
     const stage = stageRef.current;
     const field = composerRef.current;
     if (!stage || !field) return;
@@ -1377,12 +1249,14 @@ export function StudioScreen(props: StudioProps): JSX.Element {
     const observer =
       typeof ResizeObserver === "function" ? new ResizeObserver(() => measure()) : null;
     observer?.observe(stage);
+    const composer = field.closest(".composer");
+    if (composer) observer?.observe(composer);
     window.addEventListener("resize", measure);
     return () => {
       observer?.disconnect();
       window.removeEventListener("resize", measure);
     };
-  }, [props.focusMode]);
+  }, [props.focusMode, props.detail?.project.id]);
   const { detail, studio, history } = props;
   const events = history?.events ?? detail?.events ?? [];
   const eventCount = events.length;
@@ -1514,7 +1388,7 @@ export function StudioScreen(props: StudioProps): JSX.Element {
     // while the check still read "bounded". The text area's maximum is
     // whatever the box has left after that chrome. A three-line composer is a
     // requirement, so the bound never pushes the text area below its 72 px
-    // floor; below that the stage is too short and the page scrolls instead.
+    // floor. The containing stage always stays within the viewport.
     const boxCap = Math.round(stage * 0.42);
     return { min: 72, max: Math.max(72, boxCap - stageSize.chrome) };
   }, [stageSize]);
@@ -1863,8 +1737,6 @@ export function StudioScreen(props: StudioProps): JSX.Element {
     );
   }
 
-  const { project, engine, usage } = detail;
-  const health = { label: connectionLabel(studio, detail), tone: connectionTone(studio, detail) };
   const scope = history?.storedTotal ?? detail.history.storedTotal;
   const followUps = studio?.followUps ?? [];
   // A settled request is history, not a waiting prompt. Only open asks render as
@@ -1877,13 +1749,7 @@ export function StudioScreen(props: StudioProps): JSX.Element {
       request.status === "pending" || request.status === "sending" || request.status === "unknown",
   );
   const blockedTasks = detail.tasks.filter((task) => task.status === "blocked");
-  const currentTask =
-    detail.tasks.find((task) => task.status === "running") ??
-    detail.tasks.find((task) => task.status === "blocked") ??
-    detail.tasks[0] ??
-    null;
   const profile = studio?.profile ?? null;
-  const effective = profile?.effective ?? null;
   // The composer is bound to the studio's current conversation. Reading an
   // older one is a stored read; a send would go to the current conversation,
   // so a task typed here would start somewhere the reader is not looking.
@@ -1900,7 +1766,7 @@ export function StudioScreen(props: StudioProps): JSX.Element {
       (studio === null ? "Mona starts the engine when you submit an explicit task." : null));
   const sendDisabled = commandLine ? props.draft.trim().length === 0 : sendBlocked;
   const sendTitle = commandLine
-    ? "This line is a Codewhale command. Send explains its route; it is never sent to the model."
+    ? "This line is a Codewhale command. Submit explains its route; it is never sent to the model."
     : sendBlocked
       ? (sendReason ?? "A turn is already active")
       : "Submit this task";
@@ -1915,289 +1781,118 @@ export function StudioScreen(props: StudioProps): JSX.Element {
     <div
       className={`screen screen--studio ${props.focusMode ? "screen--studio-focus" : ""}`}
       data-focus-mode={props.focusMode ? "on" : "off"}
+      onKeyDown={(event) => {
+        if (event.key !== "Escape" || !(favoritesOpen || queueOpen || searchOpen)) return;
+        // A transient panel consumes Escape before the shell leaves Focus.
+        event.preventDefault();
+        event.stopPropagation();
+        setFavoritesOpen(false);
+        setQueueOpen(false);
+        setSearchOpen(false);
+      }}
     >
-      {props.focusMode ? (
-        <FocusBar
-          detail={detail}
-          studio={studio}
-          health={health}
-          focusPreference={props.focusPreference ?? props.focusMode}
-          fullscreen={props.windowFullscreen ?? null}
-          canStart={canStart}
-          onStart={props.onStart}
-          onPause={props.onPause}
-          onResumeQueue={props.onResumeQueue}
-          onInterrupt={props.onInterrupt}
-          onCancelQueued={props.onCancelQueued}
-          onStop={props.onStop}
-          onShowBoard={props.onShowBoard}
-          onToggleFocus={props.onToggleFocus}
-          onToggleFullscreen={props.onToggleFullscreen}
+      <StudioDeck
+        focusMode={props.focusMode}
+        detail={detail}
+        studio={studio}
+        focusPreference={props.focusPreference ?? props.focusMode}
+        fullscreen={props.windowFullscreen ?? null}
+        onToggleFocus={props.onToggleFocus}
+        onToggleFullscreen={props.onToggleFullscreen}
+        onOpenPalette={props.onOpenPalette}
+      >
+        <ActivityStrip activity={activity} filterThreadId={history?.threadId ?? null} />
+        <UsageHud
+          usage={studio?.usage}
+          profile={profile}
+          connection={studio?.connection ?? null}
+          readAtLabel={
+            studio?.usage?.provenance.readAt
+              ? new Date(studio.usage.provenance.readAt).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                })
+              : undefined
+          }
         />
-      ) : null}
-      <div className="context-bar">
-        <div className="context-bar__identity">
-          <span className={`monogram monogram--${projectAccent(project)}`} aria-hidden="true">
-            {projectMonogram(project)}
-          </span>
-          <div className="context-bar__text">
-            <h1 className="context-bar__title">{project.name}</h1>
-            <span className="context-bar__path mono" title={project.rootPath}>
-              {project.rootPath}
-            </span>
-          </div>
-        </div>
-        <div className="context-bar__actions">
-          <Button
-            size="sm"
-            variant={props.focusMode ? "primary" : "ghost"}
-            onClick={props.onToggleFocus}
-            title="Focus Mode keeps one task, the timeline, the composer, and the emergency controls. Command-Shift-F toggles it."
-            aria-pressed={props.focusMode}
-          >
-            {props.focusMode ? "Focus Mode on" : "Focus Mode"}
-          </Button>
-          {/* Native full screen is a separate control from the stored layout:
-              it is the OS state, and the menu's Control-Command-F is the same
-              action. One press cannot reach both, because only the menu binds
-              that key. */}
-          <Button
-            size="sm"
-            variant="ghost"
-            icon={<FullscreenIcon size={14} />}
-            aria-label={
-              props.windowFullscreen?.fullscreen ? "Exit Full Screen" : "Enter Full Screen"
+      </StudioDeck>
+
+      <div className="studio-alerts">
+        {connectionState === "failed" ? (
+          <Callout
+            tone="danger"
+            title="The live studio could not connect"
+            action={
+              canStart ? (
+                <Button size="sm" onClick={props.onStart}>
+                  Retry start
+                </Button>
+              ) : undefined
             }
-            aria-pressed={props.windowFullscreen?.fullscreen === true}
-            aria-busy={props.windowFullscreen?.pending === true}
-            title={
-              props.windowFullscreen === null || props.windowFullscreen === undefined
-                ? "This build has no window full screen control"
-                : !props.windowFullscreen.available
-                  ? "Native full screen is only offered on macOS"
-                  : props.windowFullscreen.pending
-                    ? "Waiting for macOS to report the transition"
-                    : "Native macOS full screen (Control-Command-F). The focused layout follows the window's own event."
-            }
-            disabled={!props.windowFullscreen?.available || props.windowFullscreen.pending === true}
-            onClick={props.onToggleFullscreen}
-            data-testid="studio-fullscreen"
           >
-            {props.windowFullscreen?.fullscreen ? "Exit Full Screen" : "Full Screen"}
-          </Button>
-        </div>
-        <div className="context-bar__facts">
-          <span className="fact">
-            <BranchIcon size={14} />
-            <span className="fact__label">Branch</span>
-            <span className="fact__value">{detail.branch ?? "Not a Git repository"}</span>
-          </span>
-          <span className="fact" data-testid="studio-connection">
-            <span
-              className={statusDotClass(health.tone, connectionState === "running")}
-              aria-hidden="true"
-            />
-            <span className="fact__label">Engine</span>
-            <Badge tone={health.tone}>{health.label}</Badge>
-          </span>
-          <span className="fact" data-testid="studio-profile">
-            <SparkIcon size={14} />
-            <span className="fact__label">Model</span>
-            <span className="fact__value">
-              {effective
-                ? `${effective.provider} / ${effective.model}`
-                : profile
-                  ? `${profile.provider} / ${profile.model}`
-                  : "Not reported until the studio reads its profile"}
-            </span>
-            {effective ? (
-              <Badge tone={effective.usedFallback ? "attention" : "neutral"}>Observed</Badge>
-            ) : profile ? (
-              <Badge tone="neutral">Configured</Badge>
-            ) : null}
-          </span>
-          <span className="fact">
-            <LockIcon size={14} />
-            <span className="fact__label">Permission</span>
-            <span className="fact__value">
-              {effective
-                ? effective.permissionPosture
-                : profile
-                  ? `${profile.permissionPosture} (configured)`
-                  : "Unknown"}
-            </span>
-          </span>
-          <span className="fact" data-testid="studio-cost">
-            <CostIcon size={14} />
-            <span className="fact__label">Spend</span>
-            <span className="fact__value">
-              {studio?.cost.label ??
-                (usage.observed
-                  ? usage.costComplete
-                    ? `$${usage.costUsd.toFixed(4)}`
-                    : `At least $${usage.costUsd.toFixed(4)}; some turns unpriced`
-                  : "No usage recorded")}
-            </span>
-          </span>
-        </div>
+            {studio?.connection.reason ?? "The engine is unavailable."} History and drafts remain
+            usable.
+          </Callout>
+        ) : null}
+
+        {openPending.length > 0 ? (
+          <section className="pending-requests" aria-label="Engine requests waiting for you">
+            <ul className="pending-requests__list">
+              {openPending.map((request) => (
+                <PendingRequestCard
+                  key={request.id}
+                  request={request}
+                  busy={props.pendingAnswerId === request.id}
+                  posture={
+                    studio?.profile.effective?.permissionPosture ??
+                    studio?.profile.permissionPosture ??
+                    "unknown"
+                  }
+                  onAnswer={props.onAnswerPending}
+                  onRecheck={props.onStart}
+                />
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
+        {studio?.submission?.status === "outcome_unknown" ? (
+          <Callout
+            tone="attention"
+            title="Submission outcome unknown — reconcile required"
+            action={
+              <Button size="sm" variant="secondary" onClick={props.onReconcile}>
+                Reconcile lookup
+              </Button>
+            }
+          >
+            The response was lost after the write may have been accepted. Mona will not resend it.
+            {studio.submission.note ? ` ${studio.submission.note}` : ""}
+          </Callout>
+        ) : null}
+
+        {studio && studio.connection.missing.length > 0 ? (
+          <Callout tone="attention" title="Some engine events were never received">
+            {studio.connection.missing
+              .slice(0, 3)
+              .map((gap) => (gap.from === gap.to ? `#${gap.from}` : `#${gap.from}–${gap.to}`))
+              .join(", ")}
+            {studio.connection.missing.length > 3
+              ? ` and ${studio.connection.missing.length - 3} more`
+              : ""}{" "}
+            — the timeline below is missing those frames. Mona asked the engine to replay them and
+            recorded the gap rather than inventing content.
+          </Callout>
+        ) : null}
       </div>
-
-      {props.focusMode ? null : connectionState === "failed" ? (
-        <Callout
-          tone="danger"
-          title="The live studio could not connect"
-          action={
-            canStart ? (
-              <Button size="sm" variant="secondary" onClick={props.onStart}>
-                Retry start
-              </Button>
-            ) : undefined
-          }
-        >
-          {studio?.connection.reason ?? "The engine is unavailable."} History and drafts remain
-          usable. Starting an engine is an explicit action, not a model call.
-        </Callout>
-      ) : connectionState === "not_started" ? (
-        <Callout
-          tone="attention"
-          title="Engine not started for this project"
-          action={
-            canStart ? (
-              <Button size="sm" variant="secondary" onClick={props.onStart}>
-                Start engine
-              </Button>
-            ) : undefined
-          }
-        >
-          {studio?.connection.reason ??
-            "Mona has not started its owned runtime in this launch. Starting it is separate from submitting a task; browsing and viewing history make no model call."}
-        </Callout>
-      ) : connectionState === "connecting" ? (
-        <Callout tone="neutral" title="Connecting to the owned runtime">
-          Waiting for a verified loopback listener and an authenticated health answer. No task is
-          sent yet.
-        </Callout>
-      ) : connectionState === "reconnecting" ? (
-        <Callout tone="attention" title="Reconnecting from the first missing event">
-          {studio?.connection.reason ?? "The event stream ended while the turn is active."} Replay
-          advances display state only; it never re-runs a tool.
-        </Callout>
-      ) : studio && stallSeconds(studio) !== null ? (
-        <Callout
-          tone="attention"
-          title={`No engine events for ${formatDuration(stallSeconds(studio) ?? 0)}`}
-          action={
-            canStart ? (
-              <Button size="sm" variant="secondary" onClick={props.onStart}>
-                Reconnect
-              </Button>
-            ) : undefined
-          }
-        >
-          The stream is open but silent. Mona reconnects automatically when the engine's keepalives
-          stop; reconnecting now re-subscribes from the first event it is missing.
-        </Callout>
-      ) : connectionState === "stopped" ? (
-        <Callout
-          tone="attention"
-          title="Runtime stopped"
-          action={
-            canStart ? (
-              <Button size="sm" variant="secondary" onClick={props.onStart}>
-                Start engine
-              </Button>
-            ) : undefined
-          }
-        >
-          The owned runtime is stopped. Work was interrupted, not completed; starting again does not
-          resend it.
-        </Callout>
-      ) : connectionState === "running" ? (
-        <Callout tone="success" title="A turn is running">
-          {studio?.activeTurnId ? `Turn ${studio.activeTurnId}. ` : ""}Pause after task and
-          interrupt now stay visible in the control strip below the composer.
-        </Callout>
-      ) : (
-        <Callout tone="success" title="Runtime connected to this workspace">
-          {studio?.connection.engine
-            ? `Codewhale ${studio.connection.engine.version} (${studio.connection.engine.commit.slice(0, 7)})`
-            : "The engine identity was verified."}
-          {studio?.connection.port ? ` · loopback port ${studio.connection.port}` : ""}. Nothing is
-          sent until you submit a task.
-        </Callout>
-      )}
-
-      {openPending.length > 0 ? (
-        <section className="pending-requests" aria-label="Engine requests waiting for you">
-          <ul className="pending-requests__list">
-            {openPending.map((request) => (
-              <PendingRequestCard
-                key={request.id}
-                request={request}
-                busy={props.pendingAnswerId === request.id}
-                posture={
-                  studio?.profile.effective?.permissionPosture ??
-                  studio?.profile.permissionPosture ??
-                  "unknown"
-                }
-                onAnswer={props.onAnswerPending}
-                onRecheck={props.onStart}
-              />
-            ))}
-          </ul>
-        </section>
-      ) : null}
-
-      {studio?.submission?.status === "outcome_unknown" ? (
-        <Callout
-          tone="attention"
-          title="Submission outcome unknown — reconcile required"
-          action={
-            <Button size="sm" variant="secondary" onClick={props.onReconcile}>
-              Reconcile lookup
-            </Button>
-          }
-        >
-          The response was lost after the write may have been accepted. Mona will not resend it.
-          {studio.submission.note ? ` ${studio.submission.note}` : ""}
-        </Callout>
-      ) : null}
-
-      {studio && studio.connection.missing.length > 0 ? (
-        <Callout tone="attention" title="Some engine events were never received">
-          {studio.connection.missing
-            .slice(0, 3)
-            .map((gap) => (gap.from === gap.to ? `#${gap.from}` : `#${gap.from}–${gap.to}`))
-            .join(", ")}
-          {studio.connection.missing.length > 3
-            ? ` and ${studio.connection.missing.length - 3} more`
-            : ""}{" "}
-          — the timeline below is missing those frames. Mona asked the engine to replay them and
-          recorded the gap rather than inventing content.
-        </Callout>
-      ) : null}
-
-      <ActivityStrip activity={activity} filterThreadId={history?.threadId ?? null} />
-      <UsageHud
-        usage={studio?.usage}
-        profile={profile}
-        connection={studio?.connection ?? null}
-        readAtLabel={
-          studio?.usage?.provenance.readAt
-            ? new Date(studio.usage.provenance.readAt).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-              })
-            : undefined
-        }
-      />
+      <AgentSignal studio={studio} events={events} />
 
       <div className="studio" ref={stageRef}>
         {/* Paging controls stay outside the scrolling console, so Jump to
             latest is reachable without scrolling and Load earlier is never
             hidden by the very history it loads. */}
-        {props.search ? (
+        {props.search && searchOpen ? (
           <div className="history-search" data-testid="studio-search">
             <label className="history-search__field">
               <span className="hint-line">Search conversation</span>
@@ -2271,6 +1966,16 @@ export function StudioScreen(props: StudioProps): JSX.Element {
             {timelineWindow.virtualized ? ` · ${timelineWindow.rendered} painted` : ""}
           </span>
           <span className="timeline__toolbar-actions">
+            {props.search ? (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setSearchOpen((value) => !value)}
+                aria-expanded={searchOpen}
+              >
+                Search
+              </Button>
+            ) : null}
             {history?.hasMore ? (
               <Button
                 size="sm"
@@ -2386,10 +2091,7 @@ export function StudioScreen(props: StudioProps): JSX.Element {
           )}
         </section>
 
-        {/* The console above is the wide surface. The composer and the
-            task/requirements/context inspector share the row beneath it, so a
-            long turn has room to breathe instead of being squeezed into a
-            narrow column beside the inspector. */}
+        {/* The transcript owns the flexible row; the command deck stays in view. */}
         <div className="studio__work">
           <section className="studio__main" aria-label="Task prompt">
             {/* R10: the composer is resizable in every layout, not only the
@@ -2458,66 +2160,244 @@ export function StudioScreen(props: StudioProps): JSX.Element {
               </div>
             }
             <div className="composer">
-              <div className="composer__mode">
-                <SegmentedControl
-                  label="Execution mode"
-                  value={props.mode}
-                  options={[
-                    { value: "plan", label: "Plan" },
-                    { value: "work", label: "Work" },
-                  ]}
-                  onChange={(value) => props.onMode(value === "plan" ? "plan" : "work")}
-                />
-                <span className="hint-line">
-                  {props.mode === "plan"
-                    ? "Plan asks before shell or write actions; it cannot widen to Full Access."
-                    : profile
-                      ? `Work uses the saved Full Access profile: ${profile.provider} / ${profile.model}.`
-                      : "Work uses the saved Full Access profile."}
-                </span>
-              </div>
-              <div className="favorites" aria-label="Prompt favorites">
-                <span className="favorites__label">Favorites</span>
-                {props.favorites.length === 0 ? (
-                  <span className="hint-line">
-                    None saved yet. A favorite is inert local text until you insert it.
-                  </span>
-                ) : (
-                  props.favorites.map((favorite) => (
-                    <span className="favorite-chip" key={favorite.id}>
-                      <button
-                        type="button"
-                        className="favorite-chip__insert"
-                        onClick={() => props.onUseFavorite(favorite)}
-                        title={favorite.text.slice(0, 240)}
-                      >
-                        {favorite.label}
-                      </button>
-                      <button
-                        type="button"
-                        className="favorite-chip__remove"
-                        aria-label={`Remove favorite ${favorite.label}`}
-                        onClick={() => props.onRemoveFavorite(favorite.id)}
-                      >
-                        ×
-                      </button>
+              <div className="composer__command-bar" role="region" aria-label="Execution controls">
+                <div className="composer__primary-controls">
+                  <div
+                    className="composer__mode"
+                    title={
+                      props.mode === "plan"
+                        ? "Plan asks before shell or write actions"
+                        : "Work uses the saved Full Access profile"
+                    }
+                  >
+                    <SegmentedControl
+                      label="Execution mode"
+                      value={props.mode}
+                      options={[
+                        { value: "plan", label: "Plan" },
+                        { value: "work", label: "Work" },
+                      ]}
+                      onChange={(value) => props.onMode(value === "plan" ? "plan" : "work")}
+                    />
+                    <span className="hint-line composer__mode-hint">
+                      {props.mode === "plan"
+                        ? "Plan asks before shell or write actions; it cannot widen to Full Access."
+                        : profile
+                          ? `Work uses the saved Full Access profile: ${profile.provider} / ${profile.model}.`
+                          : "Work uses the saved Full Access profile."}
                     </span>
-                  ))
-                )}
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={props.onRequestSaveFavorite}
-                  disabled={props.draft.trim().length === 0}
-                  title={
-                    props.draft.trim().length === 0
-                      ? "Write a prompt first; Mona saves exactly what is in the composer"
-                      : "Save the composer text as a reusable favorite"
-                  }
-                >
-                  Save prompt…
-                </Button>
+                  </div>
+                  <div className="composer__transport">
+                    {studio?.pauseAfterTask ? (
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        icon={<PlayIcon size={14} />}
+                        className="composer-action--pause"
+                        onClick={props.onResumeQueue}
+                      >
+                        Resume queue
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        icon={<PauseIcon size={14} />}
+                        disabled={!studio?.controls.canPause}
+                        title={
+                          studio?.controls.canPause
+                            ? "Finish the active task, then start nothing new"
+                            : "Pause is a queue boundary; start the engine first"
+                        }
+                        className="composer-action--pause"
+                        onClick={props.onPause}
+                      >
+                        Pause after task
+                      </Button>
+                    )}
+                    <Button
+                      size="sm"
+                      variant="danger"
+                      icon={<StopIcon size={14} />}
+                      disabled={!studio?.controls.canInterrupt || props.studioBusy}
+                      title={
+                        studio?.controls.canInterrupt
+                          ? "Ask the engine to interrupt the active turn; the receipt is shown"
+                          : "No active turn to interrupt"
+                      }
+                      onClick={props.onInterrupt}
+                    >
+                      Interrupt now
+                    </Button>
+                    <Button
+                      variant="primary"
+                      className="composer-action--submit"
+                      size="sm"
+                      icon={<PlayIcon size={15} />}
+                      disabled={sendDisabled}
+                      title={sendTitle}
+                      aria-keyshortcuts="Meta+Enter"
+                      onClick={props.onSubmit}
+                      data-testid="studio-send"
+                    >
+                      Submit
+                    </Button>
+                  </div>
+                </div>
+                <div className="composer__utilities">
+                  {props.onMentionFile ? (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={props.onMentionFile}
+                      title="Insert a workspace file's text into the composer as an explicit, reviewable block. Sizes and an estimated token cost are shown before you insert it."
+                      data-testid="mention-file"
+                    >
+                      Mention file…
+                    </Button>
+                  ) : null}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    disabled
+                    title="Binary attachments are unavailable in the pinned adapter: it accepts text context, not file uploads. Mona will not fabricate one."
+                    data-testid="attach-file"
+                  >
+                    Attach binary
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="composer-action--queue"
+                    size="sm"
+                    disabled={
+                      !props.onQueueFollowUp ||
+                      props.followUpBusy === true ||
+                      props.draft.trim().length === 0 ||
+                      viewingArchivedThread
+                    }
+                    title={
+                      viewingArchivedThread
+                        ? "This is an archived conversation; a follow-up must target the current one"
+                        : props.draft.trim().length === 0
+                          ? "Write the follow-up first"
+                          : "Queue this text for after the current turn. It is stored, not sent; main dispatches it at the next turn boundary."
+                    }
+                    onClick={() => props.onQueueFollowUp?.(props.draft, props.mode)}
+                    data-testid="queue-follow-up"
+                  >
+                    Queue after turn
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    disabled={!studio?.controls.canCancelQueued}
+                    title={
+                      studio?.controls.canCancelQueued
+                        ? "Remove future starts; the active turn is untouched"
+                        : "No queued starts to cancel"
+                    }
+                    className="composer-action--cancel"
+                    onClick={props.onCancelQueued}
+                  >
+                    Cancel queued
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    disabled={!studio?.controls.canStop || props.studioBusy}
+                    title={
+                      studio?.controls.canStop
+                        ? "Interrupt any active turn, then stop the owned process tree"
+                        : "No owned runtime is running"
+                    }
+                    className="composer-action--stop"
+                    onClick={props.onStop}
+                  >
+                    Stop engine
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    icon={<WarningIcon size={14} />}
+                    className="composer-action--human"
+                    onClick={props.onShowBoard}
+                  >
+                    Needs the Human{blockedTasks.length > 0 ? ` (${blockedTasks.length})` : ""}
+                  </Button>
+                  {canStart ? (
+                    <Button size="sm" variant="ghost" onClick={props.onStart}>
+                      Start engine
+                    </Button>
+                  ) : null}
+                  <button
+                    type="button"
+                    className="composer__favorites-toggle"
+                    onClick={() => setFavoritesOpen((value) => !value)}
+                    aria-expanded={favoritesOpen}
+                  >
+                    Favorites
+                  </button>
+                  {followUps.length > 0 ? (
+                    <button
+                      type="button"
+                      className="composer__queue-toggle"
+                      onClick={() => setQueueOpen((value) => !value)}
+                      aria-expanded={queueOpen}
+                    >
+                      Follow-ups ({followUps.filter((item) => item.status === "queued").length})
+                    </button>
+                  ) : null}
+                </div>
               </div>
+              {favoritesOpen ? (
+                <div className="studio__favorites-drawer">
+                  <div className="favorites" aria-label="Prompt favorites">
+                    <span className="favorites__label">Favorites</span>
+                    {props.favorites.length === 0 ? (
+                      <span className="hint-line">
+                        None saved yet. A favorite is inert local text until you insert it.
+                      </span>
+                    ) : (
+                      props.favorites.map((favorite) => (
+                        <span className="favorite-chip" key={favorite.id}>
+                          <button
+                            type="button"
+                            className="favorite-chip__insert"
+                            onClick={() => props.onUseFavorite(favorite)}
+                            title={favorite.text.slice(0, 240)}
+                          >
+                            {favorite.label}
+                          </button>
+                          <button
+                            type="button"
+                            className="favorite-chip__remove"
+                            aria-label={`Remove favorite ${favorite.label}`}
+                            onClick={() => props.onRemoveFavorite(favorite.id)}
+                          >
+                            ×
+                          </button>
+                        </span>
+                      ))
+                    )}
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={props.onRequestSaveFavorite}
+                      disabled={props.draft.trim().length === 0}
+                      title={
+                        props.draft.trim().length === 0
+                          ? "Write a prompt first; Mona saves exactly what is in the composer"
+                          : "Save the composer text as a reusable favorite"
+                      }
+                    >
+                      Save prompt…
+                    </Button>
+                  </div>
+                  <Button size="sm" variant="ghost" onClick={() => setFavoritesOpen(false)}>
+                    Close favorites
+                  </Button>
+                </div>
+              ) : null}
               <div className="composer__input" ref={composerBoxRef}>
                 {/* R11 — the composer carries no `role="combobox"`. ARIA in HTML
                     permits only `textbox` on a `<textarea>`, so the combobox role
@@ -2532,8 +2412,9 @@ export function StudioScreen(props: StudioProps): JSX.Element {
                 <TextArea
                   ref={composerRef}
                   label="Task prompt"
-                  hint="Enter adds a line break. ⌘Enter sends. Type / at line start for Codewhale commands."
-                  placeholder="Describe one concrete outcome, its boundaries, and how to verify it…"
+                  title={sendBlocked ? (sendReason ?? undefined) : undefined}
+                  hint="Enter ↵ new line · ⌘Enter submit · / commands"
+                  placeholder="What shall we build next? Give your agent a direction…"
                   rows={3}
                   style={composerHeight === null ? undefined : { height: `${composerHeight}px` }}
                   value={props.draft}
@@ -2631,7 +2512,8 @@ export function StudioScreen(props: StudioProps): JSX.Element {
                   />
                 ) : null}
               </div>
-              <div className="composer__actions">
+              <div className="composer__footnote">
+                {" "}
                 <div className="composer__left">
                   <span className="hint-line" aria-live="polite">
                     {props.draftStatus === "saving"
@@ -2644,311 +2526,25 @@ export function StudioScreen(props: StudioProps): JSX.Element {
                     {sendReason && sendBlocked ? ` · ${sendReason}` : ""}
                   </span>
                 </div>
-                <div className="composer__right">
-                  {props.onMentionFile ? (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={props.onMentionFile}
-                      title="Insert a workspace file's text into the composer as an explicit, reviewable block. Sizes and an estimated token cost are shown before you insert it."
-                      data-testid="mention-file"
-                    >
-                      Mention file…
-                    </Button>
-                  ) : null}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    disabled
-                    title="Binary attachments are unavailable in the pinned adapter: it accepts text context, not file uploads. Mona will not fabricate one."
-                    data-testid="attach-file"
-                  >
-                    Attach binary
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    disabled={
-                      props.followUpBusy === true ||
-                      props.draft.trim().length === 0 ||
-                      viewingArchivedThread
-                    }
-                    title={
-                      viewingArchivedThread
-                        ? "This is an archived conversation; a follow-up must target the current one"
-                        : props.draft.trim().length === 0
-                          ? "Write the follow-up first"
-                          : "Queue this text for after the current turn. It is stored, not sent; main dispatches it at the next turn boundary."
-                    }
-                    onClick={() => props.onQueueFollowUp?.(props.draft, props.mode)}
-                    data-testid="queue-follow-up"
-                  >
-                    Queue after turn
-                  </Button>
-                  <Button
-                    variant="primary"
-                    icon={<PlayIcon size={15} />}
-                    disabled={sendDisabled}
-                    title={sendTitle}
-                    onClick={props.onSubmit}
-                    data-testid="studio-send"
-                  >
-                    Send to engine
-                  </Button>
-                </div>
               </div>
             </div>
-            <FollowUpQueue
-              items={followUps}
-              busy={props.followUpBusy === true}
-              steering={studio?.steering}
-              turnActive={studio?.activeTurnId != null}
-              onEdit={props.onEditFollowUp}
-              onCancel={props.onCancelFollowUp}
-              onDispatch={props.onDispatchFollowUps}
-            />
+            {queueOpen && followUps.length > 0 ? (
+              <div className="studio__queue-drawer">
+                <FollowUpQueue
+                  items={followUps}
+                  busy={props.followUpBusy === true}
+                  steering={studio?.steering}
+                  turnActive={studio?.activeTurnId != null}
+                  onEdit={props.onEditFollowUp}
+                  onCancel={props.onCancelFollowUp}
+                  onDispatch={props.onDispatchFollowUps}
+                />
+                <Button size="sm" variant="ghost" onClick={() => setQueueOpen(false)}>
+                  Close follow-ups
+                </Button>
+              </div>
+            ) : null}
           </section>
-
-          {props.focusMode ? null : (
-            <aside className="studio__inspector" aria-label="Inspector">
-              <Tabs
-                label="Inspector sections"
-                value={props.inspectorTab}
-                onChange={props.onInspectorTab}
-                tabs={[
-                  { id: "task", label: "Task" },
-                  { id: "requirements", label: "Requirements" },
-                  { id: "context", label: "Context" },
-                ]}
-              />
-              <TabPanel id="task" active={props.inspectorTab === "task"}>
-                {currentTask ? (
-                  <Inspector
-                    title="Current task"
-                    actions={<StatusBadge status={currentTask.status as WorkStatus} />}
-                    label="Current task"
-                  >
-                    <p className="inspector__task-title">{currentTask.title}</p>
-                    <dl className="detail-list">
-                      <div className="detail-row">
-                        <dt>Task</dt>
-                        <dd className="mono">{currentTask.id}</dd>
-                      </div>
-                      <div className="detail-row">
-                        <dt>Updated</dt>
-                        <dd>{relativeTime(currentTask.updatedAt)}</dd>
-                      </div>
-                      <div className="detail-row">
-                        <dt>Depends on</dt>
-                        <dd>
-                          {currentTask.dependsOn.length === 0
-                            ? "Nothing"
-                            : currentTask.dependsOn.join(", ")}
-                        </dd>
-                      </div>
-                    </dl>
-                    <div className="inspector__actions">
-                      <Button size="sm" variant="secondary" onClick={props.onShowBoard}>
-                        Open work board
-                      </Button>
-                    </div>
-                  </Inspector>
-                ) : (
-                  <EmptyState
-                    headingLevel={2}
-                    icon={<ClockIcon size={24} />}
-                    title="No tasks yet"
-                    description="Tasks are created explicitly. Mona does not infer a task or a percentage from project activity."
-                  />
-                )}
-              </TabPanel>
-              <TabPanel id="requirements" active={props.inspectorTab === "requirements"}>
-                {detail.evidence.length === 0 ? (
-                  <EmptyState
-                    headingLevel={2}
-                    icon={<InfoIcon size={24} />}
-                    title="No requirement evidence"
-                    description="Evidence appears here when a task records it. Completion is never inferred from a checked box."
-                  />
-                ) : (
-                  <ul className="requirement-list">
-                    {detail.evidence.map((entry) => (
-                      <li className="requirement-row" key={`${entry.requirementId}-${entry.path}`}>
-                        <span className="requirement-row__id mono">{entry.requirementId}</span>
-                        <span className="requirement-row__title mono">{entry.path}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </TabPanel>
-              <TabPanel id="context" active={props.inspectorTab === "context"}>
-                <Card title="Context" eyebrow="Real local state">
-                  <dl className="detail-list">
-                    <div className="detail-row">
-                      <dt>Connection</dt>
-                      <dd>
-                        {studio
-                          ? `${studio.connection.state}: ${studio.connection.reason}`
-                          : "The studio has not started in this launch"}
-                      </dd>
-                    </div>
-                    <div className="detail-row">
-                      <dt>Submission</dt>
-                      <dd>
-                        {studio?.submission
-                          ? `${studio.submission.status} · ${studio.submission.reconciled ? "reconciled" : "not reconciled"}`
-                          : "No submission recorded"}
-                      </dd>
-                    </div>
-                    <div className="detail-row">
-                      <dt>Repository</dt>
-                      <dd>
-                        {detail.project.repositoryKind === "none"
-                          ? "Plain folder"
-                          : detail.project.repositoryKind}
-                      </dd>
-                    </div>
-                    <div className="detail-row">
-                      <dt>Threads</dt>
-                      <dd>{detail.threads.length}</dd>
-                    </div>
-                    <div className="detail-row">
-                      <dt>Events</dt>
-                      <dd>
-                        {(history?.events.length ?? detail.history.pageSize) + " loaded of "}
-                        {detail.history.storedTotal} stored
-                      </dd>
-                    </div>
-                    <div className="detail-row">
-                      <dt>Runtime</dt>
-                      <dd>{engine.blockedReason ?? "Bound to this workspace"}</dd>
-                    </div>
-                    <div className="detail-row">
-                      <dt>Binding</dt>
-                      <dd className="mono wrap">
-                        {engine.binding
-                          ? `${engine.binding.executable} · ${engine.binding.state}`
-                          : "No runtime binding"}
-                      </dd>
-                    </div>
-                    <div className="detail-row">
-                      <dt>Tokens</dt>
-                      <dd>
-                        {formatTokens(usage.inputTokens)} input · {formatTokens(usage.outputTokens)}{" "}
-                        output
-                      </dd>
-                    </div>
-                  </dl>
-                </Card>
-                {studio && studio.diagnostics.length > 0 ? (
-                  <details className="diagnostics">
-                    <summary>Diagnostics ({studio.diagnostics.length})</summary>
-                    <ul>
-                      {studio.diagnostics.map((entry) => (
-                        <li key={entry}>{entry}</li>
-                      ))}
-                    </ul>
-                  </details>
-                ) : null}
-              </TabPanel>
-            </aside>
-          )}
-        </div>
-      </div>
-
-      <div className="control-strip" role="region" aria-label="Execution controls">
-        <div className="control-strip__status">
-          <span
-            className={statusDotClass(health.tone, studio?.connection.state === "running")}
-            aria-hidden="true"
-          />
-          <span>
-            {studio?.activeTurnId
-              ? `Turn active · ${studio.activeTurnId}`
-              : connectionState === "connected"
-                ? "Runtime connected · no active turn"
-                : `Studio ${connectionState.replace("_", " ")}`}
-            {studio?.pauseAfterTask ? " · paused after this task" : ""}
-            {studio && studio.queued > 0 ? ` · ${studio.queued} queued` : ""}
-            {blockedTasks.length > 0
-              ? ` · ${blockedTasks.length} blocked task${blockedTasks.length === 1 ? "" : "s"}`
-              : ""}
-          </span>
-        </div>
-        <div className="control-strip__actions">
-          {studio?.pauseAfterTask ? (
-            <Button
-              size="sm"
-              variant="secondary"
-              icon={<PlayIcon size={14} />}
-              onClick={props.onResumeQueue}
-            >
-              Resume queue
-            </Button>
-          ) : (
-            <Button
-              size="sm"
-              variant="secondary"
-              icon={<PauseIcon size={14} />}
-              disabled={!studio?.controls.canPause}
-              title={
-                studio?.controls.canPause
-                  ? "Finish the active task, then start nothing new"
-                  : "Pause is a queue boundary; start the engine first"
-              }
-              onClick={props.onPause}
-            >
-              Pause after task
-            </Button>
-          )}
-          <Button
-            size="sm"
-            variant="danger"
-            icon={<StopIcon size={14} />}
-            disabled={!studio?.controls.canInterrupt || props.studioBusy}
-            title={
-              studio?.controls.canInterrupt
-                ? "Ask the engine to interrupt the active turn; the receipt is shown"
-                : "No active turn to interrupt"
-            }
-            onClick={props.onInterrupt}
-          >
-            Interrupt now
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            disabled={!studio?.controls.canCancelQueued}
-            title={
-              studio?.controls.canCancelQueued
-                ? "Remove future starts; the active turn is untouched"
-                : "The queue is empty in P08; prompt queueing arrives with the work board"
-            }
-            onClick={props.onCancelQueued}
-          >
-            Cancel queued
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            disabled={!studio?.controls.canStop || props.studioBusy}
-            title={
-              studio?.controls.canStop
-                ? "Interrupt any active turn, then stop the owned process tree"
-                : "No owned runtime is running"
-            }
-            onClick={props.onStop}
-          >
-            Stop engine
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            icon={<WarningIcon size={14} />}
-            onClick={props.onShowBoard}
-          >
-            Blockers
-          </Button>
         </div>
       </div>
     </div>

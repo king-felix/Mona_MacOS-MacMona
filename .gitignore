@@ -43,3 +43,7 @@ coverage/
 .mona/build-macos/reviews/*/state.json.bak
 .mona/build-macos/reviews/*/*.lock/
 .mona/build-macos/reviews/*/.*.tmp-*
+
+# Owner-supplied implementation kit (kept as a reference subfolder, never committed)
+Mona_Studio_Future_Kit/
+Mona_Studio_Future_Kit.zip

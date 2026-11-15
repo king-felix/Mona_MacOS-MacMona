@@ -1,3 +1,15 @@
+# Studio flight deck qualification — 2026-11-15
+
+**EXT-FLIGHT-VISUAL — Needs the Human / native Mac execution.** Three unsuccessful
+visual execution approaches on the Linux build host are documented in
+`docs/evidence/macos/studio-flight-deck/REVIEW.md`. No more attempts on that
+blocked browser route. The implementation and portable tests can proceed;
+F02 native layout/accessibility qualification and F03 installation remain open.
+The following is the prior build's historical blocker record, not a statement
+that this new work has passed native QA.
+
+---
+
 # Blockers and external prerequisites — Mona macOS build
 
 Open problems that stop a requirement, with the three-attempt count preserved.

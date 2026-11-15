@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "queue": "studio-flight-deck",
+  "baseline": "344d41c3f154d6461bb82d873d6d3541faaa09b9",
+  "updated_utc": "2026-11-15",
+  "implementation": "integrated on the owner macOS checkout, branch studio-flight-deck off c334cbb; local post-baseline commits preserved",
+  "platform_qualified": "macOS 26.5.1 arm64 source checks (typecheck, lint, format, build, 120 focused tests)",
+  "installed_build": null,
+  "next": "F01",
+  "tasks": {
+    "F00": {
+      "status": "completed",
+      "evidence": [
+        "docs/evidence/macos/studio-flight-deck/F00-integration.md"
+      ]
+    },
+    "F01": {
+      "status": "pending",
+      "evidence": []
+    },
+    "F02": {
+      "status": "pending",
+      "evidence": []
+    },
+    "F03": {
+      "status": "pending",
+      "evidence": []
+    },
+    "F04": {
+      "status": "pending",
+      "evidence": []
+    }
+  },
+  "automated_source_evidence": "docs/evidence/macos/studio-flight-deck/REVIEW.md",
+  "blockers": [
+    {
+      "id": "EXT-FLIGHT-VISUAL",
+      "scope": "visual qualification on this Linux execution host",
+      "status": "Needs the Human",
+      "no_progress_attempts": 3,
+      "next_action": "Run the supplied native/renderer checks on the owner Mac; do not retry prohibited cloud browser routes."
+    }
+  ],
+  "human_checks": [
+    "Native 100–200% zoom/fullscreen and visual verification",
+    "VoiceOver spoken walkthrough",
+    "Installed build identity after mac:install"
+  ],
+  "verification": {
+    "portable_tests": {
+      "passed": 1123,
+      "skipped": 11,
+      "files_passed": 103,
+      "excluded_baseline_files": 4
+    },
+    "baseline_tests": {
+      "failed": 8,
+      "passed": 37,
+      "skipped": 1
+    },
+    "additional_live_component_checks": {
+      "passed": 29,
+      "files": 4
+    },
+    "typecheck": "passed",
+    "build": "passed",
+    "lint": "0 errors; 3 existing warnings",
+    "native_visual": "pending",
+    "native_install": "pending",
+    "ledger": "16 stale source-evidence hashes pending requalification; baseline validation passed"
+  }
+}

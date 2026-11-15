@@ -262,18 +262,28 @@ describe("studio screen honesty and safety", () => {
       }),
     });
     const text = container?.textContent ?? "";
-    expect(text).toContain("No engine events for");
-    expect(text).toContain("The stream is open but silent");
+    expect(text).toContain("Waiting · no recent activity");
+    expect(text).toContain("Progress cannot be confirmed");
   });
 
   it("does not cry stall while events are still arriving", () => {
     render({
       studio: studio({
         activeTurnId: "turn_1",
-        connection: { ...studio().connection, state: "running", silentForMs: 3_000 },
+        connection: {
+          ...studio().connection,
+          state: "running",
+          silentForMs: 3_000,
+          lastEventAt: new Date(Date.now() - 3000).toISOString(),
+        },
       }),
     });
-    expect(container?.textContent ?? "").not.toContain("No engine events for");
+    expect(container?.querySelector('[data-testid="agent-signal"]')?.textContent).toContain(
+      "Waiting on agent",
+    );
+    expect(
+      container?.querySelector('[data-testid="agent-signal"]')?.getAttribute("data-animated"),
+    ).toBe("true");
   });
 
   it("shows exactly which engine events are missing from the record", () => {
@@ -1132,6 +1142,11 @@ describe("R10 review conveniences", () => {
         onClear: () => searched.push(""),
       },
     });
+    act(() =>
+      Array.from(container!.querySelectorAll("button"))
+        .find((button) => button.textContent === "Search")
+        ?.click(),
+    );
     expect(container?.textContent).toContain("1 match");
     expect(container?.textContent).toContain("Local read only");
     const result = container?.querySelector(".history-search__hit");

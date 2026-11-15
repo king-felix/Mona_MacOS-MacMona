@@ -1,0 +1,24 @@
+
+ RUN  v5.1.0 /workspace/scratch/5636bab4b2ba/macmona-flight-deck
+
+ ✓ test/agent-signal-clock.test.tsx (3 tests) 46ms
+ ✓ test/studio-focus.test.tsx (15 tests) 559ms
+ ✓ test/design-components.test.tsx (17 tests) 1560ms
+ ✓ test/shell-races.test.tsx (36 tests) 8183ms
+   ✓ shell submission identity (4)
+     ✓ keeps text typed during a send and sends exactly the claimed bytes 742ms
+     ✓ a switch during a send leaves the new project's draft untouched 362ms
+   ✓ shell draft saving (3)
+     ✓ never reports newer text saved when an older acknowledgement arrives late 1314ms
+     ✓ keeps the text and says so when a save is rejected 764ms
+   ✓ R04 commands dispatch through the typed IPC route (13)
+     ✓ keys the draft to the new conversation after /new 702ms
+   ✓ focus Studio and native full screen (6)
+     ✓ stores the layout preference and never the OS full-screen state 411ms
+   ✓ R10 search is scoped to the project it was run in (1)
+     ✓ drops results and the jump anchor when another project opens 334ms
+
+ Test Files  4 passed (4)
+      Tests  71 passed (71)
+   Start at  12:46:21
+   Duration  9.85s (tests 67%, environment 25%, transform 4%, import 4%)

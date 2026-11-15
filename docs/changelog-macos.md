@@ -7,6 +7,23 @@ what each build changed and, where a decision shaped the product, its reference 
 are `git rev-list --count HEAD` at package time, so they are monotonic but not
 semantic.
 
+## Unreleased — Studio flight deck (2026-11-15)
+
+Implementation prepared against `344d41c`; native visual and installed-build
+qualification pending. This entry does not replace build 168's release evidence.
+
+- Bound Studio and Focus to the viewport; transcript and prompt scroll internally.
+- Remove the Studio inspector and duplicate execution/status bands.
+- Rename Submit and move colored execution controls above the prompt.
+- Add observed activity phases, local motion, last-event age, quiet/disconnected
+  states, and Needs the Human. No additional model calls.
+- Collapse telemetry, search, favorites, and follow-ups into deliberate controls.
+- Expire successful in-app notices after five seconds; pause on hover/focus.
+  Keep actionable warnings. Store tone and text together to prevent stale tone.
+- Adapt dashboard/rail/composer at narrow or short logical viewports; preserve
+  drafts, Command-Enter, slash commands, history virtualization, and permissions.
+- Add state/timer regression tests and a portable browser fixture/smoke runner.
+
 ## 0.1.0 — build 165 (2026-11-14)
 
 The build qualified by P26/P27.

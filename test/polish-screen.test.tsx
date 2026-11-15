@@ -507,16 +507,16 @@ describe("Studio Focus Mode", () => {
     act(() => root?.render(<StudioScreen {...baseProps} focusMode={true} />));
     expect(container?.querySelector('[data-focus-mode="on"]')).toBeTruthy();
     expect(container?.querySelector('[aria-label="Inspector"]')).toBeNull();
-    expect(container?.querySelector(".control-strip")).toBeTruthy();
+    expect(container?.querySelector(".composer__command-bar")).toBeTruthy();
     expect(container?.textContent).toContain("Interrupt now");
     expect(container?.textContent).toContain("Pause after task");
     expect(container?.textContent).toContain("Review");
   });
 
-  it("shows the inspector when Focus Mode is off", () => {
+  it("removes the inspector from the ordinary Studio too", () => {
     act(() => root?.render(<StudioScreen {...baseProps} focusMode={false} />));
     expect(container?.querySelector('[data-focus-mode="off"]')).toBeTruthy();
-    expect(container?.querySelector('[aria-label="Inspector"]')).toBeTruthy();
+    expect(container?.querySelector('[aria-label="Inspector"]')).toBeNull();
   });
 });
 

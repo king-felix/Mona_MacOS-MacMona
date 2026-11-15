@@ -1,0 +1,4 @@
+
+> mona@0.1.0-p02 typecheck
+> tsc -p tsconfig.main.json --noEmit && tsc -p tsconfig.renderer.json --noEmit
+

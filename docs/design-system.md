@@ -113,11 +113,12 @@ Fixture-backed screens (clearly labeled **TEST FIXTURE — NOT LIVE STATE**):
 
 - **Home** — pinned/recent projects, health badges, needs-attention list,
   deterministic "since you left" digest; empty state for a first folder.
-- **Studio** — context bar (project, branch, engine, model, permission, spend,
-  palette), scrollable timeline with 40 events, composer with Plan/Work and
-  permission note, persistent Pause after task / Interrupt now / blockers strip,
-  inspector tabs (Task, Requirements, Context); disconnected and unknown-cost
-  states.
+- **Studio** — compact project/model/spend dashboard, observed activity signal,
+  internally scrolling transcript, and a composer with top-mounted controls.
+  The former inspector and bottom strip are removed from the live Studio.
+  Telemetry carries exact totals and diagnostic detail. The original design
+  harness remains a historical fixture; `test/fixtures/studio-deck.tsx` renders
+  the current Studio with explicit local test records for geometry checks.
 - **Work board** — Running, Unstarted, Needs attention, Verified lanes; long
   titles, dependency chips, no invented percentages, blocker handoff.
 - **Cost lens** — observed spend with an explicit "at least" qualifier, unpriced

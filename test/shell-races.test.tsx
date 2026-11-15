@@ -1338,9 +1338,7 @@ describe("focus Studio and native full screen", () => {
 
   it("follows the window's transition, not the request", async () => {
     const state = await openStudioInFocus();
-    const control = container!.querySelector<HTMLButtonElement>(
-      '[data-testid="studio-fullscreen"]',
-    );
+    const control = container!.querySelector<HTMLButtonElement>('[data-testid="focus-fullscreen"]');
     expect(control).not.toBeNull();
     act(() => control!.click());
     await tick(4);
@@ -1366,7 +1364,7 @@ describe("focus Studio and native full screen", () => {
     });
     await tick(4);
     expect(container!.querySelector(".shell--focus")).toBeNull();
-    expect(container!.querySelector('[data-testid="studio-focus-bar"]')).toBeNull();
+    expect(container!.querySelectorAll('[data-testid="studio-focus-bar"]')).toHaveLength(1);
   });
 
   it("keeps the composer element, text and selection across a layout change", async () => {
@@ -1413,7 +1411,7 @@ describe("focus Studio and native full screen", () => {
   it("says so when macOS refuses the transition instead of failing silently", async () => {
     const state = await openStudioInFocus();
     act(() => {
-      container!.querySelector<HTMLButtonElement>('[data-testid="studio-fullscreen"]')!.click();
+      container!.querySelector<HTMLButtonElement>('[data-testid="focus-fullscreen"]')!.click();
     });
     await tick(3);
     // Main publishes the pending observation, then drops the intent: the window
@@ -1425,7 +1423,7 @@ describe("focus Studio and native full screen", () => {
     });
     await tick(2);
     expect(
-      container!.querySelector('[data-testid="studio-fullscreen"]')?.getAttribute("aria-busy"),
+      container!.querySelector('[data-testid="focus-fullscreen"]')?.getAttribute("aria-busy"),
     ).toBe("true");
     act(() => {
       for (const listener of state.fullscreenListeners) {
@@ -1502,6 +1500,11 @@ describe("R10 search is scoped to the project it was run in", () => {
     }
     await boot(state);
     await openProject(A, "A");
+    act(() =>
+      Array.from(container!.querySelectorAll("button"))
+        .find((button) => button.textContent === "Search")
+        ?.click(),
+    );
     const field = container!.querySelector<HTMLInputElement>(".history-search input");
     if (!field) throw new Error("the search field is not rendered");
     act(() => {
@@ -1519,6 +1522,11 @@ describe("R10 search is scoped to the project it was run in", () => {
     await goHome();
     await openProject(B, "B");
     await tick(4);
+    act(() =>
+      Array.from(container!.querySelectorAll("button"))
+        .find((button) => button.textContent === "Search")
+        ?.click(),
+    );
     const after = container!.querySelector<HTMLInputElement>(".history-search input");
     expect(after?.value).toBe("");
     expect(container!.textContent).not.toContain(`${A} stored text mentions parser`);

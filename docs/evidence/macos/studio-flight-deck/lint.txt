@@ -1,0 +1,16 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> mona@0.1.0-p02 lint
+> eslint .
+
+
+/workspace/scratch/5636bab4b2ba/macmona-flight-deck/test/engine-adapter.test.ts
+  19:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/workspace/scratch/5636bab4b2ba/macmona-flight-deck/test/engine-orchestration.test.ts
+  8:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/workspace/scratch/5636bab4b2ba/macmona-flight-deck/test/work-agents.test.ts
+  236:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 3 problems (0 errors, 3 warnings)

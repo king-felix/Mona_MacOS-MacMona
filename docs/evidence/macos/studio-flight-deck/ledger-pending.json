@@ -1,0 +1,67 @@
+{
+  "ok": false,
+  "errors": [
+    "evidence hash is stale (re-run monabuild evidence): P02:src/main/index.ts",
+    "evidence hash is stale (re-run monabuild evidence): P02:src/renderer/styles.css",
+    "evidence hash is stale (re-run monabuild evidence): P04:src/main/index.ts",
+    "evidence hash is stale (re-run monabuild evidence): P06:docs/design-system.md",
+    "evidence hash is stale (re-run monabuild evidence): P09:src/main/index.ts",
+    "evidence hash is stale (re-run monabuild evidence): P09:src/renderer/shell/Shell.tsx",
+    "evidence hash is stale (re-run monabuild evidence): P09:src/renderer/styles.css",
+    "evidence hash is stale (re-run monabuild evidence): P10:src/main/index.ts",
+    "evidence hash is stale (re-run monabuild evidence): P10:src/renderer/styles.css",
+    "evidence hash is stale (re-run monabuild evidence): P18:src/main/index.ts",
+    "evidence hash is stale (re-run monabuild evidence): P18:src/renderer/shell/Shell.tsx",
+    "evidence hash is stale (re-run monabuild evidence): P18:src/renderer/styles.css",
+    "evidence hash is stale (re-run monabuild evidence): P19:.mona/build-macos/HANDOFF.md",
+    "evidence hash is stale (re-run monabuild evidence): P21:.mona/build-macos/HANDOFF.md",
+    "evidence hash is stale (re-run monabuild evidence): P24:docs/owner-guide-macos.md",
+    "evidence hash is stale (re-run monabuild evidence): P27:docs/changelog-macos.md"
+  ],
+  "warnings": [
+    "index: .mona/build-macos/attempts.jsonl changed since the last index write"
+  ],
+  "state": {
+    "revision": 1483,
+    "current_prompt": "P26",
+    "current_prompt_status": "completed",
+    "tasks": 28
+  },
+  "requirements": {
+    "prompts": 28,
+    "requirements": 38,
+    "dependency_order_head": [
+      "P00",
+      "P01",
+      "P02",
+      "P03",
+      "P04"
+    ]
+  },
+  "attempts": [
+    {
+      "problem_id": "INSTALL-AUTH",
+      "total_attempts": 3,
+      "consecutive_no_progress": 3,
+      "blocked": true,
+      "resolved": false,
+      "last_observed": "0 SecurityAgent windows again; the authorization sheet never renders in this session, so the prompt is unanswerable and osascript blocks",
+      "last_reopen": null,
+      "requirement": "MONA-027"
+    },
+    {
+      "problem_id": "EXT-FLIGHT-VISUAL",
+      "total_attempts": 3,
+      "consecutive_no_progress": 3,
+      "blocked": true,
+      "resolved": false,
+      "last_observed": "Loopback was unreachable; file URLs were explicitly rejected by browser policy. Stopped browser work. Native Mac qualification is still pending; no workaround attempted.",
+      "last_reopen": null,
+      "requirement": "MONA-028"
+    }
+  ],
+  "index": {
+    "digest": "c749bc2139c511aea69fd651d10180c977d345a0e1c8f5f785b27bc2bc8ed128",
+    "clean": false
+  }
+}

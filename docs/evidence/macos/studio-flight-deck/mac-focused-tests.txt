@@ -1,0 +1,32 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.1.0 [39m[90m/Users/basestar/DS_Projects/Mona[39m
+
+ [32m✓[39m test/studio-activity.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m test/agent-signal.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m test/transient-notice.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 42[2mms[22m[39m
+ [32m✓[39m test/agent-signal-clock.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32m✓[39m test/polish-screen.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 93[2mms[22m[39m
+Not implemented: HTMLCanvasElement's getContext() method: without installing the @napi-rs/canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the @napi-rs/canvas npm package
+ [32m✓[39m test/studio-focus.test.tsx [2m([22m[2m15 tests[22m[2m)[22m[32m 201[2mms[22m[39m
+Not implemented: HTMLCanvasElement's getContext() method: without installing the @napi-rs/canvas npm package
+Not implemented: HTMLCanvasElement's getContext() method: without installing the @napi-rs/canvas npm package
+ [32m✓[39m test/studio-deck-accessibility.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 212[2mms[22m[39m
+Not implemented: HTMLCanvasElement's getContext() method: without installing the @napi-rs/canvas npm package
+ [32m✓[39m test/studio-screen.test.tsx [2m([22m[2m38 tests[22m[2m)[22m[33m 447[2mms[22m[39m
+ [32m✓[39m test/shell-races.test.tsx [2m([22m[2m36 tests[22m[2m)[22m[33m 5531[2mms[22m[39m
+   [32m✓[39m shell submission identity [2m(4)[22m
+     [33m[2m✓[22m[39m keeps text typed during a send and sends exactly the claimed bytes[33m 682[2mms[22m[39m
+   [32m✓[39m shell draft saving [2m(3)[22m
+     [33m[2m✓[22m[39m never reports newer text saved when an older acknowledgement arrives late[33m 1266[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps the text and says so when a save is rejected[33m 660[2mms[22m[39m
+   [32m✓[39m R04 commands dispatch through the typed IPC route [2m(13)[22m
+     [33m[2m✓[22m[39m keys the draft to the new conversation after /new[33m 654[2mms[22m[39m
+   [32m✓[39m focus Studio and native full screen [2m(6)[22m
+     [33m[2m✓[22m[39m stores the layout preference and never the OS full-screen state[33m 405[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m9 passed[39m[22m[90m (9)[39m
+[2m      Tests [22m [1m[32m120 passed[39m[22m[90m (120)[39m
+[2m   Start at [22m 13:27:50
+[2m   Duration [22m 6.35s[2m (tests 63%, environment 24%, transform 7%, import 6%)[22m
+
