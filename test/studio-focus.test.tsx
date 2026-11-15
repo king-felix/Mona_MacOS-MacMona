@@ -304,6 +304,11 @@ describe("Focus Studio dashboard", () => {
       { focusMode: true, windowFullscreen: WINDOWED },
       { studio: { connection: { ...studio().connection, state: "not_started" } } },
     );
+    // Secondary engine control: inside the on-demand panel that the bar opens.
+    const more = container!.querySelector('[data-testid="composer-more"]') as HTMLElement | null;
+    expect(more).not.toBeNull();
+    expect(more!.closest(".composer__command-bar")).not.toBeNull();
+    act(() => more!.click());
     const start = Array.from(container!.querySelectorAll("button")).find(
       (node) => node.textContent?.trim() === "Start engine",
     );
@@ -315,9 +320,18 @@ describe("Focus Studio dashboard", () => {
     render({ focusMode: true, windowFullscreen: WINDOWED });
     const drawer = container!.querySelector(".focus-bar__drawer");
     const controls = container!.querySelector(".composer__command-bar");
-    expect(controls?.textContent).toContain("Stop engine");
-    expect(controls?.textContent).toContain("Cancel queued");
-    expect(controls?.textContent).toContain("Needs the Human");
+    // The primary controls are always in the bar; the secondary ones are one
+    // disclosure away, still above the prompt and still real.
+    expect(controls?.textContent).toContain("Submit");
+    expect(controls?.textContent).toContain("Interrupt now");
+    act(() =>
+      (controls?.querySelector('[data-testid="composer-more"]') as HTMLElement | null)?.click(),
+    );
+    const panel = controls?.querySelector(".composer__utilities");
+    expect(panel).not.toBeNull();
+    expect(panel?.textContent).toContain("Stop engine");
+    expect(panel?.textContent).toContain("Cancel queued");
+    expect(panel?.textContent).toContain("Needs the Human");
     const prompt = container!.querySelector("textarea")!;
     expect(
       controls!.compareDocumentPosition(prompt) & Node.DOCUMENT_POSITION_FOLLOWING,

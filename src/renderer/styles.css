@@ -1855,6 +1855,20 @@ a {
 .screen--studio {
   padding-bottom: 84px;
 }
+/* FD-05 — the deck fills its viewport instead of sizing to its own content.
+   Without a definite height here the stage only ever reached `min-content`, so
+   at 150 % page zoom the console was measured at 70 px while 102 px of the main
+   column sat unused below the composer. The chain is: grid row (1fr) → main
+   (flex column) → screen (flex 1) → stage (flex 1) → console (flex 1). */
+.shell--studio .harness__main {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.shell--studio .screen--studio {
+  flex: 1 1 0;
+  min-height: 0;
+}
 
 .studio__timeline {
   background: var(--surface);
@@ -2694,6 +2708,25 @@ a {
 @media (max-width: 940px) {
   .harness {
     grid-template-columns: 1fr;
+    /* Rows are declared, not left to auto-placement: with two auto rows and a
+       `min-height: 100vh` container, the browser stretched the rail row to half
+       the free space and the strip rendered 293 px tall at 150 % page zoom —
+       which pushed the Studio console down to 22 px. The nav strip is
+       `min-content`; the screen keeps the rest. */
+    grid-template-rows: min-content minmax(0, 1fr);
+    align-content: start;
+  }
+  /* Placement is explicit so the screen always owns the second row. With the
+     rail hidden (Studio below 820 px) the main column is the only grid child and
+     auto-placement put it in the `min-content` row — a 46 px screen at 200 %
+     page zoom, with the deck rendering outside it. */
+  .harness > .rail {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .harness > .harness__main {
+    grid-column: 1;
+    grid-row: 2;
   }
 
   /* The rail becomes a full-width strip at this width (which includes 200 %
@@ -5312,8 +5345,21 @@ a {
   display: flex;
   align-items: center;
   gap: 12px;
-  flex-wrap: wrap;
+  /* One row, always. Wrapping turned the bar into three rows (66 px) at 450 CSS
+     px — a 900×620 window at 200 % zoom — and took the room from the console.
+     The scope sentence elides instead; the full count stays in its title. */
+  flex-wrap: nowrap;
+  min-width: 0;
   padding: 0 2px;
+}
+.timeline__toolbar > .hint-line {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.timeline__toolbar-actions {
+  flex: none;
 }
 
 .timeline__thread {
@@ -5704,8 +5750,12 @@ a {
 }
 
 .command-menu__body {
+  /* Grows into whatever the head, foot and detail pane leave, and never below
+     the floor: the list is the panel's purpose. Without the floor a short panel
+     (a small window, or 200% page zoom on the taller Studio composer) let the
+     detail pane squeeze the list to a single clipped row. */
   flex: 1 1 auto;
-  min-height: 0;
+  min-height: 96px;
   overflow-y: auto;
   overscroll-behavior: contain;
 }
@@ -5779,6 +5829,9 @@ a {
 }
 
 .command-menu__detail {
+  /* Holds its 156 px cap while it is shown; the Studio drops it entirely below
+     COMMAND_MENU_DETAIL_MIN_PANEL, which is exactly head + foot + this cap +
+     the list floor, so it can never displace the list or the footer. */
   flex: 0 0 auto;
   border-top: 1px solid var(--border);
   padding: 8px 12px;
@@ -6467,14 +6520,35 @@ a {
 .composer__mode-hint {
   display: none;
 }
+/* FD-09 — one on-demand panel, anchored above the bar so opening it never moves
+   the prompt or the console. It carries the actions that are real but secondary:
+   files, queue, engine control, the board, favorites and follow-ups. */
 .composer__utilities {
-  overflow-x: auto;
-  overflow-y: hidden;
-  scrollbar-width: thin;
-  padding: 1px 0 3px;
+  position: absolute;
+  z-index: 14;
+  right: 0;
+  bottom: calc(100% + 6px);
+  left: 0;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 10px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-float);
+  max-height: min(46vh, 320px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 .composer__utilities > * {
   flex: none;
+}
+.composer__more {
+  gap: 2px;
+}
+.composer__more .button__icon,
+.composer__more svg {
+  margin: 0;
 }
 .composer__utilities .button,
 .composer__utilities > button {
@@ -6657,6 +6731,59 @@ a {
   }
   .screen--studio .studio__timeline {
     padding: 10px 12px;
+  }
+}
+/* Short viewports — 150 % zoom on an 800 px window is 533 CSS px, and 200 % on
+   a 900×620 window is 310. The deck keeps the essentials (identity, activity,
+   primary controls, a prompt) and gives the console the room it needs: the
+   measured failure was a 70 px console at 533 px because the composer took 57 %
+   of the stage. Nothing here hides a primary control; the facts and the mode
+   explanation move into the deck's telemetry drawer and the ghost-button panel,
+   where they already live. */
+@media (max-height: 560px) {
+  .shell--studio:not(.shell--focus) .harness__main {
+    padding-top: 34px;
+    padding-bottom: 6px;
+  }
+  .studio-deck.focus-bar {
+    height: 44px;
+    gap: 10px;
+  }
+  .studio-deck .focus-bar__facts {
+    display: none;
+  }
+  .agent-signal {
+    min-height: 30px;
+    padding-block: 1px;
+  }
+  .agent-signal__detail {
+    display: none;
+  }
+  .agent-signal__orb {
+    width: 24px;
+    height: 24px;
+  }
+  .screen--studio .studio {
+    gap: 4px;
+  }
+  .screen--studio .composer {
+    padding: 6px 8px 5px;
+    gap: 4px;
+  }
+  .screen--studio .composer__command-bar {
+    gap: 0;
+  }
+  .screen--studio .composer__input .input--area {
+    min-height: 56px;
+    height: 56px;
+    max-height: 14vh;
+  }
+  .screen--studio .composer-grip {
+    height: 7px;
+    margin: -2px 0 1px;
+  }
+  .screen--studio .studio__timeline {
+    padding: 8px 10px;
   }
 }
 @media (max-height: 480px) {

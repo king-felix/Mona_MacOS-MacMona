@@ -1,0 +1,133 @@
+
+> mona@0.1.0-p02 smoke:commands
+> npm run build && node scripts/command-smoke.mjs
+
+
+> mona@0.1.0-p02 build
+> npm run clean && npm run build:main && npm run build:renderer
+
+
+> mona@0.1.0-p02 clean
+> rm -rf dist coverage
+
+
+> mona@0.1.0-p02 build:main
+> tsc -p tsconfig.main.json
+
+
+> mona@0.1.0-p02 build:renderer
+> vite build
+
+vite v8.3.8 building client environment for production...
+transforming...
+✓ 163 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/renderer/index.html                       0.76 kB │ gzip:   0.41 kB
+dist/renderer/assets/mona-mark-ChAj1Hvn.png   27.56 kB
+dist/renderer/assets/index-BAgzJhKe.css       95.68 kB │ gzip:  16.22 kB
+dist/renderer/assets/index-BnILSNiv.js       782.10 kB │ gzip: 214.27 kB
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 97ms
+{
+  "schema_version": 1,
+  "ok": true,
+  "checks": {
+    "shell_ready": true,
+    "catalog_rendered": true,
+    "studio_opened": true,
+    "menu_opens": true,
+    "listbox_is_labelled": true,
+    "reports_catalog_total": true,
+    "has_real_description": true,
+    "connection_not_started": true,
+    "filter_narrows": true,
+    "filter_finds_help": true,
+    "detail_shows_tui_route": true,
+    "tab_accepts": true,
+    "menu_closed_after_accept": true,
+    "escape_closes_first": true,
+    "escape_keeps_draft": true,
+    "menu_closed_by_escape": true,
+    "plain_enter_is_newline": true,
+    "ambiguous_explained": true,
+    "ambiguous_keeps_draft": true,
+    "tui_only_explained": true,
+    "engine_still_not_started": true,
+    "unfiltered_list_restored": true,
+    "menu_inside_viewport_at_default": true,
+    "zoom_200_applied": true,
+    "zoom_200_menu_inside_viewport": true,
+    "zoom_200_no_page_overflow": true,
+    "zoom_200_list_usable": true,
+    "zoom_200_options_present": true
+  },
+  "facts": {
+    "initial": {
+      "header": "Codewhale commands79 matches · 109 catalogued",
+      "options": 79,
+      "first": "/rc/remote-controlResume this exact session from your Codewhale web accountTUI only",
+      "detail": "/rcResume this exact session from your Codewhale web account/rc [status|link|open|stop]·statuslinkopenstop·scope session·no model call·effects network, session-stateTUI only Hands the session to the Codewhale web app; account flow, no Runtime API operation documented.",
+      "connection": "Ready to connectno studio session in this launch (runtime disconnected)No engine event recorded",
+      "connection_state": "not_started"
+    },
+    "filtered": {
+      "count": 41,
+      "first": "/help/? /bangzhu /帮助Commands, skills, and keysTUI only",
+      "detail": "/helpCommands, skills, and keys/help [command]·scope ui·no model call·effects noneTUI only Renders the TUI help surface. Mona browses this catalog locally instead; R04 owns the local help action."
+    },
+    "tab": {
+      "prevented": true,
+      "value": "/help "
+    },
+    "ambiguous_notice": "\"he\" is ambiguous (/help). Tab accepts the highlighted command; nothing was sent.",
+    "tui_only_notice": "TUI-only. The CLI prints its own command help. Nothing was run. The terminal pane is prefilled with the command above and waits for you to launch it.",
+    "normal": {
+      "top": 16,
+      "bottom": 371,
+      "height": 355,
+      "composer_top": 289,
+      "composer_height": 274.25,
+      "viewport_height": 875,
+      "header": "Codewhale commands79 matches · 109 catalogued",
+      "detail_height": 94.8046875,
+      "body_height": 183.6953125,
+      "placement": "command-menu command-menu--above"
+    },
+    "zoom_200_probe": {
+      "applied": true,
+      "factor": 2,
+      "width_after": 640
+    },
+    "zoomed": {
+      "inside": true,
+      "width": 598,
+      "viewport": 640,
+      "top": 16,
+      "bottom": 267,
+      "height": 251,
+      "viewport_height": 437,
+      "scrolls": true,
+      "page_overflow": false,
+      "detail_visible": false,
+      "body_height": 209.5,
+      "options": 79
+    }
+  },
+  "project": "prj_cc8a335c3277bcab",
+  "screenshots": [
+    "r03-command-menu.png",
+    "r03-command-menu-200.png"
+  ],
+  "electron": {
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+}
+exit=0

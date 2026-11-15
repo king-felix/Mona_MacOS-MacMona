@@ -312,14 +312,24 @@ describe("studio screen honesty and safety", () => {
     expect(container?.textContent).toContain("$0.0012");
   });
 
-  it("keeps execution controls visible with a truthful disabled state", () => {
+  it("keeps the primary execution controls in the bar with a truthful disabled state", () => {
     render();
-    const buttons = Array.from(container?.querySelectorAll("button") ?? []);
+    const bar = container?.querySelector(".composer__command-bar");
+    const buttons = Array.from(bar?.querySelectorAll("button") ?? []);
     const interrupt = buttons.find((button) => button.textContent?.includes("Interrupt now"));
-    const stop = buttons.find((button) => button.textContent?.includes("Stop engine"));
+    const submit = buttons.find((button) => button.textContent?.trim() === "Submit");
     expect(interrupt).toBeTruthy();
     expect(interrupt?.disabled).toBe(true);
     expect(interrupt?.title).toContain("No active turn");
+    expect(submit).toBeTruthy();
+    // The secondary engine controls are on demand, and they are real when shown.
+    expect(bar?.querySelector('[data-testid="composer-more"]')).not.toBeNull();
+    expect(bar?.textContent).not.toContain("Stop engine");
+    act(() => (bar?.querySelector('[data-testid="composer-more"]') as HTMLElement).click());
+    const stop = Array.from(container?.querySelectorAll("button") ?? []).find((button) =>
+      button.textContent?.includes("Stop engine"),
+    );
+    expect(stop).toBeTruthy();
     expect(stop?.disabled).toBe(false);
   });
 
@@ -1199,12 +1209,59 @@ describe("R10 review conveniences", () => {
 
   it("offers a verified file mention and keeps binary attachment unavailable", () => {
     render({ onMentionFile: () => undefined });
+    act(() =>
+      (container?.querySelector('[data-testid="composer-more"]') as HTMLElement | null)?.click(),
+    );
     expect(container?.querySelector('[data-testid="mention-file"]')).not.toBeNull();
     const attach = container?.querySelector(
       '[data-testid="attach-file"]',
     ) as HTMLButtonElement | null;
     expect(attach?.disabled).toBe(true);
     expect(attach?.title).toContain("unavailable");
+  });
+
+  it("keeps secondary actions on demand and closes them before anything else sees Escape", () => {
+    render({ onMentionFile: () => undefined, search: null });
+    const more = container?.querySelector('[data-testid="composer-more"]') as HTMLElement;
+    expect(more.getAttribute("aria-expanded")).toBe("false");
+    expect(container?.querySelector(".composer__utilities")).toBeNull();
+    act(() => more.click());
+    expect(more.getAttribute("aria-expanded")).toBe("true");
+    const panel = container?.querySelector(".composer__utilities");
+    expect(panel).not.toBeNull();
+    expect(panel?.getAttribute("aria-label")).toBe("More composer actions");
+    // The panel is a child of the bar, which is above the prompt: the requirement
+    // is that secondary actions live at the top, not under the prompt.
+    expect(panel?.closest(".composer__command-bar")).not.toBeNull();
+    // Escape is claimed while a panel is open, so the shell cannot leave Focus
+    // with a panel still on screen.
+    let reachedWindow = false;
+    const listener = (): void => {
+      reachedWindow = true;
+    };
+    window.addEventListener("keydown", listener);
+    act(() => {
+      document.body.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }),
+      );
+    });
+    window.removeEventListener("keydown", listener);
+    expect(container?.querySelector(".composer__utilities")).toBeNull();
+    expect(more.getAttribute("aria-expanded")).toBe("false");
+    expect(reachedWindow).toBe(false);
+  });
+
+  it("reports the composer's real height to assistive technology", () => {
+    render();
+    // jsdom has no layout, so the observed height is 0 and the documented floor
+    // is what the separator reports. What must never happen is a value outside
+    // its own min/max range.
+    const handle = container?.querySelector('[data-testid="composer-grip"]') as HTMLElement;
+    const now = Number(handle.getAttribute("aria-valuenow"));
+    const min = Number(handle.getAttribute("aria-valuemin"));
+    const max = Number(handle.getAttribute("aria-valuemax"));
+    expect(now).toBeGreaterThanOrEqual(min);
+    expect(now).toBeLessThanOrEqual(max);
   });
 
   it("offers Open Changes from a tool card without following model paths", () => {

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "label": "R11 — measured startup, idle cost, stream responsiveness and accessibility",
-  "captured_at": "2026-11-14T16:48:14.847Z",
+  "captured_at": "2026-11-15T21:10:32.542Z",
   "status": "passed_with_exception",
   "ok": true,
   "failing_checks": [
@@ -11,9 +11,9 @@
     {
       "check": "idle_memory_under_350_mb",
       "target_mb": 350,
-      "measured_mb": 568.7,
-      "runtime_floor_mb": 356,
-      "measured_over_runtime_mb": 212.70000000000005,
+      "measured_mb": 579.2,
+      "runtime_floor_mb": 362,
+      "measured_over_runtime_mb": 217.20000000000005,
       "reason": "Electron's own blank window already exceeds the 350 MiB target on this host, so the target is unmeetable by any application code. Reported as a budget exception with the runtime floor measured on the same host, and the application's own share stated as a difference."
     }
   ],
@@ -21,16 +21,16 @@
     "ok": true,
     "electron": "45.3.0",
     "chrome": "156.0.8078.96",
-    "total_mb_max": 356,
-    "total_mb_min": 356,
+    "total_mb_max": 362,
+    "total_mb_min": 362,
     "per_process": [
       {
         "type": "Browser",
-        "memoryMb": 150
+        "memoryMb": 153.8
       },
       {
         "type": "GPU",
-        "memoryMb": 74.5
+        "memoryMb": 74.8
       },
       {
         "type": "Utility",
@@ -38,7 +38,7 @@
       },
       {
         "type": "Tab",
-        "memoryMb": 84.2
+        "memoryMb": 86.5
       }
     ]
   },
@@ -63,7 +63,7 @@
   "cold": {
     "schema_version": 1,
     "label": "R11 PERFORMANCE AND ACCESSIBILITY — production shell, no engine, no model request",
-    "captured_at": "2026-11-14T16:46:34.851Z",
+    "captured_at": "2026-11-15T21:08:52.672Z",
     "mode": "cold",
     "ok": false,
     "checks": {
@@ -92,7 +92,7 @@
       "no_overflow_at_200": true,
       "composer_visible_at_200": true,
       "composer_reachable_at_200": true,
-      "console_keeps_height_at_200": true,
+      "console_keeps_usable_height_at_200": true,
       "window_survives_200": true,
       "console_keeps_its_height_at_the_reference_window": true,
       "composer_visible_and_uncovered_at_the_end": true,
@@ -125,39 +125,39 @@
         }
       },
       "startup": {
-        "process_start_to_interactive_ms": 1279,
-        "ready_at_epoch_ms": 1794674794981,
-        "process_start_epoch_ms": 1794674793702
+        "process_start_to_interactive_ms": 1425,
+        "ready_at_epoch_ms": 1794776932913,
+        "process_start_epoch_ms": 1794776931488
       },
       "idle": {
         "per_process": [
           {
             "type": "Browser",
-            "memoryMb": 266.7,
-            "cpu": 0.02
+            "memoryMb": 183.8,
+            "cpu": 0.01
           },
           {
             "type": "GPU",
-            "memoryMb": 94.2,
+            "memoryMb": 80.2,
             "cpu": 0.01
           },
           {
             "type": "Utility",
-            "memoryMb": 48,
+            "memoryMb": 42.2,
             "cpu": 0
           },
           {
             "type": "Tab",
-            "memoryMb": 131.5,
+            "memoryMb": 114,
             "cpu": 0
           }
         ],
         "samples": 30,
         "seconds": 60,
-        "cpu_percent_average": 0.05,
-        "cpu_percent_max": 0.66,
-        "memory_mb_average": 552,
-        "memory_mb_max": 568.7,
+        "cpu_percent_average": 0.04,
+        "cpu_percent_max": 0.59,
+        "memory_mb_average": 540.4,
+        "memory_mb_max": 579.2,
         "processes": 4,
         "inference_calls": 0
       },
@@ -172,31 +172,32 @@
         "last_seq": "10203"
       },
       "console": {
-        "open_ms": 135,
+        "open_ms": 142,
         "stored_total": 10203,
-        "scope": "601 shown · 10203 stored · older pages available · 10 painted",
+        "scope": "601 shown · 10203 stored · older pages available · 9 painted",
         "cards_projected": 601,
-        "cards_mounted": 10,
+        "cards_mounted": 9,
         "windowed": true,
-        "spacer_top": "69273px",
+        "spacer_top": "69386px",
         "spacer_bottom": null,
-        "pane_height": 350,
-        "pane_scroll_height": 70384,
+        "pane_height": 307,
+        "pane_scroll_height": 70388,
         "overflow": false,
-        "connection": "EngineNot started"
+        "connection": "Ready to connectno studio session in this launch (runtime disconnected)No engine event recorded",
+        "connection_state": "not_started"
       },
       "typing": {
         "iterations": 20,
         "p50_ms": 16.7,
-        "p95_ms": 16.9,
-        "max_ms": 18.19999998807907
+        "p95_ms": 16.8,
+        "max_ms": 16.800000071525574
       },
       "typing_rendered_cards": 601,
       "scroll": {
         "frames": 59,
-        "p50_ms": 16.7,
-        "p95_ms": 18.1,
-        "max_ms": 20.9
+        "p50_ms": 16.6,
+        "p95_ms": 17.1,
+        "max_ms": 18.1
       },
       "after_scroll": {
         "mounted": 16,
@@ -206,22 +207,22 @@
       },
       "console_geometry": {
         "innerHeight": 800,
-        "scrollY": 390,
-        "pane_top_doc": 549,
-        "pane_height": 352,
+        "scrollY": 0,
+        "pane_top_doc": 239,
+        "pane_height": 309,
         "pane_max_height": "none",
-        "composer_height": 347,
-        "composer_top_doc": 939,
-        "composer_bottom_doc": 1286,
-        "grip_height": 421,
-        "doc_scroll_height": 1584
+        "composer_height": 225,
+        "composer_top_doc": 564,
+        "composer_bottom_doc": 788,
+        "grip_height": 235,
+        "doc_scroll_height": 800
       },
       "before_shot": {
-        "distance": 0,
+        "distance": -0.5,
         "draft": ""
       },
       "after_shot": {
-        "distance": 0,
+        "distance": -0.5,
         "draft": ""
       },
       "titlebar": {
@@ -231,20 +232,21 @@
         "background_color": "rgba(0, 0, 0, 0)",
         "z_index": "30",
         "opaque": true,
-        "scrolled": true
+        "scrolled": false,
+        "console_scrolled": true
       },
       "layout_100": {
         "factor": 1,
         "viewport_width": 1280,
         "viewport_height": 800,
         "horizontal_overflow": false,
-        "pane_height": 350,
+        "pane_height": 307,
         "pane_visible": true,
         "composer_visible": true,
         "composer_bottom_within_viewport": true,
         "composer_reachable": true,
-        "document_scrollable": true,
-        "mounted_cards": 10,
+        "document_scrollable": false,
+        "mounted_cards": 9,
         "windowed": true
       },
       "layout_200": {
@@ -252,13 +254,13 @@
         "viewport_width": 640,
         "viewport_height": 400,
         "horizontal_overflow": false,
-        "pane_height": 298,
+        "pane_height": 139,
         "pane_visible": true,
         "composer_visible": true,
-        "composer_bottom_within_viewport": false,
+        "composer_bottom_within_viewport": true,
         "composer_reachable": true,
-        "document_scrollable": true,
-        "mounted_cards": 10,
+        "document_scrollable": false,
+        "mounted_cards": 9,
         "windowed": true
       },
       "display_work_area": {
@@ -269,38 +271,38 @@
         {
           "window_height": 700,
           "viewport_height": 700,
-          "console_height": 306,
-          "composer_bottom": 852,
-          "composer_fully_visible": false,
+          "console_height": 335,
+          "composer_bottom": 692,
+          "composer_fully_visible": true,
           "composer_reachable": true,
-          "document_scrollable": true,
+          "document_scrollable": false,
           "mounted_cards": 10
         },
         {
           "window_height": 760,
           "viewport_height": 760,
-          "console_height": 332,
-          "composer_bottom": 878,
-          "composer_fully_visible": false,
+          "console_height": 272,
+          "composer_bottom": 748,
+          "composer_fully_visible": true,
           "composer_reachable": true,
-          "document_scrollable": true,
+          "document_scrollable": false,
           "mounted_cards": 10
         },
         {
           "window_height": 800,
           "viewport_height": 800,
-          "console_height": 350,
-          "composer_bottom": 896,
-          "composer_fully_visible": false,
+          "console_height": 307,
+          "composer_bottom": 788,
+          "composer_fully_visible": true,
           "composer_reachable": true,
-          "document_scrollable": true,
+          "document_scrollable": false,
           "mounted_cards": 10
         }
       ],
       "composer_at_end": {
         "present": true,
-        "box_bottom": 502,
-        "strip_top": 565,
+        "box_bottom": 788,
+        "strip_top": null,
         "fully_visible": true,
         "overlaps_strip": false
       },
@@ -378,19 +380,19 @@
       "r11-studio-200.png",
       "r11-afterglow-vivid-100.png"
     ],
-    "project": "prj_3c1363d7803c6d0f",
+    "project": "prj_7e5cbfcf7318dba3",
     "launch": {
       "mode": "cold",
-      "wall_ms_including_electron_binary": 81377,
+      "wall_ms_including_electron_binary": 81346,
       "electron_exit": 0,
       "stdout": "",
-      "stderr": "[r11] start +1149ms\n[r11] window ready +1323ms\n[r11] idle sampling starts +1323ms\n[r11] idle sampling done +62906ms\n[r11] opening project +62907ms\n[r11] paging click 1 (cards 68) +63056ms\n[r11] paging click 2 (cards 134) +63133ms\n[r11] paging click 3 (cards 201) +63211ms\n[r11] paging click 4 (cards 268) +63290ms\n[r11] paging click 5 (cards 334) +63370ms\n[r11] paging click 6 (cards 401) +63450ms\n[r11] paging click 7 (cards 468) +63532ms\n[r11] paging click 8 (cards 534) +63612ms\n[r11] studio measured +63927ms\n[r11] typing and scroll done +66456ms\n[r11] appearances done +75190ms\n[r11] reduced motion +75478ms\n[r11] axe done +76986ms\n"
+      "stderr": "[r11] start +1184ms\n[r11] window ready +1453ms\n[r11] idle sampling starts +1454ms\n[r11] idle sampling done +63012ms\n[r11] opening project +63012ms\n[r11] paging click 1 (cards 68) +63168ms\n[r11] paging click 2 (cards 134) +63244ms\n[r11] paging click 3 (cards 201) +63322ms\n[r11] paging click 4 (cards 268) +63397ms\n[r11] paging click 5 (cards 334) +63472ms\n[r11] paging click 6 (cards 401) +63547ms\n[r11] paging click 7 (cards 468) +63622ms\n[r11] paging click 8 (cards 534) +63698ms\n[r11] studio measured +64012ms\n[r11] typing and scroll done +66571ms\n[r11] appearances done +75278ms\n[r11] reduced motion +75574ms\n[r11] axe done +77021ms\n"
     }
   },
   "warm": {
     "schema_version": 1,
     "label": "R11 PERFORMANCE AND ACCESSIBILITY — production shell, no engine, no model request",
-    "captured_at": "2026-11-14T16:47:56.238Z",
+    "captured_at": "2026-11-15T21:10:14.066Z",
     "mode": "warm",
     "ok": true,
     "checks": {
@@ -417,7 +419,7 @@
       "no_overflow_at_200": true,
       "composer_visible_at_200": true,
       "composer_reachable_at_200": true,
-      "console_keeps_height_at_200": true,
+      "console_keeps_usable_height_at_200": true,
       "window_survives_200": true,
       "console_keeps_its_height_at_the_reference_window": true,
       "composer_visible_and_uncovered_at_the_end": true,
@@ -450,9 +452,9 @@
         }
       },
       "startup": {
-        "process_start_to_interactive_ms": 1262,
-        "ready_at_epoch_ms": 1794674876370,
-        "process_start_epoch_ms": 1794674875108
+        "process_start_to_interactive_ms": 1386,
+        "ready_at_epoch_ms": 1794777014269,
+        "process_start_epoch_ms": 1794777012883
       },
       "paging": {
         "load_clicks": 8,
@@ -465,31 +467,32 @@
         "last_seq": "10203"
       },
       "console": {
-        "open_ms": 109,
+        "open_ms": 126,
         "stored_total": 10203,
-        "scope": "601 shown · 10203 stored · older pages available · 10 painted",
+        "scope": "601 shown · 10203 stored · older pages available · 9 painted",
         "cards_projected": 601,
-        "cards_mounted": 10,
+        "cards_mounted": 9,
         "windowed": true,
-        "spacer_top": "69273px",
+        "spacer_top": "69386px",
         "spacer_bottom": null,
-        "pane_height": 350,
-        "pane_scroll_height": 70384,
+        "pane_height": 307,
+        "pane_scroll_height": 70388,
         "overflow": false,
-        "connection": "EngineNot started"
+        "connection": "Ready to connectno studio session in this launch (runtime disconnected)No engine event recorded",
+        "connection_state": "not_started"
       },
       "typing": {
         "iterations": 20,
         "p50_ms": 16.7,
-        "p95_ms": 17.3,
-        "max_ms": 17.900000035762787
+        "p95_ms": 16.8,
+        "max_ms": 16.899999976158142
       },
       "typing_rendered_cards": 601,
       "scroll": {
         "frames": 59,
         "p50_ms": 16.6,
-        "p95_ms": 18,
-        "max_ms": 20.1
+        "p95_ms": 17,
+        "max_ms": 17.6
       },
       "after_scroll": {
         "mounted": 16,
@@ -499,22 +502,22 @@
       },
       "console_geometry": {
         "innerHeight": 800,
-        "scrollY": 351,
-        "pane_top_doc": 549,
-        "pane_height": 352,
+        "scrollY": 0,
+        "pane_top_doc": 239,
+        "pane_height": 309,
         "pane_max_height": "none",
-        "composer_height": 347,
-        "composer_top_doc": 939,
-        "composer_bottom_doc": 1286,
-        "grip_height": 421,
-        "doc_scroll_height": 1584
+        "composer_height": 225,
+        "composer_top_doc": 564,
+        "composer_bottom_doc": 788,
+        "grip_height": 235,
+        "doc_scroll_height": 800
       },
       "before_shot": {
-        "distance": 0,
+        "distance": -0.5,
         "draft": ""
       },
       "after_shot": {
-        "distance": 0,
+        "distance": -0.5,
         "draft": ""
       },
       "titlebar": {
@@ -524,20 +527,21 @@
         "background_color": "rgba(0, 0, 0, 0)",
         "z_index": "30",
         "opaque": true,
-        "scrolled": true
+        "scrolled": false,
+        "console_scrolled": true
       },
       "layout_100": {
         "factor": 1,
         "viewport_width": 1280,
         "viewport_height": 800,
         "horizontal_overflow": false,
-        "pane_height": 350,
+        "pane_height": 307,
         "pane_visible": true,
         "composer_visible": true,
-        "composer_bottom_within_viewport": false,
+        "composer_bottom_within_viewport": true,
         "composer_reachable": true,
-        "document_scrollable": true,
-        "mounted_cards": 10,
+        "document_scrollable": false,
+        "mounted_cards": 9,
         "windowed": true
       },
       "layout_200": {
@@ -545,13 +549,13 @@
         "viewport_width": 640,
         "viewport_height": 400,
         "horizontal_overflow": false,
-        "pane_height": 298,
+        "pane_height": 139,
         "pane_visible": true,
         "composer_visible": true,
-        "composer_bottom_within_viewport": false,
+        "composer_bottom_within_viewport": true,
         "composer_reachable": true,
-        "document_scrollable": true,
-        "mounted_cards": 10,
+        "document_scrollable": false,
+        "mounted_cards": 9,
         "windowed": true
       },
       "display_work_area": {
@@ -562,38 +566,38 @@
         {
           "window_height": 700,
           "viewport_height": 700,
-          "console_height": 306,
-          "composer_bottom": 891,
-          "composer_fully_visible": false,
+          "console_height": 335,
+          "composer_bottom": 692,
+          "composer_fully_visible": true,
           "composer_reachable": true,
-          "document_scrollable": true,
+          "document_scrollable": false,
           "mounted_cards": 10
         },
         {
           "window_height": 760,
           "viewport_height": 760,
-          "console_height": 332,
-          "composer_bottom": 917,
-          "composer_fully_visible": false,
+          "console_height": 272,
+          "composer_bottom": 748,
+          "composer_fully_visible": true,
           "composer_reachable": true,
-          "document_scrollable": true,
+          "document_scrollable": false,
           "mounted_cards": 10
         },
         {
           "window_height": 800,
           "viewport_height": 800,
-          "console_height": 350,
-          "composer_bottom": 935,
-          "composer_fully_visible": false,
+          "console_height": 307,
+          "composer_bottom": 788,
+          "composer_fully_visible": true,
           "composer_reachable": true,
-          "document_scrollable": true,
+          "document_scrollable": false,
           "mounted_cards": 10
         }
       ],
       "composer_at_end": {
         "present": true,
-        "box_bottom": 502,
-        "strip_top": 565,
+        "box_bottom": 788,
+        "strip_top": null,
         "fully_visible": true,
         "overlaps_strip": false
       },
@@ -671,20 +675,20 @@
       "r11-studio-200.png",
       "r11-afterglow-vivid-100.png"
     ],
-    "project": "prj_ea5c1db0be9e93d8",
+    "project": "prj_67ddb1db281495c3",
     "launch": {
       "mode": "warm",
-      "wall_ms_including_electron_binary": 19918,
+      "wall_ms_including_electron_binary": 19879,
       "electron_exit": 0,
       "stdout": "",
-      "stderr": "[r11] start +1130ms\n[r11] window ready +1298ms\n[r11] opening project +1298ms\n[r11] paging click 1 (cards 68) +1421ms\n[r11] paging click 2 (cards 134) +1498ms\n[r11] paging click 3 (cards 201) +1577ms\n[r11] paging click 4 (cards 268) +1657ms\n[r11] paging click 5 (cards 334) +1739ms\n[r11] paging click 6 (cards 401) +1820ms\n[r11] paging click 7 (cards 468) +1901ms\n[r11] paging click 8 (cards 534) +1982ms\n[r11] studio measured +2300ms\n[r11] typing and scroll done +4804ms\n[r11] appearances done +13550ms\n[r11] reduced motion +13830ms\n[r11] axe done +15461ms\n"
+      "stderr": "[r11] start +1183ms\n[r11] window ready +1418ms\n[r11] opening project +1418ms\n[r11] paging click 1 (cards 68) +1559ms\n[r11] paging click 2 (cards 134) +1635ms\n[r11] paging click 3 (cards 201) +1711ms\n[r11] paging click 4 (cards 268) +1787ms\n[r11] paging click 5 (cards 334) +1862ms\n[r11] paging click 6 (cards 401) +1937ms\n[r11] paging click 7 (cards 468) +2011ms\n[r11] paging click 8 (cards 534) +2085ms\n[r11] studio measured +2401ms\n[r11] typing and scroll done +4972ms\n[r11] appearances done +13692ms\n[r11] reduced motion +13971ms\n[r11] axe done +15475ms\n"
     }
   },
   "comparison": {
-    "cold_interactive_ms": 1279,
-    "warm_interactive_ms": 1262,
-    "warm_saving_ms": 17,
-    "cold_wall_ms": 81377,
-    "warm_wall_ms": 19918
+    "cold_interactive_ms": 1425,
+    "warm_interactive_ms": 1386,
+    "warm_saving_ms": 39,
+    "cold_wall_ms": 81346,
+    "warm_wall_ms": 19879
   }
 }

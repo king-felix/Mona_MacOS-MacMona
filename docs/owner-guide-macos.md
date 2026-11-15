@@ -91,12 +91,20 @@ shortcut. Navigation never calls a model.
   without a recent event, the indicator stops animating and says progress cannot
   be confirmed. Reconnecting, stopped, and Needs the Human are distinct states.
   Detailed tool records and turn/thread/project usage are under **Telemetry**.
-- **Composer controls.** Submit, Pause after task, and Interrupt now sit above
-  the text box. The secondary row holds file mentions, Queue after turn, queue
-  cancellation, Stop engine, Needs the Human, and Favorites. Follow-ups opens
-  the queue when it has records. Enter inserts a newline; Command-Enter submits.
-  Search opens from the conversation toolbar. The Task/Requirements/Context
-  inspector has been removed; durable work remains on the Work board.
+- **Composer controls.** The bar above the text box holds Plan/Work, Pause after
+  task (or Resume queue), Interrupt now, Submit, and **More**. More opens one
+  panel with the secondary actions — file mention, Queue after turn, cancel
+  queued starts, Stop engine, Needs the Human, Start engine, favorites and the
+  follow-up queue — floating above the bar so it never covers what you are
+  typing. Escape closes that panel first. Enter inserts a newline;
+  Command-Enter submits. Search opens from the conversation toolbar. The
+  Task/Requirements/Context inspector has been removed; durable work remains on
+  the Work board.
+- **The window never scrolls.** The console scrolls inside itself, and appending
+  output does not move the prompt or its controls. At 200 % zoom on a small
+  window the console shrinks to a still-scrollable strip, the prompt keeps a
+  three-line floor, and the dashboard's optional facts step aside; nothing is
+  clipped.
 - **Routine notices.** Successful action receipts float above the workspace and
   disappear after five seconds, with a brief fade. Hovering or focusing them
   pauses dismissal. Warnings, uncertain outcomes, and pending approvals remain

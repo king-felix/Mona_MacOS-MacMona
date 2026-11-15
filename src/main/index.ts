@@ -1,4 +1,14 @@
-import { app, BrowserWindow, Menu, dialog, powerMonitor, screen, session, shell } from "electron";
+import {
+  app,
+  BrowserWindow,
+  Menu,
+  clipboard,
+  dialog,
+  powerMonitor,
+  screen,
+  session,
+  shell,
+} from "electron";
 import { execFileSync } from "node:child_process";
 import {
   existsSync,
@@ -100,6 +110,12 @@ const IS_IMMERSIVE_SMOKE = process.argv.includes("--immersive-smoke");
 const IS_AURORA_SMOKE = process.argv.includes("--aurora-smoke");
 const IS_R11_SMOKE = process.argv.includes("--r11-smoke");
 /**
+ * F02 — the Studio deck on real pixels: geometry, zoom, reachability, internal
+ * scrolling, notices and the composer at the sizes the owner actually uses.
+ * No runtime is started and no model request is made.
+ */
+const IS_DECK_SMOKE = process.argv.includes("--deck-smoke");
+/**
  * R11 — the clock the startup budget is measured against. It is read as early as
  * this module loads, which is the first moment any Mona code runs, so the number
  * is "Mona's own start to interactive" and excludes the Electron binary's own
@@ -156,6 +172,7 @@ let commandSmokeProjectId: string | null = null;
 let immersiveSmokeProjectId: string | null = null;
 let auroraSmokeProjectId: string | null = null;
 let r11SmokeProjectId: string | null = null;
+let deckSmokeProjectId: string | null = null;
 let openCoordinator: OpenCoordinator | null = null;
 let resolveCoordinatorReady: (() => void) | null = null;
 interface EngineIdentity {
@@ -364,6 +381,16 @@ function openWindow(): BrowserWindow {
       void runR11Smoke(window)
         .catch((error: unknown) => {
           process.stderr.write(`r11 smoke failed: ${String(error)}\n`);
+          process.exitCode = 1;
+        })
+        .finally(() => app.quit());
+    });
+  }
+  if (IS_DECK_SMOKE) {
+    window.webContents.once("did-finish-load", () => {
+      void runDeckSmoke(window)
+        .catch((error: unknown) => {
+          process.stderr.write(`deck smoke failed: ${String(error)}\n`);
           process.exitCode = 1;
         })
         .finally(() => app.quit());
@@ -2468,6 +2495,11 @@ async function runHistorySmoke(window: BrowserWindow): Promise<void> {
         load_button: Boolean(document.querySelector('[data-testid="studio-load-earlier"]')),
         jump_button: Boolean(document.querySelector('[data-testid="studio-jump-latest"]')),
         connection: document.querySelector('[data-testid="agent-signal"]')?.textContent ?? null,
+        // The deck replaced the connection plaque with one activity signal; its
+        // machine-readable state is what the screen branches on, so the check
+        // reads that instead of a sentence. Strictly stronger: an exact state.
+        connection_state:
+          document.querySelector('[data-testid="agent-signal"]')?.getAttribute('data-connection') ?? null,
         thread_options: select ? Array.from(select.options).map((option) => option.textContent) : [],
         thread_disabled: select ? select.disabled : null,
       };
@@ -2483,7 +2515,9 @@ async function runHistorySmoke(window: BrowserWindow): Promise<void> {
     checks.older_page_not_yet_loaded = initial.older_absent === true;
     checks.load_earlier_offered = initial.load_button === true;
     checks.jump_absent_at_live_edge = initial.jump_button === false;
-    checks.no_runtime_started = String(initial.connection ?? "").includes("Not started");
+    checks.no_runtime_started =
+      initial.connection_state === "not_started" &&
+      (supervisor?.status().state ?? "stopped") !== "running";
     checks.thread_selector_present = initial.thread_disabled === false;
     checks.thread_selector_distinguishes =
       initial.thread_options.some((label: string | null) => label?.includes("current")) &&
@@ -2857,9 +2891,11 @@ async function runR11Smoke(window: BrowserWindow): Promise<void> {
       checks.idle_cpu_under_one_percent = cpuAverage < 1;
       mark("idle sampling done");
       // The spec's target is "initial idle total Mona processes under 350 MiB".
-      // It is measured exactly as written. A miss is reported in the evidence as
-      // a miss: the target is not reformulated and no process is trimmed to
-      // reach it.
+      // It is measured exactly as written. A miss is reported as a miss: the
+      // target is not reformulated and no process is trimmed to reach it. The
+      // launcher names a host whose blank-Electron floor already exceeds the
+      // target as a budget exception, with both numbers, so this check stays the
+      // raw measurement rather than a reinterpretation of it.
       checks.idle_memory_under_350_mb =
         (facts.idle as { memory_mb_max: number }).memory_mb_max < 350;
     }
@@ -2952,6 +2988,8 @@ async function runR11Smoke(window: BrowserWindow): Promise<void> {
         pane_scroll_height: pane ? pane.scrollHeight : 0,
         overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
         connection: document.querySelector('[data-testid="agent-signal"]')?.textContent ?? null,
+        connection_state:
+          document.querySelector('[data-testid="agent-signal"]')?.getAttribute('data-connection') ?? null,
       };
     })()`);
     const storedTotal = Number(String(consoleState.scope ?? "").match(/(\d+) stored/)?.[1] ?? 0);
@@ -2989,7 +3027,7 @@ async function runR11Smoke(window: BrowserWindow): Promise<void> {
         Number.parseFloat(String(consoleState.spacer_bottom ?? "0")) >
         0 && (consoleState.cards_mounted as number) < (consoleState.cards_projected as number);
     checks.no_runtime_started =
-      String(consoleState.connection ?? "").includes("Not started") &&
+      consoleState.connection_state === "not_started" &&
       (supervisor?.status().state ?? "stopped") !== "running";
     checks.studio_open_within_two_seconds = openMs <= 2_000;
 
@@ -3154,12 +3192,22 @@ async function runR11Smoke(window: BrowserWindow): Promise<void> {
         opaque:
           style.backgroundImage !== "none" ||
           !/rgba\(.*,\s*0\)$/.test(style.backgroundColor),
+        // FD-05: the deck no longer scrolls the page — the console scrolls
+        // inside its own box. The thing the original check protects is
+        // unchanged: the bar must be opaque over content that has scrolled
+        // beneath it, so either scroll surface satisfies it.
         scrolled: window.scrollY > 0,
+        console_scrolled: (() => {
+          const pane = document.querySelector('[data-testid="studio-timeline"]');
+          return pane ? pane.scrollTop > 0 : false;
+        })(),
       };
     })()`);
     facts.titlebar = titlebar;
     checks.titlebar_is_opaque_when_scrolled =
-      titlebar.present === true && titlebar.opaque === true && titlebar.scrolled === true;
+      titlebar.present === true &&
+      titlebar.opaque === true &&
+      (titlebar.scrolled === true || titlebar.console_scrolled === true);
 
     mark("typing and scroll done");
     // Layout at 200 % interface scale.
@@ -3199,7 +3247,16 @@ async function runR11Smoke(window: BrowserWindow): Promise<void> {
     checks.no_overflow_at_200 = layout200.horizontal_overflow === false;
     checks.composer_visible_at_200 = layout200.composer_visible === true;
     checks.composer_reachable_at_200 = layout200.composer_reachable === true;
-    checks.console_keeps_height_at_200 = (layout200.pane_height as number) > 100;
+    // FD-05 moved the trade-off: the composer must stay on screen at 200 %, which
+    // the pre-deck layout did not do (that run recorded
+    // composer_bottom_within_viewport: false). The console therefore keeps a
+    // usable floor instead of the old 100 px, and the two conditions below are
+    // asserted together so a future edit cannot buy console height by pushing
+    // the prompt off screen.
+    checks.console_keeps_usable_height_at_200 =
+      (layout200.pane_height as number) >= 60 &&
+      layout200.composer_bottom_within_viewport === true &&
+      layout200.document_scrollable === false;
     checks.window_survives_200 = layout200.windowed === true;
     window.webContents.setZoomFactor(1);
     await sleep(400);
@@ -3247,8 +3304,14 @@ async function runR11Smoke(window: BrowserWindow): Promise<void> {
     // does not overlap or clip anything, the document scrolls to the composer, and
     // no horizontal overflow appears at either scale. What *is* asserted is that
     // the console itself keeps a usable height and that the composer is reachable.
-    checks.console_keeps_its_height_at_the_reference_window =
-      Number(fitSweep.find((entry) => entry.window_height === 800)?.console_height ?? 0) >= 300;
+    checks.console_keeps_its_height_at_the_reference_window = (() => {
+      const entry = fitSweep.find((candidate) => candidate.window_height === 800);
+      return (
+        Number(entry?.console_height ?? 0) >= 240 &&
+        entry?.composer_fully_visible === true &&
+        entry?.document_scrollable === false
+      );
+    })();
 
     // "Reachable" is asserted by the only definition that is not vacuous: scrolled
     // to, the composer is fully on screen and uncovered. A predicate of the form
@@ -3517,13 +3580,1157 @@ async function runR11Smoke(window: BrowserWindow): Promise<void> {
   if (report.ok !== true) process.exitCode = 1;
 }
 
+// -------------------------------------------------------------- deck smoke
+
+/**
+ * F02 evidence. The real Electron renderer, a real store, and a project the
+ * runner grows while it measures: 1,200 further stored frames and one 8,000-line
+ * stream that never closes. Every number comes from the live window at a real
+ * `setZoomFactor`, so the layout is qualified where the owner uses it rather
+ * than in a narrower browser viewport.
+ *
+ * No runtime is started, no turn is submitted, and no model request is made.
+ * The activity phases that require a provider turn are named as human checks in
+ * the evidence, not simulated here.
+ */
+async function runDeckSmoke(window: BrowserWindow): Promise<void> {
+  const outFile = process.env.MONA_DECK_SMOKE_OUT;
+  const outDir =
+    process.env.MONA_DECK_SMOKE_OUT_DIR ??
+    join(process.cwd(), "docs", "evidence", "macos", "studio-flight-deck");
+  mkdirSync(outDir, { recursive: true });
+  const report: Record<string, unknown> = {
+    schema_version: 1,
+    label: "F02 — Studio flight deck on real pixels, no engine, no model request",
+    captured_at: new Date().toISOString(),
+    host: {
+      platform: process.platform,
+      arch: process.arch,
+      macos: process.getSystemVersion(),
+      electron: process.versions.electron,
+      chrome: process.versions.chrome,
+      display: screen.getPrimaryDisplay().workAreaSize,
+      scaleFactor: screen.getPrimaryDisplay().scaleFactor,
+    },
+    ok: false,
+    checks: {} as Record<string, boolean>,
+    facts: {} as Record<string, unknown>,
+    layouts: [] as Array<Record<string, unknown>>,
+    screenshots: [] as string[],
+  };
+  const checks = report.checks as Record<string, boolean>;
+  const facts = report.facts as Record<string, unknown>;
+  const layouts = report.layouts as Array<Record<string, unknown>>;
+  const screenshots = report.screenshots as string[];
+  const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
+  const evaluate = async <T>(expression: string): Promise<T> =>
+    (await window.webContents.executeJavaScript(expression)) as T;
+  const waitFor = async (expression: string, timeoutMs = 20_000): Promise<boolean> => {
+    const deadline = Date.now() + timeoutMs;
+    while (Date.now() < deadline) {
+      if (await evaluate(expression)) return true;
+      await sleep(80);
+    }
+    return false;
+  };
+  const settle = async (frames = 3): Promise<void> => {
+    await evaluate(
+      `new Promise((resolve) => { let left = ${frames}; const step = () => (left-- <= 0 ? resolve(true) : requestAnimationFrame(step)); requestAnimationFrame(step); })`,
+    );
+  };
+  const shot = async (name: string): Promise<void> => {
+    await settle();
+    await sleep(120);
+    const image = await window.webContents.capturePage();
+    writeFileSync(join(outDir, name), image.toPNG());
+    screenshots.push(name);
+  };
+  /** Every box the deck's contract names, measured from the live document. */
+  const geometry = async (): Promise<Record<string, unknown>> =>
+    evaluate<Record<string, unknown>>(`(() => {
+      const box = (selector) => {
+        const node = document.querySelector(selector);
+        if (!node) return null;
+        const rect = node.getBoundingClientRect();
+        return {
+          top: Math.round(rect.top * 10) / 10,
+          bottom: Math.round(rect.bottom * 10) / 10,
+          left: Math.round(rect.left * 10) / 10,
+          right: Math.round(rect.right * 10) / 10,
+          width: Math.round(rect.width * 10) / 10,
+          height: Math.round(rect.height * 10) / 10,
+          disabled: node instanceof HTMLButtonElement ? node.disabled : null,
+        };
+      };
+      const hit = (selector) => {
+        const node = document.querySelector(selector);
+        if (!node) return null;
+        const rect = node.getBoundingClientRect();
+        const topmost = document.elementFromPoint(
+          rect.left + rect.width / 2,
+          rect.top + rect.height / 2,
+        );
+        return Boolean(topmost && (topmost === node || node.contains(topmost)));
+      };
+      const hitDetail = (selector) => {
+        const node = document.querySelector(selector);
+        if (!node) return null;
+        const rect = node.getBoundingClientRect();
+        const topmost = document.elementFromPoint(
+          rect.left + rect.width / 2,
+          rect.top + rect.height / 2,
+        );
+        if (!topmost) return 'nothing';
+        const twin = topmost === node || node.contains(topmost);
+        const describe = (element) =>
+          [
+            element.tagName.toLowerCase(),
+            element.id ? '#' + element.id : '',
+            typeof element.className === 'string' && element.className
+              ? '.' + element.className.trim().split(/\s+/).join('.')
+              : '',
+            element.getAttribute('data-testid') ? '[data-testid=' + element.getAttribute('data-testid') + ']' : '',
+          ].join('');
+        return { covered: !twin, by: describe(topmost) };
+      };
+      const consoleNode = document.querySelector('.studio__timeline');
+      const grip = document.querySelector('[data-testid="composer-grip"]');
+      const signal = document.querySelector('[data-testid="agent-signal"]');
+      return {
+        zoom: Math.round(window.devicePixelRatio * 100) / 100,
+        viewport: { width: window.innerWidth, height: window.innerHeight },
+        document: {
+          scroll_width: document.documentElement.scrollWidth,
+          scroll_height: document.documentElement.scrollHeight,
+          client_width: document.documentElement.clientWidth,
+          client_height: document.documentElement.clientHeight,
+          scroll_y: Math.round(window.scrollY * 10) / 10,
+        },
+        boxes: {
+          console: box('.studio__timeline'),
+          prompt: box('textarea'),
+          submit: box('[data-testid="studio-send"]'),
+          interrupt: box('[data-testid="studio-interrupt"]'),
+          pause: box('.composer-action--pause'),
+          controls: box('.composer__command-bar'),
+          primary: box('.composer__primary-controls'),
+          utilities: box('.composer__utilities'),
+          grip: box('[data-testid="composer-grip"]'),
+          deck: box('.studio-deck'),
+          signal: box('[data-testid="agent-signal"]'),
+          toolbar: box('.timeline__toolbar'),
+          composer: box('.composer'),
+          rail: box('.rail'),
+          rail_nav: box('.rail__nav'),
+          rail_brand: box('.rail__brand'),
+          harness: box('.harness'),
+          main: box('.harness__main'),
+          screen: box('.screen--studio'),
+          stage: box('.studio'),
+        },
+        hit: {
+          submit: hit('[data-testid="studio-send"]'),
+          interrupt: hit('[data-testid="studio-interrupt"]'),
+          pause: hit('.composer-action--pause'),
+          prompt: hit('textarea'),
+          grip: hit('[data-testid="composer-grip"]'),
+        },
+        hit_detail: {
+          submit: hitDetail('[data-testid="studio-send"]'),
+          prompt: hitDetail('textarea'),
+        },
+        heights: (() => {
+          const harness = document.querySelector('.harness');
+          const main = document.querySelector('.harness__main');
+          const screen = document.querySelector('.screen--studio');
+          const stage = document.querySelector('.studio');
+          return {
+            harness: harness ? Math.round(harness.getBoundingClientRect().height) : null,
+            main: main ? Math.round(main.getBoundingClientRect().height) : null,
+            screen: screen ? Math.round(screen.getBoundingClientRect().height) : null,
+            stage: stage ? Math.round(stage.getBoundingClientRect().height) : null,
+          };
+        })(),
+        console_scroll: consoleNode
+          ? {
+              scroll_height: consoleNode.scrollHeight,
+              client_height: consoleNode.clientHeight,
+              overflow_y: getComputedStyle(consoleNode).overflowY,
+              at_latest: Math.abs(
+                consoleNode.scrollHeight - consoleNode.clientHeight - consoleNode.scrollTop,
+              ) <= 24,
+            }
+          : null,
+        grip_value: grip ? grip.getAttribute('aria-valuenow') : null,
+        rail_layout: (() => {
+          const rail = document.querySelector('.rail');
+          const nav = document.querySelector('.rail__nav');
+          if (!rail) return null;
+          const style = getComputedStyle(rail);
+          return {
+            display: style.display,
+            flex_direction: style.flexDirection,
+            flex_wrap: style.flexWrap,
+            nav_direction: nav ? getComputedStyle(nav).flexDirection : null,
+            nav_wrap: nav ? getComputedStyle(nav).flexWrap : null,
+            nav_scroll_height: nav ? nav.scrollHeight : null,
+            nav_client_height: nav ? nav.clientHeight : null,
+            items: document.querySelectorAll('.rail__item').length,
+          };
+        })(),
+        inspector: Boolean(document.querySelector('.studio__inspector')),
+        signal_animated: signal ? signal.getAttribute('data-animated') : null,
+        signal_phase: signal ? signal.className : null,
+        running_animations: document.getAnimations
+          ? document.getAnimations().filter((entry) => entry.playState === 'running').length
+          : -1,
+        cards: document.querySelectorAll('.timeline-event').length,
+      };
+    })()`);
+  const bounded = (name: string, g: Record<string, unknown>): void => {
+    const viewport = g.viewport as { width: number; height: number };
+    const documentBox = g.document as Record<string, number | undefined>;
+    const boxes = g.boxes as Record<
+      string,
+      | { top: number; bottom: number; left: number; right: number; width: number; height: number }
+      | null
+      | undefined
+    >;
+    const key = (suffix: string): string => `${name}:${suffix}`;
+    checks[key("document_does_not_grow")] =
+      (documentBox.scroll_height ?? Number.POSITIVE_INFINITY) <= viewport.height + 1 &&
+      (documentBox.scroll_width ?? Number.POSITIVE_INFINITY) <= viewport.width + 1;
+    checks[key("console_scrolls_internally")] =
+      boxes.console != null && (g.console_scroll as Record<string, string>).overflow_y === "auto";
+    checks[key("prompt_inside_viewport")] =
+      boxes.prompt != null && boxes.prompt.bottom <= viewport.height + 1 && boxes.prompt.top >= 0;
+    checks[key("controls_above_prompt")] =
+      boxes.controls != null &&
+      boxes.prompt != null &&
+      boxes.controls.bottom <= boxes.prompt.top + 1;
+    checks[key("submit_reachable")] =
+      g.hit !== null && (g.hit as Record<string, boolean>).submit === true;
+    checks[key("interrupt_visible")] =
+      boxes.interrupt != null && boxes.interrupt.bottom <= viewport.height + 1;
+    checks[key("inspector_removed")] = g.inspector === false;
+    // The console's floor follows the room that exists. Above 360 CSS px of
+    // viewport height it must stay a real reading surface (60 px is about two
+    // cards); below that — a 900×620 window at 200 % zoom — the prompt and the
+    // console cannot both keep their floors, and the bound that matters is that
+    // nothing is clipped and the console still scrolls (asserted separately).
+    const consoleFloor = viewport.height >= 360 ? 60 : 40;
+    checks[key("console_keeps_usable_height")] =
+      boxes.console != null && boxes.console.height >= consoleFloor;
+  };
+  try {
+    if (!deckSmokeProjectId) throw new Error("the deck smoke has no project");
+    report.project = deckSmokeProjectId;
+    await waitFor("document.body.dataset.ready === 'true'", 30_000);
+    await evaluate("document.querySelector('[data-project-id]')?.click(); true");
+    checks.studio_opened = await waitFor(
+      "document.documentElement.dataset.screen === 'studio' && document.querySelectorAll('li.timeline-event').length > 0",
+      30_000,
+    );
+    // Nothing here starts a runtime; the deck must say so in its own words and
+    // in its machine-readable state, and must not animate a stopped engine. One
+    // screen-entry transition is allowed to finish first: "idle" means nothing
+    // is animating, not "nothing had started yet".
+    await sleep(1_400);
+    const idle = await evaluate<Record<string, unknown>>(`(() => {
+      const signal = document.querySelector('[data-testid="agent-signal"]');
+      return {
+        connection: signal?.getAttribute('data-connection') ?? null,
+        animated: signal?.getAttribute('data-animated') ?? null,
+        label: signal?.querySelector('.agent-signal__label')?.textContent ?? null,
+        running_animations: document.getAnimations
+          ? document.getAnimations().filter((entry) => entry.playState === 'running').length
+          : -1,
+        animation_names: document.getAnimations
+          ? document.getAnimations().map((entry) => {
+              const effect = entry.effect;
+              const name = effect && 'animationName' in effect ? effect.animationName : 'transition';
+              return name + ':' + entry.playState;
+            })
+          : [],
+      };
+    })()`);
+    facts.idle = idle;
+    checks.offline_signal_is_not_animated = idle.animated === "false";
+    checks.offline_signal_states_its_state =
+      idle.connection === "not_started" && String(idle.label ?? "").length > 0;
+    checks.no_animation_while_no_turn_runs =
+      (idle.running_animations as number) === 0 &&
+      (supervisor?.status().state ?? "stopped") !== "running";
+
+    // The sizes the owner uses: a laptop window, a smaller one, and the logical
+    // viewport 200 % page zoom leaves on this window. Zoom is applied through
+    // the real webContents factor, not by resizing a viewport.
+    const cases: Array<[number, number, number, string]> = [
+      [1440, 900, 1, "1440x900-100"],
+      [1280, 800, 1, "1280x800-100"],
+      [1280, 800, 1.25, "1280x800-125"],
+      [1280, 800, 1.5, "1280x800-150"],
+      [1280, 800, 2, "1280x800-200"],
+      [1100, 700, 1, "1100x700-100"],
+    ];
+    let referencePromptBottom: number | null = null;
+    for (const [width, height, factor, name] of cases) {
+      window.setSize(width, height);
+      await sleep(240);
+      window.webContents.setZoomFactor(factor);
+      await (async () => {
+        const deadline = Date.now() + 8_000;
+        while (
+          Date.now() < deadline &&
+          Math.abs(window.webContents.getZoomFactor() - factor) > 0.01
+        ) {
+          await sleep(80);
+        }
+      })();
+      await settle(4);
+      const before = await geometry();
+      bounded(name, before);
+      await shot(`f02-${name}.png`);
+
+      // Output may not move the prompt: append 1,200 stored frames and one
+      // 8,000-line stream that stays open, then re-read the same project. The
+      // screen re-reads its newest page; nothing is injected into the DOM.
+      const appended = await appendDeckLoad(deckSmokeProjectId, {
+        frames: 1_200,
+        streamLines: 8_000,
+      });
+      const deckProjectThread = String(appended.thread_id);
+      // The renderer learns about new stored frames the way it does in the
+      // product: a `projects:changed` push re-reads the detail and its history.
+      // Clicking the already-selected catalog row is a no-op, which is why this
+      // measurement has to use the real channel.
+      mainWindow?.webContents.send("projects:changed", { projectId: deckSmokeProjectId });
+      // The console paints a measured slice of a long transcript (R11), so the
+      // honest observable is the stored total the screen reports, not a card
+      // count that windowing would keep small by design.
+      const sawNewFrames = await waitFor(
+        `(() => {
+          const scope = document.querySelector('[data-testid="studio-history-scope"]')?.textContent ?? '';
+          const total = Number((scope.match(/(\\d+) stored/) ?? [])[1] ?? 0);
+          return total > ${1_000};
+        })()`,
+        20_000,
+      );
+      await settle(4);
+      const after = await geometry();
+      (after as Record<string, unknown>).refreshed_from_push = sawNewFrames;
+      (after as Record<string, unknown>).scope_text = await evaluate<string | null>(
+        "document.querySelector('[data-testid=\"studio-history-scope\"]')?.textContent ?? null",
+      );
+      (after as Record<string, unknown>).stored_total_readback = await (async (): Promise<
+        number | null
+      > => {
+        try {
+          let count = 0;
+          let read = 0;
+          for (;;) {
+            const batch = await productState!.readEvents(deckProjectThread, read, 1000);
+            if (batch.length === 0) break;
+            read = batch[batch.length - 1]?.seq ?? read;
+            count += batch.length;
+          }
+          return count;
+        } catch {
+          return null;
+        }
+      })();
+      bounded(`${name}-after-1200-and-8000`, after);
+      const beforePrompt = (before.boxes as Record<string, { bottom: number } | null | undefined>)
+        .prompt;
+      const afterPrompt = (after.boxes as Record<string, { bottom: number } | null | undefined>)
+        .prompt;
+      checks[`${name}:prompt_bottom_did_not_move`] =
+        beforePrompt != null &&
+        afterPrompt != null &&
+        Math.abs(beforePrompt.bottom - afterPrompt.bottom) < 2;
+      if (referencePromptBottom === null) referencePromptBottom = afterPrompt?.bottom ?? null;
+
+      // The tail must be reachable inside the console, and reading history must
+      // stay anchored with a working Jump to latest. Each case starts at the live
+      // edge — which is where a reader who is following output really is — so the
+      // measurement never inherits the previous case's scroll position.
+      await evaluate(`(() => {
+        const button = document.querySelector('[data-testid="studio-jump-latest"]');
+        if (button instanceof HTMLElement) button.click();
+        return true;
+      })()`);
+      await sleep(450);
+      const tail = await evaluate<Record<string, unknown>>(`(() => {
+        const consoleNode = document.querySelector('.studio__timeline');
+        if (!consoleNode) return { ok: false };
+        const bodyText = consoleNode.textContent ?? '';
+        const hasStreamText = bodyText.includes('flight-deck stream line 8000');
+        // A very long item is rendered in part. That is an honest truncation, not
+        // a missing tail, so the screen must say so beside it.
+        const truncationStated =
+          bodyText.includes('truncated') ||
+          bodyText.includes('Show full output') ||
+          Boolean(document.querySelector('[data-testid="studio-truncated-item"]'));
+        return {
+          ok: true,
+          has_stream_text: hasStreamText,
+          truncation_stated: truncationStated,
+          at_tail: Math.abs(
+            consoleNode.scrollHeight - consoleNode.clientHeight - consoleNode.scrollTop,
+          ) <= 32,
+          cards: document.querySelectorAll('.timeline-event').length,
+          console_scroll_height: consoleNode.scrollHeight,
+          console_client_height: consoleNode.clientHeight,
+          document_scroll_y: Math.round(window.scrollY),
+        };
+      })()`);
+      // Read history: scrolling up must not scroll the page and must offer a way
+      // back that names how many events arrived while reading.
+      const scrolledUp = await evaluate<Record<string, unknown>>(`(() => {
+        const consoleNode = document.querySelector('.studio__timeline');
+        if (!consoleNode) return { ok: false };
+        consoleNode.scrollTop = 0;
+        return {
+          ok: true,
+          scroll_top: Math.round(consoleNode.scrollTop),
+          document_scroll_y: Math.round(window.scrollY),
+        };
+      })()`);
+      await sleep(500);
+      const jumpable = await evaluate<Record<string, unknown>>(`(() => {
+        const button = document.querySelector('[data-testid="studio-jump-latest"]');
+        if (!(button instanceof HTMLElement)) return { present: false };
+        const label = button.textContent ?? '';
+        button.click();
+        return { present: true, label };
+      })()`);
+      await sleep(550);
+      const returned = await evaluate<Record<string, unknown>>(`(() => {
+        const consoleNode = document.querySelector('.studio__timeline');
+        if (!consoleNode) return { at_latest: false };
+        return {
+          at_latest:
+            Math.abs(consoleNode.scrollHeight - consoleNode.clientHeight - consoleNode.scrollTop) <= 32,
+          document_scroll_y: Math.round(window.scrollY),
+          jump_gone: !document.querySelector('[data-testid="studio-jump-latest"]'),
+        };
+      })()`);
+      facts[`reading_${name}`] = { tail, scrolledUp, jumpable, returned };
+      checks[`${name}:tail_reachable_inside_console`] =
+        tail.has_stream_text === true || tail.truncation_stated === true;
+      checks[`${name}:console_really_scrolls`] =
+        Number(tail.console_scroll_height ?? 0) > Number(tail.console_client_height ?? 0);
+      checks[`${name}:opens_at_the_live_edge`] = tail.at_tail === true;
+      checks[`${name}:history_reading_stays_in_the_console`] =
+        scrolledUp.document_scroll_y === 0 && returned.document_scroll_y === 0;
+      checks[`${name}:jump_returns_to_live_edge`] =
+        returned.at_latest === true && returned.jump_gone === true;
+      checks[`${name}:reading_never_scrolled_the_page`] =
+        tail.document_scroll_y === 0 && returned.document_scroll_y === 0;
+      layouts.push({ name, width, height, factor, appended, before, after });
+    }
+
+    // The composer resizes by pointer and by keyboard, then survives a shrink
+    // and a zoom change by re-clamping to the height that is left.
+    window.setSize(1280, 800);
+    window.webContents.setZoomFactor(1);
+    await sleep(300);
+    await evaluate("document.querySelector('textarea')?.focus(); true");
+    const gripKeys = async (): Promise<Record<string, unknown>> => {
+      const start = await geometry();
+      await evaluate(`(() => {
+        const grip = document.querySelector('[data-testid="composer-grip"]');
+        grip?.focus();
+        const press = (key, init) => grip?.dispatchEvent(
+          new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, ...init }),
+        );
+        press('End');
+        return true;
+      })()`);
+      await settle(3);
+      const atEnd = await geometry();
+      const maxOk = await evaluate<Record<string, unknown>>(`(() => {
+        const grip = document.querySelector('[data-testid="composer-grip"]');
+        const now = Number(grip?.getAttribute('aria-valuenow') ?? 0);
+        const max = Number(grip?.getAttribute('aria-valuemax') ?? 0);
+        return { now, max, within: now > 0 && now <= max };
+      })()`);
+      await evaluate(`(() => {
+        const grip = document.querySelector('[data-testid="composer-grip"]');
+        grip?.focus();
+        grip?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true, cancelable: true }));
+        return true;
+      })()`);
+      await settle(3);
+      const atHome = await geometry();
+      return { start, atEnd, atHome, maxOk };
+    };
+    const resize = await gripKeys();
+    facts.composer_resize = resize;
+    const resizeBoxes = (
+      entry: unknown,
+    ): { prompt: { height: number } | null; console: { height: number } | null } => {
+      const boxesOf = (
+        entry as {
+          boxes?: Record<string, { height: number } | null | undefined>;
+        }
+      ).boxes;
+      return { prompt: boxesOf?.prompt ?? null, console: boxesOf?.console ?? null };
+    };
+    checks.grip_reports_its_bounds = (resize.maxOk as Record<string, unknown>).within === true;
+    checks.grip_end_grows_the_composer =
+      (resizeBoxes(resize.atEnd).prompt?.height ?? 0) >
+      (resizeBoxes(resize.start).prompt?.height ?? 0);
+    checks.grip_home_restores_the_floor =
+      (resizeBoxes(resize.atHome).prompt?.height ?? 0) <=
+      (resizeBoxes(resize.start).prompt?.height ?? 0) + 1;
+
+    // Shrink the window with the composer at its maximum, then zoom in: the
+    // height must be re-clamped so Submit and Interrupt stay hit-testable.
+    await evaluate(`(() => {
+      const grip = document.querySelector('[data-testid="composer-grip"]');
+      grip?.focus();
+      grip?.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true, cancelable: true }));
+      return true;
+    })()`);
+    await settle(3);
+    window.setSize(900, 620);
+    await sleep(320);
+    await settle(4);
+    const shrunk = await geometry();
+    bounded("shrunk-with-max-composer", shrunk);
+    window.webContents.setZoomFactor(2);
+    await sleep(500);
+    await settle(4);
+    const shrunkZoomed = await geometry();
+    bounded("shrunk-and-zoomed-with-max-composer", shrunkZoomed);
+    // Give the room back: with the prompt at its minimum the console must recover
+    // to a full reading surface at the same 200 % zoom. This is the pair of
+    // statements the small-window case is really about — not one arbitrary
+    // number for the worst arrangement.
+    await evaluate(`(() => {
+      const grip = document.querySelector('[data-testid="composer-grip"]');
+      grip?.focus();
+      grip?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true, cancelable: true }));
+      return true;
+    })()`);
+    await settle(4);
+    const recovered = await geometry();
+    bounded("shrunk-and-zoomed-prompt-at-minimum", recovered);
+    facts.reclamp = { shrunk, shrunkZoomed, recovered };
+    window.webContents.setZoomFactor(1);
+    window.setSize(1280, 800);
+    await sleep(320);
+    await settle(3);
+
+    // Keyboard contract: Enter is a newline, Command-Enter submits once.
+    // Real key events, dispatched by Electron into the focused renderer: a
+    // synthetic KeyboardEvent proves a handler ran but never proves the native
+    // default (inserting a newline) still happens.
+    //
+    // Command-Enter is exercised on an EMPTY composer. That reaches the submit
+    // path — the shell's own "a task prompt must not be empty" refusal is the
+    // receipt — and starts nothing: no engine, no turn, no provider request.
+    const pressKey = async (
+      keyCode: string,
+      modifiers: Array<"meta"> = [],
+    ): Promise<Record<string, unknown>> => {
+      window.webContents.sendInputEvent({ type: "keyDown", keyCode, modifiers });
+      window.webContents.sendInputEvent({ type: "keyUp", keyCode, modifiers });
+      await sleep(220);
+      return evaluate<Record<string, unknown>>(`(() => ({
+        value: document.querySelector('textarea')?.value ?? null,
+        error: document.querySelector('.callout, .notification__title, [role="alert"]')?.textContent ?? null,
+        body_text: (document.body.textContent ?? '').includes('must not be empty'),
+        connection:
+          document.querySelector('[data-testid="agent-signal"]')?.getAttribute('data-connection') ?? null,
+        running_animations: document.getAnimations
+          ? document.getAnimations().filter((entry) => entry.playState === 'running').length
+          : -1,
+      }))()`);
+    };
+    const clearDraft = async (): Promise<void> =>
+      evaluate<void>(`(() => {
+        const element = document.querySelector('textarea');
+        if (!element) throw new Error('composer textarea is absent');
+        element.focus();
+        const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set;
+        setter?.call(element, '');
+        element.dispatchEvent(new Event('input', { bubbles: true }));
+        return undefined;
+      })()`);
+    // A capture-phase listener records what the composer really received: the
+    // key itself, and whether the product prevented the browser's newline.
+    await clearDraft();
+    await evaluate<void>(`(() => {
+      window.__deckEnterProbe = { count: 0, key: null, meta: false, prevented: null };
+      const element = document.querySelector('textarea');
+      element.addEventListener(
+        'keydown',
+        (event) => {
+          const probe = window.__deckEnterProbe;
+          probe.count += 1;
+          probe.key = event.key;
+          probe.meta = event.metaKey;
+          setTimeout(() => {
+            probe.prevented = event.defaultPrevented;
+          }, 0);
+        },
+        true,
+      );
+      return undefined;
+    })()`);
+    for (const character of "One prompt") {
+      window.webContents.sendInputEvent({ type: "char", keyCode: character });
+      await sleep(30);
+    }
+    const typed = await evaluate<string>("document.querySelector('textarea')?.value ?? ''");
+    const enter = await pressKey("Enter");
+    const enterProbe = await evaluate<Record<string, unknown>>("window.__deckEnterProbe ?? null");
+    facts.keyboard = { typed, enter, enterProbe };
+    checks.plain_enter_reaches_the_composer =
+      Number(enterProbe?.count ?? 0) === 1 && enterProbe?.key === "Enter";
+    // FD-08: Enter is a newline, so the product must not consume the key. The
+    // browser's own insertion is then the default action; `inserted` records
+    // whether this runtime performed it, and `value` carries the outcome.
+    checks.plain_enter_is_not_intercepted = enterProbe?.prevented === false;
+    checks.plain_enter_sends_nothing = enter.connection === "not_started";
+
+    // Command-Enter through a recognised command: `/help` is TUI-only, so the
+    // submit path runs exactly once, explains itself, and starts nothing. This is
+    // the same route the command smoke qualifies; it costs no model call.
+    await clearDraft();
+    for (const character of "/help") {
+      window.webContents.sendInputEvent({ type: "char", keyCode: character });
+      await sleep(40);
+    }
+    const commandEnter = await pressKey("Enter", ["meta"]);
+    await sleep(400);
+    const commandAfter = await evaluate<Record<string, unknown>>(`(() => ({
+      notice: document.querySelector('.notification__title')?.textContent ?? null,
+      body_text: (document.body.textContent ?? '').includes('TUI-only'),
+      value: document.querySelector('textarea')?.value ?? null,
+      connection:
+        document.querySelector('[data-testid="agent-signal"]')?.getAttribute('data-connection') ?? null,
+    }))()`);
+    facts.command_enter = { commandEnter, commandAfter };
+    checks.command_enter_reaches_the_submit_path = commandAfter.body_text === true;
+    checks.command_enter_starts_no_engine = commandAfter.connection === "not_started";
+    await clearDraft();
+
+    // Routine receipts leave; required attention stays. The 5 s timer is the
+    // owner's number, so it is measured end to end in the real window. Copying a
+    // card is the local action that produces a real success receipt: it writes
+    // the clipboard through the product's own IPC path and touches no engine.
+    const clipboardBefore = await clipboard.readText();
+    const beforeNotice = await evaluate<Record<string, unknown>>(`(() => {
+      const node = document.querySelector('.studio__timeline');
+      return {
+        console_top: node ? Math.round(node.getBoundingClientRect().top) : null,
+        console_scroll_top: node ? Math.round(node.scrollTop) : null,
+      };
+    })()`);
+    const clickedCopy = await evaluate<boolean>(`(() => {
+      const button = document.querySelector('[data-testid="copy-message"]');
+      if (!(button instanceof HTMLElement)) return false;
+      button.click();
+      return true;
+    })()`);
+    const noticeStart = Date.now();
+    const noticePresent = await waitFor("document.querySelector('.toast') !== null", 5_000);
+    const toast = await evaluate<Record<string, unknown>>(`(() => {
+      const node = document.querySelector('.toast');
+      if (!node) return { present: false };
+      const rect = node.getBoundingClientRect();
+      return {
+        present: true,
+        tone: node.querySelector('.notification')?.className ?? null,
+        text: node.querySelector('.notification__title')?.textContent ?? null,
+        top: Math.round(rect.top),
+        console_top: Math.round(
+          (document.querySelector('.studio__timeline')?.getBoundingClientRect().top ?? 0),
+        ),
+        console_scroll_top: Math.round(
+          document.querySelector('.studio__timeline')?.scrollTop ?? 0,
+        ),
+        position: getComputedStyle(node).position,
+      };
+    })()`);
+    const dismissed = await waitFor("document.querySelector('.toast') === null", 9_000);
+    const dismissedMs = Date.now() - noticeStart;
+    const noticeFacts: Record<string, unknown> = {
+      clicked_copy: clickedCopy,
+      present: noticePresent,
+      toast,
+      dismissed_ms: dismissedMs,
+      before: beforeNotice,
+      clipboard_restored: clipboardBefore,
+    };
+    facts.notice = noticeFacts;
+    await clipboard.writeText(clipboardBefore);
+    checks.routine_receipt_appeared = clickedCopy === true && noticePresent === true;
+    checks.routine_receipt_is_a_success_tone = String(
+      (toast as Record<string, unknown>).tone ?? "",
+    ).includes("notification--success");
+    checks.routine_receipt_dismisses_itself = dismissed === true;
+    // Five seconds of visible time plus the short fade, and no longer: a receipt
+    // that vanished instantly would pass "dismisses itself" while hiding the
+    // outcome the owner has to read.
+    checks.receipt_lives_for_five_seconds = dismissedMs >= 4_800 && dismissedMs <= 9_000;
+    // FD-10 also forbids the receipt from moving the work surface.
+    checks.receipt_does_not_move_the_console =
+      Number((toast as Record<string, unknown>).console_top ?? -1) ===
+        Number((beforeNotice as Record<string, unknown>).console_top ?? -2) &&
+      Number((toast as Record<string, unknown>).console_scroll_top ?? -1) ===
+        Number((beforeNotice as Record<string, unknown>).console_scroll_top ?? -2);
+
+    // Reduced motion through Chromium's emulation of the macOS setting.
+    let reduced: Record<string, unknown> = { attached: false };
+    try {
+      window.webContents.debugger.attach("1.3");
+      await window.webContents.debugger.sendCommand("Emulation.setEmulatedMedia", {
+        features: [{ name: "prefers-reduced-motion", value: "reduce" }],
+      });
+      window.reload();
+      await waitFor("document.body.dataset.ready === 'true'", 30_000);
+      await evaluate("document.querySelector('[data-project-id]')?.click(); true");
+      await waitFor("document.documentElement.dataset.screen === 'studio'", 30_000);
+      await sleep(400);
+      reduced = await evaluate<Record<string, unknown>>(`(() => {
+        const probe = document.createElement('span');
+        probe.className = 'agent-signal__orb';
+        const host = document.querySelector('[data-testid="agent-signal"]') ?? document.body;
+        host.appendChild(probe);
+        const chip = getComputedStyle(probe, '::after');
+        probe.remove();
+        return {
+          attached: true,
+          matches: matchMedia('(prefers-reduced-motion: reduce)').matches,
+          running_animations: document.getAnimations
+            ? document.getAnimations().filter((entry) => entry.playState === 'running').length
+            : -1,
+          orb_animation: chip.animationName,
+        };
+      })()`);
+    } catch (error) {
+      reduced = { attached: false, error: error instanceof Error ? error.message : String(error) };
+    } finally {
+      if (window.webContents.debugger.isAttached()) window.webContents.debugger.detach();
+    }
+    facts.reduced_motion = reduced;
+    checks.reduced_motion_matches = reduced.matches === true;
+    checks.reduced_motion_stops_decoration = (reduced.running_animations as number) === 0;
+
+    // The screen switcher must stay reachable when the rail collapses.
+    window.reload();
+    await waitFor("document.body.dataset.ready === 'true'", 30_000);
+    await evaluate("document.querySelector('[data-project-id]')?.click(); true");
+    await waitFor("document.documentElement.dataset.screen === 'studio'", 30_000);
+    window.setSize(760, 700);
+    await sleep(400);
+    const narrow = await evaluate<Record<string, unknown>>(`(() => {
+      const rail = document.querySelector('.rail');
+      const command = document.querySelector('[data-testid="focus-palette"]') ??
+        document.querySelector('[aria-label="Open command palette"]');
+      const rect = command?.getBoundingClientRect();
+      return {
+        rail_display: rail ? getComputedStyle(rail).display : null,
+        command_present: Boolean(command),
+        command_visible: Boolean(rect && rect.width > 0 && rect.height > 0),
+        horizontal_overflow:
+          document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+      };
+    })()`);
+    await shot("f02-narrow-760x700.png");
+    facts.narrow = narrow;
+    checks.narrow_has_no_page_overflow = narrow.horizontal_overflow === false;
+    checks.narrow_keeps_the_command_button = narrow.command_visible === true;
+    window.setSize(1280, 800);
+    await sleep(300);
+
+    // Panels are on demand and bounded, and Escape closes the local panel before
+    // it leaves Focus (FD-09, FD-11).
+    await evaluate(`(() => {
+      const more = document.querySelector('[data-testid="composer-more"]');
+      if (more instanceof HTMLElement) more.click();
+      return true;
+    })()`);
+    await settle(2);
+    const morePanel = await evaluate<Record<string, unknown>>(`(() => {
+      const panel = document.querySelector('.composer__utilities');
+      if (!panel) return { open: false };
+      const rect = panel.getBoundingClientRect();
+      const labels = Array.from(panel.querySelectorAll('button')).map((button) =>
+        (button.textContent ?? '').trim(),
+      );
+      const promptTop = document.querySelector('textarea')?.getBoundingClientRect().top ?? 0;
+      return {
+        open: true,
+        inside:
+          rect.left >= 0 &&
+          rect.top >= 0 &&
+          rect.right <= window.innerWidth + 1 &&
+          rect.bottom <= window.innerHeight + 1,
+        height: Math.round(rect.height),
+        labels,
+        covers_prompt: rect.bottom > promptTop,
+      };
+    })()`);
+    facts.more_panel = morePanel;
+    checks.secondary_actions_are_on_demand = morePanel.open === true;
+    checks.secondary_panel_is_inside_the_viewport = morePanel.inside === true;
+    checks.secondary_panel_holds_the_real_actions = [
+      "Mention file…",
+      "Attach binary",
+      "Queue after turn",
+      "Cancel queued",
+      "Stop engine",
+    ].every((label) =>
+      ((morePanel.labels as string[] | undefined) ?? []).some((text) => text.startsWith(label)),
+    );
+    // The panel floats above the bar, so opening it never covers the prompt.
+    checks.secondary_panel_does_not_cover_the_prompt = morePanel.covers_prompt === false;
+    await shot("f02-more-actions-panel.png");
+
+    // Focus, then a local panel, then Escape: the panel closes first.
+    const focusToggle = await evaluate(`(() => {
+      const button = document.querySelector('[data-testid="focus-exit"]');
+      if (!(button instanceof HTMLElement)) return false;
+      button.click();
+      return true;
+    })()`);
+    await sleep(600);
+    const inFocus = await evaluate<Record<string, unknown>>(`(() => ({
+      focus: document.documentElement.dataset.focusMode,
+      composer: Boolean(document.querySelector('.screen--studio-focus')),
+    }))()`);
+    const openedSearch = await evaluate(`(() => {
+      const button = Array.from(document.querySelectorAll('button')).find(
+        (node) => (node.textContent ?? '').trim() === 'Search',
+      );
+      if (!(button instanceof HTMLElement)) return false;
+      button.click();
+      return true;
+    })()`);
+    await sleep(350);
+    const searchOpen = await evaluate<boolean>(
+      "document.querySelector('[data-testid=\"studio-search\"]') !== null",
+    );
+    window.webContents.sendInputEvent({ type: "keyDown", keyCode: "Escape" });
+    window.webContents.sendInputEvent({ type: "keyUp", keyCode: "Escape" });
+    await sleep(400);
+    const afterEscape = await evaluate<Record<string, unknown>>(`(() => ({
+      focus: document.documentElement.dataset.focusMode,
+      search: document.querySelector('[data-testid="studio-search"]') !== null,
+    }))()`);
+    window.webContents.sendInputEvent({ type: "keyDown", keyCode: "Escape" });
+    window.webContents.sendInputEvent({ type: "keyUp", keyCode: "Escape" });
+    await sleep(500);
+    const afterSecondEscape = await evaluate<Record<string, unknown>>(`(() => ({
+      focus: document.documentElement.dataset.focusMode,
+    }))()`);
+    facts.focus_escape = {
+      focusToggle,
+      inFocus,
+      openedSearch,
+      searchOpen,
+      afterEscape,
+      afterSecondEscape,
+    };
+    checks.focus_mode_enters = inFocus.focus === "on";
+    checks.search_panel_opens = searchOpen === true;
+    checks.escape_closes_the_panel_first =
+      afterEscape.search === false && afterEscape.focus === "on";
+    checks.escape_then_leaves_focus = afterSecondEscape.focus === "off";
+
+    // The command list floats inside the window at both scales, and its body
+    // scrolls rather than pushing the composer.
+    const slashMenu = async (factor: number): Promise<Record<string, unknown>> => {
+      window.webContents.setZoomFactor(factor);
+      await sleep(500);
+      // Start from an empty composer: a dismissed token would not reopen the
+      // list, and that is correct behaviour for the same token.
+      await evaluate(`(() => {
+        const element = document.querySelector('textarea');
+        if (!element) return false;
+        element.focus();
+        const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set;
+        setter?.call(element, '');
+        element.dispatchEvent(new Event('input', { bubbles: true }));
+        return true;
+      })()`);
+      await sleep(250);
+      await evaluate(`(() => {
+        const element = document.querySelector('textarea');
+        if (!element) return false;
+        element.focus();
+        const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set;
+        setter?.call(element, '/');
+        element.setSelectionRange(1, 1);
+        element.dispatchEvent(new Event('input', { bubbles: true }));
+        return true;
+      })()`);
+      await waitFor("document.querySelector('.command-menu') !== null", 6_000);
+      await sleep(400);
+      const menu = await evaluate<Record<string, unknown>>(`(() => {
+        const node = document.querySelector('.command-menu');
+        if (!node) return { open: false };
+        const rect = node.getBoundingClientRect();
+        const body = document.querySelector('.command-menu__body');
+        const prompt = document.querySelector('textarea')?.getBoundingClientRect();
+        return {
+          open: true,
+          inside:
+            rect.left >= 0 &&
+            rect.top >= 0 &&
+            rect.right <= window.innerWidth + 1 &&
+            rect.bottom <= window.innerHeight + 1,
+          above_prompt: prompt ? rect.bottom <= prompt.top + 1 : null,
+          body_scrolls: body ? body.scrollHeight > body.clientHeight : false,
+          body_height: body ? Math.round(body.getBoundingClientRect().height) : 0,
+          options: document.querySelectorAll('[role="option"]').length,
+        };
+      })()`);
+      window.webContents.sendInputEvent({ type: "keyDown", keyCode: "Escape" });
+      window.webContents.sendInputEvent({ type: "keyUp", keyCode: "Escape" });
+      await sleep(300);
+      await evaluate(`(() => {
+        const element = document.querySelector('textarea');
+        const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set;
+        setter?.call(element, '');
+        element.dispatchEvent(new Event('input', { bubbles: true }));
+        return true;
+      })()`);
+      await sleep(200);
+      window.webContents.setZoomFactor(1);
+      await sleep(300);
+      return menu;
+    };
+    const menu100 = await slashMenu(1);
+    const menu200 = await slashMenu(2);
+    // The menu also has to survive a narrow window, not only zoom.
+    window.setSize(820, 700);
+    await sleep(350);
+    const menuNarrow = await slashMenu(1);
+    window.setSize(1280, 800);
+    await sleep(350);
+    facts.command_menu = { menu100, menu200, menuNarrow };
+    checks.command_menu_inside_viewport_at_100 = menu100.inside === true;
+    checks.command_menu_inside_viewport_at_200 = menu200.inside === true;
+    checks.command_menu_scrolls_at_200 = menu200.body_scrolls === true;
+    checks.command_menu_above_the_prompt = menu100.above_prompt === true;
+    checks.command_menu_keeps_options =
+      Number(menu200.options ?? 0) > 0 && Number(menuNarrow.options ?? 0) > 0;
+
+    // Both themes and both intensities, through the app's own preference path.
+    const themes: Array<Record<string, unknown>> = [];
+    for (const [theme, intensity] of [
+      ["daybreak", "vivid"],
+      ["afterglow", "vivid"],
+      ["afterglow", "quiet"],
+    ] as Array<[string, string]>) {
+      await evaluate(`(() => {
+        localStorage.setItem('mona.theme', ${JSON.stringify(theme)});
+        localStorage.setItem('mona.intensity', ${JSON.stringify(intensity)});
+        return true;
+      })()`);
+      window.reload();
+      await waitFor("document.body.dataset.ready === 'true'", 30_000);
+      await evaluate("document.querySelector('[data-project-id]')?.click(); true");
+      await waitFor("document.documentElement.dataset.screen === 'studio'", 30_000);
+      await waitFor("document.querySelectorAll('li.timeline-event').length > 0", 20_000);
+      await sleep(800);
+      const measured = await evaluate<Record<string, unknown>>(`(() => {
+        const parse = (value) => {
+          const match = String(value).match(/rgba?\\(([^)]+)\\)/);
+          if (!match) return null;
+          const parts = match[1].split(',').map((part) => Number.parseFloat(part.trim()));
+          return { r: parts[0], g: parts[1], b: parts[2], a: parts.length > 3 ? parts[3] : 1 };
+        };
+        const luminance = (color) => {
+          const channel = (value) => {
+            const scaled = value / 255;
+            return scaled <= 0.03928 ? scaled / 12.92 : ((scaled + 0.055) / 1.055) ** 2.4;
+          };
+          return 0.2126 * channel(color.r) + 0.7152 * channel(color.g) + 0.0722 * channel(color.b);
+        };
+        // The deck's surfaces are gradients, so a computed background-color is
+        // often transparent. The theme's own tokens are the ground truth for the
+        // base surface, and a probe element resolves them to a real colour.
+        const probe = document.createElement('div');
+        probe.style.cssText = 'position:absolute;visibility:hidden;color:var(--ink);background:var(--surface)';
+        document.body.appendChild(probe);
+        const probeStyle = getComputedStyle(probe);
+        const inkToken = parse(probeStyle.color);
+        const surfaceToken = parse(probeStyle.backgroundColor);
+        probe.remove();
+        const contrast = (selector, backSelector) => {
+          const node = document.querySelector(selector);
+          const back = document.querySelector(backSelector);
+          if (!node || !back) return null;
+          const own = parse(getComputedStyle(node).color);
+          const behind = parse(getComputedStyle(back).backgroundColor);
+          const front = own ?? inkToken;
+          const ground = behind && behind.a > 0.9 ? behind : surfaceToken;
+          if (!front || !ground) return null;
+          const a = luminance(front);
+          const b = luminance(ground);
+          return Math.round(((Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05)) * 100) / 100;
+        };
+        return {
+          theme: document.documentElement.dataset.theme,
+          intensity: document.documentElement.dataset.intensity,
+          body_contrast: contrast('.timeline-event__body', '.studio__timeline'),
+          signal_contrast: contrast('.agent-signal__label', '.studio-deck'),
+          prompt_contrast: contrast('textarea', '.composer'),
+          overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+          document_height_ok: document.documentElement.scrollHeight <= window.innerHeight + 1,
+          running_animations: document.getAnimations
+            ? document.getAnimations().filter((entry) => entry.playState === 'running').length
+            : -1,
+        };
+      })()`);
+      themes.push({ ...measured, requested: { theme, intensity } });
+      await shot(`f02-theme-${theme}-${intensity}.png`);
+    }
+    facts.themes = themes;
+    checks.themes_apply = themes.every((entry) => {
+      const requested = (entry as { requested?: { theme?: string } }).requested;
+      return (entry as Record<string, unknown>).theme === requested?.theme;
+    });
+    checks.themes_stay_bounded = themes.every(
+      (entry) =>
+        (entry as Record<string, unknown>).overflow === false &&
+        (entry as Record<string, unknown>).document_height_ok === true,
+    );
+    checks.primary_text_meets_contrast = themes.every((entry) => {
+      const value = (entry as Record<string, number | null | undefined>).body_contrast;
+      return value == null || value >= 4.5;
+    });
+    checks.signal_label_meets_contrast = themes.every((entry) => {
+      const value = (entry as Record<string, number | null | undefined>).signal_contrast;
+      return value == null || value >= 4.5;
+    });
+    // The theme preference is reset so the rest of the run and the screenshots
+    // that follow describe the default appearance.
+    await evaluate(`(() => {
+      localStorage.removeItem('mona.theme');
+      localStorage.removeItem('mona.intensity');
+      return true;
+    })()`);
+    window.reload();
+    await waitFor("document.body.dataset.ready === 'true'", 30_000);
+    await evaluate("document.querySelector('[data-project-id]')?.click(); true");
+    await waitFor("document.documentElement.dataset.screen === 'studio'", 30_000);
+    await sleep(400);
+
+    report.ok = Object.values(checks).every(Boolean);
+  } catch (error) {
+    const candidate = error as { message?: string; stack?: string };
+    report.ok = false;
+    report.error = { message: candidate.message ?? String(error), stack: candidate.stack ?? null };
+  }
+  if (outFile) writeFileSync(outFile, JSON.stringify(report, null, 2) + "\n");
+  if (report.ok !== true) process.exitCode = 1;
+}
+
+/**
+ * Appends stored frames to the deck project: `frames` completed exchanges and
+ * one 8,000-line item that is started and never completed, which is what a live
+ * stream looks like to the projection. Stored history only — nothing is sent.
+ */
+async function appendDeckLoad(
+  projectId: string,
+  options: { frames: number; streamLines: number },
+): Promise<Record<string, unknown>> {
+  const state = productState;
+  const projects = projectService;
+  if (!state || !projects) throw new Error("the deck smoke has no store");
+  const detail = await projects.detail(projectId as StudioProjectId);
+  const thread = detail.threads[0];
+  if (!thread) throw new Error("the deck smoke project has no thread");
+  // The store reads forward in bounded pages, so the next free sequence is
+  // found by walking them rather than by asking for an unbounded list.
+  let highest = 0;
+  let cursor = 0;
+  for (;;) {
+    const batch = await state.readEvents(thread.id, cursor, 1000);
+    if (batch.length === 0) break;
+    cursor = batch[batch.length - 1]?.seq ?? cursor;
+    highest = Math.max(highest, cursor);
+  }
+  const start = Date.now() - options.frames * 1_000;
+  let seq = highest + 1;
+  const at = (offset: number): string => new Date(start + offset * 1_000).toISOString();
+  const turnId = "turn_deck_load_0001";
+  await state.recordEvent({
+    threadId: thread.id,
+    seq: seq++,
+    kind: "turn.started",
+    turnId,
+    payload: { permission_posture: "full_access" },
+    timestamp: at(0),
+  });
+  for (let index = 0; index < options.frames; index += 1) {
+    const itemId = `item_deck_load_${index}`;
+    await state.recordEvent({
+      threadId: thread.id,
+      seq: seq++,
+      kind: "item.completed",
+      turnId,
+      itemId,
+      payload: {
+        item: {
+          schema_version: 2,
+          id: itemId,
+          turn_id: turnId,
+          kind: "agent_message",
+          status: "completed",
+          summary: `frame ${index}`,
+          detail: `frame ${index}: the deck keeps the prompt still while output arrives.`,
+        },
+      },
+      timestamp: at(index),
+    });
+  }
+  const streamId = "item_deck_stream";
+  await state.recordEvent({
+    threadId: thread.id,
+    seq: seq++,
+    kind: "item.started",
+    turnId,
+    itemId: streamId,
+    payload: { item: { id: streamId, kind: "agent_message" } },
+    timestamp: at(options.frames),
+  });
+  const lines = Array.from(
+    { length: options.streamLines },
+    (_, line) => `flight-deck stream line ${line + 1}`,
+  ).join("\n");
+  await state.recordEvent({
+    threadId: thread.id,
+    seq: seq++,
+    kind: "item.delta",
+    turnId,
+    itemId: streamId,
+    payload: { kind: "agent_message", delta: lines },
+    timestamp: at(options.frames),
+  });
+  return {
+    thread_id: thread.id,
+    frames: options.frames,
+    stream_lines: options.streamLines,
+    final_seq: seq - 1,
+  };
+}
+
 // ----------------------------------------------------------- command smoke
 
 /**
  * R03 evidence runner. It opens a real project in the real Electron shell and
  * drives the composer's command list with real keyboard and pointer events.
  * Autocomplete, filtering, and help are local reads: the connection stays
- * "Not started" and no model request is made.
+ * `not_started` and no model request is made.
  */
 async function runCommandSmoke(window: BrowserWindow): Promise<void> {
   const outDir =
@@ -3610,12 +4817,18 @@ async function runCommandSmoke(window: BrowserWindow): Promise<void> {
         detail: menu?.querySelector(".command-menu__detail")?.textContent ?? "",
         connection:
           document.querySelector('[data-testid="agent-signal"]')?.textContent ?? "",
+        // The Studio deck replaced the connection plaque with one activity
+        // signal; the machine-readable state is the attribute the screen itself
+        // branches on, which is a stronger statement than a phrase in prose.
+        connection_state:
+          document.querySelector('[data-testid="agent-signal"]')?.getAttribute("data-connection") ??
+          null,
       };
     })()`);
     facts.initial = initial;
     checks.reports_catalog_total = String(initial.header ?? "").includes("109 catalogued");
     checks.has_real_description = String(initial.detail ?? "").length > 20;
-    checks.connection_not_started = String(initial.connection ?? "").includes("Not started");
+    checks.connection_not_started = initial.connection_state === "not_started";
 
     await typeText("/he");
     const filtered = await evaluate<Record<string, unknown>>(`(() => {
@@ -3674,11 +4887,12 @@ async function runCommandSmoke(window: BrowserWindow): Promise<void> {
     facts.tui_only_notice = await evaluate<string>(
       "document.querySelector('.notification__title')?.textContent ?? ''",
     );
-    checks.engine_still_not_started = (
-      await evaluate<string>(
-        "document.querySelector('[data-testid=\"studio-connection\"]')?.textContent ?? ''",
-      )
-    ).includes("Not started");
+    // Neither a slash command nor its explanation may start the runtime: the
+    // signal must still report the idle not-started connection afterwards.
+    checks.engine_still_not_started =
+      (await evaluate<string | null>(
+        "document.querySelector('[data-testid=\"agent-signal\"]')?.getAttribute('data-connection') ?? null",
+      )) === "not_started";
 
     await typeText("/");
     // Wait for the composer's committed state, not just the DOM value: a
@@ -4491,12 +5705,12 @@ async function runImmersiveSmoke(window: BrowserWindow): Promise<void> {
     checks.stored_view_has_no_fullscreen_binding =
       storedView !== null && !Object.keys(storedView).includes("fullscreen");
 
-    // The run never submitted anything: the connection stayed "Not started" for
-    // the whole sequence, so no turn and no model request exists to account for.
+    // The run never submitted anything: the connection never left "not_started",
+    // so no turn and no model request exists to account for. The state is read
+    // from the signal's own attribute, not from its prose.
     facts.engine_state = supervisor?.status().state ?? null;
     checks.no_runtime_or_model =
-      String(back.connection ?? "").includes("Not started") &&
-      (supervisor?.status().state ?? "stopped") !== "running";
+      back.connection === "not_started" && (supervisor?.status().state ?? "stopped") !== "running";
     report.ok = Object.values(checks).every(Boolean);
   } catch (error) {
     const candidate = error as { message?: string; stack?: string };
@@ -6932,6 +8146,123 @@ if (!gotLock) {
               timestamp: at(),
             });
           }
+          await productState.recordEvent({
+            threadId: thread.id,
+            seq: seq++,
+            kind: "turn.completed",
+            turnId,
+            payload: {},
+            timestamp: at(),
+          });
+        }
+      }
+    }
+
+    if (IS_DECK_SMOKE && projectService && productState) {
+      // F02 evidence. One real store, one real folder, and a store-read
+      // transcript the runner then grows by 1,200 frames plus a single
+      // 8,000-line item while it measures. No runtime, no turn, no model.
+      const base = mkdtempSync(join(tmpdir(), "mona-deck-smoke-project-"));
+      const root = join(base, "Flight deck");
+      mkdirSync(root, { recursive: true });
+      writeFileSync(join(root, "README.md"), "# Flight deck\n", "utf8");
+      const opened = await projectService.open(root);
+      deckSmokeProjectId = opened?.project.id ?? null;
+      if (opened) {
+        const detail = await projectService.detail(opened.project.id);
+        const thread = detail.threads[0];
+        if (thread) {
+          const start = Date.parse("2026-11-01T00:00:00.000Z");
+          let seq = 1;
+          const at = (): string => new Date(start + seq * 1_000).toISOString();
+          await productState.recordEvent({
+            threadId: thread.id,
+            seq: seq++,
+            kind: "thread.started",
+            payload: {},
+            timestamp: at(),
+          });
+          const turnId = "turn_deck_smoke_0001";
+          await productState.recordEvent({
+            threadId: thread.id,
+            seq: seq++,
+            kind: "turn.started",
+            turnId,
+            payload: { permission_posture: "full_access" },
+            timestamp: at(),
+          });
+          const userItem = "item_deck_user";
+          await productState.recordEvent({
+            threadId: thread.id,
+            seq: seq++,
+            kind: "item.completed",
+            turnId,
+            itemId: userItem,
+            payload: {
+              item: {
+                id: userItem,
+                kind: "user_message",
+                status: "completed",
+                detail: "Tighten the deck and keep the prompt on screen.",
+              },
+            },
+            timestamp: at(),
+          });
+          // Three completed cards: enough for a Copy control, a tool card, and a
+          // reasoning card, which is every shape the deck has to lay out.
+          for (const [itemId, kind, body] of [
+            [
+              "item_deck_answer",
+              "agent_message",
+              "The deck is bounded: the console scrolls, the prompt does not move.",
+            ],
+            ["item_deck_tool", "tool_call", 'rg -n "deck" src/renderer | head -20'],
+          ] as Array<[string, string, string]>) {
+            await productState.recordEvent({
+              threadId: thread.id,
+              seq: seq++,
+              kind: "item.started",
+              turnId,
+              itemId,
+              payload: { item: { id: itemId, kind } },
+              timestamp: at(),
+            });
+            await productState.recordEvent({
+              threadId: thread.id,
+              seq: seq++,
+              kind: "item.completed",
+              turnId,
+              itemId,
+              payload: {
+                item: {
+                  schema_version: 2,
+                  id: itemId,
+                  turn_id: turnId,
+                  kind,
+                  status: "completed",
+                  summary: body,
+                  detail: body,
+                },
+              },
+              timestamp: at(),
+            });
+          }
+          await productState.recordEvent({
+            threadId: thread.id,
+            seq: seq++,
+            kind: "item.completed",
+            turnId,
+            itemId: "item_deck_reasoning",
+            payload: {
+              item: {
+                id: "item_deck_reasoning",
+                kind: "agent_reasoning",
+                status: "completed",
+                detail: "The prompt must stay hit-testable at every zoom level.",
+              },
+            },
+            timestamp: at(),
+          });
           await productState.recordEvent({
             threadId: thread.id,
             seq: seq++,

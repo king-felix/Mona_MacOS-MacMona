@@ -1,0 +1,58 @@
+
+> mona@0.1.0-p02 smoke:r11
+> npm run build && node scripts/r11-smoke.mjs
+
+
+> mona@0.1.0-p02 build
+> npm run clean && npm run build:main && npm run build:renderer
+
+
+> mona@0.1.0-p02 clean
+> rm -rf dist coverage
+
+
+> mona@0.1.0-p02 build:main
+> tsc -p tsconfig.main.json
+
+
+> mona@0.1.0-p02 build:renderer
+> vite build
+
+vite v8.3.8 building client environment for production...
+transforming...
+✓ 163 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/renderer/index.html                       0.76 kB │ gzip:   0.41 kB
+dist/renderer/assets/mona-mark-ChAj1Hvn.png   27.56 kB
+dist/renderer/assets/index-CgjmFBbk.css       97.08 kB │ gzip:  16.45 kB
+dist/renderer/assets/index-DkCAxruy.js       782.98 kB │ gzip: 214.45 kB
+
+✓ built in 118ms
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+{
+  "status": "passed_with_exception",
+  "ok": true,
+  "comparison": {
+    "cold_interactive_ms": 1425,
+    "warm_interactive_ms": 1386,
+    "warm_saving_ms": 39,
+    "cold_wall_ms": 81346,
+    "warm_wall_ms": 19879
+  },
+  "failing_checks": [
+    "idle_memory_under_350_mb"
+  ],
+  "budget_exceptions": [
+    {
+      "check": "idle_memory_under_350_mb",
+      "measured_mb": 579.2,
+      "runtime_floor_mb": 362
+    }
+  ]
+}
+exit=0

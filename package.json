@@ -36,6 +36,7 @@
     "smoke:immersive": "npm run build && node scripts/immersive-smoke.mjs",
     "smoke:aurora": "npm run build && node scripts/aurora-smoke.mjs",
     "smoke:r11": "npm run build && node scripts/r11-smoke.mjs",
+    "smoke:deck": "npm run build && node scripts/deck-smoke.mjs",
     "smoke:pending": "npm run build:main && node scripts/pending-smoke.mjs",
     "icon:render": "node packaging/macos/icon.mjs --mark src/renderer/assets/mona-mark.png",
     "smoke:commands:live": "npm run build:main && node scripts/command-execute-smoke.mjs",

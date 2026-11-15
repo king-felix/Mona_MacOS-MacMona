@@ -54,7 +54,7 @@ import { useTimelineWindow } from "./timeline-window";
 import { projectActivity } from "./activity";
 import { AgentSignal } from "./AgentSignal";
 import { UsageHud } from "./UsageHud";
-import { CommandMenu } from "./CommandMenu";
+import { COMMAND_MENU_DETAIL_MIN_PANEL, CommandMenu } from "./CommandMenu";
 import {
   acceptCommand,
   classifyComposerText,
@@ -1214,12 +1214,21 @@ export function StudioScreen(props: StudioProps): JSX.Element {
   const [searchOpen, setSearchOpen] = useState(false);
   const [queueOpen, setQueueOpen] = useState(false);
   const [favoritesOpen, setFavoritesOpen] = useState(false);
+  // FD-09: the secondary composer actions (mention, attach, queue, stop, start,
+  // board, favorites, follow-ups) are one on-demand panel instead of two
+  // permanently visible rows. The rows cost 34 px of every window and pushed the
+  // console to 22 px at 150 % zoom; the primary controls stay in the bar.
+  const [actionsOpen, setActionsOpen] = useState(false);
   const [composerHeight, setComposerHeight] = useState<number | null>(null);
   // The stage and the composer's own chrome are observed, not assumed. A fixed
   // pixel height would survive a window shrink, a zoom change or a focus
   // transition and then take the live turn off screen, which is exactly what
   // the bound exists to prevent.
   const [stageSize, setStageSize] = useState({ height: 0, chrome: 96, other: 0 });
+  // The grip reports what the field really is. Before this, `aria-valuenow` said
+  // "72" while the CSS default rendered a 104 px field, so a keyboard user was
+  // told a size the screen did not show.
+  const [fieldHeight, setFieldHeight] = useState(0);
   useLayoutEffect(() => {
     const stage = stageRef.current;
     const field = composerRef.current;
@@ -1242,6 +1251,8 @@ export function StudioScreen(props: StudioProps): JSX.Element {
           ? previous
           : { height, chrome, other },
       );
+      const observed = field.offsetHeight;
+      setFieldHeight((previous) => (previous === observed ? previous : observed));
     };
     measure();
     // A ResizeObserver sees window resize, zoom, and a layout change that a
@@ -1637,6 +1648,30 @@ export function StudioScreen(props: StudioProps): JSX.Element {
     setDismissedCommand(null);
   }, [detail?.project.id, history?.threadId]);
 
+  // FD-11: Escape closes the local panel before the shell leaves Focus, wherever
+  // the keyboard focus happens to be. A React handler on the screen only sees
+  // keys that bubble through its own subtree, so a panel whose trigger re-rendered
+  // (focus on the body) let Escape leave Focus with the panel still open. The
+  // capture listener owns the key while a panel is open.
+  const anyPanelOpen = favoritesOpen || queueOpen || searchOpen || actionsOpen;
+  useEffect(() => {
+    if (!anyPanelOpen) return;
+    const onKeyDown = (event: KeyboardEvent): void => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      setFavoritesOpen(false);
+      setQueueOpen(false);
+      setSearchOpen(false);
+      setActionsOpen(false);
+      // Focus is deliberately not moved into the composer here: Escape must be
+      // able to leave Focus on the next press, and a text field owns Escape.
+    };
+    window.addEventListener("keydown", onKeyDown, true);
+    return () => window.removeEventListener("keydown", onKeyDown, true);
+  }, [anyPanelOpen]);
+
   // Escape dismisses this token only. Moving the caret away or editing the
   // token clears the dismissal; accepting a no-argument command also closes the
   // list instead of immediately reopening it on the new text.
@@ -1781,15 +1816,9 @@ export function StudioScreen(props: StudioProps): JSX.Element {
     <div
       className={`screen screen--studio ${props.focusMode ? "screen--studio-focus" : ""}`}
       data-focus-mode={props.focusMode ? "on" : "off"}
-      onKeyDown={(event) => {
-        if (event.key !== "Escape" || !(favoritesOpen || queueOpen || searchOpen)) return;
-        // A transient panel consumes Escape before the shell leaves Focus.
-        event.preventDefault();
-        event.stopPropagation();
-        setFavoritesOpen(false);
-        setQueueOpen(false);
-        setSearchOpen(false);
-      }}
+      /* Escape is owned by the capture listener above while a panel is open, so
+         there is exactly one place that closes panels and exactly one that can
+         stop the shell from leaving Focus. */
     >
       <StudioDeck
         focusMode={props.focusMode}
@@ -1957,7 +1986,11 @@ export function StudioScreen(props: StudioProps): JSX.Element {
               ))}
             </select>
           </label>
-          <span className="hint-line" data-testid="studio-history-scope">
+          <span
+            className="hint-line"
+            data-testid="studio-history-scope"
+            title={`${entries.length} shown · ${scope} stored`}
+          >
             {entries.length} shown · {scope} stored
             {history?.hasMore ? " · older pages available" : " · earliest stored event loaded"}
             {/* R11: when the console windows a long conversation, say how many
@@ -2106,7 +2139,9 @@ export function StudioScreen(props: StudioProps): JSX.Element {
                 aria-label="Resize the prompt composer"
                 aria-valuemin={composerLimits.min}
                 aria-valuemax={composerLimits.max}
-                aria-valuenow={composerHeight ?? composerLimits.min}
+                aria-valuenow={
+                  composerHeight ?? (fieldHeight > 0 ? fieldHeight : composerLimits.min)
+                }
                 tabIndex={0}
                 data-testid="composer-grip"
                 onPointerDown={(event) => {
@@ -2226,6 +2261,7 @@ export function StudioScreen(props: StudioProps): JSX.Element {
                           : "No active turn to interrupt"
                       }
                       onClick={props.onInterrupt}
+                      data-testid="studio-interrupt"
                     >
                       Interrupt now
                     </Button>
@@ -2242,112 +2278,132 @@ export function StudioScreen(props: StudioProps): JSX.Element {
                     >
                       Submit
                     </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      icon={<ChevronDownIcon size={13} />}
+                      className="composer__more"
+                      aria-expanded={actionsOpen}
+                      aria-controls="composer-more-actions"
+                      title="Show the secondary actions: files, queue, engine control, favorites and follow-ups"
+                      onClick={() => setActionsOpen((value) => !value)}
+                      data-testid="composer-more"
+                    >
+                      More
+                    </Button>
                   </div>
                 </div>
-                <div className="composer__utilities">
-                  {props.onMentionFile ? (
+                {actionsOpen ? (
+                  <div
+                    className="composer__utilities"
+                    id="composer-more-actions"
+                    role="group"
+                    aria-label="More composer actions"
+                  >
+                    {props.onMentionFile ? (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={props.onMentionFile}
+                        title="Insert a workspace file's text into the composer as an explicit, reviewable block. Sizes and an estimated token cost are shown before you insert it."
+                        data-testid="mention-file"
+                      >
+                        Mention file…
+                      </Button>
+                    ) : null}
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={props.onMentionFile}
-                      title="Insert a workspace file's text into the composer as an explicit, reviewable block. Sizes and an estimated token cost are shown before you insert it."
-                      data-testid="mention-file"
+                      disabled
+                      title="Binary attachments are unavailable in the pinned adapter: it accepts text context, not file uploads. Mona will not fabricate one."
+                      data-testid="attach-file"
                     >
-                      Mention file…
+                      Attach binary
                     </Button>
-                  ) : null}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    disabled
-                    title="Binary attachments are unavailable in the pinned adapter: it accepts text context, not file uploads. Mona will not fabricate one."
-                    data-testid="attach-file"
-                  >
-                    Attach binary
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    className="composer-action--queue"
-                    size="sm"
-                    disabled={
-                      !props.onQueueFollowUp ||
-                      props.followUpBusy === true ||
-                      props.draft.trim().length === 0 ||
-                      viewingArchivedThread
-                    }
-                    title={
-                      viewingArchivedThread
-                        ? "This is an archived conversation; a follow-up must target the current one"
-                        : props.draft.trim().length === 0
-                          ? "Write the follow-up first"
-                          : "Queue this text for after the current turn. It is stored, not sent; main dispatches it at the next turn boundary."
-                    }
-                    onClick={() => props.onQueueFollowUp?.(props.draft, props.mode)}
-                    data-testid="queue-follow-up"
-                  >
-                    Queue after turn
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    disabled={!studio?.controls.canCancelQueued}
-                    title={
-                      studio?.controls.canCancelQueued
-                        ? "Remove future starts; the active turn is untouched"
-                        : "No queued starts to cancel"
-                    }
-                    className="composer-action--cancel"
-                    onClick={props.onCancelQueued}
-                  >
-                    Cancel queued
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    disabled={!studio?.controls.canStop || props.studioBusy}
-                    title={
-                      studio?.controls.canStop
-                        ? "Interrupt any active turn, then stop the owned process tree"
-                        : "No owned runtime is running"
-                    }
-                    className="composer-action--stop"
-                    onClick={props.onStop}
-                  >
-                    Stop engine
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    icon={<WarningIcon size={14} />}
-                    className="composer-action--human"
-                    onClick={props.onShowBoard}
-                  >
-                    Needs the Human{blockedTasks.length > 0 ? ` (${blockedTasks.length})` : ""}
-                  </Button>
-                  {canStart ? (
-                    <Button size="sm" variant="ghost" onClick={props.onStart}>
-                      Start engine
+                    <Button
+                      variant="ghost"
+                      className="composer-action--queue"
+                      size="sm"
+                      disabled={
+                        !props.onQueueFollowUp ||
+                        props.followUpBusy === true ||
+                        props.draft.trim().length === 0 ||
+                        viewingArchivedThread
+                      }
+                      title={
+                        viewingArchivedThread
+                          ? "This is an archived conversation; a follow-up must target the current one"
+                          : props.draft.trim().length === 0
+                            ? "Write the follow-up first"
+                            : "Queue this text for after the current turn. It is stored, not sent; main dispatches it at the next turn boundary."
+                      }
+                      onClick={() => props.onQueueFollowUp?.(props.draft, props.mode)}
+                      data-testid="queue-follow-up"
+                    >
+                      Queue after turn
                     </Button>
-                  ) : null}
-                  <button
-                    type="button"
-                    className="composer__favorites-toggle"
-                    onClick={() => setFavoritesOpen((value) => !value)}
-                    aria-expanded={favoritesOpen}
-                  >
-                    Favorites
-                  </button>
-                  {followUps.length > 0 ? (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      disabled={!studio?.controls.canCancelQueued}
+                      title={
+                        studio?.controls.canCancelQueued
+                          ? "Remove future starts; the active turn is untouched"
+                          : "No queued starts to cancel"
+                      }
+                      className="composer-action--cancel"
+                      onClick={props.onCancelQueued}
+                    >
+                      Cancel queued
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      disabled={!studio?.controls.canStop || props.studioBusy}
+                      title={
+                        studio?.controls.canStop
+                          ? "Interrupt any active turn, then stop the owned process tree"
+                          : "No owned runtime is running"
+                      }
+                      className="composer-action--stop"
+                      onClick={props.onStop}
+                    >
+                      Stop engine
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      icon={<WarningIcon size={14} />}
+                      className="composer-action--human"
+                      onClick={props.onShowBoard}
+                    >
+                      Needs the Human{blockedTasks.length > 0 ? ` (${blockedTasks.length})` : ""}
+                    </Button>
+                    {canStart ? (
+                      <Button size="sm" variant="ghost" onClick={props.onStart}>
+                        Start engine
+                      </Button>
+                    ) : null}
                     <button
                       type="button"
-                      className="composer__queue-toggle"
-                      onClick={() => setQueueOpen((value) => !value)}
-                      aria-expanded={queueOpen}
+                      className="composer__favorites-toggle"
+                      onClick={() => setFavoritesOpen((value) => !value)}
+                      aria-expanded={favoritesOpen}
                     >
-                      Follow-ups ({followUps.filter((item) => item.status === "queued").length})
+                      Favorites
                     </button>
-                  ) : null}
-                </div>
+                    {followUps.length > 0 ? (
+                      <button
+                        type="button"
+                        className="composer__queue-toggle"
+                        onClick={() => setQueueOpen((value) => !value)}
+                        aria-expanded={queueOpen}
+                      >
+                        Follow-ups ({followUps.filter((item) => item.status === "queued").length})
+                      </button>
+                    ) : null}
+                  </div>
+                ) : null}
               </div>
               {favoritesOpen ? (
                 <div className="studio__favorites-drawer">
@@ -2508,7 +2564,7 @@ export function StudioScreen(props: StudioProps): JSX.Element {
                     engine={studio?.connection.engine ?? null}
                     placement={menuBox.placement}
                     maxHeight={menuBox.maxHeight}
-                    compact={menuBox.maxHeight < 240}
+                    compact={menuBox.maxHeight < COMMAND_MENU_DETAIL_MIN_PANEL}
                   />
                 ) : null}
               </div>

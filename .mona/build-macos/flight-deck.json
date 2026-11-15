@@ -4,9 +4,9 @@
   "baseline": "344d41c3f154d6461bb82d873d6d3541faaa09b9",
   "updated_utc": "2026-11-15",
   "implementation": "integrated on the owner macOS checkout, branch studio-flight-deck off c334cbb; local post-baseline commits preserved",
-  "platform_qualified": "macOS 26.5.1 arm64 source checks (typecheck, lint, format, build, 120 focused tests)",
+  "platform_qualified": "macOS 26.5.1 arm64, Electron 45.3.0, real renderer at 100-200% zoom",
   "installed_build": null,
-  "next": "F01",
+  "next": "F03",
   "tasks": {
     "F00": {
       "status": "completed",
@@ -15,12 +15,17 @@
       ]
     },
     "F01": {
-      "status": "pending",
-      "evidence": []
+      "status": "completed",
+      "evidence": [
+        "docs/evidence/macos/studio-flight-deck/F01-source-qualification.md"
+      ]
     },
     "F02": {
-      "status": "pending",
-      "evidence": []
+      "status": "completed",
+      "evidence": [
+        "docs/evidence/macos/studio-flight-deck/F02-native-layout.md",
+        "docs/evidence/macos/studio-flight-deck/f02-report.json"
+      ]
     },
     "F03": {
       "status": "pending",
@@ -35,38 +40,41 @@
   "blockers": [
     {
       "id": "EXT-FLIGHT-VISUAL",
-      "scope": "visual qualification on this Linux execution host",
-      "status": "Needs the Human",
+      "scope": "visual qualification on the Linux build host",
+      "status": "closed",
+      "resolution": "F02 ran on the owner Mac through the real Electron renderer; see F02-native-layout.md",
       "no_progress_attempts": 3,
-      "next_action": "Run the supplied native/renderer checks on the owner Mac; do not retry prohibited cloud browser routes."
+      "next_action": "none"
+    },
+    {
+      "id": "F02-LIVE-PHASES",
+      "scope": "animated reasoning/tool/writing/quiet appearances during a real turn",
+      "status": "Needs the Human",
+      "no_progress_attempts": 0,
+      "next_action": "Watch one real turn in the installed build and confirm the animated phases match what the engine reports; VoiceOver walkthrough of the same screen."
     }
   ],
   "human_checks": [
-    "Native 100–200% zoom/fullscreen and visual verification",
-    "VoiceOver spoken walkthrough",
-    "Installed build identity after mac:install"
+    "VoiceOver spoken walkthrough of the deck",
+    "Aesthetic judgement of the installed build at 100-200% zoom",
+    "Observe one real turn and confirm the animated activity phases",
+    "Enter inserts a newline when pressed on a physical keyboard (synthetic key events cannot show the browser default)"
   ],
   "verification": {
-    "portable_tests": {
-      "passed": 1123,
-      "skipped": 11,
-      "files_passed": 103,
-      "excluded_baseline_files": 4
-    },
-    "baseline_tests": {
-      "failed": 8,
-      "passed": 37,
-      "skipped": 1
-    },
-    "additional_live_component_checks": {
-      "passed": 29,
-      "files": 4
-    },
+    "platform": "macOS 26.5.1 arm64",
     "typecheck": "passed",
+    "lint": "0 errors, 3 pre-existing warnings",
+    "format": "passed",
     "build": "passed",
-    "lint": "0 errors; 3 existing warnings",
-    "native_visual": "pending",
+    "unit_tests": "1189 passed in 108 files",
+    "native_ci": "npm run ci green except the two documented host issues that were then fixed; see F01",
+    "deck_smoke": {
+      "checks": 200,
+      "ok": true,
+      "report": "docs/evidence/macos/studio-flight-deck/f02-report.json"
+    },
+    "native_visual": "passed on the development shell; installed copy still pending (F03)",
     "native_install": "pending",
-    "ledger": "16 stale source-evidence hashes pending requalification; baseline validation passed"
+    "ledger": "16 historical source-evidence hashes remain stale by design; see F01"
   }
 }

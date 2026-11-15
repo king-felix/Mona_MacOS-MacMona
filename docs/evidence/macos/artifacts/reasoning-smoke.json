@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "label": "Reasoning controls — live route check",
-  "captured_at": "2026-11-15T03:43:36.037Z",
+  "captured_at": "2026-11-15T21:15:11.602Z",
   "ok": true,
   "isolated_home": true,
   "checks": {
@@ -57,7 +57,7 @@
         ],
         "thinking": "toggle",
         "source": "engine_catalog_cache",
-        "sourceDetail": "the engine's Models.dev catalog cache, fetched 2026-11-14T18:01:32.000Z",
+        "sourceDetail": "the engine's Models.dev catalog cache, fetched 2026-11-15T20:26:21.000Z",
         "degraded": true,
         "note": "The engine's live catalog projection omitted this model's metadata, but the engine's own Models.dev catalog publishes low, high, max for it. Mona offers only those published values."
       },
@@ -95,7 +95,7 @@
       "autoApprove": true,
       "trustMode": true,
       "allowShell": true,
-      "updatedAt": "2026-11-15T03:43:36.450Z",
+      "updatedAt": "2026-11-15T21:15:12.016Z",
       "note": "Saved new-thread default; validated against the live provider and model catalog."
     },
     "refused": "'medium' is not one of this model's published levels (low, high, max)",

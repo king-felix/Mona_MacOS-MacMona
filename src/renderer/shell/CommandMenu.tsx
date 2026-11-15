@@ -25,6 +25,17 @@ export interface CommandMenuProps {
   compact?: boolean;
 }
 
+/**
+ * The room, in CSS pixels, at which the supplementary detail pane is worth
+ * showing: head and foot (~68), the detail pane's own cap (156), and the floor
+ * the command list keeps so rows stay readable (96). Below this the list keeps
+ * the whole panel — a short window or 200% page zoom on the taller Studio
+ * composer used to render the detail at the list's expense, leaving one clipped
+ * row. The same floor is enforced in CSS (`.command-menu__body`), so a height
+ * measured before a zoom change cannot squeeze the list either.
+ */
+export const COMMAND_MENU_DETAIL_MIN_PANEL = 68 + 156 + 96;
+
 const SUPPORT_LABEL: Record<CommandCatalogEntry["annotation"]["support"], string> = {
   "runtime-api": "Runtime API",
   "terminal-only": "TUI only",
