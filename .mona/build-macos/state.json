@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 1556,
+  "revision": 1559,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -2293,8 +2293,8 @@
         },
         {
           "path": ".mona/build-macos/HANDOFF.md",
-          "sha256": "4f134908a7d4d31c63f3035fdfc8edbd949aecdba490fa662b70b7d52dbbe2da",
-          "note": "F04 2026-11-15: smoke:memory ran in npm run ci on these bytes; captures regenerated. Handoff rewritten for the flight-deck continuation."
+          "sha256": "19a62e58caccf3308ac9b6db9b566fc6da8727537b2b59d024b65ba3526e3faf",
+          "note": "F04 2026-11-15: handoff corrected — the installed copy is build 170, read from its Info.plist rather than copied from the earlier note."
         }
       ],
       "blocker_ids": []
@@ -2524,8 +2524,8 @@
         },
         {
           "path": ".mona/build-macos/HANDOFF.md",
-          "sha256": "4f134908a7d4d31c63f3035fdfc8edbd949aecdba490fa662b70b7d52dbbe2da",
-          "note": "F04 2026-11-15: handoff rewritten deliberately for the flight-deck continuation; prettier clean."
+          "sha256": "19a62e58caccf3308ac9b6db9b566fc6da8727537b2b59d024b65ba3526e3faf",
+          "note": "F04 2026-11-15: handoff corrected to the installed build number read from /Applications/Mona.app."
         },
         {
           "path": "test/work-git.test.ts",
@@ -2772,8 +2772,8 @@
         },
         {
           "path": "docs/changelog-macos.md",
-          "sha256": "3e6eab56c85011beca6f76ad70700e24ca841fa40062876342f8f5a98bc0efa7",
-          "note": "F04 2026-11-15: changelog gained the flight-deck entry; it states build 174 is packaged but not installed."
+          "sha256": "12b7e398231d39a36837e81cff4a5a0cf51227244508bffe25319b71c94e4144",
+          "note": "F04 2026-11-15: changelog corrected to name the installed build 170."
         }
       ],
       "blocker_ids": []
@@ -2783,7 +2783,7 @@
     "P22",
     "P25"
   ],
-  "last_checkpoint_utc": "2026-11-15T21:45:15.083Z",
+  "last_checkpoint_utc": "2026-11-15T21:46:25.429Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

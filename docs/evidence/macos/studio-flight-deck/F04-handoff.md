@@ -15,7 +15,7 @@ host's record and is historical).
   sha256 `f5fb8ab4bbd00731…`.
 - **Payload bundle:** `com.mona.workbench` 0.1.0 / 174 / `local`, macOS 14.0+,
   ad-hoc signed, `codesign --verify --deep --strict` clean.
-- **Installed:** `/Applications/Mona.app` is still **build 168**, the prior
+- **Installed:** `/Applications/Mona.app` is still **build 170**, the prior
   release. It was not replaced — see "Not done" below.
 - **Engine:** pinned 0.10.2 `ff466b2ed0bf`, sha256 `da0229610647f1cc2…`, verified
   against the installed bytes by the packaging script. Unchanged.
@@ -127,7 +127,7 @@ change.
 
 ## Rollback
 
-Installing 174 replaces only the app bundle and the Finder Service. Build 168 is
+Installing 174 replaces only the app bundle and the Finder Service. Build 170 is
 reproducible from git history with `npm run mac:package:local`, so nothing must be
 preserved by hand. Project folders, `.mona/` state, `~/.codewhale` and credentials
 are untouched, and the uninstall rehearsal proves unrelated content survives.

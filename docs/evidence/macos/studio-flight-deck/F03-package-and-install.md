@@ -57,7 +57,7 @@ its own state directory and starts nothing); real launches keep the guard.
 
 ## Not done: the install itself — Needs the Human
 
-`/Applications/Mona.app` is still the **prior** build (168). The package cannot be
+`/Applications/Mona.app` is still the **prior** build (170). The package cannot be
 installed from this session:
 
 - the install path refuses without a terminal because `sudo` would wait forever
@@ -94,7 +94,7 @@ preference persistence across a relaunch, and a draft surviving a layout change.
 
 ## Rollback
 
-The previous build is the copy currently at `/Applications/Mona.app` (168). Its
+The previous build is the copy currently at `/Applications/Mona.app` (170). Its
 payload is also reproducible from `git` history (commit `344d41c` and earlier
 release records) with `npm run mac:package:local`, so nothing needs to be kept by
 hand. Installing build 174 replaces only the app bundle and the Finder Service;

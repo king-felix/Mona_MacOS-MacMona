@@ -1,7 +1,7 @@
 # Current continuation — Studio flight deck (2026-11-15)
 
 The deck is integrated, qualified on this Mac, and packaged as build **174**. It is
-**not installed**: `/Applications` still holds build 168, and installing needs the
+**not installed**: `/Applications` still holds build 170, and installing needs the
 owner's own Terminal. Nothing has been pushed.
 
 - **Branch:** `studio-flight-deck` off `c334cbb` (the D-113 dispatch guard and the
@@ -43,7 +43,7 @@ above replaces them.
 
 **Last checkpoint:** 2026-11-15 (P26 QA and P27 release installed; product ledger
 revision 1483+) · `monabuild validate` clean · **1,167 tests in 104 files** ·
-source `538b339` + the D-113 dispatch guard · artifact build **168** (installed
+source `538b339` + the D-113 dispatch guard · artifact build **170** (installed
 and verified, pre-dates D-113)
 **History rewritten 2026-11-13 (D-101)** — old SHAs are gone; the mapping is in
 D-101.
@@ -55,7 +55,7 @@ were closed by decision: the engine reasoning gap is accepted as permanent
 (D-111) and the lifecycle lock was a precondition that cleared.
 **Release tier:** local development usable and packaged candidate **yes**;
 shareable release **no**, and that is D-103, not a defect.
-**Installed:** build **168** from `538b339`, verified from its own bytes —
+**Installed:** build **170** from `538b339`, verified from its own bytes —
 content digest identical to the packaged payload, manifest/receipt chain intact,
 package smoke against `/Applications` pass, LaunchServices launch and quit clean.
 `npm run mac:install` is the ordinary loop.
@@ -1332,7 +1332,7 @@ currently covered by the rehearsal and the unit/smoke suite instead.
      review and fixed. The owner's stored profile was repaired v3→v4 to
      `deepseek-flash` (the engine's configured default) with a pre-repair DB copy
      in `state/backups/`; the two failed turns stay as evidence. 1,169 tests in
-     104 files; `npm run ci` 26/26. **The installed app (build 168) predates this
+     104 files; `npm run ci` 26/26. **The installed app (build 170) predates this
      change**, so the guard ships only after the owner runs `npm run mac:install`
      — the data repair alone restores their turns now.
 130. **The engine's roster can list model ids the provider rejects.** The owner

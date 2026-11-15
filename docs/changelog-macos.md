@@ -11,7 +11,7 @@ semantic.
 
 Qualified on the owner's Mac: `npm run ci` green (25 steps), 1,189 tests, and a
 new 200-check native layout run (`npm run smoke:deck`). The package is built and
-verified from its own bytes; **it is not installed yet** — build 168 is still what
+verified from its own bytes; **it is not installed yet** — build 170 is still what
 `/Applications` contains, and installing needs the owner's terminal. Evidence:
 `docs/evidence/macos/studio-flight-deck/`.
 

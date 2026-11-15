@@ -7,7 +7,7 @@
   "platform_qualified": "macOS 26.5.1 arm64, Electron 45.3.0, real renderer at 100-200% zoom",
   "installed_build": {
     "current": {
-      "build": 168,
+      "build": 170,
       "source": "prior release (344d41c baseline)"
     },
     "candidate": {
@@ -104,7 +104,7 @@
     "r11": "passed_with_exception (idle memory vs this host 362 MiB Electron floor); idle CPU 0.04%",
     "ledger": "monabuild validate clean at revision 1534; 32 hashes refreshed individually with notes",
     "package": "build 174 local channel; all pre-install gates and uninstall rehearsal ok",
-    "installed": "NOT this build — /Applications/Mona.app is build 168; install needs the owner terminal",
+    "installed": "NOT this build — /Applications/Mona.app is build 170; install needs the owner terminal",
     "review": "independent adversarial review; 4 real defects fixed (clipboard text in artifacts, Escape stolen from dialogs, aria-valuenow below its minimum at 150%/200%, vacuous narrow-window check)"
   }
 }

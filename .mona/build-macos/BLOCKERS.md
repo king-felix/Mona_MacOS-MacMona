@@ -21,7 +21,7 @@ Nothing was bypassed and no gate was recorded as passing.
   packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg -target /` followed by
   `npm run mac:package:local`.
 - **What is not proven meanwhile:** that `/Applications/Mona.app` is this build.
-  It is build 168 today. Everything else F03 asks for is in
+  It is build 170 today. Everything else F03 asks for is in
   `F03-package-and-install.md`, including the exact re-verification commands and
   the rollback path.
 
@@ -130,7 +130,7 @@ remains needs a person at the machine and is listed here so it is not lost.
 - **What was needed:** one command with administrator authorization, which an
   agent shell cannot supply.
 - **How it closed:** the owner ran `npm run mac:install` and launched the app.
-  Verified afterwards from the installed bytes: **build 168**, channel `local`,
+  Verified afterwards from the installed bytes: **build 170**, channel `local`,
   arm64, installed content digest `fe7fdb11…` identical to the packaged payload,
   `component-manifest.json` = receipt = `e3e9ce9c…`, package smoke against
   `/Applications` pass, LaunchServices launch rendered a window and quit with zero
