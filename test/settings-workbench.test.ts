@@ -16,6 +16,7 @@ import {
   SettingsError,
   endpointAuthority,
   redactDiagnostics,
+  unsupportedSavedModel,
   validateRoute,
 } from "../src/main/work/settings";
 import { PROFILE_SCOPE, REASONING_DISPLAY_SCOPE } from "../src/main/work/profile";
@@ -338,6 +339,34 @@ describe("route validation", () => {
         models,
       ).reason,
     ).toContain("no model catalog");
+  });
+
+  it("refuses a saved model the live catalog dropped, and stays silent without a catalog", () => {
+    const catalog = { models: [{ id: "deepseek-flash" }, { id: "deepseek-v4-pro" }] };
+    const refusal = unsupportedSavedModel(
+      { provider: "deepseek", model: "deepseek-v4-flash-0731" },
+      catalog,
+    );
+    expect(refusal).toContain("'deepseek-v4-flash-0731'");
+    expect(refusal).toContain("'deepseek'");
+    expect(refusal).toContain("deepseek-flash, deepseek-v4-pro");
+    expect(refusal).toContain("Settings → Providers & route");
+
+    // A listed model is no objection.
+    expect(
+      unsupportedSavedModel({ provider: "deepseek", model: "deepseek-flash" }, catalog),
+    ).toBeNull();
+    // No catalog at all is not evidence against the route.
+    expect(unsupportedSavedModel({ provider: "deepseek", model: "anything" }, null)).toBeNull();
+    expect(
+      unsupportedSavedModel({ provider: "deepseek", model: "anything" }, { models: [] }),
+    ).toBeNull();
+    // A long roster is bounded in the message but counted honestly.
+    const many = { models: Array.from({ length: 12 }, (_, index) => ({ id: `model-${index}` })) };
+    const long = unsupportedSavedModel({ provider: "deepseek", model: "retired" }, many);
+    expect(long).toContain("model-0, model-1");
+    expect(long).toContain("+4 more");
+    expect(long).not.toContain("model-11");
   });
 });
 

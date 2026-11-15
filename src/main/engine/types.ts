@@ -357,6 +357,13 @@ export interface EngineAdapter {
    * it; the shipped adapter always does.
    */
   scopeToWorkspace?(workspace: string | null): void;
+  /**
+   * Read the engine's model roster for one provider. Optional for the same
+   * reason as `scopeToWorkspace`: a test double need not implement it, and the
+   * studio treats a missing or failed read as no objection rather than as a
+   * reason to refuse a turn.
+   */
+  listModels?(provider: string, exactId?: string | null): Promise<EngineModelCatalog>;
   discover(): Promise<EngineCapabilities>;
   startOwnedRuntime(input: RuntimeStartInput): Promise<RuntimeHandle>;
   shutdownOwnedRuntime(handle: RuntimeHandle): Promise<{ stopped: boolean }>;

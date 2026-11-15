@@ -9,6 +9,7 @@ import type { SupervisorStopReceipt } from "../src/main/supervisor/native";
 import type { OwnedEndpoint, RuntimeStatus } from "../src/main/supervisor/runtime-supervisor";
 import { WorkController } from "../src/main/work/control";
 import { WorkStudio, type StudioSupervisor } from "../src/main/work/studio";
+import { PROFILE_SCOPE } from "../src/main/work/profile";
 import type { CostLedger } from "../src/main/work/costs";
 import type { ProjectId, StudioPush } from "../src/shared/contracts";
 import {
@@ -115,6 +116,8 @@ interface Harness {
   completeFirstTurn: () => void;
   setBudgetStop: (value: boolean) => void;
   setUncertain: (value: boolean) => void;
+  /** Replace the engine's live roster, the way an engine update can. */
+  setRoster: (models: string[]) => void;
 }
 
 /**
@@ -122,7 +125,9 @@ interface Harness {
  * turn is held open by a gate so a test can act while it runs; releasing the
  * gate delivers the completion frame that is the dispatch boundary.
  */
-async function setup(options: { gateFirstTurn?: boolean } = {}): Promise<Harness> {
+async function setup(
+  options: { gateFirstTurn?: boolean; roster?: string[] } = {},
+): Promise<Harness> {
   const handle = await openTestStore();
   const folder = join(tempDir("mona-follow-up-project-"), "Follow-up project");
   mkdirSync(folder, { recursive: true });
@@ -143,6 +148,7 @@ async function setup(options: { gateFirstTurn?: boolean } = {}): Promise<Harness
   if (gateOpen) release?.();
   let uncertain = false;
   let budgetStop = false;
+  let roster: string[] = options.roster ?? ["deepseek-flash", "deepseek-v4-pro"];
   let turnPosts = 0;
   let threadPosts = 0;
   let streams = 0;
@@ -184,6 +190,14 @@ async function setup(options: { gateFirstTurn?: boolean } = {}): Promise<Harness
         },
       });
     if (method === "GET" && path.startsWith("/v1/usage")) return jsonResponse(200, usage);
+    if (method === "GET" && path.endsWith("/models")) {
+      // The engine's live roster. The default lists the route the fixtures use,
+      // so this route changes nothing for the other tests in this file.
+      return jsonResponse(200, {
+        provider: "deepseek",
+        models: roster.map((id) => ({ id })),
+      });
+    }
     if (method === "POST" && path.includes("/interrupt"))
       return jsonResponse(200, { interrupted: true, thread_id: THREAD, id: TURN });
     return jsonResponse(404, { error: "fixture route missing" });
@@ -305,6 +319,9 @@ async function setup(options: { gateFirstTurn?: boolean } = {}): Promise<Harness
     },
     setUncertain: (value) => {
       uncertain = value;
+    },
+    setRoster: (models) => {
+      roster = models;
     },
   };
 }
@@ -519,6 +536,56 @@ describe("R08 follow-up queue", () => {
     // No scheduler record is created by the queue, and no fleet route is called.
     expect(harness.transport.count("POST", "/v1/fleet")).toBe(0);
     expect(await harness.store.listOrchestrationRuns(project)).toEqual([]);
+    await harness.studio.close();
+  });
+});
+
+describe("R08 follow-up queue: a route the engine no longer offers", () => {
+  // The owner's report on 2026-11-15: the saved model was dropped from the
+  // engine's roster, so every turn died with a provider 400 after it started.
+  const STALE_ROUTE = {
+    provider: "deepseek",
+    exactId: null,
+    model: "deepseek-v4-flash-0731",
+    reasoningEffort: "auto",
+    permissionPosture: "full_access",
+    autoApprove: true,
+    trustMode: true,
+    allowShell: true,
+  };
+
+  it("leaves a refused follow-up queued under the reason instead of claiming an unknown outcome", async () => {
+    // The route was valid when the session started; the engine then dropped it
+    // from the roster, which is exactly what happened to the owner's profile.
+    const harness = await setup({
+      roster: ["deepseek-flash", "deepseek-v4-pro", "deepseek-v4-flash-0731"],
+    });
+    const project = harness.project.id as ProjectId;
+    await harness.store.putSettings(PROFILE_SCOPE, STALE_ROUTE);
+    await harness.studio.start(project);
+    const first = await harness.studio.submit(project, { prompt: "First task", mode: "work" });
+    expect(first.outcome).toBe("accepted");
+    await settled(harness.studio, project);
+
+    harness.setRoster(["deepseek-flash", "deepseek-v4-pro"]);
+    const queued = await harness.studio.enqueueFollowUp(project, {
+      prompt: "Then run the tests",
+      mode: "work",
+    });
+    expect(queued.item?.status).toBe("queued");
+
+    const dispatched = await harness.studio.dispatchFollowUps(project);
+
+    expect(harness.transport.count("POST", "/turns")).toBe(1);
+    expect(dispatched.item?.status).toBe("queued");
+    expect(dispatched.item?.note).toContain("not sent");
+    expect(dispatched.item?.note).toContain("deepseek-v4-flash-0731");
+    // The prompt is not lost, and nothing claims a turn may be in flight.
+    expect(dispatched.item?.prompt).toBe("Then run the tests");
+    expect(dispatched.item?.turnId).toBeNull();
+    const rows = await harness.store.listFollowUps(project);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({ status: "queued", turnId: null });
     await harness.studio.close();
   });
 });

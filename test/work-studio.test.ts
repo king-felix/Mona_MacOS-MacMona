@@ -612,6 +612,132 @@ describe("live studio: start and submission", () => {
   });
 });
 
+describe("live studio: the saved model is checked against the engine's catalog", () => {
+  // The owner's own profile on 2026-11-15: the engine's roster had dropped this
+  // id, and every turn failed with a provider 400 after it had started.
+  const SAVED_STALE = {
+    provider: "deepseek",
+    exactId: null,
+    model: "deepseek-v4-flash-0731",
+    reasoningEffort: "auto",
+    permissionPosture: "full_access",
+    autoApprove: true,
+    trustMode: true,
+    allowShell: true,
+  };
+
+  it("refuses a saved model the live catalog no longer lists, and sends no turn", async () => {
+    const info = await fixture<Record<string, unknown>>("runtime-info.json");
+    const thread = await fixture<Record<string, unknown>>("thread.json");
+    const accepted = await fixture<Record<string, unknown>>("turn-accepted.json");
+    const usage = await fixture<Record<string, unknown>>("usage.json");
+    let projectPath = "";
+    const harness = await setup({
+      handler: (method, path) => {
+        if (method === "GET" && path === "/v1/runtime/info") return jsonResponse(200, info);
+        if (method === "GET" && path === "/v1/providers/deepseek/models") {
+          return jsonResponse(200, {
+            provider: "deepseek",
+            models: [{ id: "deepseek-flash" }, { id: "deepseek-v4-pro" }],
+          });
+        }
+        if (method === "POST" && path === "/v1/threads") {
+          return jsonResponse(201, { ...thread, workspace: projectPath });
+        }
+        if (method === "POST" && path.endsWith("/turns")) return jsonResponse(201, accepted);
+        if (method === "GET" && path.startsWith("/v1/usage")) return jsonResponse(200, usage);
+        return jsonResponse(404, { error: "fixture route missing" });
+      },
+    });
+    projectPath = harness.project.canonicalPath;
+    await harness.store.putSettings(PROFILE_SCOPE, SAVED_STALE);
+    await harness.studio.start(harness.project.id as ProjectId);
+
+    const failure = await harness.studio
+      .submit(harness.project.id as ProjectId, { prompt: "Reply with exactly: pong", mode: "work" })
+      .catch((error: unknown) => error);
+
+    expect(failure).toMatchObject({ code: "ROUTE_UNSUPPORTED" });
+    expect((failure as Error).message).toContain("deepseek-v4-flash-0731");
+    expect((failure as Error).message).toContain("deepseek-flash, deepseek-v4-pro");
+    expect(harness.transport.count("POST", "/turns")).toBe(0);
+    // A refused dispatch is not a broken studio: no turn is active and the
+    // composer is immediately usable once the route is fixed in Settings.
+    const snapshot = await harness.studio.snapshot(harness.project.id as ProjectId);
+    expect(snapshot.activeTurnId).toBeNull();
+    expect(snapshot.canSubmit).toBe(true);
+  });
+
+  it("applies a model saved in Settings on the next dispatch, so the remedy is not a dead end", async () => {
+    // A session pins the profile it started with. If the refusal's own advice
+    // ("choose a supported model in Settings") did not take effect, every later
+    // submission would fail identically and the user would be stuck.
+    const info = await fixture<Record<string, unknown>>("runtime-info.json");
+    const thread = await fixture<Record<string, unknown>>("thread.json");
+    const accepted = await fixture<Record<string, unknown>>("turn-accepted.json");
+    const usage = await fixture<Record<string, unknown>>("usage.json");
+    let projectPath = "";
+    const harness = await setup({
+      handler: (method, path) => {
+        if (method === "GET" && path === "/v1/runtime/info") return jsonResponse(200, info);
+        if (method === "GET" && path === "/v1/providers/deepseek/models") {
+          return jsonResponse(200, {
+            provider: "deepseek",
+            models: [{ id: "deepseek-flash" }, { id: "deepseek-v4-pro" }],
+          });
+        }
+        if (method === "POST" && path === "/v1/threads") {
+          return jsonResponse(201, { ...thread, workspace: projectPath });
+        }
+        if (method === "POST" && path.endsWith("/turns")) return jsonResponse(201, accepted);
+        if (method === "GET" && path.startsWith("/v1/usage")) return jsonResponse(200, usage);
+        return jsonResponse(404, { error: "fixture route missing" });
+      },
+    });
+    projectPath = harness.project.canonicalPath;
+    await harness.store.putSettings(PROFILE_SCOPE, SAVED_STALE);
+    await harness.studio.start(harness.project.id as ProjectId);
+
+    await expect(
+      harness.studio.submit(harness.project.id as ProjectId, { prompt: "First", mode: "work" }),
+    ).rejects.toMatchObject({ code: "ROUTE_UNSUPPORTED" });
+
+    // The user does what the refusal says: saves a supported model.
+    await harness.store.putSettings(PROFILE_SCOPE, { ...SAVED_STALE, model: "deepseek-flash" });
+    const result = await harness.studio.submit(harness.project.id as ProjectId, {
+      prompt: "Second",
+      mode: "work",
+    });
+
+    expect(result.outcome).toBe("accepted");
+    const turnBody = harness.transport.calls.find(
+      (call) => call.method === "POST" && call.path.endsWith("/turns"),
+    )?.body as Record<string, unknown>;
+    expect(turnBody.model).toBe("deepseek-flash");
+    // The session now reports the route it actually used, not the stale one.
+    const snapshot = await harness.studio.snapshot(harness.project.id as ProjectId);
+    expect(snapshot.profile.model).toBe("deepseek-flash");
+    // Permission posture is not part of the route: a route change cannot widen it.
+    expect(snapshot.profile.permissionPosture).toBe(SAVED_STALE.permissionPosture);
+  });
+
+  it("does not refuse when the catalog cannot be read, so the engine stays the authority", async () => {
+    // The default fixture answers 404 for the catalog route. A read that fails is
+    // not evidence against the route, and the turn endpoint still accepts it.
+    const harness = await setup();
+    await harness.store.putSettings(PROFILE_SCOPE, SAVED_STALE);
+    await harness.studio.start(harness.project.id as ProjectId);
+
+    const result = await harness.studio.submit(harness.project.id as ProjectId, {
+      prompt: "Reply with exactly: pong",
+      mode: "work",
+    });
+
+    expect(result.outcome).toBe("accepted");
+    expect(harness.transport.count("POST", "/turns")).toBe(1);
+  });
+});
+
 describe("live studio: honest failure and offline states", () => {
   it("reports an unreachable runtime as failed instead of connected", async () => {
     const harness = await setup();

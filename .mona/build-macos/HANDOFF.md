@@ -1,9 +1,9 @@
 # Handoff — Mona macOS build
 
 **Last checkpoint:** 2026-11-15 (P26 QA and P27 release installed; product ledger
-revision 1470+) · `monabuild validate` clean · `npm run ci` **25/25
-steps**, **1,164 tests in 104 files** · source `538b339` · artifact build **168**
-(installed and verified)
+revision 1483+) · `monabuild validate` clean · **1,167 tests in 104 files** ·
+source `538b339` + the D-113 dispatch guard · artifact build **168** (installed
+and verified, pre-dates D-113)
 **History rewritten 2026-11-13 (D-101)** — old SHAs are gone; the mapping is in
 D-101.
 **Current state: all 28 prompts are settled — 26 completed, and P22 + P24
@@ -1272,3 +1272,43 @@ currently covered by the rehearsal and the unit/smoke suite instead.
      `npm run mac:package:local`. See EXT-DISK. The stale P21 `.dmg` and the run's
      `out/stage` were removed to buy space; both are regenerable and neither was
      referenced as evidence.
+129. **A saved model the engine dropped is now refused before the turn, not
+     reported by the provider (D-113).** Owner report 2026-11-15: every turn
+     failed with `Invalid request (400): The supported API model names are
+     deepseek-flash, deepseek-v4-pro, but you passed deepseek-v4-flash-0731`.
+     The saved profile had been validated against a roster that listed that id;
+     the engine's roster later dropped it, and `transmit` kept sending it.
+     `unsupportedSavedModel` now asks the save gate's question at dispatch, and
+     `transmit` refuses with `ROUTE_UNSUPPORTED` — saved model, offered models,
+     and the exact screen to fix it — before the turn POST. A failed, absent, or
+     empty catalog is not evidence against the route, so the engine stays the
+     authority there (fail open). Because a live session pins the profile it
+     started with, dispatch now adopts a *different* route already saved in
+     Settings when the pinned one is unsupported (route fields only — posture,
+     auto-approve, trust, and shell access never move), so the refusal's advice
+     actually takes effect; a refused follow-up stays `queued` under the reason
+     instead of claiming an unknown send. Both were found by an independent
+     review and fixed. The owner's stored profile was repaired v3→v4 to
+     `deepseek-flash` (the engine's configured default) with a pre-repair DB copy
+     in `state/backups/`; the two failed turns stay as evidence. 1,169 tests in
+     104 files; `npm run ci` 26/26. **The installed app (build 168) predates this
+     change**, so the guard ships only after the owner runs `npm run mac:install`
+     — the data repair alone restores their turns now.
+130. **The engine's roster can list model ids the provider rejects.** The owner
+     picked `deepseek-v4-flash-0731` from a live 23-model roster that the
+     provider answers with 400. Mona validates against the roster because that
+     is the engine's only live statement of what it will send; it cannot know
+     which entries the API accepts. The engine later pruned its roster to the two
+     supported names, so the state is now consistent. Not a Mona defect and not
+     closable from Mona's side; recorded so the next report is not re-diagnosed
+     from scratch.
+131. **A readable but stale roster is treated as authoritative.** `listModels`
+     returns the engine's roster without an age, and `refreshProviderModels`
+     exists precisely because it is cache-backed. If the roster omits a model
+     the provider would accept (a model added since the last fetch), dispatch
+     refuses it — fail-closed on data the code does not know is current, while a
+     read *failure* fails open. Left as a stated limit rather than fixed by
+     refreshing at dispatch: the save path (`validateRoute`) applies the same
+     predicate against the same roster, so such a model could not have been
+     saved through Mona in the first place, and a refresh would put a network
+     call on the turn path. D-113 has the reasoning.

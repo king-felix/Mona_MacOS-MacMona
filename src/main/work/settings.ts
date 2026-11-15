@@ -1619,6 +1619,38 @@ export function validateRoute(
   return { ok: true, reason: null };
 }
 
+/**
+ * A saved model that the engine's live catalog no longer lists cannot be sent:
+ * the provider rejects the name and the turn fails *after* it has started, so
+ * the operator sees a provider 400 instead of an actionable refusal. This is the
+ * same predicate the save path applies (`validateRoute`), asked again at
+ * dispatch time, because the catalog is the engine's and can change under a
+ * saved profile.
+ *
+ * A catalog that could not be read is not evidence against the route: null here
+ * means "no objection", and the engine stays the authority for what it accepts.
+ * An empty catalog is also no objection — a provider without one has nothing to
+ * compare against, and refusing there would block a route the save path allows.
+ */
+export function unsupportedSavedModel(
+  route: { provider: string; model: string },
+  catalog: { models: { id: string }[] } | null,
+): string | null {
+  if (!catalog || catalog.models.length === 0) return null;
+  if (catalog.models.some((entry) => entry.id === route.model)) return null;
+  const shown = catalog.models
+    .slice(0, 8)
+    .map((entry) => entry.id)
+    .join(", ");
+  const rest = catalog.models.length > 8 ? `, +${catalog.models.length - 8} more` : "";
+  return (
+    `The saved model '${route.model}' is not in the engine's live catalog for '${route.provider}' ` +
+    `(it offers: ${shown}${rest}). A turn sent with it is rejected by the provider, so Mona ` +
+    "refused before dispatch and nothing was sent. Choose a supported model in Settings → " +
+    "Providers & route; Mona never changes the model for you."
+  );
+}
+
 async function defaultDoctorRunner(
   command: string[],
   options: { timeoutMs: number },

@@ -32,7 +32,7 @@ import type {
 import { CodewhaleAdapter } from "../engine/adapter";
 import { AdapterError } from "../engine/errors";
 import { HttpRuntimeTransport, type RuntimeTransport } from "../engine/transport";
-import type { EngineAdapter, InterruptReceipt } from "../engine/types";
+import type { EngineAdapter, EngineModelCatalog, InterruptReceipt } from "../engine/types";
 import { SqliteSubmissionStore } from "../state/submission-store";
 import type { PendingRequestRecord, StoredProject, StateStore } from "../state/store";
 import type { SupervisorStopReceipt } from "../supervisor/native";
@@ -49,6 +49,7 @@ import {
   type ExecutionProfile,
   type ModePosture,
 } from "./profile";
+import { unsupportedSavedModel } from "./settings";
 
 export interface StudioSupervisor {
   ensure(workspace: string): Promise<RuntimeStatus>;
@@ -105,7 +106,8 @@ export type StudioErrorCode =
   | "INVALID_INPUT"
   | "RUNTIME_UNAVAILABLE"
   | "UNSUPPORTED_INPUT"
-  | "BUDGET_STOP";
+  | "BUDGET_STOP"
+  | "ROUTE_UNSUPPORTED";
 
 export class StudioError extends Error {
   constructor(
@@ -779,6 +781,13 @@ export class WorkStudio {
         reconciliation: result.reconciliation,
         snapshot: await this.snapshot(projectId),
       };
+    } catch (error) {
+      // A refusal before dispatch is a terminal outcome, and the message names
+      // the reason. Without this the push stream would keep reporting "sending"
+      // for a turn that was never sent. An internal error is not a turn
+      // outcome, so only a typed studio refusal is reported as one.
+      if (error instanceof StudioError) this.push(session, "submission", "rejected");
+      throw error;
     } finally {
       session.submitting = false;
     }
@@ -805,6 +814,16 @@ export class WorkStudio {
     const engineThreadId = binding.engineThreadId;
     if (!engineThreadId) {
       throw new StudioError("RUNTIME_UNAVAILABLE", "the engine thread could not be created");
+    }
+    // A saved model the engine no longer offers is refused here, before the turn
+    // request: the provider would reject the name and the turn would fail after
+    // it had already started (reported 2026-11-15 for `deepseek-v4-flash-0731`).
+    const routeRefusal = await this.savedRouteRefusal(session);
+    if (routeRefusal) {
+      throw new StudioError("ROUTE_UNSUPPORTED", routeRefusal, {
+        provider: session.profile.provider,
+        model: session.profile.model,
+      });
     }
     const posture = postureFor(mode, session.profile);
     const receipt = await session.adapter.submitTurn({
@@ -867,6 +886,76 @@ export class WorkStudio {
       );
     }
     return { outcome, turnId, note: receipt.submission.note ?? null, guidance, reconciliation };
+  }
+
+  /**
+   * Resolve the route this turn will use, from the engine's own catalog.
+   *
+   * A saved model the engine no longer offers cannot be sent: the provider
+   * rejects the name and the turn fails *after* it has started (reported
+   * 2026-11-15 for `deepseek-v4-flash-0731`). Two things happen here:
+   *
+   * 1. If the session's route is unsupported but the route *stored in Settings*
+   *    is a different, supported one, the newer saved route is adopted for this
+   *    session. Without that, the refusal's own remedy would be a dead end: a
+   *    session pins the profile it started with (`start()` returns early for a
+   *    live session), so a model saved in Settings would never take effect and
+   *    every later submission would fail the same way. Only the route fields
+   *    are adopted — permission posture, auto-approve, trust, and shell access
+   *    stay exactly as this session was started, so nothing widens silently.
+   * 2. Otherwise the refusal is returned for `transmit` to report.
+   *
+   * A catalog read that fails is not evidence against the route, so this
+   * returns null and the engine stays the authority for what it accepts.
+   */
+  private async savedRouteRefusal(session: StudioSession): Promise<string | null> {
+    const listModels = session.adapter.listModels;
+    if (typeof listModels !== "function") return null;
+    const read = async (
+      provider: string,
+      exactId: string | null,
+    ): Promise<EngineModelCatalog | null> => {
+      try {
+        return await listModels.call(session.adapter, provider, exactId);
+      } catch {
+        return null;
+      }
+    };
+
+    const pinned = session.profile;
+    const pinnedCatalog = await read(pinned.provider, pinned.exactId);
+    if (!pinnedCatalog) return null;
+    const refusal = unsupportedSavedModel(pinned, pinnedCatalog);
+    if (!refusal) return null;
+
+    const saved = await loadExecutionProfile(this.store).catch(() => null);
+    if (!saved) return refusal;
+    const next = saved.profile;
+    const sameRoute =
+      next.provider === pinned.provider &&
+      (next.exactId ?? null) === (pinned.exactId ?? null) &&
+      next.model === pinned.model;
+    if (sameRoute) return refusal;
+    const nextCatalog =
+      next.provider === pinned.provider && (next.exactId ?? null) === (pinned.exactId ?? null)
+        ? pinnedCatalog
+        : await read(next.provider, next.exactId);
+    if (!nextCatalog) return refusal;
+    if (unsupportedSavedModel(next, nextCatalog) !== null) return refusal;
+
+    session.profile = {
+      ...session.profile,
+      provider: next.provider,
+      exactId: next.exactId,
+      model: next.model,
+      reasoningEffort: next.reasoningEffort,
+    };
+    session.profileSource = saved.source;
+    this.diagnose(
+      session,
+      `the route saved in Settings was adopted for this session: ${pinned.provider}/${pinned.model} → ${next.provider}/${next.model}`,
+    );
+    return null;
   }
 
   private activate(
@@ -2028,6 +2117,18 @@ export class WorkStudio {
     } catch (error) {
       const message = errorMessage(error);
       this.diagnose(session, `the queued follow-up was not sent: ${message}`);
+      // A deterministic pre-dispatch refusal is not an unknown outcome: nothing
+      // was sent, so the row must not claim a turn may be in flight. It stays
+      // queued under the reason, which is the truth, and it goes out once the
+      // route is fixed.
+      if (error instanceof StudioError && error.code === "ROUTE_UNSUPPORTED") {
+        return this.store.settleFollowUp(next.id, {
+          status: "queued",
+          turnId: null,
+          note: `not sent: ${message}`,
+          now: this.now().toISOString(),
+        });
+      }
       return this.store.settleFollowUp(next.id, {
         status: "unknown",
         turnId: null,

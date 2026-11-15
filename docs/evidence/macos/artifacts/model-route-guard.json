@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "ok": true,
+  "engine": {
+    "version": "0.10.2",
+    "commit": "ff466b2ed0bfb4ae5267d4d8d0ecb562cf46956e"
+  },
+  "roster": [
+    "deepseek-flash",
+    "deepseek-v4-pro"
+  ],
+  "checks": {
+    "roster_read": true,
+    "stale_model_refused": true,
+    "repaired_model_accepted": true,
+    "turn_accepted": true,
+    "turn_completed": true,
+    "effective_model_is_repaired": true
+  },
+  "turn": {
+    "id": "turn_cd5a54b41bf14fb084a3c4db186f953a",
+    "status": "completed",
+    "effective_provider": "deepseek",
+    "effective_model": "deepseek-flash",
+    "usage": {
+      "input_tokens": 12051,
+      "output_tokens": 3,
+      "prompt_cache_hit_tokens": 1152,
+      "prompt_cache_miss_tokens": 10899,
+      "reasoning_tokens": 0,
+      "request_usages": [
+        {
+          "input_tokens": 12051,
+          "output_tokens": 3,
+          "prompt_cache_hit_tokens": 1152,
+          "prompt_cache_miss_tokens": 10899,
+          "reasoning_tokens": 0
+        }
+      ]
+    }
+  },
+  "usage": null,
+  "error": null,
+  "refusal": "The saved model 'deepseek-v4-flash-0731' is not in the engine's live catalog for 'deepseek' (it offers: deepseek-flash, deepseek-v4-pro). A turn sent with it is rejected by the provider, so Mona refused before dispatch and nothing was sent. Choose a supported model in Settings \u2192 Providers & route; Mona never changes the model for you.",
+  "command": "node scripts/model-route-guard-smoke.mjs",
+  "captured_at": "2026-11-15T03:52:00.000Z",
+  "note": "Real pinned engine 0.10.2 in a temp workspace and temp state dir; one short provider call on the repaired route. The owner's state store is never opened."
+}

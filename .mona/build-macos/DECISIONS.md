@@ -2221,3 +2221,80 @@ and the smoke measures it rather than asserting it is pretty.
   `MONA_R11_AXE_PATH` is set. Both are stated in `P26-product-QA.md` and
   `P27-release.md`.
 
+
+## D-113 — Dispatch re-checks the saved model against the engine's live catalog
+
+- **Date:** 2026-11-15 (owner report: "Attempted to use Mona … Please fix")
+- **Report:** `Invalid request (400): The supported API model names are
+  deepseek-flash, deepseek-v4-pro, but you passed deepseek-v4-flash-0731.`
+- **Measured:** the stored profile (`engine:profile` v3) carried
+  `deepseek-v4-flash-0731`, saved 2026-11-14 20:17 against a roster that listed
+  it. The engine's live roster on 2026-11-15 is exactly
+  `deepseek-flash, deepseek-v4-pro` (`codewhale models --provider deepseek
+  --json`), and the engine's own `config.toml` still says
+  `model = "deepseek-flash"`. Two turns in project Kindle
+  (`thr_f2b820091f5aae2c`) were accepted, started, and then failed with
+  `item.failed` carrying the provider's 400.
+- **Root cause:** route validation was a **save-time** predicate only.
+  `saveDefault` correctly refused to persist an unlisted model, but `transmit`
+  sent `model: session.profile.model` on every turn without asking whether the
+  engine still offers it. The engine's roster is its own and can change under a
+  saved profile, so the failure surfaced as a provider 400 **after** a turn had
+  started — a spent turn and a cryptic message instead of an actionable refusal.
+- **Decision:**
+  1. `unsupportedSavedModel` (`src/main/work/settings.ts`) is the save gate's
+     predicate asked again at dispatch: a **non-empty live roster** that does not
+     contain the saved model is a refusal.
+  2. `transmit` refuses with `StudioError("ROUTE_UNSUPPORTED")` before the turn
+     POST, naming the saved model, the models the engine offers, and Settings →
+     Providers & route. Nothing is sent, so the refusal costs no tokens and
+     leaves no failed turn behind.
+  3. A catalog read that fails, is missing, or is empty is **not** evidence
+     against the route: the engine stays the authority and the turn proceeds
+     (fail open). Mona still never invents a route on failure — it refuses and
+     asks.
+  4. **The remedy the refusal names must work in the session that shows it.**
+     An independent review found it did not: a session pins the profile it
+     started with (`start()` returns early for a live session), so a model saved
+     in Settings would never take effect and the same refusal would repeat
+     forever. Dispatch now reads the stored profile when the pinned route is
+     unsupported, and if the *saved* route is a different, supported one it is
+     adopted for this session — route fields only. Permission posture,
+     auto-approve, trust, and shell access stay exactly as the session started,
+     so a route change can never widen authority.
+  5. A queued follow-up refused this way stays **queued** with the reason, not
+     `unknown`: nothing was sent, so no row may claim a turn might be in flight,
+     and the prompt is not lost. A submission refused before dispatch pushes a
+     terminal state, so the console cannot sit on "sending" for a turn that was
+     never sent.
+  6. `EngineAdapter.listModels` is optional for the same reason
+     `scopeToWorkspace` is; the shipped adapter implements it.
+- **Operational repair (the owner's live data):** `engine:profile` was corrected
+  v3 → v4 from `deepseek-v4-flash-0731` to `deepseek-flash` (the engine's own
+  configured default), with a note naming the reason, the `settings_versions`
+  history kept, and a pre-repair copy of the database written to
+  `~/Library/Application Support/Mona/state/backups/`. The two failed turns and
+  the older 23-model catalog cache are left in place as evidence; neither is
+  rewritten.
+- **Review, and what it changed:** an independent review could not refute the
+  guard (no bypass path; fail-open on every unreadable signal) but found two
+  real defects, both fixed and both now covered by tests: the refusal's remedy
+  was a dead end in a live session, and a refused follow-up was consumed and
+  recorded as `unknown`. It also raised, as a stated limit rather than a defect,
+  that a roster which is readable but stale converts fail-open into a refusal —
+  the save path applies the identical predicate, so a model the roster omits
+  could not have been saved through Mona in the first place; recorded, not
+  papered over.
+- **Verification:** five new tests — the pure guard (listed / unlisted / no
+  catalog / empty catalog / bounded roster); a studio submit that refuses with
+  `ROUTE_UNSUPPORTED` and sends **no** turn; a fail-open case where the catalog
+  route 404s and the turn is accepted; a session whose stale route is replaced
+  by a model saved in Settings, which the next dispatch adopts and sends; and a
+  queued follow-up that stays `queued` under the reason. The two studio tests
+  fail when the guard is removed (mutation-checked). 1,169 tests in 104 files;
+  typecheck, lint, and format clean; `npm run ci` 26/26.
+- **Not fixed here:** the engine's roster can list ids the provider rejects —
+  that is what the owner selected while it was listed. Mona cannot tell which
+  roster entries the API accepts, so this guard catches the case where the
+  roster has already dropped the saved name, not the case where the roster is
+  itself wrong. Recorded as an engine observation, not a Mona defect.
