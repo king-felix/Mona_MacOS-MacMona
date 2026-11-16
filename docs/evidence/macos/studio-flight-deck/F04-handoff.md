@@ -10,10 +10,10 @@ host's record and is historical).
   `3af9b4b` (F01/F02 qualification and the layout fixes it forced), and the F03/F04
   commits after it. Base `c334cbb` on `main`.
 - **Host:** macOS 26.5.1 (25F80), arm64, Electron 45.3.0, Node v26.13.0.
-- **Package:** build **174**, channel `local`, version 0.1.0,
+- **Package:** build **176**, channel `local`, version 0.1.0,
   `packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg`,
-  sha256 `f5fb8ab4bbd00731…`.
-- **Payload bundle:** `com.mona.workbench` 0.1.0 / 174 / `local`, macOS 14.0+,
+  sha256 starts `d79da531ab3889e5…`.
+- **Payload bundle:** `com.mona.workbench` 0.1.0 / 176 / `local`, macOS 14.0+,
   ad-hoc signed, `codesign --verify --deep --strict` clean.
 - **Installed:** `/Applications/Mona.app` is still **build 170**, the prior
   release. It was not replaced — see "Not done" below.
@@ -65,12 +65,12 @@ repository writes and is correct.
 
 ## Checks that passed (all on these bytes)
 
-- `npm run ci` — **25/25 steps**, exit 0 (`mac-ci.txt`).
+- `npm run ci` — **26/26 steps**, exit 0, with the deck smoke now part of it (`mac-ci.txt`).
 - `npm run test` — **1,189 passed in 108 files**, no exclusions (`mac-ci.txt`).
 - `typecheck`, `lint` (0 errors, 3 pre-existing warnings), `format:check`, `build`.
-- `npm run smoke:deck` — **232/232 checks**, six window/zoom arrangements
+- `npm run smoke:deck` — **268/268 checks**, six window/zoom arrangements, a real restart
   (`f02-report.json`).
-- `node scripts/deck-smoke.mjs --app …/Mona.app` — **232/232 checks against the
+- `node scripts/deck-smoke.mjs --app …/Mona.app` — **268/268 checks against the
   packaged binary** (`f03-packaged-deck-report.json`).
 - `npm run smoke:r11` — `passed_with_exception`; the only failing check is the
   idle-memory target, reported alongside this host's blank-Electron floor of
@@ -84,7 +84,7 @@ repository writes and is correct.
 
 ## Not done — Needs the Human, with the exact step
 
-**Installing build 174 into `/Applications`.** This session has no terminal
+**Installing build 176 into `/Applications`.** This session has no terminal
 (`process.stdin.isTTY` is false, `tty` reports "not a tty") and no credential
 (`sudo -n` → "a password is required"), and the earlier INSTALL-AUTH record shows a
 prompted SecurityAgent sheet does not render here. Nothing was bypassed or faked;
@@ -106,10 +106,38 @@ node scripts/deck-smoke.mjs --app /Applications/Mona.app
 node scripts/r11-smoke.mjs   --app /Applications/Mona.app
 ```
 
-Then these F03 items are checkable in one pass: `/Applications/Mona.app` reports
-build 174 and matches the package payload by digest, LaunchServices launch and
-quit, the Focus preference survives a relaunch, and a draft survives a layout
-change.
+Then F03's last two items are checkable in one pass: `/Applications/Mona.app`
+reports build 176 and matches the package payload by digest, and a LaunchServices
+launch and quit of the installed copy. Everything else F03 asks for is already
+proven against these exact bytes by the two-phase harness — a genuine relaunch
+restored the Focus preference and the draft on the same state directory, native
+full screen was entered and left through the deck's own control, a draft survived
+a resize and a zoom change, and no runtime was started by any of it.
+
+## What this pass added after the handoff
+
+The first handoff left F03's launch/restart/lifecycle items as "checkable later".
+They did not need `/Applications`, so they are now proven against the packaged
+bytes instead of deferred:
+
+- **A real restart.** The harness launches twice on one state directory: the first
+  run leaves a draft and the Focus preference, the second proves both came back
+  and that no runtime started. Its checks appear as `relaunch:*` in the same
+  report.
+- **Native full screen** entered and left by clicking the deck's own control, so
+  the sender-scoped IPC, the controller and AppKit are all in the loop; the draft
+  is intact afterwards and the console is still the stage's remainder.
+- **A draft surviving a layout change**: unchanged through a window resize and a
+  zoom change, and read back from the store rather than the screen.
+- **A layout gate in CI.** `smoke:deck` is now one of the CI steps (26 total), so
+  the deck's geometry cannot regress without failing `npm run ci`.
+
+Running this on a machine where the owner works in other apps also exposed six
+defects in the harness itself — an rAF-based settle that hung forever on an
+occluded window, an unbounded renderer call, a viewport that kept the previous
+zoom, a verify launch that re-seeded its own project, an aborting screenshot, and
+a receipt timer measured in wall-clock time instead of the visible time FD-10
+specifies. Each was fixed at the cause and is recorded in `F02-native-layout.md`.
 
 ## Remaining human checks (none blocking a queue item)
 
@@ -127,7 +155,7 @@ change.
 
 ## Rollback
 
-Installing 174 replaces only the app bundle and the Finder Service. Build 170 is
+Installing 176 replaces only the app bundle and the Finder Service. Build 170 is
 reproducible from git history with `npm run mac:package:local`, so nothing must be
 preserved by hand. Project folders, `.mona/` state, `~/.codewhale` and credentials
 are untouched, and the uninstall rehearsal proves unrelated content survives.

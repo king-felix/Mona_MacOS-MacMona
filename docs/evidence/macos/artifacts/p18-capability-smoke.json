@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "label": "P18 capability coverage — pinned 0.10.2",
-  "captured_at": "2026-11-15T21:43:38.040Z",
+  "captured_at": "2026-11-16T02:16:11.732Z",
   "ok": true,
   "checks": {
     "reconcile_in_sync": true,
@@ -240,7 +240,7 @@
     "dead_targets": [],
     "drift": {
       "checked": true,
-      "checkedAt": "2026-11-15T21:43:34.366Z",
+      "checkedAt": "2026-11-16T02:16:07.685Z",
       "error": null,
       "engineVersion": "0.10.2",
       "engineCommit": "ff466b2ed0bf",

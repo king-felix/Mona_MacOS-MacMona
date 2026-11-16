@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 1559,
+  "revision": 1571,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -270,8 +270,8 @@
         },
         {
           "path": "scripts/ci.mjs",
-          "sha256": "05bcef39a5d29aa50f3c9062091594f2b4b009dbe534927997c2fc6672fc0e23",
-          "note": "R13/R14 2026-11-14: re-recorded after the review queue changed these shared files (Studio card-identity history anchor, the history smoke in ci.mjs, and R13's build-manifest source commit). npm run ci passed 24/24 steps (1,121 tests in 101 files) on these bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "17b03664aa6cadfe6d9616ff1f7ecc12b471950fc02a6bb68cbc542a7b18fbb6",
+          "note": "F04 2026-11-15 (second pass): accepted after npm run ci (26 steps incl. smoke:deck) and the two-phase deck run went green on these bytes."
         },
         {
           "path": "scripts/smoke.mjs",
@@ -292,8 +292,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "6fcd95bf5bf5ac523c0e423962eb5404147f9eab2556eea5d6d5d238a796c3d8",
-          "note": "F04 2026-11-15: accepted after npm run ci (25/25 steps, 1,189 tests) and npm run smoke:deck (232 checks) ran green on these exact bytes."
+          "sha256": "c40614a61939178e62804ceda91dacb87e6059005ceb720007f37ab8d5c5139f",
+          "note": "F04 2026-11-15 (second pass): accepted after npm run ci (26 steps incl. smoke:deck) and the two-phase deck run went green on these bytes."
         },
         {
           "path": "src/main/ipc-contract.ts",
@@ -670,8 +670,8 @@
         },
         {
           "path": "scripts/ci.mjs",
-          "sha256": "05bcef39a5d29aa50f3c9062091594f2b4b009dbe534927997c2fc6672fc0e23",
-          "note": "R13/R14 2026-11-14: re-recorded after the review queue changed these shared files (Studio card-identity history anchor, the history smoke in ci.mjs, and R13's build-manifest source commit). npm run ci passed 24/24 steps (1,121 tests in 101 files) on these bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "17b03664aa6cadfe6d9616ff1f7ecc12b471950fc02a6bb68cbc542a7b18fbb6",
+          "note": "F04 second pass: npm run ci green on these bytes."
         },
         {
           "path": "src/main/supervisor/identity.ts",
@@ -708,8 +708,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "6fcd95bf5bf5ac523c0e423962eb5404147f9eab2556eea5d6d5d238a796c3d8",
-          "note": "F04 2026-11-15: accepted after npm run ci ran green on these bytes."
+          "sha256": "c40614a61939178e62804ceda91dacb87e6059005ceb720007f37ab8d5c5139f",
+          "note": "F04 second pass: npm run ci green on these bytes."
         },
         {
           "path": "src/main/engine/runtime-process.ts",
@@ -1188,8 +1188,8 @@
         },
         {
           "path": "scripts/ci.mjs",
-          "sha256": "05bcef39a5d29aa50f3c9062091594f2b4b009dbe534927997c2fc6672fc0e23",
-          "note": "R13/R14 2026-11-14: re-recorded after the review queue changed these shared files (Studio card-identity history anchor, the history smoke in ci.mjs, and R13's build-manifest source commit). npm run ci passed 24/24 steps (1,121 tests in 101 files) on these bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "17b03664aa6cadfe6d9616ff1f7ecc12b471950fc02a6bb68cbc542a7b18fbb6",
+          "note": "F04 second pass: npm run ci (incl. smoke:shell and smoke:deck) green on these bytes."
         },
         {
           "path": "package.json",
@@ -1210,8 +1210,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "6fcd95bf5bf5ac523c0e423962eb5404147f9eab2556eea5d6d5d238a796c3d8",
-          "note": "F04 2026-11-15: accepted after npm run ci and npm run smoke:shell ran green on these bytes (the shell smoke now reads the on-demand panel)."
+          "sha256": "c40614a61939178e62804ceda91dacb87e6059005ceb720007f37ab8d5c5139f",
+          "note": "F04 second pass: npm run ci (incl. smoke:shell and smoke:deck) green on these bytes."
         },
         {
           "path": "src/main/desktop-lifecycle.ts",
@@ -1398,8 +1398,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "6fcd95bf5bf5ac523c0e423962eb5404147f9eab2556eea5d6d5d238a796c3d8",
-          "note": "F04 2026-11-15: accepted after npm run ci ran green on these bytes."
+          "sha256": "c40614a61939178e62804ceda91dacb87e6059005ceb720007f37ab8d5c5139f",
+          "note": "F04 second pass: npm run ci green on these bytes."
         },
         {
           "path": "src/preload/index.ts",
@@ -1834,8 +1834,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p16-settings-smoke.json",
-          "sha256": "34d1bf4ecdf64873469ef6735728217940437f38cad5274c48b1b8dbe5ed6668",
-          "note": "F04 2026-11-15: smoke:settings and smoke:reasoning ran in npm run ci on these bytes; captures and reports regenerated."
+          "sha256": "66a8cf8bc121b708dbf51f52263a3b3234db018de414aacecb66735c200ec3e7",
+          "note": "F04 second pass: smoke:settings and smoke:reasoning ran inside npm run ci on these bytes."
         },
         {
           "path": "docs/evidence/macos/artifacts/p16-settings-route.png",
@@ -1852,8 +1852,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/reasoning-smoke.json",
-          "sha256": "777d66fffc265712456767817722a8b88f0f7035053e082f9a615b71f6d42cfd",
-          "note": "F04 2026-11-15: smoke:settings and smoke:reasoning ran in npm run ci on these bytes; captures and reports regenerated."
+          "sha256": "5bd2defbd08450d57db720d654c575765fdd5051fa25c54a7cde423bae5cbe61",
+          "note": "F04 second pass: smoke:settings and smoke:reasoning ran inside npm run ci on these bytes."
         },
         {
           "path": "docs/evidence/macos/artifacts/reasoning-engine-gap.json",
@@ -1906,8 +1906,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p17-extensions-smoke.json",
-          "sha256": "a9633b2745991f014444bf9ac959b6cfd8cf305500375f251d01e7e35b518151",
-          "note": "F04 2026-11-15: smoke:extensions ran in npm run ci on these bytes; capture and report regenerated."
+          "sha256": "5fa9960782944aedf0533c10aca941b56f638d591758aa1153c1f22e2a7630b3",
+          "note": "F04 second pass: smoke:extensions ran inside npm run ci."
         },
         {
           "path": "docs/evidence/macos/artifacts/p17-settings-extensions.png",
@@ -1954,23 +1954,23 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-terminal-smoke.json",
-          "sha256": "5b704b18f660d67f61e82d684dd65881831de3183f4c4885fde66663b08d5c11",
-          "note": "F04 2026-11-15: smoke:terminal and smoke:capability ran in npm run ci on these bytes; captures and reports regenerated. The source hashes were accepted only after that run."
+          "sha256": "e4a4a3c1b1229f2834f4f19609be0f5d83ae3b54007a3ca456fcdca2350f0187",
+          "note": "F04 second pass: terminal and capability smokes ran inside npm run ci on these bytes."
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capability-smoke.json",
-          "sha256": "af4278b495b7019fad8d3bb35f93ed3318dd51da43fb7593b5e60c630bee407c",
-          "note": "F04 2026-11-15: smoke:terminal and smoke:capability ran in npm run ci on these bytes; captures and reports regenerated. The source hashes were accepted only after that run."
+          "sha256": "7b6fee78583f5478fbd2df5493c2a29b32452a585716a70e2528cd08c26fcb62",
+          "note": "F04 second pass: terminal and capability smokes ran inside npm run ci on these bytes."
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capability-coverage.md",
-          "sha256": "4b86972b46d5f7649b0e53ea1e824e97318a00875250533dbf56761866ce6fc3",
-          "note": "F04 2026-11-15: smoke:terminal and smoke:capability ran in npm run ci on these bytes; captures and reports regenerated. The source hashes were accepted only after that run."
+          "sha256": "fbb607e1380bfca94ad82ec3d6b0df7fcd7844922bdfd35171d6e70fe59d1888",
+          "note": "F04 second pass: terminal and capability smokes ran inside npm run ci on these bytes."
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-capability-coverage.json",
-          "sha256": "e22d38f4e255e5105b500e75673fa0de7a49666a22f9dc3bba974992d260fda3",
-          "note": "F04 2026-11-15: smoke:terminal and smoke:capability ran in npm run ci on these bytes; captures and reports regenerated. The source hashes were accepted only after that run."
+          "sha256": "de31ced9eea230a2103593c25bc86c013b75f1a455d007e8ef1ca479dca88f21",
+          "note": "F04 second pass: terminal and capability smokes ran inside npm run ci on these bytes."
         },
         {
           "path": "docs/evidence/macos/artifacts/p18-shell-smoke.json",
@@ -2091,8 +2091,8 @@
         },
         {
           "path": "src/main/index.ts",
-          "sha256": "6fcd95bf5bf5ac523c0e423962eb5404147f9eab2556eea5d6d5d238a796c3d8",
-          "note": "F04 2026-11-15: smoke:terminal and smoke:capability ran in npm run ci on these bytes; captures and reports regenerated. The source hashes were accepted only after that run."
+          "sha256": "c40614a61939178e62804ceda91dacb87e6059005ceb720007f37ab8d5c5139f",
+          "note": "F04 second pass: terminal and capability smokes ran inside npm run ci on these bytes."
         },
         {
           "path": "src/renderer/shell/Shell.tsx",
@@ -2148,8 +2148,8 @@
         },
         {
           "path": "scripts/ci.mjs",
-          "sha256": "05bcef39a5d29aa50f3c9062091594f2b4b009dbe534927997c2fc6672fc0e23",
-          "note": "R13/R14 2026-11-14: re-recorded after the review queue changed these shared files (Studio card-identity history anchor, the history smoke in ci.mjs, and R13's build-manifest source commit). npm run ci passed 24/24 steps (1,121 tests in 101 files) on these bytes; no assertion was removed and no requirement status was lowered."
+          "sha256": "17b03664aa6cadfe6d9616ff1f7ecc12b471950fc02a6bb68cbc542a7b18fbb6",
+          "note": "F04 second pass: terminal and capability smokes ran inside npm run ci on these bytes."
         },
         {
           "path": "package.json",
@@ -2198,8 +2198,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p19-memory-smoke.json",
-          "sha256": "5c5ed5f6a091193195eb00ef0018d5e35c2627ec414902033e75d55d96051d91",
-          "note": "F04 2026-11-15: smoke:memory ran in npm run ci on these bytes; captures regenerated. Handoff rewritten for the flight-deck continuation."
+          "sha256": "40dc66c47b4a5cd94e0fb6aabe12ba77a19d4ab3e9d8dc4a149eadd4a89c94eb",
+          "note": "F04 second pass: smoke:memory ran in CI; handoff updated with the restart/lifecycle evidence."
         },
         {
           "path": "docs/evidence/macos/artifacts/p19-ci.txt",
@@ -2293,8 +2293,8 @@
         },
         {
           "path": ".mona/build-macos/HANDOFF.md",
-          "sha256": "19a62e58caccf3308ac9b6db9b566fc6da8727537b2b59d024b65ba3526e3faf",
-          "note": "F04 2026-11-15: handoff corrected — the installed copy is build 170, read from its Info.plist rather than copied from the earlier note."
+          "sha256": "d48e41eefbc8f46aaf75baacd0ac22010dc885bbd2e05e06904bcda31c56535a",
+          "note": "F04 second pass: smoke:memory ran in CI; handoff updated with the restart/lifecycle evidence."
         }
       ],
       "blocker_ids": []
@@ -2333,8 +2333,8 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p20-failure-smoke.json",
-          "sha256": "cf46d42392199567755c8ba0e552054fe701eea1911d8c03992780cc56a57c69",
-          "note": "F04 2026-11-15: smoke:failure ran in npm run ci on these bytes; report regenerated."
+          "sha256": "5e0f455da3c711ed57fb378a2e7f5ecec353787bec064014150e143593a48ab5",
+          "note": "F04 second pass: smoke:failure ran inside npm run ci."
         },
         {
           "path": "docs/evidence/macos/artifacts/p20-lifecycle-crash.json",
@@ -2524,8 +2524,8 @@
         },
         {
           "path": ".mona/build-macos/HANDOFF.md",
-          "sha256": "19a62e58caccf3308ac9b6db9b566fc6da8727537b2b59d024b65ba3526e3faf",
-          "note": "F04 2026-11-15: handoff corrected to the installed build number read from /Applications/Mona.app."
+          "sha256": "d48e41eefbc8f46aaf75baacd0ac22010dc885bbd2e05e06904bcda31c56535a",
+          "note": "F04 second pass: handoff updated with the restart, fullscreen and CI-gate evidence."
         },
         {
           "path": "test/work-git.test.ts",
@@ -2614,13 +2614,13 @@
         },
         {
           "path": "docs/evidence/macos/artifacts/p23-lifecycle-smoke.json",
-          "sha256": "db4dae30d86bc0b5e511c478eec481038007afc36114fd62ce0c293934900bf3",
-          "note": "F04 2026-11-15: smoke:p23 ran in npm run ci on these bytes; reports regenerated."
+          "sha256": "953e3927e9102a096fa8a83138f19cc08d7735b50fc8b2220aef114f60aa690c",
+          "note": "F04 second pass: smoke:p23 ran inside npm run ci."
         },
         {
           "path": "docs/evidence/macos/artifacts/p23-uninstall-rehearsal.json",
-          "sha256": "e3f30442a3931b45f915b172a891ed5888d31adddfee2c4f4cf0d295fd3d17e4",
-          "note": "F04 2026-11-15: smoke:p23 ran in npm run ci on these bytes; reports regenerated."
+          "sha256": "93ce5a8802307c3bff862bb5f2b9dae9d69009728b3a13e3439dea492bda95ff",
+          "note": "F04 second pass: smoke:p23 ran inside npm run ci."
         },
         {
           "path": "docs/evidence/macos/artifacts/p23-ci.txt",
@@ -2772,8 +2772,8 @@
         },
         {
           "path": "docs/changelog-macos.md",
-          "sha256": "12b7e398231d39a36837e81cff4a5a0cf51227244508bffe25319b71c94e4144",
-          "note": "F04 2026-11-15: changelog corrected to name the installed build 170."
+          "sha256": "00c64118e83351a703cb937795fc37a70eed4aff9a927953305609b631b0b5a5",
+          "note": "F04 second pass: changelog reflects build 176, 26 CI steps and the restart evidence; still not installed."
         }
       ],
       "blocker_ids": []
@@ -2783,7 +2783,7 @@
     "P22",
     "P25"
   ],
-  "last_checkpoint_utc": "2026-11-15T21:46:25.429Z",
+  "last_checkpoint_utc": "2026-11-16T02:21:12.356Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

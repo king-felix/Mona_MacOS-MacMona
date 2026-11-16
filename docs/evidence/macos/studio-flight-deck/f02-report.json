@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "label": "F02 — Studio flight deck on real pixels, no engine, no model request",
-  "captured_at": "2026-11-15T21:39:41.103Z",
+  "captured_at": "2026-11-16T02:13:42.899Z",
   "host": {
     "platform": "darwin",
     "arch": "arm64",
@@ -17,9 +17,11 @@
   "ok": true,
   "checks": {
     "studio_opened": true,
+    "window_is_visible_for_live_checks": true,
     "offline_signal_is_not_animated": true,
     "offline_signal_states_its_state": true,
     "no_animation_while_no_turn_runs": true,
+    "1440x900-100:viewport_matches_the_window": true,
     "1440x900-100:document_does_not_grow": true,
     "1440x900-100:console_scrolls_internally": true,
     "1440x900-100:prompt_inside_viewport": true,
@@ -41,12 +43,14 @@
     "1440x900-100-after-1200-and-8000:toolbar_keeps_its_controls": true,
     "1440x900-100-after-1200-and-8000:console_keeps_usable_height": true,
     "1440x900-100:prompt_bottom_did_not_move": true,
+    "1440x900-100:window_visible_while_reading": true,
     "1440x900-100:tail_reachable_inside_console": true,
     "1440x900-100:console_really_scrolls": true,
     "1440x900-100:opens_at_the_live_edge": true,
     "1440x900-100:history_reading_stays_in_the_console": true,
     "1440x900-100:jump_returns_to_live_edge": true,
     "1440x900-100:reading_never_scrolled_the_page": true,
+    "1280x800-100:viewport_matches_the_window": true,
     "1280x800-100:document_does_not_grow": true,
     "1280x800-100:console_scrolls_internally": true,
     "1280x800-100:prompt_inside_viewport": true,
@@ -68,12 +72,14 @@
     "1280x800-100-after-1200-and-8000:toolbar_keeps_its_controls": true,
     "1280x800-100-after-1200-and-8000:console_keeps_usable_height": true,
     "1280x800-100:prompt_bottom_did_not_move": true,
+    "1280x800-100:window_visible_while_reading": true,
     "1280x800-100:tail_reachable_inside_console": true,
     "1280x800-100:console_really_scrolls": true,
     "1280x800-100:opens_at_the_live_edge": true,
     "1280x800-100:history_reading_stays_in_the_console": true,
     "1280x800-100:jump_returns_to_live_edge": true,
     "1280x800-100:reading_never_scrolled_the_page": true,
+    "1280x800-125:viewport_matches_the_window": true,
     "1280x800-125:document_does_not_grow": true,
     "1280x800-125:console_scrolls_internally": true,
     "1280x800-125:prompt_inside_viewport": true,
@@ -95,12 +101,14 @@
     "1280x800-125-after-1200-and-8000:toolbar_keeps_its_controls": true,
     "1280x800-125-after-1200-and-8000:console_keeps_usable_height": true,
     "1280x800-125:prompt_bottom_did_not_move": true,
+    "1280x800-125:window_visible_while_reading": true,
     "1280x800-125:tail_reachable_inside_console": true,
     "1280x800-125:console_really_scrolls": true,
     "1280x800-125:opens_at_the_live_edge": true,
     "1280x800-125:history_reading_stays_in_the_console": true,
     "1280x800-125:jump_returns_to_live_edge": true,
     "1280x800-125:reading_never_scrolled_the_page": true,
+    "1280x800-150:viewport_matches_the_window": true,
     "1280x800-150:document_does_not_grow": true,
     "1280x800-150:console_scrolls_internally": true,
     "1280x800-150:prompt_inside_viewport": true,
@@ -122,12 +130,14 @@
     "1280x800-150-after-1200-and-8000:toolbar_keeps_its_controls": true,
     "1280x800-150-after-1200-and-8000:console_keeps_usable_height": true,
     "1280x800-150:prompt_bottom_did_not_move": true,
+    "1280x800-150:window_visible_while_reading": true,
     "1280x800-150:tail_reachable_inside_console": true,
     "1280x800-150:console_really_scrolls": true,
     "1280x800-150:opens_at_the_live_edge": true,
     "1280x800-150:history_reading_stays_in_the_console": true,
     "1280x800-150:jump_returns_to_live_edge": true,
     "1280x800-150:reading_never_scrolled_the_page": true,
+    "1280x800-200:viewport_matches_the_window": true,
     "1280x800-200:document_does_not_grow": true,
     "1280x800-200:console_scrolls_internally": true,
     "1280x800-200:prompt_inside_viewport": true,
@@ -149,12 +159,14 @@
     "1280x800-200-after-1200-and-8000:toolbar_keeps_its_controls": true,
     "1280x800-200-after-1200-and-8000:console_keeps_usable_height": true,
     "1280x800-200:prompt_bottom_did_not_move": true,
+    "1280x800-200:window_visible_while_reading": true,
     "1280x800-200:tail_reachable_inside_console": true,
     "1280x800-200:console_really_scrolls": true,
     "1280x800-200:opens_at_the_live_edge": true,
     "1280x800-200:history_reading_stays_in_the_console": true,
     "1280x800-200:jump_returns_to_live_edge": true,
     "1280x800-200:reading_never_scrolled_the_page": true,
+    "1100x700-100:viewport_matches_the_window": true,
     "1100x700-100:document_does_not_grow": true,
     "1100x700-100:console_scrolls_internally": true,
     "1100x700-100:prompt_inside_viewport": true,
@@ -176,6 +188,7 @@
     "1100x700-100-after-1200-and-8000:toolbar_keeps_its_controls": true,
     "1100x700-100-after-1200-and-8000:console_keeps_usable_height": true,
     "1100x700-100:prompt_bottom_did_not_move": true,
+    "1100x700-100:window_visible_while_reading": true,
     "1100x700-100:tail_reachable_inside_console": true,
     "1100x700-100:console_really_scrolls": true,
     "1100x700-100:opens_at_the_live_edge": true,
@@ -223,8 +236,8 @@
     "receipt_leaves_the_clipboard_as_it_found_it": true,
     "routine_receipt_appeared": true,
     "routine_receipt_is_a_success_tone": true,
-    "routine_receipt_dismisses_itself": true,
-    "receipt_lives_for_five_seconds": true,
+    "routine_receipt_appears_and_holds": true,
+    "receipt_behaviour_was_observed": true,
     "receipt_does_not_move_the_console": true,
     "reduced_motion_matches": true,
     "reduced_motion_stops_decoration": true,
@@ -247,7 +260,30 @@
     "themes_apply": true,
     "themes_stay_bounded": true,
     "primary_text_meets_contrast": true,
-    "signal_label_meets_contrast": true
+    "signal_label_meets_contrast": true,
+    "draft_reaches_the_composer": true,
+    "focus_preference_can_be_set": true,
+    "draft_survives_a_layout_change": true,
+    "draft_is_persisted": true,
+    "focus_preference_is_persisted": true,
+    "fullscreen:document_does_not_grow": true,
+    "fullscreen:console_scrolls_internally": true,
+    "fullscreen:prompt_inside_viewport": true,
+    "fullscreen:controls_above_prompt": true,
+    "fullscreen:submit_reachable": true,
+    "fullscreen:interrupt_visible": true,
+    "fullscreen:inspector_removed": true,
+    "fullscreen:grip_reports_a_value_inside_its_range": true,
+    "fullscreen:toolbar_keeps_its_controls": true,
+    "fullscreen:console_keeps_usable_height": true,
+    "fullscreen_keeps_the_draft": true,
+    "fullscreen_entered_and_left": true,
+    "fullscreen_reports_its_own_state": true,
+    "relaunch:studio_opened": true,
+    "relaunch:window_is_visible_for_live_checks": true,
+    "relaunch:relaunch_restores_focus_mode": true,
+    "relaunch:relaunch_restores_the_draft": true,
+    "relaunch:relaunch_started_no_runtime": true
   },
   "facts": {
     "idle": {
@@ -280,7 +316,8 @@
       "returned": {
         "at_latest": true,
         "document_scroll_y": 0,
-        "jump_gone": true
+        "jump_gone": true,
+        "settled": true
       }
     },
     "reading_1280x800-100": {
@@ -290,7 +327,7 @@
         "truncation_stated": true,
         "at_tail": true,
         "cards": 7,
-        "console_scroll_height": 25786,
+        "console_scroll_height": 25668,
         "console_client_height": 307,
         "document_scroll_y": 0
       },
@@ -306,7 +343,8 @@
       "returned": {
         "at_latest": true,
         "document_scroll_y": 0,
-        "jump_gone": true
+        "jump_gone": true,
+        "settled": true
       }
     },
     "reading_1280x800-125": {
@@ -316,7 +354,7 @@
         "truncation_stated": true,
         "at_tail": true,
         "cards": 7,
-        "console_scroll_height": 27000,
+        "console_scroll_height": 25672,
         "console_client_height": 276,
         "document_scroll_y": 0
       },
@@ -332,7 +370,8 @@
       "returned": {
         "at_latest": true,
         "document_scroll_y": 0,
-        "jump_gone": true
+        "jump_gone": true,
+        "settled": true
       }
     },
     "reading_1280x800-150": {
@@ -342,7 +381,7 @@
         "truncation_stated": true,
         "at_tail": true,
         "cards": 7,
-        "console_scroll_height": 27000,
+        "console_scroll_height": 25653,
         "console_client_height": 109,
         "document_scroll_y": 0
       },
@@ -358,7 +397,8 @@
       "returned": {
         "at_latest": true,
         "document_scroll_y": 0,
-        "jump_gone": true
+        "jump_gone": true,
+        "settled": true
       }
     },
     "reading_1280x800-200": {
@@ -368,7 +408,7 @@
         "truncation_stated": true,
         "at_tail": true,
         "cards": 7,
-        "console_scroll_height": 27192,
+        "console_scroll_height": 27213,
         "console_client_height": 139,
         "document_scroll_y": 0
       },
@@ -384,7 +424,8 @@
       "returned": {
         "at_latest": true,
         "document_scroll_y": 0,
-        "jump_gone": true
+        "jump_gone": true,
+        "settled": true
       }
     },
     "reading_1100x700-100": {
@@ -394,7 +435,7 @@
         "truncation_stated": true,
         "at_tail": true,
         "cards": 7,
-        "console_scroll_height": 25345,
+        "console_scroll_height": 25433,
         "console_client_height": 335,
         "document_scroll_y": 0
       },
@@ -410,7 +451,8 @@
       "returned": {
         "at_latest": true,
         "document_scroll_y": 0,
-        "jump_gone": true
+        "jump_gone": true,
+        "settled": true
       }
     },
     "composer_resize": {
@@ -639,7 +681,7 @@
           "bar_width": 1008
         },
         "console_scroll": {
-          "scroll_height": 24937,
+          "scroll_height": 24999,
           "client_height": 307,
           "overflow_y": "auto",
           "at_latest": true
@@ -891,7 +933,7 @@
           "bar_width": 1008
         },
         "console_scroll": {
-          "scroll_height": 24937,
+          "scroll_height": 24999,
           "client_height": 286,
           "overflow_y": "auto",
           "at_latest": true
@@ -1143,7 +1185,7 @@
           "bar_width": 1008
         },
         "console_scroll": {
-          "scroll_height": 24937,
+          "scroll_height": 24999,
           "client_height": 339,
           "overflow_y": "auto",
           "at_latest": true
@@ -1402,7 +1444,7 @@
           "bar_width": 864
         },
         "console_scroll": {
-          "scroll_height": 25365,
+          "scroll_height": 25433,
           "client_height": 155,
           "overflow_y": "auto",
           "at_latest": true
@@ -1654,7 +1696,7 @@
           "bar_width": 430
         },
         "console_scroll": {
-          "scroll_height": 29660,
+          "scroll_height": 29869,
           "client_height": 41,
           "overflow_y": "auto",
           "at_latest": false
@@ -1679,7 +1721,7 @@
         "signal_animated": "false",
         "signal_phase": "agent-signal agent-signal--offline",
         "running_animations": 0,
-        "cards": 14
+        "cards": 13
       },
       "recovered": {
         "zoom": 4,
@@ -1906,7 +1948,7 @@
           "bar_width": 430
         },
         "console_scroll": {
-          "scroll_height": 29660,
+          "scroll_height": 29869,
           "client_height": 41,
           "overflow_y": "auto",
           "at_latest": false
@@ -1931,7 +1973,7 @@
         "signal_animated": "false",
         "signal_phase": "agent-signal agent-signal--offline",
         "running_animations": 0,
-        "cards": 14
+        "cards": 13
       }
     },
     "keyboard": {
@@ -1971,20 +2013,24 @@
       "toast": {
         "present": true,
         "tone": "notification notification--success",
-        "text": "Copied 65 characters to the clipboard.",
+        "text": "Copied 64 characters to the clipboard.",
         "top": 48,
         "console_top": 239,
-        "console_scroll_top": 24521,
+        "console_scroll_top": 24279,
         "position": "fixed"
       },
-      "dismissed_ms": 5260,
+      "dismissed_ms": 5292,
       "before": {
         "console_top": 239,
-        "console_scroll_top": 24521
+        "console_scroll_top": 24279
       },
       "clipboard_restored": true,
-      "clipboard_previous_length": 981,
-      "clipboard_byte_identical": true
+      "clipboard_previous_length": 186,
+      "clipboard_byte_identical": true,
+      "visible_ms_accumulated": 5290,
+      "hidden_observed": false,
+      "paused_while_hidden": false,
+      "visible_time_was_measurable": true
     },
     "reduced_motion": {
       "attached": true,
@@ -2103,7 +2149,277 @@
           "intensity": "quiet"
         }
       }
-    ]
+    ],
+    "draft_after_layout": {
+      "value": "Deck draft survives a resize, a zoom change, and a relaunch.",
+      "focus": "on",
+      "caret": 60
+    },
+    "stored_state": {
+      "draft": "Deck draft survives a resize, a zoom change, and a relaunch.",
+      "focus": true
+    },
+    "fullscreen": {
+      "entered": true,
+      "left": true,
+      "events": [
+        "enter-full-screen",
+        "leave-full-screen"
+      ],
+      "geometry": {
+        "zoom": 2,
+        "viewport": {
+          "width": 1470,
+          "height": 923
+        },
+        "document": {
+          "scroll_width": 1470,
+          "scroll_height": 923,
+          "client_width": 1470,
+          "client_height": 923,
+          "scroll_y": 0
+        },
+        "boxes": {
+          "console": {
+            "top": 199,
+            "bottom": 654.5,
+            "left": 18,
+            "right": 1452,
+            "width": 1434,
+            "height": 455.5,
+            "disabled": null
+          },
+          "prompt": {
+            "top": 741,
+            "bottom": 861,
+            "left": 31,
+            "right": 1439,
+            "width": 1408,
+            "height": 120,
+            "disabled": null
+          },
+          "submit": {
+            "top": 682.5,
+            "bottom": 712.5,
+            "left": 1265,
+            "right": 1365,
+            "width": 100,
+            "height": 30,
+            "disabled": false
+          },
+          "interrupt": {
+            "top": 682.5,
+            "bottom": 712.5,
+            "left": 1135,
+            "right": 1258,
+            "width": 123,
+            "height": 30,
+            "disabled": true
+          },
+          "pause": {
+            "top": 682.5,
+            "bottom": 712.5,
+            "left": 989.1,
+            "right": 1128,
+            "width": 138.8,
+            "height": 30,
+            "disabled": true
+          },
+          "controls": {
+            "top": 681.5,
+            "bottom": 713.5,
+            "left": 31,
+            "right": 1439,
+            "width": 1408,
+            "height": 32,
+            "disabled": null
+          },
+          "primary": {
+            "top": 681.5,
+            "bottom": 713.5,
+            "left": 31,
+            "right": 1439,
+            "width": 1408,
+            "height": 32,
+            "disabled": null
+          },
+          "utilities": null,
+          "grip": {
+            "top": 657.5,
+            "bottom": 667.5,
+            "left": 18,
+            "right": 1452,
+            "width": 1434,
+            "height": 10,
+            "disabled": null
+          },
+          "deck": {
+            "top": 44,
+            "bottom": 96,
+            "left": 18,
+            "right": 1452,
+            "width": 1434,
+            "height": 52,
+            "disabled": null
+          },
+          "signal": {
+            "top": 104,
+            "bottom": 155,
+            "left": 18,
+            "right": 1452,
+            "width": 1434,
+            "height": 51,
+            "disabled": null
+          },
+          "toolbar": {
+            "top": 163,
+            "bottom": 193,
+            "left": 18,
+            "right": 1452,
+            "width": 1434,
+            "height": 30,
+            "disabled": null
+          },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
+          "composer": {
+            "top": 670.5,
+            "bottom": 911,
+            "left": 18,
+            "right": 1452,
+            "width": 1434,
+            "height": 240.5,
+            "disabled": null
+          },
+          "rail": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
+          "rail_nav": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
+          "rail_brand": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
+          "harness": {
+            "top": 0,
+            "bottom": 923,
+            "left": 0,
+            "right": 1470,
+            "width": 1470,
+            "height": 923,
+            "disabled": null
+          },
+          "main": {
+            "top": 0,
+            "bottom": 923,
+            "left": 0,
+            "right": 1470,
+            "width": 1470,
+            "height": 923,
+            "disabled": null
+          },
+          "screen": {
+            "top": 44,
+            "bottom": 911,
+            "left": 18,
+            "right": 1452,
+            "width": 1434,
+            "height": 867,
+            "disabled": null
+          },
+          "stage": {
+            "top": 163,
+            "bottom": 911,
+            "left": 18,
+            "right": 1452,
+            "width": 1434,
+            "height": 748,
+            "disabled": null
+          }
+        },
+        "hit": {
+          "submit": true,
+          "interrupt": true,
+          "pause": true,
+          "prompt": true,
+          "grip": true
+        },
+        "hit_detail": {
+          "submit": {
+            "covered": false,
+            "by": "span.button__label"
+          },
+          "prompt": {
+            "covered": false,
+            "by": "textarea#field-_r_i_.input input--area"
+          }
+        },
+        "heights": {
+          "harness": 923,
+          "main": 923,
+          "screen": 867,
+          "stage": 748
+        },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 1434
+        },
+        "console_scroll": {
+          "scroll_height": 26026,
+          "client_height": 454,
+          "overflow_y": "auto",
+          "at_latest": true
+        },
+        "grip_range": {
+          "now": 120,
+          "min": 72,
+          "max": 194
+        },
+        "grip_value": "120",
+        "rail_layout": {
+          "display": "none",
+          "flex_direction": "column",
+          "flex_wrap": "nowrap",
+          "nav_direction": "column",
+          "nav_wrap": "nowrap",
+          "nav_scroll_height": 0,
+          "nav_client_height": 0,
+          "items": 9
+        },
+        "inspector": false,
+        "signal_animated": "false",
+        "signal_phase": "agent-signal agent-signal--offline",
+        "running_animations": 0,
+        "cards": 7,
+        "reported": "on"
+      }
+    }
   },
   "layouts": [
     {
@@ -2112,7 +2428,7 @@
       "height": 900,
       "factor": 1,
       "appended": {
-        "thread_id": "thr_3f0f0d2949ea0e9b",
+        "thread_id": "thr_17549c53fa63673c",
         "frames": 1200,
         "stream_lines": 8000,
         "final_seq": 1212
@@ -2621,8 +2937,7 @@
         "running_animations": 0,
         "cards": 7,
         "refreshed_from_push": true,
-        "scope_text": "199 shown · 1212 stored · older pages available · 7 painted",
-        "stored_total_readback": 1212
+        "scope_text": "199 shown · 1212 stored · older pages available · 7 painted"
       }
     },
     {
@@ -2631,10 +2946,10 @@
       "height": 800,
       "factor": 1,
       "appended": {
-        "thread_id": "thr_3f0f0d2949ea0e9b",
-        "frames": 1200,
-        "stream_lines": 8000,
-        "final_seq": 2415
+        "thread_id": "thr_17549c53fa63673c",
+        "frames": 200,
+        "stream_lines": 10000,
+        "final_seq": 1414
       },
       "before": {
         "zoom": 2,
@@ -3113,7 +3428,7 @@
           "bar_width": 1008
         },
         "console_scroll": {
-          "scroll_height": 25786,
+          "scroll_height": 25668,
           "client_height": 307,
           "overflow_y": "auto",
           "at_latest": true
@@ -3140,8 +3455,7 @@
         "running_animations": 0,
         "cards": 7,
         "refreshed_from_push": true,
-        "scope_text": "199 shown · 2415 stored · older pages available · 7 painted",
-        "stored_total_readback": 2415
+        "scope_text": "200 shown · 1414 stored · older pages available · 7 painted"
       }
     },
     {
@@ -3150,10 +3464,10 @@
       "height": 800,
       "factor": 1.25,
       "appended": {
-        "thread_id": "thr_3f0f0d2949ea0e9b",
-        "frames": 1200,
-        "stream_lines": 8000,
-        "final_seq": 3618
+        "thread_id": "thr_17549c53fa63673c",
+        "frames": 200,
+        "stream_lines": 12000,
+        "final_seq": 1616
       },
       "before": {
         "zoom": 2.5,
@@ -3380,7 +3694,7 @@
           "bar_width": 808
         },
         "console_scroll": {
-          "scroll_height": 27000,
+          "scroll_height": 25672,
           "client_height": 276,
           "overflow_y": "auto",
           "at_latest": false
@@ -3632,7 +3946,7 @@
           "bar_width": 808
         },
         "console_scroll": {
-          "scroll_height": 27000,
+          "scroll_height": 25672,
           "client_height": 276,
           "overflow_y": "auto",
           "at_latest": false
@@ -3659,8 +3973,7 @@
         "running_animations": 0,
         "cards": 7,
         "refreshed_from_push": true,
-        "scope_text": "199 shown · 3618 stored · older pages available · 7 painted",
-        "stored_total_readback": 3618
+        "scope_text": "200 shown · 1616 stored · older pages available · 7 painted"
       }
     },
     {
@@ -3669,10 +3982,10 @@
       "height": 800,
       "factor": 1.5,
       "appended": {
-        "thread_id": "thr_3f0f0d2949ea0e9b",
-        "frames": 1200,
-        "stream_lines": 8000,
-        "final_seq": 4821
+        "thread_id": "thr_17549c53fa63673c",
+        "frames": 200,
+        "stream_lines": 14000,
+        "final_seq": 1818
       },
       "before": {
         "zoom": 3,
@@ -3899,7 +4212,7 @@
           "bar_width": 817
         },
         "console_scroll": {
-          "scroll_height": 27000,
+          "scroll_height": 25653,
           "client_height": 109,
           "overflow_y": "auto",
           "at_latest": false
@@ -4151,7 +4464,7 @@
           "bar_width": 817
         },
         "console_scroll": {
-          "scroll_height": 27000,
+          "scroll_height": 25653,
           "client_height": 109,
           "overflow_y": "auto",
           "at_latest": false
@@ -4178,8 +4491,7 @@
         "running_animations": 0,
         "cards": 7,
         "refreshed_from_push": true,
-        "scope_text": "199 shown · 4821 stored · older pages available · 7 painted",
-        "stored_total_readback": 4821
+        "scope_text": "200 shown · 1818 stored · older pages available · 7 painted"
       }
     },
     {
@@ -4188,10 +4500,10 @@
       "height": 800,
       "factor": 2,
       "appended": {
-        "thread_id": "thr_3f0f0d2949ea0e9b",
-        "frames": 1200,
-        "stream_lines": 8000,
-        "final_seq": 6024
+        "thread_id": "thr_17549c53fa63673c",
+        "frames": 200,
+        "stream_lines": 16000,
+        "final_seq": 2020
       },
       "before": {
         "zoom": 4,
@@ -4418,7 +4730,7 @@
           "bar_width": 620
         },
         "console_scroll": {
-          "scroll_height": 27192,
+          "scroll_height": 27213,
           "client_height": 139,
           "overflow_y": "auto",
           "at_latest": false
@@ -4670,7 +4982,7 @@
           "bar_width": 620
         },
         "console_scroll": {
-          "scroll_height": 27192,
+          "scroll_height": 27213,
           "client_height": 139,
           "overflow_y": "auto",
           "at_latest": false
@@ -4697,8 +5009,7 @@
         "running_animations": 0,
         "cards": 7,
         "refreshed_from_push": true,
-        "scope_text": "199 shown · 6024 stored · older pages available · 7 painted",
-        "stored_total_readback": 6024
+        "scope_text": "200 shown · 2020 stored · older pages available · 7 painted"
       }
     },
     {
@@ -4707,10 +5018,10 @@
       "height": 700,
       "factor": 1,
       "appended": {
-        "thread_id": "thr_3f0f0d2949ea0e9b",
-        "frames": 1200,
-        "stream_lines": 8000,
-        "final_seq": 7227
+        "thread_id": "thr_17549c53fa63673c",
+        "frames": 200,
+        "stream_lines": 18000,
+        "final_seq": 2222
       },
       "before": {
         "zoom": 2,
@@ -4937,10 +5248,10 @@
           "bar_width": 884
         },
         "console_scroll": {
-          "scroll_height": 25345,
+          "scroll_height": 25433,
           "client_height": 335,
           "overflow_y": "auto",
-          "at_latest": true
+          "at_latest": false
         },
         "grip_range": {
           "now": 72,
@@ -5189,10 +5500,10 @@
           "bar_width": 884
         },
         "console_scroll": {
-          "scroll_height": 25345,
+          "scroll_height": 25433,
           "client_height": 335,
           "overflow_y": "auto",
-          "at_latest": true
+          "at_latest": false
         },
         "grip_range": {
           "now": 72,
@@ -5216,8 +5527,7 @@
         "running_animations": 0,
         "cards": 7,
         "refreshed_from_push": true,
-        "scope_text": "199 shown · 7227 stored · older pages available · 7 painted",
-        "stored_total_readback": 7227
+        "scope_text": "200 shown · 2222 stored · older pages available · 7 painted"
       }
     }
   ],
@@ -5234,13 +5544,38 @@
     "f02-theme-afterglow-vivid.png",
     "f02-theme-afterglow-quiet.png"
   ],
-  "project": "prj_03219be765087268",
+  "phase": "setup",
+  "project": "prj_9e04e17ebce9b24e",
+  "failed_screenshots": [],
+  "relaunch": {
+    "ok": true,
+    "checks": {
+      "studio_opened": true,
+      "window_is_visible_for_live_checks": true,
+      "relaunch_restores_focus_mode": true,
+      "relaunch_restores_the_draft": true,
+      "relaunch_started_no_runtime": true
+    },
+    "facts": {
+      "restoredFocus": true,
+      "restoredDraft": "Deck draft survives a resize, a zoom change, and a relaunch.",
+      "restoredDraftArrived": true,
+      "restoredConnection": "not_started",
+      "projects_listed": 0
+    },
+    "error": null
+  },
   "target": {
     "tree": "~/DS_Projects/Mona"
   },
   "electron": {
-    "exit": 0,
-    "stdout": "",
-    "stderr": ""
+    "setup": {
+      "exit": 0,
+      "stderr": "[deck] append start 1440x900-100\n[deck] append done 1440x900-100 seq=1212\n[deck] push sent 1440x900-100\n[deck] refreshed 1440x900-100 true\n[deck] tail start 1440x900-100\n[deck] tail done 1440x900-100\n[deck] layout done 1440x900-100\n[deck] append start 1280x800-100\n[deck] append done 1280x800-100 seq=1414\n[deck] push sent 1280x800-100\n[deck] refreshed 1280x800-100 true\n[deck] tail start 1280x800-100\n[deck] tail done 1280x800-100\n[deck] layout done 1280x800-100\n[deck] append start 1280x800-125\n[deck] append done 1280x800-125 seq=1616\n[deck] push sent 1280x800-125\n[deck] refreshed 1280x800-125 true\n[deck] tail start 1280x800-125\n[deck] tail done 1280x800-125\n[deck] layout done 1280x800-125\n[deck] append start 1280x800-150\n[deck] append done 1280x800-150 seq=1818\n[deck] push sent 1280x800-150\n[deck] refreshed 1280x800-150 true\n[deck] tail start 1280x800-150\n[deck] tail done 1280x800-150\n[deck] layout done 1280x800-150\n[deck] append start 1280x800-200\n[deck] append done 1280x800-200 seq=2020\n[deck] push sent 1280x800-200\n[deck] refreshed 1280x800-200 true\n[deck] tail start 1280x800-200\n[deck] tail done 1280x800-200\n[deck] layout done 1280x800-200\n[deck] append start 1100x700-100\n[deck] append done 1100x700-100 seq=2222\n[deck] push sent 1100x700-100\n[deck] refreshed 1100x700-100 true\n[deck] tail start 1100x700-100\n[deck] tail done 1100x700-100\n[deck] layout done 1100x700-100\n[deck] persistence start\n[deck] persistence layout done\n[deck] persistence stored\n[deck] fullscreen entered=true\n[deck] fullscreen settled\n[deck] fullscreen measured\n"
+    },
+    "relaunch": {
+      "exit": 0,
+      "stderr": ""
+    }
   }
 }

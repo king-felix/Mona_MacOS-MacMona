@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "label": "Reasoning controls — live route check",
-  "captured_at": "2026-11-15T21:43:16.208Z",
+  "captured_at": "2026-11-16T02:15:46.930Z",
   "ok": true,
   "isolated_home": true,
   "checks": {
@@ -95,7 +95,7 @@
       "autoApprove": true,
       "trustMode": true,
       "allowShell": true,
-      "updatedAt": "2026-11-15T21:43:16.611Z",
+      "updatedAt": "2026-11-16T02:15:47.387Z",
       "note": "Saved new-thread default; validated against the live provider and model catalog."
     },
     "refused": "'medium' is not one of this model's published levels (low, high, max)",

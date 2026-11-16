@@ -61,6 +61,12 @@ for (const script of [
   "smoke:memory",
   "smoke:failure",
   "smoke:p23",
+  // F02: the Studio deck on real pixels. Six window/zoom arrangements, a 1,200
+  // frame and 8,000-line load, composer re-clamp, receipts, both themes, and a
+  // genuine restart on the same state directory. Geometry is measurable while the
+  // window is occluded; the live-behaviour checks raise it first. No engine, no
+  // model request.
+  "smoke:deck",
   "smoke:lifecycle",
 ]) {
   if (!run(script, "npm", ["run", script])) break;

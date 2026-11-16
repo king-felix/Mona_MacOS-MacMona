@@ -32,51 +32,67 @@ const appArgIndex = process.argv.indexOf("--app");
 const APP_PATH = appArgIndex >= 0 ? resolve(process.argv[appArgIndex + 1] ?? "") : null;
 const APP_BINARY = APP_PATH ? join(APP_PATH, "Contents", "MacOS", "Mona") : null;
 const runDir = await mkdtemp(join(tmpdir(), "mona-deck-smoke-"));
-const outFile = join(runDir, "report.json");
 const userDataDir = await mkdtemp(join(tmpdir(), "mona-deck-smoke-userdata-"));
+const DRAFT = "Deck draft survives a resize, a zoom change, and a relaunch.";
 
-const child = APP_BINARY
-  ? spawn(APP_BINARY, ["--deck-smoke", `--user-data-dir=${userDataDir}`], {
-      cwd: APP_PATH,
-      env: {
-        ...process.env,
-        MONA_DECK_SMOKE_OUT: outFile,
-        MONA_DECK_SMOKE_OUT_DIR: artifactDir,
-      },
-      stdio: ["ignore", "pipe", "pipe"],
-    })
-  : spawn(electron, [".", "--deck-smoke", `--user-data-dir=${userDataDir}`], {
-      cwd: ROOT,
-      env: {
-        ...process.env,
-        MONA_DECK_SMOKE_OUT: outFile,
-        MONA_DECK_SMOKE_OUT_DIR: artifactDir,
-      },
-      stdio: ["ignore", "pipe", "pipe"],
-    });
-
-let stdout = "";
-let stderr = "";
-child.stdout.on("data", (chunk) => (stdout += chunk));
-child.stderr.on("data", (chunk) => (stderr += chunk));
-
-const timeout = setTimeout(() => child.kill("SIGKILL"), 240_000);
-const code = await new Promise((resolveExit) => child.on("exit", (value) => resolveExit(value)));
-clearTimeout(timeout);
-
-let report = null;
-try {
-  report = JSON.parse(await readFile(outFile, "utf8"));
-} catch {
-  report = { ok: false, error: "deck smoke report missing" };
+/**
+ * One launch. `setup` runs the whole qualification and leaves a draft and the
+ * Focus preference stored; `verify` is the same binary on the same state
+ * directory, and proves the restart put them back. A preference that only
+ * survives in memory is not a preference.
+ */
+async function launch(phase) {
+  const outFile = join(runDir, `report-${phase}.json`);
+  const env = {
+    ...process.env,
+    MONA_DECK_SMOKE_OUT: outFile,
+    MONA_DECK_SMOKE_OUT_DIR: artifactDir,
+    MONA_DECK_SMOKE_PHASE: phase,
+    MONA_DECK_SMOKE_DRAFT: DRAFT,
+  };
+  const args = ["--deck-smoke", `--user-data-dir=${userDataDir}`];
+  const child = APP_BINARY
+    ? spawn(APP_BINARY, args, { cwd: APP_PATH, env, stdio: ["ignore", "pipe", "pipe"] })
+    : spawn(electron, [".", ...args], { cwd: ROOT, env, stdio: ["ignore", "pipe", "pipe"] });
+  let stdout = "";
+  let stderr = "";
+  child.stdout.on("data", (chunk) => (stdout += chunk));
+  child.stderr.on("data", (chunk) => (stderr += chunk));
+  const timeout = setTimeout(() => child.kill("SIGKILL"), 300_000);
+  const code = await new Promise((resolveExit) => child.on("exit", (value) => resolveExit(value)));
+  clearTimeout(timeout);
+  let report = null;
+  try {
+    report = JSON.parse(await readFile(outFile, "utf8"));
+  } catch {
+    report = { ok: false, error: `deck smoke ${phase} report missing` };
+  }
+  return { report, code, stdout: stdout.slice(0, 2000), stderr: stderr.slice(0, 4000) };
 }
 
+const setup = await launch("setup");
+const verify = await launch("verify");
+const relaunchChecks = Object.fromEntries(
+  Object.entries(verify.report.checks ?? {}).map(([name, value]) => [`relaunch:${name}`, value]),
+);
 const output = {
-  ...report,
+  ...setup.report,
+  phase: "setup",
+  checks: { ...(setup.report.checks ?? {}), ...relaunchChecks },
+  relaunch: {
+    ok: verify.report.ok === true,
+    checks: verify.report.checks ?? {},
+    facts: verify.report.facts?.relaunch ?? null,
+    error: verify.report.error ?? null,
+  },
   target: APP_BINARY ? { bundle: APP_PATH, binary: APP_BINARY, packaged: true } : { tree: ROOT },
-  electron: { exit: code, stdout: stdout.slice(0, 2000), stderr: stderr.slice(0, 4000) },
+  electron: {
+    setup: { exit: setup.code, stderr: setup.stderr },
+    relaunch: { exit: verify.code, stderr: verify.stderr },
+  },
+  ok: setup.report.ok === true && verify.report.ok === true,
 };
 console.log(JSON.stringify(output, null, 2));
 await rm(runDir, { recursive: true, force: true });
 await rm(userDataDir, { recursive: true, force: true });
-process.exit(report.ok === true && code === 0 ? 0 : 1);
+process.exit(output.ok && setup.code === 0 && verify.code === 0 ? 0 : 1);

@@ -11,10 +11,10 @@
       "source": "prior release (344d41c baseline)"
     },
     "candidate": {
-      "build": 174,
+      "build": 176,
       "channel": "local",
       "package": "packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg",
-      "package_sha256": "f5fb8ab4bbd007310af86b6e4be5b516ef5a8513ac4e727047e14f468961324b"
+      "package_sha256_prefix": "d79da531ab3889e5"
     }
   },
   "next": "none — F03 install step is Needs the Human (see blockers)",
@@ -83,28 +83,31 @@
     "VoiceOver spoken walkthrough of the deck",
     "Aesthetic judgement of the installed build at 100-200% zoom",
     "Observe one real turn and confirm the animated activity phases",
-    "Enter inserts a newline when pressed on a physical keyboard (synthetic key events cannot show the browser default)"
+    "One physical Enter keypress (synthetic key events cannot show the browser default)"
   ],
   "verification": {
     "platform": "macOS 26.5.1 arm64, Electron 45.3.0",
     "source": "branch studio-flight-deck, 9c60e3b + 3af9b4b + F03/F04 commits",
-    "ci": "npm run ci 25/25 steps, exit 0",
+    "ci": "npm run ci 26/26 steps including smoke:deck",
     "unit_tests": "1,189 passed in 108 files",
     "deck_smoke": {
-      "checks": 232,
+      "checks": 268,
       "ok": true,
-      "report": "docs/evidence/macos/studio-flight-deck/f02-report.json"
+      "report": "docs/evidence/macos/studio-flight-deck/f02-report.json",
+      "phases": "setup + a genuine second launch on the same state directory"
     },
     "deck_smoke_packaged": {
-      "checks": 232,
+      "checks": 268,
       "ok": true,
       "report": "docs/evidence/macos/studio-flight-deck/f03-packaged-deck-report.json",
-      "bundle": "build 174, package sha256 f5fb8ab4bbd00731"
+      "bundle": "build 176, package sha256 prefix d79da531ab3889e5"
     },
     "r11": "passed_with_exception (idle memory vs this host 362 MiB Electron floor); idle CPU 0.04%",
     "ledger": "monabuild validate clean at revision 1534; 32 hashes refreshed individually with notes",
-    "package": "build 174 local channel; all pre-install gates and uninstall rehearsal ok",
+    "package": "build 176 local channel; all pre-install gates and uninstall rehearsal ok",
     "installed": "NOT this build — /Applications/Mona.app is build 170; install needs the owner terminal",
-    "review": "independent adversarial review; 4 real defects fixed (clipboard text in artifacts, Escape stolen from dialogs, aria-valuenow below its minimum at 150%/200%, vacuous narrow-window check)"
+    "review": "independent adversarial review; 4 real defects fixed (clipboard text in artifacts, Escape stolen from dialogs, aria-valuenow below its minimum at 150%/200%, vacuous narrow-window check)",
+    "restart": "relaunch restored Focus preference and the draft; no runtime started",
+    "fullscreen": "entered and left through the deck control via AppKit"
   }
 }

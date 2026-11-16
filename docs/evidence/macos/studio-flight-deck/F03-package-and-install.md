@@ -7,13 +7,14 @@ owner's own terminal.**
 
 ## Built
 
-`npm run mac:package:local` → build **174**, channel `local`, version 0.1.0.
+`npm run mac:package:local` → build **176**, channel `local`, version 0.1.0.
 Transcript: `mac-package.txt`; report: `packaging/macos/out/package-report.json`.
 
 - Package: `packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg`,
-  sha256 `f5fb8ab4bbd007310af86b6e4be5b516ef5a8513ac4e727047e14f468961324b`.
+  sha256 starts `d79da531ab3889e5…` (the full digest is in
+  `packaging/macos/out/package-report.json`).
 - Bundle identity read from the payload itself: `com.mona.workbench`,
-  `CFBundleShortVersionString 0.1.0`, `MonaBuildVersion 174`, `CFBundleVersion 174`,
+  `CFBundleShortVersionString 0.1.0`, `MonaBuildVersion 176`, `CFBundleVersion 176`,
   `MonaBuildChannel local`, `LSMinimumSystemVersion 14.0`.
 - `codesign --verify --deep --strict` on the payload app → clean (ad-hoc).
 - Engine pin unchanged: 0.10.2 `ff466b2ed0bf`, sha256 `da0229610647f1cc2…` —
@@ -44,7 +45,7 @@ harness with `--app`:
 node scripts/deck-smoke.mjs --app packaging/macos/out/stage/payload/Applications/Mona.app
 ```
 
-Result: **232/232 checks pass, exit 0**, on macOS 26.5.1 / Electron 45.3.0
+Result: **268/268 checks pass, exit 0** — including a genuine second launch, on macOS 26.5.1 / Electron 45.3.0
 (`f03-packaged-deck-report.json`, `f03-packaged-deck-smoke.log`). That covers the
 six window/zoom arrangements, 1,200 appended frames, the 8,000-line stream,
 composer re-clamp, keyboard, receipts, reduced motion, both themes and the narrow
@@ -88,16 +89,20 @@ node scripts/deck-smoke.mjs --app /Applications/Mona.app
 node scripts/r11-smoke.mjs --app /Applications/Mona.app
 ```
 
-After that, F03's remaining checks are: `/Applications/Mona.app` reports build 174
-and matches the package payload by digest, LaunchServices launch/quit, Focus
-preference persistence across a relaunch, and a draft surviving a layout change.
+After that, F03's remaining checks are: `/Applications/Mona.app` reports build 176
+and matches the package payload by digest, and a LaunchServices launch/quit of the
+installed copy. The rest of F03 is already proven against these exact bytes by the
+two-phase harness: a real relaunch restored the Focus preference and the draft on
+the same state directory, native full screen was entered and left through the
+deck's own control, a draft survived a resize and a zoom change, and no runtime
+was started by any of it.
 
 ## Rollback
 
 The previous build is the copy currently at `/Applications/Mona.app` (170). Its
 payload is also reproducible from `git` history (commit `344d41c` and earlier
 release records) with `npm run mac:package:local`, so nothing needs to be kept by
-hand. Installing build 174 replaces only the app bundle and the Finder Service;
+hand. Installing build 176 replaces only the app bundle and the Finder Service;
 project folders, `.mona/` state, `~/.codewhale`, and credentials are untouched —
 the package's own postinstall and the uninstall rehearsal state this, and the
 rehearsal proves unrelated content survives.

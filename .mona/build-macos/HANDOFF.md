@@ -1,6 +1,6 @@
 # Current continuation — Studio flight deck (2026-11-15)
 
-The deck is integrated, qualified on this Mac, and packaged as build **174**. It is
+The deck is integrated, qualified on this Mac, and packaged as build **176**. It is
 **not installed**: `/Applications` still holds build 170, and installing needs the
 owner's own Terminal. Nothing has been pushed.
 
@@ -8,13 +8,18 @@ owner's own Terminal. Nothing has been pushed.
   route repair are intact). Commits: `9c60e3b` (F00 integration), `3af9b4b`
   (F01/F02 qualification and the layout fixes it forced), plus the packaging and
   handoff commits after it.
-- **Source checks:** `npm run ci` green, all 25 steps; 1,189 tests in 108 files;
+- **Source checks:** `npm run ci` green, all 26 steps (the deck smoke is now one of them);
+  1,189 tests in 108 files;
   typecheck/lint/format/build clean.
-- **Native layout:** `npm run smoke:deck` — 232 checks, six window/zoom
+- **Native layout:** `npm run smoke:deck` — 268 checks, six window/zoom
   arrangements, 1,200 appended frames and an 8,000-line stream per arrangement.
-- **Packaged copy:** same 232 checks pass against
+- **Packaged copy:** same 268 checks pass against
   `packaging/macos/out/stage/payload/Applications/Mona.app` via
   `node scripts/deck-smoke.mjs --app …`.
+- **Restart and lifecycle:** a genuine second launch restored the Focus preference
+  and the composer draft on the same state directory, with no runtime started;
+  native full screen was entered and left through the deck's own control; a draft
+  survived a resize and a zoom change (`relaunch:*` and `fullscreen*` checks).
 - **Evidence:** `docs/evidence/macos/studio-flight-deck/` — `F00-integration.md`,
   `F01-source-qualification.md`, `F02-native-layout.md`,
   `F03-package-and-install.md`, `f02-report.json`, `f03-packaged-deck-report.json`,

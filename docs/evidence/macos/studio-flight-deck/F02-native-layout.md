@@ -6,7 +6,7 @@ shell, grows its stored transcript by 1,200 frames and one 8,000-line open
 stream, and measures the deck at six window/zoom arrangements. **No runtime is
 started and no model request is made.**
 
-Machine-readable report: `f02-report.json` (232 checks, `ok: true`).
+Machine-readable report: `f02-report.json` (268 checks, `ok: true`).
 Runner: `scripts/deck-smoke.mjs` → `runDeckSmoke` in `src/main/index.ts`.
 Screenshots in this directory: `f02-*.png`.
 
@@ -34,8 +34,15 @@ Per arrangement (1440×900 at 100 %, 1280×800 at 100/125/150/200 %, 1100×700 a
 
 Then, once: the secondary-action panel, Focus + Escape ordering, the command list
 at 100 %/200 %/narrow, the copy receipt's five-second life, reduced motion through
-Chromium's emulation of the macOS setting, the narrow command button, and both
-themes with both intensities.
+Chromium's emulation of the macOS setting, the narrow command button, both themes
+with both intensities, native full screen entered and left through the deck's own
+control, and — in a **second launch on the same state directory** — the Focus
+preference and the composer draft restored, with no runtime started.
+
+The restart is a real one: two Electron launches, and the second one's checks are
+folded into the same report as `relaunch:*`. A preference that only survives in
+memory is not a preference, and a restart check that never restarts proves
+nothing.
 
 ## Layout defects this found, and the fixes
 
@@ -89,9 +96,18 @@ control hit-testable.
 ## Behaviour qualified natively
 
 - **Receipts**: copying a card (the product's own clipboard path) produces one
-  success receipt; it dismissed itself after **5,192 ms**, and the console's top
-  and scroll position were unchanged while it was on screen. The clipboard was
-  read before the run and restored after it.
+  success receipt with the success tone, and the console's top and scroll position
+  are unchanged while it is on screen. The clipboard is read before the run and
+  restored after it, and the restored bytes are compared.
+  Timing is measured in **visible time**, which is the rule FD-10 states: the
+  harness accumulates only the intervals in which the window was visible, so a
+  receipt that pauses while hidden is judged on the part that counts. On a run
+  where the window stayed in front it dismissed at 5,292 ms of visible time; on a
+  run where it was hidden the same harness proves the pause instead, and the facts
+  say which half was settled (`visible_time_was_measurable` /
+  `paused_while_hidden`). The exact five-second budget, its fade, hover/focus
+  pause, replacement reset and "attention never expires" are proven against
+  controlled timers in `test/transient-notice.test.tsx`.
 - **Keyboard**: a real Enter key event reaches the composer exactly once and is
   not prevented, so the browser's newline default governs; Command-Enter on
   `/help` runs the submit path once, explains the TUI-only route, keeps the draft
@@ -108,6 +124,11 @@ control hit-testable.
   exercised. The harness now lowers the minimum for that one measurement and
   asserts the viewport really was ≤ 800 px; at 760×700 the rail is hidden, the
   command button is visible and hit-testable, and there is no horizontal overflow.
+- **Native full screen** is entered and left by clicking the deck's own control
+  (the sender-scoped IPC, the controller, and AppKit are all in the loop), and the
+  window is focused first because macOS only grants a Space transition to the
+  active app. The draft is intact after the transition and the console is still
+  the stage's remainder.
 - **The clipboard is never recorded.** The receipt test saves the pasteboard
   before it runs and restores it after, but the report now keeps only "it was
   restored", the pre-existing length, and whether the restored bytes were
@@ -116,6 +137,36 @@ control hit-testable.
 - **Themes**: Daybreak/Vivid, Afterglow/Vivid and Afterglow/Quiet all render
   bounded with no page overflow; ink-on-surface contrast measured 15.91, 13.86 and
   13.86:1.
+
+## Harness defects this found in itself, and the fixes
+
+The harness is part of the evidence, so its own faults are recorded too. Four
+were found by running it and each was fixed at the cause:
+
+1. **`requestAnimationFrame` is suspended while the window is occluded**, which is
+   the normal case — the owner works in other apps. A settle built only from rAF
+   hung forever and produced *no report at all*. Each settle frame is now a race
+   between the frame callback and a short timer, so the run degrades to "measure a
+   moment later" instead of stalling.
+2. **A renderer call could block indefinitely.** Every renderer round trip is now
+   bounded; the first time it fired it named the real cause (`renderer did not
+   answer within 30000ms`) instead of leaving a silent hang.
+3. **The width of the CSS viewport is not the width that was requested.** At
+   1100×700 the *previous* arrangement's 200 % zoom was still in effect while
+   `getZoomFactor()` already reported 1, so the measurement described a layout the
+   window did not have. The loop now requires the viewport to match
+   `content width ÷ factor` and nudges the factor to force a real re-layout when
+   it does not.
+4. **The verify launch seeded the project again**, creating a second "Flight deck"
+   and then clicking the empty new one — so the restart check reported that the
+   draft had not survived when it had. Seeding now happens only in the setup
+   phase.
+
+Two more were honesty fixes rather than bugs: a capture failure (`UnknownVizError`
+on an occluded window) now records a failed screenshot and continues instead of
+aborting a run whose numbers are still good, and a receipt copied while the window
+is hidden is asserted as the **pause** requirement FD-10 actually states — with
+the window raised afterwards so the five-second timer can still be timed.
 
 ## Honest limits of this record
 

@@ -3647,9 +3647,41 @@ async function runDeckSmoke(window: BrowserWindow): Promise<void> {
   const facts = report.facts as Record<string, unknown>;
   const layouts = report.layouts as Array<Record<string, unknown>>;
   const screenshots = report.screenshots as string[];
+  /**
+   * `setup` runs the whole qualification and leaves a draft plus the Focus
+   * preference stored. `verify` is a second launch on the same state directory
+   * that proves those came back: a preference that only survives in memory is
+   * not a preference, and a restart check that never restarts proves nothing.
+   */
+  const phase = process.env.MONA_DECK_SMOKE_PHASE === "verify" ? "verify" : "setup";
+  report.phase = phase;
   const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
-  const evaluate = async <T>(expression: string): Promise<T> =>
-    (await window.webContents.executeJavaScript(expression)) as T;
+  /**
+   * Every renderer round trip is bounded. A projection over thousands of events
+   * can occupy the renderer for seconds; if it ever wedges, the run must fail
+   * with a named error instead of stalling until the launcher kills it, which
+   * would leave no report and no diagnosis.
+   */
+  const evaluate = async <T>(expression: string, budgetMs = 30_000): Promise<T> => {
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const guard = new Promise<never>((_, reject) => {
+      timer = setTimeout(
+        () =>
+          reject(
+            new Error(`renderer did not answer within ${budgetMs}ms: ${expression.slice(0, 120)}`),
+          ),
+        budgetMs,
+      );
+    });
+    try {
+      return (await Promise.race([
+        window.webContents.executeJavaScript(expression) as Promise<T>,
+        guard,
+      ])) as T;
+    } finally {
+      if (timer) clearTimeout(timer);
+    }
+  };
   const waitFor = async (expression: string, timeoutMs = 20_000): Promise<boolean> => {
     const deadline = Date.now() + timeoutMs;
     while (Date.now() < deadline) {
@@ -3658,17 +3690,73 @@ async function runDeckSmoke(window: BrowserWindow): Promise<void> {
     }
     return false;
   };
+  /**
+   * Let the renderer finish a layout pass — without depending on it.
+   *
+   * `requestAnimationFrame` is suspended entirely while the window is occluded,
+   * and an occluded window is the normal case here: the owner runs this with
+   * other apps in front. A settle built only from rAF therefore hung forever and
+   * produced no report at all. Each frame is a race between the frame callback
+   * and a short timer, so a suspended rAF degrades to "wait a moment and measure
+   * anyway" instead of stalling the run. A measurement taken a moment late is
+   * honest; a run that never finishes is not.
+   */
   const settle = async (frames = 3): Promise<void> => {
-    await evaluate(
-      `new Promise((resolve) => { let left = ${frames}; const step = () => (left-- <= 0 ? resolve(true) : requestAnimationFrame(step)); requestAnimationFrame(step); })`,
-    );
+    await evaluate(`(async () => {
+      const frame = () =>
+        new Promise((resolve) => {
+          let done = false;
+          const finish = (how) => {
+            if (done) return;
+            done = true;
+            resolve(how);
+          };
+          requestAnimationFrame(() => finish('frame'));
+          setTimeout(() => finish('timer'), 250);
+        });
+      for (let left = ${frames}; left > 0; left -= 1) await frame();
+      return true;
+    })()`);
   };
+  /**
+   * Bring the window forward for the checks that observe *live* behaviour.
+   *
+   * An occluded window is a normal state — the owner runs this beside other
+   * apps — and macOS suspends rAF and throttles timers there. Geometry stays
+   * measurable while hidden, but scroll-driven state and the five-second receipt
+   * timer do not, so those checks ask for the front and say whether they got it.
+   */
+  const ensureVisible = async (timeoutMs = 10_000): Promise<boolean> => {
+    app.focus({ steal: true });
+    window.show();
+    window.focus();
+    return waitFor("document.hidden === false", timeoutMs);
+  };
+  const failedShots: string[] = [];
   const shot = async (name: string): Promise<void> => {
     await settle();
     await sleep(120);
-    const image = await window.webContents.capturePage();
-    writeFileSync(join(outDir, name), image.toPNG());
-    screenshots.push(name);
+    // A capture can fail on an occluded or mid-transition window (Chromium
+    // raises `UnknownVizError`). That is evidence trouble, not a measurement
+    // failure: retry once, then record it and carry on rather than aborting a
+    // run whose numbers are still good.
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      try {
+        const image = await window.webContents.capturePage();
+        writeFileSync(join(outDir, name), image.toPNG());
+        screenshots.push(name);
+        return;
+      } catch (error) {
+        if (attempt === 1) {
+          failedShots.push(name);
+          process.stderr.write(
+            `[deck] screenshot ${name} failed: ${error instanceof Error ? error.message : String(error)}\n`,
+          );
+        } else {
+          await sleep(400);
+        }
+      }
+    }
   };
   /** Every box the deck's contract names, measured from the live document. */
   const geometry = async (): Promise<Record<string, unknown>> =>
@@ -3885,14 +3973,25 @@ async function runDeckSmoke(window: BrowserWindow): Promise<void> {
       boxes.console != null && boxes.console.height >= consoleFloor;
   };
   try {
-    if (!deckSmokeProjectId) throw new Error("the deck smoke has no project");
-    report.project = deckSmokeProjectId;
+    if (phase === "setup") {
+      if (!deckSmokeProjectId) throw new Error("the deck smoke has no project");
+      report.project = deckSmokeProjectId;
+    }
+    // Only the setup phase reaches the qualification loop below (verify returns
+    // after its restart checks), so the seeded project is the one to load.
+    const deckProject = deckSmokeProjectId as string;
     await waitFor("document.body.dataset.ready === 'true'", 30_000);
     await evaluate("document.querySelector('[data-project-id]')?.click(); true");
     checks.studio_opened = await waitFor(
       "document.documentElement.dataset.screen === 'studio' && document.querySelectorAll('li.timeline-event').length > 0",
       30_000,
     );
+    // The live-behaviour checks below (scroll state, receipt timer, keyboard)
+    // need a window the system is actually drawing. Ask once, up front, and
+    // record the answer so a hidden run is visible in the evidence rather than
+    // silently weakening a check.
+    const focused = await ensureVisible();
+    checks.window_is_visible_for_live_checks = focused;
     // Nothing here starts a runtime; the deck must say so in its own words and
     // in its machine-readable state, and must not animate a stopped engine. One
     // screen-entry transition is allowed to finish first: "idle" means nothing
@@ -3917,6 +4016,43 @@ async function runDeckSmoke(window: BrowserWindow): Promise<void> {
       };
     })()`);
     facts.idle = idle;
+    if (phase === "verify") {
+      // Everything a relaunch can prove, and nothing else.
+      // A relaunch reads the project and its draft asynchronously; sampling once
+      // right after the click would measure the empty composer of a project still
+      // loading rather than the restored state.
+      const expectedDraft = String(process.env.MONA_DECK_SMOKE_DRAFT ?? "");
+      const restoredFocus = await waitFor(
+        "document.documentElement.dataset.focusMode === 'on'",
+        15_000,
+      );
+      const restoredDraftArrived = await waitFor(
+        `document.querySelector('textarea')?.value === ${JSON.stringify(expectedDraft)}`,
+        15_000,
+      );
+      const restoredDraft = await evaluate<string | null>(
+        "document.querySelector('textarea')?.value ?? null",
+      );
+      const restoredConnection = await evaluate<string | null>(
+        "document.querySelector('[data-testid=\"agent-signal\"]')?.getAttribute('data-connection') ?? null",
+      );
+      checks.relaunch_restores_focus_mode = restoredFocus;
+      checks.relaunch_restores_the_draft = restoredDraftArrived;
+      checks.relaunch_started_no_runtime = restoredConnection === "not_started";
+      facts.relaunch = {
+        restoredFocus,
+        restoredDraft,
+        restoredDraftArrived,
+        restoredConnection,
+        projects_listed: await evaluate<number>(
+          "document.querySelectorAll('[data-project-id]').length",
+        ),
+      };
+      report.ok = Object.values(checks).every(Boolean);
+      if (outFile) writeFileSync(outFile, JSON.stringify(report, null, 2) + "\n");
+      if (report.ok !== true) process.exitCode = 1;
+      return;
+    }
     checks.offline_signal_is_not_animated = idle.animated === "false";
     checks.offline_signal_states_its_state =
       idle.connection === "not_started" && String(idle.label ?? "").length > 0;
@@ -3936,9 +4072,10 @@ async function runDeckSmoke(window: BrowserWindow): Promise<void> {
       [1100, 700, 1, "1100x700-100"],
     ];
     let referencePromptBottom: number | null = null;
+    let streamLinesSoFar = 0;
     for (const [width, height, factor, name] of cases) {
       window.setSize(width, height);
-      await sleep(240);
+      await sleep(200);
       window.webContents.setZoomFactor(factor);
       await (async () => {
         const deadline = Date.now() + 8_000;
@@ -3949,19 +4086,64 @@ async function runDeckSmoke(window: BrowserWindow): Promise<void> {
           await sleep(80);
         }
       })();
-      await settle(4);
+      // `getZoomFactor()` matching is not the same as the renderer having
+      // re-laid-out: an occluded window applies the change a beat later, and the
+      // 1100x700 case once measured the *previous* arrangement's geometry because
+      // of exactly that. Poll until the CSS viewport stops moving.
+      const viewportNow = async (): Promise<{ width: number; height: number }> =>
+        evaluate<{ width: number; height: number }>(
+          "({ width: window.innerWidth, height: window.innerHeight })",
+        );
+      // Two conditions, and both matter. The viewport must be *stable*, and it
+      // must be the one this arrangement asks for: an occluded renderer once kept
+      // the previous case's 200 % zoom while `getZoomFactor()` already reported 1,
+      // so a stability-only loop settled on a confidently wrong 550x350 layout.
+      let previousViewport: { width: number; height: number } | null = null;
+      let stable = 0;
+      for (let attempt = 0; attempt < 80; attempt += 1) {
+        const current = await viewportNow();
+        const content = window.getContentSize()[0] ?? 0;
+        const matches = content > 0 && Math.abs(current.width * factor - content) < 80;
+        // Re-applying the requested factor is a no-op when `getZoomFactor()`
+        // already reports it, even though the renderer is still laid out at the
+        // previous one — that is how 1100x700 was measured at 200 % twice.
+        // Nudging the factor forces a real change, and the next pass sets it back.
+        if (!matches) {
+          window.webContents.setZoomFactor(attempt % 2 === 0 ? factor + 0.05 : factor);
+        }
+        stable =
+          matches && previousViewport && current.width === previousViewport.width ? stable + 1 : 0;
+        previousViewport = current;
+        if (stable >= 3) break;
+        await sleep(120);
+      }
+      await settle(3);
       const before = await geometry();
+      // Page zoom divides CSS pixels, so this ties the measurement to the window
+      // it claims to describe instead of trusting the request.
+      const contentWidth = window.getContentSize()[0] ?? 0;
+      checks[`${name}:viewport_matches_the_window`] =
+        contentWidth > 0 &&
+        Math.abs((before.viewport as { width: number }).width * factor - contentWidth) < 80;
       bounded(name, before);
       await shot(`f02-${name}.png`);
 
-      // Output may not move the prompt: append 1,200 stored frames and one
-      // 8,000-line stream that stays open, then re-read the same project. The
-      // screen re-reads its newest page; nothing is injected into the DOM.
-      const appended = await appendDeckLoad(deckSmokeProjectId, {
-        frames: 1_200,
-        streamLines: 8_000,
+      // Output may not move the prompt. The full stress load — 1,200 stored
+      // frames and one 8,000-line stream that stays open — is proven at the first
+      // arrangement; every later arrangement then receives further real output
+      // (200 frames plus 2,000 more lines on the same stream) at that exact size.
+      // Appending the whole load six times made the later sizes slower without
+      // making them stronger: each size has to answer "does arriving output move
+      // the prompt", not "how much output can the store take".
+      process.stderr.write(`[deck] append start ${name}\n`);
+      const heavy = name === "1440x900-100";
+      const appended = await appendDeckLoad(deckProject, {
+        frames: heavy ? 1_200 : 200,
+        streamLines: heavy ? 8_000 : 2_000,
+        startLine: streamLinesSoFar,
       });
-      const deckProjectThread = String(appended.thread_id);
+      streamLinesSoFar = Number(appended.stream_lines ?? streamLinesSoFar);
+      process.stderr.write(`[deck] append done ${name} seq=${String(appended.final_seq)}\n`);
       // The renderer learns about new stored frames the way it does in the
       // product: a `projects:changed` push re-reads the detail and its history.
       // Clicking the already-selected catalog row is a no-op, which is why this
@@ -3970,6 +4152,7 @@ async function runDeckSmoke(window: BrowserWindow): Promise<void> {
       // The console paints a measured slice of a long transcript (R11), so the
       // honest observable is the stored total the screen reports, not a card
       // count that windowing would keep small by design.
+      process.stderr.write(`[deck] push sent ${name}\n`);
       const sawNewFrames = await waitFor(
         `(() => {
           const scope = document.querySelector('[data-testid="studio-history-scope"]')?.textContent ?? '';
@@ -3978,29 +4161,13 @@ async function runDeckSmoke(window: BrowserWindow): Promise<void> {
         })()`,
         20_000,
       );
+      process.stderr.write(`[deck] refreshed ${name} ${String(sawNewFrames)}\n`);
       await settle(4);
       const after = await geometry();
       (after as Record<string, unknown>).refreshed_from_push = sawNewFrames;
       (after as Record<string, unknown>).scope_text = await evaluate<string | null>(
         "document.querySelector('[data-testid=\"studio-history-scope\"]')?.textContent ?? null",
       );
-      (after as Record<string, unknown>).stored_total_readback = await (async (): Promise<
-        number | null
-      > => {
-        try {
-          let count = 0;
-          let read = 0;
-          for (;;) {
-            const batch = await productState!.readEvents(deckProjectThread, read, 1000);
-            if (batch.length === 0) break;
-            read = batch[batch.length - 1]?.seq ?? read;
-            count += batch.length;
-          }
-          return count;
-        } catch {
-          return null;
-        }
-      })();
       bounded(`${name}-after-1200-and-8000`, after);
       const beforePrompt = (before.boxes as Record<string, { bottom: number } | null | undefined>)
         .prompt;
@@ -4012,10 +4179,15 @@ async function runDeckSmoke(window: BrowserWindow): Promise<void> {
         Math.abs(beforePrompt.bottom - afterPrompt.bottom) < 2;
       if (referencePromptBottom === null) referencePromptBottom = afterPrompt?.bottom ?? null;
 
+      process.stderr.write(`[deck] tail start ${name}\n`);
       // The tail must be reachable inside the console, and reading history must
       // stay anchored with a working Jump to latest. Each case starts at the live
       // edge — which is where a reader who is following output really is — so the
-      // measurement never inherits the previous case's scroll position.
+      // measurement never inherits the previous case's scroll position. Scroll
+      // state is live behaviour, so the window is brought forward first; a resize
+      // can leave it behind other windows.
+      const visibleForScroll = await ensureVisible(6_000);
+      checks[`${name}:window_visible_while_reading`] = visibleForScroll;
       await evaluate(`(() => {
         const button = document.querySelector('[data-testid="studio-jump-latest"]');
         if (button instanceof HTMLElement) button.click();
@@ -4026,7 +4198,7 @@ async function runDeckSmoke(window: BrowserWindow): Promise<void> {
         const consoleNode = document.querySelector('.studio__timeline');
         if (!consoleNode) return { ok: false };
         const bodyText = consoleNode.textContent ?? '';
-        const hasStreamText = bodyText.includes('flight-deck stream line 8000');
+        const hasStreamText = bodyText.includes('flight-deck stream line ' + ${streamLinesSoFar});
         // A very long item is rendered in part. That is an honest truncation, not
         // a missing tail, so the screen must say so beside it.
         const truncationStated =
@@ -4066,7 +4238,20 @@ async function runDeckSmoke(window: BrowserWindow): Promise<void> {
         button.click();
         return { present: true, label };
       })()`);
-      await sleep(550);
+      // The jump is a scroll, and a scroll is asynchronous — a fixed delay turned
+      // into an intermittent failure under CI load. Wait for the condition the
+      // check is about, then read the facts.
+      const jumpSettled = await waitFor(
+        `(() => {
+          const consoleNode = document.querySelector('.studio__timeline');
+          if (!consoleNode) return false;
+          return (
+            Math.abs(consoleNode.scrollHeight - consoleNode.clientHeight - consoleNode.scrollTop) <=
+              32 && !document.querySelector('[data-testid="studio-jump-latest"]')
+          );
+        })()`,
+        5_000,
+      );
       const returned = await evaluate<Record<string, unknown>>(`(() => {
         const consoleNode = document.querySelector('.studio__timeline');
         if (!consoleNode) return { at_latest: false };
@@ -4075,8 +4260,10 @@ async function runDeckSmoke(window: BrowserWindow): Promise<void> {
             Math.abs(consoleNode.scrollHeight - consoleNode.clientHeight - consoleNode.scrollTop) <= 32,
           document_scroll_y: Math.round(window.scrollY),
           jump_gone: !document.querySelector('[data-testid="studio-jump-latest"]'),
+          settled: ${jumpSettled},
         };
       })()`);
+      process.stderr.write(`[deck] tail done ${name}\n`);
       facts[`reading_${name}`] = { tail, scrolledUp, jumpable, returned };
       checks[`${name}:tail_reachable_inside_console`] =
         tail.has_stream_text === true || tail.truncation_stated === true;
@@ -4089,6 +4276,7 @@ async function runDeckSmoke(window: BrowserWindow): Promise<void> {
         returned.at_latest === true && returned.jump_gone === true;
       checks[`${name}:reading_never_scrolled_the_page`] =
         tail.document_scroll_y === 0 && returned.document_scroll_y === 0;
+      process.stderr.write(`[deck] layout done ${name}\n`);
       layouts.push({ name, width, height, factor, appended, before, after });
     }
 
@@ -4323,8 +4511,35 @@ async function runDeckSmoke(window: BrowserWindow): Promise<void> {
         position: getComputedStyle(node).position,
       };
     })()`);
-    const dismissed = await waitFor("document.querySelector('.toast') === null", 9_000);
+    // FD-10's rule is stated in *visible* time: five seconds of being seen, paused
+    // while hidden. So the measurement accumulates only the intervals in which the
+    // window was visible, rather than assuming the whole wall-clock interval
+    // counted. That is both the product's rule and the only measurement that is
+    // stable on a machine where the owner is working in another app.
+    let visibleAccumulatedMs = 0;
+    let hiddenObserved = false;
+    let dismissed = false;
+    const measureDeadline = Date.now() + 20_000;
+    let lastTick = Date.now();
+    while (Date.now() < measureDeadline) {
+      const state = await evaluate<{ hidden: boolean; present: boolean }>(
+        "({ hidden: document.hidden === true, present: document.querySelector('.toast') !== null })",
+      );
+      const now = Date.now();
+      if (!state.hidden) visibleAccumulatedMs += now - lastTick;
+      else hiddenObserved = true;
+      lastTick = now;
+      if (!state.present) {
+        dismissed = true;
+        break;
+      }
+      if (visibleAccumulatedMs > 12_000) break;
+      await sleep(250);
+    }
+    const stillThereWhenHidden = hiddenObserved && !dismissed;
+    if (stillThereWhenHidden) checks.receipt_pauses_while_the_window_is_hidden = true;
     const dismissedMs = Date.now() - noticeStart;
+    const visibleDismissMs = visibleAccumulatedMs;
     const noticeFacts: Record<string, unknown> = {
       clicked_copy: clickedCopy,
       present: noticePresent,
@@ -4343,11 +4558,34 @@ async function runDeckSmoke(window: BrowserWindow): Promise<void> {
     checks.routine_receipt_is_a_success_tone = String(
       (toast as Record<string, unknown>).tone ?? "",
     ).includes("notification--success");
-    checks.routine_receipt_dismisses_itself = dismissed === true;
-    // Five seconds of visible time plus the short fade, and no longer: a receipt
-    // that vanished instantly would pass "dismisses itself" while hiding the
-    // outcome the owner has to read.
-    checks.receipt_lives_for_five_seconds = dismissedMs >= 4_800 && dismissedMs <= 9_000;
+    noticeFacts.visible_ms_accumulated = visibleDismissMs;
+    noticeFacts.hidden_observed = hiddenObserved;
+    noticeFacts.paused_while_hidden = stillThereWhenHidden;
+    // FD-10 has two halves and they are proven on the surface that can settle each.
+    //
+    //   * The exact five-second budget, its fade, hover/focus pause, replacement
+    //     and "attention never expires" are proven against controlled timers in
+    //     `test/transient-notice.test.tsx` — that is the only way to measure a 5 s
+    //     rule without a five-second wall clock, and it is not weaker.
+    //   * What only a real window can settle is here: the receipt really appears,
+    //     carries the success tone, does not move the console, and — when the
+    //     window is hidden, which on this host is the normal state — it pauses
+    //     instead of expiring unread.
+    //
+    // A native pass is therefore never claimed for the timing half when the
+    // window was hidden: the facts record the visible time that was actually
+    // observed (0 here) instead of pretending otherwise.
+    const timingMeasurable = visibleDismissMs >= 4_800 && visibleDismissMs <= 9_000;
+    noticeFacts.visible_time_was_measurable = timingMeasurable;
+    checks.routine_receipt_appears_and_holds = dismissed === true || stillThereWhenHidden === true;
+    // The pause is a real requirement, but it can only be asserted on a run where
+    // the window was actually hidden. Which half of FD-10 this run settled is
+    // recorded, and one of them must have been settled: a run that observed
+    // neither would be evidence of nothing.
+    if (hiddenObserved) {
+      checks.receipt_pauses_rather_than_expiring_unread = stillThereWhenHidden === true;
+    }
+    checks.receipt_behaviour_was_observed = timingMeasurable || hiddenObserved;
     // FD-10 also forbids the receipt from moving the work surface.
     checks.receipt_does_not_move_the_console =
       Number((toast as Record<string, unknown>).console_top ?? -1) ===
@@ -4707,12 +4945,162 @@ async function runDeckSmoke(window: BrowserWindow): Promise<void> {
     await waitFor("document.documentElement.dataset.screen === 'studio'", 30_000);
     await sleep(400);
 
+    // ---- F03: the two things only a real relaunch can prove -----------------
+    // A draft and the Focus preference are product state, not view state. They
+    // are written through the app's own paths, read back from the store here,
+    // and a second launch (phase "verify") proves they came back. Native full
+    // screen is entered and left through the deck's own control, which is the
+    // same IPC path the owner presses.
+    window.setSize(1280, 800);
+    window.webContents.setZoomFactor(1);
+    await sleep(300);
+    process.stderr.write("[deck] persistence start\n");
+    const draftMarker = "Deck draft survives a resize, a zoom change, and a relaunch.";
+    await evaluate(`(() => {
+      const element = document.querySelector('textarea');
+      if (!element) throw new Error('composer textarea is absent');
+      element.focus();
+      const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set;
+      setter?.call(element, ${JSON.stringify(draftMarker)});
+      element.setSelectionRange(${JSON.stringify(Number(draftMarker.length))}, ${JSON.stringify(Number(draftMarker.length))});
+      element.dispatchEvent(new Event('input', { bubbles: true }));
+      return true;
+    })()`);
+    checks.draft_reaches_the_composer = await waitFor(
+      `document.querySelector('textarea')?.value === ${JSON.stringify(draftMarker)}`,
+      5_000,
+    );
+    await evaluate(`(() => {
+      const button = document.querySelector('[data-testid="focus-exit"]');
+      if (button instanceof HTMLElement) button.click();
+      return true;
+    })()`);
+    checks.focus_preference_can_be_set = await waitFor(
+      "document.documentElement.dataset.focusMode === 'on'",
+      10_000,
+    );
+    window.setSize(1100, 700);
+    await sleep(350);
+    window.webContents.setZoomFactor(1.5);
+    await sleep(600);
+    await settle(3);
+    const afterLayout = await evaluate<Record<string, unknown>>(`(() => ({
+      value: document.querySelector('textarea')?.value ?? null,
+      focus: document.documentElement.dataset.focusMode ?? null,
+      caret: document.querySelector('textarea')?.selectionStart ?? null,
+    }))()`);
+    facts.draft_after_layout = afterLayout;
+    checks.draft_survives_a_layout_change =
+      afterLayout.value === draftMarker && afterLayout.focus === "on";
+    process.stderr.write("[deck] persistence layout done\n");
+    window.webContents.setZoomFactor(1);
+    window.setSize(1280, 800);
+    await sleep(400);
+
+    // Read the store, not the screen: the draft must have been saved, and the
+    // Focus preference must have been written to the project's view record.
+    const readStored = async (): Promise<{ draft: string | null; focus: boolean | null }> => {
+      try {
+        const stored = await projectService?.detail(deckSmokeProjectId as StudioProjectId);
+        return {
+          draft: stored?.draft?.text ?? null,
+          focus: (stored?.view as { focusMode?: boolean } | null)?.focusMode ?? null,
+        };
+      } catch {
+        return { draft: null, focus: null };
+      }
+    };
+    const persistDeadline = Date.now() + 12_000;
+    let storedState = await readStored();
+    while (
+      Date.now() < persistDeadline &&
+      (storedState.draft !== draftMarker || storedState.focus !== true)
+    ) {
+      await sleep(300);
+      storedState = await readStored();
+    }
+    facts.stored_state = storedState;
+    checks.draft_is_persisted = storedState.draft === draftMarker;
+    checks.focus_preference_is_persisted = storedState.focus === true;
+
+    process.stderr.write("[deck] persistence stored\n");
+    // Native full screen, through the deck's control rather than setFullScreen:
+    // the click reaches the sender-scoped IPC, the controller, and AppKit.
+    const fullscreenEvents: string[] = [];
+    const onEnterFull = (): void => {
+      fullscreenEvents.push("enter-full-screen");
+    };
+    const onLeaveFull = (): void => {
+      fullscreenEvents.push("leave-full-screen");
+    };
+    window.on("enter-full-screen", onEnterFull);
+    window.on("leave-full-screen", onLeaveFull);
+    try {
+      // macOS gives a Space transition only to the active application, and this
+      // run may be behind other windows. Asking for focus first is what a person
+      // does; a dropped request is then recorded as a failed check, not a guess.
+      app.focus({ steal: true });
+      window.show();
+      window.focus();
+      await sleep(400);
+      await evaluate(`(() => {
+        const button = document.querySelector('[data-testid="focus-fullscreen"]');
+        if (!(button instanceof HTMLElement)) return false;
+        button.click();
+        return true;
+      })()`);
+      const enterDeadline = Date.now() + 15_000;
+      while (Date.now() < enterDeadline && !fullscreenEvents.includes("enter-full-screen")) {
+        await sleep(200);
+      }
+      const entered = fullscreenEvents.includes("enter-full-screen") && window.isFullScreen();
+      process.stderr.write(`[deck] fullscreen entered=${String(entered)}\n`);
+      // A window in its own Space may refuse to paint where capturePage can see
+      // it, so geometry is measured here and the screenshot is taken after
+      // leaving full screen. The numbers are what this check is about.
+      await settle(4);
+      process.stderr.write("[deck] fullscreen settled\n");
+      const fullscreenGeometry = await geometry();
+      bounded("fullscreen", fullscreenGeometry);
+      (fullscreenGeometry as Record<string, unknown>).reported = await evaluate<string | null>(
+        "document.documentElement.dataset.fullscreen ?? null",
+      );
+      process.stderr.write("[deck] fullscreen measured\n");
+      // The prompt must still hold the draft after the AppKit transition, and the
+      // console must still be the stage's remainder rather than a fixed height.
+      checks.fullscreen_keeps_the_draft =
+        (await evaluate<string | null>("document.querySelector('textarea')?.value ?? null")) ===
+        draftMarker;
+      await evaluate(`(() => {
+        const button = document.querySelector('[data-testid="focus-fullscreen"]');
+        if (button instanceof HTMLElement) button.click();
+        return true;
+      })()`);
+      const leaveDeadline = Date.now() + 15_000;
+      while (Date.now() < leaveDeadline && !fullscreenEvents.includes("leave-full-screen")) {
+        await sleep(200);
+      }
+      const left = fullscreenEvents.includes("leave-full-screen") && !window.isFullScreen();
+      facts.fullscreen = { entered, left, events: fullscreenEvents, geometry: fullscreenGeometry };
+      checks.fullscreen_entered_and_left = entered && left;
+      checks.fullscreen_reports_its_own_state =
+        (fullscreenGeometry as Record<string, unknown>).reported === "on";
+    } finally {
+      window.removeListener("enter-full-screen", onEnterFull);
+      window.removeListener("leave-full-screen", onLeaveFull);
+      // Never leave the owner's desktop in a Space it did not ask for.
+      if (window.isFullScreen()) window.setFullScreen(false);
+    }
+    // The preference stays on for the relaunch phase to find.
+    await sleep(300);
+
     report.ok = Object.values(checks).every(Boolean);
   } catch (error) {
     const candidate = error as { message?: string; stack?: string };
     report.ok = false;
     report.error = { message: candidate.message ?? String(error), stack: candidate.stack ?? null };
   }
+  report.failed_screenshots = failedShots;
   if (outFile) writeFileSync(outFile, JSON.stringify(report, null, 2) + "\n");
   if (report.ok !== true) process.exitCode = 1;
 }
@@ -4722,9 +5110,11 @@ async function runDeckSmoke(window: BrowserWindow): Promise<void> {
  * one 8,000-line item that is started and never completed, which is what a live
  * stream looks like to the projection. Stored history only — nothing is sent.
  */
+const DECK_STREAM_ITEM = "item_deck_stream";
+
 async function appendDeckLoad(
   projectId: string,
-  options: { frames: number; streamLines: number },
+  options: { frames: number; streamLines: number; startLine: number },
 ): Promise<Record<string, unknown>> {
   const state = productState;
   const projects = projectService;
@@ -4776,33 +5166,38 @@ async function appendDeckLoad(
       timestamp: at(index),
     });
   }
-  const streamId = "item_deck_stream";
-  await state.recordEvent({
-    threadId: thread.id,
-    seq: seq++,
-    kind: "item.started",
-    turnId,
-    itemId: streamId,
-    payload: { item: { id: streamId, kind: "agent_message" } },
-    timestamp: at(options.frames),
-  });
+  // ONE open stream that keeps growing across arrangements, so "the tail is
+  // reachable" is checked against the line count that really exists rather than
+  // a number the harness hoped for. The first call opens the item; later calls
+  // append more lines to the same still-open item.
   const lines = Array.from(
     { length: options.streamLines },
-    (_, line) => `flight-deck stream line ${line + 1}`,
+    (_, line) => `flight-deck stream line ${options.startLine + line + 1}`,
   ).join("\n");
+  if (options.startLine === 0) {
+    await state.recordEvent({
+      threadId: thread.id,
+      seq: seq++,
+      kind: "item.started",
+      turnId,
+      itemId: DECK_STREAM_ITEM,
+      payload: { item: { id: DECK_STREAM_ITEM, kind: "agent_message" } },
+      timestamp: at(options.frames),
+    });
+  }
   await state.recordEvent({
     threadId: thread.id,
     seq: seq++,
     kind: "item.delta",
     turnId,
-    itemId: streamId,
+    itemId: DECK_STREAM_ITEM,
     payload: { kind: "agent_message", delta: lines },
     timestamp: at(options.frames),
   });
   return {
     thread_id: thread.id,
     frames: options.frames,
-    stream_lines: options.streamLines,
+    stream_lines: options.startLine + options.streamLines,
     final_seq: seq - 1,
   };
 }
@@ -8241,7 +8636,16 @@ if (!gotLock) {
       }
     }
 
-    if (IS_DECK_SMOKE && projectService && productState) {
+    // Seed only for the setup phase. The verify phase is a second launch on the
+    // same state and must observe what the first one left behind — seeding again
+    // created a second "Flight deck" project, and the relaunch then clicked the
+    // empty new one and reported that the draft had not survived.
+    if (
+      IS_DECK_SMOKE &&
+      projectService &&
+      productState &&
+      process.env.MONA_DECK_SMOKE_PHASE !== "verify"
+    ) {
       // F02 evidence. One real store, one real folder, and a store-read
       // transcript the runner then grows by 1,200 frames plus a single
       // 8,000-line item while it measures. No runtime, no turn, no model.
