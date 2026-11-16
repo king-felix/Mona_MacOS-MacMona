@@ -7,23 +7,28 @@ window/zoom arrangements with 200 checks, and the same run passes against the
 packaged bundle. The boundary was an execution environment, not the product.
 `F02-native-layout.md` records what it proved and what it did not.
 
-**F03-INSTALL-AUTH — Needs the Human (1 attempt).** Build 172 is packaged and
-verified from its own bytes, but installing it into `/Applications` needs an
-administrator credential that this session cannot supply: `process.stdin.isTTY` is
-false and `sudo -n` reports "a password is required", and the earlier INSTALL-AUTH
-record established that a prompted SecurityAgent sheet does not render here.
-Nothing was bypassed and no gate was recorded as passing.
+**F03-INSTALL-AUTH — Needs the Human (1 attempt), and smaller than it was.**
+The installed copy at `/Applications/Mona.app` is build **176** from commit
+`d0c5ac2`, and it has been verified from its own bytes: its package smoke passes
+with 13 components hash-ok, arm64, standard install location, zero runtime starts
+and zero inference calls; the full 232-check deck layout suite passes against it;
+and it launches and quits through LaunchServices. Its renderer is byte-identical
+to HEAD (`git diff d0c5ac2..HEAD -- src/renderer/` is empty).
+
+What is left is replacing it with build **177**, built from HEAD, whose only delta
+is the qualification harness. That needs an administrator credential this session
+cannot supply: `process.stdin.isTTY` is false, `sudo -n` reports a password is
+required, and the earlier INSTALL-AUTH record established that a prompted
+SecurityAgent sheet does not render here. Nothing was bypassed and no gate was
+credited.
 
 - **What is needed:** in your own Terminal,
-  `cd ~/DS_Projects/Mona && npm run mac:install` — it builds,
-  packages, installs with `sudo` (asking only for your password) and re-checks the
-  installed copy. Or `sudo installer -pkg
-  packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg -target /` followed by
-  `npm run mac:package:local`.
-- **What is not proven meanwhile:** that `/Applications/Mona.app` is this build.
-  It is build 170 today. Everything else F03 asks for is in
-  `F03-package-and-install.md`, including the exact re-verification commands and
-  the rollback path.
+  `cd ~/DS_Projects/Mona && npm run mac:install` — it builds, packages, installs
+  with `sudo` (asking only for your password) and re-checks the installed copy.
+  Then `node scripts/deck-smoke.mjs --app /Applications/Mona.app`, which on that
+  build also proves the relaunch from `/Applications` itself.
+- **What is not proven meanwhile:** that the installed bundle is build 177. It is
+  176, and 176 is the deck. Nothing user-facing differs.
 
 **F02-LIVE-PHASES — Needs the Human (0 attempts, by design).** The animated
 activity phases (reasoning, tool, writing, waiting, quiet after 45 s,

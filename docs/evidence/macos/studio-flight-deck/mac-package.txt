@@ -2,7 +2,7 @@
 > mona@0.1.0-p02 mac:package:local
 > node packaging/macos/build.mjs --mode local
 
-[p21] mode=local version=0.1.0 build=176 electron=45.3.0
+[p21] mode=local version=0.1.0 build=177 electron=45.3.0
 [p21] building main and renderer bundles
 
 > mona@0.1.0-p02 build
@@ -35,7 +35,7 @@ dist/renderer/assets/index-BIalt7na.js       783.19 kB │ gzip: 214.56 kB
 - Using dynamic import() to code-split the application
 - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
-✓ built in 120ms
+✓ built in 121ms
 [p21] building native component with npm run build:supervisor
 
 > mona@0.1.0-p02 build:supervisor
@@ -54,7 +54,7 @@ dist/renderer/assets/index-BIalt7na.js       783.19 kB │ gzip: 214.56 kB
   "signature": "ad-hoc",
   "signed": true,
   "verified": true,
-  "built_at": "2026-11-16T02:18:23.421Z"
+  "built_at": "2026-11-16T02:27:39.443Z"
 }
 [p21] building native component with npm run build:pty
 
@@ -74,7 +74,7 @@ dist/renderer/assets/index-BIalt7na.js       783.19 kB │ gzip: 214.56 kB
   "signature": "ad-hoc",
   "signed": true,
   "verified": true,
-  "built_at": "2026-11-16T02:18:24.634Z"
+  "built_at": "2026-11-16T02:27:40.643Z"
 }
 [p21] building native component with npm run build:service
 
@@ -110,7 +110,7 @@ dist/renderer/assets/index-BIalt7na.js       783.19 kB │ gzip: 214.56 kB
     ],
     "service": "Start new DS project with Mona"
   },
-  "built_at": "2026-11-16T02:18:26.706Z"
+  "built_at": "2026-11-16T02:27:42.728Z"
 }
 [p21] engine 0.10.2 (ff466b2ed0bf) sha256=da0229610647f1cc2dd14c4227b333a92ea276a49f5d4d79160fa19e515e590d
 Packaging app for platform darwin arm64 using electron v45.3.0
@@ -121,7 +121,7 @@ WARNING: Could not find icon "~/DS_Projects/Mona/packaging/macos/out/stage/tools
 [p21] app signed ad-hoc and sealed
 [p21] component package built
 [p21] installer built: Mona-0.1.0-macOS-arm64-local.pkg
-[p21] declared metadata verified: package id com.mona.workbench.pkg, version 0.1.0, build 176, bundles com.mona.workbench + com.mona.workbench.service, arm64 only, macOS 14.0+
-[p21] package report written: sha256=d79da531ab3889e5…
+[p21] declared metadata verified: package id com.mona.workbench.pkg, version 0.1.0, build 177, bundles com.mona.workbench + com.mona.workbench.service, arm64 only, macOS 14.0+
+[p21] package report written: sha256=88b487158d65328e…
 [p21] FAILED: the installed copy at /Applications/Mona.app is not this build; install Mona-0.1.0-macOS-arm64-local.pkg with administrator authorization, or re-run with --install (npm run mac:install) to do it in this run
 package-exit=1

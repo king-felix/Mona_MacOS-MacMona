@@ -7,17 +7,19 @@
   "platform_qualified": "macOS 26.5.1 arm64, Electron 45.3.0, real renderer at 100-200% zoom",
   "installed_build": {
     "current": {
-      "build": 170,
-      "source": "prior release (344d41c baseline)"
+      "build": 176,
+      "commit": "d0c5ac2",
+      "receipt": "/Library/Application Support/Mona/install-receipt.json",
+      "verified_from_own_bytes": true
     },
     "candidate": {
-      "build": 176,
+      "build": 177,
       "channel": "local",
       "package": "packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg",
-      "package_sha256_prefix": "d79da531ab3889e5"
+      "note": "built from HEAD; not yet installed (needs sudo in the owner terminal)"
     }
   },
-  "next": "none — F03 install step is Needs the Human (see blockers)",
+  "next": "none — reinstall of build 177 is Needs the Human (F03-INSTALL-AUTH)",
   "tasks": {
     "F00": {
       "status": "completed",
@@ -39,13 +41,15 @@
       ]
     },
     "F03": {
-      "status": "partial",
+      "status": "completed_with_human_step",
       "evidence": [
         "docs/evidence/macos/studio-flight-deck/F03-package-and-install.md",
-        "docs/evidence/macos/studio-flight-deck/f03-packaged-deck-report.json",
-        "docs/evidence/macos/studio-flight-deck/mac-package.txt"
+        "docs/evidence/macos/studio-flight-deck/f03-installed-package-smoke.json",
+        "docs/evidence/macos/studio-flight-deck/f03-installed-deck-report.json",
+        "docs/evidence/macos/studio-flight-deck/f03-installed-launch.png",
+        "docs/evidence/macos/studio-flight-deck/f03-packaged-deck-report.json"
       ],
-      "note": "Package built and verified (all pre-install gates plus 200-check deck smoke against the packaged binary). The administrator install into /Applications has not run: this session has no TTY and no credential, so it needs the owner."
+      "note": "Installed copy verified from its own bytes (13 components hash-ok, arm64, standard location, no runtime/inference), passes the 232-check deck layout suite in one launch, and launches/quits via LaunchServices. Reinstalling build 177 needs the owner because sudo cannot prompt here."
     },
     "F04": {
       "status": "completed",
@@ -105,9 +109,19 @@
     "r11": "passed_with_exception (idle memory vs this host 362 MiB Electron floor); idle CPU 0.04%",
     "ledger": "monabuild validate clean at revision 1534; 32 hashes refreshed individually with notes",
     "package": "build 176 local channel; all pre-install gates and uninstall rehearsal ok",
-    "installed": "NOT this build — /Applications/Mona.app is build 170; install needs the owner terminal",
+    "installed": "build 176 from d0c5ac2 verified from its own bytes; renderer identical to HEAD",
     "review": "independent adversarial review; 4 real defects fixed (clipboard text in artifacts, Escape stolen from dialogs, aria-valuenow below its minimum at 150%/200%, vacuous narrow-window check)",
     "restart": "relaunch restored Focus preference and the draft; no runtime started",
-    "fullscreen": "entered and left through the deck control via AppKit"
+    "fullscreen": "entered and left through the deck control via AppKit",
+    "installed_deck_suite": {
+      "checks": 232,
+      "ok": true,
+      "report": "docs/evidence/macos/studio-flight-deck/f03-installed-deck-report.json"
+    },
+    "installed_package_smoke": {
+      "ok": true,
+      "components": 13,
+      "report": "docs/evidence/macos/studio-flight-deck/f03-installed-package-smoke.json"
+    }
   }
 }

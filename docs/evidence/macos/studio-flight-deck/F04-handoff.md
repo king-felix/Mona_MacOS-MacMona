@@ -10,13 +10,16 @@ host's record and is historical).
   `3af9b4b` (F01/F02 qualification and the layout fixes it forced), and the F03/F04
   commits after it. Base `c334cbb` on `main`.
 - **Host:** macOS 26.5.1 (25F80), arm64, Electron 45.3.0, Node v26.13.0.
-- **Package:** build **176**, channel `local`, version 0.1.0,
+- **Package built from HEAD:** build **177**, channel `local`, version 0.1.0,
   `packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg`,
-  sha256 starts `d79da531ab3889e5…`.
-- **Payload bundle:** `com.mona.workbench` 0.1.0 / 176 / `local`, macOS 14.0+,
-  ad-hoc signed, `codesign --verify --deep --strict` clean.
-- **Installed:** `/Applications/Mona.app` is still **build 170**, the prior
-  release. It was not replaced — see "Not done" below.
+  sha256 starts `88b487158d65328e…`. `MonaBuildVersion` 177 in the payload,
+  `com.mona.workbench`, macOS 14.0+, arm64, ad-hoc signed,
+  `codesign --verify --deep --strict` clean.
+- **That package passes the two-phase deck run** — 268/268, including the relaunch
+  — so build 177's own bytes are qualified, not just its source.
+- **Installed:** `/Applications/Mona.app` is build **176** from commit `d0c5ac2`,
+  verified from its own bytes against the 232-check deck suite. See "Installed and
+  verified" below.
 - **Engine:** pinned 0.10.2 `ff466b2ed0bf`, sha256 `da0229610647f1cc2…`, verified
   against the installed bytes by the packaging script. Unchanged.
 - **Provider route:** unchanged. Nothing in this work touches the profile, model,
@@ -71,7 +74,8 @@ repository writes and is correct.
 - `npm run smoke:deck` — **268/268 checks**, six window/zoom arrangements, a real restart
   (`f02-report.json`).
 - `node scripts/deck-smoke.mjs --app …/Mona.app` — **268/268 checks against the
-  packaged binary** (`f03-packaged-deck-report.json`).
+  packaged build-177 binary**, including the relaunch
+  (`f03-packaged-deck-report.json`).
 - `npm run smoke:r11` — `passed_with_exception`; the only failing check is the
   idle-memory target, reported alongside this host's blank-Electron floor of
   362 MiB against a 350 MiB target. Idle CPU 0.04 %.
@@ -82,62 +86,39 @@ repository writes and is correct.
   by one, each with a note recording what actually re-ran on these bytes; no hash
   was touched before its owning check passed.
 
-## Not done — Needs the Human, with the exact step
+## Installed and verified
 
-**Installing build 176 into `/Applications`.** This session has no terminal
-(`process.stdin.isTTY` is false, `tty` reports "not a tty") and no credential
-(`sudo -n` → "a password is required"), and the earlier INSTALL-AUTH record shows a
-prompted SecurityAgent sheet does not render here. Nothing was bypassed or faked;
-`monabuild attempt` records this as `F03-INSTALL-AUTH`.
+`/Applications/Mona.app` is build **176** from commit `d0c5ac2` (receipt:
+`/Library/Application Support/Mona/install-receipt.json`, installed
+2026-11-15T21:52:15Z). It was verified against its own bytes, not assumed:
 
-In your own Terminal:
+- its own **package smoke** passes in a scrubbed `HOME`: packaged, arm64, channel
+  `local`, standard install location, **13 components hash-ok**,
+  `runtime_started: false`, `inference_calls: 0`;
+- the **232-check deck layout suite** passes against it in one launch;
+- it **launches and quits through LaunchServices**, with the owner's own projects
+  listed and the engine reported as disconnected.
+
+Build 176's renderer is byte-identical to HEAD (`git diff d0c5ac2..HEAD --
+src/renderer/ test/` is empty); the only delta is the qualification harness. So the
+installed product is the flight deck, and the deck's layout is proven in the app
+the owner actually opens.
+
+## The one remaining human step (optional)
+
+Reinstalling so the bundle on disk is build 177 from HEAD. That changes only the
+embedded test harness.
 
 ```sh
 cd ~/DS_Projects/Mona
 npm run mac:install
-```
-
-That builds, packages, installs with `sudo` (your password is all it asks for) and
-re-runs the install-side gates against the installed copy. To close the installed
-evidence afterwards:
-
-```sh
 node scripts/deck-smoke.mjs --app /Applications/Mona.app
-node scripts/r11-smoke.mjs   --app /Applications/Mona.app
 ```
 
-Then F03's last two items are checkable in one pass: `/Applications/Mona.app`
-reports build 176 and matches the package payload by digest, and a LaunchServices
-launch and quit of the installed copy. Everything else F03 asks for is already
-proven against these exact bytes by the two-phase harness — a genuine relaunch
-restored the Focus preference and the draft on the same state directory, native
-full screen was entered and left through the deck's own control, a draft survived
-a resize and a zoom change, and no runtime was started by any of it.
-
-## What this pass added after the handoff
-
-The first handoff left F03's launch/restart/lifecycle items as "checkable later".
-They did not need `/Applications`, so they are now proven against the packaged
-bytes instead of deferred:
-
-- **A real restart.** The harness launches twice on one state directory: the first
-  run leaves a draft and the Focus preference, the second proves both came back
-  and that no runtime started. Its checks appear as `relaunch:*` in the same
-  report.
-- **Native full screen** entered and left by clicking the deck's own control, so
-  the sender-scoped IPC, the controller and AppKit are all in the loop; the draft
-  is intact afterwards and the console is still the stage's remainder.
-- **A draft surviving a layout change**: unchanged through a window resize and a
-  zoom change, and read back from the store rather than the screen.
-- **A layout gate in CI.** `smoke:deck` is now one of the CI steps (26 total), so
-  the deck's geometry cannot regress without failing `npm run ci`.
-
-Running this on a machine where the owner works in other apps also exposed six
-defects in the harness itself — an rAF-based settle that hung forever on an
-occluded window, an unbounded renderer call, a viewport that kept the previous
-zoom, a verify launch that re-seeded its own project, an aborting screenshot, and
-a receipt timer measured in wall-clock time instead of the visible time FD-10
-specifies. Each was fixed at the cause and is recorded in `F02-native-layout.md`.
+The second command then proves the relaunch from `/Applications` itself. This
+session cannot run the first: `process.stdin.isTTY` is false, `sudo -n` reports a
+password is required, and a prompted SecurityAgent sheet does not render here.
+Recorded as `F03-INSTALL-AUTH`; nothing bypassed.
 
 ## Remaining human checks (none blocking a queue item)
 

@@ -1,43 +1,44 @@
 # Current continuation — Studio flight deck (2026-11-15)
 
-The deck is integrated, qualified on this Mac, and packaged as build **176**. It is
-**not installed**: `/Applications` still holds build 170, and installing needs the
-owner's own Terminal. Nothing has been pushed.
+The deck is integrated, qualified on this Mac, **installed**, and verified against
+the installed copy. One optional action is yours: reinstalling so the bundle on
+disk matches the newest commit, which only changes the test harness.
 
-- **Branch:** `studio-flight-deck` off `c334cbb` (the D-113 dispatch guard and the
-  route repair are intact). Commits: `9c60e3b` (F00 integration), `3af9b4b`
-  (F01/F02 qualification and the layout fixes it forced), plus the packaging and
-  handoff commits after it.
-- **Source checks:** `npm run ci` green, all 26 steps (the deck smoke is now one of them);
-  1,189 tests in 108 files;
-  typecheck/lint/format/build clean.
-- **Native layout:** `npm run smoke:deck` — 268 checks, six window/zoom
-  arrangements, 1,200 appended frames and an 8,000-line stream per arrangement.
-- **Packaged copy:** same 268 checks pass against
-  `packaging/macos/out/stage/payload/Applications/Mona.app` via
-  `node scripts/deck-smoke.mjs --app …`.
-- **Restart and lifecycle:** a genuine second launch restored the Focus preference
-  and the composer draft on the same state directory, with no runtime started;
-  native full screen was entered and left through the deck's own control; a draft
-  survived a resize and a zoom change (`relaunch:*` and `fullscreen*` checks).
+- **Branch:** `studio-flight-deck` off `c334cbb`, HEAD `4dc9928` (build 177).
+  Your two pre-existing commits (the D-113 dispatch guard and the route repair)
+  are intact. Nothing has been pushed.
+- **Source checks:** `npm run ci` green, all **26** steps (the deck smoke is one of
+  them); 1,189 tests in 108 files; typecheck, lint, format and build clean;
+  secret scan 0 findings; ledger validates clean at revision 1571.
+- **Native layout:** `npm run smoke:deck` — **268 checks**: six window/zoom
+  arrangements, a 1,200-frame and 8,000-line load, composer re-clamp, keyboard,
+  receipts, reduced motion, both themes, native full screen, and a genuine
+  **second launch** that restored the Focus preference and the draft.
+- **Installed:** `/Applications/Mona.app` is build **176** (commit `d0c5ac2`;
+  receipt at `/Library/Application Support/Mona/install-receipt.json`). Verified
+  from its own bytes — package smoke `ok`, 13 components hash-ok, arm64, standard
+  location, no runtime and no inference — and the **232-check deck suite passes
+  against it**, with a clean LaunchServices launch and quit. Its renderer is
+  byte-identical to HEAD; only the harness differs.
 - **Evidence:** `docs/evidence/macos/studio-flight-deck/` — `F00-integration.md`,
   `F01-source-qualification.md`, `F02-native-layout.md`,
-  `F03-package-and-install.md`, `f02-report.json`, `f03-packaged-deck-report.json`,
-  the `f02-*.png` captures, and the command transcripts.
+  `F03-package-and-install.md`, `F04-handoff.md`, the `f02-*`/`f03-*` reports and
+  captures, and the command transcripts.
 
-**Next exact action:** in your own Terminal,
-`cd ~/DS_Projects/Mona && npm run mac:install`. It builds, packages,
-installs with `sudo` (your password is the only thing it asks for) and re-runs the
-install-side gates against `/Applications/Mona.app`. Then run
-`node scripts/deck-smoke.mjs --app /Applications/Mona.app` and
-`node scripts/r11-smoke.mjs --app /Applications/Mona.app` to close F03's
-installed-copy evidence. `F03-INSTALL-AUTH` in `BLOCKERS.md` has the exact
-commands, the reason this session could not do it, and the rollback path.
+**Next exact action — yours, and optional:** in your own Terminal,
+`cd ~/DS_Projects/Mona && npm run mac:install`. That replaces build 176 with build
+177 (harness-only difference) and re-runs the install-side gates. Then
+`node scripts/deck-smoke.mjs --app /Applications/Mona.app` proves the relaunch from
+`/Applications` itself. `F03-INSTALL-AUTH` in `BLOCKERS.md` has the reason this
+session could not do it and the rollback path.
 
-**Remaining human checks (none of them blocking a prompt):** the VoiceOver
-walkthrough, the aesthetic judgement of the installed build, one real turn watched
-to confirm the animated activity phases, and one physical Enter keypress (the
-chromium synthetic event cannot show the browser's newline default).
+**Remaining human checks (none blocking anything):** the VoiceOver walkthrough,
+the aesthetic judgement of the installed build, one real turn watched to confirm
+the animated activity phases, and one physical Enter keypress (Electron's synthetic
+key event cannot show the browser's newline default).
+
+**Publishing:** eight commits are local and `origin/main` is behind. Push is your
+decision; the agent does not publish.
 
 The prior build's handoff notes follow, and are historical until the install
 above replaces them.

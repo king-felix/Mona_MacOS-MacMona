@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-16T02:21:57.047Z",
+  "generated_utc": "2026-11-16T02:29:52.643Z",
   "git": {
     "available": true,
-    "commit": "d0c5ac2a740b025344ee3a415c237cbfbec30191",
+    "commit": "4dc9928b29be11efe505ac7af26648d9c0f82c36",
     "dirty": true
   },
-  "digest": "a2800af266cfb9b736874e2003b84b7270f5d041fb3af290aee65491f485f157",
+  "digest": "edba818115ea5e1a7243a80b43b07d6e503d3aeb5f5e94a78c8c9dc432f11f58",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
@@ -15,8 +15,8 @@
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "2df12c5e8aefacaa0428df6e7386d21ab0b7a976472bcfab06a51bd47dead48f",
-      "bytes": 172825
+      "sha256": "dc693f16da32d066856f10742e2daac44ded62dc899cd5177869254e624d88c4",
+      "bytes": 172845
     },
     {
       "path": "AGENTS.md",
@@ -1720,8 +1720,8 @@
     },
     {
       "path": "docs/evidence/macos/studio-flight-deck/f02-1100x700-100.png",
-      "sha256": "d8fe1f8856f1a07ecd5ddf963a0d370a605e588f6be31c7a0c33a5f7d4cd0e67",
-      "bytes": 646349
+      "sha256": "a3bffcf5156e725cc41b0e51e43b54884d8d85eb102c1d7df72f5ccc6e99ed7e",
+      "bytes": 604501
     },
     {
       "path": "docs/evidence/macos/studio-flight-deck/f02-1280x800-100.png",
@@ -1730,23 +1730,23 @@
     },
     {
       "path": "docs/evidence/macos/studio-flight-deck/f02-1280x800-125.png",
-      "sha256": "919382d6a841c3024bb2ab3319726391932715af39dea39867d270e3ed13b350",
-      "bytes": 748747
+      "sha256": "cfa3af94b53254344afcc2702cd1f872a6db8e29ea09d4522154c61e563187f1",
+      "bytes": 760122
     },
     {
       "path": "docs/evidence/macos/studio-flight-deck/f02-1280x800-150.png",
-      "sha256": "cf0529b0d7c6db7df5116cc1cf4d14c285c36b838915dc2696482027091dc62a",
-      "bytes": 572363
+      "sha256": "9471d1af5179baf7e0a6d1ace3123622fb4aa3dabe892f80c29ba625a1818fbf",
+      "bytes": 572367
     },
     {
       "path": "docs/evidence/macos/studio-flight-deck/f02-1280x800-200.png",
-      "sha256": "caad598fad629a4c5ca28da6723173601f178f9d8cfa0531af1f5e727ad3c45f",
-      "bytes": 590392
+      "sha256": "11583e76dbee064c37d1de6b1c2e145e222ff9610cbd6778da02c79fee5e6f45",
+      "bytes": 590249
     },
     {
       "path": "docs/evidence/macos/studio-flight-deck/f02-1440x900-100.png",
-      "sha256": "94468672bc055d5189e88846e8b35b4935c2d4845c5bbe1f403b4b19224fbe80",
-      "bytes": 609642
+      "sha256": "83af89ee9074972bc3a918df09d4bc76de2441427e20bb10ed23a783d5265c0b",
+      "bytes": 609814
     },
     {
       "path": "docs/evidence/macos/studio-flight-deck/f02-more-actions-panel.png",
@@ -1755,8 +1755,8 @@
     },
     {
       "path": "docs/evidence/macos/studio-flight-deck/f02-narrow-760x700.png",
-      "sha256": "e889991639c1f538b399a95af35fa00e2d3f9375b882afa3322236839604fcc4",
-      "bytes": 469999
+      "sha256": "475d2fd658e912929c7634c4b8b7375a007c2150a6641d9d9d1b070e1935f997",
+      "bytes": 470049
     },
     {
       "path": "docs/evidence/macos/studio-flight-deck/F02-native-layout.md",
@@ -1780,33 +1780,53 @@
     },
     {
       "path": "docs/evidence/macos/studio-flight-deck/f02-theme-afterglow-vivid.png",
-      "sha256": "f28d62d1a040d006ba886f187fc2095dfcd8f5065fcbadfffa6ad14d0175d3bc",
+      "sha256": "a148282532bb863d385eb22d85cd428ea3bc3ee07a9bffb698b23fbed88fc873",
       "bytes": 734587
     },
     {
       "path": "docs/evidence/macos/studio-flight-deck/f02-theme-daybreak-vivid.png",
-      "sha256": "29f698e653ae0189fd9adc6fda2388d51a683a0869a5a64f807f93306ea7357d",
-      "bytes": 696518
+      "sha256": "92f56c9eda016692bb396088c3f2e0fd2427305309eb1a8c38931f02e2cd598b",
+      "bytes": 696515
+    },
+    {
+      "path": "docs/evidence/macos/studio-flight-deck/f03-installed-deck-report.json",
+      "sha256": "5deee840a7375cbe839cf14413531ab88a8bff7d8beac0317de6da73cb407c96",
+      "bytes": 59896
+    },
+    {
+      "path": "docs/evidence/macos/studio-flight-deck/f03-installed-deck-smoke.log",
+      "sha256": "754155f40f8cd6b85aa3118bd91279c0530599c69d228e2bae109b74933f1656",
+      "bytes": 166513
+    },
+    {
+      "path": "docs/evidence/macos/studio-flight-deck/f03-installed-launch.png",
+      "sha256": "567051fbd3b93ef1f22bb06cb3b8975fb6d4e5fee53ce333ae919425aa879114",
+      "bytes": 2182003
+    },
+    {
+      "path": "docs/evidence/macos/studio-flight-deck/f03-installed-package-smoke.json",
+      "sha256": "bd3814918ad00772b56d00bc7e8d8496befddf14ca9a68728c94083c82fea470",
+      "bytes": 3245
     },
     {
       "path": "docs/evidence/macos/studio-flight-deck/F03-package-and-install.md",
-      "sha256": "66925add204a734bff2610fc38d0965cf871413d426b794b6b7752cb33580ceb",
-      "bytes": 5322
+      "sha256": "2aeb0a76104caf08db3ad1cba637326d2591b992e7a602c4e79f44c7e51b39e2",
+      "bytes": 5615
     },
     {
       "path": "docs/evidence/macos/studio-flight-deck/f03-packaged-deck-report.json",
-      "sha256": "a5f66c69c651f05e902089f0c088823205c44b92fef0381433a56eb3fa763511",
-      "bytes": 148053
+      "sha256": "2bde3232c7814621dd0c80bec70c7f8e5a5793ff0a801b54735d9b6bd73d09f3",
+      "bytes": 148051
     },
     {
       "path": "docs/evidence/macos/studio-flight-deck/f03-packaged-deck-smoke.log",
-      "sha256": "1abb3d294161b26572cfef1acae0b08b9d1c3cbee625437e2882d0bbb6d17d03",
-      "bytes": 148060
+      "sha256": "51c2d03a71ffb5e60db923bfee1fa31113ae34e3d8c6e1e4a6f662470cac962a",
+      "bytes": 148058
     },
     {
       "path": "docs/evidence/macos/studio-flight-deck/F04-handoff.md",
-      "sha256": "adda295345aacbaf17605f5346cd6eb62da7d84fa0ec8db74f6987546796e19a",
-      "bytes": 9329
+      "sha256": "73f754bb85bea6bd1ae8626dcb88c4f0ff73fa56898efeeab3efaf9435ebdeed",
+      "bytes": 8182
     },
     {
       "path": "docs/evidence/macos/studio-flight-deck/format.txt",
@@ -1870,7 +1890,7 @@
     },
     {
       "path": "docs/evidence/macos/studio-flight-deck/mac-package.txt",
-      "sha256": "79756ea30e366a1023967f87d3c59cfaad6357df3a82cd9ab7e0abe19a737113",
+      "sha256": "587c38b6d9a89cdb71c1580d44338bcb97b245f01494dbc6c789e0df183e7404",
       "bytes": 4858
     },
     {

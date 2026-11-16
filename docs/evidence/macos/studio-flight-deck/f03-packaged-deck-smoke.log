@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "label": "F02 — Studio flight deck on real pixels, no engine, no model request",
-  "captured_at": "2026-11-16T02:19:10.711Z",
+  "captured_at": "2026-11-16T02:28:23.246Z",
   "host": {
     "platform": "darwin",
     "arch": "arm64",
@@ -327,7 +327,7 @@
         "truncation_stated": true,
         "at_tail": true,
         "cards": 7,
-        "console_scroll_height": 25475,
+        "console_scroll_height": 25668,
         "console_client_height": 307,
         "document_scroll_y": 0
       },
@@ -354,7 +354,7 @@
         "truncation_stated": true,
         "at_tail": true,
         "cards": 7,
-        "console_scroll_height": 25464,
+        "console_scroll_height": 25672,
         "console_client_height": 276,
         "document_scroll_y": 0
       },
@@ -381,7 +381,7 @@
         "truncation_stated": true,
         "at_tail": true,
         "cards": 7,
-        "console_scroll_height": 25445,
+        "console_scroll_height": 25653,
         "console_client_height": 109,
         "document_scroll_y": 0
       },
@@ -408,7 +408,7 @@
         "truncation_stated": true,
         "at_tail": true,
         "cards": 7,
-        "console_scroll_height": 26593,
+        "console_scroll_height": 27213,
         "console_client_height": 139,
         "document_scroll_y": 0
       },
@@ -435,7 +435,7 @@
         "truncation_stated": true,
         "at_tail": true,
         "cards": 7,
-        "console_scroll_height": 25025,
+        "console_scroll_height": 25433,
         "console_client_height": 335,
         "document_scroll_y": 0
       },
@@ -681,7 +681,7 @@
           "bar_width": 1008
         },
         "console_scroll": {
-          "scroll_height": 24779,
+          "scroll_height": 24999,
           "client_height": 307,
           "overflow_y": "auto",
           "at_latest": true
@@ -933,7 +933,7 @@
           "bar_width": 1008
         },
         "console_scroll": {
-          "scroll_height": 24779,
+          "scroll_height": 24999,
           "client_height": 286,
           "overflow_y": "auto",
           "at_latest": true
@@ -1185,7 +1185,7 @@
           "bar_width": 1008
         },
         "console_scroll": {
-          "scroll_height": 24779,
+          "scroll_height": 24999,
           "client_height": 339,
           "overflow_y": "auto",
           "at_latest": true
@@ -1444,7 +1444,7 @@
           "bar_width": 864
         },
         "console_scroll": {
-          "scroll_height": 25025,
+          "scroll_height": 25433,
           "client_height": 155,
           "overflow_y": "auto",
           "at_latest": true
@@ -1696,7 +1696,7 @@
           "bar_width": 430
         },
         "console_scroll": {
-          "scroll_height": 29258,
+          "scroll_height": 29869,
           "client_height": 41,
           "overflow_y": "auto",
           "at_latest": false
@@ -1948,7 +1948,7 @@
           "bar_width": 430
         },
         "console_scroll": {
-          "scroll_height": 29258,
+          "scroll_height": 29869,
           "client_height": 41,
           "overflow_y": "auto",
           "at_latest": false
@@ -2016,18 +2016,18 @@
         "text": "Copied 64 characters to the clipboard.",
         "top": 48,
         "console_top": 239,
-        "console_scroll_top": 24616,
+        "console_scroll_top": 24279,
         "position": "fixed"
       },
       "dismissed_ms": 5289,
       "before": {
         "console_top": 239,
-        "console_scroll_top": 24616
+        "console_scroll_top": 24279
       },
       "clipboard_restored": true,
       "clipboard_previous_length": 0,
       "clipboard_byte_identical": true,
-      "visible_ms_accumulated": 5287,
+      "visible_ms_accumulated": 5288,
       "hidden_observed": false,
       "paused_while_hidden": false,
       "visible_time_was_measurable": true
@@ -2391,7 +2391,7 @@
           "bar_width": 1434
         },
         "console_scroll": {
-          "scroll_height": 25638,
+          "scroll_height": 26223,
           "client_height": 454,
           "overflow_y": "auto",
           "at_latest": true
@@ -2428,7 +2428,7 @@
       "height": 900,
       "factor": 1,
       "appended": {
-        "thread_id": "thr_937edd03d0d4ed98",
+        "thread_id": "thr_2360e64516bc2e7c",
         "frames": 1200,
         "stream_lines": 8000,
         "final_seq": 1212
@@ -2946,7 +2946,7 @@
       "height": 800,
       "factor": 1,
       "appended": {
-        "thread_id": "thr_937edd03d0d4ed98",
+        "thread_id": "thr_2360e64516bc2e7c",
         "frames": 200,
         "stream_lines": 10000,
         "final_seq": 1414
@@ -3176,7 +3176,7 @@
           "bar_width": 1008
         },
         "console_scroll": {
-          "scroll_height": 25576,
+          "scroll_height": 25786,
           "client_height": 307,
           "overflow_y": "auto",
           "at_latest": true
@@ -3428,7 +3428,7 @@
           "bar_width": 1008
         },
         "console_scroll": {
-          "scroll_height": 25861,
+          "scroll_height": 25668,
           "client_height": 307,
           "overflow_y": "auto",
           "at_latest": true
@@ -3464,7 +3464,7 @@
       "height": 800,
       "factor": 1.25,
       "appended": {
-        "thread_id": "thr_937edd03d0d4ed98",
+        "thread_id": "thr_2360e64516bc2e7c",
         "frames": 200,
         "stream_lines": 12000,
         "final_seq": 1616
@@ -3694,7 +3694,7 @@
           "bar_width": 808
         },
         "console_scroll": {
-          "scroll_height": 25464,
+          "scroll_height": 25672,
           "client_height": 276,
           "overflow_y": "auto",
           "at_latest": false
@@ -3946,7 +3946,7 @@
           "bar_width": 808
         },
         "console_scroll": {
-          "scroll_height": 25464,
+          "scroll_height": 25672,
           "client_height": 276,
           "overflow_y": "auto",
           "at_latest": false
@@ -3982,7 +3982,7 @@
       "height": 800,
       "factor": 1.5,
       "appended": {
-        "thread_id": "thr_937edd03d0d4ed98",
+        "thread_id": "thr_2360e64516bc2e7c",
         "frames": 200,
         "stream_lines": 14000,
         "final_seq": 1818
@@ -4212,7 +4212,7 @@
           "bar_width": 817
         },
         "console_scroll": {
-          "scroll_height": 25445,
+          "scroll_height": 25653,
           "client_height": 109,
           "overflow_y": "auto",
           "at_latest": false
@@ -4464,7 +4464,7 @@
           "bar_width": 817
         },
         "console_scroll": {
-          "scroll_height": 25445,
+          "scroll_height": 25653,
           "client_height": 109,
           "overflow_y": "auto",
           "at_latest": false
@@ -4500,7 +4500,7 @@
       "height": 800,
       "factor": 2,
       "appended": {
-        "thread_id": "thr_937edd03d0d4ed98",
+        "thread_id": "thr_2360e64516bc2e7c",
         "frames": 200,
         "stream_lines": 16000,
         "final_seq": 2020
@@ -4730,7 +4730,7 @@
           "bar_width": 620
         },
         "console_scroll": {
-          "scroll_height": 26593,
+          "scroll_height": 27213,
           "client_height": 139,
           "overflow_y": "auto",
           "at_latest": false
@@ -4982,7 +4982,7 @@
           "bar_width": 620
         },
         "console_scroll": {
-          "scroll_height": 26593,
+          "scroll_height": 27213,
           "client_height": 139,
           "overflow_y": "auto",
           "at_latest": false
@@ -5018,7 +5018,7 @@
       "height": 700,
       "factor": 1,
       "appended": {
-        "thread_id": "thr_937edd03d0d4ed98",
+        "thread_id": "thr_2360e64516bc2e7c",
         "frames": 200,
         "stream_lines": 18000,
         "final_seq": 2222
@@ -5248,10 +5248,10 @@
           "bar_width": 884
         },
         "console_scroll": {
-          "scroll_height": 25025,
+          "scroll_height": 25433,
           "client_height": 335,
           "overflow_y": "auto",
-          "at_latest": false
+          "at_latest": true
         },
         "grip_range": {
           "now": 72,
@@ -5500,10 +5500,10 @@
           "bar_width": 884
         },
         "console_scroll": {
-          "scroll_height": 25025,
+          "scroll_height": 25433,
           "client_height": 335,
           "overflow_y": "auto",
-          "at_latest": false
+          "at_latest": true
         },
         "grip_range": {
           "now": 72,
@@ -5545,7 +5545,7 @@
     "f02-theme-afterglow-quiet.png"
   ],
   "phase": "setup",
-  "project": "prj_2cae581a1ff74b08",
+  "project": "prj_92412efcfc100418",
   "failed_screenshots": [],
   "relaunch": {
     "ok": true,
