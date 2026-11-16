@@ -1,18 +1,27 @@
 {
   "schema_version": 1,
-  "label": "F03 — installed /Applications/Mona.app, single launch, full deck layout suite",
-  "captured_at": "2026-11-16T02:23:12.948Z",
-  "target": {
-    "bundle": "/Applications/Mona.app",
-    "binary": "/Applications/Mona.app/Contents/MacOS/Mona",
-    "packaged": true
+  "label": "F02 — Studio flight deck on real pixels, no engine, no model request",
+  "captured_at": "2026-11-16T02:38:27.524Z",
+  "host": {
+    "platform": "darwin",
+    "arch": "arm64",
+    "macos": "26.5.1",
+    "electron": "45.3.0",
+    "chrome": "156.0.8078.96",
+    "display": {
+      "width": 1470,
+      "height": 875
+    },
+    "scaleFactor": 2
   },
   "ok": true,
   "checks": {
     "studio_opened": true,
+    "window_is_visible_for_live_checks": true,
     "offline_signal_is_not_animated": true,
     "offline_signal_states_its_state": true,
     "no_animation_while_no_turn_runs": true,
+    "1440x900-100:viewport_matches_the_window": true,
     "1440x900-100:document_does_not_grow": true,
     "1440x900-100:console_scrolls_internally": true,
     "1440x900-100:prompt_inside_viewport": true,
@@ -34,12 +43,14 @@
     "1440x900-100-after-1200-and-8000:toolbar_keeps_its_controls": true,
     "1440x900-100-after-1200-and-8000:console_keeps_usable_height": true,
     "1440x900-100:prompt_bottom_did_not_move": true,
+    "1440x900-100:window_visible_while_reading": true,
     "1440x900-100:tail_reachable_inside_console": true,
     "1440x900-100:console_really_scrolls": true,
     "1440x900-100:opens_at_the_live_edge": true,
     "1440x900-100:history_reading_stays_in_the_console": true,
     "1440x900-100:jump_returns_to_live_edge": true,
     "1440x900-100:reading_never_scrolled_the_page": true,
+    "1280x800-100:viewport_matches_the_window": true,
     "1280x800-100:document_does_not_grow": true,
     "1280x800-100:console_scrolls_internally": true,
     "1280x800-100:prompt_inside_viewport": true,
@@ -61,12 +72,14 @@
     "1280x800-100-after-1200-and-8000:toolbar_keeps_its_controls": true,
     "1280x800-100-after-1200-and-8000:console_keeps_usable_height": true,
     "1280x800-100:prompt_bottom_did_not_move": true,
+    "1280x800-100:window_visible_while_reading": true,
     "1280x800-100:tail_reachable_inside_console": true,
     "1280x800-100:console_really_scrolls": true,
     "1280x800-100:opens_at_the_live_edge": true,
     "1280x800-100:history_reading_stays_in_the_console": true,
     "1280x800-100:jump_returns_to_live_edge": true,
     "1280x800-100:reading_never_scrolled_the_page": true,
+    "1280x800-125:viewport_matches_the_window": true,
     "1280x800-125:document_does_not_grow": true,
     "1280x800-125:console_scrolls_internally": true,
     "1280x800-125:prompt_inside_viewport": true,
@@ -88,12 +101,14 @@
     "1280x800-125-after-1200-and-8000:toolbar_keeps_its_controls": true,
     "1280x800-125-after-1200-and-8000:console_keeps_usable_height": true,
     "1280x800-125:prompt_bottom_did_not_move": true,
+    "1280x800-125:window_visible_while_reading": true,
     "1280x800-125:tail_reachable_inside_console": true,
     "1280x800-125:console_really_scrolls": true,
     "1280x800-125:opens_at_the_live_edge": true,
     "1280x800-125:history_reading_stays_in_the_console": true,
     "1280x800-125:jump_returns_to_live_edge": true,
     "1280x800-125:reading_never_scrolled_the_page": true,
+    "1280x800-150:viewport_matches_the_window": true,
     "1280x800-150:document_does_not_grow": true,
     "1280x800-150:console_scrolls_internally": true,
     "1280x800-150:prompt_inside_viewport": true,
@@ -115,12 +130,14 @@
     "1280x800-150-after-1200-and-8000:toolbar_keeps_its_controls": true,
     "1280x800-150-after-1200-and-8000:console_keeps_usable_height": true,
     "1280x800-150:prompt_bottom_did_not_move": true,
+    "1280x800-150:window_visible_while_reading": true,
     "1280x800-150:tail_reachable_inside_console": true,
     "1280x800-150:console_really_scrolls": true,
     "1280x800-150:opens_at_the_live_edge": true,
     "1280x800-150:history_reading_stays_in_the_console": true,
     "1280x800-150:jump_returns_to_live_edge": true,
     "1280x800-150:reading_never_scrolled_the_page": true,
+    "1280x800-200:viewport_matches_the_window": true,
     "1280x800-200:document_does_not_grow": true,
     "1280x800-200:console_scrolls_internally": true,
     "1280x800-200:prompt_inside_viewport": true,
@@ -142,12 +159,14 @@
     "1280x800-200-after-1200-and-8000:toolbar_keeps_its_controls": true,
     "1280x800-200-after-1200-and-8000:console_keeps_usable_height": true,
     "1280x800-200:prompt_bottom_did_not_move": true,
+    "1280x800-200:window_visible_while_reading": true,
     "1280x800-200:tail_reachable_inside_console": true,
     "1280x800-200:console_really_scrolls": true,
     "1280x800-200:opens_at_the_live_edge": true,
     "1280x800-200:history_reading_stays_in_the_console": true,
     "1280x800-200:jump_returns_to_live_edge": true,
     "1280x800-200:reading_never_scrolled_the_page": true,
+    "1100x700-100:viewport_matches_the_window": true,
     "1100x700-100:document_does_not_grow": true,
     "1100x700-100:console_scrolls_internally": true,
     "1100x700-100:prompt_inside_viewport": true,
@@ -169,6 +188,7 @@
     "1100x700-100-after-1200-and-8000:toolbar_keeps_its_controls": true,
     "1100x700-100-after-1200-and-8000:console_keeps_usable_height": true,
     "1100x700-100:prompt_bottom_did_not_move": true,
+    "1100x700-100:window_visible_while_reading": true,
     "1100x700-100:tail_reachable_inside_console": true,
     "1100x700-100:console_really_scrolls": true,
     "1100x700-100:opens_at_the_live_edge": true,
@@ -216,8 +236,8 @@
     "receipt_leaves_the_clipboard_as_it_found_it": true,
     "routine_receipt_appeared": true,
     "routine_receipt_is_a_success_tone": true,
-    "routine_receipt_dismisses_itself": true,
-    "receipt_lives_for_five_seconds": true,
+    "routine_receipt_appears_and_holds": true,
+    "receipt_behaviour_was_observed": true,
     "receipt_does_not_move_the_console": true,
     "reduced_motion_matches": true,
     "reduced_motion_stops_decoration": true,
@@ -240,7 +260,30 @@
     "themes_apply": true,
     "themes_stay_bounded": true,
     "primary_text_meets_contrast": true,
-    "signal_label_meets_contrast": true
+    "signal_label_meets_contrast": true,
+    "draft_reaches_the_composer": true,
+    "focus_preference_can_be_set": true,
+    "draft_survives_a_layout_change": true,
+    "draft_is_persisted": true,
+    "focus_preference_is_persisted": true,
+    "fullscreen:document_does_not_grow": true,
+    "fullscreen:console_scrolls_internally": true,
+    "fullscreen:prompt_inside_viewport": true,
+    "fullscreen:controls_above_prompt": true,
+    "fullscreen:submit_reachable": true,
+    "fullscreen:interrupt_visible": true,
+    "fullscreen:inspector_removed": true,
+    "fullscreen:grip_reports_a_value_inside_its_range": true,
+    "fullscreen:toolbar_keeps_its_controls": true,
+    "fullscreen:console_keeps_usable_height": true,
+    "fullscreen_keeps_the_draft": true,
+    "fullscreen_entered_and_left": true,
+    "fullscreen_reports_its_own_state": true,
+    "relaunch:studio_opened": true,
+    "relaunch:window_is_visible_for_live_checks": true,
+    "relaunch:relaunch_restores_focus_mode": true,
+    "relaunch:relaunch_restores_the_draft": true,
+    "relaunch:relaunch_started_no_runtime": true
   },
   "facts": {
     "idle": {
@@ -273,7 +316,8 @@
       "returned": {
         "at_latest": true,
         "document_scroll_y": 0,
-        "jump_gone": true
+        "jump_gone": true,
+        "settled": true
       }
     },
     "reading_1280x800-100": {
@@ -283,7 +327,7 @@
         "truncation_stated": true,
         "at_tail": true,
         "cards": 7,
-        "console_scroll_height": 25786,
+        "console_scroll_height": 25668,
         "console_client_height": 307,
         "document_scroll_y": 0
       },
@@ -299,7 +343,8 @@
       "returned": {
         "at_latest": true,
         "document_scroll_y": 0,
-        "jump_gone": true
+        "jump_gone": true,
+        "settled": true
       }
     },
     "reading_1280x800-125": {
@@ -309,7 +354,7 @@
         "truncation_stated": true,
         "at_tail": true,
         "cards": 7,
-        "console_scroll_height": 27000,
+        "console_scroll_height": 25672,
         "console_client_height": 276,
         "document_scroll_y": 0
       },
@@ -325,7 +370,8 @@
       "returned": {
         "at_latest": true,
         "document_scroll_y": 0,
-        "jump_gone": true
+        "jump_gone": true,
+        "settled": true
       }
     },
     "reading_1280x800-150": {
@@ -335,7 +381,7 @@
         "truncation_stated": true,
         "at_tail": true,
         "cards": 7,
-        "console_scroll_height": 27000,
+        "console_scroll_height": 25653,
         "console_client_height": 109,
         "document_scroll_y": 0
       },
@@ -351,7 +397,8 @@
       "returned": {
         "at_latest": true,
         "document_scroll_y": 0,
-        "jump_gone": true
+        "jump_gone": true,
+        "settled": true
       }
     },
     "reading_1280x800-200": {
@@ -361,7 +408,7 @@
         "truncation_stated": true,
         "at_tail": true,
         "cards": 7,
-        "console_scroll_height": 27192,
+        "console_scroll_height": 27213,
         "console_client_height": 139,
         "document_scroll_y": 0
       },
@@ -377,7 +424,8 @@
       "returned": {
         "at_latest": true,
         "document_scroll_y": 0,
-        "jump_gone": true
+        "jump_gone": true,
+        "settled": true
       }
     },
     "reading_1100x700-100": {
@@ -387,7 +435,7 @@
         "truncation_stated": true,
         "at_tail": true,
         "cards": 7,
-        "console_scroll_height": 25345,
+        "console_scroll_height": 25433,
         "console_client_height": 335,
         "document_scroll_y": 0
       },
@@ -403,7 +451,8 @@
       "returned": {
         "at_latest": true,
         "document_scroll_y": 0,
-        "jump_gone": true
+        "jump_gone": true,
+        "settled": true
       }
     },
     "composer_resize": {
@@ -632,7 +681,7 @@
           "bar_width": 1008
         },
         "console_scroll": {
-          "scroll_height": 24937,
+          "scroll_height": 24999,
           "client_height": 307,
           "overflow_y": "auto",
           "at_latest": true
@@ -884,7 +933,7 @@
           "bar_width": 1008
         },
         "console_scroll": {
-          "scroll_height": 24937,
+          "scroll_height": 24999,
           "client_height": 286,
           "overflow_y": "auto",
           "at_latest": true
@@ -1136,7 +1185,7 @@
           "bar_width": 1008
         },
         "console_scroll": {
-          "scroll_height": 24937,
+          "scroll_height": 24999,
           "client_height": 339,
           "overflow_y": "auto",
           "at_latest": true
@@ -1395,7 +1444,7 @@
           "bar_width": 864
         },
         "console_scroll": {
-          "scroll_height": 25365,
+          "scroll_height": 25433,
           "client_height": 155,
           "overflow_y": "auto",
           "at_latest": true
@@ -1647,7 +1696,7 @@
           "bar_width": 430
         },
         "console_scroll": {
-          "scroll_height": 29646,
+          "scroll_height": 29869,
           "client_height": 41,
           "overflow_y": "auto",
           "at_latest": false
@@ -1672,7 +1721,7 @@
         "signal_animated": "false",
         "signal_phase": "agent-signal agent-signal--offline",
         "running_animations": 0,
-        "cards": 14
+        "cards": 13
       },
       "recovered": {
         "zoom": 4,
@@ -1899,7 +1948,7 @@
           "bar_width": 430
         },
         "console_scroll": {
-          "scroll_height": 29646,
+          "scroll_height": 29869,
           "client_height": 41,
           "overflow_y": "auto",
           "at_latest": false
@@ -1924,7 +1973,7 @@
         "signal_animated": "false",
         "signal_phase": "agent-signal agent-signal--offline",
         "running_animations": 0,
-        "cards": 14
+        "cards": 13
       }
     },
     "keyboard": {
@@ -1964,20 +2013,24 @@
       "toast": {
         "present": true,
         "tone": "notification notification--success",
-        "text": "Copied 65 characters to the clipboard.",
+        "text": "Copied 64 characters to the clipboard.",
         "top": 48,
         "console_top": 239,
-        "console_scroll_top": 24521,
+        "console_scroll_top": 24279,
         "position": "fixed"
       },
-      "dismissed_ms": 5232,
+      "dismissed_ms": 5282,
       "before": {
         "console_top": 239,
-        "console_scroll_top": 24521
+        "console_scroll_top": 24279
       },
       "clipboard_restored": true,
-      "clipboard_previous_length": 0,
-      "clipboard_byte_identical": true
+      "clipboard_previous_length": 19,
+      "clipboard_byte_identical": true,
+      "visible_ms_accumulated": 5281,
+      "hidden_observed": false,
+      "paused_while_hidden": false,
+      "visible_time_was_measurable": true
     },
     "reduced_motion": {
       "attached": true,
@@ -2049,7 +2102,7 @@
         "inside": true,
         "above_prompt": true,
         "body_scrolls": true,
-        "body_height": 325,
+        "body_height": 349,
         "options": 79
       }
     },
@@ -2096,8 +2149,3388 @@
           "intensity": "quiet"
         }
       }
-    ]
+    ],
+    "draft_after_layout": {
+      "value": "Deck draft survives a resize, a zoom change, and a relaunch.",
+      "focus": "on",
+      "caret": 60
+    },
+    "stored_state": {
+      "draft": "Deck draft survives a resize, a zoom change, and a relaunch.",
+      "focus": true
+    },
+    "fullscreen": {
+      "entered": true,
+      "left": true,
+      "events": [
+        "enter-full-screen",
+        "leave-full-screen"
+      ],
+      "geometry": {
+        "zoom": 2,
+        "viewport": {
+          "width": 1470,
+          "height": 923
+        },
+        "document": {
+          "scroll_width": 1470,
+          "scroll_height": 923,
+          "client_width": 1470,
+          "client_height": 923,
+          "scroll_y": 0
+        },
+        "boxes": {
+          "console": {
+            "top": 199,
+            "bottom": 654.5,
+            "left": 18,
+            "right": 1452,
+            "width": 1434,
+            "height": 455.5,
+            "disabled": null
+          },
+          "prompt": {
+            "top": 741,
+            "bottom": 861,
+            "left": 31,
+            "right": 1439,
+            "width": 1408,
+            "height": 120,
+            "disabled": null
+          },
+          "submit": {
+            "top": 682.5,
+            "bottom": 712.5,
+            "left": 1265,
+            "right": 1365,
+            "width": 100,
+            "height": 30,
+            "disabled": false
+          },
+          "interrupt": {
+            "top": 682.5,
+            "bottom": 712.5,
+            "left": 1135,
+            "right": 1258,
+            "width": 123,
+            "height": 30,
+            "disabled": true
+          },
+          "pause": {
+            "top": 682.5,
+            "bottom": 712.5,
+            "left": 989.1,
+            "right": 1128,
+            "width": 138.8,
+            "height": 30,
+            "disabled": true
+          },
+          "controls": {
+            "top": 681.5,
+            "bottom": 713.5,
+            "left": 31,
+            "right": 1439,
+            "width": 1408,
+            "height": 32,
+            "disabled": null
+          },
+          "primary": {
+            "top": 681.5,
+            "bottom": 713.5,
+            "left": 31,
+            "right": 1439,
+            "width": 1408,
+            "height": 32,
+            "disabled": null
+          },
+          "utilities": null,
+          "grip": {
+            "top": 657.5,
+            "bottom": 667.5,
+            "left": 18,
+            "right": 1452,
+            "width": 1434,
+            "height": 10,
+            "disabled": null
+          },
+          "deck": {
+            "top": 44,
+            "bottom": 96,
+            "left": 18,
+            "right": 1452,
+            "width": 1434,
+            "height": 52,
+            "disabled": null
+          },
+          "signal": {
+            "top": 104,
+            "bottom": 155,
+            "left": 18,
+            "right": 1452,
+            "width": 1434,
+            "height": 51,
+            "disabled": null
+          },
+          "toolbar": {
+            "top": 163,
+            "bottom": 193,
+            "left": 18,
+            "right": 1452,
+            "width": 1434,
+            "height": 30,
+            "disabled": null
+          },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
+          "composer": {
+            "top": 670.5,
+            "bottom": 911,
+            "left": 18,
+            "right": 1452,
+            "width": 1434,
+            "height": 240.5,
+            "disabled": null
+          },
+          "rail": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
+          "rail_nav": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
+          "rail_brand": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
+          "harness": {
+            "top": 0,
+            "bottom": 923,
+            "left": 0,
+            "right": 1470,
+            "width": 1470,
+            "height": 923,
+            "disabled": null
+          },
+          "main": {
+            "top": 0,
+            "bottom": 923,
+            "left": 0,
+            "right": 1470,
+            "width": 1470,
+            "height": 923,
+            "disabled": null
+          },
+          "screen": {
+            "top": 44,
+            "bottom": 911,
+            "left": 18,
+            "right": 1452,
+            "width": 1434,
+            "height": 867,
+            "disabled": null
+          },
+          "stage": {
+            "top": 163,
+            "bottom": 911,
+            "left": 18,
+            "right": 1452,
+            "width": 1434,
+            "height": 748,
+            "disabled": null
+          }
+        },
+        "hit": {
+          "submit": true,
+          "interrupt": true,
+          "pause": true,
+          "prompt": true,
+          "grip": true
+        },
+        "hit_detail": {
+          "submit": {
+            "covered": false,
+            "by": "span.button__label"
+          },
+          "prompt": {
+            "covered": false,
+            "by": "textarea#field-_r_i_.input input--area"
+          }
+        },
+        "heights": {
+          "harness": 923,
+          "main": 923,
+          "screen": 867,
+          "stage": 748
+        },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 1434
+        },
+        "console_scroll": {
+          "scroll_height": 26223,
+          "client_height": 454,
+          "overflow_y": "auto",
+          "at_latest": true
+        },
+        "grip_range": {
+          "now": 120,
+          "min": 72,
+          "max": 194
+        },
+        "grip_value": "120",
+        "rail_layout": {
+          "display": "none",
+          "flex_direction": "column",
+          "flex_wrap": "nowrap",
+          "nav_direction": "column",
+          "nav_wrap": "nowrap",
+          "nav_scroll_height": 0,
+          "nav_client_height": 0,
+          "items": 9
+        },
+        "inspector": false,
+        "signal_animated": "false",
+        "signal_phase": "agent-signal agent-signal--offline",
+        "running_animations": 0,
+        "cards": 7,
+        "reported": "on"
+      }
+    }
   },
+  "layouts": [
+    {
+      "name": "1440x900-100",
+      "width": 1440,
+      "height": 900,
+      "factor": 1,
+      "appended": {
+        "thread_id": "thr_7eb8ce25fd707f11",
+        "frames": 1200,
+        "stream_lines": 8000,
+        "final_seq": 1212
+      },
+      "before": {
+        "zoom": 2,
+        "viewport": {
+          "width": 1440,
+          "height": 875
+        },
+        "document": {
+          "scroll_width": 1440,
+          "scroll_height": 875,
+          "client_width": 1440,
+          "client_height": 875,
+          "scroll_y": 0
+        },
+        "boxes": {
+          "console": {
+            "top": 239,
+            "bottom": 612.8,
+            "left": 254,
+            "right": 1422,
+            "width": 1168,
+            "height": 373.8,
+            "disabled": null
+          },
+          "prompt": {
+            "top": 699.3,
+            "bottom": 813,
+            "left": 267,
+            "right": 1409,
+            "width": 1142,
+            "height": 113.8,
+            "disabled": null
+          },
+          "submit": {
+            "top": 640.8,
+            "bottom": 670.8,
+            "left": 1235,
+            "right": 1335,
+            "width": 100,
+            "height": 30,
+            "disabled": true
+          },
+          "interrupt": {
+            "top": 640.8,
+            "bottom": 670.8,
+            "left": 1105,
+            "right": 1228,
+            "width": 123,
+            "height": 30,
+            "disabled": true
+          },
+          "pause": {
+            "top": 640.8,
+            "bottom": 670.8,
+            "left": 959.1,
+            "right": 1098,
+            "width": 138.8,
+            "height": 30,
+            "disabled": true
+          },
+          "controls": {
+            "top": 639.8,
+            "bottom": 671.8,
+            "left": 267,
+            "right": 1409,
+            "width": 1142,
+            "height": 32,
+            "disabled": null
+          },
+          "primary": {
+            "top": 639.8,
+            "bottom": 671.8,
+            "left": 267,
+            "right": 1409,
+            "width": 1142,
+            "height": 32,
+            "disabled": null
+          },
+          "utilities": null,
+          "grip": {
+            "top": 615.8,
+            "bottom": 625.8,
+            "left": 254,
+            "right": 1422,
+            "width": 1168,
+            "height": 10,
+            "disabled": null
+          },
+          "deck": {
+            "top": 84,
+            "bottom": 136,
+            "left": 254,
+            "right": 1422,
+            "width": 1168,
+            "height": 52,
+            "disabled": null
+          },
+          "signal": {
+            "top": 144,
+            "bottom": 195,
+            "left": 254,
+            "right": 1422,
+            "width": 1168,
+            "height": 51,
+            "disabled": null
+          },
+          "toolbar": {
+            "top": 203,
+            "bottom": 233,
+            "left": 254,
+            "right": 1422,
+            "width": 1168,
+            "height": 30,
+            "disabled": null
+          },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
+          "composer": {
+            "top": 628.8,
+            "bottom": 863,
+            "left": 254,
+            "right": 1422,
+            "width": 1168,
+            "height": 234.3,
+            "disabled": null
+          },
+          "rail": {
+            "top": 0,
+            "bottom": 875,
+            "left": 0,
+            "right": 236,
+            "width": 236,
+            "height": 875,
+            "disabled": null
+          },
+          "rail_nav": {
+            "top": 111,
+            "bottom": 446.5,
+            "left": 12,
+            "right": 223,
+            "width": 211,
+            "height": 335.5,
+            "disabled": null
+          },
+          "rail_brand": {
+            "top": 52,
+            "bottom": 95,
+            "left": 12,
+            "right": 223,
+            "width": 211,
+            "height": 43,
+            "disabled": null
+          },
+          "harness": {
+            "top": 0,
+            "bottom": 875,
+            "left": 0,
+            "right": 1440,
+            "width": 1440,
+            "height": 875,
+            "disabled": null
+          },
+          "main": {
+            "top": 0,
+            "bottom": 875,
+            "left": 236,
+            "right": 1440,
+            "width": 1204,
+            "height": 875,
+            "disabled": null
+          },
+          "screen": {
+            "top": 84,
+            "bottom": 863,
+            "left": 254,
+            "right": 1422,
+            "width": 1168,
+            "height": 779,
+            "disabled": null
+          },
+          "stage": {
+            "top": 203,
+            "bottom": 863,
+            "left": 254,
+            "right": 1422,
+            "width": 1168,
+            "height": 660,
+            "disabled": null
+          }
+        },
+        "hit": {
+          "submit": true,
+          "interrupt": true,
+          "pause": true,
+          "prompt": true,
+          "grip": true
+        },
+        "hit_detail": {
+          "submit": {
+            "covered": false,
+            "by": "span.button__label"
+          },
+          "prompt": {
+            "covered": false,
+            "by": "textarea#field-_r_i_.input input--area"
+          }
+        },
+        "heights": {
+          "harness": 875,
+          "main": 875,
+          "screen": 779,
+          "stage": 660
+        },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 1168
+        },
+        "console_scroll": {
+          "scroll_height": 714,
+          "client_height": 372,
+          "overflow_y": "auto",
+          "at_latest": true
+        },
+        "grip_range": {
+          "now": 114,
+          "min": 72,
+          "max": 157
+        },
+        "grip_value": "114",
+        "rail_layout": {
+          "display": "flex",
+          "flex_direction": "column",
+          "flex_wrap": "nowrap",
+          "nav_direction": "column",
+          "nav_wrap": "nowrap",
+          "nav_scroll_height": 336,
+          "nav_client_height": 336,
+          "items": 9
+        },
+        "inspector": false,
+        "signal_animated": "false",
+        "signal_phase": "agent-signal agent-signal--offline",
+        "running_animations": 0,
+        "cards": 7
+      },
+      "after": {
+        "zoom": 2,
+        "viewport": {
+          "width": 1440,
+          "height": 875
+        },
+        "document": {
+          "scroll_width": 1440,
+          "scroll_height": 875,
+          "client_width": 1440,
+          "client_height": 875,
+          "scroll_y": 0
+        },
+        "boxes": {
+          "console": {
+            "top": 239,
+            "bottom": 612.8,
+            "left": 254,
+            "right": 1422,
+            "width": 1168,
+            "height": 373.8,
+            "disabled": null
+          },
+          "prompt": {
+            "top": 699.3,
+            "bottom": 813,
+            "left": 267,
+            "right": 1409,
+            "width": 1142,
+            "height": 113.8,
+            "disabled": null
+          },
+          "submit": {
+            "top": 640.8,
+            "bottom": 670.8,
+            "left": 1235,
+            "right": 1335,
+            "width": 100,
+            "height": 30,
+            "disabled": true
+          },
+          "interrupt": {
+            "top": 640.8,
+            "bottom": 670.8,
+            "left": 1105,
+            "right": 1228,
+            "width": 123,
+            "height": 30,
+            "disabled": true
+          },
+          "pause": {
+            "top": 640.8,
+            "bottom": 670.8,
+            "left": 959.1,
+            "right": 1098,
+            "width": 138.8,
+            "height": 30,
+            "disabled": true
+          },
+          "controls": {
+            "top": 639.8,
+            "bottom": 671.8,
+            "left": 267,
+            "right": 1409,
+            "width": 1142,
+            "height": 32,
+            "disabled": null
+          },
+          "primary": {
+            "top": 639.8,
+            "bottom": 671.8,
+            "left": 267,
+            "right": 1409,
+            "width": 1142,
+            "height": 32,
+            "disabled": null
+          },
+          "utilities": null,
+          "grip": {
+            "top": 615.8,
+            "bottom": 625.8,
+            "left": 254,
+            "right": 1422,
+            "width": 1168,
+            "height": 10,
+            "disabled": null
+          },
+          "deck": {
+            "top": 84,
+            "bottom": 136,
+            "left": 254,
+            "right": 1422,
+            "width": 1168,
+            "height": 52,
+            "disabled": null
+          },
+          "signal": {
+            "top": 144,
+            "bottom": 195,
+            "left": 254,
+            "right": 1422,
+            "width": 1168,
+            "height": 51,
+            "disabled": null
+          },
+          "toolbar": {
+            "top": 203,
+            "bottom": 233,
+            "left": 254,
+            "right": 1422,
+            "width": 1168,
+            "height": 30,
+            "disabled": null
+          },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
+          "composer": {
+            "top": 628.8,
+            "bottom": 863,
+            "left": 254,
+            "right": 1422,
+            "width": 1168,
+            "height": 234.3,
+            "disabled": null
+          },
+          "rail": {
+            "top": 0,
+            "bottom": 875,
+            "left": 0,
+            "right": 236,
+            "width": 236,
+            "height": 875,
+            "disabled": null
+          },
+          "rail_nav": {
+            "top": 111,
+            "bottom": 446.5,
+            "left": 12,
+            "right": 223,
+            "width": 211,
+            "height": 335.5,
+            "disabled": null
+          },
+          "rail_brand": {
+            "top": 52,
+            "bottom": 95,
+            "left": 12,
+            "right": 223,
+            "width": 211,
+            "height": 43,
+            "disabled": null
+          },
+          "harness": {
+            "top": 0,
+            "bottom": 875,
+            "left": 0,
+            "right": 1440,
+            "width": 1440,
+            "height": 875,
+            "disabled": null
+          },
+          "main": {
+            "top": 0,
+            "bottom": 875,
+            "left": 236,
+            "right": 1440,
+            "width": 1204,
+            "height": 875,
+            "disabled": null
+          },
+          "screen": {
+            "top": 84,
+            "bottom": 863,
+            "left": 254,
+            "right": 1422,
+            "width": 1168,
+            "height": 779,
+            "disabled": null
+          },
+          "stage": {
+            "top": 203,
+            "bottom": 863,
+            "left": 254,
+            "right": 1422,
+            "width": 1168,
+            "height": 660,
+            "disabled": null
+          }
+        },
+        "hit": {
+          "submit": true,
+          "interrupt": true,
+          "pause": true,
+          "prompt": true,
+          "grip": true
+        },
+        "hit_detail": {
+          "submit": {
+            "covered": false,
+            "by": "span.button__label"
+          },
+          "prompt": {
+            "covered": false,
+            "by": "textarea#field-_r_i_.input input--area"
+          }
+        },
+        "heights": {
+          "harness": 875,
+          "main": 875,
+          "screen": 779,
+          "stage": 660
+        },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 1168
+        },
+        "console_scroll": {
+          "scroll_height": 27010,
+          "client_height": 372,
+          "overflow_y": "auto",
+          "at_latest": true
+        },
+        "grip_range": {
+          "now": 114,
+          "min": 72,
+          "max": 157
+        },
+        "grip_value": "114",
+        "rail_layout": {
+          "display": "flex",
+          "flex_direction": "column",
+          "flex_wrap": "nowrap",
+          "nav_direction": "column",
+          "nav_wrap": "nowrap",
+          "nav_scroll_height": 336,
+          "nav_client_height": 336,
+          "items": 9
+        },
+        "inspector": false,
+        "signal_animated": "false",
+        "signal_phase": "agent-signal agent-signal--offline",
+        "running_animations": 0,
+        "cards": 7,
+        "refreshed_from_push": true,
+        "scope_text": "199 shown · 1212 stored · older pages available · 7 painted"
+      }
+    },
+    {
+      "name": "1280x800-100",
+      "width": 1280,
+      "height": 800,
+      "factor": 1,
+      "appended": {
+        "thread_id": "thr_7eb8ce25fd707f11",
+        "frames": 200,
+        "stream_lines": 10000,
+        "final_seq": 1414
+      },
+      "before": {
+        "zoom": 2,
+        "viewport": {
+          "width": 1280,
+          "height": 800
+        },
+        "document": {
+          "scroll_width": 1280,
+          "scroll_height": 800,
+          "client_width": 1280,
+          "client_height": 800,
+          "scroll_y": 0
+        },
+        "boxes": {
+          "console": {
+            "top": 239,
+            "bottom": 547.5,
+            "left": 254,
+            "right": 1262,
+            "width": 1008,
+            "height": 308.5,
+            "disabled": null
+          },
+          "prompt": {
+            "top": 634,
+            "bottom": 738,
+            "left": 267,
+            "right": 1249,
+            "width": 982,
+            "height": 104,
+            "disabled": null
+          },
+          "submit": {
+            "top": 575.5,
+            "bottom": 605.5,
+            "left": 1075,
+            "right": 1175,
+            "width": 100,
+            "height": 30,
+            "disabled": true
+          },
+          "interrupt": {
+            "top": 575.5,
+            "bottom": 605.5,
+            "left": 945,
+            "right": 1068,
+            "width": 123,
+            "height": 30,
+            "disabled": true
+          },
+          "pause": {
+            "top": 575.5,
+            "bottom": 605.5,
+            "left": 799.1,
+            "right": 938,
+            "width": 138.8,
+            "height": 30,
+            "disabled": true
+          },
+          "controls": {
+            "top": 574.5,
+            "bottom": 606.5,
+            "left": 267,
+            "right": 1249,
+            "width": 982,
+            "height": 32,
+            "disabled": null
+          },
+          "primary": {
+            "top": 574.5,
+            "bottom": 606.5,
+            "left": 267,
+            "right": 1249,
+            "width": 982,
+            "height": 32,
+            "disabled": null
+          },
+          "utilities": null,
+          "grip": {
+            "top": 550.5,
+            "bottom": 560.5,
+            "left": 254,
+            "right": 1262,
+            "width": 1008,
+            "height": 10,
+            "disabled": null
+          },
+          "deck": {
+            "top": 84,
+            "bottom": 136,
+            "left": 254,
+            "right": 1262,
+            "width": 1008,
+            "height": 52,
+            "disabled": null
+          },
+          "signal": {
+            "top": 144,
+            "bottom": 195,
+            "left": 254,
+            "right": 1262,
+            "width": 1008,
+            "height": 51,
+            "disabled": null
+          },
+          "toolbar": {
+            "top": 203,
+            "bottom": 233,
+            "left": 254,
+            "right": 1262,
+            "width": 1008,
+            "height": 30,
+            "disabled": null
+          },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
+          "composer": {
+            "top": 563.5,
+            "bottom": 788,
+            "left": 254,
+            "right": 1262,
+            "width": 1008,
+            "height": 224.5,
+            "disabled": null
+          },
+          "rail": {
+            "top": 0,
+            "bottom": 800,
+            "left": 0,
+            "right": 236,
+            "width": 236,
+            "height": 800,
+            "disabled": null
+          },
+          "rail_nav": {
+            "top": 111,
+            "bottom": 446.5,
+            "left": 12,
+            "right": 223,
+            "width": 211,
+            "height": 335.5,
+            "disabled": null
+          },
+          "rail_brand": {
+            "top": 52,
+            "bottom": 95,
+            "left": 12,
+            "right": 223,
+            "width": 211,
+            "height": 43,
+            "disabled": null
+          },
+          "harness": {
+            "top": 0,
+            "bottom": 800,
+            "left": 0,
+            "right": 1280,
+            "width": 1280,
+            "height": 800,
+            "disabled": null
+          },
+          "main": {
+            "top": 0,
+            "bottom": 800,
+            "left": 236,
+            "right": 1280,
+            "width": 1044,
+            "height": 800,
+            "disabled": null
+          },
+          "screen": {
+            "top": 84,
+            "bottom": 788,
+            "left": 254,
+            "right": 1262,
+            "width": 1008,
+            "height": 704,
+            "disabled": null
+          },
+          "stage": {
+            "top": 203,
+            "bottom": 788,
+            "left": 254,
+            "right": 1262,
+            "width": 1008,
+            "height": 585,
+            "disabled": null
+          }
+        },
+        "hit": {
+          "submit": true,
+          "interrupt": true,
+          "pause": true,
+          "prompt": true,
+          "grip": true
+        },
+        "hit_detail": {
+          "submit": {
+            "covered": false,
+            "by": "span.button__label"
+          },
+          "prompt": {
+            "covered": false,
+            "by": "textarea#field-_r_i_.input input--area"
+          }
+        },
+        "heights": {
+          "harness": 800,
+          "main": 800,
+          "screen": 704,
+          "stage": 585
+        },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 1008
+        },
+        "console_scroll": {
+          "scroll_height": 25786,
+          "client_height": 307,
+          "overflow_y": "auto",
+          "at_latest": true
+        },
+        "grip_range": {
+          "now": 104,
+          "min": 72,
+          "max": 125
+        },
+        "grip_value": "104",
+        "rail_layout": {
+          "display": "flex",
+          "flex_direction": "column",
+          "flex_wrap": "nowrap",
+          "nav_direction": "column",
+          "nav_wrap": "nowrap",
+          "nav_scroll_height": 336,
+          "nav_client_height": 336,
+          "items": 9
+        },
+        "inspector": false,
+        "signal_animated": "false",
+        "signal_phase": "agent-signal agent-signal--offline",
+        "running_animations": 0,
+        "cards": 7
+      },
+      "after": {
+        "zoom": 2,
+        "viewport": {
+          "width": 1280,
+          "height": 800
+        },
+        "document": {
+          "scroll_width": 1280,
+          "scroll_height": 800,
+          "client_width": 1280,
+          "client_height": 800,
+          "scroll_y": 0
+        },
+        "boxes": {
+          "console": {
+            "top": 239,
+            "bottom": 547.5,
+            "left": 254,
+            "right": 1262,
+            "width": 1008,
+            "height": 308.5,
+            "disabled": null
+          },
+          "prompt": {
+            "top": 634,
+            "bottom": 738,
+            "left": 267,
+            "right": 1249,
+            "width": 982,
+            "height": 104,
+            "disabled": null
+          },
+          "submit": {
+            "top": 575.5,
+            "bottom": 605.5,
+            "left": 1075,
+            "right": 1175,
+            "width": 100,
+            "height": 30,
+            "disabled": true
+          },
+          "interrupt": {
+            "top": 575.5,
+            "bottom": 605.5,
+            "left": 945,
+            "right": 1068,
+            "width": 123,
+            "height": 30,
+            "disabled": true
+          },
+          "pause": {
+            "top": 575.5,
+            "bottom": 605.5,
+            "left": 799.1,
+            "right": 938,
+            "width": 138.8,
+            "height": 30,
+            "disabled": true
+          },
+          "controls": {
+            "top": 574.5,
+            "bottom": 606.5,
+            "left": 267,
+            "right": 1249,
+            "width": 982,
+            "height": 32,
+            "disabled": null
+          },
+          "primary": {
+            "top": 574.5,
+            "bottom": 606.5,
+            "left": 267,
+            "right": 1249,
+            "width": 982,
+            "height": 32,
+            "disabled": null
+          },
+          "utilities": null,
+          "grip": {
+            "top": 550.5,
+            "bottom": 560.5,
+            "left": 254,
+            "right": 1262,
+            "width": 1008,
+            "height": 10,
+            "disabled": null
+          },
+          "deck": {
+            "top": 84,
+            "bottom": 136,
+            "left": 254,
+            "right": 1262,
+            "width": 1008,
+            "height": 52,
+            "disabled": null
+          },
+          "signal": {
+            "top": 144,
+            "bottom": 195,
+            "left": 254,
+            "right": 1262,
+            "width": 1008,
+            "height": 51,
+            "disabled": null
+          },
+          "toolbar": {
+            "top": 203,
+            "bottom": 233,
+            "left": 254,
+            "right": 1262,
+            "width": 1008,
+            "height": 30,
+            "disabled": null
+          },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
+          "composer": {
+            "top": 563.5,
+            "bottom": 788,
+            "left": 254,
+            "right": 1262,
+            "width": 1008,
+            "height": 224.5,
+            "disabled": null
+          },
+          "rail": {
+            "top": 0,
+            "bottom": 800,
+            "left": 0,
+            "right": 236,
+            "width": 236,
+            "height": 800,
+            "disabled": null
+          },
+          "rail_nav": {
+            "top": 111,
+            "bottom": 446.5,
+            "left": 12,
+            "right": 223,
+            "width": 211,
+            "height": 335.5,
+            "disabled": null
+          },
+          "rail_brand": {
+            "top": 52,
+            "bottom": 95,
+            "left": 12,
+            "right": 223,
+            "width": 211,
+            "height": 43,
+            "disabled": null
+          },
+          "harness": {
+            "top": 0,
+            "bottom": 800,
+            "left": 0,
+            "right": 1280,
+            "width": 1280,
+            "height": 800,
+            "disabled": null
+          },
+          "main": {
+            "top": 0,
+            "bottom": 800,
+            "left": 236,
+            "right": 1280,
+            "width": 1044,
+            "height": 800,
+            "disabled": null
+          },
+          "screen": {
+            "top": 84,
+            "bottom": 788,
+            "left": 254,
+            "right": 1262,
+            "width": 1008,
+            "height": 704,
+            "disabled": null
+          },
+          "stage": {
+            "top": 203,
+            "bottom": 788,
+            "left": 254,
+            "right": 1262,
+            "width": 1008,
+            "height": 585,
+            "disabled": null
+          }
+        },
+        "hit": {
+          "submit": true,
+          "interrupt": true,
+          "pause": true,
+          "prompt": true,
+          "grip": true
+        },
+        "hit_detail": {
+          "submit": {
+            "covered": false,
+            "by": "span.button__label"
+          },
+          "prompt": {
+            "covered": false,
+            "by": "textarea#field-_r_i_.input input--area"
+          }
+        },
+        "heights": {
+          "harness": 800,
+          "main": 800,
+          "screen": 704,
+          "stage": 585
+        },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 1008
+        },
+        "console_scroll": {
+          "scroll_height": 25668,
+          "client_height": 307,
+          "overflow_y": "auto",
+          "at_latest": true
+        },
+        "grip_range": {
+          "now": 104,
+          "min": 72,
+          "max": 125
+        },
+        "grip_value": "104",
+        "rail_layout": {
+          "display": "flex",
+          "flex_direction": "column",
+          "flex_wrap": "nowrap",
+          "nav_direction": "column",
+          "nav_wrap": "nowrap",
+          "nav_scroll_height": 336,
+          "nav_client_height": 336,
+          "items": 9
+        },
+        "inspector": false,
+        "signal_animated": "false",
+        "signal_phase": "agent-signal agent-signal--offline",
+        "running_animations": 0,
+        "cards": 7,
+        "refreshed_from_push": true,
+        "scope_text": "200 shown · 1414 stored · older pages available · 7 painted"
+      }
+    },
+    {
+      "name": "1280x800-125",
+      "width": 1280,
+      "height": 800,
+      "factor": 1.25,
+      "appended": {
+        "thread_id": "thr_7eb8ce25fd707f11",
+        "frames": 200,
+        "stream_lines": 12000,
+        "final_seq": 1616
+      },
+      "before": {
+        "zoom": 2.5,
+        "viewport": {
+          "width": 1024,
+          "height": 640
+        },
+        "document": {
+          "scroll_width": 1024,
+          "scroll_height": 640,
+          "client_width": 1024,
+          "client_height": 640,
+          "scroll_y": 0
+        },
+        "boxes": {
+          "console": {
+            "top": 176,
+            "bottom": 453.3,
+            "left": 198,
+            "right": 1006,
+            "width": 808,
+            "height": 277.3,
+            "disabled": null
+          },
+          "prompt": {
+            "top": 533.2,
+            "bottom": 605.2,
+            "left": 208.8,
+            "right": 995.2,
+            "width": 786.4,
+            "height": 72,
+            "disabled": null
+          },
+          "submit": {
+            "top": 477.9,
+            "bottom": 507.9,
+            "left": 821.6,
+            "right": 921.6,
+            "width": 100,
+            "height": 30,
+            "disabled": true
+          },
+          "interrupt": {
+            "top": 477.9,
+            "bottom": 507.9,
+            "left": 692,
+            "right": 814.6,
+            "width": 122.6,
+            "height": 30,
+            "disabled": true
+          },
+          "pause": {
+            "top": 477.9,
+            "bottom": 507.9,
+            "left": 546.5,
+            "right": 684.9,
+            "width": 138.4,
+            "height": 30,
+            "disabled": true
+          },
+          "controls": {
+            "top": 477.1,
+            "bottom": 508.7,
+            "left": 208.8,
+            "right": 995.2,
+            "width": 786.4,
+            "height": 31.6,
+            "disabled": null
+          },
+          "primary": {
+            "top": 477.1,
+            "bottom": 508.7,
+            "left": 208.8,
+            "right": 995.2,
+            "width": 786.4,
+            "height": 31.6,
+            "disabled": null
+          },
+          "utilities": null,
+          "grip": {
+            "top": 456.3,
+            "bottom": 466.3,
+            "left": 198,
+            "right": 1006,
+            "width": 808,
+            "height": 10,
+            "disabled": null
+          },
+          "deck": {
+            "top": 38,
+            "bottom": 86,
+            "left": 198,
+            "right": 1006,
+            "width": 808,
+            "height": 48,
+            "disabled": null
+          },
+          "signal": {
+            "top": 94,
+            "bottom": 132,
+            "left": 198,
+            "right": 1006,
+            "width": 808,
+            "height": 38,
+            "disabled": null
+          },
+          "toolbar": {
+            "top": 140,
+            "bottom": 170,
+            "left": 198,
+            "right": 1006,
+            "width": 808,
+            "height": 30,
+            "disabled": null
+          },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
+          "composer": {
+            "top": 469.3,
+            "bottom": 632,
+            "left": 198,
+            "right": 1006,
+            "width": 808,
+            "height": 162.7,
+            "disabled": null
+          },
+          "rail": {
+            "top": 0,
+            "bottom": 640,
+            "left": 0,
+            "right": 180,
+            "width": 180,
+            "height": 640,
+            "disabled": null
+          },
+          "rail_nav": {
+            "top": 110.6,
+            "bottom": 446.1,
+            "left": 12,
+            "right": 167.2,
+            "width": 155.2,
+            "height": 335.5,
+            "disabled": null
+          },
+          "rail_brand": {
+            "top": 52,
+            "bottom": 94.6,
+            "left": 12,
+            "right": 167.2,
+            "width": 155.2,
+            "height": 42.6,
+            "disabled": null
+          },
+          "harness": {
+            "top": 0,
+            "bottom": 640,
+            "left": 0,
+            "right": 1024,
+            "width": 1024,
+            "height": 640,
+            "disabled": null
+          },
+          "main": {
+            "top": 0,
+            "bottom": 640,
+            "left": 180,
+            "right": 1024,
+            "width": 844,
+            "height": 640,
+            "disabled": null
+          },
+          "screen": {
+            "top": 38,
+            "bottom": 632,
+            "left": 198,
+            "right": 1006,
+            "width": 808,
+            "height": 594,
+            "disabled": null
+          },
+          "stage": {
+            "top": 140,
+            "bottom": 632,
+            "left": 198,
+            "right": 1006,
+            "width": 808,
+            "height": 492,
+            "disabled": null
+          }
+        },
+        "hit": {
+          "submit": true,
+          "interrupt": true,
+          "pause": true,
+          "prompt": true,
+          "grip": true
+        },
+        "hit_detail": {
+          "submit": {
+            "covered": false,
+            "by": "span.button__label"
+          },
+          "prompt": {
+            "covered": false,
+            "by": "textarea#field-_r_i_.input input--area"
+          }
+        },
+        "heights": {
+          "harness": 640,
+          "main": 640,
+          "screen": 594,
+          "stage": 492
+        },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 808
+        },
+        "console_scroll": {
+          "scroll_height": 25672,
+          "client_height": 276,
+          "overflow_y": "auto",
+          "at_latest": false
+        },
+        "grip_range": {
+          "now": 72,
+          "min": 72,
+          "max": 116
+        },
+        "grip_value": "72",
+        "rail_layout": {
+          "display": "flex",
+          "flex_direction": "column",
+          "flex_wrap": "nowrap",
+          "nav_direction": "column",
+          "nav_wrap": "nowrap",
+          "nav_scroll_height": 336,
+          "nav_client_height": 336,
+          "items": 9
+        },
+        "inspector": false,
+        "signal_animated": "false",
+        "signal_phase": "agent-signal agent-signal--offline",
+        "running_animations": 0,
+        "cards": 7
+      },
+      "after": {
+        "zoom": 2.5,
+        "viewport": {
+          "width": 1024,
+          "height": 640
+        },
+        "document": {
+          "scroll_width": 1024,
+          "scroll_height": 640,
+          "client_width": 1024,
+          "client_height": 640,
+          "scroll_y": 0
+        },
+        "boxes": {
+          "console": {
+            "top": 176,
+            "bottom": 453.3,
+            "left": 198,
+            "right": 1006,
+            "width": 808,
+            "height": 277.3,
+            "disabled": null
+          },
+          "prompt": {
+            "top": 533.2,
+            "bottom": 605.2,
+            "left": 208.8,
+            "right": 995.2,
+            "width": 786.4,
+            "height": 72,
+            "disabled": null
+          },
+          "submit": {
+            "top": 477.9,
+            "bottom": 507.9,
+            "left": 821.6,
+            "right": 921.6,
+            "width": 100,
+            "height": 30,
+            "disabled": true
+          },
+          "interrupt": {
+            "top": 477.9,
+            "bottom": 507.9,
+            "left": 692,
+            "right": 814.6,
+            "width": 122.6,
+            "height": 30,
+            "disabled": true
+          },
+          "pause": {
+            "top": 477.9,
+            "bottom": 507.9,
+            "left": 546.5,
+            "right": 684.9,
+            "width": 138.4,
+            "height": 30,
+            "disabled": true
+          },
+          "controls": {
+            "top": 477.1,
+            "bottom": 508.7,
+            "left": 208.8,
+            "right": 995.2,
+            "width": 786.4,
+            "height": 31.6,
+            "disabled": null
+          },
+          "primary": {
+            "top": 477.1,
+            "bottom": 508.7,
+            "left": 208.8,
+            "right": 995.2,
+            "width": 786.4,
+            "height": 31.6,
+            "disabled": null
+          },
+          "utilities": null,
+          "grip": {
+            "top": 456.3,
+            "bottom": 466.3,
+            "left": 198,
+            "right": 1006,
+            "width": 808,
+            "height": 10,
+            "disabled": null
+          },
+          "deck": {
+            "top": 38,
+            "bottom": 86,
+            "left": 198,
+            "right": 1006,
+            "width": 808,
+            "height": 48,
+            "disabled": null
+          },
+          "signal": {
+            "top": 94,
+            "bottom": 132,
+            "left": 198,
+            "right": 1006,
+            "width": 808,
+            "height": 38,
+            "disabled": null
+          },
+          "toolbar": {
+            "top": 140,
+            "bottom": 170,
+            "left": 198,
+            "right": 1006,
+            "width": 808,
+            "height": 30,
+            "disabled": null
+          },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
+          "composer": {
+            "top": 469.3,
+            "bottom": 632,
+            "left": 198,
+            "right": 1006,
+            "width": 808,
+            "height": 162.7,
+            "disabled": null
+          },
+          "rail": {
+            "top": 0,
+            "bottom": 640,
+            "left": 0,
+            "right": 180,
+            "width": 180,
+            "height": 640,
+            "disabled": null
+          },
+          "rail_nav": {
+            "top": 110.6,
+            "bottom": 446.1,
+            "left": 12,
+            "right": 167.2,
+            "width": 155.2,
+            "height": 335.5,
+            "disabled": null
+          },
+          "rail_brand": {
+            "top": 52,
+            "bottom": 94.6,
+            "left": 12,
+            "right": 167.2,
+            "width": 155.2,
+            "height": 42.6,
+            "disabled": null
+          },
+          "harness": {
+            "top": 0,
+            "bottom": 640,
+            "left": 0,
+            "right": 1024,
+            "width": 1024,
+            "height": 640,
+            "disabled": null
+          },
+          "main": {
+            "top": 0,
+            "bottom": 640,
+            "left": 180,
+            "right": 1024,
+            "width": 844,
+            "height": 640,
+            "disabled": null
+          },
+          "screen": {
+            "top": 38,
+            "bottom": 632,
+            "left": 198,
+            "right": 1006,
+            "width": 808,
+            "height": 594,
+            "disabled": null
+          },
+          "stage": {
+            "top": 140,
+            "bottom": 632,
+            "left": 198,
+            "right": 1006,
+            "width": 808,
+            "height": 492,
+            "disabled": null
+          }
+        },
+        "hit": {
+          "submit": true,
+          "interrupt": true,
+          "pause": true,
+          "prompt": true,
+          "grip": true
+        },
+        "hit_detail": {
+          "submit": {
+            "covered": false,
+            "by": "span.button__label"
+          },
+          "prompt": {
+            "covered": false,
+            "by": "textarea#field-_r_i_.input input--area"
+          }
+        },
+        "heights": {
+          "harness": 640,
+          "main": 640,
+          "screen": 594,
+          "stage": 492
+        },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 808
+        },
+        "console_scroll": {
+          "scroll_height": 25672,
+          "client_height": 276,
+          "overflow_y": "auto",
+          "at_latest": false
+        },
+        "grip_range": {
+          "now": 72,
+          "min": 72,
+          "max": 116
+        },
+        "grip_value": "72",
+        "rail_layout": {
+          "display": "flex",
+          "flex_direction": "column",
+          "flex_wrap": "nowrap",
+          "nav_direction": "column",
+          "nav_wrap": "nowrap",
+          "nav_scroll_height": 336,
+          "nav_client_height": 336,
+          "items": 9
+        },
+        "inspector": false,
+        "signal_animated": "false",
+        "signal_phase": "agent-signal agent-signal--offline",
+        "running_animations": 0,
+        "cards": 7,
+        "refreshed_from_push": true,
+        "scope_text": "200 shown · 1616 stored · older pages available · 7 painted"
+      }
+    },
+    {
+      "name": "1280x800-150",
+      "width": 1280,
+      "height": 800,
+      "factor": 1.5,
+      "appended": {
+        "thread_id": "thr_7eb8ce25fd707f11",
+        "frames": 200,
+        "stream_lines": 14000,
+        "final_seq": 1818
+      },
+      "before": {
+        "zoom": 3,
+        "viewport": {
+          "width": 853,
+          "height": 533
+        },
+        "document": {
+          "scroll_width": 853,
+          "scroll_height": 533,
+          "client_width": 853,
+          "client_height": 533,
+          "scroll_y": 0
+        },
+        "boxes": {
+          "console": {
+            "top": 261.7,
+            "bottom": 372.8,
+            "left": 18,
+            "right": 835.3,
+            "width": 817.3,
+            "height": 111.2,
+            "disabled": null
+          },
+          "prompt": {
+            "top": 446.3,
+            "bottom": 502.3,
+            "left": 27,
+            "right": 826.3,
+            "width": 799.3,
+            "height": 56,
+            "disabled": null
+          },
+          "submit": {
+            "top": 390.8,
+            "bottom": 420.8,
+            "left": 652.3,
+            "right": 752.3,
+            "width": 100,
+            "height": 30,
+            "disabled": true
+          },
+          "interrupt": {
+            "top": 390.8,
+            "bottom": 420.8,
+            "left": 522.3,
+            "right": 645.3,
+            "width": 123,
+            "height": 30,
+            "disabled": true
+          },
+          "pause": {
+            "top": 390.8,
+            "bottom": 420.8,
+            "left": 376.5,
+            "right": 515.3,
+            "width": 138.8,
+            "height": 30,
+            "disabled": true
+          },
+          "controls": {
+            "top": 389.8,
+            "bottom": 421.8,
+            "left": 27,
+            "right": 826.3,
+            "width": 799.3,
+            "height": 32,
+            "disabled": null
+          },
+          "primary": {
+            "top": 389.8,
+            "bottom": 421.8,
+            "left": 27,
+            "right": 826.3,
+            "width": 799.3,
+            "height": 32,
+            "disabled": null
+          },
+          "utilities": null,
+          "grip": {
+            "top": 374.8,
+            "bottom": 381.8,
+            "left": 18,
+            "right": 835.3,
+            "width": 817.3,
+            "height": 7,
+            "disabled": null
+          },
+          "deck": {
+            "top": 133.7,
+            "bottom": 181.7,
+            "left": 18,
+            "right": 835.3,
+            "width": 817.3,
+            "height": 48,
+            "disabled": null
+          },
+          "signal": {
+            "top": 189.7,
+            "bottom": 219.7,
+            "left": 18,
+            "right": 835.3,
+            "width": 817.3,
+            "height": 30,
+            "disabled": null
+          },
+          "toolbar": {
+            "top": 227.7,
+            "bottom": 257.7,
+            "left": 18,
+            "right": 835.3,
+            "width": 817.3,
+            "height": 30,
+            "disabled": null
+          },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
+          "composer": {
+            "top": 382.8,
+            "bottom": 527.3,
+            "left": 18,
+            "right": 835.3,
+            "width": 817.3,
+            "height": 144.5,
+            "disabled": null
+          },
+          "rail": {
+            "top": 0,
+            "bottom": 99.7,
+            "left": 0,
+            "right": 853.3,
+            "width": 853.3,
+            "height": 99.7,
+            "disabled": null
+          },
+          "rail_nav": {
+            "top": 52.8,
+            "bottom": 85.8,
+            "left": 108.8,
+            "right": 841.3,
+            "width": 732.6,
+            "height": 33,
+            "disabled": null
+          },
+          "rail_brand": {
+            "top": 48,
+            "bottom": 90.7,
+            "left": 12,
+            "right": 98.8,
+            "width": 86.8,
+            "height": 42.7,
+            "disabled": null
+          },
+          "harness": {
+            "top": 0,
+            "bottom": 533.3,
+            "left": 0,
+            "right": 853.3,
+            "width": 853.3,
+            "height": 533.3,
+            "disabled": null
+          },
+          "main": {
+            "top": 99.7,
+            "bottom": 533.3,
+            "left": 0,
+            "right": 853.3,
+            "width": 853.3,
+            "height": 433.7,
+            "disabled": null
+          },
+          "screen": {
+            "top": 133.7,
+            "bottom": 527.3,
+            "left": 18,
+            "right": 835.3,
+            "width": 817.3,
+            "height": 393.7,
+            "disabled": null
+          },
+          "stage": {
+            "top": 227.7,
+            "bottom": 527.3,
+            "left": 18,
+            "right": 835.3,
+            "width": 817.3,
+            "height": 299.7,
+            "disabled": null
+          }
+        },
+        "hit": {
+          "submit": true,
+          "interrupt": true,
+          "pause": true,
+          "prompt": true,
+          "grip": true
+        },
+        "hit_detail": {
+          "submit": {
+            "covered": false,
+            "by": "span.button__label"
+          },
+          "prompt": {
+            "covered": false,
+            "by": "textarea#field-_r_i_.input input--area"
+          }
+        },
+        "heights": {
+          "harness": 533,
+          "main": 434,
+          "screen": 394,
+          "stage": 300
+        },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 817
+        },
+        "console_scroll": {
+          "scroll_height": 25653,
+          "client_height": 109,
+          "overflow_y": "auto",
+          "at_latest": false
+        },
+        "grip_range": {
+          "now": 56,
+          "min": 56,
+          "max": 72
+        },
+        "grip_value": "56",
+        "rail_layout": {
+          "display": "flex",
+          "flex_direction": "row",
+          "flex_wrap": "nowrap",
+          "nav_direction": "row",
+          "nav_wrap": "nowrap",
+          "nav_scroll_height": 33,
+          "nav_client_height": 33,
+          "items": 9
+        },
+        "inspector": false,
+        "signal_animated": "false",
+        "signal_phase": "agent-signal agent-signal--offline",
+        "running_animations": 0,
+        "cards": 7
+      },
+      "after": {
+        "zoom": 3,
+        "viewport": {
+          "width": 853,
+          "height": 533
+        },
+        "document": {
+          "scroll_width": 853,
+          "scroll_height": 533,
+          "client_width": 853,
+          "client_height": 533,
+          "scroll_y": 0
+        },
+        "boxes": {
+          "console": {
+            "top": 261.7,
+            "bottom": 372.8,
+            "left": 18,
+            "right": 835.3,
+            "width": 817.3,
+            "height": 111.2,
+            "disabled": null
+          },
+          "prompt": {
+            "top": 446.3,
+            "bottom": 502.3,
+            "left": 27,
+            "right": 826.3,
+            "width": 799.3,
+            "height": 56,
+            "disabled": null
+          },
+          "submit": {
+            "top": 390.8,
+            "bottom": 420.8,
+            "left": 652.3,
+            "right": 752.3,
+            "width": 100,
+            "height": 30,
+            "disabled": true
+          },
+          "interrupt": {
+            "top": 390.8,
+            "bottom": 420.8,
+            "left": 522.3,
+            "right": 645.3,
+            "width": 123,
+            "height": 30,
+            "disabled": true
+          },
+          "pause": {
+            "top": 390.8,
+            "bottom": 420.8,
+            "left": 376.5,
+            "right": 515.3,
+            "width": 138.8,
+            "height": 30,
+            "disabled": true
+          },
+          "controls": {
+            "top": 389.8,
+            "bottom": 421.8,
+            "left": 27,
+            "right": 826.3,
+            "width": 799.3,
+            "height": 32,
+            "disabled": null
+          },
+          "primary": {
+            "top": 389.8,
+            "bottom": 421.8,
+            "left": 27,
+            "right": 826.3,
+            "width": 799.3,
+            "height": 32,
+            "disabled": null
+          },
+          "utilities": null,
+          "grip": {
+            "top": 374.8,
+            "bottom": 381.8,
+            "left": 18,
+            "right": 835.3,
+            "width": 817.3,
+            "height": 7,
+            "disabled": null
+          },
+          "deck": {
+            "top": 133.7,
+            "bottom": 181.7,
+            "left": 18,
+            "right": 835.3,
+            "width": 817.3,
+            "height": 48,
+            "disabled": null
+          },
+          "signal": {
+            "top": 189.7,
+            "bottom": 219.7,
+            "left": 18,
+            "right": 835.3,
+            "width": 817.3,
+            "height": 30,
+            "disabled": null
+          },
+          "toolbar": {
+            "top": 227.7,
+            "bottom": 257.7,
+            "left": 18,
+            "right": 835.3,
+            "width": 817.3,
+            "height": 30,
+            "disabled": null
+          },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
+          "composer": {
+            "top": 382.8,
+            "bottom": 527.3,
+            "left": 18,
+            "right": 835.3,
+            "width": 817.3,
+            "height": 144.5,
+            "disabled": null
+          },
+          "rail": {
+            "top": 0,
+            "bottom": 99.7,
+            "left": 0,
+            "right": 853.3,
+            "width": 853.3,
+            "height": 99.7,
+            "disabled": null
+          },
+          "rail_nav": {
+            "top": 52.8,
+            "bottom": 85.8,
+            "left": 108.8,
+            "right": 841.3,
+            "width": 732.6,
+            "height": 33,
+            "disabled": null
+          },
+          "rail_brand": {
+            "top": 48,
+            "bottom": 90.7,
+            "left": 12,
+            "right": 98.8,
+            "width": 86.8,
+            "height": 42.7,
+            "disabled": null
+          },
+          "harness": {
+            "top": 0,
+            "bottom": 533.3,
+            "left": 0,
+            "right": 853.3,
+            "width": 853.3,
+            "height": 533.3,
+            "disabled": null
+          },
+          "main": {
+            "top": 99.7,
+            "bottom": 533.3,
+            "left": 0,
+            "right": 853.3,
+            "width": 853.3,
+            "height": 433.7,
+            "disabled": null
+          },
+          "screen": {
+            "top": 133.7,
+            "bottom": 527.3,
+            "left": 18,
+            "right": 835.3,
+            "width": 817.3,
+            "height": 393.7,
+            "disabled": null
+          },
+          "stage": {
+            "top": 227.7,
+            "bottom": 527.3,
+            "left": 18,
+            "right": 835.3,
+            "width": 817.3,
+            "height": 299.7,
+            "disabled": null
+          }
+        },
+        "hit": {
+          "submit": true,
+          "interrupt": true,
+          "pause": true,
+          "prompt": true,
+          "grip": true
+        },
+        "hit_detail": {
+          "submit": {
+            "covered": false,
+            "by": "span.button__label"
+          },
+          "prompt": {
+            "covered": false,
+            "by": "textarea#field-_r_i_.input input--area"
+          }
+        },
+        "heights": {
+          "harness": 533,
+          "main": 434,
+          "screen": 394,
+          "stage": 300
+        },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 817
+        },
+        "console_scroll": {
+          "scroll_height": 25653,
+          "client_height": 109,
+          "overflow_y": "auto",
+          "at_latest": false
+        },
+        "grip_range": {
+          "now": 56,
+          "min": 56,
+          "max": 72
+        },
+        "grip_value": "56",
+        "rail_layout": {
+          "display": "flex",
+          "flex_direction": "row",
+          "flex_wrap": "nowrap",
+          "nav_direction": "row",
+          "nav_wrap": "nowrap",
+          "nav_scroll_height": 33,
+          "nav_client_height": 33,
+          "items": 9
+        },
+        "inspector": false,
+        "signal_animated": "false",
+        "signal_phase": "agent-signal agent-signal--offline",
+        "running_animations": 0,
+        "cards": 7,
+        "refreshed_from_push": true,
+        "scope_text": "200 shown · 1818 stored · older pages available · 7 painted"
+      }
+    },
+    {
+      "name": "1280x800-200",
+      "width": 1280,
+      "height": 800,
+      "factor": 2,
+      "appended": {
+        "thread_id": "thr_7eb8ce25fd707f11",
+        "frames": 200,
+        "stream_lines": 16000,
+        "final_seq": 2020
+      },
+      "before": {
+        "zoom": 4,
+        "viewport": {
+          "width": 640,
+          "height": 400
+        },
+        "document": {
+          "scroll_width": 640,
+          "scroll_height": 400,
+          "client_width": 640,
+          "client_height": 400,
+          "scroll_y": 0
+        },
+        "boxes": {
+          "console": {
+            "top": 152,
+            "bottom": 293,
+            "left": 10,
+            "right": 630,
+            "width": 620,
+            "height": 141,
+            "disabled": null
+          },
+          "prompt": {
+            "top": 346,
+            "bottom": 388,
+            "left": 19,
+            "right": 621,
+            "width": 602,
+            "height": 42,
+            "disabled": null
+          },
+          "submit": {
+            "top": 311,
+            "bottom": 341,
+            "left": 447,
+            "right": 547,
+            "width": 100,
+            "height": 30,
+            "disabled": true
+          },
+          "interrupt": {
+            "top": 311,
+            "bottom": 341,
+            "left": 317,
+            "right": 440,
+            "width": 123,
+            "height": 30,
+            "disabled": true
+          },
+          "pause": {
+            "top": 311,
+            "bottom": 341,
+            "left": 171.1,
+            "right": 310,
+            "width": 138.8,
+            "height": 30,
+            "disabled": true
+          },
+          "controls": {
+            "top": 310,
+            "bottom": 342,
+            "left": 19,
+            "right": 621,
+            "width": 602,
+            "height": 32,
+            "disabled": null
+          },
+          "primary": {
+            "top": 310,
+            "bottom": 342,
+            "left": 19,
+            "right": 621,
+            "width": 602,
+            "height": 32,
+            "disabled": null
+          },
+          "utilities": null,
+          "grip": {
+            "top": 295,
+            "bottom": 302,
+            "left": 10,
+            "right": 630,
+            "width": 620,
+            "height": 7,
+            "disabled": null
+          },
+          "deck": {
+            "top": 34,
+            "bottom": 74,
+            "left": 10,
+            "right": 630,
+            "width": 620,
+            "height": 40,
+            "disabled": null
+          },
+          "signal": {
+            "top": 82,
+            "bottom": 110,
+            "left": 10,
+            "right": 630,
+            "width": 620,
+            "height": 28,
+            "disabled": null
+          },
+          "toolbar": {
+            "top": 118,
+            "bottom": 148,
+            "left": 10,
+            "right": 630,
+            "width": 620,
+            "height": 30,
+            "disabled": null
+          },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
+          "composer": {
+            "top": 303,
+            "bottom": 394,
+            "left": 10,
+            "right": 630,
+            "width": 620,
+            "height": 91,
+            "disabled": null
+          },
+          "rail": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
+          "rail_nav": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
+          "rail_brand": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
+          "harness": {
+            "top": 0,
+            "bottom": 400,
+            "left": 0,
+            "right": 640,
+            "width": 640,
+            "height": 400,
+            "disabled": null
+          },
+          "main": {
+            "top": 0,
+            "bottom": 400,
+            "left": 0,
+            "right": 640,
+            "width": 640,
+            "height": 400,
+            "disabled": null
+          },
+          "screen": {
+            "top": 34,
+            "bottom": 394,
+            "left": 10,
+            "right": 630,
+            "width": 620,
+            "height": 360,
+            "disabled": null
+          },
+          "stage": {
+            "top": 118,
+            "bottom": 394,
+            "left": 10,
+            "right": 630,
+            "width": 620,
+            "height": 276,
+            "disabled": null
+          }
+        },
+        "hit": {
+          "submit": true,
+          "interrupt": true,
+          "pause": true,
+          "prompt": true,
+          "grip": true
+        },
+        "hit_detail": {
+          "submit": {
+            "covered": false,
+            "by": "span.button__label"
+          },
+          "prompt": {
+            "covered": false,
+            "by": "textarea#field-_r_i_.input input--area"
+          }
+        },
+        "heights": {
+          "harness": 400,
+          "main": 400,
+          "screen": 360,
+          "stage": 276
+        },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 620
+        },
+        "console_scroll": {
+          "scroll_height": 27213,
+          "client_height": 139,
+          "overflow_y": "auto",
+          "at_latest": false
+        },
+        "grip_range": {
+          "now": 42,
+          "min": 42,
+          "max": 72
+        },
+        "grip_value": "42",
+        "rail_layout": {
+          "display": "none",
+          "flex_direction": "row",
+          "flex_wrap": "nowrap",
+          "nav_direction": "row",
+          "nav_wrap": "nowrap",
+          "nav_scroll_height": 0,
+          "nav_client_height": 0,
+          "items": 9
+        },
+        "inspector": false,
+        "signal_animated": "false",
+        "signal_phase": "agent-signal agent-signal--offline",
+        "running_animations": 0,
+        "cards": 7
+      },
+      "after": {
+        "zoom": 4,
+        "viewport": {
+          "width": 640,
+          "height": 400
+        },
+        "document": {
+          "scroll_width": 640,
+          "scroll_height": 400,
+          "client_width": 640,
+          "client_height": 400,
+          "scroll_y": 0
+        },
+        "boxes": {
+          "console": {
+            "top": 152,
+            "bottom": 293,
+            "left": 10,
+            "right": 630,
+            "width": 620,
+            "height": 141,
+            "disabled": null
+          },
+          "prompt": {
+            "top": 346,
+            "bottom": 388,
+            "left": 19,
+            "right": 621,
+            "width": 602,
+            "height": 42,
+            "disabled": null
+          },
+          "submit": {
+            "top": 311,
+            "bottom": 341,
+            "left": 447,
+            "right": 547,
+            "width": 100,
+            "height": 30,
+            "disabled": true
+          },
+          "interrupt": {
+            "top": 311,
+            "bottom": 341,
+            "left": 317,
+            "right": 440,
+            "width": 123,
+            "height": 30,
+            "disabled": true
+          },
+          "pause": {
+            "top": 311,
+            "bottom": 341,
+            "left": 171.1,
+            "right": 310,
+            "width": 138.8,
+            "height": 30,
+            "disabled": true
+          },
+          "controls": {
+            "top": 310,
+            "bottom": 342,
+            "left": 19,
+            "right": 621,
+            "width": 602,
+            "height": 32,
+            "disabled": null
+          },
+          "primary": {
+            "top": 310,
+            "bottom": 342,
+            "left": 19,
+            "right": 621,
+            "width": 602,
+            "height": 32,
+            "disabled": null
+          },
+          "utilities": null,
+          "grip": {
+            "top": 295,
+            "bottom": 302,
+            "left": 10,
+            "right": 630,
+            "width": 620,
+            "height": 7,
+            "disabled": null
+          },
+          "deck": {
+            "top": 34,
+            "bottom": 74,
+            "left": 10,
+            "right": 630,
+            "width": 620,
+            "height": 40,
+            "disabled": null
+          },
+          "signal": {
+            "top": 82,
+            "bottom": 110,
+            "left": 10,
+            "right": 630,
+            "width": 620,
+            "height": 28,
+            "disabled": null
+          },
+          "toolbar": {
+            "top": 118,
+            "bottom": 148,
+            "left": 10,
+            "right": 630,
+            "width": 620,
+            "height": 30,
+            "disabled": null
+          },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
+          "composer": {
+            "top": 303,
+            "bottom": 394,
+            "left": 10,
+            "right": 630,
+            "width": 620,
+            "height": 91,
+            "disabled": null
+          },
+          "rail": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
+          "rail_nav": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
+          "rail_brand": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
+          "harness": {
+            "top": 0,
+            "bottom": 400,
+            "left": 0,
+            "right": 640,
+            "width": 640,
+            "height": 400,
+            "disabled": null
+          },
+          "main": {
+            "top": 0,
+            "bottom": 400,
+            "left": 0,
+            "right": 640,
+            "width": 640,
+            "height": 400,
+            "disabled": null
+          },
+          "screen": {
+            "top": 34,
+            "bottom": 394,
+            "left": 10,
+            "right": 630,
+            "width": 620,
+            "height": 360,
+            "disabled": null
+          },
+          "stage": {
+            "top": 118,
+            "bottom": 394,
+            "left": 10,
+            "right": 630,
+            "width": 620,
+            "height": 276,
+            "disabled": null
+          }
+        },
+        "hit": {
+          "submit": true,
+          "interrupt": true,
+          "pause": true,
+          "prompt": true,
+          "grip": true
+        },
+        "hit_detail": {
+          "submit": {
+            "covered": false,
+            "by": "span.button__label"
+          },
+          "prompt": {
+            "covered": false,
+            "by": "textarea#field-_r_i_.input input--area"
+          }
+        },
+        "heights": {
+          "harness": 400,
+          "main": 400,
+          "screen": 360,
+          "stage": 276
+        },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 620
+        },
+        "console_scroll": {
+          "scroll_height": 27213,
+          "client_height": 139,
+          "overflow_y": "auto",
+          "at_latest": false
+        },
+        "grip_range": {
+          "now": 42,
+          "min": 42,
+          "max": 72
+        },
+        "grip_value": "42",
+        "rail_layout": {
+          "display": "none",
+          "flex_direction": "row",
+          "flex_wrap": "nowrap",
+          "nav_direction": "row",
+          "nav_wrap": "nowrap",
+          "nav_scroll_height": 0,
+          "nav_client_height": 0,
+          "items": 9
+        },
+        "inspector": false,
+        "signal_animated": "false",
+        "signal_phase": "agent-signal agent-signal--offline",
+        "running_animations": 0,
+        "cards": 7,
+        "refreshed_from_push": true,
+        "scope_text": "200 shown · 2020 stored · older pages available · 7 painted"
+      }
+    },
+    {
+      "name": "1100x700-100",
+      "width": 1100,
+      "height": 700,
+      "factor": 1,
+      "appended": {
+        "thread_id": "thr_7eb8ce25fd707f11",
+        "frames": 200,
+        "stream_lines": 18000,
+        "final_seq": 2222
+      },
+      "before": {
+        "zoom": 2,
+        "viewport": {
+          "width": 1100,
+          "height": 700
+        },
+        "document": {
+          "scroll_width": 1100,
+          "scroll_height": 700,
+          "client_width": 1100,
+          "client_height": 700,
+          "scroll_y": 0
+        },
+        "boxes": {
+          "console": {
+            "top": 176,
+            "bottom": 512.5,
+            "left": 198,
+            "right": 1082,
+            "width": 884,
+            "height": 336.5,
+            "disabled": null
+          },
+          "prompt": {
+            "top": 593,
+            "bottom": 665,
+            "left": 209,
+            "right": 1071,
+            "width": 862,
+            "height": 72,
+            "disabled": null
+          },
+          "submit": {
+            "top": 537.5,
+            "bottom": 567.5,
+            "left": 897,
+            "right": 997,
+            "width": 100,
+            "height": 30,
+            "disabled": true
+          },
+          "interrupt": {
+            "top": 537.5,
+            "bottom": 567.5,
+            "left": 767,
+            "right": 890,
+            "width": 123,
+            "height": 30,
+            "disabled": true
+          },
+          "pause": {
+            "top": 537.5,
+            "bottom": 567.5,
+            "left": 621.1,
+            "right": 760,
+            "width": 138.8,
+            "height": 30,
+            "disabled": true
+          },
+          "controls": {
+            "top": 536.5,
+            "bottom": 568.5,
+            "left": 209,
+            "right": 1071,
+            "width": 862,
+            "height": 32,
+            "disabled": null
+          },
+          "primary": {
+            "top": 536.5,
+            "bottom": 568.5,
+            "left": 209,
+            "right": 1071,
+            "width": 862,
+            "height": 32,
+            "disabled": null
+          },
+          "utilities": null,
+          "grip": {
+            "top": 515.5,
+            "bottom": 525.5,
+            "left": 198,
+            "right": 1082,
+            "width": 884,
+            "height": 10,
+            "disabled": null
+          },
+          "deck": {
+            "top": 38,
+            "bottom": 86,
+            "left": 198,
+            "right": 1082,
+            "width": 884,
+            "height": 48,
+            "disabled": null
+          },
+          "signal": {
+            "top": 94,
+            "bottom": 132,
+            "left": 198,
+            "right": 1082,
+            "width": 884,
+            "height": 38,
+            "disabled": null
+          },
+          "toolbar": {
+            "top": 140,
+            "bottom": 170,
+            "left": 198,
+            "right": 1082,
+            "width": 884,
+            "height": 30,
+            "disabled": null
+          },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
+          "composer": {
+            "top": 528.5,
+            "bottom": 692,
+            "left": 198,
+            "right": 1082,
+            "width": 884,
+            "height": 163.5,
+            "disabled": null
+          },
+          "rail": {
+            "top": 0,
+            "bottom": 700,
+            "left": 0,
+            "right": 180,
+            "width": 180,
+            "height": 700,
+            "disabled": null
+          },
+          "rail_nav": {
+            "top": 111,
+            "bottom": 446.5,
+            "left": 12,
+            "right": 167,
+            "width": 155,
+            "height": 335.5,
+            "disabled": null
+          },
+          "rail_brand": {
+            "top": 52,
+            "bottom": 95,
+            "left": 12,
+            "right": 167,
+            "width": 155,
+            "height": 43,
+            "disabled": null
+          },
+          "harness": {
+            "top": 0,
+            "bottom": 700,
+            "left": 0,
+            "right": 1100,
+            "width": 1100,
+            "height": 700,
+            "disabled": null
+          },
+          "main": {
+            "top": 0,
+            "bottom": 700,
+            "left": 180,
+            "right": 1100,
+            "width": 920,
+            "height": 700,
+            "disabled": null
+          },
+          "screen": {
+            "top": 38,
+            "bottom": 692,
+            "left": 198,
+            "right": 1082,
+            "width": 884,
+            "height": 654,
+            "disabled": null
+          },
+          "stage": {
+            "top": 140,
+            "bottom": 692,
+            "left": 198,
+            "right": 1082,
+            "width": 884,
+            "height": 552,
+            "disabled": null
+          }
+        },
+        "hit": {
+          "submit": true,
+          "interrupt": true,
+          "pause": true,
+          "prompt": true,
+          "grip": true
+        },
+        "hit_detail": {
+          "submit": {
+            "covered": false,
+            "by": "span.button__label"
+          },
+          "prompt": {
+            "covered": false,
+            "by": "textarea#field-_r_i_.input input--area"
+          }
+        },
+        "heights": {
+          "harness": 700,
+          "main": 700,
+          "screen": 654,
+          "stage": 552
+        },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 884
+        },
+        "console_scroll": {
+          "scroll_height": 25433,
+          "client_height": 335,
+          "overflow_y": "auto",
+          "at_latest": true
+        },
+        "grip_range": {
+          "now": 72,
+          "min": 72,
+          "max": 140
+        },
+        "grip_value": "72",
+        "rail_layout": {
+          "display": "flex",
+          "flex_direction": "column",
+          "flex_wrap": "nowrap",
+          "nav_direction": "column",
+          "nav_wrap": "nowrap",
+          "nav_scroll_height": 336,
+          "nav_client_height": 336,
+          "items": 9
+        },
+        "inspector": false,
+        "signal_animated": "false",
+        "signal_phase": "agent-signal agent-signal--offline",
+        "running_animations": 0,
+        "cards": 7
+      },
+      "after": {
+        "zoom": 2,
+        "viewport": {
+          "width": 1100,
+          "height": 700
+        },
+        "document": {
+          "scroll_width": 1100,
+          "scroll_height": 700,
+          "client_width": 1100,
+          "client_height": 700,
+          "scroll_y": 0
+        },
+        "boxes": {
+          "console": {
+            "top": 176,
+            "bottom": 512.5,
+            "left": 198,
+            "right": 1082,
+            "width": 884,
+            "height": 336.5,
+            "disabled": null
+          },
+          "prompt": {
+            "top": 593,
+            "bottom": 665,
+            "left": 209,
+            "right": 1071,
+            "width": 862,
+            "height": 72,
+            "disabled": null
+          },
+          "submit": {
+            "top": 537.5,
+            "bottom": 567.5,
+            "left": 897,
+            "right": 997,
+            "width": 100,
+            "height": 30,
+            "disabled": true
+          },
+          "interrupt": {
+            "top": 537.5,
+            "bottom": 567.5,
+            "left": 767,
+            "right": 890,
+            "width": 123,
+            "height": 30,
+            "disabled": true
+          },
+          "pause": {
+            "top": 537.5,
+            "bottom": 567.5,
+            "left": 621.1,
+            "right": 760,
+            "width": 138.8,
+            "height": 30,
+            "disabled": true
+          },
+          "controls": {
+            "top": 536.5,
+            "bottom": 568.5,
+            "left": 209,
+            "right": 1071,
+            "width": 862,
+            "height": 32,
+            "disabled": null
+          },
+          "primary": {
+            "top": 536.5,
+            "bottom": 568.5,
+            "left": 209,
+            "right": 1071,
+            "width": 862,
+            "height": 32,
+            "disabled": null
+          },
+          "utilities": null,
+          "grip": {
+            "top": 515.5,
+            "bottom": 525.5,
+            "left": 198,
+            "right": 1082,
+            "width": 884,
+            "height": 10,
+            "disabled": null
+          },
+          "deck": {
+            "top": 38,
+            "bottom": 86,
+            "left": 198,
+            "right": 1082,
+            "width": 884,
+            "height": 48,
+            "disabled": null
+          },
+          "signal": {
+            "top": 94,
+            "bottom": 132,
+            "left": 198,
+            "right": 1082,
+            "width": 884,
+            "height": 38,
+            "disabled": null
+          },
+          "toolbar": {
+            "top": 140,
+            "bottom": 170,
+            "left": 198,
+            "right": 1082,
+            "width": 884,
+            "height": 30,
+            "disabled": null
+          },
+          "toolbar_scope": {
+            "top": 0,
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "width": 0,
+            "height": 0,
+            "disabled": null
+          },
+          "composer": {
+            "top": 528.5,
+            "bottom": 692,
+            "left": 198,
+            "right": 1082,
+            "width": 884,
+            "height": 163.5,
+            "disabled": null
+          },
+          "rail": {
+            "top": 0,
+            "bottom": 700,
+            "left": 0,
+            "right": 180,
+            "width": 180,
+            "height": 700,
+            "disabled": null
+          },
+          "rail_nav": {
+            "top": 111,
+            "bottom": 446.5,
+            "left": 12,
+            "right": 167,
+            "width": 155,
+            "height": 335.5,
+            "disabled": null
+          },
+          "rail_brand": {
+            "top": 52,
+            "bottom": 95,
+            "left": 12,
+            "right": 167,
+            "width": 155,
+            "height": 43,
+            "disabled": null
+          },
+          "harness": {
+            "top": 0,
+            "bottom": 700,
+            "left": 0,
+            "right": 1100,
+            "width": 1100,
+            "height": 700,
+            "disabled": null
+          },
+          "main": {
+            "top": 0,
+            "bottom": 700,
+            "left": 180,
+            "right": 1100,
+            "width": 920,
+            "height": 700,
+            "disabled": null
+          },
+          "screen": {
+            "top": 38,
+            "bottom": 692,
+            "left": 198,
+            "right": 1082,
+            "width": 884,
+            "height": 654,
+            "disabled": null
+          },
+          "stage": {
+            "top": 140,
+            "bottom": 692,
+            "left": 198,
+            "right": 1082,
+            "width": 884,
+            "height": 552,
+            "disabled": null
+          }
+        },
+        "hit": {
+          "submit": true,
+          "interrupt": true,
+          "pause": true,
+          "prompt": true,
+          "grip": true
+        },
+        "hit_detail": {
+          "submit": {
+            "covered": false,
+            "by": "span.button__label"
+          },
+          "prompt": {
+            "covered": false,
+            "by": "textarea#field-_r_i_.input input--area"
+          }
+        },
+        "heights": {
+          "harness": 700,
+          "main": 700,
+          "screen": 654,
+          "stage": 552
+        },
+        "toolbar_fits": {
+          "overflows": false,
+          "actions_inside": true,
+          "bar_width": 884
+        },
+        "console_scroll": {
+          "scroll_height": 25433,
+          "client_height": 335,
+          "overflow_y": "auto",
+          "at_latest": true
+        },
+        "grip_range": {
+          "now": 72,
+          "min": 72,
+          "max": 140
+        },
+        "grip_value": "72",
+        "rail_layout": {
+          "display": "flex",
+          "flex_direction": "column",
+          "flex_wrap": "nowrap",
+          "nav_direction": "column",
+          "nav_wrap": "nowrap",
+          "nav_scroll_height": 336,
+          "nav_client_height": 336,
+          "items": 9
+        },
+        "inspector": false,
+        "signal_animated": "false",
+        "signal_phase": "agent-signal agent-signal--offline",
+        "running_animations": 0,
+        "cards": 7,
+        "refreshed_from_push": true,
+        "scope_text": "200 shown · 2020 stored · older pages available · 7 painted"
+      }
+    }
+  ],
   "screenshots": [
     "f02-1440x900-100.png",
     "f02-1280x800-100.png",
@@ -2111,5 +5544,40 @@
     "f02-theme-afterglow-vivid.png",
     "f02-theme-afterglow-quiet.png"
   ],
-  "caveat": "The installed binary (build 176, commit d0c5ac2) predates the deck-smoke phase flag, so its second invocation repeated the whole suite instead of verifying a relaunch. Only the first invocation is used here. The restart is proven by the two-phase runs in f02-report.json and f03-packaged-deck-report.json, which use the current source."
+  "phase": "setup",
+  "project": "prj_aa4d52cfb8c48183",
+  "failed_screenshots": [],
+  "relaunch": {
+    "ok": true,
+    "checks": {
+      "studio_opened": true,
+      "window_is_visible_for_live_checks": true,
+      "relaunch_restores_focus_mode": true,
+      "relaunch_restores_the_draft": true,
+      "relaunch_started_no_runtime": true
+    },
+    "facts": {
+      "restoredFocus": true,
+      "restoredDraft": "Deck draft survives a resize, a zoom change, and a relaunch.",
+      "restoredDraftArrived": true,
+      "restoredConnection": "not_started",
+      "projects_listed": 0
+    },
+    "error": null
+  },
+  "target": {
+    "bundle": "/Applications/Mona.app",
+    "binary": "/Applications/Mona.app/Contents/MacOS/Mona",
+    "packaged": true
+  },
+  "electron": {
+    "setup": {
+      "exit": 0,
+      "stderr": "[deck] append start 1440x900-100\n[deck] append done 1440x900-100 seq=1212\n[deck] push sent 1440x900-100\n[deck] refreshed 1440x900-100 true\n[deck] tail start 1440x900-100\n[deck] tail done 1440x900-100\n[deck] layout done 1440x900-100\n[deck] append start 1280x800-100\n[deck] append done 1280x800-100 seq=1414\n[deck] push sent 1280x800-100\n[deck] refreshed 1280x800-100 true\n[deck] tail start 1280x800-100\n[deck] tail done 1280x800-100\n[deck] layout done 1280x800-100\n[deck] append start 1280x800-125\n[deck] append done 1280x800-125 seq=1616\n[deck] push sent 1280x800-125\n[deck] refreshed 1280x800-125 true\n[deck] tail start 1280x800-125\n[deck] tail done 1280x800-125\n[deck] layout done 1280x800-125\n[deck] append start 1280x800-150\n[deck] append done 1280x800-150 seq=1818\n[deck] push sent 1280x800-150\n[deck] refreshed 1280x800-150 true\n[deck] tail start 1280x800-150\n[deck] tail done 1280x800-150\n[deck] layout done 1280x800-150\n[deck] append start 1280x800-200\n[deck] append done 1280x800-200 seq=2020\n[deck] push sent 1280x800-200\n[deck] refreshed 1280x800-200 true\n[deck] tail start 1280x800-200\n[deck] tail done 1280x800-200\n[deck] layout done 1280x800-200\n[deck] append start 1100x700-100\n[deck] append done 1100x700-100 seq=2222\n[deck] push sent 1100x700-100\n[deck] refreshed 1100x700-100 true\n[deck] tail start 1100x700-100\n[deck] tail done 1100x700-100\n[deck] layout done 1100x700-100\n[deck] persistence start\n[deck] persistence layout done\n[deck] persistence stored\n[deck] fullscreen entered=true\n[deck] fullscreen settled\n[deck] fullscreen measured\n"
+    },
+    "relaunch": {
+      "exit": 0,
+      "stderr": ""
+    }
+  }
 }

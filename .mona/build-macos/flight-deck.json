@@ -7,19 +7,20 @@
   "platform_qualified": "macOS 26.5.1 arm64, Electron 45.3.0, real renderer at 100-200% zoom",
   "installed_build": {
     "current": {
-      "build": 176,
-      "commit": "d0c5ac2",
-      "receipt": "/Library/Application Support/Mona/install-receipt.json",
-      "verified_from_own_bytes": true
-    },
-    "candidate": {
-      "build": 177,
+      "build": 178,
+      "commit": "c66cd31",
       "channel": "local",
-      "package": "packaging/macos/out/Mona-0.1.0-macOS-arm64-local.pkg",
-      "note": "built from HEAD; not yet installed (needs sudo in the owner terminal)"
+      "receipt": "/Library/Application Support/Mona/install-receipt.json",
+      "installed_at": "2026-11-16T02:33:39Z",
+      "verified_from_own_bytes": true,
+      "app_code_identical_to_head": true
+    },
+    "previous": {
+      "build": 176,
+      "commit": "d0c5ac2"
     }
   },
-  "next": "none — reinstall of build 177 is Needs the Human (F03-INSTALL-AUTH)",
+  "next": "none — F00–F04 complete; only human judgements remain (F02-LIVE-PHASES)",
   "tasks": {
     "F00": {
       "status": "completed",
@@ -41,15 +42,14 @@
       ]
     },
     "F03": {
-      "status": "completed_with_human_step",
+      "status": "completed",
       "evidence": [
         "docs/evidence/macos/studio-flight-deck/F03-package-and-install.md",
         "docs/evidence/macos/studio-flight-deck/f03-installed-package-smoke.json",
         "docs/evidence/macos/studio-flight-deck/f03-installed-deck-report.json",
         "docs/evidence/macos/studio-flight-deck/f03-installed-launch.png",
         "docs/evidence/macos/studio-flight-deck/f03-packaged-deck-report.json"
-      ],
-      "note": "Installed copy verified from its own bytes (13 components hash-ok, arm64, standard location, no runtime/inference), passes the 232-check deck layout suite in one launch, and launches/quits via LaunchServices. Reinstalling build 177 needs the owner because sudo cannot prompt here."
+      ]
     },
     "F04": {
       "status": "completed",
@@ -77,10 +77,11 @@
     },
     {
       "id": "F03-INSTALL-AUTH",
-      "scope": "installing build 172 into /Applications",
-      "status": "Needs the Human",
+      "scope": "installing the built package into /Applications",
+      "status": "resolved",
       "no_progress_attempts": 1,
-      "next_action": "In your own Terminal: cd ~/DS_Projects/Mona && npm run mac:install  (it asks for the administrator password). Then re-run the installed-copy checks listed in F03-package-and-install.md."
+      "resolution": "owner installed build 178; verified from its own bytes (package smoke 13 components hash-ok, 268/268 two-phase deck suite incl. relaunch, clean launch/quit, app code byte-identical to HEAD)",
+      "next_action": "none"
     }
   ],
   "human_checks": [
@@ -109,19 +110,22 @@
     "r11": "passed_with_exception (idle memory vs this host 362 MiB Electron floor); idle CPU 0.04%",
     "ledger": "monabuild validate clean at revision 1534; 32 hashes refreshed individually with notes",
     "package": "build 176 local channel; all pre-install gates and uninstall rehearsal ok",
-    "installed": "build 176 from d0c5ac2 verified from its own bytes; renderer identical to HEAD",
+    "installed": "build 178 from HEAD c66cd31, verified from its own bytes; app dist (131 files) byte-identical to a fresh build",
     "review": "independent adversarial review; 4 real defects fixed (clipboard text in artifacts, Escape stolen from dialogs, aria-valuenow below its minimum at 150%/200%, vacuous narrow-window check)",
     "restart": "relaunch restored Focus preference and the draft; no runtime started",
     "fullscreen": "entered and left through the deck control via AppKit",
     "installed_deck_suite": {
-      "checks": 232,
+      "checks": 268,
       "ok": true,
+      "phases": "setup + genuine relaunch, run against /Applications/Mona.app",
       "report": "docs/evidence/macos/studio-flight-deck/f03-installed-deck-report.json"
     },
     "installed_package_smoke": {
       "ok": true,
       "components": 13,
+      "sha256_ok_all": true,
       "report": "docs/evidence/macos/studio-flight-deck/f03-installed-package-smoke.json"
-    }
+    },
+    "installed_launch": "LaunchServices launch and quit clean; capture f03-installed-launch.png"
   }
 }

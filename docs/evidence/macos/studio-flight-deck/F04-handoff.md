@@ -17,9 +17,9 @@ host's record and is historical).
   `codesign --verify --deep --strict` clean.
 - **That package passes the two-phase deck run** — 268/268, including the relaunch
   — so build 177's own bytes are qualified, not just its source.
-- **Installed:** `/Applications/Mona.app` is build **176** from commit `d0c5ac2`,
-  verified from its own bytes against the 232-check deck suite. See "Installed and
-  verified" below.
+- **Installed:** `/Applications/Mona.app` is build **178** from this commit,
+  verified from its own bytes against the 268-check two-phase deck suite. See
+  "Installed and verified" below.
 - **Engine:** pinned 0.10.2 `ff466b2ed0bf`, sha256 `da0229610647f1cc2…`, verified
   against the installed bytes by the packaging script. Unchanged.
 - **Provider route:** unchanged. Nothing in this work touches the profile, model,
@@ -88,37 +88,26 @@ repository writes and is correct.
 
 ## Installed and verified
 
-`/Applications/Mona.app` is build **176** from commit `d0c5ac2` (receipt:
-`/Library/Application Support/Mona/install-receipt.json`, installed
-2026-11-15T21:52:15Z). It was verified against its own bytes, not assumed:
+`/Applications/Mona.app` is build **178** — the current HEAD — with the installer's
+receipt at `/Library/Application Support/Mona/install-receipt.json`
+(`installed_at` 2026-11-16T02:33:39Z). It was verified against its own bytes:
 
-- its own **package smoke** passes in a scrubbed `HOME`: packaged, arm64, channel
+- its **package smoke** passes in a scrubbed `HOME`: packaged, arm64, channel
   `local`, standard install location, **13 components hash-ok**,
   `runtime_started: false`, `inference_calls: 0`;
-- the **232-check deck layout suite** passes against it in one launch;
+- the **268-check two-phase deck suite** passes against `/Applications/Mona.app`,
+  including native full screen and a real relaunch that restored the Focus
+  preference and the composer draft, with no runtime started;
 - it **launches and quits through LaunchServices**, with the owner's own projects
-  listed and the engine reported as disconnected.
+  listed and the engine reported disconnected;
+- its `Contents/Resources/app/dist` — main bundle, renderer bundle, preload,
+  **131 files** — is byte-identical to a fresh build of HEAD. The only difference
+  in the component manifest is the list of bundled evidence documents, by the
+  three files created after the install.
 
-Build 176's renderer is byte-identical to HEAD (`git diff d0c5ac2..HEAD --
-src/renderer/ test/` is empty); the only delta is the qualification harness. So the
-installed product is the flight deck, and the deck's layout is proven in the app
-the owner actually opens.
-
-## The one remaining human step (optional)
-
-Reinstalling so the bundle on disk is build 177 from HEAD. That changes only the
-embedded test harness.
-
-```sh
-cd ~/DS_Projects/Mona
-npm run mac:install
-node scripts/deck-smoke.mjs --app /Applications/Mona.app
-```
-
-The second command then proves the relaunch from `/Applications` itself. This
-session cannot run the first: `process.stdin.isTTY` is false, `sudo -n` reports a
-password is required, and a prompted SecurityAgent sheet does not render here.
-Recorded as `F03-INSTALL-AUTH`; nothing bypassed.
+The install itself required an administrator credential this session could not
+supply, so it was recorded as `F03-INSTALL-AUTH` rather than worked around. The
+owner installed it, and the blocker is resolved with this evidence.
 
 ## Remaining human checks (none blocking a queue item)
 
@@ -136,14 +125,14 @@ Recorded as `F03-INSTALL-AUTH`; nothing bypassed.
 
 ## Rollback
 
-Installing 176 replaces only the app bundle and the Finder Service. Build 170 is
-reproducible from git history with `npm run mac:package:local`, so nothing must be
-preserved by hand. Project folders, `.mona/` state, `~/.codewhale` and credentials
-are untouched, and the uninstall rehearsal proves unrelated content survives.
+Installing replaces only the app bundle and the Finder Service. Any earlier build
+is reproducible from git history with `npm run mac:package:local`; the previous
+install was build 176 (`d0c5ac2`). Project folders, `.mona/` state, `~/.codewhale`
+and credentials are untouched, and the uninstall rehearsal proves unrelated
+content survives.
 
 ## Next eligible prompt
 
-**None.** F00–F02 and F04 are complete; F03's packaging and packaged-binary
-verification are complete and its install step is Needs the Human. The queue's
+**None.** F00–F04 are complete, including packaging and installation. The queue's
 state is `.mona/build-macos/flight-deck.json`; the resume pointer is
-`.mona/build-macos/HANDOFF.md`. Nothing has been pushed to a remote.
+`.mona/build-macos/HANDOFF.md`. The deck work is on `origin/main` at `c66cd31`.

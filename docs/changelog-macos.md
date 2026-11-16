@@ -7,15 +7,16 @@ what each build changed and, where a decision shaped the product, its reference 
 are `git rev-list --count HEAD` at package time, so they are monotonic but not
 semantic.
 
-## Unreleased — Studio flight deck, build 177 (2026-11-15)
+## 0.1.0 — build 178 (2026-11-15)
 
 Qualified on the owner's Mac: `npm run ci` green (26 steps, the deck layout run is
 one of them), 1,189 tests, and a 268-check native layout run (`npm run smoke:deck`)
 that includes a genuine restart. The package is built and verified from its own
-bytes, and build 176 of it is **installed and verified against the installed
-copy**. Build 177 (this tree) differs only in the test harness; replacing the
-installed bundle with it is one `npm run mac:install` in the owner's terminal.
-Evidence:
+bytes, and **build 178 is installed** at `/Applications/Mona.app` and verified
+against the installed copy itself: its package smoke passes with 13 components
+hash-ok, the 268-check two-phase deck suite passes against it including native
+full screen and a real relaunch, and its application code is byte-identical to a
+fresh build of this commit. Evidence:
 `docs/evidence/macos/studio-flight-deck/`.
 
 - **The window no longer scrolls.** Studio and Focus are bounded to the viewport

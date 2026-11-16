@@ -1,44 +1,37 @@
 # Current continuation — Studio flight deck (2026-11-15)
 
-The deck is integrated, qualified on this Mac, **installed**, and verified against
-the installed copy. One optional action is yours: reinstalling so the bundle on
-disk matches the newest commit, which only changes the test harness.
+**The queue is finished.** F00–F04 are complete, the deck is installed, and the
+installed copy is verified from its own bytes. What remains are human judgements,
+all recorded as Needs the Human.
 
-- **Branch:** `studio-flight-deck` off `c334cbb`, HEAD `4dc9928` (build 177).
-  Your two pre-existing commits (the D-113 dispatch guard and the route repair)
-  are intact. Nothing has been pushed.
+- **Branch:** `studio-flight-deck`, HEAD `c66cd31` (build 178), pushed — `origin/main`
+  is the same commit. Your two pre-existing commits (the D-113 dispatch guard and
+  the route repair) are intact.
 - **Source checks:** `npm run ci` green, all **26** steps (the deck smoke is one of
-  them); 1,189 tests in 108 files; typecheck, lint, format and build clean;
-  secret scan 0 findings; ledger validates clean at revision 1571.
-- **Native layout:** `npm run smoke:deck` — **268 checks**: six window/zoom
+  them); 1,189 tests in 108 files; typecheck, lint, format, build clean; secret
+  scan 0 findings; `monabuild validate` clean.
+- **Deck layout:** `npm run smoke:deck` — **268 checks**: six window/zoom
   arrangements, a 1,200-frame and 8,000-line load, composer re-clamp, keyboard,
-  receipts, reduced motion, both themes, native full screen, and a genuine
-  **second launch** that restored the Focus preference and the draft.
-- **Installed:** `/Applications/Mona.app` is build **176** (commit `d0c5ac2`;
-  receipt at `/Library/Application Support/Mona/install-receipt.json`). Verified
-  from its own bytes — package smoke `ok`, 13 components hash-ok, arm64, standard
-  location, no runtime and no inference — and the **232-check deck suite passes
-  against it**, with a clean LaunchServices launch and quit. Its renderer is
-  byte-identical to HEAD; only the harness differs.
+  receipts, reduced motion, both themes, native full screen, and a genuine second
+  launch that restored the Focus preference and the draft.
+- **Installed:** `/Applications/Mona.app` is build **178** from this commit
+  (receipt `/Library/Application Support/Mona/install-receipt.json`, installed
+  2026-11-16T02:33:39Z). Verified against the installed copy itself: its package
+  smoke passes with 13 components hash-ok, arm64, standard location, zero runtime
+  and zero inference; the **268-check two-phase deck suite passes against it**
+  including the relaunch and full screen; LaunchServices launch and quit are clean.
+  `Contents/Resources/app/dist` (131 files) is byte-identical to a fresh build of
+  HEAD.
 - **Evidence:** `docs/evidence/macos/studio-flight-deck/` — `F00-integration.md`,
   `F01-source-qualification.md`, `F02-native-layout.md`,
   `F03-package-and-install.md`, `F04-handoff.md`, the `f02-*`/`f03-*` reports and
   captures, and the command transcripts.
 
-**Next exact action — yours, and optional:** in your own Terminal,
-`cd ~/DS_Projects/Mona && npm run mac:install`. That replaces build 176 with build
-177 (harness-only difference) and re-runs the install-side gates. Then
-`node scripts/deck-smoke.mjs --app /Applications/Mona.app` proves the relaunch from
-`/Applications` itself. `F03-INSTALL-AUTH` in `BLOCKERS.md` has the reason this
-session could not do it and the rollback path.
+**Next exact action:** none. There is no unblocked prompt left and no automated
+check outstanding. The four items below are judgements only a person can make.
 
-**Remaining human checks (none blocking anything):** the VoiceOver walkthrough,
-the aesthetic judgement of the installed build, one real turn watched to confirm
-the animated activity phases, and one physical Enter keypress (Electron's synthetic
-key event cannot show the browser's newline default).
-
-**Publishing:** eight commits are local and `origin/main` is behind. Push is your
-decision; the agent does not publish.
+**Publishing:** the deck work is on `origin/main` at `c66cd31`. Evidence committed
+after that push is local only; pushing it again is your call.
 
 The prior build's handoff notes follow, and are historical until the install
 above replaces them.

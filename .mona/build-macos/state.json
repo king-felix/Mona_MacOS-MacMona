@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "revision": 1574,
+  "revision": 1577,
   "project": "Mona",
   "spec_version": "macOS-1.0",
   "platform": "darwin-arm64",
@@ -2293,8 +2293,8 @@
         },
         {
           "path": ".mona/build-macos/HANDOFF.md",
-          "sha256": "db68a2520276c7b90de7b8354eeacba9f8fba39cc830c24ae077ce050f7dfb5b",
-          "note": "F04 third pass: handoff records the verified installed copy (build 176), the build-177 package, and the restart evidence."
+          "sha256": "a4cc40d08bec9b92c9febbef549b3dae632a5d5bc8ccfe92380917f31d336340",
+          "note": "F04 closeout: handoff records the installed build 178, the resolved install blocker, and the installed-copy verification."
         }
       ],
       "blocker_ids": []
@@ -2524,8 +2524,8 @@
         },
         {
           "path": ".mona/build-macos/HANDOFF.md",
-          "sha256": "db68a2520276c7b90de7b8354eeacba9f8fba39cc830c24ae077ce050f7dfb5b",
-          "note": "F04 third pass: handoff updated after installing and verifying the copy."
+          "sha256": "a4cc40d08bec9b92c9febbef549b3dae632a5d5bc8ccfe92380917f31d336340",
+          "note": "F04 closeout: handoff updated after the verified install of build 178."
         },
         {
           "path": "test/work-git.test.ts",
@@ -2772,8 +2772,8 @@
         },
         {
           "path": "docs/changelog-macos.md",
-          "sha256": "417c979b28cb6d61c59e3ea6bf7ea97be6205144bfcdcd4e3ac9d2e0591a2345",
-          "note": "F04 third pass: changelog states build 176 is installed and verified, build 177 differs only in the harness."
+          "sha256": "28a9b08799ef1596b9de1c9cd0114886d1a52121aab1aee3d731e3468b3f01be",
+          "note": "F04 closeout: changelog records build 178 installed and verified against the installed copy."
         }
       ],
       "blocker_ids": []
@@ -2783,7 +2783,7 @@
     "P22",
     "P25"
   ],
-  "last_checkpoint_utc": "2026-11-16T02:29:52.523Z",
+  "last_checkpoint_utc": "2026-11-16T02:45:15.424Z",
   "environment": {
     "host": {
       "model_identifier": "Mac15,12",

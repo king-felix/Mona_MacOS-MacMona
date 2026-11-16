@@ -1,22 +1,22 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-11-16T02:29:52.643Z",
+  "generated_utc": "2026-11-16T02:45:15.537Z",
   "git": {
     "available": true,
-    "commit": "4dc9928b29be11efe505ac7af26648d9c0f82c36",
+    "commit": "c66cd31b19827aef095c42dd438934da4d6c3f1d",
     "dirty": true
   },
-  "digest": "edba818115ea5e1a7243a80b43b07d6e503d3aeb5f5e94a78c8c9dc432f11f58",
+  "digest": "75a3fd17a40c754da4cc88939bdc1b7ea075594d5830b10b4ae62b614fbbea91",
   "files": [
     {
       "path": ".mona/build-macos/attempts.jsonl",
-      "sha256": "764f43d1bffe4fa7afe2c31be1802184059c99b2651048f75907ad2835bcd760",
-      "bytes": 4834
+      "sha256": "98602879a5154dac4983b3710b8a6c6663047b5bab104addcf8e38ec1f976d2d",
+      "bytes": 5339
     },
     {
       "path": ".mona/build-macos/state.json",
-      "sha256": "dc693f16da32d066856f10742e2daac44ded62dc899cd5177869254e624d88c4",
-      "bytes": 172845
+      "sha256": "400a767fcbe475085f3b9757dd99748415c9fd795c3062d9c373727a58956f77",
+      "bytes": 172827
     },
     {
       "path": "AGENTS.md",
@@ -1720,43 +1720,43 @@
     },
     {
       "path": "docs/evidence/macos/studio-flight-deck/f02-1100x700-100.png",
-      "sha256": "a3bffcf5156e725cc41b0e51e43b54884d8d85eb102c1d7df72f5ccc6e99ed7e",
-      "bytes": 604501
+      "sha256": "567a70f386370a07fee58f7d138c3f831ce3372ba76421e3c46b71256c2cf239",
+      "bytes": 604404
     },
     {
       "path": "docs/evidence/macos/studio-flight-deck/f02-1280x800-100.png",
-      "sha256": "98186ddc182d8a480ad2d02c39d0c8e7c62a1ec5c3d8a01f3b8a85dc599f6177",
-      "bytes": 682200
+      "sha256": "5d706b2643a927427981397bea06cf46b3d6135647a0f8cf22ebea27e19c0a12",
+      "bytes": 682666
     },
     {
       "path": "docs/evidence/macos/studio-flight-deck/f02-1280x800-125.png",
-      "sha256": "cfa3af94b53254344afcc2702cd1f872a6db8e29ea09d4522154c61e563187f1",
-      "bytes": 760122
+      "sha256": "2c3977dfc702e7f86727cfd4f895595e41ec093234725fcd5c8788cb30e97bf5",
+      "bytes": 760616
     },
     {
       "path": "docs/evidence/macos/studio-flight-deck/f02-1280x800-150.png",
-      "sha256": "9471d1af5179baf7e0a6d1ace3123622fb4aa3dabe892f80c29ba625a1818fbf",
-      "bytes": 572367
+      "sha256": "b7d9fb3f31749ac45b7c4bd73d253a40c6c0de6bb6ae254a31a260778592febb",
+      "bytes": 572772
     },
     {
       "path": "docs/evidence/macos/studio-flight-deck/f02-1280x800-200.png",
-      "sha256": "11583e76dbee064c37d1de6b1c2e145e222ff9610cbd6778da02c79fee5e6f45",
-      "bytes": 590249
+      "sha256": "561e7d506f449bd5e0f1ab9d97cc6585e95447d6a43a6f0ae9be37b147cf1cbc",
+      "bytes": 590608
     },
     {
       "path": "docs/evidence/macos/studio-flight-deck/f02-1440x900-100.png",
-      "sha256": "83af89ee9074972bc3a918df09d4bc76de2441427e20bb10ed23a783d5265c0b",
-      "bytes": 609814
+      "sha256": "77dca898d385f5259ad9aa4ff09ed7e1eb74a5fa03e22f4c2157f2c9125df61a",
+      "bytes": 610396
     },
     {
       "path": "docs/evidence/macos/studio-flight-deck/f02-more-actions-panel.png",
-      "sha256": "7707cd2208043cd71506815412a907e74210558da6ade134fce79a8c7ccca290",
-      "bytes": 724049
+      "sha256": "e037220c6bcd0bde13f6d3e5b819e6af6635a69e3ddfbbbba9b23f134bb3bfcd",
+      "bytes": 724489
     },
     {
       "path": "docs/evidence/macos/studio-flight-deck/f02-narrow-760x700.png",
-      "sha256": "475d2fd658e912929c7634c4b8b7375a007c2150a6641d9d9d1b070e1935f997",
-      "bytes": 470049
+      "sha256": "d7e410bba752900e85ef00f2c7c72e6db5ee2472f2cad505a003f546b7717fcb",
+      "bytes": 470001
     },
     {
       "path": "docs/evidence/macos/studio-flight-deck/F02-native-layout.md",
@@ -1775,23 +1775,23 @@
     },
     {
       "path": "docs/evidence/macos/studio-flight-deck/f02-theme-afterglow-quiet.png",
-      "sha256": "e1563a691f7fdc32502f8af6c254b74047ceddb35abec43398b20d46058df4cb",
-      "bytes": 518013
+      "sha256": "8be6ed39bbfc900b92cf33cea6f4a7f81307b80278946df22d9f567982219b71",
+      "bytes": 518738
     },
     {
       "path": "docs/evidence/macos/studio-flight-deck/f02-theme-afterglow-vivid.png",
-      "sha256": "a148282532bb863d385eb22d85cd428ea3bc3ee07a9bffb698b23fbed88fc873",
-      "bytes": 734587
+      "sha256": "4bbc3895a2f4489ea830d1ed187f47a140e85cd50baa424059e62bec4e688c96",
+      "bytes": 734940
     },
     {
       "path": "docs/evidence/macos/studio-flight-deck/f02-theme-daybreak-vivid.png",
-      "sha256": "92f56c9eda016692bb396088c3f2e0fd2427305309eb1a8c38931f02e2cd598b",
-      "bytes": 696515
+      "sha256": "83964182bb105909de390d0db1718a8607986c04258079510c4c2d0a0fcb63d8",
+      "bytes": 697023
     },
     {
       "path": "docs/evidence/macos/studio-flight-deck/f03-installed-deck-report.json",
-      "sha256": "5deee840a7375cbe839cf14413531ab88a8bff7d8beac0317de6da73cb407c96",
-      "bytes": 59896
+      "sha256": "229074828400e62b79e6412eee8f50d08802e1910845dab025ce2847f88037b7",
+      "bytes": 147948
     },
     {
       "path": "docs/evidence/macos/studio-flight-deck/f03-installed-deck-smoke.log",
@@ -1800,18 +1800,18 @@
     },
     {
       "path": "docs/evidence/macos/studio-flight-deck/f03-installed-launch.png",
-      "sha256": "567051fbd3b93ef1f22bb06cb3b8975fb6d4e5fee53ce333ae919425aa879114",
-      "bytes": 2182003
+      "sha256": "069c1b80d4b5768b8de7aad3bb1cdc747df054c1c95a846d3d8fa3fd25f41426",
+      "bytes": 2244222
     },
     {
       "path": "docs/evidence/macos/studio-flight-deck/f03-installed-package-smoke.json",
-      "sha256": "bd3814918ad00772b56d00bc7e8d8496befddf14ca9a68728c94083c82fea470",
-      "bytes": 3245
+      "sha256": "f1fcb0ed3f9cacbf9992aed9105fefb7c8dac234d04a13fb8d0ede9c9335750f",
+      "bytes": 3247
     },
     {
       "path": "docs/evidence/macos/studio-flight-deck/F03-package-and-install.md",
-      "sha256": "2aeb0a76104caf08db3ad1cba637326d2591b992e7a602c4e79f44c7e51b39e2",
-      "bytes": 5615
+      "sha256": "77d9c43537773499424ca426bc17f33b1b2c92fc855badc8fb73d0a3af5de58d",
+      "bytes": 6001
     },
     {
       "path": "docs/evidence/macos/studio-flight-deck/f03-packaged-deck-report.json",
@@ -1825,8 +1825,8 @@
     },
     {
       "path": "docs/evidence/macos/studio-flight-deck/F04-handoff.md",
-      "sha256": "73f754bb85bea6bd1ae8626dcb88c4f0ff73fa56898efeeab3efaf9435ebdeed",
-      "bytes": 8182
+      "sha256": "b7a8a0aba66c8ccd2e0768d16ce27fc264e619f458802691c930d9fec88904d5",
+      "bytes": 7991
     },
     {
       "path": "docs/evidence/macos/studio-flight-deck/format.txt",
